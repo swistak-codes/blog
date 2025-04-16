@@ -1,0 +1,319 @@
+import Link from 'next/link';
+import {Image, VideoPlayer} from '@swistak-codes/components';
+import cover from './pregowiec.jpg';
+import hex from './hexed.png';
+import compressed from './compressed.png';
+import eightBit from './8bit.png';
+
+export const meta = {
+  title: 'Przetwarzanie plików w praktyce — obrazy BMP',
+  abstract:
+    'BMP to najprostszy format zapisu obrazów. W tym artykule nauczymy się przetwarzać pliki binarne na jego przykładzie.',
+  firstParagraph: (
+    <>
+      <Link
+        href="/post/nie-liczby-jako-liczby-czyli-zapis-danych-cyfrowych">W artykule o zapisie nie-liczb jako
+        liczby</Link> wspomniałem o tym, jak różnego rodzaju media możemy zapisywać w postaci binarnej. Wspomniałem
+      między innymi o zapisie obrazów jako BMP, czyli najprostszej formie, w jaki sposób można to robić. Dlatego też
+      przejdźmy nieco do programowania i spróbujmy sami zaprogramować odczyt takich plików.
+    </>
+  ),
+  keyword: 'bmp',
+  categories: ['Programowanie', 'Przetwarzanie danych', 'Grafika komputerowa'],
+  tags: [
+    'bmp',
+    'javascript',
+    'przetwarzanie plików',
+    'canvas',
+    'piksel',
+    'przestrzeń barw',
+    'paleta barw',
+    'płótno',
+    'parser',
+    'format pliku',
+    'system heksadecymalny',
+    'system szesnastkowy',
+    'przesunięcia bitowe',
+    'little endian',
+    '2d'
+  ],
+  slug: 'przetwarzanie-plikow-w-praktyce-obrazy-bmp',
+  updateTime: '2021-08-17T16:38:12+00:00',
+  publishTime: '2020-10-28T10:00:57+00:00',
+  cover,
+};
+
+## Czy do czegoś mi się to przyda? Po co to robić?
+
+Na początek, myślę, że warto odpowiedzieć na pytanie, po co w ogóle pisać takie rzeczy. Oczywiście całkowicie rozumiem argumenty, że jest to już zrobione i gotowe, że nie przyda się w pracy, że w praktyce to by się zrobiło to kilkoma linijkami kodu. Więc dlaczego warto, będąc programistą, rozwiązywać takie „mało-praktyczne” problemy?
+
+- Uczymy się w ten sposób czytać dokumentację. Opisy formatów plików są pisane często w bardzo zwięzły sposób i mocno techniczny, nie ma tu prowadzenia za rękę. Umiejętność programowania z takich informacji przydaje się w pracy, bo czasem musimy skorzystać z biblioteki, która ma nie najlepszą dokumentację, albo osoba tworząca dla nas zadania może pisać je w bardzo zwięzły sposób.
+- Uczymy się rozwiązywać problemy oraz ćwiczymy zdolności algorytmiczne. Odczyt pliku to wiele operacji różnego rodzaju, czasem nietypowych. Nawet na tym prostym przykładzie zobaczymy, że nie zawsze kodowanie jest takie oczywiste, jak mogłoby się wydawać, i trzeba do pewnych rzeczy podejść nieszablonowo.
+- Ćwiczymy umiejętności programistyczne. Z jednej strony możemy poznać w ten sposób jakiś język programowania od innej strony, niż zawsze używamy (np. w JavaScript zamiast tworzyć interakcje na stronie, odczytujemy plik). Z drugiej strony, będąc programistą, musimy wiedzieć, że zawód ten to ciągła nauka i warto zdobywać nową wiedzę. Chyba że posiadając jeden z najbardziej rozchwytywanych zawodów, chcemy być wiecznie juniorem bądź (gdy za kilka lat zmienią się technologie) stać się bezrobotnym.
+
+Na sam koniec uwierzcie mi, że rozwiązanie jakiegoś problemu samodzielnie jest po prostu satysfakcjonujące. Można to potraktować jako rodzaj zagadki logicznej, która nas rozwija, a jednocześnie jej rozwiązywanie daje frajdę. W końcu najważniejsze jest to, żeby robić to, co się lubi, a ciężko być dobrym programistą nie lubiąc programować.
+
+## Pojęcia
+
+Z racji, że będę momentami posługiwać się nieco bardziej specjalistycznym słownictwem, postanowiłem na początku artykułu podać kilka podstawowych pojęć. Zapewne będą się często przewijać, stąd lepiej znać je wcześniej:
+
+- Piksel — pojedynczy punkt na obrazie, najczęściej równoważny pojedynczemu punktowi na ekranie monitora
+- Przestrzeń barw — najprościej mówiąc: liczba kolorów, które możemy użyć, i format ich zapisu; tutaj format zapisu będzie zawsze RGB (od ang. Red Green Blue, czyli kolor składa się z czerwonego, zielonego i niebieskiego w określonych natężeniach), natomiast liczba kolorów jest zależna od tego, ile bitów poświęcamy na każdą z trzech barw składowych. Jeżeli każda będzie zapisana ośmioma bitami (czyli cały piksel będzie zajmować 24 bity), to wówczas barw mamy $$256^3 = 16777216$$
+- Paleta barw — jest to określony zbiór kolorów, który używamy przy rysowaniu. Jeżeli korzystamy z palety, to najpierw definiujemy, jaki kolor odpowiada danemu identyfikatorowi, a potem przy rysowaniu odwołujemy się do nich.
+- Płótno — w ten sposób będę nazywać obszar ekranu, po którym rysujemy. Nazwa wzięła się stąd, że w wielu bibliotekach graficznych miejsce do rysowania na ekranie nazywane jest angielskim słówkiem canvas. Mówiąc o rysowaniu po ekranie, warto zwrócić uwagę na współrzędne. W informatyce ogólnie przyjęte jest, że punkt (0,0) znajduje się w lewym górnym rogu, a nie, jak to możesz pamiętać z lekcji matematyki, w lewym dolnym rogu. Pomijając położenie punktu zerowego, płótno jest najzwyklejszym kartezjańskim układem współrzędnych.
+- Parser — aplikacja, biblioteka lub część aplikacji odpowiedzialna za przetwarzanie danych do obsługiwanego przez nas formatu danych. W naszym przypadku będzie to przetwarzanie plików BMP na rysunek na ekranie.
+
+## Przygotowanie do rozwiązania
+
+Na samym początku chciałbym ostrzec, że w artykule tym nie będę opisywać po kolei jak odczytać plik BMP. Bardziej chciałbym się skupić na tym, w jaki sposób rozwiązywać problemy tego typu, abyś czytając ten artykuł, wyniósł(a) wiedzę jak za takie coś się zabrać w sposób bardzo ogólny. Nie ma sensu po prostu opisać formatu BMP, bo od tego jest wiele innych miejsc w Internecie.
+
+### Język programowania
+
+Aby zacząć, najpierw wybierz język programowania, w którym chcesz to wykonać. Jedyne tutaj wymaganie jest takie, aby być w stanie odczytać w tym języku plik (niemal każdy) i móc w jakikolwiek sposób rysować po ekranie (większość). W przypadku tego artykułu wykorzystam język JavaScript ze względu na jego popularność oraz to, że sam korzystam z niego na co dzień. Samego odczytu plików i rysowania po ekranie opisywać tutaj nie będę, więc musisz sobie samodzielnie to wyszukać. Natomiast jeśli chciałbyś podążać razem ze mną i pisać w JavaScript, możesz wykorzystać prosty szablon, który zrobiłem na potrzeby tego kursu i umieściłem na serwisie CodeSandbox: [https://codesandbox.io/s/js-bmp-parser-template-fm1yc](https://codesandbox.io/s/js-bmp-parser-template-fm1yc).
+
+Jednakże jeśli nie chcesz czytać dalej, tylko interesuje Cię gotowe rozwiązanie, to znajdziesz [je na moim GitHubie](https://github.com/swistak-codes/js-bmp-parser) oraz na [CodeSandbox](https://codesandbox.io/s/github/tswistak/js-bmp-parser), gdzie możesz je od razu przetestować.
+
+### Dokumentacja
+
+Drugi krok to znalezienie dokumentacji do rozwiązania naszego problemu, w tym przypadku opisu formatu pliku BMP. Na szczęście jest to na tyle powszechny format, że jego definicję znajdziemy nawet na [Wikipedii](https://en.wikipedia.org/wiki/BMP_file_format#File_structure). Tam jest jednak bardzo dużo informacji i nie wszystkie mogą być dla nas przydatne, dlatego warto znaleźć też coś bardziej zwięzłego. Osobiście korzystając z wyszukiwarki, znalazłem [taką stronę](http://www.ece.ualberta.ca/~elliott/ee552/studentAppNotes/2003_w/misc/bmp_file_format/bmp_file_format.htm), która zawiera moim zdaniem wszystko to, co potrzebujemy. Polecam obie strony otworzyć i je na razie pobieżnie przeczytać.
+
+Aby poprawnie odczytać taką dokumentację, wyjaśnię kilka podstawowych pojęć. W tabelkach, zarówno na Wikipedii, jak i drugiej stronie, znajdziemy zwykle kolumny Offset, Size i Description/Purpose/Comments. Są one dla nas bardzo istotne, ponieważ:
+
+- Offset wskazuje nam na pozycję od początku pliku, gdzie trafimy na wskazaną informację. Może być zapisana w postaci heksadecymalnej (hex) lub dziesiętnej (dec). Format jest tutaj mniej istotny, ponieważ oba możemy przedstawić bez problemu w językach programowania. Warto tutaj zauważyć, że w przypadku drugiej strony na końcu wartości Offset mamy literkę „h” — oznacza ona system szesnastkowy (tak samo jak 16 w indeksie dolnym). Ja natomiast będę stosować zapis 0x\[liczba\], gdzie, przykładowo, 0x0A to jest to samo co $$A_{16}$$. Stosuję taki zapis, ponieważ w wielu językach programowania w ten sposób zapisujemy liczby szesnastkowe (przykładowo w JavaScript, który używam w przykładzie).
+- Size mówi nam, ile bajtów zajmuje dany obszar. Dzięki temu wiemy, ile kolejnych bajtów musimy odczytać, aby dostać informację w całości. Przykładowo, jeżeli mamy Offset 2, a Size 4, to musimy odczytać kolejno bajty: 2, 3, 4, 5.
+- Description/Purpose/Comments mówi nam o tym, co możemy w danym miejscu pliku odczytać. Dzięki temu wiemy, czy dla naszych celów potrzebujemy odczytać dane miejsce, czy też nie. Czasem także, szczególnie w przypadku sygnatur pliku, w danych fragmentach możemy oczekiwać konkretnych znaków i często w dokumentacjach znajdziemy po prostu same te znaki bez dodatkowego komentarza.
+
+### Ograniczenie problemu
+
+Patrząc na definicje na Wikipedii, możemy zauważyć, że format BMP wcale nie jest tak prosty i oczywisty, jak mogłoby się to wydawać. Dlatego na potrzeby tego artykułu ograniczmy sobie nieco problem. Proponuję zrobić następujące (warto zajrzeć do zalinkowanego wyżej artykułu, ponieważ odnoszę się tutaj do niego):
+
+- Zakładamy, że nasz plik będzie zawsze zaczynał się od liter BM. Pozostałe formaty pochodzą z systemu OS/2 i jest bardzo niewielka szansa, że w dzisiejszych czasach trafimy jeszcze na takie pliki.
+- Z analogicznego powodu zakładamy, że nasz nagłówek będzie zapisany w standardzie BITMAPINFOHEADER.
+- W tym artykule nie chcemy omawiać kompresji, więc pominiemy zagadnienie kompresji RLE, która może być opcjonalnie stosowana w plikach BMP. Na nasze szczęście o wiele bardziej powszechne są nieskompresowane pliki (tak choćby zapisuje popularny Paint).
+- Pliki BMP mogą być zapisane z różnymi przestrzeniami barw. Jeżeli piksel zajmuje mniej niż 16 bitów, wówczas wewnątrz pliku jest zapisana paleta. Na potrzeby tego artykułu nie ma potrzeby programowania przetwarzania dodatkowych, opcjonalnych informacji. Także w przypadku 16 bitów mamy dwa formaty zapisu barw, więc również to chciałbym pominąć. Z tych też powodów ograniczmy się jedynie do 24-bitowych plików BMP. Istnieją też 32-bitowe, jednak są mało popularne, a tworzenie dodatkowych przypadków tylko niepotrzebnie skomplikowałoby nam nasz przypadek.
+
+## Analiza formatu pliku
+
+### Metadane
+
+Aby rozpocząć przetwarzanie pliku i zrobić to prawidłowo, musimy odczytać z niego metadane, czyli informacje o jego zawartości. Odnieśmy się do definicji pliku i znajdźmy to, co nas najbardziej będzie interesować, biorąc też pod uwagę powyższe ograniczenia. Spójrz w dokumentację i zastanów się nad tym sam, a potem wróć tutaj i zobacz, czy zgadzasz się ze spisem, który zamieszczam poniżej:
+
+- Sygnatura (pozycja 0x00, rozmiar 2 bajty) — dzięki niej dowiemy się, czy mamy do czynienia z plikiem BMP. Taka, jaka nas interesuje powinna zawierać znaki BM w kodowaniu ASCII, czyli 0x42 i 0x4D. Sprawdzenie sygnatury powinno być pierwszą rzeczą, którą wykonamy, ponieważ nie ma sensu odczytywać dalej, gdy ten fragment nie będzie się zgadzać.
+- Umiejscowienie danych (pozycja 0x0A, rozmiar 4 bajty) — to miejsce mówi nam, w którym momencie zaczynają się dane obrazu. Jest tak dlatego, ponieważ rozmiar nagłówka może się różnić w zależności od formatu zapisu, stąd aby nie szukać nadmiernie po pliku, dostajemy od razu wskazówkę, odkąd możemy czytać.
+- Szerokość (pozycja 0x12, rozmiar 4 bajty) i wysokość (pozycja 0x16, rozmiar 4 bajty) obrazu — jest nam potrzebna dlatego, że w pliku BMP nie mamy żadnego oznaczenia przejścia do nowej linii obrazu. Wszystkie dane są zapisane ciągiem, stąd musimy znać wysokość i szerokość, aby móc odpowiednio narysować nasz obraz. Prawdę mówiąc, w tym miejscu moglibyśmy zakończyć odczyt metadanych, jednak jest jeszcze kilka, które warto sprawdzić, aby uniknąć błędów odczytu gdyby się okazało, że dostaliśmy inny plik, niż się spodziewaliśmy (patrz wyżej ograniczenia).
+- Liczba bitów na piksel (pozycja 0x1C, rozmiar 2 bajty) — tutaj mamy zapisaną informację, ile bitów jest przeznaczonych na opis piksela. Ta informacja normalnie mówiłaby nam, ile kolejnych bitów musimy odczytywać, aby narysować piksel. W naszym uproszczonym przypadku po tym polu sprawdzimy, czy nasza bitmapa jest 24-bitowa.
+- Typ kompresji (pozycja 0x1E, rozmiar 4 bajty) — to pole mówi nam, czy bitmapa jest skompresowana, a jeżeli tak, to jakim sposobem. Jeżeli kompresji nie było, pole będzie wynosić 0 i to będzie nas interesować.
+
+Pozostałe metadane opisują rzeczy, które nie są nam potrzebne, takie jak, przykładowo, paleta barw (ta nie jest nam potrzebna, bo nie wspieramy plików 8 i mniej bitowych).
+
+Zobaczmy, jak to wygląda w prawdziwym pliku BMP. Wykorzystam do tego celu wspomniany w jednym z wcześniejszych artykułów serwis [hexed.it](https://hexed.it/). Na niebiesko zaznaczyłem metadane, które będziemy odczytywać:
+
+<Image
+  image={hex}
+  alignCenter
+  fullSize
+  alt="Zrzut ekranu z edytora heksadecymalnego pokazujący nagłówek pliku BMP"
+  caption={<>
+    Nagłówek przykładowego pliku BMP. Na niebiesko są zaznaczone obszary, które będą nas interesować przy pisaniu parsera. <br/>
+    (zrzut ekranu z serwisu hexed.it)
+  </>}
+/>
+
+### Sposób zapisu danych
+
+Kolejne, co nas interesuje, to jak zapisane są dane. Już z Wikipedii możemy odczytać bardzo ważną informację — liczby są zapisane jako little endian. Co to w praktyce oznacza? Że jeśli 4 kolejne bajty zawierają: C2 02 00 00 (jak możemy zobaczyć na zrzucie ekranu powyżej dla pola określającego szerokość), to nie czytamy ich jako $$C2020000_{16}$$, lecz jako $$02C2_{16}$$ (dla czytelności zera na początku pomijamy). Innymi słowy, bajty czytamy od tyłu.
+
+Następne istotne informacje, to jak zapisane są właściwe dane obrazu, na podstawie których będziemy rysować. Na stronie z dokumentacją znajdziemy je na samym końcu w Additional Info, co jest na swój sposób dość przewrotne, bo jest to dla nas najważniejsze. Podsumujmy te „dodatkowe” informacje:
+
+- Kolory są zapisane w postaci: niebieski, zielony, czerwony.
+- Obraz jest zapisany od końca, to znaczy pierwsza linia obrazu jest najniższą na obrazie.
+- Każda linia obrazu musi mieć długość podzielną przez 4. Oznacza to, że jeśli szerokość nie jest podzielna przez 4, to zostaje dopisanych tyle zerowych bajtów, aby było podzielne.
+
+## Przygotowanie do programowania
+
+W celu odczytania plików BMP musimy w wybranym przez nas języku programowania przygotować sobie kilka rzeczy, których tutaj szerzej omawiać nie będę. Jak wspomniałem na początku, jeżeli będziesz podążać razem ze mną z JavaScriptem, możesz skorzystać z szablonu, który znajdziesz [pod tym linkiem](https://codesandbox.io/s/js-bmp-parser-template-fm1yc?file=/src/drawBmp.js). Wszystkie rzeczy, o których piszę w przygotowaniu, już są tam gotowe. Tak więc, co musimy przygotować?
+
+- Odczyt pliku do tablicy bajtów. W wielu językach programowania metody do odczytu plików znajdziemy we wbudowanych bibliotekach pod nazwą IO (Input/Output). Warto zwrócić uwagę, że zwykle dostajemy plik w postaci strumienia danych i taki odczyt mógłby być najbardziej wydajny. Jednak dla uproszczenia warto sprowadzić to do postaci tablicy. Natomiast w przeglądarkowym JavaScript możemy to zrobić jedynie przez obsługę pola do wysyłania plików na stronie.
+- Płótno do rysowania. Najczęściej do tego celu musimy najpierw stworzyć okno aplikacji, a potem użyć w nim komponent umożliwiający swobodne rysowanie w jego wnętrzu. W JavaScript możemy wykorzystać do tego celu HTML-owy `<canvas>`. Będą dla nas przydatne dwie funkcje:
+  - zmiana rozmiaru płótna (opcjonalnie) — aby móc ustawić jego rozmiar tak, by cały plik BMP był widoczny. Powinna przyjmować wysokość i szerokość.
+  - ustawienie koloru wybranego piksela — najbardziej podstawowa i potrzebna dla nas funkcja. W tym celu powinna przyjmować pozycję piksela (współrzędne x i y) oraz kolor, na jaki go zabarwić (najprościej podać trzy składowe: czerwony, niebieski i zielony).
+
+Gdy tę wstępną część mamy przygotowaną, możemy przejść do właściwego odczytu pliku.
+
+## Przetwarzanie nagłówka pliku
+
+Aby wykonać tę część, musimy skorzystać ze zrobionej przez nas analizy. Dzięki niej wiemy, co po kolei powinniśmy odczytywać, czego się tam spodziewać i także, w jakim celu to miejsce odczytujemy. Zawsze wciąż można się posiłkować w tym miejscu dokumentacją. Omówmy więc po kolei.
+
+### Sprawdzenie, czy nasz plik to obraz BMP
+
+Pierwsze, co mieliśmy zrobić, to sprawdzić, czy plik, który otrzymaliśmy, jest plikiem BMP. W tym celu mieliśmy sprawdzić, czy na dwóch pierwszych bajtach znajdziemy literki B i M. Nie ma co tutaj kombinować — po prostu zamieniamy owe litery na ich kody ASCII, a następnie sprawdzamy, czy dwa pierwsze bajty pliku posiadają tę samą wartość. Jeżeli nie mamy pliku BMP, warto w tym momencie przerwać dalsze wykonywanie programu. W JavaScript zrobiłem to w następujący sposób (contents to tablica bajtów pliku BMP):
+
+```javascript
+// bajty których oczekujemy jako dwa pierwsze to litery BM w kodzie ASCII
+const BM = ["B".charCodeAt(0), "M".charCodeAt(0)]; // 0x42, 0x4D
+// sprawdzamy czy dwa pierwsze bajty są takie jakich oczekujemy
+const hasBM = contents[0x00] === BM[0] && contents[0x01] === BM[1];
+if (!hasBM) {
+  // jeżeli nie jest BMP, wyświetlamy komunikat i przerywamy odczyt
+  alert("To nie jest plik BMP");
+  return;
+}
+```
+
+Jeżeli zamiast zastosowania funkcji konwertującej znak na jego kod ASCII po prostu wpisałeś ten kod, to też jest to jak najbardziej prawidłowe rozwiązanie. Użyłem takiego tylko ze względu na czytelność.
+
+### Odczytanie pozycji, od której zaczyna się obraz
+
+Kolejna interesująca nas rzecz to pozycja w pliku, gdzie znajdują się dane obrazu. Jak możemy zobaczyć w dokumentacji, informacja ta znajduje się na pozycji 0x0A (10) i zajmuje 4 bajty. W takim razie musimy zrobić dwie rzeczy. Po pierwsze, odczytać te 4 bajty, a następnie zrekonstruować z nich liczbę. Musimy jednocześnie pamiętać, że zapisana jest ona w postaci little-endian, stąd musimy czytać „od tyłu”.
+
+Możesz w tym momencie zastanawiać się, jak to zrobić najlepiej. Odpowiem — operacją przesunięcia bitowego, którą opisałem w artykule o <Link href="/post/matematyka-zero-jedynkowa">matematyce binarnej</Link>. Dzięki niej będziemy mogli dosłownie przesunąć bajt na odpowiednią pozycję. Stąd musimy przesuwać o kolejne wielokrotności liczby 8 — 0, 8, 16 i 24. Dobra, tylko samo przesunięcie nie wystarczy, bo musimy jeszcze złożyć to w całość. Tutaj przyda nam się wiedza z logiki matematycznej, a dokładniej operacja alternatywy, znana też z angielskiej nazwy OR. W językach programowania najczęściej jest zapisywana symbolem |. Dlaczego ta operacja się przyda? Ponieważ w wyniku przesunięcia w lewo, z prawej strony liczba zostaje uzupełniona zerami. Operacja alternatywy działa w taki sposób, że jeśli jest na danej pozycji wartość inna niż 0, to owe zero zostanie nią zastąpione. Działa to mniej więcej tak, jak na przedstawionym poniżej schemacie:
+
+$$
+\begin{align*}
+C2_{16} \ll 0 &= C2_{16} \\
+A1_{16} \ll 8 &= A100_{16} \\
+00C2_{16} \lor A100_{16} &= A100_{16} \lor 00C2_{16} = A1C2_{16}
+\end{align*}
+$$
+
+W wyniku pierwszego przesunięcia oczywiście nie przesuwamy nic (w końcu o zero), jednak w drugim przypadku przesuwamy o 8 bitów, czyli 1 bajt. Dlatego w zapisie szesnastkowym dopisujemy na końcu dwa zera. Następnie, wykonujemy na obu tych liczbach operację alternatywy logicznej, która złącza nam tę liczbę w całość. Do C2 dopisałem na początku zera, aby operacja była bardziej czytelna (zera z lewej strony są neutralne i nie wpływają na wielkość liczby). Jak widzimy, zera z A100 zostały zastąpione przez C2 (i odwrotnie, zera w 00C2 zostały zastąpione przez A1).
+
+Skoro poznaliśmy teorię, czas to zapisać w języku programowania przy okazji odczytu pożądanej przez nas wartości z pliku BMP.
+
+```javascript
+const dataOffset =
+  contents[0x0a] |
+  (contents[0x0a + 1] << 8) |
+  (contents[0x0a + 2] << 16) |
+  (contents[0x0a + 3] << 24);
+```
+
+Tak tylko dodam, że warto zrobić sobie jakąś funkcję pomocniczą, która będzie robić to przeliczenie, ponieważ będziemy je stosować bardzo często.
+
+### Odczyt pozostałych metadanych
+
+Tak naprawdę wszystkie pozostałe metadane będziemy odczytywać w analogiczny sposób, jedynie pozostaje kwestia, co z nimi zrobimy. Następne w kolejności są szerokość oraz wysokość obrazu, to one przydadzą nam się do ustawienia rozmiarów płótna. Natomiast w dalszej kolejności mamy jedynie sprawdzanie, czy plik jest taki, jak chcemy. Po kolei: czy liczba bitów na piksel wynosi 24 oraz, czy wartość kompresji wynosi 0. Z racji ograniczeń, które nałożyliśmy, powinniśmy przerwać dalsze wykonanie programu jeśli wartości te są inne. Warto też dodać, że jeżeli jednak wspieralibyśmy w pełni format BMP, te dwie wartości determinowałyby nam, jak dalej powinien działać algorytm odczytu.
+
+## Odczyt danych obrazu
+
+### Założenia
+
+Teraz przechodzimy do najważniejszej części pliku, czyli danych obrazu. Aby zaprogramować tę część, musimy sobie odświeżyć wiedzę, w jaki sposób była zapisana, abyśmy wiedzieli, jak napisać pętlę przechodzącą po kolejnych bajtach.
+
+Dla uproszczenia tematu proponuję rozbić to na dwie pętle — pierwsza przechodząca po kolei po wierszach i następna, która przechodzi po kolejnych pikselach w wierszu. Innymi słowy, typowy sposób przechodzenia po dwuwymiarowych strukturach. Jedyna różnica jest taka, że tutaj nie odwołamy się do tablicy dwuwymiarowej, tylko cały czas mamy do czynienia z jednowymiarową. Pamiętajmy jednak, że rozbicie na dwie pętle jest tu nadmiarowe i jedna wystarczy w zupełności.
+
+### Odczyt wierszy obrazu
+
+Stosując powyższy sposób, najpierw musimy zająć się pierwszą tablicą, czyli przechodzącą po kolejnych wierszach. Jak pamiętamy, wiersze są zapisane od końca, więc zrobimy sobie ich odwrotny licznik. Zaczniemy odliczanie od wysokości obrazu i co iterację będziemy zmniejszać go o 1. Jednak to nie wszystko. Z racji, że nasza tablica jest jednowymiarowa, musimy wiedzieć, gdzie jest początek wiersza a gdzie jego koniec. Tutaj pojawiają nam się trzy informacje:
+
+- Jako drugą informację z metadanych odczytaliśmy początkową pozycję danych obrazu
+- Każdy piksel jest zapisany trzema bajtami
+- Jeżeli szerokość obrazu nie jest podzielna przez 4, to dopisujemy na końcu wiersza tyle zerowych bajtów, aby była podzielna.
+
+Co tak naprawdę możemy z tego wyciągnąć? Po kolei:
+
+- W zewnętrznej pętli zaczniemy przechodzić od pozycji początkowej. Oznacza to, że w pętli zmienna wyznaczająca wysokość będzie jedynie pomocnicza, a sama iteracja będzie nam się opierać na pozycji w pliku.
+- Skoro piksel zajmuje 3 bajty, to w wewnętrznej pętli będziemy zwiększać licznik za każdym razem o 3 (a nie typowo co 1).
+- Musimy obliczyć, ile bajtów zajmuje jeden wiersz obrazu. Skoro piksel zajmuje 3 bajty, to cały wiersz powinien zajmować $$szerokość \cdot 3$$ bajtów. Tylko że mamy kolejną informację, że…
+- Jeśli szerokość nie jest podzielna przez 4, to dopisujemy dodatkowe zera. Możemy to jednak bardzo prosto załatać operacją modulo (w językach programowania zazwyczaj jest pod operatorem %), która zwraca nam resztę z dzielenia. Jeżeli liczba jest niepodzielna przez 4, to wykonując liczba modulo 4, otrzymamy dokładnie tyle, ile brakuje tej liczbie, by była podzielną. W takim razie liczbę bajtów jednego wiersza obliczymy wzorem:
+
+$$
+szerokość \cdot 3 + (szerokość \;modulo\; 4)
+$$
+
+### Odczyt pikseli
+
+Następnie, gdy jesteśmy już na poziomie wewnętrznej pętli, musimy oczywiście narysować piksele w wierszu. Zacznijmy od tego, że warto odliczać sobie, na której pozycji aktualnie jesteśmy. Rozpoczynamy oczywiście od zera, a potem z każdym przejściem wewnętrznej pętli zwiększamy ten dodatkowy licznik o 1. Następna rzecz, jaką warto zrobić, to sprawdzić, czy nie weszliśmy na obszar dodatkowych zer i wtedy przerwać pętlę.
+
+Sam odczyt jest bardzo prosty. Ponieważ obsługujemy tylko bitmapy 24-bitowe, mamy sytuację, gdzie każdy kolor jest zapisany tylko jednym bajtem. Dzięki temu nie musimy w żaden sposób konwertować liczby, ani nic z nią robić, tylko odczytać. Pamiętajmy tylko o kolejności. Najpierw mamy natężenie niebieskiego, potem zielonego, następnie czerwonego. Gdy już zdobyliśmy te informacje, to jedyne, co nam pozostaje to narysować piksel w odpowiednim miejscu. Współrzędna x piksela to nasz dodatkowy licznik wewnętrznej pętli, natomiast współrzędna y to dodatkowy licznik zewnętrznej pętli.
+
+I to jest koniec. Podążając za tymi wskazówkami, powinieneś w tym momencie mieć działający parser plików BMP. Powinno to wyglądać mniej więcej tak, jak poniżej (jedyna różnica jest taka, że dodałem małe opóźnienie przy rysowaniu dla wprowadzenia animacji).
+
+<VideoPlayer
+  url="/videos/bmp.mp4"
+  muted
+  controls
+  width={680}
+  height={720}
+  caption={<></>}
+/>
+
+### Kod odczytu
+
+Jeżeli zgubiłeś(-aś) się przy powyższym opisie, to zamieszczam poniżej kod przetwarzania obrazu w JavaScript. Jednak tak, jak wspomniałem, możesz chcieć zajrzeć na ostateczną, nieco wyczyszczoną i opatrzoną komentarzami implementację na wspomnianych wcześniej [CodeSandbox](https://codesandbox.io/s/github/tswistak/js-bmp-parser) lub [Githubie](https://github.com/swistak-codes/js-bmp-parser). Poniżej natomiast znajdziesz implementację powyższego wycinka:
+
+```javascript
+// jeźeli szerokość nie jest podzielna przez 4 to uzupełniamy aby była
+// wówczas "dodatkowe piksele" wynoszą 0 i je pomijamy
+const paddedWidth = width * 3 + (width % 4);
+// pomocniczo przechowajmy aktualną wysokość
+// pamiętajmy, że BMP zapisuje obraz od dołu do góry
+let currentHeight = height;
+// przechodzimy po kolei wiersz po wierszu
+for (
+  let i = dataOffset;
+  i < contents.length;
+  i += paddedWidth, currentHeight--
+) {
+  // obliczamy kiedy zaczyna się część do pominięcia
+  const padStart = width * 3 + i;
+  // obliczamy w którym miejscu linia się kończy
+  const end = i + (paddedWidth - 3);
+  // zmienna pomocnicza, gdzie będziemy trzymać aktualną pozycję X na obrazie
+  let x = 0;
+  // przechodzimy po kolei po pikselach obrazu, każdy piksel zajmuje 3 bity
+  for (let j = i; j <= end; j += 3, x++) {
+    if (i >= padStart) {
+      // jeśli weszliśmy w obszar do pominięcia, to przerywamy pętlę
+      break;
+    }
+    // każdy piksel jest zapisany w postaci NIEBIESKI,ZIELONY,CZERWONY
+    const blue = contents[i];
+    const green = contents[i + 1];
+    const red = contents[i + 2];
+
+    // stawiamy piksel na obrazie
+    putPixel(x, currentHeight, red, green, blue);
+  }
+}
+```
+
+### A co jeśli zignorujemy sprawdzenie formatu pliku?
+
+Mając już napisany kod możemy nieco poeksperymentować. Przykładowo, możemy usunąć warunki sprawdzające, czy plik jest skompresowany, oraz liczbę bitów na piksel. Przykładowe efekty możesz zobaczyć poniżej. Warto zwrócić uwagę, że obraz wciąż jest podobny, widzimy te same kształty, ale jest mocno zniekształcony.
+
+<Image
+  image={compressed}
+  alignCenter
+  fullSize
+  alt="Niepoprawnie odczytany plik BMP (skompresowane BMP odczytane jako nieskompresowane)"
+  caption={<>
+    Skompresowane BMP odczytane przez naszą aplikację
+  </>}
+/>
+
+<Image
+  image={eightBit}
+  alignCenter
+  fullSize
+  alt="Niepoprawnie odczytany plik BMP (8-bitowe BMP oczytane jako 24-bitowe)"
+  caption={<>
+    8-bitowe BMP odczytane przez naszą aplikację
+  </>}
+/>
+
+## Co dalej?
+
+Jeżeli chcesz dalej rozwinąć tę prostą aplikację i spróbować swoich sił, wypróbuj następujących poprawek. Posegregowałem je w kolejności od najprostszych do najtrudniejszych:
+
+-  Podziel kod na mniejsze fragmenty, aby zwiększyć jego czytelność. W moim gotowym rozwiązaniu podałem na to swoją propozycję, ale możesz mieć inny pomysł.
+- Złącz dwie pętle przy rysowaniu w jedną.
+- Dodaj obsługę 32-bitowych plików BMP. Powinno się to sprowadzić jedynie do tego, że zamiast przechodzić w pętli co 3 bajty, będziesz przechodzić co 4.
+- Dodaj obsługę plików BMP z paletą (8- i mniej bitowe). W tym przypadku musimy dopisać odczyt i przechowanie palety, która znajduje się pomiędzy metadanymi a danymi obrazu.
+- Dodaj obsługę 16-bitowych plików BMP. Tutaj sprawa się nieco komplikuje, bo mogą one być zapisane w formie 5 bitów na każdy kolor i 1 nieużywany lub natężenie zielonego może być zapisane w 6 bitach. Dodatkowa trudność polega na tym, że 5 bitów to nie 1 bajt i musimy inaczej podejść do odczytu informacji o pikselu.
+- (w przypadku programowania na moim szablonie) Zoptymalizuj kod rysowania, aby rysować bezpośrednio na tablicy ImageBuffera a nie przez zaproponowany przeze mnie putPixel. Obecny putPixel to bardzo naiwne rysowanie kwadratu o wielkości 1 na 1. Do tego dodatkowo spowalnia to, że przeglądarka musi przetworzyć dane o kolorze zapisane w CSSowym formacie. Można to zrobić zdecydowanie lepiej i wydajniej odwołując się bezpośrednio do tablicy pikseli, która jest następnie rysowana na płótnie.
+- Dodaj obsługę skompresowanych plików BMP. Jest tutaj stosowana kompresja RLE, która w dużym uproszczeniu polega na tym, że mamy informację o pikselu, a potem informację, ile razy z rzędu powtarza się ten sam piksel. Jednak w tym przypadku warto odwołać się do dokumentacji, ponieważ jest kilka różnych sposobów, jak ta kompresja może być zapisana w bajtach obrazu.
+
+Na sam koniec chciałbym gorąco polecić Ci wyszukiwanie różnych zagadnień i próbę rozwiązywania ich, nawet jeśli nie są w Twojej dziedzinie programowania lub nie wydają się jakieś bardzo praktyczne. Nie można zamykać się w technologicznej bańce i warto rozwijać umiejętności z ogólnie pojętego programowania. Jeżeli szukasz inspiracji, w Internecie krążą różne listy propozycji rzeczy do zakodowania. Pamiętaj, że jeżeli, przykładowo, uczyłeś się bycia front-end developerem i Twoje zainteresowania oscylują tylko wokół Reacta, oderwij się od tego i napisz cokolwiek innego. Rozwiniesz się, a może przy okazji spodoba Ci się inna nisza programistyczna?
+
+<small>(oryginał obrazka na okładce z serwisu [Pixabay](https://pixabay.com/photos/chipmunk-animal-sunflower-seeds-3628624/))</small>

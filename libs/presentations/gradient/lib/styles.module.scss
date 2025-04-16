@@ -1,0 +1,119 @@
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  width: 100%;
+
+  ol {
+    counter-reset: item;
+    list-style-type: none;
+
+    > li:before {
+      counter-increment: item;
+      content: counter(item) '. ';
+    }
+  }
+}
+
+.canvas {
+  width: 100%;
+  max-width: 600px;
+  height: 100px;
+}
+
+.pointList {
+  max-width: 400px;
+  width: 100%;
+  padding: 0;
+}
+
+.point {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: 8px;
+
+  .slider {
+    width: 120px;
+  }
+
+  .slider2d {
+    width: 60px;
+  }
+
+  .numberInput {
+    width: 50px;
+  }
+
+  .deleteButton {
+    all: unset;
+    color: red;
+  }
+
+  .addButton {
+    all: unset;
+  }
+
+  .label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+}
+
+.controlsContainer {
+  display: flex;
+  flex-flow: row wrap;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  margin-bottom: 16px;
+
+  button {
+    cursor: pointer;
+
+    &.selectedButton {
+      background: yellow;
+    }
+  }
+}
+
+.bezierContainer {
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-direction: column;
+  width: 100%;
+
+  ol {
+    padding: 0;
+  }
+
+  li:before {
+    content: 'P' counter(item) '. ' !important;
+  }
+
+  .bezierImage {
+    width: 110px;
+    height: 110px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid black;
+    background: white;
+
+    svg {
+      width: 100px;
+      height: 100px;
+
+      path {
+        fill: none;
+        stroke: black;
+        stroke-width: 5px;
+      }
+    }
+  }
+}

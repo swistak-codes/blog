@@ -1,0 +1,37 @@
+.tagCategoryContainer {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  padding: 0.25rem;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.badge {
+  display: flex;
+  align-items: center;
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+
+  i {
+    padding-right: 0.25rem;
+  }
+
+  &.categoryBadge {
+    background: var(--sc__categoryBadge--background);
+    color: var(--sc__categoryBadge--color);
+
+    a {
+      color: var(--sc__categoryBadge--color) !important;
+    }
+  }
+
+  &.tagBadge {
+    background: var(--sc__tagBadge--background);
+    color: var(--sc__tagBadge--color);
+
+    a {
+      color: var(--sc__tagBadge--color) !important;
+    }
+  }
+}

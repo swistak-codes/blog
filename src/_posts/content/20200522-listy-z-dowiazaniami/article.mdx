@@ -1,0 +1,157 @@
+import Link from 'next/link';
+import {Image} from '@swistak-codes/components';
+import cover from './psy.jpg';
+import listaJednokierunkowa from './Lista-jednokierunkowa.png';
+import listaDwukierunkowa from './Lista-dwukierunkowa.png';
+import listaCykliczna from './Lista-cykliczna.png';
+import listaZWartownikiem from './Lista-z-wartownikiem.png';
+import dodawanieDoListy from './Dodawanie-do-listy.png';
+
+export const meta = {
+  title: 'Listy z dowiązaniami',
+  abstract:
+    'Kontynuując temat list zostały nam jeszcze jedne — listy z dowiązaniami. Zobaczmy czym się charakteryzują oraz kiedy warto je używać.',
+  firstParagraph: (
+    <>
+      <Link href="/post/tablice-i-listy-tablicowe">W poprzednim wpisie opisałem tablice i listy dynamiczne</Link>.
+      Kontynuując temat list, nie zostało nam już nic innego, jak spojrzeć na ostatni ich rodzaj — listy z dowiązaniami
+      (wiązane). Mniej popularne, bardziej kojarzące się z funkcyjnymi językami programowania, ale zdecydowanie każdy
+      programista powinien je znać. Zobaczmy, czym się charakteryzują oraz kiedy warto je używać.
+    </>
+  ),
+  keyword: 'listy z dowiązaniami',
+  categories: ['Listy', 'Struktury danych'],
+  tags: [
+    'listy',
+    'listy wiązane',
+    'linkedlist',
+    'lista jednokierunkowa',
+    'lista dwukierunkowa',
+    'lista cykliczna',
+    'lista z wartownikiem'
+  ],
+  slug: 'listy-z-dowiazaniami',
+  updateTime: '2020-06-27T09:27:35+00:00',
+  publishTime: '2020-05-22T09:00:04+00:00',
+  cover,
+};
+
+## Idea listy z dowiązaniami
+
+<Link href="/post/listy-najpopularniejsze-zlozone-typy-danych">W artykule o listowych typach danych</Link>, gdzie porównywaliśmy różne ich implementacje, opisałem podstawowe założenia list wiązanych. Dla przypomnienia — w liście wiązanej każdy element posiada wskaźnik na element następny (i w przypadku dwukierunkowej także na poprzedni). Pozwala to na trzymanie elementów w pamięci komputera w sposób nieciągły. Dzięki temu, aby rozszerzać listę, nie potrzebujemy rezerwować wcześniej odpowiednio więcej miejsca w pamięci (jak w przypadku tablic). Niestety oznacza to, że aby dostać się do dowolnego elementu, musimy przejść przez wszystkie go poprzedzające. Ale nie tak prędko, bo w tym momencie mógłbym skończyć artykuł. Zbadajmy temat list nieco szerzej.
+
+## Rodzaje list wiązanych
+
+Kilkukrotnie, zarówno w pierwszym artykule o listach, jak i teraz, wspominałem, że wyróżniamy listy jedno- i dwukierunkowe. Oprócz tego posiadamy jeszcze listy z wartownikiem. Tylko o co chodzi?
+
+### Lista jednokierunkowa
+
+W przypadku listy jednokierunkowej posiadamy tylko jeden kierunek przechodzenia po niej. Każdy element posiada powiązanie do następnego i nic więcej.
+
+<Image
+  image={listaJednokierunkowa}
+  alignCenter
+  fullSize
+  alt="Rysunek przedstawia 4 elementy składające się z dwóch komórek połączone między sobą strzałkami (po jednej między elementami)."
+  caption="Schemat listy jednokierunkowej"
+/>
+
+Warto zwrócić tutaj uwagę na następujące rzeczy. Przede wszystkim, znając pozycję któregoś z elementów, możemy przejść tylko na kolejne, nie mamy możliwości zawrócenia. Przez to trafiając na dowolny element, nie mamy pojęcia, czy jest on pierwszym (zwany w terminologii informatycznej głową). Co prawda zakładamy, że zwykle trzymamy wskaźnik na pierwszy element, jednak w praktyce różnie potrafi bywać (na przykład odcinamy kilka początkowych elementów). Z innej strony, zwróćmy uwagę na to, jak w tym przypadku zajmujemy pamięć. W końcu nie tylko element sam z siebie zajmuje miejsce, ale także… wskaźnik na kolejny element. Przy dzisiejszych komputerach taki wskaźnik może zajmować 64 bity… czyli 8 bajtów. Jeżeli zakładamy, że przechowujemy w liście zmienne zaledwie jednobajtowe, to nagle pojedynczy element zajmuje aż 9 bajtów!
+
+### Lista dwukierunkowa
+
+Ten rodzaj, jak można się domyśleć po nazwie, pozwala na przechodzenie w dwóch kierunkach. Mianowicie każdy element ma tym razem dwa wskaźniki — na element poprzedni oraz na następny.
+
+<Image
+  image={listaDwukierunkowa}
+  alignCenter
+  fullSize
+  alt="Rysunek przedstawia 4 elementy składające się z trzech komórek połączone między sobą strzałkami (po dwie między elementami)."
+  caption="Schemat listy dwukierunkowej"
+/>
+
+Tym razem mamy podobną sytuację. Z elementu możemy przejść zarówno na następny, jak i poprzedni. Niestety, pamięci zajmujemy jeszcze więcej, czyli mamy aż dwa wskaźniki. Z jednej strony dzięki temu jesteśmy już w stanie określić, czy mamy do czynienia z pierwszym elementem (nie ma on poprzednika), ale kosztuje nas to pamięć. Zakładając 64‑bitowe wskaźniki, czyli zajmują one tutaj 128 bitów (16 bajtów). Zwróćmy uwagę, że wciąż mimo dwukierunkowej możliwości przechodzenia, nie znamy od razu ostatniego elementu (ten nazywamy w terminologii informatycznej ogonem), tylko zwykle jedynie pierwszy.
+
+### Lista cykliczna
+
+Oczywiście nie ma problemów, których informatycy by nie rozwiązali. Nie znamy ostatniego elementu od razu? Powiążmy go z pierwszym! Jak szybko przejść z ostatniego do pierwszego? Również je powiążmy!
+
+<Image
+  image={listaCykliczna}
+  alignCenter
+  fullSize
+  alt="Rysunek przedstawia 4 elementy składające się z trzech komórek połączone między sobą strzałkami (po dwie między elementami). Dodatkowo, ostatni element jest powiązany strzałką z pierwszym, jak i pierwszy z ostatnim."
+  caption="Schemat listy cyklicznej"
+/>
+
+Tak, brzmi to genialnie, jednak ostudźmy nasz entuzjazm, bo nie jest to do końca takie świetne. Dlaczego? Otóż teraz nie jesteśmy tak naprawdę w stanie stwierdzić, co jest pierwszym a co ostatnim elementem. Do tej pory charakterystyczną cechą głowy był brak wskaźnika na poprzedni element, zaś cechą ogona brak wskaźnika na następny element. Tu wszystko jest ze sobą połączone i musimy po prostu ufać temu, że wskaźnik, który posiadamy, wskazuje pierwszy element. Jednak jak to mawiał jeden z dyktatorów: “zaufanie jest dobre, ale kontrola jest lepsza”. W tym przypadku znaczyłoby to tyle, że lepiej jest móc jawnie określić, że coś jest początkiem lub końcem w taki sposób, który możemy zawsze sprawdzić.
+
+### Lista z wartownikiem
+
+Aby taką kontrolę wprowadzić, ktoś wymyślił, że lista może posiadać specjalny element. Specjalny, bo nie posiadałby żadnej wartości przypisanej przez użytkownika, ale za to wprost narzucałby, co jest pierwszym elementem listy a co ostatnim, dając jednocześnie do nich dostęp. I tak od dyktatur przeszliśmy do wojska — mianowicie ów specjalny element nazywamy wartownikiem.
+
+<Image
+  image={listaZWartownikiem}
+  alignCenter
+  fullSize
+  alt="Rysunek przedstawia 4 elementy składające się z trzech komórek połączone między sobą strzałkami (po dwie między elementami). Pojawił się dodatkowy element na początku, który posiada jedynie wskaźniki. Łączy się on dwukierunkowo z pierwszym oraz ostatnim elementem."
+  caption="Schemat listy wiązanej z wartownikiem wg T. Cormena"
+/>
+
+Wartownik to element bez wartości, który wkładamy do listy, aby wyznaczyć jej początek bądź koniec. Wówczas elementy brzegowe rozpoznajemy po tym, że trafiamy z nich do wartownika. Według tradycyjnego podejścia lista powinna mieć jeden wartownik (na końcu) albo bądź dwa (dodatkowy na początku). Natomiast bardziej praktyczne podejście przedstawił w swojej książce "Wprowadzenie do algorytmów" Thomas Cormen, która dla informatyków ma status algorytmicznej biblii. W jego sposobie stosujemy tylko jeden wartownik, a sama lista jest wówczas listą cykliczną. Podejście to idealnie wpasowuje się w większość zastosowań, gdzie przejście od razu na oba brzegi listy jest bardzo pożądane.
+
+## Podstawowe operacje na listach wiązanych
+
+Jak możecie pamiętać z artykułu o listach tablicowych, najważniejszymi operacjami na listach są: pobieranie, wstawianie i usuwanie elementu. Dodatkowo w przypadku tych operacji możemy rozróżnić sytuacje, gdy operujemy na początku, środku jak i końcu listy. Podobnie jak poprzednim razem, przejdźmy przez te operacje i opowiedzmy sobie zarówno o tym, jak się je wykonuje, jak i o ich wydajności.
+
+### Pobieranie elementu
+
+I tutaj już się zaczynają schody. Pamiętacie, jak w przypadku tablic mogliśmy po prostu obliczyć sobie, w które miejsce w pamięci operacyjnej trzeba uderzyć, aby pobrać element? Niestety, tutaj nie ma tak dobrze. Aby dojść do elementu, musimy przechodzić po kolei. W tym przypadku nie ma znaczenia, czy lista jest jedno, czy dwukierunkowa. Znaczenie zaś ma, czy znamy jedynie pierwszy, czy także ostatni element.
+
+Oczywiście najprostszy i najoczywistszy przypadek to pobranie pierwszego elementu. Niezależnie od listy jest to zawsze operacja natychmiastowa, gdyż zawsze posiadamy wskaźnik na pierwszy element. A więc złożoność jest stała — O(1). Schody zaczynają się dalej…
+
+Aby pobrać wybrany element ze środka listy, musimy po kolei przechodzić przez kolejne elementy, jednocześnie dodatkowo odliczając, ile elementów do tej pory minęliśmy. Oznacza to, że aby dostać się do przykładowo tysięcznego elementu, musimy przejść przez 1000 wskaźników. Może nie brzmi to strasznie z początku, ale spójrzmy inaczej — każde przejście zajmuje pewien czas. Zakładając pesymistycznie, że zajmuje to 1 milisekundę, to nagle przejście do tysięcznego elementu (co nie jest niczym wyjątkowym) zajmie aż sekundę. A teraz wyobraźmy sobie, że musimy wykonać jakieś operacje typu sortowanie, gdzie musimy wielokrotnie odwoływać się do różnych elementów. Zdecydowanie zajmie to nieco czasu. Podsumowując, złożoność jest liniowa — O(n).
+
+Ostatni przypadek to odczytanie ostatniego elementu. Tutaj wreszcie ma znaczenie rodzaj listy. Jeżeli znamy ostatni element, to rezultat jest taki sam jak przy odczycie pierwszego — operacja natychmiastowa, nie ma czym się przejmować. Gorzej jest, gdy znamy tylko pierwszy. Wówczas robimy niemal to samo, co w przypadku wybierania dowolnego elementu ze środka. Różnica jest jedynie taka, że zamiast odliczać elementy, możemy jedynie sprawdzać, czy następny jest pusty. Innymi słowy, jest to wówczas najbardziej pesymistyczny przypadek pobierania elementu ze środka. Czyli, gdy znamy ostatni element, to złożoność jest O(1), a gdy go nie znamy — O(n).
+
+### Wstawianie bądź usuwanie elementu
+
+Wstawianie oraz usuwanie wbrew pozorom są bardzo prostymi operacjami, co sprawia, że w praktyce są dość łatwe w zaprogramowaniu. Wynika to z faktu, że nie musimy przenosić elementów po pamięci dla zachowania ciągłości i kolejności, tak jak to było w tablicach. Jedynie przepinamy odpowiednio wskaźniki. Mamy następujące przypadki:
+
+- Na początku — zawsze mamy do niego dostęp, więc jedynie musimy zmienić wskaźnik na pierwszy element. Jeżeli lista jest dwukierunkowa, to pamiętajmy, aby w kolejnym elemencie dodać lub usunąć wskaźnik na poprzednika. Złożoność operacji to zawsze O(1).
+- Dodawanie w środku — jest to całkiem analogiczne. Najpierw przechodzimy do elementu, który będzie poprzedzać nasz. Pobieramy wskaźnik na kolejny element i na jego miejscu wpisujemy adres aktualnie dodawanego. Natomiast w naszym nowym elemencie jako następnik podajemy pobrany wcześniej wskaźnik. W przypadku listy dwukierunkowej musimy zrobić dodatkowe manewry dla poprzedników. Uznaje się, że złożoność operacji jest stała (O(1)), jednak trzeba pamiętać o czasie znalezienia miejsca.
+- Usuwanie w środku — gdy w dodawaniu szukaliśmy element poprzedzający, to tutaj potrzebujemy także następnik usuwanego. Następnie zamiast wskaźników na usuwany element, dajemy wzajemnie na owe dwa. Złożoność jest taka sama jak przy dodawaniu.
+- Na końcu — jeżeli znamy ostatni element, to musimy zrobić dosłownie to samo, co w przypadku początkowego elementu. Natomiast gdy go nie znamy, to wyszukujemy element go poprzedzający, po czym jedyne, co robimy, to odpinamy wskaźnik na niego.
+
+<Image
+  image={dodawanieDoListy}
+  alignCenter
+  fullSize
+  alt="Dodawanie do listy wiązanej"
+  caption="Schemat dodawania elementu w środku listy wiązanej dwukierunkowo. Najpierw odnajdujemy miejsce, w które chcemy wstawić element, a potem przepinamy referencje na poprzedni i następny element w sąsiadujących elementach, aby zachować ciągłość listy"
+/>
+
+## Kiedy stosować listy wiązane?
+
+To jest bardzo dobre pytanie, a wbrew pozorom odpowiedź nie jest zbyt oczywista. Z jednej strony mógłbym powtórzyć to, co pisałem wcześniej — listy wiązane powinniśmy używać wtedy, gdy dodajemy dużo nowych elementów, ale rzadko listę przeszukujemy. Jednak jest to dość płytkie spojrzenie. Dlaczego? Ponieważ należy pamiętać także o tym, o czym napisałem na początku artykułu — listy wiązane zajmują więcej miejsca niż tablice.
+
+Oczywiście zalety związane z szybkością (przynajmniej w teorii) dalej istnieją. Jednak lista tablicowa, dopóki nie musi być przepisana, oferuje równie szybki zapis. Trzeba więc brać pod uwagę takie czynniki, jak: ile elementów będziemy zapisywać, jak szybko będziemy to robić oraz czy możemy sobie pozwolić na większe obciążenie pamięci.
+
+Moja rada? Gdy korzystamy z obiektowych języków programowania, takich jak C# czy Java, zacznijmy od tradycyjnej tablicy dynamicznej. Jeśli zaczniemy odczuwać, że przy dodawaniu elementów spada wydajność, dopiero wtedy przepnijmy się na listę wiązaną. Zwykle w wielu językach oba rodzaje list mają takie same operacje, implementują te same interfejsy, dzięki czemu wystarczy jedynie zmienić inicjalizację obiektu.
+
+Tutaj też z mojej praktyki mogę dodać, że w języku C# jedynie raz zdarzyło mi się zmienić listę tablicową na wiązaną, właśnie ze względu na szybkość dodawania elementów. Jednak każdy projekt jest inny, często różne czynniki wpływają na to, co się stosuje, i warto samemu rozeznać, co jest najlepsze, a nie słuchać się innych. Nie ma też co zbyt szybko myśleć o optymalizacji. Dlatego na koniec artykułu zostawię jeden z najbardziej klasycznych informatycznych cytatów:
+
+> premature optimization is the root of all evil (or at least most of it) in programming
+>
+> ~ <cite>Donald E. Knuth</cite>
+
+## Literatura
+
+- Pozycje podstawowe:
+  - Cormen T. H., Leiserson C. E., Rivest R.L., „Elementarne struktury danych” w *Wprowadzenie do algorytmów*. Warszawa: Wydawnictwa Naukowo-Techniczne, 2001, s. 236–255
+  - Wirth N., „Dynamiczne struktury informacyjne” w *Algorytmy + struktury danych = programy*. Warszawa: Wydawnictwa Naukowo-Techniczne, 2002, s. 183–300
+  - Harris S., Ross J., „Listy” w *Od podstaw Algorytmy*. Gliwice: Helion, 2006, s. 71–104
+- Pozycje dodatkowe:
+  - Linked list, [https://en.wikipedia.org/w/index.php?title=Linked_list&oldid=943024995](https://en.wikipedia.org/w/index.php?title=Linked_list&oldid=943024995) (ostatnio odwiedzone 18 maja 2020).
+
+<small>(oryginał zdjęcia na okładce autorstwa [Grant Hollingworth](https://www.flickr.com/photos/granth/), opublikowany na licencji [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0/) w serwisie [Flickr](https://www.flickr.com/photos/granth/382907735))</small>

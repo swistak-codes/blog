@@ -1,0 +1,401 @@
+import Link from 'next/link';
+import {Image, Iframe} from '@swistak-codes/components';
+import cover from './dinozaury.jpg';
+
+export const meta = {
+  title: 'Szybkie szukanie dużych liczb pierwszych',
+  abstract:
+    'Czas napisać algorytm, który w krótkim czasie pozwoli nam znaleźć bardzo duże liczby pierwsze.',
+  firstParagraph: (
+    <>
+      Wiemy już: <Link href="/post/liczby-pierwsze-i-proste-sposoby-na-ich-sprawdzanie">czym są liczby pierwsze, jak sprawdzać, czy liczba jest pierwsza</Link>, <Link href="/post/proste-sposoby-na-znajdowanie-liczb-pierwszych">jak w najprostszy sposób znajdować je</Link>, a także poznaliśmy <Link href="/post/duze-liczby-pierwsze">teorię stojącą za znajdowaniem dużych liczb pierwszych</Link>. Przejdźmy zatem do praktyki. Czas napisać algorytm, który w krótkim czasie pozwoli nam znaleźć bardzo duże liczby pierwsze, tak jak to się robi w codziennych zastosowaniach.
+    </>
+  ),
+  keyword: 'liczby pierwsze',
+  categories: ['Liczby pierwsze', 'Algorytmy'],
+  tags: [
+    'liczby pierwsze',
+    'test Millera-Rabina',
+    'liczby pseudopierwsze',
+    'testy pseudopierwszości',
+    'arytmetyka modularna',
+    'potęgowanie modularne',
+    'modulo',
+    'matematyka',
+    'optymalizacja',
+    'przesunięcia bitowe',
+    'prawdopodobieństwo'
+  ],
+  slug: 'szybkie-szukanie-duzych-liczb-pierwszych',
+  updateTime: '2022-03-01T21:28:15+00:00',
+  publishTime: '2022-03-02T06:00:13+00:00',
+  cover,
+};
+
+## Uwaga wstępna
+
+Kod, który tutaj pokażę, należy traktować tylko i wyłącznie edukacyjnie, szczególnie jeśli chcielibyśmy implementować algorytm do zastosowań kryptograficznych. W przypadku kryptografii zdecydowanie lepiej jest stawiać na gotowe rozwiązania, aby mieć pewność, że są one jak najbardziej bezpieczne.
+
+W niniejszym artykule przedstawię kod napisany w JavaScript, który jest bardzo popularnym językiem, ale nie należy do najszybszych. W przypadku algorytmów tego typu zależy nam też na szybkości, której ten język nam nie zapewni.
+
+Jeśli jesteś zainteresowany(-a), to kod źródłowy do tego artykułu, jak i do wcześniejszych z tej serii, znajdziesz na moim [GitHubie](https://github.com/swistak-codes/prime-numbers).
+
+## Test Millera-Rabina
+
+W artykule, w którym omawiałem <Link href="/post/duze-liczby-pierwsze">matematyczne zagadnienia związane z dużymi liczbami pierwszymi</Link>, wspomniałem o teście pseudopierwszości Millera-Rabina. Test ten został opracowany przez dwóch naukowców. Najpierw w 1976 r. G. L. Miller opracował deterministyczny test pierwszości działający w czasie wielomianowym, bazujący na rozszerzonej hipotezie Riemanna. W 1980 r. M. O. Rabin zaproponował modyfikację tego testu, przerabiając go na algorytm probabilistyczny. W taki oto sposób otrzymaliśmy test znany dziś jako test Millera-Rabina, będący jednym z najprostszych i najszybszych testów pseudopierwszości, jednocześnie dającym zadowalające wyniki.
+
+Opowiedzmy sobie trochę o podstawach działania tego testu, a następnie, jak tę matematyczną teorię przekuć w algorytm.
+
+### Probabilistyczny? Pseudopierwszości?
+
+Zacznijmy od tego, dlaczego jest to algorytm probabilistyczny i jest testem pseudopierwszości. Generalnie rzecz ujmując, liczby pseudopierwsze to takie liczby pierwsze, które spełniają pewne własności liczb pierwszych, ale liczbami pierwszymi nie są, np. spełniają warunki małego twierdzenia Fermata. Więcej opowiedziałem o tym <Link href="/post/duze-liczby-pierwsze">w poprzednim artykule</Link>.
+
+Co warto wiedzieć, test pseudopierwszości nie potrafi ze 100% pewnością ocenić, że liczba jest pierwsza, jednak nie działa to zupełnie losowo. Warunek, który musi zostać spełniony, potrafi odrzucić bardzo dużo liczb i ostatecznie niewiele więcej liczb poza pierwszymi go spełnia.
+
+Probabilizm algorytmu jest związany także z tym, że trafność jego rezultatów jest uzależniona od liczby powtórzeń. Jak możesz wiedzieć z poprzedniego artykułu, test powtarzamy określoną liczbę razy z innymi danymi wejściowymi dla tej samej liczby. Nie sprawdzimy wszystkich możliwych przypadków, jednak im więcej sprawdzimy, tym większa szansa, że liczba będzie pierwsza.
+
+### Silnie prawdopodobne liczby pierwsze
+
+Jedną z przewag testu Millera-Rabina nad innymi testami pseudopierwszości jest to, że szuka tzw. silnie prawdopodobnych liczb pierwszych. Własności, na których się opiera, bardzo skutecznie odrzucają większość liczb złożonych.
+
+Wygląda to następująco:
+
+Testujemy liczbę $$n$$ większą od 2. Najpierw zapisujemy tę liczbę w postaci $$2^s\cdot d + 1$$, gdzie $$s$$ i $$d$$ są liczbami naturalnymi, a do tego $$d$$ jest nieparzyste.
+
+Mając testowaną liczbę zapisaną w takiej postaci, wyznaczamy liczbę naturalną $$a$$, którą nazywamy podstawą. Powinna ona spełniać warunek $$1 < a < n - 1$$. W tym momencie możemy przejść już do własności. $$n$$ jest silnie prawdopodobną liczbą pierwszą do podstawy $$a$$, jeśli spełniona jest jedna z następujących kongruencji (zapis w formie arytmetyki modularnej, wyjaśnienie w następnym akapicie):
+
+$$
+\begin{align*}
+a^d &\equiv 1 \pmod{n}\\
+a^{2^r\cdot d} &\equiv -1 \pmod{n} \text{ dla pewnych } 0 \leqslant r < s
+\end{align*}
+$$
+
+O liczbie $$a$$ mówimy, że jest świadkiem złożoności liczby $$n$$, jeśli warunki nie są spełnione. Jeśli są spełnione, to może być albo świadkiem pierwszości liczby $$n$$, albo fałszywym świadkiem. Dlatego też test powinno się powtórzyć kilkakrotnie, z różnymi wartościami $$a$$ dla uzyskania bardziej prawdopodobnych wyników.
+
+Test opiera się na tym, że $$n$$ jest nieparzystą liczbą pierwszą, ponieważ:
+
+- Jedyne reszty kwadratowe z 1 modulo n to -1 i 1. Możemy to zapisać jako $$(x-1)(x+1)=x^2-1 \equiv 0 \pmod{n}$$. Zgodnie z lematem Euklidesa, jeśli $$n$$ jest liczbą pierwszą, to dzieli $$x-1$$ lub $$x+1$$, stąd wiemy, że jedyne reszty kwadratowe to -1 lub 1 modulo n.
+- Według małego twierdzenia Fermata liczba pierwsza $$n$$ spełnia warunek $$a^{n-1}\equiv 1 \pmod{n}$$. My jednak w teście sprawdzamy $$a^{2^r \cdot d}$$. Pamiętajmy, że liczbę pierwszą zapisujemy w postaci $$2^s\cdot d + 1$$, a $$r$$ możemy odliczać od 0 do $$s$$. Jednak zauważmy, że mając ciąg $$a^{2^s \cdot d}, a^{2^{s-1} \cdot d}, ..., a^{2d}, a^d$$, kolejne jego elementy to pierwiastek kwadratowy poprzedniego. Jeśli wartość jest spełniona dla pierwszego, to wiemy, że kolejny jest resztą kwadratową modulo n z pierwszego. Z poprzedniego punktu wiemy, że wynosi ona 1 lub -1. Jeśli jest -1, to nie mamy co dalej sprawdzać (warunek spełniony), natomiast jeśli 1, kontynuujemy w głąb (dowodzimy wtedy indukcją matematyczną). Ostatecznie albo jeden z elementów zbiega do -1, albo wszystkie do 1 (w szczególności ostatni element $$a^d$$).
+
+To, co dodatkowo warto wiedzieć na podstawie powyższego, to że tak naprawdę dla przyspieszenia obliczeń możemy rozpatrzeć trzy przypadki (dalej w artykule dwa ostatnie wciąż będę traktować jako jeden), z których jeden musi być spełniony:
+
+$$
+\begin{align*}
+a^d &\equiv 1 \pmod{n}\\
+a^d &\equiv -1 \pmod{n}\\
+a^{2^r\cdot d} &\equiv -1 \pmod{n} \text{ dla pewnych } 0 < r < s
+\end{align*}
+$$
+
+### Arytmetyka modularna
+
+Żeby wszystko zrozumieć w całości, muszę jeszcze w miarę prosto i szybko wytłumaczyć, czym jest arytmetyka modularna, zwana też arytmetyką reszt. Jest to system liczb całkowitych zaprezentowany po raz pierwszy przez Gaussa w 1801 r., charakteryzujący się tym, że liczby „zawijają się” po osiągnięciu specyficznej wartości zwanej modułem (modulo lub w skrócie mod). Powszechnie możesz to kojarzyć z tego, jak mierzymy czas. Mając godzinę 18-stą, 10 godzin później nie będzie godzina 28, tylko 4. Fachowo zapiszemy to następująco:
+
+$$
+18 \oplus_{24}10 = 4
+$$
+
+Dodawanie w tym systemie zapisujemy w formie $$\oplus_{n}$$, gdzie $$n$$ to moduł. Analogicznie, odejmowanie to $$\ominus_{n}$$. Możemy również spotkać się z zapisem $$[c]_{n}$$, co oznacza resztę z dzielenia przez $$n$$ (wewnątrz nawiasu mogą też znajdować się dowolne, „zwykłe” operacje).
+
+Jednak opisując test Millera-Rabina, spotkaliśmy się z jeszcze jedną rzeczą powiązaną z arytmetyką modularną, mianowicie z relacją kongruencji (przystawania). Zapisuje się ją jako $$a \equiv_n b$$ lub $$a \equiv b \pmod{n}$$. Z definicji: liczby $$a$$ i $$b$$ przystają do siebie wtedy, gdy dają tę samą resztę z dzielenia przez $$n$$, co możemy zapisać w arytmetyce modularnej jako $$[a]_n = [b]_n$$.
+
+Skoro już znamy teorię, możemy zapisać relacje kongruencji z testu Millera-Rabina jako proste równości:
+
+$$
+\begin{align*}
+a^d \mod{n} &= 1 \\
+a^{2^r\cdot d} \mod{n} &= n - 1
+\end{align*}
+$$
+
+Drugie równanie wynika z <Link href="/post/dziwny-przypadek-reszty-z-dzielenia">definicji reszty z dzielenia</Link>, według której $$-1 \mod{n} = n-1$$. Warto o tym pamiętać, ponieważ jak opowiadam w zalinkowanym artykule, języki programowania potrafią zwracać ujemne wartości dla operacji modulo, podczas gdy zgodnie z definicją powinny one być zawsze dodatnie.
+
+### Przykład działania
+
+Z aktualną wiedzą na temat testu spróbujmy sobie sprawdzić pierwszość wybranej liczby, aby potem na bazie tego, co zrobiliśmy, opracować algorytm. Przetestujmy go na dwóch małych liczbach, gdzie wiemy, że jedna jest pierwszą, a druga złożoną.
+
+#### Liczba pierwsza, n = 13
+
+- Najpierw musimy zapisać liczbę w postaci $$2^s\cdot d + 1 = n$$, pamiętając, że d musi być nieparzyste. Prościej będzie dla nas obliczyć przypadek $$2^s\cdot d = n - 1$$, czyli  $$2^s\cdot d = 12$$. Liczbę 12 uzyskamy, podstawiając wartości: $$s = 2$$ i $$d = 3$$. Jak możemy łatwo sprawdzić: $$2^2 \cdot 3 = 4 \cdot 3 = 12$$.
+  - Sposób na rozwiązanie tego algorytmicznie opiszę dalej w artykule.
+- Teraz musimy wylosować liczbę $$a$$ w zakresie $$(1, n-1)$$.
+  - Załóżmy, że wylosowaliśmy liczbę $$a = 3$$.
+  - Obliczmy $$a^d \mod{n}$$. W naszym przypadku będzie to $$3^{3} \mod{13} = 27 \mod{13} = 1$$.
+  - Ponieważ wylosowaliśmy 1, to mamy spełniony pierwszy warunek, więc możemy założyć, że liczba jest prawdopodobnie pierwsza.
+- Jednak aby test miał sens, powinniśmy go wykonać kilkukrotnie dla różnych losowych liczb. Powtórzmy więc:
+  - Tym razem wylosowaliśmy liczbę $$a = 7$$.
+  - $$7^3 \mod{13} = 5$$, więc pierwsza kongruencja nie jest spełniona.
+  - Sprawdzamy liczby $$r$$ mniejsze od $$s$$.
+    - Jedyną liczbą do sprawdzenia jest $$r=1$$.
+    - $$7^{2^1 \cdot 3} \mod{13} = 7^6 \mod{13} = 12$$.
+    - Warunek jest spełniony, ponieważ $$-1 \mod{13} = 13 - 1 = 12$$.
+- Po $$k = 2$$ próbach stwierdziliśmy, że liczba 13 jest prawdopodobnie pierwsza.
+
+#### Liczba złożona, n = 15
+
+- Ponownie zapisujemy liczbę w postaci $$2^s\cdot d = 15 - 1$$. Aby uzyskać 14, wystarczy pomnożyć 2 przez 7, stąd $$s = 1$$ i $$d = 7$$.
+- Losujemy liczbę $$a$$.
+  - $$a = 2$$.
+  - $$2^{7} \mod{15} = 8$$, więc nie mamy spełnionego pierwszego warunku i częściowo drugiego (dla $$r = 0$$).
+  - Z racji tego, że $$r$$ musi być większe od 0 i mniejsze od $$s$$, to nie jesteśmy w stanie znaleźć żadnej takiej liczby całkowitej, więc drugiego warunku sprawdzić nie możemy dla innych przypadków niż wcześniej już sprawdzonego.
+- Stwierdzamy, że liczba jest złożona.
+
+## Algorytm sprawdzania pierwszości na podstawie testu Millera-Rabina
+
+Wiemy już, jak test działa oraz jak go wykonać ręcznie, więc możemy przenieść go na kod. Zanim to jednak zrobimy, warto poznać inne przydatne algorytmy, które wykorzystamy w naszym teście pierwszości.
+
+### Potęgowanie modularne
+
+W teście mogłeś(-aś) zauważyć, że bardzo często wykonujemy operację podnoszenia do potęgi, po czym od razu obliczenie reszty z dzielenia. Jak się okazuje, są algorytmy, które potrafią znacznie uprościć tę operację, dzięki czemu nie musimy obliczać dużych potęg.
+
+Takich algorytmów jest dużo, a ja też nie będę wchodzić w detale, dlatego pokażę najprostsze podejście. Opiera się ono na tym, że potęgowanie $$b^e$$ możemy zapisać w następującej formie:
+
+$$
+b^e = b^{\left(\sum _{i=0}^{n-1}a_{i}2^{i}\right)}=\prod _{i=0}^{n-1}b^{a_{i}2^{i}}
+$$
+
+Idea za rozbiciem wykładnika na sumę jest prosta — zamieniamy go na liczbę binarną i przenosząc z powrotem na dziesiętną, otrzymujemy taką oto sumę. A skoro sumujemy wykładnik, możemy całą potęgę zapisać jako iloczyn wielu liczb. Do tego potęgi liczby 2 mają pewną własność w systemie binarnym — możemy stosować przesunięcia binarne do mnożenia i dzielenia przez nie, o czym więcej piszę w artykule <Link href="/post/matematyka-zero-jedynkowa">poświęconym matematyce zero-jedynkowej</Link>. Znacznie przyspiesza to operacje na liczbach.
+
+Następnie wartość $$c$$, czyli wynik potęgowania modularnego, możemy uzyskać poniższym wzorem:
+
+$$
+c \equiv \prod _{i=0}^{n-1}b^{a_{i}2^{i}} \pmod{m}
+$$
+
+Wejściem algorytmu są podstawa b, wykładnik e i moduł m. Wyjściem c jest wynik potęgowania modularnego. Kroki są następujące:
+
+1. Ustawiamy $$c = 1$$.
+2. Obliczamy resztę z dzielenia podstawy przez moduł $$b = b \mod{m}$$.
+3. Dopóki wykładnik $$e$$ jest większy od zera:
+    1. Jeśli wykładnik jest nieparzysty, wtedy $$c = (c \cdot b) \mod{m}$$.
+    2. Obliczamy nowy wykładnik: $$e = e / 2 = e >> 1$$.
+    3. Liczymy nową podstawę: $$b = b^2 \mod{m}$$.
+4. Zwracamy wynik $$c$$.
+
+Warto zwrócić uwagę, że wiele implementacji tego algorytmu sprawdza parzystość nie przez wyliczenie modulo 2, ale przez bitową operacją `AND`. Jest to również podobna niskopoziomowa optymalizacja co zastąpienie dzielenia przez 2 przesunięciem bitowym. Musisz samodzielnie zdecydować, jak zrobisz. Ja pokażę sposób z `AND`, żeby zaprezentować, jak wygląda w praktyce.
+
+W kodzie (JavaScript) wygląda to następująco:
+
+```javascript
+function modPow(b, e, m) {
+    let c = 1;
+    b = b % m;
+    while (e > 0) {
+        if ((e & 1) !== 0) {
+            c = (c * b) % m;
+        }
+        e = e >> 1;
+        b = b ** 2 % m;
+    }
+    return c;
+}
+```
+
+Warto jednak sprawdzić, czy Twój język programowania nie posiada już takiej funkcji. Możemy ją znaleźć pod nazwami takimi jak:
+
+- `ModPow()` lub `modPow()` — np. NET i Java (tu i tu w klasie `BigInteger`)
+- `powermod` — np. MATLAB i Wolfram Language.
+- Czasami jest to też trzeci argument funkcji liczącej potęgi. Jest tak np. w Pythonie w funkcji `pow()` lub w Go w funkcji `Exp()` (w `big.Int`).
+
+### Uzyskanie liczby w postaci 2<sup>s</sup> * d = n - 1
+
+Następny algorytm pomocniczy, jaki potrzebujemy, to sposób na obliczenie wartości $$s$$ i $$d$$ dla liczby mniejszej o 1 od testowanej przez nas. W tym miejscu posłużymy się własnościami liczb.
+
+Przede wszystkim skorzystamy z tego, że wynikiem działania $$2^s \cdot d$$ będzie liczba parzysta. A każda liczba parzysta daje się zapisać w postaci mnożenia jednej z potęg dwójki oraz liczby nieparzystej, czyli jest to dokładnie, czego szukamy. Aby obliczyć wartości, wystarczy tak długo dzielić $$d / 2$$ (zaczynamy od wartości równej liczbie, dla której szukamy dzielników) oraz zwiększać $$s$$ o 1 (zaczynamy od zera), aż $$d$$ będzie nieparzyste.
+
+Wejściem algorytmu jest parzysta liczba $$x$$, dla której szukamy dzielników. Wyjściem są wykładnik $$s$$ oraz mnożnik $$d$$. Algorytm wygląda następująco:
+
+1. Ustawiamy $$s = 0$$ oraz $$d = x$$.
+2. Dopóki $$d$$ jest parzyste:
+    1. Podziel (całkowitoliczbowo) mnożnik przez 2 (najszybciej: przesunięciem binarnym): $$d = d >> 1$$.
+    2. Zwiększ s: $$s = s + 1$$.
+3. Zwróć $$s$$ i $$d$$.
+
+W kodzie (JavaScript) wygląda to następująco:
+
+```javascript
+function factorize(x) {
+    let s = 0;
+    let d = x;
+    while ((d & 1) === 0) {
+        d = d >> 1;
+        s++;
+    }
+    return { s, d };
+}
+```
+
+### Test Millera-Rabina
+
+Skoro opowiedzieliśmy już sobie o wszystkich przydatnych, pobocznych algorytmach, możemy przejść do implementacji samego testu Millera-Rabina. Wejściem algorytmu będą testowana liczba $$n$$ oraz liczba powtórzeń $$k$$. Wyjściem: fałsz, jeśli liczba jest złożona; prawda, jeśli jest prawdopodobnie pierwsza. Kroki są następujące:
+
+1. Na początku odrzućmy dwa skrajne przypadki, których nie przetestujemy testem Millera-Rabina i wiemy, że są liczbami pierwszymi: 2 oraz 3. Jeśli $$n = 2$$ lub $$n = 3$$, zwróć *prawda*.
+2. Następnie odrzućmy wszystkie liczby parzyste i mniejsze od 2. Jeśli $$n \mod{2} = 0$$ lub $$n < 2$$, zwróć *fałsz*.
+3. Oblicz wartości $$s$$ i $$d$$ ze wzoru $$2^s \cdot d = n - 1$$.
+4. Powtórz $$k$$ razy:
+    1. Wybierz losową liczbę $$a$$ z zakresu $$(1, n-1)$$.
+    2. Oblicz $$x = a^d \mod{n}$$ (potęgowanie modularne).
+    3. Jeśli $$x = 1$$ lub $$x = n - 1$$, zakończ aktualny przebieg pętli i wykonaj kolejny (liczba jest prawdopodobnie pierwsza).
+    4. Dla wszystkich $$r$$ od 1 do $$s - 1$$:
+        1. Oblicz $$x = a^{2^r \cdot d} \mod{n}$$.
+        2. Jeśli $$x = n - 1$$, wyjdź z pętli (liczba jest prawdopodobnie pierwsza).
+    5. W tym momencie ani razu nie doszliśmy do stwierdzenia, że liczba jest prawdopodobnie pierwsza, więc możemy zakończyć algorytm, zwracając *fałsz* (liczba jest złożona).
+5. Będąc w tym momencie, nie przerwaliśmy pętli (4) stwierdzeniem, że liczba jest złożona, więc zwracamy *prawdę* (liczba jest prawdopodobnie pierwsza).
+
+### Usprawnienia algorytmu
+
+Algorytm w powyższej wersji będzie działał poprawnie, jednak możemy go jeszcze nieco ulepszyć. Zajmijmy się pętlą sprawdzającą drugi warunek.
+
+Zauważ, że w kolejnych iteracjach wykonujemy po kolei:
+
+- $$a^{d} \mod{n}$$ — jeszcze przed pętlą
+- $$a^{2d} \mod{n}$$
+- $$a^{2^2d} \mod{n} =a^{4 d} \mod{n} $$
+- $$a^{2^3 d} \mod{n} =a^{8 d} \mod{n} $$
+
+W praktyce algorytm można zdecydowanie przyspieszyć, jeśli zamiast liczyć wartość za każdym razem na nowo, wykorzystamy ponownie poprzednią — podniesiemy ją do potęgi 2 i obliczymy modulo n. Dodatkowo możemy dopisać warunek, że jeśli nowo obliczona liczba jest równa 1, to mamy do czynienia z liczbą złożoną. Tym samym punkt 4.4 z powyższego algorytmu możemy zapisać następująco:
+
+4. Dla wszystkich $$r$$ od 1 do $$s - 1$$:
+    1. Oblicz $$x = x^{2} \mod{n}$$.
+    2. Jeśli $$x = 1$$, zakończ algorytm i zwróć fałsz (liczba jest złożona).
+    3. Jeśli $$x = n -1$$, wyjdź z pętli (liczba jest prawdopodobnie pierwsza).
+
+W kodzie (JavaScript) całość testu wygląda teraz następująco:
+
+```javascript
+function millerRabin(n, k) {
+    if (n === 2 || n === 3) return true;
+    if ((n & 1) === 0 || n < 2) return false;
+    const { s, d } = factorize(n - 1);
+    for (let i = 0; i < k; i++) {
+        const a = random(2, n - 2);
+        let x = modPow(a, d, n);
+        if (x === 1 || x === n - 1) continue;
+        let isPrime = false;
+        for (let r = 1; r < s; r++) {
+            x = modPow(x, 2, n);
+            if (x === 1) return false;
+            if (x === n - 1) {
+                isPrime = true;
+                break;
+            }
+        }
+        if (isPrime) {
+            continue;
+        }
+        return false;
+    }
+    return true;
+}
+```
+
+Kompletny kod znajdziesz tutaj: [https://github.com/swistak-codes/prime-numbers/blob/main/tests/miller-rabin.js](https://github.com/swistak-codes/prime-numbers/blob/main/tests/miller-rabin.js).
+
+### Wersja deterministyczna
+
+Aby zamienić algorytm na deterministyczny, musielibyśmy pozbyć się losowania podstawy $$a$$. Możemy to zrobić, korzystając z gotowych zbiorów liczb, które znajdziemy w Internecie. Przykładowa lista podstaw wystarczających do poprawnego przeprowadzenia testu wygląda następująco:
+
+- $$a \in \{2\}$$ dla $$ n < 2047$$
+- $$a \in \{2, 3 \}$$ dla $$ n < 1373653$$
+- $$a \in \{31, 73 \}$$ dla $$ n < 9080191$$
+- $$a \in \{2, 3, 5 \}$$ dla $$ n < 25326001$$
+- $$a \in \{2, 3, 5, 7 \}$$ dla $$ n < 3215031751$$
+
+Powyższa lista nie jest jedyną słuszną. W zależności od źródła znajdziemy inne, dobiegające nawet do $$n < 3317044064679887385961981$$.
+
+## Algorytm wyszukiwania dużej liczby pierwszej
+
+Wiemy już, jak szybko testować pierwszość bardzo dużych liczb. Może bez 100% pewności, jednak mamy dość duże prawdopodobieństwo, że się nie pomylimy (o czym później). Jak więc przekuć tę wiedzę na szukanie dużych liczb pierwszych?
+
+W poprzednim artykule napisałem, że twierdzenie o liczbach pierwszych mówi nam o tym, jak często pojawiają się liczby pierwsze, a tym samym, jaka jest szansa trafienia na takie podczas losowania. W takim razie — losujmy. Jeśli chcemy uzyskać liczbę pierwszą o długości $$b$$ bitów, musimy wylosować ją z zakresu $$[2^{b-1}. 2^b-1]$$. Ewentualnie, jeżelibyśmy losowali poszczególne bity, wystarczy dwa skrajne bity (pierwszy i ostatni) ustawić na wartość 1, a losować po pozostałych. Takie ustawienie bitów zapewni nam, że liczba będzie o długości $$b$$ bitów oraz będzie nieparzysta.
+
+Algorytm sam z siebie jest dość prosty i wygląda następująco. Na wejściu przyjmuje liczbę bitów ($$b$$) oraz liczbę powtórzeń testu Millera-Rabina do wykonania ($$k$$). Wyjściem jest silnie prawdopodobna liczba pierwsza $$n$$.
+
+1. Powtarzaj cały czas:
+    1. Wybierz losową liczbę $$n$$ z zakresu $$[2^{b-1}. 2^b-1]$$.
+    2. Wykonaj test Rabina-Millera dla liczby $$n$$ z liczbą powtórzeń $$k$$.
+    3. Jeśli test zwrócił *prawda* (liczba prawdopodobnie pierwsza), przerwij algorytm, zwracając $$n$$.
+
+Poniżej możesz zobaczyć prezentację, gdzie możesz wylosować liczbę pierwszą dla wybranej liczby bitów. Wybierz z pola wyboru, ile bitów ma mieć liczba, a następnie kliknij przycisk, aby uzyskać liczbę (prawdopodobnie) pierwszą.
+
+<Iframe src="/iframe-content/prime-numbers/index.html" minHeight={400} />
+
+Kod źródłowy tej prezentacji [znajdziesz tutaj](https://github.com/swistak-codes/prime-numbers/tree/main/presentations/miller-rabin). Prezentacja ma nałożone duże ograniczenia i może nie zawsze działać szybko. Niestety, wynika to ze specyfiki JavaScriptu działającego w przeglądarce.
+
+## Czy można tej metodzie ufać?
+
+Algorytm jest szybki, jednak pamiętajmy, że jest to metoda probabilistyczna, a więc obarczona pewnym ryzykiem, że zamiast liczby pierwszej otrzymamy liczbę złożoną. Jakie jest na to prawdopodobieństwo?
+
+W teście Millera-Rabina prawdopodobieństwo złego oznaczenia liczby jako pierwszej zależy od dwóch czynników: liczby powtórzeń i szczęścia w losowaniu podstawy $$a$$. Nie będę tutaj wchodzić nadmiernie w matematyczne formalizmy i dowody. Jeśli jesteś ciekaw(a) szczegółów, odsyłam do *Wprowadzenia do algorytmów* Cormena, do rozdziału poświęconego testowaniu pierwszości.
+
+### Prawdopodobieństwo uznania liczby złożonej za pierwszą
+
+Należy zacząć od tego, że z pętli sprawdzającej drugi z warunków testu wynika, że jeśli sprawdzana liczba $$n$$ jest nieparzystą liczbą złożoną, to musieliśmy sprawdzić w tym celu $$(n-1)/2$$ liczb (świadków złożoności). Stąd przy pojedynczym powtórzeniu testu Rabina-Millera mamy co najmniej $$\frac{1}{2}$$ szansy znalezienia $$x$$ będącego świadkiem złożoności $$n$$. Test Rabina-Millera myli się tylko wtedy, gdy nie znajdzie świadka złożoności. Idąc dalej, powtarzając test $$s$$ razy, prawdopodobieństwo nieznalezienia świadka złożoności $$n$$ wynosi $$2^{-s}$$.
+
+### Prawdopodobieństwo wygenerowania liczby pierwszej
+
+Jednak powyższe prawdopodobieństwo zakłada, że $$n$$ jest liczbą złożoną, i pokazuje szansę pomyłki uznania jej za liczbę pierwszą. Przy generowaniu liczb pierwszych interesuje nas, jaka jest szansa, że nie pomylimy się, losując duże liczby. Tutaj posłużymy się prawdopodobieństwami warunkowymi.
+
+Zacznijmy od zdarzenia $$A$$, które oznacza, że wylosowana liczba $$n$$ o długości $$b$$ bitów jest pierwsza. Możemy odwołać się do znanego z poprzedniego artykułu twierdzenia o liczbach pierwszych — stąd wiemy, że prawdopodobieństwo tego zdarzenia wynosi:
+
+$$
+P(A) \approx \frac{1}{\ln{n}} \approx \frac{1,443}{b}
+$$
+
+Następnie jako $$B$$ określmy zdarzenie, w którym test Millera-Rabina zwraca, że liczba jest pierwsza. Wiemy już z artykułu, kiedy algorytm stwierdza pierwszość i złożoność, oraz z poprzedniego akapitu, jakie jest prawdopodobieństwo błędu. Zapiszmy to więc językiem matematyki w zależności od zdarzenia A (wylosowana liczba jest pierwsza):
+
+$$
+\begin{align*}
+P(\overline{B}|A) = 0 &\Rightarrow
+P(B|A) = 1 \\
+P(B|\overline{A}) \leqslant 2^{-s} &\Rightarrow
+P(\overline{B}|\overline{A}) > 1 - 2^{-s}
+\end{align*}
+$$
+
+(pozioma kreska nad zdarzeniem oznacza jego przeciwieństwo).
+
+Nas jednak interesuje, jakie jest prawdopodobieństwo, że wylosowana liczba $$n$$ faktycznie jest pierwsza, jeśli tak twierdzi test Millera-Rabina. Wzór według teorii prawdopodobieństwa wygląda następująco:
+
+$$
+\begin{align*}
+P(A|B) &= \frac{P(A)P(B|A)}{P(A)P(B|A)+P(\overline{A})P(B|\overline{A})} \\
+&\approx \frac{1}{1+2^{-s}(\ln{n}-1)}
+\end{align*}
+$$
+
+### Minimalna liczba powtórzeń
+
+Z powyższego wynika, że tak długo, jak liczba powtórzeń $$s$$ jest większa od $$\log_2{(\ln{n}-1))}$$, prawdopodobieństwo nie przekroczy 0,5. Czyli minimalną liczbę powtórzeń $$s$$ dla liczby o długości $$b$$ bitów możemy obliczyć wzorem:
+
+$$
+s = \log_2{(\ln{n}-1))} \approx \log_2{(b/1,443)}
+$$
+
+Na przykład dla poniższych, często spotykanych wielkości liczb, minimalna liczba powtórzeń wynosi:
+
+- 8 bitów — $$s \approx 2$$
+- 32 bity — $$s \approx 4$$
+- 64 bity — $$s \approx 5$$
+- 512 bitów — $$s \approx 8$$
+- 1024 bity — $$s \approx 9$$
+- 2048 bitów — $$s \approx 10$$
+
+Według *Wprowadzenia do algorytmów* można spokojnie przyjąć, że 50 powtórzeń będzie całkowicie wystarczające, niezależnie od zastosowań. W praktyce jednak, dla szybkiego działania algorytmu, warto rozważyć mniejszą liczbę powtórzeń. Najlepiej jest doświadczalnie sprawdzić, jakie podejście daje najlepsze rezultaty. Swoją drogą, zauważ, że wyliczona tym wzorem minimalna liczba powtórzeń często pokrywa się z liczbą odgórnie określonych podstaw $$a$$ w deterministycznej wersji algorytmu.
+
+## Podsumowanie
+
+W dwóch pierwszych artykułach poznaliśmy niezawodne, aczkolwiek też nie najszybsze sposoby na testowanie pierwszości oraz generowanie liczb pierwszych. Zapewniają nam nieomylność, jednak wymagają za dużo obliczeń lub zbyt wiele pamięci, aby być wykorzystywane w praktyce, gdzie potrzebujemy szybko i niskim kosztem znaleźć duże liczby pierwsze. Dzięki matematycznym sztuczkom poruszonym w poprzednim artykule dowiedzieliśmy się, że są pewne wspólne własności dla liczb pierwszych, które można z powodzeniem wykorzystać do zmniejszenia liczby obliczeń przy testach. Tutaj przełożyliśmy to na algorytmiczną praktykę.
+
+Jednak możesz zadać pytanie — czy metody probabilistyczne, gdzie nie jesteśmy w 100% pewni rozwiązania, są na pewno dobre? Otóż w większości zastosowań tak. Przypomnij sobie tylko moje wcześniejsze wpisy: <Link href="/post/obliczanie-calek-oznaczonych">o całkach oznaczonych</Link> oraz <Link href="/post/sztuczna-inteligencja-a-co-to-a-komu-to-potrzebne">o sztucznej inteligencji</Link> (dokładniej: akapit o rozwiązywaniu problemów). Zaznaczyłem tam, że w wielu zastosowaniach wystarczy nam przybliżone rozwiązanie problemu, a nie jego dokładny wynik. To samo jest tutaj. Jeśli zależy nam na szybkości, możemy zaryzykować, że wygenerujemy liczbę, która będzie złożona (aczkolwiek będzie silną pseudopierwszą). Z racji tego, jak test Millera-Rabina działa, będzie to mieć zdecydowanie lepszy rezultat, z większą szansą bycia liczbą pierwszą, niż pierwsza lepsza, całkowicie losowa liczba.
+
+## Literatura
+
+- Cormen, T. H.; Leiserson, C. E.; Rivest R. L.; Stein C. “Primality Testing” w *Introduction to algorithms, 3rd ed.*. MIT Press, Cambridge, MA, U.S.A., s. 965-975.
+- Lynn B. *Primality tests*, [https://crypto.stanford.edu/pbc/notes/numbertheory/millerrabin.html](https://crypto.stanford.edu/pbc/notes/numbertheory/millerrabin.html) (ostatnie odwiedziny 20.02.2022).
+- Miller–Rabin primality test, [https://en.wikipedia.org/w/index.php?title=Miller%E2%80%93Rabin_primality_test&oldid=1058489090](https://en.wikipedia.org/w/index.php?title=Miller%E2%80%93Rabin_primality_test&oldid=1058489090) (ostatnie odwiedziny 20.02.2022).
+- Modular exponentiation, [https://en.wikipedia.org/w/index.php?title=Modular_exponentiation&oldid=1054183244](https://en.wikipedia.org/w/index.php?title=Modular_exponentiation&oldid=1054183244) (ostatnie odwiedziny 20.02.2022).
+- Modular arithmetic, [https://en.wikipedia.org/w/index.php?title=Modular_arithmetic&oldid=1070175110](https://en.wikipedia.org/w/index.php?title=Modular_arithmetic&oldid=1070175110) (ostatnie odwiedziny 20.02.2022).
+
+<small>(zdjęcie na okładce: [MingUsuam Kimz](https://commons.wikimedia.org/wiki/File:HK_TST_%E5%B0%96%E6%B2%99%E5%92%80_Tsim_Sha_Tsui_%E5%BD%8C%E6%95%A6%E9%81%93_Nathan_Road_%E7%BE%8E%E9%BA%97%E8%8F%AF%E5%95%86%E5%A0%B4_MiraPlace_Shopping_mall_shop_toys_December_2020_SS2_02.jpg), [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0), via Wikimedia Commons)</small>

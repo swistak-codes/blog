@@ -1,0 +1,464 @@
+import Link from 'next/link';
+import {Image, Iframe} from '@swistak-codes/components';
+import cover from './zebra.jpg';
+import swistak from './swistak_z_bliska.jpg';
+import atari from './Atari-2600-Light-Sixer-FL.jpg';
+import hercules from './640px-KL_Hercules_HGC.jpg';
+import linie from './linie-bitmapy.png';
+import rysowanie from './rysowanie-przypadki.png';
+
+export const meta = {
+  title: 'Jak komputer rysuje linie?',
+  abstract:
+    'Dziś opowiedzmy sobie o tym, jak komputer rysuje na ekranie, a dokładniej — jakie algorytmy służą rysowaniu linii (odcinków).',
+  firstParagraph: (
+    <>
+      Korzystając na co dzień z komputera, jeżeli zastanawiamy się, jak on działa, to myślimy albo o tym, jakie
+      algorytmy wykorzystują jakieś skomplikowane aplikacje, albo jakie rozwiązania użyto do ich stworzenia, albo, tak z
+      innej strony, jak to wszystko działa na poziomie sprzętu. Jednak rzadziej się zastanawiamy nad rzeczami, które po
+      prostu się dzieją, otaczają nas bez przerwy i nie są spektakularne, a jednak proces, jak to się dzieje, sam w
+      sobie może być całkiem ciekawy. Dlatego dziś opowiedzmy sobie o tym, jaka algorytmika stoi za rysowaniem na
+      ekranie, a dokładniej — rysowaniem linii (odcinków).
+    </>
+  ),
+  keyword: 'komputer rysuje',
+  categories: ['Algorytmy', 'Grafika komputerowa'],
+  tags: [
+    'Bresenham',
+    'linie',
+    'odcinki',
+    'piksel',
+    'bufor ramki',
+    'karta graficzna',
+    'gpu',
+    'optymalizacja',
+    'rysowanie',
+    'javascript',
+    'matematyka',
+    'forma uwikłana',
+    'funkcja liniowa',
+    'algorytm punktu środkowego',
+    'incremental error algorithm',
+    '2d'
+  ],
+  slug: 'jak-komputer-rysuje-linie',
+  updateTime: '2021-08-17T16:37:47+00:00',
+  publishTime: '2021-03-03T10:00:11+00:00',
+  cover,
+};
+
+## Skąd bierze się obraz na monitorze?
+
+Aby zacząć rozważania o tym jak algorytmicznie narysować linię, przejdźmy krótko przez sam proces rysowania na ekranie przez komputer. Jednak jeśli takie zagadnienia jak piksel, karta grafiki czy bufor ramki są Ci znane, możesz przewinąć dalej.
+
+### Piksel
+
+Zacznijmy najpierw od strony, którą operujemy jako programiści, czyli strona logiczna. Tutaj głównym pojęciem, jakim operujemy w grafice komputerowej, jest *piksel*. Piksel to najmniejsza jednostka w grafice, stanowiąca dosłownie najmniejszy punkt, który jesteśmy w stanie wyświetlić na ekranie. Każdy pojedynczy punkt, jaki widzisz na ekranie komputera, to właśnie piksel.
+
+<Image
+  image={swistak}
+  alignCenter
+  fullSize
+  alt="Zdjęcie makro ekranu LCD wyświetlającego logo bloga świstak.codes"
+  caption={<>
+    Fragment logo bloga wyświetlony na ekranie LCD. Możemy tutaj bez problemu zauważyć pojedyncze piksele. Każdy z nich składa się tak naprawdę z trzech fizycznych diod: czerwonej, zielonej i niebieskiej. Regulując natężenie światła każdej z nich, monitor jest w stanie odwzorowywać kolory, a dzięki nieperfekcyjności ludzkiego wzroku jesteśmy w stanie widzieć z daleka jeden piksel jako jeden kolor, a nie trzy oddzielne.
+  </>}
+/>
+
+### Bufor ramki
+
+Jednak komputer musi skądś wiedzieć, gdzie który piksel powinien się znajdować przed jego wyświetleniem. Za to odpowiada bufor ramki (z ang. framebuffer). Jest to fragment pamięci operacyjnej, który przechowuje to, gdzie powinien znaleźć się każdy z pikseli. Możemy go sobie wyobrazić jako siatkę opartą na kartezjańskim układzie współrzędnych o wielkości takiej, jak rozdzielczość ekranu. Innymi słowy, jest to dwuwymiarowa tablica, gdzie każdy element to określony piksel na monitorze, a wartość elementu to kolor tego piksela. Jest to taka sama bitmapa jak ta, o której pisałem w <Link href="/post/przetwarzanie-plikow-w-praktyce-obrazy-bmp">artykule o przetwarzaniu plików BMP</Link>. Różnica jest tylko taka, że ta bitmapa zmienia się kilkadziesiąt razy na sekundę (zwykle 60 razy — stąd standard 60 FPS), aby na bieżąco odwzorować to, co dzieje się na ekranie.
+
+Dziś przechowywanie buforu ramki to rzecz trywialna i zwykle przechowuje się w pamięci kilka klatek do przodu (tzw. wielokrotne buforowanie). Rozmiar takiej pojedynczej ramki możemy bardzo łatwo wyliczyć, mnożąc wymiary ekranu przez głębię kolorów pojedynczego piksela. Przykładowo, dla rozdzielczości Full HD (1920 × 1080) i 24-bitowej głębi kolorów rozmiar wynosi:
+
+$$
+1920 \cdot 1080 \cdot 24 = 49766400 \text{ b} = 6220800 \text{ B} \approx 6 \text{ MB}
+$$
+
+<Image
+  image={atari}
+  alignRight
+  fullSize
+  alt="Atari 2600"
+  caption={<>
+    Konsola Atari 2600<br />
+    (źródło: <a href="https://commons.wikimedia.org/wiki/File:Atari-2600-Light-Sixer-FL.jpg" target="_blank">Evan-Amos</a>, Public domain, via Wikimedia Commons)
+  </>}
+/>
+
+Biorąc pod uwagę, że dzisiejsze karty graficzne mają po kilka gigabajtów pamięci RAM, to jest to nieznaczna wielkość. Tutaj jako ciekawostkę można dodać, że nie zawsze tak to wyglądało. Na przykład, w konsoli Atari 2600 (1977 r.), która miała jedynie 128 bajtów pamięci, nie istniał bufor ramki. Zamiast tego programiści układali 5 odgórnie zaprogramowanych elementów w rejestrze procesora graficznego (czyli w kilkudziesięciu bitach wewnątrz samego procesora), a do tego nie określali wyglądu całej ramki. Zamiast tego wykorzystywano to, że ówczesne telewizory nie rysowały natychmiastowo całego obrazu, a rysowały go linia po linii (poziomo) i rejestr przechowywał jedynie to, co ma wyświetlać aktualnie rysowana linia. Jeżeli jesteś zainteresowany tematem, został on przedstawiony w książce *Racing the Beam* wraz z przykładami na konkretnych grach powstałych na ten system (w tym słynny Pac-Man).
+
+### Karta graficzna
+
+Teraz przejdźmy do strefy sprzętowej, o którą już w zasadzie, chcąc nie chcąc, zahaczyłem w poprzednim akapicie. Urządzeniem, które jest bezpośrednio odpowiedzialne za to, że na ekranie widzimy wyświetlone piksele, jest karta graficzna (już pomijając sam fakt potrzeby jakiegokolwiek ekranu). Głównym zadaniem karty graficznej jest właśnie przetransformowanie mapy bitowej zapisanej w buforze ramki na sygnał cyfrowy (HDMI, DP lub DVI) bądź analogowy (VGA) odbierany przez ekran. Sam bufor ramki, jak wcześniej wspomniałem, znajduje się w pamięci RAM wbudowanej w kartę graficzną.
+
+Oczywiście nie jest to jej jedyne zadanie. Dziś karty graficzne są głównie kojarzone z wykonywaniem zaawansowanych obliczeń umożliwiających generowanie grafiki trójwymiarowej. To przede wszystkim z tego powodu są one tak silne i swoją wydajnością obliczeniową dla wybranych rodzajów obliczeń potrafią bić na głowę zwykłe procesory. Warto również dodać, że w dawnych czasach rolą karty graficznej nie było tylko konwertowanie obrazu z pamięci na sygnał, ale też jego generowanie. Mianowicie w dawnych komputerach (lata 80. XX wieku) karta grafiki otrzymywała informacje, które znaki tekstu znajdują się na ekranie, i na tej podstawie generowała bufor ramki. Analogicznie działały ówczesne drukarki — to na samej drukarce ustawialiśmy czcionkę, w jakiej chcemy wydrukować tekst.
+
+<Image
+  image={hercules}
+  alignCenter
+  fullSize
+  alt="Karta graficzna Hercules"
+  caption={<>
+    Karta graficzna Hercules z 1984 roku. Oferowała możliwość rysowania czarno-białego obrazu o rozdzielczości 720 × 348, posiadając zawrotne jak na tamte czasy 64 kB pamięci RAM. Dziś przeciętny telefon komórkowy posiada dużo mocniejsze układy graficzne przy znacznie mniejszym rozmiarze.<br />
+    (źródło: <a href="https://commons.wikimedia.org/wiki/File:KL_Hercules_HGC.jpg" target="_blank">Konstantin Lanzet</a>, <a href="http://creativecommons.org/licenses/by-sa/3.0/" target="_blank">CC BY-SA 3.0</a>, via Wikimedia Commons)
+  </>}
+/>
+
+## Jak komputer rysuje grafikę?
+
+Rysowanie odcinków, o którym chcę powiedzieć w tym artykule, to tylko przykładowe zagadnienie, z jakim mierzy się oprogramowanie odpowiadające za rysowanie grafiki na ekranie. Dlaczego jednak stanowi to jakikolwiek problem?
+
+Przede wszystkim programiści, którzy mieli okazję robić cokolwiek związanego z grafiką, widzieli nie raz funkcje typu *drawLine*, *lineTo* itp. Każda z nich robi właśnie to, o czym chcę tu opowiedzieć — rysuje prostą linię od punktu A do punktu B. Tylko, co warto wiedzieć, nie jest to wbrew pozorom operacja standardowa. Podstawowe operacje na buforze ramki sprowadzają się do stawiania w niej pojedynczych pikseli. Każda inna operacja jest niestandardowa i w którymś momencie obsługiwana przez jakąś bibliotekę software'ową.
+
+Najlepiej można to poznać, cofając się do dawnych czasów i tego, jak wtedy tworzono aplikacje graficzne. Moim ulubionym przykładem jest MS-DOS i jego tryb graficzny znany jako 13h. To, co dostawali wówczas programiści, to bezpośredni dostęp do bufora ramki. Rozdzielczość wynosiła 320 × 200 pikseli (przy proporcjach 4:3, przez co piksele nie były kwadratowe tak jak obecnie, tylko prostokątne), a kolor każdego z nich był opisany ośmioma bitami. Tym samym jedyną, od razu dostępną operacją był zapis pojedynczego piksela. Jednak w tym artykule nie mam zamiaru męczyć Cię rozwiązaniami sprzed 30 lat, dlatego wspominam o tym jedynie w celach własnych, opcjonalnych poszukiwań.
+
+## Poboczna uwaga
+
+Dla prostego zobrazowania dalszych przykładów nie będę korzystać z żadnej biblioteki graficznej, tylko będę pokazywać wszystkie operacje na tablicy symulującej bufor ramki. Kod wszystkich zamieszczonych niżej prezentacji znajdziesz [w repozytorium na moim GitHubie](https://github.com/swistak-codes/line-drawing). Zostały one napisane w TypeScript z wykorzystaniem frameworka Svelte.
+
+## Problem rysowania linii
+
+Na początek zdefiniujmy sobie przed jakim problemem do rozwiązania algorytmicznie stoimy. Mianowicie, na wejściu algorytmu dostajemy dwie współrzędne (czyli obie opisują punkt za pomocą wartości x i y) wyznaczające początek i koniec odcinka. Dla uproszczenia stosuję zamiennie słowo linia, jednak cały czas mam na myśli to, co z matematycznego punktu widzenia nazywamy właśnie odcinkiem.
+
+To, co ma nasz algorytm wykonać, to określić współrzędne wszystkich pozostałych punktów na jakich powinna zostać wyrysowana linia. Dlaczego stanowi to problem? Otóż, mapa bitowa jest to w dużym uproszczeniu siatka.  O ile linię pionową, poziomą lub nachyloną 45 stopni względem osi X jest bardzo łatwo wyrysować, ponieważ idziemy po kolei po pikselach, o tyle gorzej jest w innych przypadkach. Na dużym zbliżeniu nie ma tutaj ładnej ciągłości jaką znamy z tradycyjnego rysowania ołówkiem, co przedstawiam na prostym schemacie poniżej.
+
+<Image
+  image={linie}
+  alignCenter
+  fullSize
+  alt="Linie i reprezentacja jako bitmapa"
+  caption={<>
+    Przykładowe linie (zaznaczone kolorem czerwonym) z ich możliwymi zapisami w postaci mapy bitowej na siatce 6x6 pikseli
+  </>}
+/>
+
+Mówiąc krótko, stoimy tu przed następującymi trudnościami:
+
+- jak odpowiednio zaokrąglać wartości, aby linia była narysowana pod dobrym kątem i jednocześnie sprawiała wrażenie prostej
+- jak obliczyć wszystkie potrzebne punkty w najprostszy obliczeniowo sposób (idealnie — opierając się jedynie na operacjach na liczbach całkowitych, najlepiej tylko na dodawaniu), czyli najszybciej jak to tylko możliwe
+- (opcjonalnie) jakie dodatkowe punkty powinniśmy pokryć kolorem (i jakim), aby sprawić wrażenie, że linia jest gładka (tzw. antialiasing).
+
+## Zacznijmy od matematyki
+
+Zanim zaczniemy poszukiwać lepszych obliczeniowo sposobów, zacznijmy od tego najprostszego i najbardziej oczywistego. Sposobu, który każdy miał na lekcjach matematyki. Innymi słowy, skorzystamy z wzoru na wykres funkcji liniowej. Przypomnę go tylko:
+
+$$
+y = ax + b
+$$
+
+We wzorze tym, w uproszczeniu mówiąc, $$a$$ określało nachylenie prostej, natomiast $$b$$ jej przesunięcie od punktu $$(0,0)$$. Tylko skąd mamy wziąć te współczynniki, aby obliczyć położenie dowolnego punktu? Po to nam właśnie są potrzebne punkt początkowy i punkt końcowy. Oznaczmy je sobie jako $$(x_0, y_0)$$ i $$(x_1, y_1)$$. Tylko zanim przejdziemy do obliczeń, ułatwmy sobie nieco nasze rozważania.
+
+## Ograniczenie problemu
+
+Aby uprościć nieco artykuł, ograniczę problem rysowania odcinka. Jest to spowodowane tym, że nie ma uniwersalnego sposobu dla rysowania linii pod każdym kątem. Tak naprawdę mamy 8 różnych przypadków jak powinniśmy podejść do rysowania, wszystko w zależności od położenia punktu początkowego i końcowego. Przypadki te możesz zobaczyć na poniższym rysunku:
+
+<Image
+  image={rysowanie}
+  alignCenter
+  fullSize
+  alt="Przypadki jakie należy pokryć rysując linię"
+  caption={<>
+  </>}
+/>
+
+Za punkt zerowy układu uznajemy punkt $$(x_0, y_0)$$. W przykładowych implementacjach, które tu podam nie będę pokrywał każdego przypadku, jednak za każdym razem opiszę, których przypadków brakuje. Pełne implementacje znajdziesz u mnie na GitHubie w kodzie zamieszczonych poniżej prezentacji.
+
+Jeszcze jedna, bardzo istotna uwaga. Powyżej przedstawiłem jak to wygląda na tradycyjnym, dwuwymiarowym kartezjańskim układzie współrzędnych. W grafice komputerowej sytuacja wygląda nieco inaczej, ponieważ punkt $$(0,0)$$ nie znajduje się w lewym dolnym rogu ekranu, tylko w lewym górnym. Dlatego, w przypadku prezentacji pokazanych poniżej, nie zdziw się, że rysując linię pod kątem, przykładowo 35 stopni, otrzymasz ujemną wartość współczynnika $$a$$.
+
+## Wersja 1: wprost ze wzoru
+
+Wróćmy teraz do naszego wzoru na funkcję liniową: $$y=ax+b$$. Współczynnik nachylenia $$a$$ możemy wyliczyć ze wzoru:
+
+$$
+a = \frac{y_1 - y_0}{x_1 - x_0}
+$$
+
+Współczynnik przesunięcia $$b$$ możemy natomiast wyliczyć z poniższego wzoru:
+
+$$
+b = y_0 - ax_0
+$$
+
+W algorytmie będziemy wyliczać wartości $$y$$ dla kolejnych $$x$$, zwiększając ich wartość o 1.  Oczywiście musimy pamiętać o zaokrągleniu wartości, aby dopasować pozycję do bitmapy. Algorytm wygląda następująco:
+
+```javascript
+var a = (y1 - y0) / (x1 - x0);
+var b = y0 - a * x0;
+for (var x = x0; x <= x1; x++) {
+    var y = Math.round(a * x + b);
+    frameBuffer[x][y] = COLOR;
+}
+```
+
+Powyższy algorytm działa jedynie dla przypadków, kiedy $$x_1 > x_0$$, i nie zadziała dla poziomych linii (otrzymamy dzielenie przez zero).
+
+Natomiast jak działa, możesz przetestować na poniższej prezentacji. Wybierz na siatce punkty, między którymi chcesz wyrysować linię, a algorytm obliczy odpowiednie punkty. Pod przyciskami do kontroli znajdziesz konsolę, gdzie wypisywane są wyliczone wartości $$x$$ i $$y$$ w kolejnych iteracjach.
+
+<Iframe src="/iframe-content/line-drawing/index.html?algorithm=naive" minHeight={950} />
+
+Jak możesz zauważyć, rysowanie działa całkiem sprawnie, dopóki współczynnik nachylenia $$a$$ nie jest w przedziale $$1 < a < \infty$$ lub $$-1 > a > -\infty$$. W tych przypadkach otrzymujemy przerywaną linię. Bierze się to stąd, że iterujemy po $$x$$, a zaokrąglamy wartości dla $$y$$, podczas gdy tutaj powinniśmy działać na odwrót, gdyż wiele razy powtórzy się ta sama wartość $$x$$ dla wielu $$y$$.
+
+## Wersja 2: dodajemy iteracje po Y
+
+Skoro rozpoznaliśmy, że problemem jest to, że iterujemy zawsze po $$x$$, to dodajmy iteracje po $$y$$. Najpierw jednak określmy wzór, z którego będziemy obliczać $$x$$, znając $$y$$:
+
+$$
+\begin{align*}
+y &= ax + b \\
+y - b &= ax \\
+x &= \frac{y-b}{a}
+\end{align*}
+$$
+
+Możemy wówczas dopisać dodatkowy przypadek. Poniższy kod powinniśmy połączyć z tym zaprezentowanym wcześniej i uzależnić odpowiednimi warunkami, które powinniśmy użyć.
+
+```javascript
+for (var y = y0; y <= y1; y++) {
+    var x = Math.round((y - b) / a);
+    frameBuffer[x][y] = COLOR;
+}
+```
+
+Możesz przetestować algorytm poniżej:
+
+<Iframe src="/iframe-content/line-drawing/index.html?algorithm=naive2" minHeight={950} />
+
+Teraz algorytm działa bez zarzutu. Jednak jeśli pamiętasz moje wpisy o algorytmach sortowania, samo poprawne działanie nie jest czymś wystarczającym dla nas. Kolejny krok, jaki podejmujemy, to optymalizacja poprzez upraszczanie obliczeń.
+
+## Wersja 3: uproszczenie wzoru
+
+Jak się okazuje, nie musimy cały czas wykorzystywać pełnego wzoru na funkcję liniową. Wiedząc, jaki y wyliczyliśmy w poprzednim kroku, możemy tę wiedzę wykorzystać dalej. Tak naprawdę co krok wartość $$y$$ przyrasta dosłownie o wartość współczynnika $$a$$. Oznacza to, że możemy obliczać wartości z poniższego wzoru:
+
+$$
+y_{i+1} = y_{i} + a
+$$
+
+Analogicznie jest, gdy iterujemy po $$y$$. Wtedy korzystamy ze wzoru:
+
+$$
+x_{i+1} = x_{i} + \frac{1}{a}
+$$
+
+```javascript
+var a = (y1 - y0) / (x1 - x0);
+var invA = 1 / a;
+if (Math.abs(a) <= 1) {
+    var y = y0;
+    for (var x = x0; x <= x1; x++) {
+        frameBuffer[x][Math.round(y)] = COLOR;
+        y = y + a;
+    }
+} else {
+    var x = x0;
+    for (var y = y0; y <= y1; y++) {
+        frameBuffer[Math.round(x)][y] = COLOR;
+        x = x + invA;
+    }
+}
+```
+
+Algorytm ten najczęściej możesz znaleźć w Internecie, szukając hasła „rysowanie linii”. Jest powszechnie znany jako „naive algorithm” (algorytm naiwny, prosty). Warto tylko pamiętać, że nie obsłuży przypadków, gdy $$x_0 < x_1$$ przy iteracji po $$x$$, oraz $$y_0 < y_1$$, gdy iterujemy po $$y$$. Algorytm możesz przetestować poniżej:
+
+<Iframe src="/iframe-content/line-drawing/index.html?algorithm=naive3" minHeight={950} />
+
+Czy możemy jeszcze bardziej zoptymalizować nasz algorytm? Skoro uprościliśmy obliczenia, dzięki czemu mamy prostsze działanie (dodawanie zamiast mnożenia), poszukajmy, co więcej można zrobić, aby obliczać jeszcze szybciej.
+
+## Wersja 4: usuwamy zaokrąglanie
+
+Jeżeli pisalibyśmy nasz algorytm niskopoziomowo, to interesującą nas optymalizacją byłoby usunięcie obliczeń na liczbach zmiennoprzecinkowych i zastąpienie ich obliczeniami na liczbach całkowitych. Zacznijmy od pozbycia się funkcji zaokrąglającej.
+
+Możemy się jej pozbyć przez zastąpienie jej tak zwanym akumulatorem błędu. Idea polega na tym, że nie zwiększamy od razu wartości $$y$$ (iterując po $$x$$), tylko wartość akumulatora (o współczynnik nachylenia). Jeżeli wartość akumulatora błędu przekracza wartość graniczną, inkrementujemy $$y$$, a akumulator zmniejszamy o 1.
+
+Za wartość graniczną najlepiej jest przyjąć 0,5, a za jego początkową wartość 0. Wtedy zaokrąglanie będzie działać analogicznie do tego, jakie wykonują funkcje zaokrąglające w językach programowania. Jednak na potrzeby niskopoziomowych optymalizacji, warto odwrócić te wartości. Wtedy akumulator na początku przyjmuje -0,5, a w warunku porównujemy do 0. Taka optymalizacja ma sens pod tym kątem, że porównania do zera są mniej kosztowne obliczeniowo dla procesora. Nowa wersja prezentuje się następująco:
+
+```javascript
+var a = (y1 - y0) / (x1 - x0);
+var e = -0.5;
+let y = y0;
+for (let x = x0; x <= x1; x++) {
+    frameBuffer[x][y] = COLOR;
+    e = e + a;
+    if (e >= 0) {
+        y = y + 1;
+        e = e - 1;
+    }
+}
+```
+
+Co warto dodać, ten kod będzie działać jedynie wtedy, gdy $$x_0 < x_1$$ oraz $$0 \leqslant a \leqslant 1$$. Dla innych przypadków należy odwrócić kierunek iteracji lub iterować po $$x$$. Co warto dodać, w przypadku odwrócenia kierunku iteracji, zamiast dodawać współczynnik, odejmujemy go. Algorytm możesz przetestować poniżej:
+
+<Iframe src="/iframe-content/line-drawing/index.html?algorithm=withAccumulator" minHeight={950} />
+
+Ponownie widzimy, że wszystko działa bardzo dobrze. Jednak jak wspomniałem na początku, z optymalizacji interesuje nas całkowite pozbycie się obliczeń zmiennoprzecinkowych. Jak to zrobić?
+
+## Wersja 5: algorytm Bresenhama
+
+Sposób jak narysować linie całkowicie pozbywając się obliczeń na liczbach zmiennoprzecinkowych, a co więcej, korzystając jedynie z operacji dodawania, odejmowania i mnożenia (które i tak można sprowadzić do dodawania), przedstawił w 1965 r. J. E. Bresenham. Podejście to nazywamy algorytmem z punktem środkowym (z ang. midpoint algorithm), incremental error algorithm (nie znalazłem fachowego tłumaczenia na j. polski, można to rozumieć jako algorytm przyrastającego błędu) albo jak w nagłówku tego akapitu, nazwiskiem jego pomysłodawcy.
+
+Aby zrozumieć ideę tego algorytmu, musimy zawrócić do matematyki, jednak jak zobaczysz, to, co ostatecznie osiągniemy, będzie przeróbką tego, co napisaliśmy do tej pory. Musimy zacząć od przepisania funkcji liniowej do postaci uwikłanej. Różnica polega na tym, że dotychczas rozpatrywaliśmy funkcję w formie rozumianej jako $$y=f(x)$$, podczas gdy forma uwikłana to równanie przedstawione jako $$F(x,y) = 0$$. Funkcja liniowa w postaci uwikłanej ma wzór:
+
+$$
+F(x,y) = Ax+By+C = 0
+$$
+
+Przepiszmy stosowaną przez nas funkcję do tej postaci:
+
+$$
+\begin{align*}
+y &= ax + b \\
+0 &= ax - y + b \\
+F(x,y)&=ax-y+b=0
+\end{align*}
+$$
+
+Taka postać funkcji ma na tyle ciekawą właściwość, że podstawiając obie zmienne do wzoru, możemy uzyskać jedną z trzech informacji (zakładając $$a \geqslant 0$$):
+
+- $$F(x,y) = 0$$ — punkt $$(x,y)$$ jest częścią linii
+- $$F(x,y) > 0$$ — punkt $$(x,y)$$ znajduje się pod linią
+- $$F(x,y) < 0$$ — punkt $$(x,y)$$ znajduje się nad linią
+
+Oznacza to, że wystarczy wiedzieć, czy wartość funkcji jest dodatnia, ujemna czy zerowa, aby określić położenie punktu.
+
+### Usunięcie operacji dzielenia
+
+Wróćmy teraz do wzoru. Rozpiszmy sobie wzór i go uprośćmy:
+
+$$
+\begin{align*}
+0 &= \frac{y_1 - y_0}{x_1 - x_0}x - y + y_0 - \frac{y_1 - y_0}{x_1 - x_0}x_0 \\
+0 &=(y_1-y_0)x - (x_1-x_0)y+ (x_1-x_0)y_0-(y_1-y_0)x_0 \\ {} \\
+F(x,y) &= (y_1-y_0)x - (x_1-x_0)y+ C \\
+C &= (x_1-x_0)y_0-(y_1-y_0)x_0
+\end{align*}
+$$
+
+W ten sposób zlikwidowaliśmy całkowicie operację dzielenia, czyli nie mamy już potrzeby wykorzystywania w obliczeniach liczb zmiennoprzecinkowych. Jednak sam ten wzór nie wyrysuje nam linii. Spójrzmy więc dalej. Idea algorytmu Bresenhama jest taka, że będziemy sprawdzać, czy punkt znajdujący się pomiędzy dwoma pikselami (a dokładniej — w połowie odległości między nimi, stąd nazwa algorytmu) jest częścią linii. Współrzędne takiego punktu określamy jako $$(x_M, y_M)$$. Ten właśnie punkt będziemy podstawiać pod wzór funkcji uwikłanej. Wówczas będziemy wiedzieć, w którym miejscu należy wyrysować piksel — nad tym punktem (w fachowej literaturze określa się to miejsce jako $$NE$$ — północny wschód) czy pod nim (w fachowej literaturze $$E$$ — wschód). Wzór na taki punkt możemy określić następująco:
+
+$$
+y_M = y_M^{(0)} + \frac{1}{2}
+$$
+
+Jednak pojawia się połowa odległości, czyli $$\frac{1}{2}$$, a więc wracamy do obliczeń zmiennoprzecinkowych? Nie. Pamiętajmy, że wzór funkcji uwikłanej jest przyrównywany do $$0$$, toteż możemy bez problemu pomnożyć całość przez dwa, a tym samym pozbyć się dzielenia. Nasz nowy wzór funkcji uwikłanej możemy przedstawić w następującej formie:
+
+$$
+\bar{F}(x,y) = 2(y_1-y_0)x - 2(x_1-x_0)y+ 2C
+$$
+
+Dla uproszczenia dalszych zapisów ustalmy małe uproszczenie zapisu:
+
+$$
+\begin{align*}
+dx=(x_1-x_0)&, dy=(y_1-y_0)\\ &\text{stąd:} \\
+\bar{F}(x,y) &= 2dy\cdot x - 2dx\cdot y+ 2C \\
+C &= dx\cdot y_0-dy\cdot x_0
+\end{align*}
+$$
+
+### Zastosowanie w algorytmie — zmienne decyzyjne
+
+Teraz zobaczmy, jak wykorzystać to wszystko w algorytmie rysowania linii. Od razu zaznaczę, że rozpatrujemy tutaj przypadek, gdzie $$x_0 < x_1$$ oraz $$0 \leqslant a \leqslant 1$$.
+
+W algorytmie Bresenhama wykorzystujemy funkcję uwikłaną do decyzji, gdzie rysujemy piksel. Jednak decyzję podejmujemy nie dla aktualnie rysowanego piksela, tylko dla następnego, w zależności także od tego, gdzie narysowaliśmy aktualny punkt. Wynik tej funkcji nazywamy zmienną decyzyjną. Wyróżniamy następujące zmienne decyzyjne:
+
+- $$d$$ — zmienna decyzyjna z obliczeniami zmiennoprzecinkowymi
+- $$D$$ — zmienna decyzyjna wykorzystująca wzór na $$\bar{F}(x,y)$$, tym samym bez obliczeń zmiennoprzecinkowych
+- $$d_{init}, D_{init}$$ — początkowa zmienna decyzyjna
+- $$d_{new}, D_{new}$$ — zmienna decyzyjna dla kolejnego kroku
+- $$d_{old}, D_{old}$$ — zmienna decyzyjna dla poprzedniego kroku
+- $$\Delta$$ — zmiana zmiennej decyzyjnej; wyróżniamy $$\Delta_{NE}$$ oraz $$\Delta_{E}$$
+
+Zacznijmy od początku. Pierwszy punkt, jaki rysujemy, ma współrzędne $$(x_0, y_0)$$, dlatego obliczmy zmienną decyzyjną dla kolejnego punktu:
+
+$$
+\begin{align*}
+d_{init} &= F\bigg(x_0+1,y_0+\frac{1}{2}\bigg) = dy(x_0+1)-dx\bigg(y_0+\frac{1}{2}\bigg) + C \\
+&= dy\cdot x_0-dx\cdot y_0+C+dy-\frac{1}{2}dx = F(x_0,y_0)+dy-\frac{1}{2}dx \\
+&= dy - dx \frac{1}{2} \\ {} \\
+D_{init} &= 2\cdot d_{init} = 2dy - dx
+\end{align*}
+$$
+
+Następnie mamy dwa przypadki dla zmiennej $$d_{new}$$, zależne od tego, czy w poprzednim kroku wartość $$y$$ wzrosła (czyli zakolorowaliśmy piksel $$NE$$), bądź nie (piksel $$E$$).
+
+$$
+\begin{align*}
+d_{old} = F\bigg(x_p+1,y_p+\frac{1}{2}\bigg) &= dy(x_p+1)-dx\bigg(y_p+\frac{1}{2}\bigg)+C \\ \text{gdy poprzednio rysowaliśmy piksel E:}&\\
+d_{new} = F\bigg(x_p+2,y_p+\frac{1}{2}\bigg) &= dy(x_p+2)-dx\bigg(y_p+\frac{1}{2}\bigg)+C \\
+\Delta_E = d_{new} - d_{old} &= dy \\ {} \\
+\text{gdy poprzednio rysowaliśmy piksel NE:}& \\
+d_{new} = F\bigg(x_p+2,y_p+1 + \frac{1}{2}\bigg) &= F\bigg(x_p+2,y_p+ \frac{3}{2}\bigg) \\
+&= dy(x_p+2)-dx\bigg(y_p+\frac{3}{2}\bigg)+C \\
+\Delta_{NE} = d_{new} - d_{old} &= dy - dx
+\\ {} \\ \text{czyli:}& \\
+\Delta = \begin{cases}
+dy & \text{jeśli } d_{old} < 0 \\
+dy-dx & \text{jeśli } d_{old} > 0
+\end{cases}
+\end{align*}
+$$
+
+Jednak znowu wpadliśmy w dzielenie, więc rozpiszmy sobie to w wersji przemnożonej przez $$2$$:
+
+$$
+\begin{align*}
+D_{new} &= D_{old} + \Delta \\ &\text{gdzie:} \\
+\Delta &= \begin{cases}
+2dy & \text{jeśli } D_{old} < 0 \\
+2(dy-dx) & \text{jeśli } D_{old} > 0
+\end{cases}
+\end{align*}
+$$
+
+Dla nieopisanego przypadku, gdzie $$D = 0$$, możemy rysować albo na $$E$$, albo na $$NE$$. Jest to zależne od implementacji. Pominąłem też rozpisanie $$D_{old}$$, ponieważ wystarczy zapamiętać $$D_{new}$$ z poprzedniej iteracji, nie musimy go liczyć na nowo za każdym razem.
+
+### Implementacja algorytmu
+
+Teraz przełóżmy wszystko to, co opisaliśmy do tej pory, na kod. Jak wspomniałem wcześniej, tutaj pokrywam tylko jeden z ośmiu możliwych przypadków, jednak pozostałe znajdziesz w zalinkowanym wcześniej repozytorium na GitHubie.
+
+```javascript
+var x = x0;
+var y = y0;
+var dx = x1 - x0;
+var dy = y1 - y0;
+var d = dy * 2 - dx;
+var incrE = dy * 2;
+var incrNE = (dy - dx) * 2;
+
+while (x !== x1) {
+    x += 1;
+    if (d <= 0) {
+        d += incrE;
+    } else {
+        d += incrNE;
+        y += 1;
+    }
+    frameBuffer[x][y] = COLOR;
+}
+```
+
+Działanie algorytmu możesz przetestować na poniższej prezentacji:
+
+<Iframe src="/iframe-content/line-drawing/index.html?algorithm=bresenham" minHeight={950} />
+
+## Podsumowanie
+
+Jak mogłeś zobaczyć w tym artykule, nawet zadanie, które brzmi tak trywialnie jak narysowanie odcinka, wcale nie jest tak oczywiste pod kątem obliczeniowym. Natomiast sam pokazany na koniec algorytm Bresenhama nie ogranicza się jedynie do odcinków. Można go bez problemu rozszerzyć na rysowanie okręgów.
+
+W kwestii innych podejść do rysowania linii, to pomiędzy podejściem prostym a algorytmem Bresenhama można by wspomnieć o algorytmie DDA, jednak pod kątem złożoności obliczeniowej niewiele różni się od podstawowego podejścia. Za to idąc o krok dalej, można też zapoznać się z podejściami rysującymi odcinki z wygładzaniem krawędzi, takie jak algorytm Xiaolin Wu czy algorytm Gupta-Sproull.
+
+## Literatura
+
+### Część matematyczno-algorytmiczna
+
+- Foley J. D. i inni, „Konwersja odcinków” w *Wprowadzenie do grafiki komputerowej*. Warszawa: Wydawnictwa Naukowo-Techniczne, 1995, s. 105-118
+- Klawonn F., „The midpoint algorithm for lines” w *Introduction to Computer Graphics Using Java 2D and 3D*. Springer-Verlag London Limited, 2008, s. 52-60
+- Flanagan C. *The Bresenham Line-Drawing Algorithm*: [https://www.cs.helsinki.fi/group/goa/mallinnus/lines/bresenh.html](https://www.cs.helsinki.fi/group/goa/mallinnus/lines/bresenh.html) (ostatnio odwiedzone 28. luty 2021).
+
+### Część opisowo-historyczna
+
+- Foley J. D. i inni, „Wprowadzenie: grafika komputerowa” w *Wprowadzenie do grafiki komputerowej*. Warszawa: Wydawnictwa Naukowo-Techniczne, 1995, s. 21-44
+- Montfort N., Bogost I., *Racing the beam: the Atari video computer system*. MIT Press, 2009.
+- "Mode 13h," *Wikipedia, The Free Encyclopedia*, [https://en.wikipedia.org/w/index.php?title=Mode_13h&oldid=975019307](https://en.wikipedia.org/w/index.php?title=Mode_13h&oldid=975019307) (ostatnio odwiedzone 28. luty 2021)
+
+<small>(zdjęcie na okładce: [Nathalie E. Julien](https://stocksnap.io/author/nathaliejulien) from [StockSnap](https://stocksnap.io/))</small>

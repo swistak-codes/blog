@@ -1,0 +1,292 @@
+import Link from 'next/link';
+import {Image, Grid} from '@swistak-codes/components';
+import { Presentation } from './presentation';
+import cover from './swistak_tancerka.jpg';
+import polar from './Polar_graph_paper.svg.png';
+import ukladyPorownanie from './uklady_porownanie.png';
+import problem from './problem.png';
+import tangens from './tangens.png';
+import atangens from './atangens.png';
+import obslugiwany from './obslugiwany.png';
+import nieobslugiwany1 from './nieobslugiwany1.png';
+import nieobslugiwany2 from './nieobslugiwany2.png';
+
+export const meta = {
+  title: 'Algorytmika gier — obrót do punktu',
+  abstract:
+    'W artykule szybko przedstawiam, jak obracać cokolwiek względem punktu, a następnie, dlaczego to działa.',
+  firstParagraph: (
+    <>
+      W grach dwuwymiarowych z widokiem z góry dość podstawowym elementem jest obracanie postaci gracza w kierunku kursora myszki. Ewentualnie możesz chcieć, żeby inne postacie w grze obracały się w kierunku gracza. Zastosowania są różne, ale stoi za tym jedna, bardzo prosta funkcja. Pokażę ją tutaj, a następnie wytłumaczę matematycznie, dlaczego to działa.
+    </>
+  ),
+  keyword: 'obroty',
+  categories: ['Matematyka', 'Gry'],
+  tags: [
+    'javascript',
+    'trygonometria',
+    'matematyka',
+    'układ biegunowy',
+    'gry',
+    'obrót',
+  ],
+  slug: 'algorytmika-gier-obrot-do-punktu',
+  updateTime: '2023-03-22T07:00:00+00:00',
+  publishTime: '2023-03-22T07:00:00+00:00',
+  cover,
+};
+
+## Jak obrócić grafikę w kierunku wskazanego punktu?
+
+Bardzo nietypowo jak na mojego bloga — najpierw dam rozwiązanie, a potem wytłumaczenie. Rozwiązanie tego problemu to użycie dosłownie jednej funkcji matematycznej, więc po co zwlekać? Wyjaśnienie zajmie trochę czasu, stąd zapraszam na nie w następnej kolejności.
+
+Aby obrócić grafikę w kierunku wskazanego punktu, jedyne, co musimy zrobić, to obliczyć kąt tego obrotu. Do tego będziemy potrzebować:
+
+- `x1`, `y1` — współrzędne obiektu, który obracamy (dokładniej — środka jego osi obrotu)
+- `x2`, `y2` — współrzędne punktu, w kierunku którego obracamy
+
+Kąt ten (w radianach) obliczymy za pomocą bardzo prostej funkcji:
+
+```javascript
+Math.atan2(y2 - y1, x2 - x1);
+```
+
+Należy tylko zwrócić uwagę, jaka jest kolejność argumentów tej funkcji w Twoim języku programowania. W JavaScript najpierw podajemy współrzędną y, potem x.
+
+Obliczenie będzie działać prawidłowo, jeśli Twój obiekt jest zwrócony w prawo bez żadnego obrotu. W innych przypadkach możesz chcieć dodać lub odjąć od wyniku jakiś kąt, np. $$\pi/2$$, jeśli musisz obrócić dodatkowo o 90 stopni.
+
+Natomiast jeśli w swoim rozwiązaniu potrzebujesz kąta w stopniach, a nie w radianach, to dodatkowo pomnóż przez 180 i podziel przez $$\pi$$:
+
+```javascript
+Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
+```
+
+To by było na tyle. Poniżej możesz przetestować działanie funkcji `atan2`. Jeśli jesteś na komputerze, możesz jeździć myszką, aby zwrócić strzałkę w kierunku kursora, a na urządzeniach mobilnych naciśnij ekran w obrębie wskazanego prostokąta.
+
+<Presentation />
+
+Teraz przejdźmy do tego, co to w ogóle jest `atan2` i co się pod nim kryje. Albo inaczej — jak do rozwiązania tego problemu podeszlibyśmy z matematycznego punktu widzenia i co z tym wspólnego ma `atan2`.
+
+## Jak matematycznie wyznaczyć kąt względem punktu?
+
+### Uwaga wstępna
+
+Przejdźmy więc do tej części matematycznej. Na początku jednak muszę przestrzec przed jedną różnicą, która zachodzi między zwykłym układem kartezjańskim a ekranem monitora.
+
+Różnica jest taka, że środek układu współrzędnych na komputerze znajduje się w lewym górnym rogu ekranu (czy też każdego płótna, po którym rysujesz). Oznacza to, że o ile oś OX tak samo zwiększa swoje wartości, OY robi to na odwrót. Wartości rosną wraz z tym, jak idziemy w dół ekranu. Postarałem się tę różnicę zobrazować poniżej.
+
+<Image
+  image={ukladyPorownanie}
+  alignCenter
+  fullSize
+  alt="Pod liczbą 1 znajduje się kartezjański układ współrzędnych. Wartości na osi OX rosną w prawo, a wartości na osi OY do góry. Pod liczbą 2 znajduje się komputerowa odmiana kartezjańskiego układu współrzędnych. Wartości na osi OX rosną w prawo, a wartości na osi OY w dół."
+  caption={<>Porównanie tradycyjnego kartezjańskiego układu współrzędnych (1) z jego komputerową odmianą (2).</>}
+/>
+
+Obliczenia jednak są takie same. Zaznaczam tę różnicę po to, żeby nie zdziwić się, że komputer pokazuje jedno, a z rysunków wynika drugie.
+
+### Opisanie problemu
+
+Naszą przygodę zacznijmy, opisując problem. Załóżmy więc, że nie mamy dwóch punktów, jak to opisałem wcześniej. Mamy tylko jeden punkt, dla którego chcemy wyznaczyć kąt. Tylko czym jest ten kąt? Jak to często w matematyce bywa, zróbmy trójkąt prostokątny, którego przeciwprostokątna będzie biegła od środka układu współrzędnych $$(0,0)$$ do punktu docelowego. To, co potrzebujemy wyznaczyć, to kąt między tą przeciwprostokątną a osią OX.
+
+<Image
+  image={problem}
+  alignCenter
+  fullSize
+  alt="Układ współrzędnych z zaznaczonym punktem w prawej górnej ćwiartce. Od punktu wychodzą przerywane linie, które na końcach są opisane jako y i x. Dodatkowo jest zaznaczona szara linia idąca od punktu do osi OX z zaznaczonym kątem prostym między linią a osią. Do tego poprowadzony jest też odcinek od punktu do środka układu współrzędnych również z zaznaczonym kątem między odcinkiem a osią OX — tym razem kąt jest opisany jako alfa."
+  caption={<>Zobrazowanie naszego problemu na kartezjańskim układzie współrzędnych. Naszym celem jest znalezienie zaznaczonego tutaj kąta α.</>}
+/>
+
+Podejście polegające na posiadaniu jedynie jednego punktu uprości nasz problem. Później, żeby wziąć pod uwagę drugi punkt, wystarczy, że odejmiemy współrzędne obu punktów od siebie, czyli w zasadzie jest to dokładnie to, co robiliśmy w kodzie.
+
+### Wyznaczenie kąta
+
+Skoro wyszedł nam trójkąt prostokątny, to pierwsze skojarzenie, jakie powinno przyjść, to wykorzystanie wzorów trygonometrycznych. Z racji tego, że znamy długość przyprostokątnych (wynoszą dokładnie tyle, co współrzędne punktu), zostają do użycia dwa wzory:
+
+$$
+\begin{align*}
+\tg \alpha &= \frac{y}{x} \\[16mu]
+\ctg \alpha &= \frac{x}{y}
+\end{align*}
+$$
+
+Skorzystajmy z pierwszego, czyli tangensa. Jednak pojawia się problem — potrzebujemy kąta, a nie jego tangensa. Jak więc wydobyć kąt? Funkcją odwrotną do tangensa, czyli arcus tangensem:
+
+$$
+\arctg{\left( \tg \alpha \right)} = \alpha
+$$
+
+Innymi słowy, kąt możemy wyznaczyć prostym wzorem:
+
+$$
+\alpha = \arctg \frac{y}{x}
+$$
+
+### Dlaczego atan2, a nie arcus tangens?
+
+Teraz możesz zadać pytanie: w takim razie po co użyliśmy `Math.atan2(y, x)` zamiast `Math.atan(y / x)`?* Żeby odpowiedzieć na to pytanie, zobacz prezentację poniżej. Tym razem zaznaczam osie współrzędnych i wypisuję wszystko, co jest obliczane po drodze.
+
+<Presentation showAtan showAtan2 showXY showAxis />
+
+Jak możesz zauważyć, obliczenie w przypadku obu funkcji jest takie samo, tylko po prawej stronie układu współrzędnych. Dlaczego tak się dzieje? Spójrzmy na wykresy funkcji tangens oraz arcus tangens (1,57 to przybliżenie $$\frac{\pi}{2}$$):
+
+<Grid minWidth={300}>
+  <Image
+    image={tangens}
+    alignCenter
+    fullSize
+    alt=""
+    caption={<>Wykres funkcji tangens.</>}
+  />
+  <Image
+    image={atangens}
+    alignCenter
+    fullSize
+    alt=""
+    caption={<>Wykres funkcji arcus tangens.</>}
+  />
+</Grid>
+
+Widać z tych wykresów jasno, że arcus tangens potrafi wyznaczyć jedynie kąty w zakresie $$(-\frac{\pi}{2}, \frac{\pi}{2})$$ (czyli $$(-90^{\circ }, 90^{\circ })$$). Inaczej można by powiedzieć, że mamy pokryty zakres od $$270^{\circ}$$ do $$360^{\circ}$$ i $$0^{\circ}$$ do $$90^{\circ}$$. Wynika to wprost z powyższych wykresów.
+
+Czyli, żeby mieć pełne obliczenia, potrzebujemy pokryć jeszcze przypadki:
+
+- $$(\frac{\pi}{2}, \frac{3\pi}{2})$$, czyli „lewa strona” układu współrzędnych. Możemy rozbić to na dwa przypadki (biorąc pod uwagę ujemne wartości):
+    - $$(\frac{\pi}{2}, \pi]$$
+    - $$(- \pi, - \frac{\pi}{2})$$
+- Kąty proste, dla których tangens nie ma zdefiniowanej wartości:
+    - $$\frac{\pi}{2}$$
+    - $$-\frac{\pi}{2} \equiv \frac{3\pi}{2}$$
+- Skrajny, gdzie punkt docelowy znajduje się w $$(0,0)$$.
+
+\* Drobne wytłumaczenie na boku: w językach programowania znajdziemy funkcje `atan` oraz `tan`, a nie `atg` (`arctg`) i `tg`. Wynika to z faktu, że w anglojęzycznym świecie funkcję tangens zapisujemy jako $$\tan$$.
+
+### Obsługa „lewej strony” układu
+
+Na opisane przypadki łatwiej będzie patrzeć, określając, dla których wartości $$x$$ i $$y$$ jaki mamy zakres kątów. W tym celu możemy się posiłkować prezentacją. Po szybkiej analizie dojdziemy do wniosku, że:
+
+- Obsługiwany przez nas przypadek $$(-\frac{\pi}{2}, \frac{\pi}{2})$$ jest dla $$x > 0$$ („prawa strona” układu współrzędnych).
+- $$(\frac{\pi}{2}, \pi]$$ dla $$x < 0$$ i $$y \geqslant 0$$.
+- $$(- \pi, - \frac{\pi}{2})$$ dla $$x < 0 $$ i $$ y < 0$$.
+
+<Image
+  image={obslugiwany}
+  alignCenter
+  fullSize
+  alt="Układ współrzędnych z narysowanymi trójkątami prostokątnymi w prawej górnej i prawej dolnej ćwiartce. W prawej górnej ćwiartce znajduje się napis (0, pi/2), w prawej dolnej (-pi/2, 0)."
+  caption={<>Przypadek, który obsługuje funkcja arcus tangens. Zarówno α', jak i α'' są równe obliczanemu przez nas α.</>}
+/>
+
+Dla uproszczenia, skoro i tak interesuje nas „lewa strona”, będę pomijać współrzędną $$x$$.
+
+Przy dodatnich $$y$$ zwróćmy uwagę, że funkcja zachowuje się jak w prawej dolnej ćwiartce układu współrzędnych (wartości od $$-\frac{\pi}{2}$$ aż do 0) — zachodzi symetria względem środka układu współrzędnych. W takim razie do wyniku funkcji arcus tangens musimy dodać $$\pi$$ ($$180^{\circ}$$), aby otrzymać je dla kąta 0. Czyli będzie to:
+
+$$
+\alpha = \arctg \frac{y}{x} + \pi
+$$
+
+<Image
+  image={nieobslugiwany1}
+  alignCenter
+  fullSize
+  alt="Układ współrzędnych z narysowanym trójkątem prostokątnymi w lewej górnej ćwiartce. Znajduje się w niej również napis (pi/2, pi)."
+  caption={<></>}
+/>
+
+Natomiast dla ujemnego $$y$$ mamy sytuację odwrotną (wartości otrzymujemy analogicznie jak w prawej górnej ćwiartce). Tutaj przypadek, który zwróci 0, to tak naprawdę nasze $$-\pi$$. W takim razie musimy je odjąć od wyniku:
+
+$$
+\alpha = \arctg \frac{y}{x} - \pi
+$$
+
+<Image
+  image={nieobslugiwany2}
+  alignCenter
+  fullSize
+  alt="Układ współrzędnych z narysowanym trójkątem prostokątnymi w lewej dolnej ćwiartce. Znajduje się w niej również napis (-pi, -pi/2)."
+  caption={<></>}
+/>
+
+### Obsługa kątów prostych i skrajnego przypadku
+
+Te przypadki są zdecydowanie najprostsze. Kąty proste otrzymujemy zawsze, gdy $$x = 0$$. Teraz wystarczy, że przełożymy je na konkretne wartości $$y$$:
+
+- Dla $$y > 0$$ kąt wynosi $$\frac{\pi}{2}$$.
+- Oczywiście drugi przypadek jest odwrotny: dla $$y<0$$ mamy $$-\frac{\pi}{2}$$.
+
+A co z trzecim przypadkiem, gdzie $$x=0$$ i $$y=0$$? Tutaj niestety nic nie wymyślimy. Funkcja jest w tym przypadku niezdefiniowana. Aczkolwiek w informatyce niektóre implementacje (np. w JavaScript) zwracają wtedy 0.
+
+### Złożenie wszystkiego w jeden wzór
+
+W taki oto sposób zrekonstruowaliśmy to, co w językach programowania kryje się pod nazwą `atan2`. A nazwa ta oznacza nic innego jak *2-argumentowy arcus tangens*. Dla formalności zapiszmy ją jeszcze językiem matematyki:
+
+$$
+\operatorname {atan2} (y,x)={
+\begin{cases}
+\arctg \frac{y}{x} & \text{dla } x>0 \\
+\arctg \frac{y}{x} + \pi & \text{dla } x<0 \text{ i } y \geqslant 0 \\
+\arctg \frac{y}{x} - \pi & \text{dla } x<0 \text{ i } y<0 \\
+\frac{\pi}{2} & \text{dla } x=0 \text{ i } y>0 \\
+-\frac{\pi}{2} & \text{dla } x=0 \text{ i } y<0
+\end{cases}
+}
+$$
+
+W ten oto sposób uzyskaliśmy to, co użyliśmy na samym początku artykułu. Jednak nie kończmy go jeszcze.
+
+## Układ współrzędnych biegunowych
+
+Po przeczytaniu nagłówka możesz się zastanawiać, o co mi chodzi — jaki znowu układ współrzędnych biegunowych? Jeśli jesteś zaznajomiony(-a) z moim blogiem, to możesz go kojarzyć z artykułu *<Link href="/post/jak-narysowac-spirale">Jak narysować spiralę?</Link>*. Wprowadziłem tam to pojęcie. A teraz kontynuuję, bo temat, który omówiłem w tym artykule, jest bardzo mocno powiązany.
+
+### Przypomnienie dotychczasowej wiedzy
+
+Krótko przypominając — układ współrzędnych biegunowych to układ alternatywny dla dobrze znanego nam kartezjańskiego wyróżniający się tym, że punkty wyrażamy jako promień wodzący ($$r$$) oraz amplitudę (kąt, $$\theta$$). Sam układ moglibyśmy wyobrazić sobie następująco:
+
+<Image
+  image={polar}
+  alignCenter
+  fullSize
+  maxWidth="500px"
+  alt="Układ współrzędnych biegunowych z oznaczonymi kątami co 30 stopni."
+  caption={<>Układ współrzędnych biegunowych z oznaczonymi kątami co 30 stopni. Zwykle jednak rysując ten układ, pomijamy opisywanie kątów.<br />(źródło: <a href="https://commons.wikimedia.org/wiki/File:Polar_graph_paper.svg">Mets501</a>, <a href="http://creativecommons.org/licenses/by-sa/3.0/">CC BY-SA 3.0</a>, via Wikimedia Commons)</>}
+/>
+
+W artykule poświęconym spiralom przedstawiłem też wzory, jak możemy zamieniać współrzędne biegunowe na kartezjańskie:
+
+$$
+\begin{align*}
+x &= r \cdot \cos \theta \\
+y &= r \cdot \sin \theta
+\end{align*}
+$$
+
+Same wyprowadzenia tych wzorów pokazałem w artykule *<Link href="/post/jak-narysowac-zegar-analogowy">Jak narysować zegar analogowy?</Link>*, gdzie zapraszam po wyjaśnienie, skąd się one wzięły.
+
+### Obroty do punktu a układ współrzędnych biegunowych
+
+Dobra, ale co to ma wspólnego z obrotami do punktu? Otóż bardzo dużo. Zauważ, co obliczaliśmy do tej pory — mieliśmy współrzędne punktu i chcieliśmy znaleźć, jaki kąt jest między odcinkiem poprowadzonym od niego do środka układu współrzędnych (wcześniej dla uproszczenia problemu nazywałem go przeciwprostokątną) a osią OX (w prawej połowie układu). Ten kąt to nic innego jak amplituda ze współrzędnych biegunowych, natomiast ów odcinek to promień wodzący.
+
+Innymi słowy, jeśli chcemy przełożyć współrzędne kartezjańskie na biegunowe, amplitudę obliczymy za pomocą funkcji $$\operatorname {atan2}$$. A jak promień? Z twierdzenia Pitagorasa — w końcu mamy tu do czynienia z trójkątem prostokątnym.
+
+Podsumowując, współrzędne biegunowe obliczymy w następujący sposób:
+
+$$
+\begin{align*}
+r &= \sqrt{x^2 + y^2} \\
+\theta &= \operatorname{atan2}(y, x)
+\end{align*}
+$$
+
+Warto dodać, że w tym przypadku kąty ujemne powinniśmy zamienić na dodatnie, np. $$-\frac{\pi}{2} \equiv \frac{3\pi}{2}$$.
+
+## Podsumowanie
+
+Podsumowując artykuł, myślę, że warto powiedzieć coś więcej na temat samej genezy `atan2`. Funkcja ta nie powstała, aby programistom gier było łatwiej. To tylko przyjemny skutek uboczny tego, że komputery w pierwszych latach używane były przede wszystkim do obliczeń naukowych. Dla uproszczenia obliczeń często stosuje się układ współrzędnych biegunowych i powiązany z nim (trójwymiarowy) układ współrzędnych cylindrycznych. Aby programiści nie musieli za każdym razem ręcznie programować obliczania amplitudy, które wymaga użycia kilku warunków, w najpopularniejszym języku wśród naukowców w latach 60. XX wieku — Fortran — wprowadzono `atan2`.
+
+Na szczęście tak podstawowa rzecz w grach, jak obracanie postaci do wskazanego punktu, to nic innego jak zastosowanie w praktyce układu współrzędnych biegunowych. Jeśli do tej pory używałeś(-aś) tej funkcji w ciemno, to liczę, że już rozumiesz, co się pod nią kryje, i że jest przydatna nie tylko w grach.
+
+## Literatura
+
+- Atan2, https://en.wikipedia.org/w/index.php?title=Atan2&oldid=1136376231 (ostatnie odwiedziny 02.03.2023).
+
+<small>Zdjęcie na okładce wygenerowane przez DALL-E.</small>

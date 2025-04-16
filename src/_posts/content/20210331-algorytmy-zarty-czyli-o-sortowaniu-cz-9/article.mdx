@@ -1,0 +1,139 @@
+import Link from 'next/link';
+import {Image, Iframe} from '@swistak-codes/components';
+import cover from './kaczka-dziwaczka.jpg';
+
+export const meta = {
+  title: 'Algorytmy-żarty, czyli o sortowaniu cz. 9',
+  abstract:
+    'W tej części opowiadam o algorytmach sortowania, które nie były tworzone z myślą o byciu użytecznymi, a jedynie jako specyficzny żart.',
+  firstParagraph: (
+    <>
+      Świat algorytmów nie obraca się tylko wokół tworzenia i szukania optymalnych rozwiązań przydatnych problemów. Informatycy to wbrew pozorom też ludzie i lubią sobie czasem pożartować. Choćby w swoim stylu, tworząc zupełnie nikomu nieprzydatne algorytmy, które nie mają większego sensu, niekoniecznie działają tak, jak należy, czy rozwiązują totalnie nieistotne problemy. Dlatego tym razem zróbmy sobie przegląd takich algorytmicznych żartów, które mogłyby rozwiązać jeden z bardziej klasycznych problemów i jednocześnie szeroko omówiony na moim blogu — sortowanie.
+    </>
+  ),
+  keyword: 'sortowanie',
+  categories: ['Algorytmy', 'Sortowanie'],
+  tags: [
+    'sortowanie',
+    'bogosort',
+    'sleep sort',
+    'stooge sort',
+    'sortowanie przez losowanie',
+    'bozosort',
+    'bogobogosort',
+    'sortowanie głupie',
+    'sortowanie przez usypianie',
+    'algorytm Fishera-Yatesa',
+    'wątek'
+  ],
+  slug: 'algorytmy-zarty-czyli-o-sortowaniu-cz-9',
+  updateTime: '2021-08-17T16:38:27+00:00',
+  publishTime: '2021-03-31T10:00:41+00:00',
+  cover,
+};
+
+## Uwagi wstępne
+
+Pamiętaj, że algorytmy tutaj przedstawione absolutnie nie powinny być wykorzystywane do rozwiązywania prawdziwych problemów w rzeczywistych zastosowaniach. Traktuj to wszystko jedynie jako ciekawostkę, może poza małymi wyjątkami, które akurat mogą być przydatne, ale o tym jeszcze wspomnę.
+
+Z racji, że jest to kolejny artykuł poświęcony sortowaniu, to przypominam, że kod źródłowy wszystkich zamieszczonych tu prezentacji znajdziesz [w repozytorium na moim GitHubie](https://github.com/swistak-codes/sorting-algorithms).
+
+## Sortowanie przez losowanie
+
+Zacznijmy od chyba najbardziej klasycznego przykładu bezsensownego rozwiązywania problemów algorytmicznych. W końcu jak będziemy losować i mieszać, to kiedyś trafimy na prawidłowe rozwiązanie. Może za pierwszym razem, może za milionowym, ale szanse zawsze na to są. Jakie? Niech na to odpowie nam rachunek prawdopodobieństwa:
+
+$$
+\begin{align*}
+P &= \frac{1}{4!}=\frac{1}{24} \text{ dla 4 elementów} \\
+P &= \frac{1}{10!}=\frac{1}{3628800} \text{ dla 10 elementów} \\
+P &= \frac{1}{100!}=\frac{1}{9,3\cdot10^{157}} \text{ dla 100 elementów}
+\end{align*}
+$$
+
+Oczywiście nie oznacza to, że w przypadku 4 elementów wystarczą maksymalnie 24 iteracje algorytmu. To oznacza, że przy każdej iteracji mamy szansę 1 do 24, że wylosujemy posortowaną permutację. Jak mamy pecha, to posortowanie 4 elementów może nigdy się nie skończyć; za to mając szczęście, po paru iteracjach posortujemy 100 elementów.
+
+Skoro trochę postraszyłem matematyką, można przejść do konkretnych algorytmów, bo to byłoby zbyt proste, jakby istniał tylko taki jeden.
+
+### Bozosort
+
+Pierwsze z podejść, czyli bozosort, opiera się na zamianie dwóch losowo wybranych elementów tablicy. Jak to działa, sprawdź sam:
+
+<Iframe src="/iframe-content/sorting-visualizer/index.html?algorithm=bozosort" minHeight={620} />
+
+Jeśli nie masz co robić, ustaw tablicę o wielkości nawet tak niewielkiej, jak dziesięcioelementowa, i podziwiaj. Może posortuje w sekundę, a może w kilka minut. A może nigdy.
+
+### Bogosort
+
+Zgoła innym podejściem jest bogosort. Tutaj nie rozdrabniamy się w zamiany pojedynczych elementów. Tasujemy wszystko aż trafi nam się posortowana tablica. Możesz tylko zadać pytanie, jak to zrobić?
+
+**Tutaj zaczniemy pierwszą część tego artykułu, która może Ci się kiedykolwiek przydać**, czyli opowiemy sobie o algorytmie Fishera-Yatesa. Jest to najpopularniejsze podejście do przetasowania elementów tablicy. Działanie wygląda następująco:
+
+- iterujemy tablicę od końca,
+- losujemy element w zakresie od początku tablicy do aktualnego elementu (włącznie),
+- zamieniamy ze sobą oba elementy.
+
+W tym miejscu kończymy przydatną część, wracamy do bogosorta. Podobnie jak poprzednio i tutaj możesz przetestować algorytm:
+
+<Iframe src="/iframe-content/sorting-visualizer/index.html?algorithm=bogosort" minHeight={620} />
+
+Możesz w tym momencie spróbować zorganizować wyścig — który algorytm posortuje jako pierwszy. Nie posortujemy może tablicy w sensownym czasie, ale ile frajdy nam to dostarczy.
+
+Swoją drogą, niektórym chciało się obliczyć złożoność obliczeniową tego algorytmu, która wynosi $$O(n \cdot n!)$$. Jest to, delikatnie mówiąc, dużo.
+
+### Bogobogosort
+
+Jeżeli bogosort nie jest dla Ciebie wystarczająco słaby, istnieje ponadto bogobogosort. Tutaj mamy jeszcze mniejsze szanse na sukces w sortowaniu, ale o tym później. Dzieje się tak dlatego, ponieważ wykonujemy losowanie w jeszcze bardziej skomplikowany sposób i do tego, bo czemu nie, z wykorzystaniem rekurencji. Kroki algorytmu są następujące:
+
+- Robimy kopię tablicy.
+- Sortujemy pierwsze $$n-1$$ elementów kopii korzystając z bogobogosort.
+- Sprawdzamy, czy n-ty element kopii jest większy od największego elementu z pierwszych $$n-1$$ elementów. Jeżeli tak, uznajemy kopię za posortowaną. W przeciwnym wypadku tasujemy elementy kopii i wracamy do poprzedniego kroku.
+- Sprawdzamy, czy kopia jest w tym samym porządku co oryginalna lista.
+
+W tym przypadku odpuszczę sobie prezentację. Uwierzcie na słowo, że jest bardzo mała szansa, że cokolwiek się posortuje. Stąd też ciekawą sprawą jest tutaj złożoność obliczeniowa. Otóż nie ma zgody co do tego, ile ona wynosi. W Internecie można znaleźć trzy opcje:
+
+- $$O((n!)^{n!})$$, ale nie ma na to żadnego dowodu i jest tylko wesołym strzałem.
+- $$O(n \cdot (n!)^n)$$ na co jest przedstawiony dowód matematyczny.
+- $$O((n!)^{n-k})$$ na co też znajdziemy dowód matematyczny. Jak to ludzie mówią: „jeden rabin powie tak, a inny rabin powie nie”.
+
+W przypadku złożoności tego algorytmu jednak więcej niż notacja dużego O mówi zdanie z angielskiej Wikipedii, że algorytm ten został zaprojektowany tak, aby nie ukończyć działania aż do śmierci cieplnej Wszechświata, na tablicy dowolnej wielkości. A przewiduje się, że owa śmierć kończąca istnienie wszystkiego może nastąpić za $$10^{2500}$$ lat (lub za $$10^{10^{76}}$$ lat, w zależności od tego, czy zachodzi rozpad protonu, czy też nie).
+
+## Sortowanie głupie
+
+O ile poprzednie algorytmy mogą sortować aż do końca świata, o tyle sortowanie głupie (po ang. stooge sort, czyli dokładnie tłumacząc — sortowanie pachołka) nie jest tak głupie, jak wskazuje jego nazwa. Otóż potrafi posortować, i to nawet w skończonym czasie, ze znaną określoną złożonością. Tylko powiedzmy sobie szczerze — jest głupie, a używanie go w codziennych zastosowaniach jeszcze głupsze. Jednak algorytm ten ma coś pięknego w sobie, skoro nawet opisał go w swojej najsłynniejszej książce guru algorytmiki Thomas Cormen (i to jeszcze w rozdziale poświęconym sortowaniu szybkiemu).
+
+Sam algorytm jest w zasadzie przeróbką sortowania szybkiego. Po wywołaniu algorytmu dla całej tablicy zamieniamy elementy, jeżeli są w złej kolejności, tak jak w sortowaniu bąbelkowym. Następnie wywołujemy rekurencyjnie algorytm dla:
+
+- pierwszych dwóch trzecich tablicy,
+- ostatnich dwóch trzecich tablicy,
+- i jeszcze raz dla pierwszych dwóch trzecich tablicy.
+
+Jak to działa? Sprawdź sam(a)! Tutaj na szczęście doczekasz się posortowanej tablicy:
+
+<Iframe src="/iframe-content/sorting-visualizer/index.html?algorithm=stoogeSort" minHeight={620} />
+
+Skoro algorytm zawsze się wykona, to możemy obliczyć jego złożoność obliczeniową. Dla najgorszego przypadku wynosi ona: $$O(n^{log{3}/log{1,5}})$$, czyli jest wyższa niż $$O(n^2)$$ najgorszych, normalnych algorytmów sortujących.
+
+## Sortowanie przez usypianie
+
+Ostatnie niepoważne podejście do sortowania, jakie chciałem opisać, jest pod wieloma względami nietypowe. Po pierwsze, nie wykonuje żadnych porównań, więc teoretycznie jest idealne obliczeniowo (ale tak nie jest). Po drugie, powstało w 2011 r. (a dokładniej to Internet zobaczył je po raz pierwszy 20 stycznia 2011 r. o godz. 12:22), co czyni je zdecydowanie najmłodszym opisywanym przeze mnie algorytmem. <Link href="/post/sortowanie-cz-7-inne-podejscia">Nawet młodszym od ostatnio opisywanego gnome sort</Link>, który w zasadzie też poważnym algorytmem nie jest. A po trzecie, nie powstał w żadnym akademickim ośrodku badawczym, tylko na [4chanie i zarchiwizowany wątek upamiętniający jego powstanie wciąż można zobaczyć w Internecie](https://archive.fo/xhGo).
+
+Ten algorytm to sleep sort, co można by przetłumaczyć jako sortowanie przez spanie(?)/usypianie. Cała jego idea polega na tym, że dla każdego elementu tablicy tworzymy oddzielny wątek i usypiamy każdy z nich na tak długo, ile wynosi wartość elementu. Po zakończeniu uśpienia wypisujemy element.
+
+Jednak zdaję sobie sprawę, że możesz nie rozumieć ani słowa z tego, co przed chwilą napisałem, więc **przejdźmy znowu do czegoś poważnego**. Czym jest wątek?
+
+Tak bardzo w skrócie, wątek to taka pojedyncza, wykonywana instancja fragmentu aplikacji (bądź jej całej, jeśli jest jednowątkowa). Jedna aplikacja może tworzyć wiele wątków i działają one niezależnie od siebie, ale mają dostęp do tej samej, wspólnej pamięci aplikacji i przez system są traktowane jako jeden proces. Aplikacje dzielimy na wątki zwykle po to, żeby odciążać działanie aplikacji. Przykładowo, skomplikowane obliczenia działają w tle, a interfejs aplikacji dalej działa i nie jest zablokowany. Wątki możemy też usypiać. Jest to wstrzymanie jego działania: albo do zakończenia pracy innego wątku, albo na określony odgórnie fragment czasu.
+
+Właśnie tę ostatnią właściwość wykorzystuje sleep sort. Prezentację w tym przypadku odpuszczę, jednak musisz uwierzyć na słowo, że to działa, lub uruchomić jedną z przykładowych implementacji z Internetu. Algorytm jednak nie działa idealnie, problemy pojawiają się szczególnie przy zbliżonych do siebie wartościach i do tego oddalonych od siebie. Jeżeli usypiamy wątki na tyle milisekund, ile wynosi wartość elementu, i mamy, dajmy na to, na początku tablicy 1, a na końcu 0, to jest duża szansa, że uśpienie 1 zakończy się szybciej niż uruchomienie wątku z 0.
+
+## Podsumowanie
+
+Jak zobaczyliśmy powyżej, nie zawsze celem informatyków jest znalezienie optymalnego sposobu na rozwiązanie problemu. Czasem szukają dla rozrywki najbardziej absurdalnego. Sortowanie to tylko przykład, który poruszyłem dlatego, że już dużo o nim pisałem. Mamy jednak wiele innych rzeczy w informatyce powstałych dla żartu. Prawdopodobnie najbardziej znane są tzw. ezoteryczne języki programowania, czyli często absurdalne, niepraktyczne, lecz w pełni działające języki programowania, wśród których znajdziemy takie perełki, jak Brainfuck (język składający się tylko z 8 znaków), Piet (programowanie przez rysowanie bitmap) czy Malbolge (z każdą operacją zmieniają się przypisania znaków do konkretnych instrukcji). Innymi słowy, dla każdego coś miłego.
+
+## Literatura
+
+- Bogosort, [https://en.wikipedia.org/w/index.php?title=Bogosort&oldid=1009375439](https://en.wikipedia.org/w/index.php?title=Bogosort&oldid=1009375439) (ostatnie odwiedziny 11 marca 2021).
+- Morgan-Mar D., *Bogobogosort*, [https://www.dangermouse.net/esoteric/bogobogosort.html](https://www.dangermouse.net/esoteric/bogobogosort.html) (ostatnie odwiedziny 11 marca 2021).
+- Cormen T. H., Leiserson C. E., Rivest R.L., „8-3. Głupie sortowanie” w *Wprowadzenie do algorytmów*. Warszawa: Wydawnictwa Naukowo-Techniczne, 2001, s. 203
+- Sleep Sort, [https://news.ycombinator.com/item?id=2657277](https://news.ycombinator.com/item?id=2657277) (ostatnie odwiedziny 11 marca 2021).
+
+<small>(oryginał zdjęcia na okładce autorstwa [Jim Bahn](https://www.flickr.com/photos/gcwest/136945654/), udostępnione na licencji [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/))</small>

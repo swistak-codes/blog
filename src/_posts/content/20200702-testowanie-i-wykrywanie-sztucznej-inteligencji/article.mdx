@@ -1,0 +1,184 @@
+import Link from 'next/link';
+import {Image} from '@swistak-codes/components';
+import cover from './papuga.jpg';
+import testTuringa from './Test-Turinga.png';
+import dog from './dog.jpg';
+import person from './person2.png';
+import cat from './thiscatdoesnotexist.com.jpg'
+
+export const meta = {
+  title: 'Testowanie i wykrywanie sztucznej inteligencji',
+  abstract:
+    'Artykuł przedstawia zarówno najbardziej klasyczne testy sztucznej inteligencji (jak test Turinga), a także może nieco praktyczniejsze, dzisiejsze metody.',
+  firstParagraph: (
+    <>
+      <Link href="/post/sztuczna-inteligencja-a-co-to-a-komu-to-potrzebne">W poprzednim wpisie</Link> wprowadziłem temat
+      sztucznej inteligencji, przy okazji wspominając o teście Turinga. Jest to najpopularniejszy, ale zarazem dość
+      specjalistyczny test pozwalający na sprawdzenie, czy sztuczna inteligencja osiągnęła poziom człowieka. Chciałbym
+      tutaj temat kontynuować i przedstawić zarówno najbardziej klasyczne sposoby sprawdzania, czy mamy do czynienia z
+      nie-człowiekiem, jak również może nieco praktyczniejsze, dzisiejsze metody.
+    </>
+  ),
+  keyword: 'test turinga',
+  categories: ['Sztuczna inteligencja'],
+  tags: [
+    'sztuczna inteligencja',
+    'ai',
+    'si',
+    'test Turinga',
+    'artificial intelligence',
+    'chiński pokój',
+    'test Feigenbauma',
+    'totalny test Turinga',
+    'minimum intelligent signal test',
+    'test Eberta',
+    'odwrotny test Turinga',
+    'captcha',
+    'Winograd Schema Challenge',
+    'deepfake',
+    'silna ai',
+    'artificial general intelligence',
+    'fake news',
+  ],
+  slug: 'testowanie-i-wykrywanie-sztucznej-inteligencji',
+  updateTime: '2020-07-02T16:31:02+00:00',
+  publishTime: '2020-07-02T09:00:05+00:00',
+  cover,
+};
+
+## Czy nasz rozmówca jest prawdziwy? — Test Turinga
+
+Skoro już na samym wstępie o tym napisałem, to wypadałoby ten temat rozwinąć. Jest to test zaproponowany już w 1950 roku przez Alana Turinga mający na celu określić, czy maszyna osiągnęła poziom człowieka w posługiwaniu się językiem naturalnym. Polega on na swego rodzaju grze. Sędzia, który jest człowiekiem, zadaje te same pytania w języku naturalnym dwóm osobom. Jedną z nich jest inny człowiek a drugą maszyna, jednak sędzia nie wie, który to który. Co jest tutaj istotne, komunikacja odbywa się w formie pisemnej, więc nie ma możliwości rozpoznania SI po głosie ani sprawdzenia jej zdolności rozumienia ze słuchu. Tym samym naszym rozmówcą nie mogłaby być papuga żako pokazana na okładce, znana ze swych umiejętności udawania ludzkiej mowy.
+
+<Image
+  image={testTuringa}
+  alignCenter
+  fullSize
+  alt="Schemat testu Turinga"
+  caption="Schemat testu Turinga. A i B to gracze odpowiadający na pytania sędziego C"
+/>
+
+Test, pomimo dość wąskiego zastosowania, jest bardzo popularny i stał się wręcz synonimem dla testowania sztucznej inteligencji. Niestety, w praktyce jedyne, co możemy nim przetestować, to zdolności przetwarzania i używania języka naturalnego. W kontekście silnej SI ma to dość duże znaczenie, gdy ta ma naśladować człowieka. Jednak przy powszechnej dziś słabej SI test ten interesuje jedynie twórców chatbotów. Warto tu wspomnieć o nagrodach Loebnera, przyznawanych od 1991 roku. Jest to konkurs, gdzie wykorzystując test Turinga, ocenia się różnych komputerowych rozmówców w celu wyłonienia takiego, którego nie da się odróżnić od człowieka. Jak dotąd taki się nie znalazł, jednak co roku jest przyznawana nagroda dla programu, który, mimo że testu nie przeszedł, to był najbardziej przekonujący.
+
+### Wady i zalety
+
+Przejdźmy do wad i zalet testu Turinga. Niewątpliwie jego zaletą jest prostota, a jednocześnie wszechstronność. Mimo że nie jesteśmy w stanie zdefiniować, kiedy mamy do czynienia z inteligencją, myśleniem lub świadomością, to poprzez zadawanie pytań możemy określić, czy nasz rozmówca nie tylko rozumie słowa, ale czy też rozumie temat i kontekst rozmowy.
+
+W przypadku wad warto zwrócić uwagę, że test ten nie bada inteligencji, tylko udawanie człowieka. Sprowadza się to do tego, że chociażby nie każde ludzkie zachowanie jest inteligentne, a także niektóre inteligentne zachowania są nieludzkie. Innymi słowy, zbytnia perfekcyjność może sprawić, że program nie przejdzie testu Turinga, podczas gdy może idealnie przetwarzać język naturalny. Pierwsze z brzegu przykłady — ludzie popełniają błędy językowe, gramatyczne, robią literówki. Za to maszyna może odpowiadać na pytania, na które człowiek nie byłby w stanie odpowiedzieć, albo potrzebowałby dłuższej chwili na zastanowienie się — tutaj zarówno mogą być to obliczenia matematyczne, jak i wiedza ogólna.
+
+### Chiński pokój – czy można rozpoznać silne AI?
+
+W kontekście testu Turinga i jedynie sprawdzania udawania człowieka powstał bardzo znany eksperyment myślowy zwany chińskim pokojem, wymyślony przez Johna Searle’a. Podał on bardzo prosty przykład związany z rozumieniem języka chińskiego. Program przyjmuje na wejściu chińskie znaki i takowymi też odpowiada. Zakładamy, że robi to na tyle perfekcyjnie, że przechodzi test Turinga. Jednak czy to oznacza, że program dosłownie rozumie chiński (jest silną AI)? Czy jedynie to symuluje (jest słabą AI)?
+
+Kontynuując, Searle zakłada, że jest zamknięty w pokoju i dostaje pytania po chińsku. Nie zna tego języka, ale w pokoju ma sporo rozmówek (książki z przykładowymi rozmowami w języku). Gdy dostaje pytanie, to jedyne, co musi zrobić, to wyszukać sekwencje znaków w jednej z książek i przepisać odpowiedź. Nie zna języka, więc nie rozumie ani pytania, ani odpowiedzi. Jedynie wykorzystał znany mu wzorzec, aby udawać, że rozumie. Jego zdaniem niczym to się nie różni od programu, który przeszedłby test Turinga. Tym samym uważa, że skoro maszyna nie rozumie, to nie możemy mówić o tym, że myśli. A skoro nie myśli to nie posiada umysłu. Tym samym nie jesteśmy w stanie, korzystając z testu Turinga, rozpoznać silnego AI.
+
+## Odmiany testu Turinga
+
+Ze względu na to, że sam test Turinga testuje jedynie udawanie człowieka w kontekście rozumienia i używania mowy naturalnej, na przestrzeni lat powstało wiele innych testów bazujących na nim. Są to albo rozbudowane wersje sprawdzające więcej rzeczy jednocześnie, albo testy sprawdzające inne zdolności, aczkolwiek w podobny sposób.
+
+### Test Feigenbauma
+
+Test Feigenbauma, znany także jako test eksperta merytorycznego, ma na celu sprawdzenie, czy SI potrafi udawać eksperta pewnej dziedziny. Został zaproponowany w 2003 roku przez Edwarda Feigenbauma. Tym samym bardziej interesuje nas wówczas wiedza domenowa programu, i czy potrafi ją odpowiednio wykorzystywać.
+
+### Totalny test Turinga
+
+Kolejna odmiana testu Turinga, tym razem zaproponowana przez Stevana Harnada. Tutaj test rozszerzamy — sprawdzamy też zdolność do rozpoznawania obiektów za pomocą zmysłów oraz zdolności manipulowania obiektami. Tym samym jest to bardziej test sprawdzający działanie inteligentnych robotów niż czysto samego SI.
+
+### Minimum intelligent signal test
+
+W tej odmianie zaproponowanej przez Chrisa McKinstry’ego testowany obiekt odpowiada na zadane pytania binarnie — tak/nie bądź prawda/fałsz. Dzięki temu eliminujemy możliwość udawania człowieka przez udawanie ludzkich błędów, a bardziej testujemy wiedzę. Pytań w takim teście powinno zostać zadanych na tyle dużo, aby prawdopodobieństwo udzielenia wszystkich odpowiedzi poprawnych poprzez losowanie było możliwie jak najniższe. Jednocześnie test powinien zostać wykonany wielokrotnie w niezależnych próbach.
+
+### Test Eberta
+
+Prawdopodobnie najciekawsza odmiana testu Turinga, którą zaproponował w 2011 roku Roger Ebert. Jest to test syntezatorów mowy. Założenie jest bardzo proste — syntezator mowy powinien potrafić tak opowiadać żarty, aby te rozśmieszały ludzi. Jak sam twórca twierdzi, aby syntezator był nierozróżnialny od człowieka, powinien potrafić podane zdanie odpowiednio intonować, stosować odpowiednie przerwy czy tempo wymowy.
+
+## Czy komputera używa człowiek? — Odwrotny test Turinga
+
+Celem testów nie zawsze jest sprawdzenie zdolności sztucznej inteligencji. W odwrotnym teście Turinga to maszyna sprawdza, czy ma do czynienia z człowiekiem. Taki jest jego cel, jednak skutkiem ubocznym jest oczywiście wykrycie maszyny. W ogólnym zamyśle test ten polega na dosłownej zamianie ról między maszyną i człowiekiem.
+
+<Image
+  image={dog}
+  alignRight
+  fullSize
+  alt="Pies w okularach siedzący przy laptopie"
+  maxWidth="259px"
+  caption={<>Czy jeśli zwierzę dorwie się do naszego komputera i nie przejdzie testu CAPTCHA, to powinniśmy je uznać za komputer?
+    <br/><a href="https://www.needpix.com/photo/1264946/dog-laptop-computer-glasses-spectacles-office-desk-pet-business" target="_blank">(źródło)</a></>}
+/>
+
+Najpopularniejszą implementacją tego testu jest CAPTCHA (Completely Automated Public Turing test to tell Computers and Humans Apart). Zapewne nie raz mogłeś spotkać się z takim testem — czy to w formie przepisania zniekształconego ciągu znaków do pola tekstowego, czy też zaznaczenia elementów pasujących do opisu. W teorii zadanie przedstawione użytkownikowi powinno być zrobione tak, aby maszyna nie była w stanie go rozwiązać, jednak człowiek już tak. Niestety, często doświadczenie pokazuje co innego. Zarówno są automatyczne sposoby przechodzenia tych testów, jak i nie raz ludzie mają problem z ich rozwiązaniem.
+
+Jako ciekawostkę można tutaj wtrącić, że rozwiązania tego typu nie zawsze są oparte na sztucznej inteligencji, tylko na pracy żywych ludzi. Możemy w Internecie znaleźć bez problemu firmy świadczące takie usługi. Często działa to w dość zautomatyzowany sposób: wyślij nam CAPTCHA, a za kilkanaście sekund ktoś z krajów Trzeciego Świata ci to rozwiąże. Koszt? Zwykle kilka centów za jedno rozwiązanie.
+
+## Czy komputer rozumie, co piszemy? — Winograd Schema Challenge
+
+Jest to alternatywa dla testu Turinga, która w założeniu ma wyeliminować sprawdzenie udawania człowieka, a faktycznie sprawdzić, czy sztuczna inteligencja rozumie zdanie, które odczytuje. Polega on na przedstawieniu komputerowi zdania twierdzącego oraz pytania dotyczącego go. Cały haczyk polega na tym, że owe zdanie jest ułożone w taki sposób, aby brzmiało niejednoznacznie, zazwyczaj przez odpowiednie użycie zaimka. Jednocześnie też musi być to takie zdanie, aby nie można było rozwiązania znaleźć w Internecie. Przykładowo test może wyglądać następująco:
+
+- The lawyer asked the witness a question, but he was reluctant to repeat it. Who was reluctant?
+  - Prawnik zadał świadkowi pytanie, ale (on) był niechętny je powtórzyć. Kto był niechętny?
+- The lawyer asked the witness a question, but he was reluctant to answer it. Who was reluctant?
+  - Prawnik zadał świadkowi pytanie, ale (on) był niechętny na nie odpowiedzieć. Kto był niechętny?
+
+Jak widzimy, zmiana jednego wyrazu całkowicie zmienia kontekst zdania. W pierwszym przypadku zaimek „he” wskazywał na prawnika, natomiast w drugim na świadka. Dla człowieka wyłapanie takiej różnicy nie stanowi problemu, jednak dla algorytmu może to stanowić wyzwanie. Jak to zostało napisane w artykule przedstawiającym test, dobre pytanie to takie, na które niewytrenowany ankietowany (np. Twoja ciotka) odpowie od razu.
+
+Warto jednak pamiętać, że zdania muszą być takie, aby odpowiedź nie była zbyt oczywista. Nie mogą być też takie, że ludzie nie potrafiliby określić odpowiedzi. Jako przykłady takich błędnych zdań autorzy testu zaproponowali:
+
+- The women stopped taking the pills because they were pregnant/carcinogenic. Which individuals were pregnant/carcinogenic?
+  - Kobiety przestały brać tabletki antykoncepcyjne, ponieważ były w ciąży/rakotwórcze. Kto był w ciąży/rakotwórczy?
+  - Odpowiedź na to pytanie jest zbyt oczywista — tabletki nie mogą być w ciąży, a kobiety nie są rakotwórcze.
+- Frank was pleased when Bill said that he was the winner of the competition. Who was the winner?
+  - Frank był zadowolony gdy Bill powiedział, że jest zwycięzcą konkursu. Kto był zwycięzcą?
+  - Zdanie jest zbyt wieloznaczne, ponieważ nie mamy wskazania, czy Bill mówił o sobie, czy też o Franku. Ponadto, Frank mógł być zadowolony zarówno ze swojej wygranej, jak i wygranej Franka.
+
+## Wykrywanie wygenerowanych komputerowo treści
+
+Wszystkie testy, które opisałem wcześniej, brzmią fajnie. Sprawdzają, czy komputer rozumie, co piszemy, czy odpowiednio udaje człowieka. Powiedzmy sobie szczerze — nie takie rozpoznawanie sztucznej inteligencji jest istotne w dzisiejszych czasach. W dzisiejszych czasach spory problem stanowią zdolności SI do generowania treści, czy przekłamywania już istniejących. Syntezowanie cudzego głosu, automatyczna podmiana twarzy albo automatyczne generowanie fake newsów — to są realne, dzisiejsze problemy. W kontekście słabej AI potrafimy stworzyć coraz lepsze i coraz bardziej wiarygodne narzędzia umożliwiające takie rzeczy. O ile stanowi to realne osiągnięcia naukowe, czy też fajną ciekawostkę, to w nieodpowiednich rękach może być niebezpieczne. Dlatego bardzo istotne jest, aby znaleźć sposoby na rozpoznawanie takich dzieł.
+
+<Image
+  image={person}
+  alignLeft
+  fullSize
+  alt="Twarz wygenerowana przez thisfacedoesnotexist"
+  maxWidth="282px"
+  caption={<>Twarz wygenerowana przez SI <a href="https://thispersondoesnotexist.com/" target="_blank">(link do generatora)</a>. Zwróćcie uwagę na takie błędy, jak: zniekształcona czapka oraz kołnierz, ucho połączone z czapką, czy nietypowe zmarszczki na czole.</>}
+/>
+
+Temat jest jednak na tyle świeży, że nie da się wskazać jakiegoś konkretnego testu czy wzorca postępowania, by takie rzeczy wykrywać. Możemy jednak zauważyć trend, w jakim podążają badania. Przede wszystkim wykorzystuje się tu sieci neuronowe, które uczy się, jakie są różnice między oryginałem a przeróbką, aby potrafiła wykryć różnice. Przykładowo, do wykrywania tzw. DeepFake (automatyczna podmiana twarzy np. na wideo) można wykorzystać bazę FaceForensics.
+
+Problem nie jest jednak taki prosty. Po pierwsze, sieć neuronowa to nie jest coś, że dajemy obrazki, z których się uczy, a potem umie rozróżniać. To tak nie działa. Naukowcy/programiści muszą określić, jak obrazy powinny zostać przetworzone przed dostarczeniem ich do sieci, jakie informacje powinny zostać z nich wyciągnięte. Ponadto należy też wybrać odpowiedni rodzaj sieci neuronowej do danego zadania oraz ustalić jej wielkość. Są to typowe problemy związane z projektowaniem systemów uczenia maszynowego, dlatego nie będę się tutaj mocno rozpisywać na ten temat.
+
+<Image
+  image={cat}
+  alignLeft
+  fullSize
+  alt="Kot wygenerowany przez thiscatdoesnotexist"
+  maxWidth="256px"
+  caption={<>Kot wygenerowany przez analogiczną sieć neuronową <a href="https://thiscatdoesnotexist.com/" target="_blank">(link do generatora)</a>. Jak widać, jeszcze dużo pracy przed nim. Chyba że chcemy tworzyć horrory, wtedy jest w sam raz.</>}
+/>
+
+W temacie wykrywania wygenerowanych komputerowo treści wiele się dzieje właśnie w tym momencie. W [marcu 2020](https://www.kaggle.com/c/deepfake-detection-challenge/overview) przeprowadzono konkurs Deepfake Detection Challenge, współorganizowany między innymi przez Facebook i Microsoft. Główną nagrodą był milion dolarów. W przypadku “zwykłych” przeróbek algorytmy osiągnęły dokładność 82%. Niestety, przy dodatkowo zmanipulowanych 65%, jednak jest to wciąż dobrze wróżący na przyszłość wynik.
+
+Innym problemem dzisiejszych czasów są fake newsy. Tutaj temat jest bardzo złożony, ponieważ obecne podejścia nie polegają jedynie na analizie treści. Analizie podlegają chociażby też interakcja użytkowników z daną wiadomością na mediach społecznościowych, jednak te dane są bardzo trudne w analizie. Jest ich bardzo dużo, są wyrywkowe, nieustrukturyzowane i zanieczyszczone. Sam temat jest też powiązany z innymi dziedzinami dotyczącymi treści i sieciami społecznościowymi, takimi jak wykrywanie clickbaitów, spamu czy botów.
+
+## Testy sztucznej inteligencji jako źródło informacji do tworzenia jeszcze lepszej SI
+
+Pamiętajmy, że o ile wszystkie te testy mogą być przydatne w celu określania, czy mamy do czynienia ze sztuczną inteligencją, to można je wykorzystać także w inny sposób. Mianowicie mogą stanowić z jednej strony sposób na polepszanie istniejących algorytmów. Z innej strony, wiedza o tym, jakie testy są wykorzystywane, może być użyta do tworzenia rozwiązań typowo pod ich przechodzenie (czyli trochę taka kalka szkolnictwa z naszego kraju).
+
+Najbardziej znanym przypadkiem takiego przystosowania SI pod test był chatbot Eugene Goostman, który typowo celował w przejście testu Turinga. Bot udawał, że jest 13-letnim chłopcem z Ukrainy, przez co sędziowie dawali się nabrać na jego błędy, że są autentycznymi błędami dziecka. W wyniku tego, podczas konkursu o nagrodę Loebnera w 2014 roku, botowi udało się oszukać 33% sędziów.
+
+Z drugiej strony, testy wykrywające obecność przeróbek typu deep fake wykorzystuje się w celu ulepszania algorytmów generujących treści tego typu. Wówczas taki test staje się funkcją oceny, która wzmacnia trening sieci neuronowej. Tak więc prawdopodobnie nigdy nie będziemy mieć w 100% idealnego testu wykrywającego „fejki’, tylko nieustanny wyścig.
+
+## Literatura
+
+- Pozycje podstawowe:
+  - Shah, H.. (2011). Turing’s misunderstood imitation game and IBM’s Watson success. AISB 2011: Towards a Comprehensive Intelligence Test. 1-5.
+  - von Ahn L., Blum M., Hopper N.J., Langford J. (2003) CAPTCHA: Using Hard AI Problems for Security. In: Biham E. (eds) Advances in Cryptology — EUROCRYPT 2003. EUROCRYPT 2003. Lecture Notes in Computer Science, vol 2656. Springer, Berlin, Heidelberg
+  - Levesque, H., Davis, E., & Morgenstern, L. (2012). The Winograd Schema Challenge. In: Knowledge Representation and Reasoning Conference.
+  - Rössler, A., Cozzolino, D., Verdoliva, L., Riess, C., Thies, J., & Nießner, M. (2019). FaceForensics++: Learning to Detect Manipulated Facial Images. *2019 IEEE/CVF International Conference on Computer Vision (ICCV)*, 1-11.
+  - Shu, K., Sliva, A., Wang, S., Tang, J., & Liu, H. (2017). Fake News Detection on Social Media: A Data Mining Perspective. ArXiv, abs/1708.01967.
+- Pozycje dodatkowe:
+  - Turing test, [https://en.wikipedia.org/w/index.php?title=Turing_test&oldid=961240451](https://en.wikipedia.org/w/index.php?title=Turing_test&oldid=961240451) (ostatnio odwiedzone 28. czerwca 2020).
+  - Chinese room, [https://en.wikipedia.org/w/index.php?title=Chinese_room&oldid=962614727](https://en.wikipedia.org/w/index.php?title=Chinese_room&oldid=962614727) (ostatnio odwiedzone 28. czerwca 2020).
+  - Marta Andronik, *Deepfake na celowniku Facebooka. Trwają prace nad technologią do wykrywania zmanipulowanych filmów*, [https://www.benchmark.pl/aktualnosci/facebook-pracuje-nad-technologia-do-kontrolowania-deepfake-ow.html](https://www.benchmark.pl/aktualnosci/facebook-pracuje-nad-technologia-do-kontrolowania-deepfake-ow.html) (ostatnio odwiedzone 28. czerwca 2020).
+
+<small>(oryginał zdjęcia na okładce opublikowany w serwisie [Pexels](https://www.flickr.com/photos/granth/382907735)</small>

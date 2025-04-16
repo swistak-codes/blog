@@ -1,0 +1,172 @@
+import { Image } from '@swistak-codes/components';
+import cover from './merynosy.jpg';
+import tablica from './tablica.png';
+import tablicaNieskonczona from './tablica-nieskonczona.png';
+import listaWiazana from './lista-wiazana.png';
+
+export const meta = {
+  title: 'Listy — najpopularniejsze złożone typy danych',
+  abstract:
+    'Przyjrzyjmy się bliżej listom i zobaczmy czym one dokładnie są. Jakie są ich rodzaje, jak je używać oraz jakie błędy są popełniane przy ich użyciu.',
+  firstParagraph: (
+    <>
+      Wśród stosowanych w informatyce złożonych typów danych prawdopodobnie nie
+      ma innych tak powszechnie używanych przez programistów jak listy. Są one
+      najprostszym i często też najlepszym sposobem na przechowywanie wielu
+      powiązanych ze sobą danych. Przyjrzyjmy się im bliżej i zobaczmy, czym one
+      dokładnie są — jak powinno się ich używać, jakie błędy najczęściej są
+      popełniane, a również, jakie są ich rodzaje.
+    </>
+  ),
+  keyword: 'listy',
+  categories: ['Struktury danych', 'Listy'],
+  tags: [
+    'listy',
+    'tablice',
+    'listy wiązane',
+    'wektory',
+    'linkedlist',
+    'struktury danych',
+    'arraylist',
+    'abstrakcyjny typ danych'
+  ],
+  slug: 'listy-najpopularniejsze-zlozone-typy-danych',
+  updateTime: '2020-06-27T09:28:34+00:00',
+  publishTime: '2020-04-29T10:00:00+00:00',
+  cover,
+};
+
+## Trochę definicji na dobry początek
+
+Z racji, że jest to pierwszy wpis na tym blogu i jednocześnie też pierwszy poświęcony złożonym typom czy strukturom danych, przyjrzyjmy się pokrótce ich definicjom. Struktura danych, najkrócej mówiąc, to sposób organizacji danych w pamięci komputera. Powinna być tak zaprojektowana, aby umożliwić wydajny dostęp i modyfikację zawartych w niej danych. Wśród struktur danych możemy wymienić przykładowo grafy, drzewa, czy właśnie omawiane tutaj listy.
+
+Wprowadzam tu także pojęcie typów danych. Typ danych określa, jak należy interpretować dane zapisane w pamięci komputera. Możemy wyróżnić między innymi typy proste oraz złożone. Pisząc w dużym uproszczeniu, typy proste zwykle odnoszą się do opisania pojedynczej wartości (stąd typy liczbowe czy logiczne). Natomiast typy złożone możemy postrzegać jako swoiste połączenie typów prostych i zwykle są one implementacjami struktur danych.
+
+Na sam koniec jeszcze warto wspomnieć o pojęciu abstrakcyjnego typu danych — jest to czysto teoretyczny byt, który jedynie opisuje pewne założenia, ale nie narzuca, w jaki sposób ma to zostać zrealizowane. Wiem, że brzmi to (nomen omen) abstrakcyjnie, ale mam nadzieję, że wszystko się wkrótce rozjaśni.
+
+<small>
+  UWAGA! W artykule tym dla uproszczenia nieco mieszam pojęcia struktury i typu
+  danych. Głównie jest to spowodowane tym, że chciałem bardziej skupić się na
+  aspekcie praktycznym niż na rozważaniach czysto teoretycznych.
+</small>
+
+## Więc czym są owe listy?
+
+Zacznijmy od tego, czym są listy z teoretycznego punktu widzenia. Lista reprezentuje policzalne, uporządkowane elementy, gdzie, co istotne, elementy mogą się powtarzać. I to jest definicja listy jako abstrakcyjnego typu danych. Warunki te spełnia kilka struktur danych, którym przyjrzymy się bliżej. Wśród struktur danych najważniejszymi, które spełniają założenia list, są tablice oraz... listy. Tak, to nie jest pomyłka. Zatem omówmy je sobie.
+
+### Tablice
+
+Tablica to złożony typ danych implementujący założenia listy. W tym przypadku mamy do czynienia z podejściem maksymalnie prostym. Mianowicie jest to tylko zarezerwowane miejsce w pamięci komputera, mieszczące określoną odgórnie liczbę elementów.
+
+W przypadku tablic nie ma mowy o bardzo zaawansowanej funkcjonalności. W podstawowej implementacji jedyne, co o nich wiemy, jest to, gdzie jest początek, oraz ile zajmuje każdy z jej elementów. Wbrew pozorom to w zupełności wystarcza, aby móc bez problemu odwołać się do kolejnych jej elementów (czyli zarówno je odczytywać, jak i zapisywać).
+
+W tym momencie możecie zauważyć już jedną rzecz odnośnie tablic — mają odgórnie narzuconą wielkość. Nie są nieskończone. Innymi słowy, musimy przewidzieć, ile elementów do nich trafi, bo dokładnie tyle pamięci komputera zarezerwujemy. Zaletą jest jednak to, że przez to, że w pamięci te elementy są jeden po drugim, możemy, przykładowo, od razu dostać się do dwudziestego elementu, znając jedynie położenie pierwszego (dla programistów: zerowego).
+
+<Image
+  image={tablica}
+  alignCenter
+  fullSize
+  alt="Reprezentacja pamięci komputera, gdzie elementy 0, 1, 2, 3, 4, 5 są zapisane jeden po drugim."
+  caption="Diagram przedstawiający zapis tablicy w pamięci komputera. Jak widzimy, kolejne elementy tablicy są zapisane jeden po drugim (czytamy kolumnami góra-dół od lewej do prawej)."
+  forceWhiteBackground
+/>
+
+### Tablice nieskończone (wektory)
+
+Oczywiście nie ma problemów, których nie da się rozwiązać, ani ograniczeń, których nie da się obejść. Na bazie tablic bazują kolejne, bardziej rozbudowane struktury danych zwane tablicami nieskończonymi. Znane są także jako wektory (np. std::vector w C++), tablice dynamiczne czy listy tablicowe (np. ArrayList w Javie). Ich podstawową różnicą względem tablic, jak można domyślić się po nazwie, jest fakt, że nie mamy odgórnego ograniczenia liczby elementów. Możemy dorzucać tyle, ile chcemy.
+
+Tylko jak to działa w praktyce? Pod spodem tablicy nieskończonej kryje się tak naprawdę zwykła tablica. Ma ona określony rozmiar, i gdy chcemy dodać element ponad ten rozmiar, struktura danych tworzy nową, większą tablicę, do której przenosi elementy ze starej oraz dodaje nowy. Strukturę tę warto znać, ponieważ jest zdecydowanie najpopularniejszą implementacją list. Przykładowo w języku C# pod typem List kryje się właśnie tablica nieskończona. Czasem typ ten „zastępuje" nawet zwykłe tablice. Za przykład może tu posłużyć JavaScript, gdzie tablice są zawsze nieskończone.
+
+<Image
+  image={tablicaNieskonczona}
+  alignCenter
+  fullSize
+  alt="Diagram przedstawiający dodawanie elementów do tablicy nieskończonej. Składa się z trzech etapów.
+1. W pamięci są zapisane po sobie elementy 0, 1, 2. Chcemy dodać element numer 3.
+2. Kopiujemy istniejącą tablicę w nowe miejsce w pamięci i na jej końcu umieszczamy element 3. Wizualnie mamy dalej starą tablicę 0, 1, 2, a kawałek dalej znajduje się tablica 0, 1, 2, 3.
+3. W pamięci pozostała jedynie tablica z zapisanymi po sobie elementami 0, 1, 2, 3."
+  caption="Uproszczony schemat dodawania nowego elementu do tablicy nieskończonej. Jak widzimy, aby tego dokonać, musieliśmy utworzyć nowe miejsce w pamięci i przenieść tam zawartość starej listy wraz z nowym elementem."
+  forceWhiteBackground
+/>
+
+### Listy (wiązane)
+
+Jakkolwiek dziwnie to nie zabrzmi, ostatnią implementacją list, którą chciałem tu omówić, są listy. Znane są też dość powszechnie pod nazwą lista wiązana (w wielu językach programowania znane jako LinkedList). Ich charakterystyczną cechą jest fakt, że w przeciwieństwie do tablic nie rezerwują miejsca w pamięci do przodu, tym samym elementy nie są zapisane jeden po drugim. Przy dodawaniu elementu do pamięci jedynie dopisujemy do poprzedniego elementu informację (wskaźnik), gdzie możemy znaleźć nowy.
+
+Jak można się domyśleć, ze względu na inną budowę niż tablice, tutaj odnajdowanie elementów, jak i dodawanie nowych wygląda, zgoła inaczej. Aby znaleźć dwudziesty element listy, musimy przejść po kolei przez dziewiętnaście poprzednich, bo z elementu pierwszego możemy dostać się tylko do drugiego, z drugiego do trzeciego, z trzeciego do czwartego, i tak dalej... Natomiast dodawanie jest już prostszą operacją, ponieważ jedynie wyszukujemy wolne miejsce w pamięci, wstawiamy tam element. Następnie do dotychczasowego ostatniego elementu dopisujemy wskaźnik na tę pozycję w pamięci.
+
+<Image
+  image={listaWiazana}
+  alignCenter
+  fullSize
+  alt="Diagram przedstawiający listę wiązaną w pamięci komputera. Zawiera on rozrzucone w losowych miejscach elementy 0, 1, 2, 3, 4 połączone między sobą strzałkami reprezentującymi wskaźniki na następny element."
+  caption="W liście wiązanej elementy w pamięci nie są zapisane po kolei. Dzięki temu, dodając kolejne elementy, nie musimy martwić się o przemieszczanie pozostałych. Najważniejsze jest to, żeby elementy miały powiązania między sobą, aby można było po liście nawigować."
+  forceWhiteBackground
+/>
+
+## Kiedy i dlaczego listy?
+
+Jak już wspomniałem w tytule, listy są zdecydowanie najpopularniejszymi strukturami danych. To, co odpowiada za ich popularność, to głównie prostota, jak i fakt, że pasują do wielu zastosowań. Tylko, czy na pewno do każdego z nich się nadają? Listy powinniśmy używać, gdy:
+
+1. Zależy nam na kolejności zapisanych danych (również wtedy, gdy będziemy chcieli je sortować).
+    - Przykład: spis uczniów w klasie. W takim przypadku możemy taki spis bez problemu posortować (i zawsze tę kolejność zachowamy), a także jesteśmy odporni na przypadki, kiedy dwoje uczniów nazywa się tak samo.
+2. Wiemy, że elementy mogą się powtarzać.
+    - Przykład: dane statystyczne. W ich przypadku wartości mogą się wielokrotnie powtarzać.
+3. Nie potrzebujemy identyfikować danych po unikalnej wartości.
+    - Przykład: słownik pojęć. W takim przypadku są inne struktury danych, dzięki którym wyszukanie elementów po unikalnej wartości (w tym przypadku po pojęciu) jest dużo szybsze.
+4. Nasze dane nie przedstawiają żadnej hierarchii lub powiązań między sobą (aczkolwiek są tu wyjątki).
+    - Przykład: drzewo genealogiczne. W przypadku, gdy chcemy wskazać relacje rodzinne, lepiej zastosować struktury, które umożliwią powiązanie elementów między sobą w bardziej uniwersalny sposób niż jedynie poprzedni/kolejny.
+    - Wyjątki: tablice odpowiednio stosowane mogą przedstawiać hierarchię. Przykładem jest tu struktura danych zwana kopcem, która jest hierarchiczna i jednocześnie bazuje na tablicach.
+
+Oczywiście w podanych przypadkach przeciwko listom nikt nie zabrania ich tam użyć. Jednak są struktury, które poradzą sobie wówczas lepiej i warto stosować je zamiast list.
+
+## Kiedy które listy?
+
+Inna sprawa, to kiedy możemy zastosować którą z implementacji list. Zarówno tablice, jak i listy wiązane, mają inne zastosowania, które warto rozróżnić głównie ze względów optymalizacyjnych.
+
+### Kiedy tablice (w tym nieskończone)?
+
+1. Jesteśmy w stanie przewidzieć liczbę elementów bądź jest ona odgórnie ograniczona.
+2. Często odczytujemy elementy, szczególnie ze środka listy.
+3. Nie dodajemy ani nie usuwamy często elementów.
+4. Dane będziemy sortować (są wyjątki od tej reguły).
+    - W kwestii wyjątku, to wszystko zależy od stosowanego algorytmu. Aczkolwiek najpopularniejsze (w tym quick sort) zostały zaprojektowane z myślą o tablicach.
+
+Zwykle programiści stosują tablice po prostu wtedy, gdy muszą przechować wiele danych. Najczęściej najwięcej przypadków tego typu pasuje pod podane wyżej kryteria. Warto też zauważyć, że często, nawet gdy któreś z tych punktów nie są spełnione, to i tak wykorzystuje się tablice. Zwykle ze względu na ich łatwe użycie i popularność, ale także dlatego, że różnice w wydajności często nie są odczuwalne, toteż nic nie przemawia za stosowaniem list wiązanych.
+
+### Kiedy listy wiązane?
+
+1. Nie jesteśmy w stanie przewidzieć liczby elementów.
+2. Często dodajemy lub usuwamy elementy.
+3. Jeżeli odczytujemy dane, to zwykle od początku (lub od końca) i po kolei.
+
+Listy wiązane mają to do siebie, że mimo iż do niektórych zastosowań (takich jak np. stosy, kolejki) są lepsze niż tablice, to nie zawsze są wtedy używane. Jest to niestety spowodowane tym, że nie każdy język posiada wbudowaną ich implementację (np. JavaScript). Największą popularność mają za to w językach funkcyjnych. Przykładowo, w Lisp listy są podstawową strukturą danych (nawet jego nazwa wzięła się od słów List Processor). Mimo to warto je poznać, niezależnie jaki paradygmat czy język programowania stosujemy.
+
+## Czy są inne rodzaje list?
+
+Tak, jednak uważam, że nie było potrzeby poruszania ich szerzej w tak ogólnym, wprowadzającym w temat artykule. Jednak dla chętnych podam parę nazw i krótki opis.
+
+Przede wszystkim listy wiązane to nie jest jedna konkretna implementacja. Przypadek, który opisałem, to lista jednokierunkowa. Jednak mamy także listę dwukierunkową — wtedy elementy przechowują nie tylko wskaźnik na następny, ale również na poprzedni element. Możemy także wyróżnić listy z wartownikiem oraz cykliczne. Co ciekawe, można te rodzaje łączyć ze sobą, więc nasza implementacja może być np. listą dwukierunkową z wartownikiem.
+
+Zupełnie inną odmianą list są listy z przeskokami. Jest to szczególny przypadek list wiązanych, gdzie elementy mają powiązania z wieloma innymi, co przyspiesza operację przeszukiwania.
+
+Także bardzo szczególnym przypadkiem list są tablice bitowe (znane również jako zbiory bitowe). Powstały one po to, by zoptymalizować rozmiar zajmowany przez zmienne logiczne. Zwykle, ze względu na ograniczenia pamięci komputera, zajmują one 1 bajt, podczas gdy mogłyby jedynie 1 bit (dla przypomnienia: 1 bajt = 8 bitów). Tablice bitowe te ograniczenia pomijają poprzez trzymanie w 1 bajcie ośmiu wartości logicznych.
+
+Po więcej zapraszam do artykułu na Wikipedii, gdzie znajdziecie więcej list: [https://en.wikipedia.org/wiki/List_of_data_structures#Linear_data_structures](https://en.wikipedia.org/wiki/List_of_data_structures#Linear_data_structures)
+
+## Podsumowując…
+
+Podsumowując temat list, to co najbardziej chciałbym, aby zapamiętać z tego artykułu to fakt, że nie zawsze są one najlepszym rozwiązaniem. Są najpowszechniejszym i najprostszym, ale niekoniecznie muszą pasować pod potrzebne dla Was zastosowanie. A nawet, gdy zastosowanie dla list jest dobre, warto rozważyć, czy aby na pewno stosujecie ich dobrą odmianę.
+
+## Literatura
+
+- Pozycje podstawowe:
+  - Harris S., Ross J., „Listy” w *Od podstaw Algorytmy*. Gliwice: Helion, 2006, s. 71–104
+  - Wirth N., „Podstawowe struktury danych” w *Algorytmy + struktury danych = programy*. Warszawa: Wydawnictwa Naukowo-Techniczne, 2002, s. 17–72
+  - Cormen T. H., Leiserson C. E., Rivest R.L., „Elementarne struktury danych” w *Wprowadzenie do algorytmów*. Warszawa: Wydawnictwa Naukowo-Techniczne, 2001, s. 236–255
+- Pozycje uzupełniające:
+  - Data structure, [https://en.wikipedia.org/w/index.php?title=Data_structure&oldid=948531883](https://en.wikipedia.org/w/index.php?title=Data_structure&oldid=948531883) (ostatnio odwiedzone: 19. kwietnia 2020)
+  - Abstract data type, [https://en.wikipedia.org/w/index.php?title=Abstract_data_type&oldid=951507458](https://en.wikipedia.org/w/index.php?title=Abstract_data_type&oldid=951507458) (ostatnio odwiedzone: 19. kwietnia 2020)
+  - List (abstract data type), [https://en.wikipedia.org/w/index.php?title=List_(abstract_data_type)&oldid=943018152](https://en.wikipedia.org/w/index.php?title=List_(abstract_data_type)&oldid=943018152) (ostatnio odwiedzone: 19. kwietnia 2020)
+
+<small>(oryginał zdjęcia na okładce opublikowany w serwisie [Pixnio](https://pixnio.com/fauna-animals/sheeps/herd-merino-sheep-cattle-livestock-animal-agriculture) na licencji CC0)</small>

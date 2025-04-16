@@ -1,0 +1,98 @@
+@use 'sass:math';
+
+.canvasContainer {
+  width: 100%;
+  height: 400px;
+  background-color: var(--sc--white);
+  color: var(--sc--black);
+
+  :global(.react-flow__edge-BEZIER_EDGE) {
+    :global(.react-flow__edge-path) {
+      stroke: var(--sc--black);
+    }
+  }
+
+  transition: none;
+  * {
+    transition: none;
+  }
+}
+
+.controlsContainer {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  align-items: center;
+  margin-top: 14px;
+
+  input {
+    margin-left: 8px;
+  }
+}
+
+.node {
+  width: 1px;
+  height: 1px;
+  background: transparent;
+
+  :global(.react-flow__handle-left) {
+    top: 50%;
+    left: 50%;
+    transform: none;
+  }
+
+  :global(.react-flow__handle-right) {
+    top: 50%;
+    right: 50%;
+    transform: none;
+  }
+
+  :global(.react-flow__handle) {
+    width: 1px;
+    height: 1px;
+    background: transparent;
+    border: none;
+  }
+}
+
+$control-point-node-size: 20px;
+
+.controlPointNode {
+  width: $control-point-node-size;
+  height: $control-point-node-size;
+  font-size: math.div($control-point-node-size, 2);
+  border: 1px solid black;
+  border-radius: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  cursor: pointer;
+  transform: translate(
+    math.div(-$control-point-node-size, 2),
+    math.div(-$control-point-node-size, 2)
+  );
+
+  &.selected {
+    border: 2px solid red;
+  }
+
+  :global(.react-flow__handle-left) {
+    top: 50%;
+    left: 50%;
+    transform: none;
+  }
+
+  :global(.react-flow__handle-right) {
+    top: 50%;
+    right: 50%;
+    transform: none;
+  }
+
+  :global(.react-flow__handle) {
+    width: 1px;
+    height: 1px;
+    background: transparent;
+    border: none;
+  }
+}

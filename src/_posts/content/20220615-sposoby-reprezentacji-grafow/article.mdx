@@ -1,0 +1,229 @@
+import Link from 'next/link';
+import {Image} from '@swistak-codes/components';
+import {Presentation} from './presentation';
+import cover from './deer-5089177_1280.jpg';
+import listaKrawedzi from './lista-krawedzi.png';
+import listaSasiedztwa from './lista-sasiedztwa.png';
+import macierzSasiedztwa from './macierz-sasiedztwa.png';
+import macierzIncydencji from './macierz-incydencji.png';
+
+export const meta = {
+  title: 'Sposoby reprezentacji grafów',
+  abstract:
+    'Grafy mają szerokie zastosowanie w informatyce, tylko jak je reprezentować w pamięci? Temu poświęcam niniejszy artykuł.',
+  firstParagraph: (
+    <>
+      Ostatnio przedstawiłem, <Link href="/post/grafy-wprowadzenie">czym są grafy</Link>, jakie wyróżniamy i gdzie w informatyce znalazły praktyczne zastosowanie. Tylko skoro stosuje się je w informatyce, to w jaki sposób? Jak je zapisać? Jakie struktury danych używamy do tego celu? W niniejszym artykule odpowiadam na te pytania.
+    </>
+  ),
+  keyword: 'grafy',
+  categories: ['Grafy', 'Programowanie', 'Struktury danych'],
+  tags: [
+    'grafy',
+    'struktury danych',
+    'abstrakcyjny typ danych',
+    'lista krawędzi',
+    'lista sąsiedztwa',
+    'macierz sąsiedztwa',
+    'macierz incydencji',
+    'c++',
+    'javascript'
+  ],
+  slug: 'sposoby-reprezentacji-grafow',
+  updateTime: '2022-06-15T07:00:00+00:00',
+  publishTime: '2022-06-15T07:00:00+00:00',
+  cover,
+};
+
+## Graf jako abstrakcyjny typ danych
+
+Na początek rozpatrzmy, czym graf powinien być, czyli opiszmy go jako <Link href="/post/listy-najpopularniejsze-zlozone-typy-danych/#trochę-definicji-na-dobry-początek">abstrakcyjny typ danych</Link>.
+
+Przede wszystkim musimy przechować zbiór wierzchołków i rodzinę krawędzi. Należy pamiętać, że graf może być skierowany lub nieskierowany, więc powinniśmy być w stanie określić, czy para wierzchołków, z której składa się krawędź, jest uporządkowana, czy też nie. Warto dodać, że graf powinien być skończony, aby móc go zapisać w pamięci.
+
+Oprócz tego mile widziane jest przechowanie dodatkowych informacji dotyczących wierzchołków i krawędzi. Przede wszystkim, z punktu widzenia teorii informatyki, najważniejsza jest możliwość przechowania wagi krawędzi, co jest istotne w kontekście wielu algorytmów grafowych. Natomiast w praktyce grafami modelujemy rzeczywiste byty (służą przechowaniu wiedzy), więc powinniśmy być w stanie przechować również inne dane, zarówno na krawędziach, jak i wierzchołkach.
+
+W kontekście operacji najczęściej wyróżnia się następujące:
+
+- dodanie wierzchołka,
+- dodanie krawędzi,
+- usunięcie wierzchołka,
+- usunięcie krawędzi,
+- sprawdzenie sąsiedztwa dwóch wierzchołków (czy są połączone krawędzią).
+
+Skoro już wiemy, czym grafowa struktura danych powinna się wyróżniać, zapoznajmy się z tym, jak możemy grafy przechowywać w pamięci komputera.
+
+## Sposoby zapisu grafu w pamięci komputera
+
+Tworząc grafową strukturę danych, podstawą jest nie tyle zaprogramowanie operacji, ile napisanie odpowiedniego sposobu przechowywania grafu w pamięci komputera. W zależności od tego, z jakimi grafami mamy do czynienia, jakie algorytmy chcemy używać, czy też jakie operacje najczęściej wykonamy, powstały różne sposoby zapisu.
+
+Zanim jednak przejdziemy dalej, wyjaśnię kilka symboli:
+
+- $$V$$ — zbiór wierzchołków
+- $$E$$ — rodzina krawędzi
+- $$|V|$$ — liczba wierzchołków
+- $$|E|$$ — liczba krawędzi
+- $$d$$ — stopień wierzchołka, czyli z iloma innymi wierzchołkami jest połączony
+- $$\Omicron(n)$$ — asymptotyczne tempo wzrostu funkcji; dla uproszczenia nie stosuję innych notacji niż duże $$\Omicron$$, nawet jeśli bardziej by pasowały do danego przypadku
+
+Dodatkowo warto też wspomnieć, że wierzchołki grafu zwykło się numerować od 0 do $$n$$ bez nadawania im konkretnych nazw. Stąd większość pokazanych niżej sposobów zapisu będzie identyfikować wierzchołki indeksem elementu w tablicy, liście bądź macierzy.
+
+W artykule pomijam sposoby zapisu drzew. W praktyce algorytmicznej traktuje się je jako oddzielne struktury danych, ponieważ można je reprezentować prościej niż zwykłe grafy. Nikt nie broni reprezentować drzew w taki sposób, jak pokazuję tutaj, ale nie powinniśmy tak robić. Drzewa charakteryzują się też innymi algorytmami, stąd zostaną całkowicie pominięte w serii o grafach.
+
+### Lista krawędzi
+
+Zacznę od sposobu, który w podręcznikach do algorytmiki jest często pomijany, natomiast najczęściej spotkałem się z nim w praktyce przy wizualizacji danych. Sposób ten to lista krawędzi.
+
+Lista krawędzi polega na tym, że mamy listę (zwykle <Link href="/post/tablice-i-listy-tablicowe/">tablica lub lista tablicowa</Link>) zawierającą definicję krawędzi. Definicja krawędzi w najprostszej postaci to para wierzchołków, ale często w praktycznych zastosowaniach stosuje się obiekty.
+
+<Image
+  image={listaKrawedzi}
+  alignCenter
+  fullSize
+  alt="Po lewej stronie rysunku jest graf z połączeniami z 0 do 1, 0 do 3, 1 do 2 i 2 do 0. Po prawej stronie znajduje się zapis w postaci listy krawędzi: otwarcie nawiasu kwadratowego, para 0 1, para 1 2, para 2 0, para 0 3, zamknięcie nawiasu kwadratowego"
+  caption={<></>}
+/>
+
+W praktyce obok listy krawędzi zwykle stosuje się też listę wierzchołków, aby móc przechować informacje o nich. Jednak żeby zbudować graf, wystarczą jedynie informacje o krawędziach. Dwa przykłady użycia:
+
+- W JavaScriptowej bibliotece do wizualizacji danych GoJS znajdziemy [GraphLinksModel](https://gojs.net/latest/api/symbols/GraphLinksModel.html), który przechowuje równocześnie listę krawędzi (`linkDataArray`) oraz listę wierzchołków (`nodeDataArray`).
+- W zestawie bibliotek [Boost](https://www.boost.org/) do C++, a dokładniej w [Boost Graph Library](https://www.boost.org/doc/libs/1_79_0/libs/graph/doc/index.html), znajdziemy gotowe implementacje algorytmów grafowych. Obsługuje trzy sposoby zapisu grafów w pamięci, w tym listę krawędzie jako [`edge_list`](https://www.boost.org/doc/libs/1_79_0/libs/graph/doc/edge_list.html).
+
+Poniżej możesz zobaczyć powyższy graf zapisany jako model w GoJS:
+
+```javascript
+diagram.model = new go.GraphLinksModel(
+  [{ key: 0 }, { key: 1 }, { key: 2 }, { key: 3 }],
+  [
+    { from: 0, to: 1 },
+    { from: 1, to: 2 },
+    { from: 2, to: 0 },
+    { from: 0, to: 3 }
+  ]
+);
+```
+
+W kwestii wydajności pamięciowej i obliczeniowej struktura ta wygląda następująco:
+
+- Zajęta ilość pamięci: $$\Omicron(|E|)$$.
+- Dodanie krawędzi: $$\Omicron(1)$$ (optymistyczny przypadek) lub $$\Omicron(|E|)$$ (pesymistyczny przypadek).
+- Dodanie wierzchołka: brak możliwości zapisania wierzchołka niepołączonego żadną krawędzią (chyba że dodatkowo mamy listę wierzchołków, ale nie bierzemy tego pod uwagę).
+- Usunięcie krawędzi: $$\Omicron(|E|)$$.
+- Usunięcie wierzchołka: $$\Omicron(|E|)$$ — należy przejść przez wszystkie krawędzie i usunąć te, w których występuje wierzchołek.
+- Sprawdzenie sąsiedztwa: $$\Omicron(|E|)$$
+
+Wydajnościowo struktura ta zależna jest tylko od liczby krawędzi. Niestety, niezależnie od operacji najgorszy przypadek wymaga $$\Omicron(|E|)$$ operacji, przez co bez dodatkowych optymalizacji nie najlepiej sprawdzi się w typowej algorytmice grafowej. Jej największą zaletą jest natomiast elastyczność pod kątem przechowywanych danych, dlatego często się ją stosuje. Oprócz tego jako jedyna opisana tutaj struktura pozwala na tworzenie więcej niż jednej krawędzi między dwoma wierzchołkami, co przydaje się w zastosowaniach związanych z wizualizacją danych.
+
+### Lista sąsiedztwa
+
+Teraz pora na jeden z najbardziej klasycznych sposobów reprezentacji grafu opisany w praktycznie każdym podręczniku algorytmiki, czyli lista sąsiedztwa.
+
+W przypadku listy sąsiedztwa mamy tak naprawdę do czynienia z listą list. Kolejne indeksy w tej liście odpowiadają wierzchołkom grafu (czyli zakładamy, że są numerowane od 0 do $$n$$\*), a pod nimi znajdziemy listę wierzchołków (klasycznie stosuje się <Link href="/post/listy-z-dowiazaniami/#lista-jednokierunkowa">listę jednokierunkową</Link>, ale można też użyć tablicy), do których możemy z niego dostać się bezpośrednio. Naturalnie taka struktura sugeruje użycie do grafu skierowanego (z danej krawędzi dostaniemy się do innej), ale możemy też zastosować ją w grafach nieskierowanych, tylko trzeba będzie powielić krawędź (żeby z obu wierzchołków dało się dojść do siebie nawzajem).
+
+\* chyba że korzystamy z tablicy z haszowaniem, to wówczas możemy użyć innego rodzaju identyfikatorów wierzchołków
+
+<Image
+  image={listaSasiedztwa}
+  alignCenter
+  fullSize
+  alt="Po lewej stronie rysunku jest graf z połączeniami z 0 do 1, 0 do 3, 1 do 2 i 2 do 0. Po prawej stronie znajduje się zapis w postaci listy sąsiedztwa: otwarcie nawiasu kwadratowego, 0 z listą zawierającą 1 i 3, 1 z listą zawierającą 2, 2 z listą zawierającą 0, 3 z pustą listą, zamknięcie nawiasu kwadratowego"
+  caption={<></>}
+/>
+
+Listę sąsiedztwa również znajdziemy w Boost Graph Library, tym razem jako [`adjacency_list`](https://www.boost.org/doc/libs/1_79_0/libs/graph/doc/adjacency_list.html).
+
+Struktura ta jest bardzo wygodna do wielu zastosowań algorytmicznych i gdy w przyszłych artykułach będę omawiać algorytmy, prawdopodobnie najczęściej zastosuję właśnie tę strukturę. Dodatkowo ze względu na to, jak zajmuje pamięć, jest szczególnie polecana w przypadku, gdy liczba krawędzi jest stosunkowo mała, czyli mamy do czynienia z grafem rzadkim.
+
+Skoro już poruszyliśmy temat złożoności, kontynuujmy go:
+
+- Zajęta ilość pamięci: $$\Omicron(|V| + |E|)$$ — należy jednak pamiętać, że w przypadku grafu nieskierowanego liczba krawędzi się podwaja.
+- Dodanie krawędzi: $$\Omicron(1)$$ — zakładając listę jednokierunkową.
+- Dodanie wierzchołka: $$\Omicron(1)$$ (optymistyczny przypadek) lub $$\Omicron(|E|)$$ (pesymistyczny przypadek).
+- Usunięcie krawędzi: $$\Omicron(|V|)$$ — musimy przejść przez wszystkie wierzchołki i usunąć połączenia.
+- Usunięcie wierzchołka: $$\Omicron(|V|)$$ — oprócz usunięcia wierzchołka z listy musimy też usunąć go z innych wierzchołków.
+- Sprawdzenie sąsiedztwa: $$\Omicron(d)$$ — dostęp do pierwszego wierzchołka jest natychmiastowy, potem pozostaje tylko przejście po liście jego sąsiadów.
+
+### Macierz sąsiedztwa
+
+Kolejnym klasycznym podejściem jest macierz sąsiedztwa (inaczej macierz adjacencji). Jest to macierz (tablica dwuwymiarowa) o wymiarach $$|V| \cdot |V|$$, w której wartości wskazują, czy wierzchołki są ze sobą połączone, czy też nie. W grafach nieważonych zwykle stosujemy wartości 0 (brak krawędzi) i 1 (istnieje krawędź), jednak w przypadku ważonego grafu możemy stosować inne wartości numeryczne i `null` dla braku krawędzi.
+
+<Image
+  image={macierzSasiedztwa}
+  alignCenter
+  fullSize
+  alt="Po lewej stronie rysunku jest graf z połączeniami z 0 do 1, 0 do 3, 1 do 2 i 2 do 0. Po prawej stronie znajduje się zapis w postaci macierzy. Po kolei idąc wierszami: pierwszy wiersz: 1, 0, 0, 1; drugi: 0, 0, 1, 0; trzeci: 1, 0, 0, 0; czwarty: 0, 0, 0, 0"
+  caption={<></>}
+/>
+
+Tak samo jak w poprzednich przypadkach macierz sąsiedztwa również możemy utworzyć w Boost Graph Library. Znajdziemy ją pod nazwą [`adjacency_matrix`](https://www.boost.org/doc/libs/1_79_0/libs/graph/doc/adjacency_matrix.html).
+
+Podobnie jak lista sąsiedztwa, macierz sąsiedztwa również lepiej sprawdza się w zastosowaniach algorytmicznych od listy krawędzi. Niestety, jej rozmiar rośnie kwadratowo wraz z liczbą wierzchołków. Ponadto, jeśli nasz graf nie ma wielu krawędzi, macierz może być niemal pusta i wciąż zajmować tyle samo miejsca w pamięci.
+
+Omówmy sobie bardziej szczegółowo złożoność:
+
+- Zajęta ilość pamięci: $$\Omicron(|V|^2)$$
+- Dodanie krawędzi: $$\Omicron(1)$$
+- Dodanie wierzchołka: $$\Omicron(|V|^2)$$
+- Usunięcie krawędzi: $$\Omicron(1)$$
+- Usunięcie wierzchołka: $$\Omicron(|V|^2)$$
+- Sprawdzenie sąsiedztwa: $$\Omicron(1)$$
+
+Złożoność obliczeniowa opiera się tutaj w dużej mierze na dwóch właściwościach:
+
+- Macierz będąca tablicą dwuwymiarową jako obie współrzędne ma indeksy, które są identyfikatorami wierzchołków, więc dostęp do krawędzi jest natychmiastowy.
+- Tablice wymagają przepisania za każdym razem, gdy chcemy zmienić ich rozmiar, stąd musimy wykonać $$|V|^2$$ operacji.
+
+### Macierz incydencji
+
+Teraz opiszę ostatni z klasycznych sposobów zapisu grafu, chociaż przyznam, że osobiście nigdy się z nim nie spotkałem poza podręcznikami. Jest to macierz incydencji. Jak sama nazwa wskazuje, mamy tu do czynienia z macierzą (tablicą dwuwymiarową), tylko tym razem jest ona o wymiarach $$|V| \cdot |E|$$, co oznacza, że wiersze odwzorowują wierzchołki, a kolumny krawędzie. Zawartość pojedynczej komórki określa powiązanie wierzchołka i krawędzi, gdzie 0 to brak powiązania, 1 to początek krawędzi, a -1 to jej koniec. W przypadku grafu nieskierowanego pomijamy wartość -1. Jeśli chodzi o graf ważony, możemy stosować też inne wartości, aczkolwiek warto zwrócić uwagę na to, że jest wtedy problem z reprezentacją początku i końca krawędzi (graf może mieć ujemne wagi).
+
+<Image
+  image={macierzIncydencji}
+  alignCenter
+  fullSize
+  alt="Po lewej stronie rysunku jest graf z połączeniami z 0 do 1, 0 do 3, 1 do 2 i 2 do 0. Po prawej stronie znajduje się zapis w postaci macierzy. Po kolei idąc kolumnami (czyli krawędziami): pierwszy wiersz: -1, 1, 0, 0; drugi: 0, -1, 1, 0; trzeci: 1, 0, -1, 0; czwarty: -1, 0, 0, 1"
+  caption={<></>}
+/>
+
+Możesz się teraz zastanawiać, po co kolejny sposób zapisu? Otóż w przeciwieństwie do macierzy i listy sąsiedztwa macierz incydencji pozwala zapisać krawędzie wielokrotne i jednocześnie ma informacje o wszystkich wierzchołkach oraz jest prostsza w odczycie niż lista krawędzi. Z drugiej strony jednak nie jesteśmy w stanie za jej pomocą zapisać pętli.
+
+Jak struktura ta wygląda pod kątem złożoności? Zobaczmy:
+
+- Zajęta ilość pamięci: $$\Omicron(|V| \cdot |E|)$$
+- Dodanie krawędzi: $$\Omicron(|V| \cdot |E|)$$
+- Dodanie wierzchołka: $$\Omicron(|V| \cdot |E|)$$
+- Usunięcie krawędzi: $$\Omicron(|V| \cdot |E|)$$
+- Usunięcie wierzchołka: $$\Omicron(|V| \cdot |E|)$$
+- Sprawdzenie sąsiedztwa: $$\Omicron(|E|)$$
+
+Wyjaśniając — w tym przypadku każda operacja modyfikacji grafu wymaga przepisania na nowo macierzy. Natomiast sprawdzenie sąsiedztwa wymaga od nas sprawdzenia po kolei wszystkich wierzchołków, czy pokrywa się z nimi którakolwiek z krawędzi.
+
+Jak widać, struktura ta wygląda zdecydowanie najgorzej pod kątem złożoności, stąd zwykle stosuje się jedną z wcześniej opisanych.
+
+## Wypróbuj różne sposoby zapisu
+
+Na poniższej prezentacji możesz utworzyć graf skierowany i zobaczyć, jak jest reprezentowany różnymi sposobami zapisu. Aby dodać wierzchołek, naciśnij przycisk u góry, a w celu dodania krawędzi naciśnij wierzchołek i przeciągnij myszką do drugiego wierzchołka. Możesz też przesuwać widoczną część grafu, przeciągając kursorem myszy po naciśnięciu na części ekranu, gdzie nie ma żadnego węzła ani wierzchołka. Natomiast pod grafem znajdziesz przełącznik, którym możesz przełączać między jedną z czterech opisanych w artykule reprezentacji grafu.
+
+<Presentation />
+
+Prezentacja została napisana w języku TypeScript z wykorzystaniem React i [Cytoscape.js](https://js.cytoscape.org/). Jej kod źródłowy znajdziesz [na moim GitHubie](https://github.com/swistak-codes/graph-representations).
+
+## Podsumowanie
+
+W artykule przedstawiłem najpowszechniej stosowane i najbardziej znane sposoby na zapis grafu w postaci struktury danych. Każda z nich ma swoje wady i zalety, i powinniśmy stosować zawsze tą, która najlepiej sprawdzi się w naszym przypadku. Krótko podsumowując:
+
+- W zastosowaniach algorytmicznych zwykle stosujemy listę lub macierz sąsiedztwa. Zależnie od liczby krawędzi wybieramy:
+    - Listę sąsiedztwa, jeśli nasz graf jest rzadki.
+    - Macierz sąsiedztwa w przeciwnym wypadku.
+- Przy wizualizacji danych najczęściej spotykamy się z listą krawędzi. W połączeniu z listą wierzchołków sprawuje się idealnie, gdy chcemy przechować dodatkowe dane.
+
+## Literatura
+
+- Cormen, T. H.; Leiserson, C. E.; Rivest R. L.; Stein C. “Representation of graphs” w *Introduction to algorithms, 3rd ed.*. MIT Press, Cambridge, MA, U.S.A., s. 589-593.
+- The Boost Graph Library, [https://www.boost.org/doc/libs/1_79_0/libs/graph/doc/index.html](https://www.boost.org/doc/libs/1_79_0/libs/graph/doc/index.html) (ostatni dostęp maj. 23, 2022).
+- Reprezentowanie grafów, [https://pl.khanacademy.org/computing/computer-science/algorithms/graph-representation/a/representing-graphs](https://pl.khanacademy.org/computing/computer-science/algorithms/graph-representation/a/representing-graphs) (ostatni dostęp maj. 23, 2022).
+- Walaszek, J., „Reprezentacja grafów w komputerze”, [https://eduinf.waw.pl/inf/alg/001_search/0124.php](https://eduinf.waw.pl/inf/alg/001_search/0124.php) (ostatni dostęp maj. 23, 2022).
+- Graph (abstract data type), [https://en.wikipedia.org/w/index.php?title=Graph_(abstract_data_type)&oldid=1074929950](https://en.wikipedia.org/w/index.php?title=Graph_(abstract_data_type)&oldid=1074929950) (ostatni dostęp maj. 23, 2022).
+- Max Franz, Christian T. Lopes, Gerardo Huck, Yue Dong, Onur Sumer, Gary D. Bader, “Cytoscape.js: a graph theory library for visualisation and analysis“, *Bioinformatics*, Volume 32, Issue 2, 15 January 2016, Pages 309–311, [https://doi.org/10.1093/bioinformatics/btv557](https://doi.org/10.1093/bioinformatics/btv557)
+
+<small>(zdjęcie na okładce: Image by <a href="https://pixabay.com/users/matryx-15948447/?utm_source=link-attribution&amp;utm_medium=referral&amp;utm_campaign=image&amp;utm_content=5089177">Dr StClaire</a> from <a href="https://pixabay.com/?utm_source=link-attribution&amp;utm_medium=referral&amp;utm_campaign=image&amp;utm_content=5089177">Pixabay</a>)</small>

@@ -1,0 +1,443 @@
+import Link from 'next/link';
+import {Image} from '@swistak-codes/components';
+import cover from './swistak_blackwhite.jpg';
+
+export const meta = {
+  title: 'Logika dla informatyków — kwantyfikatory',
+  abstract:
+    'W artykule pokazuję zagadnienia rachunku kwantyfikatorów napisane pod kątem ich zastosowań w informatyce.',
+  firstParagraph: (
+    <>
+      Przedstawiając ostatnio podstawy logiki dla informatyków, ograniczyłem się tylko do rachunku zdań, bo to on jest najczęściej spotykany. Jednak logika matematyczna jest dużo bardziej rozbudowana i inne jej elementy też znajdują zastosowanie praktyczne. Kolejnym zagadnieniem, które chcę przedstawić, jest rachunek kwantyfikatorów. Z naszego punktu widzenia będzie to krótkie i proste, ale warte opowiedzenia.
+    </>
+  ),
+  keyword: 'logika',
+  categories: ['Logika'],
+  tags: [
+    'logika',
+    'matematyka',
+    'kwantyfikator',
+    'kwantyfikator ogólny',
+    'kwantyfikator szczegółowy',
+    'kwantyfikator duży',
+    'kwantyfikator mały',
+    'kwantyfikator egzystencjalny',
+    'kwantyfikator uniwersalny',
+    'prawa de Morgana',
+    'javascript',
+    'c#'
+  ],
+  slug: 'kwantyfikatory',
+  updateTime: '2023-07-05T07:00:00+00:00',
+  publishTime: '2023-07-05T07:00:00+00:00',
+  cover,
+};
+
+## Uwaga wstępna
+
+Artykuł jest kontynuacją artykułu *<Link href="/post/podstawy-logiki">Logika dla informatyków — podstawy</Link>*. Dlatego też zakładam, że pojęcia, które tam przedstawiłem, nie są Ci obce. Jeśli jednak znasz pojęcia związane z rachunkiem zdań i takie terminy jak aksjomat czy tautologia, możesz spokojnie czytać dalej. Chociaż szybkie powtórzenie tematu jest zawsze wskazane 😉.
+
+## Czym są kwantyfikatory
+
+Kwantyfikator to matematyczna nazwa na zwroty typu *istnieje* czy *dla każdego* (a także im pokrewne) oraz odpowiadające im symbole. Natomiast rachunek kwantyfikatorów to operacje, które wykonujemy na nich. Prawdę mówiąc, z punktu widzenia absolutnych podstaw nie ma co rozszerzać tej definicji. Warto jednak od razu powiedzieć sobie o ich zastosowaniu w matematyce: odgrywają ważną rolę w definiowaniu twierdzeń i definicji. A jak możesz się domyślać, skoro opowiadam o nich na tym blogu, to znaczy, że też stosujemy je w informatyce, co pokażę dalej.
+
+## Rodzaje kwantyfikatorów
+
+W poprzednim akapicie wspomniałem, że kwantyfikatory to takie zwroty jak *istnieje* i *dla każdego*. Są to dwa najważniejsze rodzaje kwantyfikatorów: ogólny i szczegółowy. Omówmy je.
+
+### Kwantyfikator ogólny
+
+Kwantyfikator ogólny (inaczej: duży, uniwersalny) odpowiada określeniu *dla każdego*. Możemy go  zapisać na dwa sposoby:
+
+- $$\forall$$ — odwrócona litera A, od angielskiego *for **all***
+- $$\bigwedge$$ — można skojarzyć z rozszerzaniem się na całość jakiegoś zakresu
+
+$$\forall x: \phi(x)$$ odczytamy jako *dla każdego $$x$$ zachodzi $$\phi(x)$$*, czyli wszystkie $$x$$ muszą spełniać warunek opisany funkcją $$\phi(x)$$.
+
+Myślę, że sam ten opis, jak i „dla każdego” pokazują, jakie zastosowania ma ten kwantyfikator w matematyce. Jednak skupmy się teraz na programowaniu. Miejscem, gdzie najczęściej trafiamy na kwantyfikatory, są operacje na kolekcjach sprawdzające jej elementy. Dosłowną implementacją kwantyfikatora ogólnego są funkcje sprawdzające, czy wszystkie elementy kolekcji spełniają wskazany predykat (funkcja określająca warunek, który musi spełnić element).
+
+Przykładowe implementacje kwantyfikatora ogólnego w językach programowania znajdziemy pod nazwami takimi jak:
+
+- `every()`, np. w [JavaScript](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/every)
+- `All()`, np. w [C#](https://learn.microsoft.com/en-us/dotnet/api/system.linq.enumerable.all?view=net-7.0); ewentualnie warianty tej nazwy jak `allMatch()` w [Javie](https://docs.oracle.com/javase/8/docs/api/java/util/stream/Stream.html#allMatch-java.util.function.Predicate-)
+
+Przykładowe użycie w JavaScript wygląda tak:
+
+```javascript
+// tablica z liczbami podzielnymi przez 15
+const numbers = [0, 15, 30, 45, 60];
+
+// sprawdzamy, czy wszystkie są parzyste
+const areEven = numbers.every(x => x % 2 === 0);
+// wypisujemy wynik
+console.log(areEven); // false
+
+// sprawdzamy, czy wszystkie są l. całkowitymi
+const areInteger = numbers.every(Number.isInteger);
+// wypisujemy wynik
+console.log(areInteger); // true
+```
+
+Kod możesz przetestować na własną rękę na [Replit](https://replit.com/@tswistak/js-every#index.js).
+
+Jeśli jesteś ciekaw(a), jak mogłaby wyglądać od zera implementacja kwantyfikatora ogólnego, zamieściłem ją w artykule *<Link href="/post/iteracja-co-to-jest/#sprawdzenie-czy-elementy-spe%C5%82niaj%C4%85-warunek">Iteracja — co to jest?</Link>*
+
+### Kwantyfikator szczegółowy
+
+Kwantyfikator szczegółowy (inaczej: mały, egzystencjalny) odpowiada słowu *istnieje*. Również mamy dwa sposoby zapisu:
+
+- $$\exists$$ — odwrócona litera E, od angielskiego ***exists***
+- $$\bigvee$$ — można skojarzyć ze wskazaniem na konkretny element
+
+$$\exists x: \phi(x)$$ odczytamy jako *istnieje takie $$x$$, dla którego zachodzi $$\phi(x)$$*. Oznacza to, że przynajmniej jeden $$x$$ spełnia warunek opisany funkcją $$\phi(x)$$.
+
+Analogicznie jak w przypadku kwantyfikatora ogólnego, szczegółowy również znajdziemy w językach programowania jako operację sprawdzającą zawartość kolekcji. Zwykle skrywa się pod nazwami:
+
+- `some()`, np. w [JavaScript](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/some)
+- `Any()`, np. w [C#](https://learn.microsoft.com/en-us/dotnet/api/system.linq.enumerable.any?view=net-7.0); tutaj też można spotkać warianty tej nazwy, jak `anyMatch()` w [Javie](https://docs.oracle.com/javase/8/docs/api/java/util/stream/Stream.html#anyMatch-java.util.function.Predicate-)
+  - Będąc przy języku C#, warto także wspomnieć o takiej metodzie, jak [`First()`](https://learn.microsoft.com/en-us/dotnet/api/system.linq.enumerable.first?view=net-7.0#system-linq-enumerable-first-1(system-collections-generic-ienumerable((-0))-system-func((-0-system-boolean)))), która działa analogicznie do `Any()`, tylko zamiast zwrócić prawdę, zwróci pierwszy element spełniający predykat. Jeśli natomiast żaden nie spełnia, rzuca wyjątek. Możemy też użyć [`FirstOrDefault()`](https://learn.microsoft.com/en-us/dotnet/api/system.linq.enumerable.firstordefault?view=net-7.0), który zamiast wyjątku zwróci domyślną wartość
+
+Dla formalności zobaczmy przykład użycia w JavaScript:
+
+```javascript
+// tablica z liczbami podzielnymi przez 15
+const numbers = [0, 15, 30, 45, 60];
+
+// sprawdzamy, czy jest jakakolwiek parzysta
+const isAnyEven = numbers.some(x => x % 2 === 0);
+// wypisujemy wynik
+console.log(isAnyEven); // true
+
+// sprawdzamy, czy jakakolwiek nie jest l. całkowitą
+const isAnyNonInteger = numbers.some(x => !Number.isInteger(x));
+// wypisujemy wynik
+console.log(isAnyNonInteger); // false
+```
+
+Kod możesz przetestować na własną rękę na [Replit](https://replit.com/@tswistak/js-some#index.js).
+
+W artykule *<Link href="/post/iteracja-co-to-jest/#sprawdzenie-czy-elementy-spe%C5%82niaj%C4%85-warunek">Iteracja — co to jest?</Link>*, w tym samym miejscu co ostatnio, zamieściłem również implementację kwantyfikatora szczegółowego, jeśli jesteś ciekaw(a), jak mogłoby to wyglądać.
+
+### Kwantyfikator szczegółowy z wykrzyknikiem
+
+Możemy spotkać się także z zapisywaniem kwantyfikatora szczegółowego z wykrzyknikiem, co wygląda następująco:
+
+$$
+\exists! x: \phi(x)
+$$
+
+W tym przypadku jest to zawężenie kwantyfikatora szczegółowego — nie interesuje nas jedynie informacja, że jakikolwiek element spełnia warunek $$\phi(x)$$. Interesuje nas, żeby dokładnie tylko jeden element spełniał taki warunek. Tym samym powyższe zdanie odczytamy jako: „istnieje dokładnie jedno $$x$$, dla którego zachodzi $$\phi(x)$$”.
+
+Kwantyfikator ten nie jest zbyt powszechny, stąd też rzadko spotykamy go w językach programowania. Jedynym, z którym sam się spotkałem, a miałby coś na ten wzór, jest C#, gdzie znajdziemy metodę [`Single()`](https://learn.microsoft.com/en-us/dotnet/api/system.linq.enumerable.single?view=net-7.0). Nie zwraca ona jednak prawdy lub fałszu, a ów jedyny element spełniający predykat. Jeśli nie ma elementu spełniającego predykat lub spełnia go więcej niż jeden, rzucany jest wyjątek. Analogicznie do `First()`, znajdziemy także metodę [`SingleOrDefault()`](https://learn.microsoft.com/en-us/dotnet/api/system.linq.enumerable.singleordefault?view=net-7.0), która zamiast wyjątku zwróci domyślną wartość.
+
+Poniżej możesz zobaczyć przykład działania:
+
+```csharp
+// tablica z liczbami podzielnymi przez 15
+int[] numbers = { 15, 30, 45, 60 };
+// sprawdzamy, czy tylko jedna jest podzielna przez 2
+try
+{
+  Console.WriteLine(numbers.Single(x => x % 2 == 0));
+}
+catch (Exception e)
+{
+  Console.WriteLine(e.Message); // spełnia więcej niż jeden element
+}
+// sprawdzamy, czy jest tylko jedna mniejsza od 0
+try
+{
+  Console.WriteLine(numbers.Single(x => x < 0));
+}
+catch (Exception e)
+{
+  Console.WriteLine(e.Message); // żaden element nie spełnia
+}
+// sprawdzamy, czy jest tylko jedna podzielna przez 9
+Console.WriteLine(numbers.Single(x => x % 9 == 0)); // 45
+```
+
+Kod możesz przetestować na [Replit](https://replit.com/@tswistak/csharp-single#main.cs).
+
+Natomiast jak poradzić sobie w językach programowania niemających odpowiednika `Single()`? Możemy albo przeiterować ręcznie po kolekcji i sprawdzić, czy warunek jest spełniony więcej niż raz, albo zliczyć liczbę elementów, które otrzymamy po przefiltrowaniu kolekcji. Oba te sposoby zaimplementowane w JavaScript możesz zobaczyć poniżej:
+
+```javascript
+function single1(array, predicate) {
+  // przefiltrowujemy kolekcję, aby uzyskać elementy spełniające predykat,
+  // po czym sprawdzamy, czy dostaliśmy tylko jeden element
+  return array.filter(predicate).length === 1;
+}
+
+function single2(array, predicate) {
+  // zmienna, gdzie zapiszemy, czy jakikolwiek element spełnił predykat
+  let anyFulfilling = false;
+  // iterujemy po wszystkich elementach tablicy
+  for (const element of array) {
+    // sprawdzamy, czy element spełnia predykat
+    const fulfills = predicate(element);
+    // jeśli spełnia
+    if (fulfills) {
+      // ...i jednocześnie inny element też spełniał
+      if (anyFulfilling) {
+        // zwracamy fałsz
+        return false;
+      } else {
+        // ...i żaden do tej pory nie spełnił,
+        // to ustawiamy, że już jakiś spełnił
+        anyFulfilling = true;
+      }
+    }
+  }
+  // zwracamy, czy jakikolwiek element spełnił predykat
+  return anyFulfilling;
+}
+```
+
+Użycie wyglądałoby następująco:
+
+```javascript
+// tablica z liczbami podzielnymi przez 15
+const numbers = [15, 30, 45, 60];
+
+// sprawdzamy, czy tylko jedna jest podzielna przez 2
+console.log(
+  single1(numbers, (x) => x % 2 === 0), // false
+  single2(numbers, (x) => x % 2 === 0) // false
+);
+
+// sprawdzamy, czy jest tylko jedna mniejsza od 0
+console.log(
+  single1(numbers, (x) => x < 0), // false
+  single2(numbers, (x) => x < 0) // false
+);
+
+// sprawdzamy, czy jest tylko jedna podzielna przez 9
+console.log(
+  single1(numbers, (x) => x % 9 === 0), // true
+  single2(numbers, (x) => x % 9 === 0) // true
+);
+```
+
+Ten kod również możesz przetestować na [Replit](https://replit.com/@tswistak/js-single#index.js).
+
+## Prawa rachunku kwantyfikatorów
+
+Co ciekawe i przydatne w kontekście programowania, w rachunku kwantyfikatorów również mamy tautologie, czyli zdania zawsze prawdziwe — inaczej prawa rachunku kwantyfikatorów. Poznajmy najważniejsze, tym razem bez wyprowadzania i dowodzenia.
+
+### Prawa de Morgana
+
+Zdecydowanie najprzydatniejszymi tautologiami, które można poznać w rachunku kwantyfikatorów, są prawa de Morgana:
+
+- I prawo: $$\neg \left( \forall x: \phi(x) \right) \iff \left( \exists x: \neg \phi(x) \right)$$ — możemy rozumieć to tak, że jeśli nieprawdą jest, że wszystkie elementy spełniają $$\phi(x)$$, to jest to równoważne temu, że istnieje jakiś element, który nie spełnia $$\phi(x)$$. Przykład: nieprawdą jest, że wszystkie liczby naturalne $$x$$ są podzielne przez 2. Oznacza to, że istnieje w zbiorze liczb naturalnych takie $$x$$, które nie jest podzielne przez 2.
+- II prawo: $$\neg \left( \exists x: \phi(x) \right) \iff \left( \forall x: \neg \phi(x) \right)$$ — dosłowna odwrotność, czyli jeśli nieprawdą jest, że jakikolwiek element spełnia $$\phi(x)$$, to jest to równoważne temu, że wszystkie elementy nie spełniają $$\phi(x)$$. Przykład: nieprawdą jest, że jakakolwiek liczba naturalna $$x$$ jest mniejsza od 0. Oznacza to, że wszystkie $$x$$ ze zbioru liczb naturalnych nie są mniejsze od 0.
+
+Poniżej pokazuję, jak w programowaniu można zastosować prawa de Morgana na rachunku kwantyfikatorów (kod w JavaScript):
+
+```javascript
+// deklarujemy tablicę z 6 pierwszymi liczbami naturalnymi
+const numbers = [0, 1, 2, 3, 4, 5];
+
+// sprawdzamy, czy wszystkie liczby są podzielne przez 2
+const allNotDivisible = !numbers.every(x => x % 2 === 0);
+// teraz odwróćmy warunek, stosując I prawo de Morgana
+// sprawdzamy, czy jakakolwiek liczba jest niepodzielna przez 2
+const anyNotDivisible = numbers.some(x => x % 2 !== 0);
+
+// wypiszmy wyniki
+console.log(allNotDivisible, anyNotDivisible); // true, true
+
+// sprawdzamy, czy nie istnieje liczba mniejsza od 0
+const anyNotSmaller = !numbers.some(x => x < 0);
+// odwracamy warunek, stosując II prawo de Morgana
+// sprawdźmy, czy wszystkie są większe od 0
+const allLarger = numbers.every(x => x >= 0);
+// `x >= 0` jest tym samym co `!(x < 0)`, a bardziej naturalnym zapisem
+
+// wypiszmy wyniki
+console.log(anyNotSmaller, allLarger); // true, true
+```
+
+Kod możesz przetestować na [Replit](https://replit.com/@tswistak/quantifiers-demorgan#index.js).
+
+Jak widzisz, zastosowanie praw de Morgana jest bardzo praktyczne w tym przypadku. Pomijając kwestię, że dzięki nim możemy pisać czytelniejsze warunki, to możemy też w ten sposób optymalizować operacje na kolekcjach. Warto jednak wiedzieć, że optymalizacje mogą być mało intuicyjne, ponieważ w drugim przykładzie `anyNotSmaller` przyjmie prawdę już po sprawdzeniu pierwszego elementu, podczas gdy znacznie czytelniejszy `allLarger` wymaga sprawdzenia całości kolekcji. Warto jednak pamiętać, że tak drobiazgowe optymalizacje nie zawsze mają sens i warto przede wszystkim stawiać na czytelność kodu.
+
+### Definiowanie jednego kwantyfikatora przez drugi
+
+Z rachunku zdań wiemy, że podwójna negacja daje ten sam rezultat co brak negacji:
+
+$$
+\neg \neg p \iff p
+$$
+
+Prawo to stosuje się też do kwantyfikatorów — w końcu z ich użyciem również otrzymujemy zdania logiczne. Oznacza to, że wykorzystując prawa de Morgana, możemy otrzymać definicje jednego kwantyfikatora, korzystając z drugiego. Wystarczy to zrobić przez dodatkową negację, tak jak to pokazałem powyżej.
+
+Z negacji pierwszego prawa otrzymamy wzór na kwantyfikator ogólny:
+
+$$
+\begin{align*}
+\neg \neg \left( \forall x: \phi(x) \right) &\iff \neg \left( \exists x: \neg \phi(x) \right) \\
+\left( \forall x: \phi(x) \right) &\iff \neg \left( \exists x: \neg \phi(x) \right)
+\end{align*}
+$$
+
+Analogicznie z drugiego prawa otrzymamy wzór na kwantyfikator szczegółowy:
+
+$$
+\begin{align*}
+\neg \neg \left( \exists x: \phi(x) \right) &\iff \neg \left( \forall x: \neg \phi(x) \right) \\
+ \left( \exists x: \phi(x) \right) &\iff \neg \left( \forall x: \neg \phi(x) \right)
+\end{align*}
+$$
+
+Sprawdźmy w praktyce, jak w ten sposób możemy upraszczać warunki na kolekcjach w językach programowania:
+
+```javascript
+// deklarujemy tablicę z 6 pierwszymi liczbami naturalnymi
+const numbers = [0, 1, 2, 3, 4, 5];
+
+// sprawdzamy, czy nie ma jakiejkolwiek niecałkowitej
+const notSomeNotInteger = !numbers.some(x => !Number.isInteger(x));
+// odwróćmy sytuację: sprawdzamy, czy wszystkie są całkowite
+const allInteger = numbers.every(x => Number.isInteger(x));
+// wypiszmy wyniki
+console.log(notSomeNotInteger, allInteger); // true, true
+
+// sprawdzamy, czy nie wszystkie są większe bądź równe od 0
+const notAllLargerEqual = !numbers.every(x => x >= 0);
+// odwróćmy: sprawdzamy, czy jakakolwiek jest mniejsza od 0
+const someSmaller = numbers.some(x => x < 0);
+// wypiszmy wyniki
+console.log(notAllLargerEqual, someSmaller); // false, false
+```
+
+Kod do przetestowania znajdziesz na [Replit](https://replit.com/@tswistak/quantifiers-demorgan2#index.js).
+
+### Rozdzielność
+
+Kolejnym prawem, które warto znać i które może się przydać w praktyce, jest prawo rozdzielności. Możemy wyróżnić dwa, po jednym dla każdego z kwantyfikatorów.
+
+Dla kwantyfikatora ogólnego mamy pełne prawo rozdzielności względem koniunkcji, co oznacza, że oba poniższe zdania są sobie równoważne:
+
+$$
+\forall x: (\phi(x) \land \theta(x)) \iff \forall x: \phi(x) \land \forall x: \theta(x)
+$$
+
+Natomiast kwantyfikator szczegółowy jest rozdzielny względem alternatywy:
+
+$$
+\exists x: (\phi(x) \lor \theta(x)) \iff \exists x: \phi(x) \lor \exists x: \theta(x)
+$$
+
+W kodzie moglibyśmy prawo to wykorzystać do złączenia dwóch odrębnych kwantyfikatorów w jeden, dla zmniejszenia liczby iteracji:
+
+```javascript
+// tablica z 7 pierwszymi liczbami naturalnymi
+const numbers = [0, 1, 2, 3, 4, 5, 6];
+
+// sprawdźmy, czy wszystkie liczby są większe od 0 i całkowite
+const allLargerInteger1 = numbers.every(x => x > 0) && numbers.every(Number.isInteger);
+const allLargerInteger2 = numbers.every(x => x > 0 && Number.isInteger(x));
+// wypiszmy wynik
+console.log(allLargerInteger1, allLargerInteger2); // false, false
+
+// sprawdźmy, czy wszystkie liczby są nieujemne i mniejsze od 10
+const allPositiveSmaller1 = numbers.every(x => Math.abs(x) === x) && numbers.every(x => x < 10);
+const allPositiveSmaller2 = numbers.every(x => Math.abs(x) === x && x < 10);
+// wypiszmy wynik
+console.log(allPositiveSmaller1, allPositiveSmaller2); // true, true
+
+// sprawdźmy, czy istnieje liczba podzielna przez 2 lub podzielna przez 3
+const anyDivisible1 = numbers.some(x => x % 2 === 0) || numbers.some(x => x % 3 === 0);
+const anyDivisible2 = numbers.some(x => x % 2 === 0 || x % 3 === 0);
+// wypiszmy wynik
+console.log(anyDivisible1, anyDivisible2); // true, true
+
+// sprawdźmy, czy istnieje liczba ujemna lub całkowita
+const anyNegativeInteger1 = numbers.some(x => x < 0) || numbers.some(Number.isInteger);
+const anyNegativeInteger2 = numbers.some(x => x < 0 || Number.isInteger(x));
+// wypiszmy wynik
+console.log(anyDivisible1, anyDivisible2); // true, true
+```
+
+Jak zawsze kod możesz sprawdzić na [Replit](https://replit.com/@tswistak/quantifiers-distributivity#index.js).
+
+### Niepełne prawa rozdzielności
+
+Czytając poprzedni akapit, możesz mieć niedosyt, że dlaczego możemy rozdzielać kwantyfikator ogólny tylko względem koniunkcji, a szczegółowy tylko względem alternatywy. Jednak, jak się okazuje, możemy też robić w drugą stronę, ale w tym przypadku nie mamy dwustronnej równoważności, stąd mówimy o niepełnych prawach rozdzielności. Warto je jednak poznać, bo również mogą być przydatne w celu zwiększenia czytelności kodu i jego optymalizacji.
+
+Alternatywę dwóch kwantyfikatorów ogólnych możemy złączyć w jeden kwantyfikator. Nie możemy jednak postąpić w drugą stronę, stąd prawo zapiszemy następująco:
+
+$$
+\forall x: \phi(x) \lor \forall x: \theta(x) \implies \forall x: (\phi(x) \lor \theta(x))
+$$
+
+Odwrotną sytuację mamy dla kwantyfikatora szczegółowego i koniunkcji. Tutaj możemy rozdzielić jeden kwantyfikator na dwa oddzielne, ale nie możemy już ich złączyć:
+
+$$
+\exists x: (\phi(x) \land \theta(x)) \implies \exists x: \phi(x) \land \exists x: \theta(x)
+$$
+
+Zobacz na poniższym przykładzie w kodzie, że faktycznie działa to jednostronnie:
+
+```javascript
+// tablica z 7 pierwszymi liczbami naturalnymi
+const numbers = [0, 1, 2, 3, 4, 5, 6];
+
+// sprawdźmy, czy wszystkie liczby są równe 0 lub różne od 0
+// używamy tutaj prawa w nieprawidłowy sposób
+const equalDiff1 = numbers.every(x => x === 0 || x !== 0);
+const equalDiff2 = numbers.every(x => x === 0) || numbers.every(x => x !== 0);
+// wypiszmy wyniki
+console.log(equalDiff1, equalDiff2); // true, false
+
+// sprawdźmy, czy wszystkie liczby są całkowite lub wszystkie są różne od 0
+// tym razem prawo jest użyte w prawidłowy sposób
+const integerDiff1 = numbers.every(Number.isInteger) || numbers.every(x => x !== 0);
+const integerDiff2 = numbers.every(x => Number.isInteger(x) || x !== 0);
+// wypiszmy wyniki
+console.log(integerDiff1, integerDiff2); // true, true
+
+// sprawdźmy, czy jest liczba równa 0 i liczba różna od 0
+// ponownie, prawo jest użyte w nieprawidłowy sposób
+const equalAndDiff1 = numbers.some(x => x === 0) && numbers.some(x => x !== 0);
+const equalAndDiff2 = numbers.some(x => x === 0 && x !== 0);
+// wypiszmy wyniki
+console.log(equalAndDiff1, equalAndDiff2); // true, false
+
+// sprawdźmy, czy jest liczba całkowita i różna od 0
+// używamy prawa w prawidłowy sposób
+const integerAndDiff1 = numbers.some(x => Number.isInteger(x) && x !== 0);
+const integerAndDiff2 = numbers.some(x => Number.isInteger(x)) && numbers.some(x => x !== 0);
+// wypiszmy wyniki
+console.log(integerAndDiff1, integerAndDiff2); // true, true
+```
+
+Kod jak zawsze znajdziesz na [Replit](https://replit.com/@tswistak/quantifiers-distributivity2#index.js).
+
+Najlepiej widać tego sens na przykładach z równością i nierównością względem zera. W końcu możemy powiedzieć, że wszystkie liczby naturalne są równe zero lub od niego różne. Jednak nie możemy już powiedzieć, że wszystkie liczby naturalne są równe zero ani że wszystkie liczby naturalne są różne od zera. Analogicznie z kwantyfikatorem szczegółowym: znajdziemy wśród liczb naturalnych zarówno liczbę równą zero, jak i liczbę różną od zera. Nie znajdziemy jednak liczby, która równocześnie jest równa zero i od niego różna.
+
+### Inne prawa
+
+Poniżej przedstawię kilka innych praw rachunku kwantyfikatorów. Nie opisuję ich bardziej szczegółowo, bo moim zdaniem nie mają aż tak dużej wartości z punktu widzenia programowania, ale warto je znać, szczególnie jeśli studiujemy logikę.
+
+- $$\forall x: \phi(x) \implies \exists x: \phi(x)$$
+- Prawa przestawiania:
+  - $$\forall x: \forall y: \phi(x,y) \iff \forall y: \forall x: \phi(x,y)$$
+  - $$\exists x: \exists y: \phi(x,y) \iff \exists y: \exists x: \phi(x,y)$$
+- Niepełne prawo przestawiania: $$\exists x: \forall y: \phi(x, y) \implies \forall y: \exists x: \phi(x, y)$$.
+
+Są oczywiście również inne, jak prawo podstawiania, zamiany zmiennej związanej, dołączania kwantyfikatorów do implikacji itd., ale nie chcę ich wszystkich tutaj wymieniać. W pozycjach wypisanych w literaturze i w Internecie znajdziesz inne tautologie. Te, które wymieniłem w artykule, uważam za najważniejsze i najbardziej przydatne, szczególnie w kontekście programowania.
+
+## Podsumowanie
+
+To już drugi artykuł z serii o logice i po raz kolejny widzimy zastosowanie praktyczne któregoś z jej zagadnień. Rachunek zdań miał bezpośrednie przełożenie na wszechobecne warunki. Rachunek kwantyfikatorów ma już bardziej szczegółowe zastosowanie, aczkolwiek wciąż przydatne. W szczególności warto zapamiętać pokazane przeze mnie tautologie, bo dzięki nim możemy uprościć, a także zoptymalizować kod, który piszemy.
+
+## Literatura
+
+- Buszkowski W. *Elementy logiki: Kwantyfikatory*, http://buszko.home.amu.edu.pl/elelokw.pdf (ostatni dostęp cze. 30, 2023).
+- Quantifier (logic), https://en.wikipedia.org/w/index.php?title=Quantifier_(logic)&oldid=1158055874 (ostatni dostęp cze. 30, 2023).
+- Kwantyfikator, https://pl.wikipedia.org/w/index.php?title=Kwantyfikator&oldid=70340473 (ostatni dostęp cze. 30, 2023).
+- Kwantyfikator ogólny, https://pl.wikipedia.org/w/index.php?title=Kwantyfikator_og%C3%B3lny&oldid=70512585 (ostatni dostęp cze. 30, 2023).
+- Kwantyfikator egzystencjalny, https://pl.wikipedia.org/w/index.php?title=Kwantyfikator_egzystencjalny&oldid=69263500 (ostatni dostęp cze. 30, 2023).
+
+<small>Zdjęcie na okładce wygenerowane przez DALL-E.</small>

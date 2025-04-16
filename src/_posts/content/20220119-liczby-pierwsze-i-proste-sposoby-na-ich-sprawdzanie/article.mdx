@@ -1,0 +1,210 @@
+import Link from 'next/link';
+import {Image, Iframe} from '@swistak-codes/components';
+import cover from './tiktaalik.jpg';
+import czasy from './czasy.png';
+import czasyLog from './czasy-log.png';
+
+export const meta = {
+  title: 'Liczby pierwsze i proste sposoby na ich sprawdzanie',
+  abstract:
+    'Liczby pierwsze to jeden z ważniejszych terminów w matematyce, do tego mający dość istotne zastosowanie praktyczne w informatyce.',
+  firstParagraph: (
+    <>
+      Liczby pierwsze to jeden z ważniejszych terminów w matematyce, do tego mający dość istotne zastosowanie praktyczne. Na samym początku przygody z tym tematem przedstawmy sobie teorię, a także najprostsze testy pierwszości.
+    </>
+  ),
+  keyword: 'liczby pierwsze',
+  categories: ['Algorytmy', 'Liczby pierwsze'],
+  tags: [
+    'matematyka',
+    'liczby pierwsze',
+    'fibonacci',
+    'javascript',
+    'metoda naiwna',
+    'optymalizacja'
+  ],
+  slug: 'liczby-pierwsze-i-proste-sposoby-na-ich-sprawdzanie',
+  updateTime: '2022-02-05T10:11:44+00:00',
+  publishTime: '2022-01-19T05:00:46+00:00',
+  cover,
+};
+
+## Liczby pierwsze
+
+### Definicja
+
+Zacznijmy w takim razie od tego, czym będziemy się zajmować. Definicja jest bardzo prosta. Liczba pierwsza to taka liczba naturalna, która równocześnie jest większa od 1 i ma tylko dwa dzielniki naturalne: 1 i samą siebie. Liczby większe od 1, ale mające więcej dzielników, nazywamy liczbami złożonymi.
+
+Zgodnie z tą definicją możemy wyznaczyć, że pierwszymi w kolejności liczbami pierwszymi są 2, 3, 5, 7, 11 i 13. Lista ta jednak się nie kończy. Zbiór liczb pierwszych jest nieskończony, co udowodnił jeszcze Euklides, a największa obecnie poznana (stan na styczeń 2022 r.) to $$2^{82589933} − 1$$ i ma ponad 24 miliony cyfr. Co ciekawe, największa liczba pierwsza obliczona bez użycia komputerów została odkryta w 1951 r. i jest to $$\frac{2^{148} + 1}{17}$$; składa się z 44 cyfr.
+
+Wymieniając liczby pierwsze, znajdziemy pośród nich np. słynną na początku 2022 r. liczbę 2 147 483 647, przez którą posypały się serwery Microsoft Exchange (górny limit 32-bitowych znakowych zmiennych całkowitoliczbowych). Liczbą pierwszą jest także znane z memów 2137.
+
+### Co jeszcze warto wiedzieć?
+
+Wróćmy na Ziemię i wymieńmy sobie kilka rzeczy, które warto wiedzieć o liczbach pierwszych:
+
+- Wszystkie z wyjątkiem 2 są liczbami nieparzystymi, ponieważ każda liczba parzysta jest podzielna przez 2, więc ma co najmniej 3 dzielniki.
+- Wszystkie większe od 5 (innymi słowy, wszystkie z wyjątkiem 2, 3 i 5) kończą się cyfrą 1, 3, 7 lub 9. Jest tak dlatego, że 0, 2, 4, 6 i 8 oznaczają liczby parzyste, natomiast każda liczba kończąca się cyfrą 5 jest podzielna przez 5.
+- Przez wiele lat nie było wśród matematyków zgody, czy 1 powinno uznawać się za liczbę pierwszą. Dopiero na początku XX wieku zostało ogólnie przyjęte, że 1 nie należy do nich.
+- Dla wszystkich liczb naturalnych większych od 1 najmniejszy dzielnik, pomijając 1, będzie liczbą pierwszą.
+- Każdą liczbę naturalną większą od 1 można zapisać jako iloczyn liczb pierwszych, co zaproponował jeszcze Euklides, ale udowodnił dopiero Gauss.
+
+### Zastosowania
+
+Liczby pierwsze znalazły swoje zastosowanie w informatyce. Najbardziej znane jest ich wykorzystanie w algorytmach kryptograficznych posługujących się parą kluczy (prywatnym i publicznym), takich jak RSA. W RSA obliczamy iloczyn dwóch bardzo dużych losowych liczb pierwszych (2048-bitowe), które mają największy wspólny dzielnik równy 1. Następnie na tej podstawie jest wyliczany klucz. Dzięki zastosowaniu tak dużych liczb pierwszych złamanie szyfru jest zadaniem niemal niemożliwym.
+
+Inne zastosowanie możemy znaleźć w niektórych sposobach obliczania sum kontrolnych. Tutaj jako przykład może posłużyć algorytm Adler-32, gdzie wszystkie sumy liczymy modulo 65521 wszystkich pośrednio obliczanych sum. Została wybrana taka liczba, ponieważ jest to największa liczba pierwsza mniejsza od $$2^{16}$$, a algorytm opiera się na sumowaniu dwóch 16-bitowych sum kontrolnych. Podobnie, ale z o wiele mniejszą liczbą pierwszą, obliczana jest suma kontrolna w numerze ISBN. Tam wykonuje się modulo 11. Dzięki użyciu liczby pierwszej jesteśmy w stanie wykryć, gdzie i jaki błąd został popełniony.
+
+Liczby pierwsze są też używane w funkcjach haszujących wykorzystywanych w tablicach haszowanych. Możemy znaleźć sposoby opisane przez Wegmana i Cartera, gdzie tworzyli funkcje haszujące z losowych funkcji liniowych modulo duże liczby pierwsze. Z czasem zamiast funkcji liniowej zaczęli stosować wielomiany, jednak wciąż pozostawała część modulo liczba pierwsza.
+
+Liczby pierwsze wykorzystuje się także w algorytmach generowania liczb pseudolosowych. W bardzo popularnym algorytmie Mersenne Twister liczba pierwsza (zwykle $$2^{19937} - 1$$) jest wykorzystywana do inicjacji generatora. Innym algorytmem z tej kategorii stosującym liczby pierwsze jest Blum Blum Shub, gdzie wykorzystuje się iloczyn dwóch dużych liczb pierwszych.
+
+## Testy pierwszości
+
+Testami pierwszości nazywamy sposoby pozwalające sprawdzić, czy dana liczba jest liczbą pierwszą. Myślę, że po poznaniu definicji domyślasz się, jak to najprościej sprawdzić, jednak przedstawmy sobie to wprost.
+
+### Metoda naiwna
+
+Metoda naiwna, znana w angielskiej literaturze jako trial division, to algorytm, dzięki któremu poznajemy wszystkie dzielniki liczby $$n$$, po prostu dzieląc ją przez wszystkie liczby od $$1$$ do $$n$$. Co ciekawe, najstarszy opis tej metody pochodzi z 1202 r., a dokładniej ze słynnego dzieła Liber Abaci autorstwa Fibonacciego.
+
+Aby poznać, czy liczba jest pierwsza, wystarczy iterować od $$2$$ do $$n-1$$ i przerwać, gdy trafimy na liczbę, która potrafi podzielić $$n$$ bez reszty. Innymi słowy, w pętli wykonujemy operację $$n \text{ mod } i$$, gdzie $$i$$ to kolejne liczby naturalne, i oczekujemy, że dla wszystkich po kolei wynik tego działania będzie różny od zera.
+
+W kodzie (JavaScript) wygląda to następująco:
+
+```javascript
+function trialDivision(number) {
+    for (let i = 2; i < number; i++) {
+        if (number % i === 0) {
+            return false;
+        }
+    }
+    return true;
+}
+```
+
+### Pierwsza optymalizacja metody naiwnej
+
+Optymalizacją metody naiwnej będzie oczywiście zmniejszenie iteracji, które musimy wykonać, aby określić, czy liczba jest pierwsza. A możemy to zrobić oczywiście przez niedzielenie przez wszystkie liczby.
+
+Spójrzmy tylko na kilka liczb, które nie są liczbami pierwszymi, i ich dzielniki (pomijając 1 i samą siebie):
+
+$$
+\begin{align*}
+10&: 2, 5\\
+24&: 2, 4, 6, 8, 12\\
+36&: 2, 3, 4, 6, 9, 12, 18 \\
+63&: 3, 7, 9, 21 \\
+64&: 2, 4, 8, 16, 32 \\
+100&: 2, 4, 5, 10, 20, 25, 50 \\
+225&: 3, 5, 9, 15, 25, 45, 75
+\end{align*}
+$$
+
+Widzisz tutaj pewną zależność? Największy dzielnik wynosi co najwyżej połowę liczby. Oznacza to, że możemy bezpiecznie zmniejszyć liczbę iteracji z $$n$$ do $$n/2$$. W kodzie będzie to wyglądać tak:
+
+```javascript
+function trialDivisionOptimized1(number) {
+    for (let i = 2; i <= number / 2; i++) {
+        if (number % i === 0) {
+            return false;
+        }
+    }
+    return true;
+}
+```
+
+### Druga optymalizacja metody naiwnej
+
+Liczbę iteracji możemy zmniejszyć jeszcze bardziej. Spójrzmy jeszcze raz na dzielniki kilku liczb, jednak tym razem wraz z liczbami, przez które musimy mnożyć, aby uzyskać daną liczbę:
+
+$$
+\begin{align*}
+10 &= 2 \cdot 5 =  5 \cdot 2\\
+24 &= 2 \cdot 12 = 3 \cdot 8 = 4 \cdot 6 = 6 \cdot 4 = 8 \cdot 3 = 12\cdot 2\\
+36 &= 2 \cdot 18 = 3\cdot 12 = 4 \cdot 9 = 6 \cdot 6 = 9 \cdot 4 = 12 \cdot 3 = 18 \cdot 2 \\
+63 &= 3 \cdot 21 = 7 \cdot 9 = 9\cdot 7 = 21 \cdot 3 \\
+64 &= 2 \cdot 32 = 4 \cdot 16 = 8 \cdot 8 = 16 \cdot 4 = 32 \cdot 2 \\
+100 &= 2 \cdot 50 = 4 \cdot 25 = 5 \cdot 20 = 10\cdot 10 = 20\cdot 5 = 25\cdot 4= 50\cdot 2 \\
+225 &= 3\cdot 75 = 5\cdot 45 = 9\cdot 25 = 15 \cdot 15 = 25 \cdot 9 = 45 \cdot 5 = 75 \cdot 3
+\end{align*}
+$$
+
+Pamiętając o przemienności mnożenia, możemy zauważyć, że mniej więcej w środku listy wartości zaczynają się powtarzać. Oznacza to, że aby sprawdzić pierwszość liczby, wystarczyłoby sprawdzać jedynie do tego środkowego momentu. Tylko jak ten środek listy dzielników wyznaczyć?
+
+Przypatrzmy się przypadkom liczb 36, 64, 100 i 225. W nich „środkowy” dzielnik jest mnożony przez samego siebie, czyli podnoszony do kwadratu. Innymi słowy — jeśli liczba posiada pierwiastek całkowity, będzie on tym „środkowym” dzielnikiem. Możemy to rozszerzyć i założyć, że nawet jeśli nie istnieje pierwiastek całkowity, jego przybliżona wartość rozdzieli nam dzielniki według powyższego schematu. Zobaczmy to ponownie na przykładach:
+
+$$
+\begin{align*}
+\sqrt{10} &\approx 3\rightarrow 10 : 2\text{ ; } 5\\
+\sqrt{24} &\approx 5\rightarrow 24 : 2, 3, 4\text{ ; } 6, 8, 12\\
+\sqrt{36} &= 6\rightarrow 36 : 2, 3, 4, 6 \text{ ; } 9,12,18 \\
+\sqrt{63} &\approx 8\rightarrow 63 : 3, 7 \text{ ; }  9, 21  \\
+\sqrt{64} &= 8\rightarrow 64 : 2, 4 , 8 \text{ ; } 16 ,32 \\
+\sqrt{100} &= 10\rightarrow 100 : 2, 4,5, 10 \text{ ; } 20, 25, 50 \\
+\sqrt{225} &= 15\rightarrow 225: 3, 5, 9, 15 \text{ ; }  25, 45 , 75
+\end{align*}
+$$
+
+W takim razie możemy spokojnie ograniczyć iteracje do $$\sqrt{n}$$. Czysto dla formalności pokażę to jeszcze w kodzie:
+
+```javascript
+function trialDivisionOptimized2(number) {
+    for (let i = 2; i <= Math.sqrt(number); i++) {
+        if (number % i === 0) {
+            return false;
+        }
+    }
+    return true;
+}
+```
+
+Na koniec dla uściślenia — dokładniej mówiąc, to właśnie ten sposób opisał Fibonacci.
+
+## Porównanie szybkości działania
+
+Aby zobaczyć, czy powyższe optymalizacje miały sens, porównajmy szybkość wykonywania każdego z trzech pokazanych wyżej algorytmów. W tym celu napisałem mały test, który mierzy prędkość wykonania dla wybranych 10 000 liczb pierwszych. Każdy z nich został wykonany 10 razy dla jednej liczby, po czym obliczyłem średnią z mierzonych czasów, co następnie przeniosłem na poniższe wykresy. Na osi Y znajduje się średni czas wykonania w nanosekundach, natomiast na osi X sprawdzana liczba pierwsza. Kod tego programu znajdziesz [na moim GitHubie](https://github.com/swistak-codes/prime-numbers).
+
+<Image
+  image={czasy}
+  alignCenter
+  fullSize
+  alt="Wykres czasów wykonania w nanosekundach do sprawdzanej liczby. Wartości dla wersji bez optymalizacji, z 1 optymalizacją i z 2 optymalizacją"
+  caption={<>
+    Porównanie czasów wykonania algorytmów na skali liniowej.
+  </>}
+/>
+
+<Image
+  image={czasyLog}
+  alignCenter
+  fullSize
+  alt="Wykres czasów wykonania w nanosekundach (w skali logarytmicznej) do sprawdzanej liczby. Wartości dla wersji bez optymalizacji, z 1 optymalizacją i z 2 optymalizacją"
+  caption={<>
+    Porównanie czasów wykonania algorytmów na skali logarytmicznej.
+  </>}
+/>
+
+Jak możesz zauważyć z powyższych wykresów, już pierwsza optymalizacja zmniejszyła czasy wykonania algorytmu. Jednak nie była to znacząca różnica i, jak można się było spodziewać, czasy są mniej więcej o połowę krótsze. Zdecydowanie bardziej pomogła tutaj druga optymalizacja, gdzie czasy wykonania są bliskie 10 000 nanosekund, czyli 0,01 milisekundy.
+
+Dodam też, że nie należy przejmować się pikami między poszczególnymi liczbami. Nanosekundy to bardzo wysoka rozdzielczość, a nie uruchamiałem testu na dedykowanym komputerze, tylko na zwykłym, domowym laptopie, który miał też inne aplikacje działające w tle.
+
+Aby być precyzyjnym, ostatnią największą sprawdzaną liczbą było 15 484 279, które jest milionową liczbą pierwszą. Średni czas wykonania dla każdej z powyższych metod wyniósł:
+
+- Bez optymalizacji: $$45 955 807,9 \text{ ns} \approx 45  \text{ ms}$$
+- Optymalizacja 1: $$22 997 023,2  \text{ ns} \approx 22  \text{ ms}$$
+- Optymalizacja 2: $$11 999,3  \text{ ns} \approx 0,11  \text{ ms}$$
+
+Czysto dla formalności dodam, że program porównujący został wykonany na MacBooku Pro 2018 z procesorem Intel Core i7 2,6GHz. Na innych komputerach konkretne czasy wykonania mogą się różnić, jednak różnice te będą analogiczne.
+
+## Podsumowanie
+
+Liczby pierwsze to jedna z tych koncepcji matematycznych, która znalazła istotne zastosowania w informatyce. Na tle wielu operacji, jakie wykonujemy na co dzień, są one w jakiś sposób wykorzystywane, stąd warto wiedzieć, czym są. Z punktu widzenia nauki programowania warto poznać, jak algorytmicznie można sprawdzać pierwszość, a także na tym przykładzie — jak można podchodzić do optymalizacji algorytmów przez zauważanie pewnych zależności, tak jak to pokazałem powyżej.
+
+## Literatura
+
+- Prime number, [https://en.wikipedia.org/w/index.php?title=Prime_number&oldid=1064154752](https://en.wikipedia.org/w/index.php?title=Prime_number&oldid=1064154752) (ostatnie odwiedziny 7.01.2022).
+- Dudley, Underwood (1978). "Section 2: Unique factorization". *Elementary number theory (2nd ed.)*. W.H. Freeman and Co. p. 10
+- The Largest Known prime by Year: A Brief History, [https://primes.utm.edu/notes/by_year.html](https://primes.utm.edu/notes/by_year.html) (ostatnie odwiedziny 7.01.2022).
+- Mollin, R. A. (2002). *A Brief History of Factoring and Primality Testing B. C. (Before Computers)*. Mathematics Magazine, 75(1), 18. [doi:10.2307/3219180](https://doi.org/10.2307%2F3219180)
+
+<small>(zdjęcie na okładce: [Zina Deretsky, National Science Foundation (Courtesy: National Science Foundation)](https://commons.wikimedia.org/wiki/File:Tiktaalik_roseae_life_restor.jpg), Public domain, via Wikimedia Commons)</small>

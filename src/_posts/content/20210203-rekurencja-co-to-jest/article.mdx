@@ -1,0 +1,313 @@
+import Link from 'next/link';
+import {Image, Iframe} from '@swistak-codes/components';
+import cover from './slimak.jpg';
+import factoFibo from './factofibo.png';
+import lista from './lista-wiazana-rekurencyjnie.png'
+
+export const meta = {
+  title: 'Rekurencja — co to jest?',
+  abstract:
+    'Rekurencja — co to jest?',
+  firstParagraph: (
+    <>
+      Rekurencja — co to jest?
+    </>
+  ),
+  keyword: 'rekurencja',
+  categories: ['Programowanie'],
+  tags: [
+    'rekurencja',
+    'c',
+    'fibonacci',
+    'rekurencja ogonowa',
+    'silnia',
+    'f#',
+    'złożoność pamięciowa',
+    'funkcja ackermanna',
+    'fraktale',
+    'trójkąt Sierpińskiego',
+    'struktury danych'
+  ],
+  slug: 'rekurencja-co-to-jest',
+  updateTime: '2021-02-11T21:29:35+00:00',
+  publishTime: '2021-02-03T10:00:31+00:00',
+  cover,
+};
+
+## Rekurencja — co to jest?
+
+Dobra, koniec żartów. Dziś opowiedzmy sobie o rekurencji. Temat ten zdążyłem już krótko opisać <Link href="/post/sortowanie-cz-5-dziel-i-zwyciezaj">w artykule o sortowaniach korzystających z metody „dziel i zwyciężaj”</Link>, jednak zdecydowanie warto go rozwinąć.
+
+Rekurencja (zwana też rekursją) w przypadku funkcji, to odwołanie się funkcji do samej siebie w celu uzyskania pętli. Jest to pojęcie matematyczne, spotykane również (i to dość często) w informatyce. Definicja ta w podstawowej wersji jest niesamowicie krótka, dlatego opowiedzmy sobie o różnych rzeczach, które z rekursją są związane. Bardziej zaawansowanych zagadnień związanych z teorią obliczeń nie chcę tutaj poruszać.
+
+Warto wspomnieć, że rekurencja nie odnosi się tylko do funkcji. Rekurencyjne (w informatyce) mogą być też typy i struktury danych, ale o tym później.
+
+To, co należy jeszcze wiedzieć, to żeby rekurencja nie działała w nieskończoność, musimy zdefiniować część wartości funkcji bez zapętlenia rekursją. Przykładowo, ustalamy, że dla argumentu funkcji równego 1 zwracamy wartość 0, a resztę definiujemy już przez pętlę. Przykłady tego znajdziesz w następnym akapicie.
+
+## Przykładowe funkcje definiowane rekurencyjnie
+
+Przedstawmy sobie przykładowe funkcje, które możemy definiować rekurencyjnie. Są to funkcje matematyczne i przydadzą nam się w dalszej części artykułu w celu zrozumienia kolejnych zagadnień, ponieważ będziemy je przenosić na kod. Jest to bardzo subiektywny wybór dwóch prostych i zarazem popularnych funkcji. Te bardziej zaawansowane opisane są na końcu artykułu.
+
+### Ciąg Fibonacciego
+
+Najbardziej znaną funkcją w matematyce, zdefiniowaną rekurencyjnie, jest wzór na n-ty element ciągu Fibonacciego. Najczęściej ciąg ten definiuje się słownie tak, że każda z jego wartości to suma dwóch poprzednich. Do tego dwa pierwsze elementy znamy odgórnie — są to 0 i 1. Wzór na n-ty element definiujemy następująco:
+
+$$
+\text{fib}(n) = \begin{cases}
+0 & \text{dla } n = 0, \\
+1 & \text{dla } n = 1, \\
+\text{fib}(n-1) + \text{fib}(n-2) & \text{dla } n > 1.
+\end{cases}
+$$
+
+Widząc ten wzór, możemy szybko obliczyć kolejne liczby w ciągu:
+
+$$
+\begin{align*}
+\text{fib(0)} &= 0 \\
+\text{fib(1)} &= 1 \\
+\text{fib(2)} &= \text{fib(1)} + \text{fib(0)} = 1 + 0 = 1 \\
+\text{fib(3)} &= \text{fib(2)} + \text{fib(1)} = (\text{fib(1)} + \text{fib(0)}) + \text{fib(1)}  = (1 + 0) + 1 = 2 \\
+\text{fib(4)} &= \text{fib(3)} + \text{fib(2)} = (\text{fib(2)} + \text{fib(1)}) + (\text{fib(1)} + \text{fib(0)} ) \\
+&= (\text{fib(1)} + \text{fib(0)} + \text{fib(1)}) + (\text{fib(1)} + \text{fib(0)} ) = 1 + 0 + 1 + 1 + 0 = 3
+\end{align*}
+$$
+
+Ciąg Fibonacciego jest bardzo popularny nie tylko dlatego, że jest zdefiniowany rekurencyjnie, ale również stąd, że ma wiele zastosowań, a także możemy znaleźć wartości z niego w wielu nieoczekiwanych miejscach, np. w przyrodzie. Sam ciąg Fibonacciego został zdefiniowany w celu... obliczania tempa przyrostu populacji królików. Warto dodać, że ciąg ten nie został przez niego stworzony, ponieważ zapiski o nim możemy znaleźć w dziełach indyjskich z okolic 400 r. p.n.e. (Fibonacci napisał o nim w 1202 r. w dziele Liber Abaci). Nazwę natomiast zawdzięczamy dziewiętnastowiecznemu matematykowi Édouardowi Lucasowi.
+
+### Silnia
+
+Ta pozycja może co niektórych nieco zdziwić, ponieważ silnia ze swojej definicji nie ma nic wspólnego z rekurencją. Natomiast przełożenie jej na rekurencję jest bardzo popularne, stąd warto omówić ten przykład, szczególnie że otrzymamy dużo prostszy wzór niż u Fibonacciego.
+
+Najpierw powiedzmy jednak, czym jest silnia. Silnia (angielska nazwa: factorial) liczby naturalnej n, to iloczyn wszystkich liczb naturalnych dodatnich (tzn. wszystkich bez zera), nie większych niż n. Znana jest pod zapisem $$n!$$. Silnię definiujemy następująco:
+
+$$
+n! = \begin{cases}
+1 & \text{dla } n = 0, \\
+1 \cdot 2 \cdot ... \cdot n = \prod_{k=1}^nk & \text{dla } n \geqslant 1.
+\end{cases}
+$$
+
+Kolejne wartości silni wyglądają wówczas tak:
+
+$$
+\begin{align*}
+0! &= 1 \\
+1! &= 1 \\
+2! &= 1 \cdot 2 = 2 \\
+3! &= 1 \cdot 2 \cdot 3 = 6 \\
+4! &= 1 \cdot 2 \cdot 3 \cdot 4 = 24 \\
+5! &= 1 \cdot 2 \cdot 3 \cdot 4 \cdot 5 = 120
+\end{align*}
+$$
+
+Zauważmy tutaj pewną właściwość — tak naprawdę każda kolejna wartość to poprzednia wartość pomnożona przez $$n$$. Przykładowo, dla $$n$$ równego 4 możemy zapisać następująco: $$4! = 1 \cdot 2 \cdot 3 \cdot 4 = 3! \cdot 4 = 24$$. Oznacza to, że wzór możemy przepisać wprost na wzór rekurencyjny:
+
+$$
+n! = \begin{cases}
+1 & \text{dla } n = 0, \\
+(n - 1)! \cdot n & \text{dla } n \geqslant 1.
+\end{cases}
+$$
+
+Silnia ma wiele zastosowań w matematyce, o których nie chcę tutaj pisać. Najprawdopodobniej możesz ją kojarzyć najbardziej z kombinatoryki, gdzie przez $$n!$$ wyrażamy liczbę wszystkich permutacji zbioru n-elementowego.
+
+## Rekurencja w programowaniu
+
+Do tej pory pokazaliśmy, jak wygląda rekurencja w matematyce. Jednak stąd jest bardzo blisko do programowania. Te same funkcje możemy niemal słowo w słowo przenieść na kod. Zaprezentuję to w dwóch różnych językach programowania, reprezentujących dwa odmienne paradygmaty — C (paradygmat imperatywny; pierwszy snippet z kodem) oraz F# (paradygmat funkcyjny; drugi snippet).
+
+```c
+int fibonacci(int n) {
+  if (n == 0) {
+    return 0;
+  } else if (n == 1) {
+    return 1;
+  } else {
+    return fibonacci(n - 1) + fibonacci(n - 2);
+  }
+}
+
+int factorial(int n) {
+  if (n == 0) {
+    return 1;
+  } else {
+    return factorial(n - 1) * n;
+  }
+}
+```
+
+```fsharp
+let rec fibonacci n =
+  match n with
+  | 0 -> 0
+  | 1 -> 1
+  | _ -> (fibonacci (n - 1)) + (fibonacci (n - 2))
+
+let rec factorial n =
+  match n with
+  | 0 -> 1
+  | _ -> factorial (n - 1) * n
+```
+
+Oba programy możesz przetestować pod tymi linkami: [wersja C](https://repl.it/@tswistak/basic-example-c), [wersja F#](https://repl.it/@tswistak/basic-example-f).
+
+Jak możesz zauważyć, w obu językach programowania implementacje niewiele różnią się od zapisu matematycznego. Różnice są głównie w wykorzystanej składni — w języku imperatywnym skorzystałem z instrukcji warunkowej `if`, natomiast w funkcyjnym z dopasowania wzorca.
+
+Możesz w tym momencie zapytać, po co pokazuję język funkcyjny. Odpowiem: w paradygmacie funkcyjnym to rekurencja jest podstawowym sposobem na tworzenie pętli. F# może nie jest perfekcyjnym przykładem, ponieważ jest językiem wieloparadygmatowym (co oznacza, że pozwala na więcej, jednak przede wszystkim implementuje paradygmat funkcyjny) i nawet jeśli wszedłeś w wersję do testowania, mogłeś zobaczyć typową pętlę for. Jednak jeżeli chcielibyśmy być purystami, powinniśmy używać tylko rekurencję.
+
+## Rekurencja a obciążenie pamięci
+
+Rekurencja wydaje się być bardzo przyjemnym, choć może nie zawsze bardzo intuicyjnym, sposobem na zapętlanie funkcji. Jest jednak coś, co powinieneś o niej wiedzieć, zanim jej użyjesz — rekursja obciąża pamięć komputera. Dlaczego?
+
+Rozpisując sobie rozwiązywanie rekurencji w równaniach matematycznych, po prostu po kolei rozwijaliśmy funkcje, aż doszliśmy do konkretnych wartości. Wydaje się to z ludzkiego punktu widzenia dość oczywiste, jednakże komputery tak nie działają. Program po skompilowaniu staje się ciągiem rozkazów, które są wydawane procesorowi jeden po drugim. Oznacza to, że nie jest on w stanie wcześniej rozwiązać sobie jakiegoś fragmentu dla prostszego, dalszego obliczania (oczywiście są różne optymalizacje, jednak na razie pomińmy to). Dlatego wykonywanie wygląda tak, że zatrzymuje się wykonanie aktualnej funkcji, wywołuje nową, i gdy ta zwróci wynik, kontynuujemy dalsze wykonanie. W praktyce tworzy to drzewo wywołań rekurencyjnych, które jest coraz większe i zajmuje coraz więcej miejsca, im większa pętla jest do wykonania. Przez to funkcje rekurencyjne mają złożoność pamięciową $$O(n)$$.
+
+Zobaczmy, jak to się prezentuje dla przypadku obliczania silni liczby 5 oraz czwartego elementu ciągu Fibonacciego:
+
+<Image
+  image={factoFibo}
+  alignCenter
+  fullSize
+  alt="Rozpisanie zawartości stosu dla rekurencyjnej wersji silnii (lewa strona obrazka) oraz rekurencyjnej wersji Fibonacciego (prawa strona obrazka)"
+  caption={<>
+    Po lewej stronie widzimy drzewo wywołań rekurencyjnych dla silni liczby 5, po prawej stronie drzewo rekurencyjne obliczania czwartego elementu ciągu Fibonacciego.
+  </>}
+/>
+
+W praktyce bardzo duże pętle mogą doprowadzić do jednego z najpopularniejszych błędów znanych programistom — przepełnienie stosu (z ang. stack overflow). Nazwa wzięła się stąd, że aby przechować wywołania funkcji w pamięci, programy wykorzystują strukturę danych zwaną stosem. Debuggery języków programowania zazwyczaj pozwalają go podejrzeć. Znajdziesz go pod nazwą „call stack”.
+
+W tym momencie możemy zadać sobie pytanie — czy da się uniknąć przepełnienia stosu? Czy jest możliwość robić wywołania rekurencyjne tak, aby program nie musiał przechowywać wywołań?
+
+## Rekurencja ogonowa
+
+Generalnie patrząc na powyższe drzewa, możemy zauważyć, że problemem jest to, że wykonując funkcję rekurencyjnie, czekamy na jej wynik, aby go znowu przetworzyć. Możemy to jednak zmienić, stosując technikę zwaną rekurencją ogonową (bądź rekurencją prawostronną). Mówiąc w bardzo dużym skrócie, polega ona na tym, że wywołanie rekurencyjne jest ostatnią rzeczą wykonywaną w funkcji.
+
+Niestety, przerobienie tradycyjnych funkcji rekurencyjnych na takie korzystające z rekursji ogonowej nie zawsze jest oczywiste. Zwykle stosuje się wówczas dodatkowe funkcje pomocnicze, które przechowują sobie wartości poprzednich wywołań w tak zwanym akumulatorze (czyli argumencie funkcji przechowującym aktualną wartość). Zobaczmy sobie, jak wyglądają nasze wcześniej opisane funkcje w wersjach wykorzystujących rekursję ogonową, ponownie napisane w C oraz F#.
+
+```c
+int fib(int n, int a, int b) {
+  if (n == 0) {
+    return a;
+  } else if (n == 1) {
+    return b;
+  } else {
+    return fib(n - 1, b, a + b);
+  }
+}
+int fibonacci(int n) {
+  return fib(n, 0, 1);
+}
+
+int fac(int n, int acc) {
+  if (n == 0) {
+    return acc;
+  } else {
+    return fac(n - 1, n * acc);
+  }
+}
+int factorial(int n) {
+  return fac(n, 1);
+}
+```
+
+```fsharp
+let rec fib n a b =
+  match n with
+  | 0 -> a
+  | 1 -> b
+  | _ -> fib (n - 1) b (a + b)
+let fibonacci n = fib n 0 1
+
+let rec fac n acc =
+  match n with
+  | 0 -> acc
+  | _ -> fac (n - 1) (n * acc)
+let factorial n = fac n 1
+```
+
+Oba programy możesz przetestować pod tymi linkami: [wersja C](https://repl.it/@tswistak/tail-example-c#main.c), [wersja F#](https://repl.it/@tswistak/tail-example-f#main.fs).
+
+W powyższych implementacjach możesz zauważyć, że zaczęliśmy stosować zmienne pomocnicze i to do nich wrzuciliśmy obliczenia, do których wcześniej używaliśmy wywołania rekurencyjne. Musiały one przyjąć konkretne, początkowe wartości, co ukryłem, tworząc dodatkowe funkcje wywołujące je odpowiednio. Oczywiście w językach programowania, które posiadają możliwość ustawiania domyślnych wartości argumentów, nie trzeba robić tego kroku.
+
+Dzięki takiemu zabiegowi nie ma potrzeby odkładania wywołań na stos. Wywołanie rekurencyjne to zawsze ostatni krok, więc możemy bez problemu wykonywać wszystko po kolei. Osiągamy tym samym stałą złożoność pamięciową $$O(1)$$, niezależną od wielkości pętli.
+
+Aby zobaczyć, jak rekurencja wygląda w praktyce po przełożeniu na kod maszynowy, stworzyłem małą prezentację w Compiler Explorer, [którą możesz znaleźć pod tym linkiem](https://godbolt.org/z/PMd61P). Dzięki niej możesz porównać, jak kod z języka C jest przekładany na kod maszynowy, w tym przypadku Assembler procesorów architektury x86_64 (architektura stosowana na komputerach PC i, póki co, jeszcze w Mac). Na górze znajdziesz tradycyjny kod obliczania elementu ciągu Fibonacciego, a na dole wersję z rekursją ogonową. W pierwszym przypadku z 9 linijek kodu C otrzymaliśmy 279 linii kodu Assemblera, natomiast dla rekursji ogonowej z 9 linijek kodu C otrzymaliśmy tylko 19 linii kodu maszynowego.
+
+### Problemy rekursji ogonowej
+
+Jednak czy rekursja ogonowa jest lekiem na całe zło? Nie do końca. Przede wszystkim pisanie funkcji w ten sposób wymaga często zmiany myślenia i przerobienia algorytmu. W tych dwóch przypadkach nie było to aż tak straszne, jednak przy bardziej rozbudowanych algorytmach wykorzystujących rekursję, jak choćby quicksort i merge sort, ich wersje „ogonowe” niezbyt przypominają swoje oryginały. Bardziej przypominają one wersje nierekurencyjne. Dlatego w językach niefunkcyjnych zwykle jest lepiej zaimplementować coś bez rekursji, niż stosować na siłę ogonową.
+
+Inny problem rekursji ogonowej jest taki, że nie zawsze jest ona wspierana przez kompilatory/interpretery. O ile najpopularniejsze języki funkcyjne, takie jak Haskell, Erlang czy F#, wspierają ją, to sprawa wygląda gorzej w językach opartych o inne paradygmaty. Przykładowo, autor języka Python jest przeciwnikiem stosowania rekursji ogonowej i opowiada się wprost przeciwko implementowaniu niej. Niektóre języki też wymagają jawnej adnotacji, że takową rekursję stosujemy — np. w Kotlinie dodajemy do funkcji adnotację tailrec, natomiast w C (zależnie od kompilatora) musimy dodać odpowiednią flagę przy kompilacji.
+
+Tutaj mogę również dodać, że jednym z powodów, dla których twórca Pythona (G. van Rossum) jest przeciwny rekursji ogonowej, jest fakt, że tak pisany kod ciężej się debuguje. Niestety, w tej kwestii nie wypowiem się z własnego doświadczenia, wspominam tylko z kronikarskiego obowiązku.
+
+## Inne, warte uwagi zastosowania rekurencji
+
+Przez cały ten artykuł omawialiśmy w zasadzie tylko dwie funkcje definiowane rekurencyjne — obliczenie n-tego elementu ciągu Fibonacciego oraz silnię. Ponadto wspomniałem o algorytmach takich jak quicksort i merge sort, które też w oryginalnej wersji są definiowane z rekursją.  Zobaczmy inne, ciekawe zastosowania.
+
+### Funkcja Ackermanna
+
+<Link href="/post/funkcja-ackermanna">Funkcja Ackermanna</Link> została odkryta w 1928 r. przez W. Ackermanna, później była wielokrotnie modyfikowana. Jej definicja, w najpopularniejszej wersji zwanej funkcją Ackermanna-Peter, wygląda następująco:
+
+$$
+A(m,n) = \begin{cases}
+n + 1 & \text{dla } m = 0, \\
+A(m - 1, 1) & \text{dla } m > 0 \text{ i } n = 0, \\
+A(m - 1, A(m, n - 1)) & \text{dla } m > 0 \text{ i } n > 0.
+\end{cases} \\
+\text{gdzie }(m, n \in \N)
+$$
+
+Sama funkcja może nie ma praktycznych zastosowań w matematyce, jednak szczególne znaczenie ma dlatego, że jest jedną z najprostszych i jednocześnie najwcześniej odkrytych funkcji, które nie są pierwotnie rekurencyjne (pominę wytłumaczenie, co to oznacza, dla utrzymania prostoty artykułu).  Funkcja ta znalazła dość ciekawe zastosowanie w informatyce — wykorzystuje się ją do sprawdzania, jak dobrze kompilatory optymalizują rekurencję.
+
+### Rysowanie fraktali
+
+Kolejnym zastosowaniem rekurencji jest rysowanie fraktali. O ile osoby zaznajomione z tematem mogą bardziej tutaj kojarzyć wykorzystanie do tego celu L-systemów, to metody rekurencyjne też istnieją. Najbardziej znane fraktale, które rysujemy z wykorzystaniem funkcji rekursywnych, to chociażby: dywan Sierpińskiego, trójkąt Sierpińskiego, krzywe Hilberta, drzewo fraktalne.
+
+Poniżej zamieściłem moją implementację trójkąta Sierpińskiego, gdzie możesz manipulować parametrem głębokości rekursji. Kod tej prezentacji znajdziesz [na moim GitHubie](https://github.com/swistak-codes/sierpinski-triangle/blob/main/src/index.js).
+
+<Iframe src="/iframe-content/sierpinski-triangle/index.html" minHeight={555} />
+
+### Rekurencyjne struktury danych
+
+Kolejne ciekawe zastosowanie rekurencji to definiowanie z jej pomocą struktur danych. Polega to dokładnie na tym, że określamy typ danych, którego jedna ze składowych to referencja na obiekt tego samego typu. Najpopularniejszą strukturą danych tego typu są drzewa. Jak możesz pamiętać z artykułu, gdzie poruszyłem krótko temat drzew przeszukiwań binarnych, każdy węzeł drzewa zawierał referencję na lewe i prawe dziecko, które były dokładnie tego samo typu. Tym samym uczyniło to takie drzewo rekurencyjną strukturą danych.
+
+Inną strukturą danych, która bywa definiowana w sposób rekurencyjny, są listy wiązane. Wówczas mamy sytuację podobną jak w drzewach, czyli posiadamy pojedynczy węzeł listy, który zawiera referencję na następny (a nawet może i mieć na poprzedni!).
+
+<Image
+  image={lista}
+  alignCenter
+  fullSize
+  alt="Wyobrażenie wyglądu rekurencyjnej listy wiązanej. Po lewej intuicyjne wyobrażenie, po prawej faktyczny zapis w pamięci."
+  caption={<>
+    Z lewej strony widzimy, jak moglibyśmy zwizualizować sobie rekurencyjnie zdefiniowaną listę wiązaną, natomiast po prawej stronie, jak faktycznie jest ona zapisana w pamięci (w uproszczeniu). Pamiętajmy, że rekurencja w tym wypadku tyczy się jedynie definicji typu danych, czyli definicji, jaką my widzimy, a nie faktycznego zapisu w pamięci.
+  </>}
+/>
+
+## Co dalej? Jak poszerzyć wiedzę?
+
+Jeżeli zaciekawił Cię temat rekurencji, to myślę, że następnym krokiem powinno być lepsze zgłębienie, jak rekursja jest definiowana w teorii obliczeń. Warto wówczas sprawdzić:
+
+- teorię rekursji jako działu logiki matematycznej,
+- czym jest funkcja rekurencyjna i jaki ma związek z maszyną Turinga oraz teorią obliczeń,
+- czym są funkcje częściowo rekurencyjne i elementarnie rekurencyjne.
+
+Dodatkowo ciekawym zagadnieniem matematycznym może być, w jaki sposób przekształcać wzory funkcji z rekurencją we wzory bez rekurencji. Tutaj można choćby zobaczyć, jak można otrzymać tzw. wzór Bineta, czyli wzór na n-ty wyraz ciągu Fibonacciego sprowadzający się do jednego (choć może niekoniecznie najprostszego) równania.
+
+Natomiast gdybyś chciał(a) podejść bardziej od tej informatycznej strony, to zdecydowanie warto sprawdzić poniższe tematy:
+
+- jak komputer przetwarza funkcje rekurencyjne i jak jest do tego wykorzystywany stos,
+- jak zamieniać rekurencję na zwykłą iterację.
+
+## Literatura
+
+- Knuth D. E., „Podstawy matematyczne” w Sztuka programowania Tom 1 Algorytmy podstawowe. Warszawa: Wydawnictwa Naukowo-Techniczne, 2002, s. 11-127
+- Wirth N., „Algorytmy rekurencyjne” w Algorytmy + struktury danych = programy. Warszawa: Wydawnictwa Naukowo-Techniczne, 2002, s. 145–182
+- Ross K. A., Wright C.R.B., „Algorytmy rekurencyjne” w Matematyka dyskretna. Warszawa: Wydawnictwo Naukowe PWN, 1996, s. 413–427
+- van Roy P., Haridi S., „Recursive computation” w Concepts, Techniques and Models of Computer Programming. The MIT Press, 2004, s. 124-127
+- van Roy P., Haridi S., „Programming with recursion” w Concepts, Techniques and Models of Computer Programming. The MIT Press, 2004, s. 127-166
+- Clinger, W. D. (1998, Maj). Proper tail recursion and space efficiency. W Proceedings of the ACM SIGPLAN 1998 conference on Programming language design and implementation (pp. 174-185).
+- van Rossum G., Tail Recursion Elimination (22 kwietnia 2009): [http://neopythonic.blogspot.com/2009/04/tail-recursion-elimination.html](http://neopythonic.blogspot.com/2009/04/tail-recursion-elimination.html) (ostatnio odwiedzone 22 stycznia 2021)
+- Weisstein, Eric W. "Ackermann Function." From MathWorld--A Wolfram Web Resource. [https://mathworld.wolfram.com/AckermannFunction.html](https://mathworld.wolfram.com/AckermannFunction.html)
+- Weisstein, Eric W. "Sierpiński Sieve." From MathWorld--A Wolfram Web Resource. [https://mathworld.wolfram.com/SierpinskiSieve.html](https://mathworld.wolfram.com/SierpinskiSieve.html)
+
+<small>(oryginał zdjęcia na okładce: [pxhere.com](https://pxhere.com/en/photo/514951))</small>

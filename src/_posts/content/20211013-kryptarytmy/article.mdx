@@ -1,0 +1,245 @@
+import Link from 'next/link';
+import {Image, Iframe} from '@swistak-codes/components';
+import cover from './kryptarytmy.jpg';
+
+export const meta = {
+  title: 'Kryptarytmy',
+  abstract:
+    'Kryptarytmy to bardzo przyjemne łamigłówki. W tym artykule pokazuję, jak do ich rozwiązywania można podejść algorytmicznie.',
+  firstParagraph: (
+    <>
+      Kryptarytmy to bardzo przyjemna kategoria łamigłówek matematycznych, gdzie mając działanie zapisane literami, musimy znaleźć cyfry odpowiadające każdej z nich. W tym artykule chcę pokazać, jak do rozwiązywania zagadek tego typu można podejść algorytmicznie. Przy okazji od strony algorytmicznej poznamy mały wycinek kombinatoryki.
+    </>
+  ),
+  keyword: 'kryptarytmy',
+  categories: ['Matematyka', 'Algorytmy', 'Zagadki logiczne'],
+  tags: [
+    'kryptarytmy',
+    'kombinatoryka',
+    'permutacje',
+    'alfametyki',
+    'algebrafy',
+    'generowanie leksykograficzne',
+    'proste zmiany',
+    'javascript'
+  ],
+  slug: 'kryptarytmy',
+  updateTime: '2021-10-13T08:37:24+00:00',
+  publishTime: '2021-10-13T07:30:01+00:00',
+  cover,
+};
+
+## O co w tym chodzi?
+
+Zacznijmy najpierw od tego, czym są kryptarytmy. Co prawda opisałem to już we wstępie, ale powtórzmy. Mamy działanie matematyczne, gdzie zamiast cyfr znajdują się litery. Naszym zadaniem jest odnaleźć taki zestaw cyfr odpowiadający każdej z liter, aby działanie było poprawne. Jedna litera to tylko jedna cyfra, a każda z liter musi odpowiadać innej cyfrze. Oznacza to, że możemy użyć w takiej zagadce co najwyżej 10 liter (o ile operujemy systemem dziesiętnym). Warto dodać, że kryptarytmy mogą mieć wiele rozwiązań.
+
+Najbardziej klasyczny przykład kryptarytmu, wraz z jego rozwiązaniem (jedynym), to:
+
+$$
+\begin{align*}
+SEND + MORE &= MONEY \\
+9567 + 1085 &= 10652
+\end{align*}
+$$
+
+Bardzo popularny jest też zapis w formie równania pod kreską. Jest on na tyle dobry, że w przypadku ręcznego rozwiązywania zagadki łatwiej jest wzrokowo domyślić się pewnych zależności. Przykładowo, powyższy kryptarytm moglibyśmy zapisać następująco:
+
+```
+  SEND
++ MORE
+------
+ MONEY
+```
+
+## Odmiany kryptarytmów
+
+Możemy wyróżnić kilka ciekawych odmian kryptarytmów:
+
+- Alfametyki — jest to szczególny rodzaj kryptarytmów, gdzie litery tworzą sensowne frazy. Są spotykane dość często, chociażby pokazany wyżej przykład się do nich zalicza (send more money — wyślij więcej pieniędzy).
+- Podwójnie prawdziwe — bardzo ciekawy przypadek kryptarytmów, gdzie zapisujemy słownie liczby i wynik działania jest poprawny nawet bez rozwiązywania zagadki, np. $$THREE + THREE + TWO + TWO + ONE = ELEVEN$$ (3 + 3 + 2 + 2 + 1 = 11).
+- Alfametyki literackie — są to całe zdania, najczęściej wiersze, w przypadku których jeśli zsumujemy wszystkie kolejne słowa, a ostatnie potraktujemy jako wynik, to otrzymujemy poprawny kryptarytm.
+- Algebrafy — nieco bardziej rozbudowana wersja kryptarytmów, gdzie musimy je rozwiązać tak, aby zawierały poprawne działania zarówno w pionie, jak i poziomie, np.
+```
+ a + cm = ac
+ ·    +   -
+cd +  t = al
+------------
+ae : ae =  c
+```
+
+Odmian znajdziemy jeszcze więcej, ale te dosyć ciekawie pokazują, z jak różnorodnymi kryptarytmami możemy mieć do czynienia.
+
+## Ręczne rozwiązywanie
+
+Ręczne podejście do rozwiązania tej zagadki nie ma nic wspólnego z tym, jak ją rozwiążemy algorytmicznie, jednak wypada o tym napisać. Pokażę sposób rozwiązywania przez obliczenie wcześniejszego przykładu z pieniędzmi. Jest to przykład na sumowanie, ale inne działania moglibyśmy rozpatrzyć podobnie. Cała filozofia polega tutaj na znajomości zasad najbardziej podstawowych operacji na liczbach.
+
+### Krok 1 – pierwsza kolumna od lewej sumy oraz składników
+
+Aby rozpocząć, przyda nam się zobaczyć zagadkę w formie „pod kreską”:
+
+```
+  SEND
++ MORE
+------
+ MONEY
+```
+
+Pierwsze, co powinniśmy w tym momencie zauważyć, to że suma ma więcej cyfr niż obie dodawane liczby. Oznacza to, że cyfry skrywające się pod S i M musiały dać sumę większą niż 10. Jednocześnie wiemy, że po zsumowaniu dwóch cyfr największą możliwą liczbą do uzyskania jest 18 (z sumy: $$9 + 9$$), stąd litera M musi być cyfrą 1. Podstawmy więc:
+
+```
+  SEND
++ 1ORE
+------
+ 1ONEY
+```
+
+### Krok 2 — dokończenie pierwszej kolumny składników
+
+Zajmijmy się teraz literą S. Na pierwszy rzut oka mamy dwie możliwości:
+
+- $$S = 9$$, ponieważ $$9 + 1 = 10$$. Z tego od razu otrzymalibyśmy $$O = 0$$, ponieważ $$S + 1 = 10 + O$$.
+- $$E + O > 10$$, stąd $$S + 1 + 1 = 10$$, czyli $$S = 8$$.
+
+Zobaczmy jednak ten drugi przypadek, czyli jaka musiałaby być cyfra pod literą O. Wrzućmy więc w równanie literę O: $$S + 1 + 1 = 10 + O$$. Z tego wynika, że $$S = 8 + O$$. Wiemy, że S musi być mniejsze od 10, więc jedyne O, jakie moglibyśmy mieć, to 1, tylko że ta cyfra jest już użyta. Stąd zostaje nam tylko $$S = 9$$ oraz $$O = 0$$.
+
+```
+  9END
++ 10RE
+------
+ 10NEY
+```
+
+### Krok 3 — dokończenie(?) drugiej kolumny
+
+Patrzymy dalej. Skoro $$E + 0 = N$$, oznacza to, że $$N + R$$, które widzimy w kolejnej kolumnie, musiały zrobić przeniesienie. W takim razie możemy poprawić nasze równanie na: $$ E + 0 + 1 = N$$. Musimy od razu rozpatrzeć też litery N oraz R, co sprowadza nas znowu do dwóch możliwości — bez przeniesienia i z przeniesieniem:
+
+- Bez przeniesienia — możemy drugą kolumnę zapisać jako $$N + R = 10 + E$$. Wiemy, że $$N = E + 1$$, więc upraszczamy do: $$E + 1 + R = 10 + E$$. Upraszczamy dalej i wychodzi $$R = 9$$. 9 jest jednak zajęte, więc odrzucamy tę możliwość.
+- Z przeniesieniem — drugą kolumnę zapisujemy jako $$N + R + 1 = 10 + E$$. Ponownie pozbądźmy się N z równania i otrzymamy: $$E + 1 + R + 1 = 10 + E$$. Po uproszczeniu otrzymujemy $$R = 8$$.
+
+Co prawda w tym kroku nie dokończyliśmy ostatecznie drugiej kolumny, jednak uzyskaliśmy kolejną cyfrę. Zapiszmy to:
+
+```
+  9END
++ 108E
+------
+ 10NEY
+```
+
+### Krok 4 — dokończenie zagadki
+
+Teraz wreszcie dokończmy drugą kolumnę, a przy okazji całą zagadkę. Zacznijmy od rozpatrzenia ostatniej kolumny, aby iść już nimi po kolei (ostatnio rozpatrywaliśmy trzecią, aby spróbować rozwiązać drugą).
+
+Pamiętamy, że przy poprzednim kroku mieliśmy dwa założenia, które wciąż są aktualne:
+
+- Nastąpiło przeniesienie z ostatniej kolumny, więc $$D + E \geqslant 10$$.
+- $$E + 1 = N$$.
+
+Rozpatrzmy więc, czym może być Y. Do tej pory użyliśmy cyfr 0, 1, 9 i 8, stąd wiemy, że: $$1 < Y < 8$$. Cyfry 8 oraz 9 i tak by nas nie interesowały w tym momencie, bo nie byłoby możliwe osiągnięcie tych dwóch cyfr przy pozostałych warunkach (przeniesienie, a każda litera to unikalna cyfra). W takim razie $$ D + E \geqslant 12$$. Skoro nie możemy użyć 8 i 9, to pozostają nam dwie możliwe sumy (pamiętając oczywiście, że dodawanie jest przemienne, więc mamy de facto cztery przypadki):
+
+- $$7 + 5 = 12$$
+- $$7 + 6 = 13$$
+
+Zacznijmy w takim razie od sprawdzenia, co możemy podstawić za literę E. Sprawdźmy najpierw $$E = 7$$.
+
+Pamiętamy, że $$E + 1 = N$$. W takim razie $$7 + 1 = N = 8$$. Oczywiście 8 jest już wykorzystane, więc tę możliwość odrzucamy.
+
+Tym samym wiemy już, że $$D = 7$$. Znowu mamy dwie możliwości dla E: 5 i 6. Sprawdzamy więc ponownie: $$5 + 1 = N = 6$$, czyli ta opcja może być. Z drugiej strony: $$6 + 1 = N = 7$$, ale 7 dopiero co przypisaliśmy dla D, więc ta możliwość również odpada. W takim razie zostajemy z $$E = 5$$ oraz $$N = 6$$. Spiszmy to sobie:
+
+```
+  9567
++ 1085
+------
+ 1065Y
+```
+
+Zostało nam już jedynie Y. Wystarczy teraz tylko policzyć $$7 + 5 = 12$$. Jedynkę przenosimy dalej, więc $$Y = 2$$. W takim razie doszliśmy do rozwiązania:
+
+```
+  9567
++ 1085
+------
+ 10652
+```
+
+## Jak można do tego podejść algorytmicznie?
+
+Opisany powyżej sposób ręcznego rozwiązywania nie da się łatwo przenieść na kod. Opiera się on bardzo mocno na kombinowaniu i zauważaniu pewnych zależności matematycznych. Nie ma tu konkretnej instrukcji rozwiązywania. My jednak możemy wykorzystać to, że komputer wykonuje wszelkie obliczenia bardzo szybko, więc możemy podejść do tego metodą prób i błędów. Innymi słowy, wygenerujemy wszystkie możliwe przypisania cyfr do liter, po czym sprawdzimy, czy uzyskaliśmy prawidłowe równanie.
+
+To, co zrobimy, to nic innego jak wygenerowanie wszystkich permutacji dla zbioru cyfr od 0 do 9. Mając dostarczony na wejściu kryptarytm, wyciągniemy z niego wszystkie unikalne litery. Jeśli jest ich mniej niż 10, to wtedy, dla uproszczenia, wciąż generujmy 10-elementowe permutacje i będziemy przypisywać do liter jedynie ich wycinek. Następnie za pomocą odpowiednich algorytmów będziemy generować kolejne permutacje i sprawdzać, czy dają nam one poprawne rozwiązanie zagadki.
+
+Zadanie możemy uznać za wykonane na dwa sposoby. Z jednej strony, przy znalezieniu pierwszego rozwiązania możemy przerwać wykonywanie i uznać zagadkę za rozwiązaną. Możemy też chcieć poznać, ile jest możliwych rozwiązań — wówczas algorytm będziemy wykonywać tak długo, aż sprawdzimy wszystkie permutacje. Wszystkich permutacji, w tym przypadku, jest oczywiście $$10! = 3628800$$. Liczba duża, aczkolwiek nie na tyle, żeby nie móc rozwiązać zagadki w sensownym czasie.
+
+Zanim przejdziemy do konkretnych algorytmów, warto pamiętać o dwóch rzeczach. Gdy rozwiązywaliśmy zagadkę ręcznie, było dla nas oczywiste, że pierwsza cyfra w wyrazie nie może być zerem. Jednak przy generowaniu wszystkich permutacji będziemy musieli wziąć ten warunek pod uwagę. Druga rzecz jest taka, że jeśli liter jest mniej niż 10, to będziemy mieć sztucznie zawyżoną liczbę rozwiązań. Jest to kolejna rzecz, jaką musimy odfiltrować od ostatecznego wyniku.
+
+## Algorytmy generowania wszystkich permutacji
+
+W tym miejscu pokażę dwa algorytmy, które możemy wykorzystać do wygenerowania wszystkich permutacji. Do każdego z nich zamieściłem przykład w kodzie, dostępny na platformie repl.it, gdzie możesz przetestować jego działanie. Oprócz tego kod wszystkich znajdziesz na moim [GitHubie](https://github.com/swistak-codes/alphametics). Wszystkie kody źródłowe zostały napisane w JavaScript (Node).
+
+W każdym z algorytmów zakładamy, że mamy n elementów $$\{ x_1, x_2, ..., x_n \}$$, dla których generujemy permutacje. Wygenerowaną permutację zapisujemy jako tablicę $$a_1, a_2, … a_n$$. Zwróć uwagę, że zwykle tablice są tutaj indeksowane w sposób nieinformatyczny, czyli od 1 zamiast od 0. Przystosować algorytmy możemy wówczas dwojako — albo zmieniając odpowiednie warunki i przeliczenia, albo ignorując element 0 w tablicy. W zamieszczonych kodach źródłowych stosowałem oba podejścia, zależnie od tego, gdzie które było prościej użyć.
+
+### Leksykograficzne generowanie permutacji
+
+Zaczniemy od algorytmu, który został opracowany już w XIV w. w Indiach przez Narayaṇa Paṇḍita. Algorytm jest na tyle prosty i oczywisty, że potem został wielokrotnie odkryty na nowo.
+
+W tym podejściu zakładamy, że zaczynamy od wstępnie posortowanej sekwencji elementów, gdzie $$a_1 \leqslant a_2 \leqslant ... \leqslant a_n$$. Kolejne permutacje będą wyznaczać porządek leksykograficzny. Porządek leksykograficzny to, w skrócie mówiąc, uogólnienie porządku alfabetycznego, czyli wyznaczamy kolejność, patrząc na kolejne elementy, np. (1, 0, 0) jest większy leksykograficznie niż (0, 100, 100).
+
+Przykładowym rezultatem algorytmu dla elementów $$\{1, 2, 2, 3 \}$$ będzie: $$1223$$, $$1232$$, $$1322$$, $$2123$$, $$2132$$, $$2213$$, $$2231$$, $$2312$$, $$2321$$, $$3122$$, $$3212$$, $$3221$$.
+
+Kroki algorytmu wyglądają następująco:
+
+1. Odwiedź permutację $$a_1a_2...a_n$$.
+2. Znajdź $$j$$:
+    1. Ustaw $$j = n - 1$$.
+    2. Jeśli $$ a_j \geq a_{j+1}$$, zmniejszaj $$j$$ o 1 tak długo, aż $$a_j < a_{j+1}$$.
+    3. Jeśli $$j = 0$$, przerwij algorytm.
+3. Zwiększ $$a_j$$:
+    1. Ustaw $$l = n$$.
+    2. Jeśli $$a_j \geq a_l$$, zmniejszaj $$l$$ o 1 tak długo, aż $$a_j < a_l$$.
+    3. Zamień $$a_j$$ z $$a_l$$.
+4. Odwróć $$a_{j+1}...a_{n}$$:
+    1. Ustaw $$k = j + 1$$ oraz $$l = n$$.
+    2. Tak długo, gdy $$k < l$$:
+        1. Zamień $$a_k$$ z $$a_l$$.
+        2. Ustaw $$k = k + 1$$ i $$l = l - 1$$.
+    3. Wróć do punktu 1 (odwiedź).
+
+Przełożenie algorytmu na kod znajdziesz [tutaj](https://github.com/swistak-codes/alphametics/blob/main/algorithms/lexicographic.js), natomiast przykład rozwiązywania kryptarytmów tym sposobem [w tym miejscu](https://replit.com/@tswistak/lexicographic).
+
+### Proste zmiany
+
+Kolejny z algorytmów zawdzięczamy XVII-wiecznym dzwonnikom z Anglii, którzy grali zestawem 5 dzwonów na wszystkie możliwe sposoby. Początkowo znali tylko 48 permutacji (znane jako Cambridge Forty-Eight), a dzięki odkryciu algorytmu prostych zmian (ang. Plain changes, też znany jako algorytm P) byli w stanie grać wszystkie 120. Najstarszy znany zapis tego algorytmu datuje się na 1653 r. i jest autorstwa Petera Mundy'ego.
+
+Idea algorytmu opiera się na  ciągłym zamienianiu sąsiadujących ze sobą par. Dodatkowo wykorzystywane są dwie pomocnicze tablice. Pierwsza z nich — $$c_1c_2...c_n$$ wyznacza zamiany, a druga — $$o_1o_2...o_n$$ kierunek tych zmian.
+
+Kroki wyglądają następująco:
+
+1. [Inicjalizacja] Dla każdego $$j$$, gdzie $$1 \leq j \leq n$$, ustaw $$c_j = 0$$ i $$o_j = 1$$.
+2. [Odwiedź] Odwiedź permutację $$a_1a_2...a_n$$.
+3. [Przygotuj do zmiany] Ustaw $$j = n$$ oraz $$s = 0$$.
+4. [Gotowy do zmiany?]:
+    1. Ustaw $$q = c_j + o_j$$.
+    2. Jeśli $$q < 0$$, przejdź do punktu 7 (zmień kierunek).
+    3. Jeśli $$q = j$$, przejdź do punktu 6 (zwiększ $$s$$).
+5. [Zmiana]:
+    1. Zamień ze sobą $$a_{j-c_j+s}$$ z $$a_{j-q+s}$$.
+    2. Ustaw $$c_j = q$$.
+    3. Przejdź do punktu 2 (odwiedź).
+6. [Zwiększ $$s$$] Jeśli $$j = 1$$, przerwij algorytm; w przeciwnym razie ustaw $$s = s + 1$$.
+7. [Zmień kierunek]:
+    1. Ustaw $$o_j = -o_j$$ oraz $$j = j - 1$$.
+    2. Przejdź do punktu 4 (gotowy do zmiany).
+
+Przełożenie algorytmu na kod znajdziesz [tutaj](https://github.com/swistak-codes/alphametics/blob/main/algorithms/plainChanges.js), natomiast przykład rozwiązywania kryptarytmów tym sposobem [w tym miejscu](https://replit.com/@tswistak/plain-changes#index.js).
+
+## Podsumowanie
+
+Powyżej pokazałem dwa algorytmy, już dosyć wiekowe, dzięki którym możemy generować wszystkie możliwe permutacje zbioru elementów. Oba algorytmy mają podobną wydajność, więc w praktycznych zastosowaniach wybierz ten, który jest dla Ciebie prostszy do zapamiętania. Warto jednak wiedzieć, że algorytmów tego typu jest znacznie więcej i nawet są przystosowane pod szczególne przypadki takie jak wszystkie elementy unikalne. Po więcej zapraszam do tomu 4A *Sztuki Programowania* D. Knutha. Również znajdziesz tam inną propozycję podejścia do tematu kryptarytmów.
+
+## Literatura
+
+- Lipszyc, K. *Kryptarytmy: Arytmetyka słów*, 21.02.2015 r.: [https://wyborcza.pl/AkcjeSpecjalne/7,160474,17419903,kryptarytmy-arytmetyka-slow.html](https://wyborcza.pl/AkcjeSpecjalne/7,160474,17419903,kryptarytmy-arytmetyka-slow.html) (ostatnie odwiedziny: 19.09.2021 r.)
+- *Kryptarytymy i algebrafy*: [http://www.serwis-matematyczny.pl/static/st_lamigowki_kryptagramy_i_algebrafy.php](http://www.serwis-matematyczny.pl/static/st_lamigowki_kryptagramy_i_algebrafy.php) (ostatnie odwiedziny: 19.09.2021 r.)
+- Keith M. *The Alphametics Page*: [https://www.math.uni-bielefeld.de/~sillke/PUZZLES/ALPHAMETIC/alphametic-mike-keith.html](https://www.math.uni-bielefeld.de/~sillke/PUZZLES/ALPHAMETIC/alphametic-mike-keith.html) (ostatnie odwiedziny: 19.09.2021 r.)
+- Knuth, D. E. „Generating all permutations” w *The art of computer programming: Volume 4A.*. Addison-Wesley, 2011, s. 319-355
+
+<small>(okładka autorstwa własnego, z wykorzystaniem czcionki [OpenMoji](https://openmoji.org/))</small>

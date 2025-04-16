@@ -1,0 +1,547 @@
+import Link from 'next/link';
+import {Image, Iframe} from '@swistak-codes/components';
+import cover from './hanoi-slon.jpg';
+import trzy from './3-krazki.png';
+import antwerpen from './antwerpen-tower.png';
+import dwa from './dwa-krazki.png';
+import meme from './hanoi-meme.png';
+import iteracyjne from './iteracyjne_hanoi.png';
+import little from './little-tower.png';
+import tunstall from './london-tunstall.png';
+import nKrazkow from './n-krazkow.png';
+import oryginalny from './PSM_V26_D464_The_tower_of_hanoi.jpg';
+import reve from './reve-4krazki.png';
+import london from './tower_of_london.png';
+
+export const meta = {
+  title: 'Wieże Hanoi',
+  abstract:
+    'Wieże Hanoi — prosta, drewniana zabawka dla dzieci. Natomiast dla studentów informatyki to nie raz koszmar. Jak to możliwe? Zobaczmy...',
+  firstParagraph: (
+    <>
+      Wieże Hanoi to dla większości ludzi na świecie prosta, drewniana zabawka dla dzieci. Natomiast dla studentów informatyki to nie raz jedno z najgorszych wspomnień z pierwszych lat studiów i nauki programowania. Jak to możliwe? Co jest w nich takiego strasznego? Przekonajmy się na własną rękę.
+    </>
+  ),
+  keyword: 'wieże hanoi',
+  categories: ['Matematyka', 'Algorytmy', 'Zagadki logiczne'],
+  tags: [
+    'rekurencja',
+    'dziel i zwyciężaj',
+    'hanoi',
+    'matematyka',
+    'algorytm Olive\'a',
+    'idle peg',
+    'kod Graya',
+    'javascript',
+    'zagadka Reve\'ego',
+    'tower of Antwerpen',
+    'little tower of Antwerpen',
+    'tower of London',
+  ],
+  slug: 'wieze-hanoi',
+  updateTime: '2021-09-29T08:01:59+00:00',
+  publishTime: '2021-09-29T07:00:23+00:00',
+  cover,
+};
+
+<Image
+  image={meme}
+  alignCenter
+  fullSize
+  maxWidth="492px"
+  alt="Napis: 'Everyone: it's a game for kids.' Poniżej: zdjęcie zabawkowej wieży Hanoi. Poniżej napis: 'Programmers:'. Poniżej zdjęcie psa chihuahua ze spojrzeniem na wzór 'thousand-yard stare' ze zdjęciem z wojny z Wietnamu w tle."
+  caption={<>
+    Wszyscy: to gra dla dzieci<br />
+    Programiści: ...<br />
+    (źródło: <a href="https://www.reddit.com/r/ProgrammerHumor/comments/n36bq4/hanoi_in_o2n_1/" target="_blank" rel="noreferrer">https://www.reddit.com/r/ProgrammerHumor/comments/n36bq4/hanoi_in_o2n_1/</a>)
+  </>}
+/>
+
+## Czym są wieże Hanoi?
+
+Wbrew temu, co niektórzy mogą uważać, zagadka ta nie powstała w celu wywołania nieodwracalnych szkód w psychice biednych adeptów informatyki. Powstała o wiele wcześniej, niż zaczęto mówić o takiej dyscyplinie nauki. Poznajmy historię tej zagadki, a także, o co w niej chodzi i dlaczego raz spotykamy się z nazwą „wieża Hanoi”, a innym razem „wieże Hanoi”.
+
+### Historia
+
+Zagadkę wieży Hanoi (czy też wieży Brahmy) wymyślił w (prawdopodobnie) 1883 r. francuski matematyk Édouard Lucas (pod pseudonimem N. Claus de Siam). Data powstania pochodzi z inskrypcji z oryginalnej kopii gry znajdującej się w jednym z paryskich muzeów. Sam autor jednak twierdził, że opracował ją w 1882 r. (na co innych dowodów nie ma), natomiast patenty zostały opublikowane w 1884 r. (USA) i 1890 r. (UK).
+
+<Image
+  image={oryginalny}
+  alignCenter
+  fullSize
+  maxWidth="435px"
+  alt="Rysunek z grą w wieżę Hanoi"
+  caption={<>
+    Rysunek z czasopisma Popular Science Monthly z lutego 1885 r. przedstawiający oryginalną wersję gry.<br />
+    (źródło: <a href="https://commons.wikimedia.org/wiki/File:PSM_V26_D464_The_tower_of_hanoi.jpg" target="_blank">https://commons.wikimedia.org/wiki/File:PSM_V26_D464_The_tower_of_hanoi.jpg</a>)
+  </>}
+/>
+
+Jest bardzo prawdopodobne, że gra wzorowana była na dużo starszej zagadce logicznej Baguenaudier (znana też jako chińskie pierścienie). Nie wiadomo, kiedy powstała i gdzie, jednak najprawdopodobniej w Chinach w okolicach II w. n. e. Podejrzewa się, że mogła być inspiracją dla wież Hanoi, ponieważ Lucas zajmował się tą zagadką i w 1882 r. zaproponował jej najbardziej znane, matematyczne rozwiązanie.
+
+### Legenda wieży Brahmy
+
+Aby bardziej spopularyzować wieże Hanoi, została dorobiona do nich historyjka o rzekomym hinduskim pochodzeniu zagadki (stąd nazwa wieża Brahmy). Oczywiście nie ma to nic wspólnego z Hanoi (stolicą Wietnamu) — ta nazwa prawdopodobnie powstała tylko ze względów marketingowych, gdyż trwała wówczas wojna chińsko-francuska o Wietnam.
+
+Wróćmy do owej zmyślonej legendy. Według niej, w wielkiej świątyni w Waranasi (w oryg. Benares, dawna nazwa tego miasta) znajdują się trzy diamentowe słupki. Są też zwane igłami ze względu na wymiary: były wysokości 1 kubita (jednostka miary, wynosi ok. 52 cm; nie mylić z informatycznym kubitem) i szerokości pszczoły (kilka milimetrów). Przy stworzeniu świata Bóg umieścił na jednym z nich 64 złote krążki, umieszczone od największego (na dole) do najmniejszego (na szczycie), co zostało nazwane wieżą Brahmy. Każdej nocy i każdego dnia kapłani (bramini) przenoszą krążki z igły na igłę, zgodnie z zasadami narzuconymi przez Brahmę. Według nich kapłan może przemieszczać tylko jeden krążek równocześnie i może go umieścić albo na pustym słupku, albo na szczycie większego krążka. Gdy kapłani przeniosą całą wieżę z jednego słupka na dowolny inny, wieża i bramini rozsypią się w pył i nastąpi koniec świata.
+
+### Eee... czy nie miałeś czasem pisać o informatyce?
+
+Pewnie się zastanawiasz, co takiego zabawka dla dzieci, wokół której krąży legenda o końcu świata, ma wspólnego z informatyką. Otóż to, że to kolejny ciekawy problem do rozwiązania algorytmicznie, nawet jeśli jest mało praktyczny. Ale zacznijmy od początku.
+
+Już od samego pojawienia się zagadki wywołała ona zainteresowanie pośród matematyków. Zainteresowanie dotyczyło zarówno tego, jak optymalnie ją rozwiązać, jak i tego, jak obliczyć liczbę wymaganych do tego ruchów. W końcu, jak mówi Biblia, kto chce zbudować wieżę, najpierw musi obliczyć, czy będzie mógł ją dokończyć; toteż trzeba wiedzieć, czy jest sens rozwiązywać tę zagadkę. To jednak nie wszystko, gdyż zaczęto wymyślać inne odmiany gry, odkrywano powiązania z systemem binarnym, a nawet przeniesiono ją na teorię grafów (tzw. grafy Hanoi).
+
+W latach 70. XX wieku wieżami Hanoi zainteresowali się informatycy. Dostrzegli w nich, że problem przenoszenia krążków między słupkami sprowadza się do podziału na mniejsze podproblemy, tym samym można go rozwiązać strategią „dziel i zwyciężaj”. Od tego czasu pojawiło się sporo artykułów, często ignorujących już dotychczasowe odkrycia matematyków, gdzie próbowano podejść do problemu algorytmicznie, wymyślając coraz to różne podejścia. Wieże stały się też wręcz sztampowym przykładem zastosowania rekurencji w algorytmice. Ostatecznie ogrom artykułów doprowadził do tego, że redaktor szanowanego czasopisma naukowego ACM SIGPLAN napisał w 1985 r.: „Towers of Hanoi. Please, no more articles on this for a while” (Wieże Hanoi. Proszę, dość artykułów o tym na jakiś czas).
+
+I tutaj ciekawostka — właśnie informatykom zawdzięczamy zmianę liczby pojedynczej na mnogą w nazwie. Stąd bardzo często, szukając po pracach naukowych frazy „Tower of Hanoi”, znajdziemy prace matematyków; pod „Towers of Hanoi” prace informatyków. Zmieniona nazwa pojawiła się pierwszy raz w jednej z najpopularniejszych prac o tej tematyce „A note on the Towers of Hanoi problem” P. J. Hayesa z 1977 r.
+
+### Streszczenie zasad gry
+
+Zasady mogliśmy poznać w przywołanej przeze mnie „legendzie”, ale wspomnijmy sobie je jeszcze raz, bez niepotrzebnych ozdobników.
+
+- Mamy 3 słupki bądź po prostu miejsca do układania wieży (dla uproszczenia nazwijmy je słupkami A, B i C):
+  - Słupek A ma ułożone wszystkie krążki od największego (na dole) do najmniejszego
+  - Słupki B i C pozostają puste. Jeden z nich będzie słupkiem docelowym, na który mamy przenieść wszystkie krążki, a drugi będzie słupkiem pomocniczym.
+- Przenosimy jeden krążek na raz.
+- Krążek możemy położyć albo na pustym słupku, albo na krążku większym.
+- Liczba krążków może być dowolna. Im więcej krążków, tym trudniejszy problem do rozwiązania, jednak wciąż wystarczą tylko 3 słupki.
+
+Stan gry, w którym wszystkie krążki są ułożone na jednym słupku, nazywamy stanem perfekcyjnym. Stąd też w literaturze możemy spotkać się, że zadanie przełożenia wszystkich krążków z jednego słupka na inny jest przejściem ze stanu  perfekcyjnego do perfekcyjnego. Taki przypadek będziemy rozpatrywać w tym artykule.
+
+Jeśli krążki nie znajdują się tylko na jednym słupku, to taki stan nazywamy regularnym. Można też powiedzieć, że jest to stan w trakcie rozwiązywania. Istnieją sposoby rozwiązania niedokończonej zagadki ze stanu regularnego do perfekcyjnego, jednak te nie są częścią tego artykułu.
+
+## Rekurencyjny sposób rozwiązania
+
+Jak wspomniałem, rozwiązanie zagadki wież Hanoi to książkowy przykład zastosowania strategii „dziel i zwyciężaj” oraz rekurencji. Dlatego też zacznijmy właśnie od tego sposobu jako najbardziej istotnego z informatycznego punktu widzenia.
+
+### Idea rozwiązania
+
+#### Jeden, dwa i trzy krążki
+
+Zacznijmy od najprostszych przypadków. Dla jednego krążka wystarczy go przełożyć po prostu w jednym ruchu z A na C. Dla dwóch zaczyna się ciekawiej. Sytuację tę pokazałem na schemacie poniżej.
+
+<Image
+  image={dwa}
+  alignCenter
+  fullSize
+  alt="Rozwiązanie zagadki dla dwóch krążków"
+  caption={<>
+  </>}
+/>
+
+Możemy zrobić następujące ruchy: przekładamy krążek 1 na słupek B, a krążek 2 na słupek C. Następnie przenosimy krążek 1 ze słupka B na C i rozwiązaliśmy zagadkę w trzech ruchach. Analogicznie zrobimy dla trzech krążków. Ponownie zobaczmy schemat:
+
+<Image
+  image={trzy}
+  alignCenter
+  fullSize
+  alt="Rozwiązanie zagadki dla trzech krążków"
+  caption={<>
+  </>}
+/>
+
+Zaczynamy od powtórzenia ruchów z przypadku dwóch krążków (3 ruchy). Tym samym dostajemy dwa krążki na słupku C i pozostaje ostatni krążek na A. Przełóżmy go z A na B. Następnie, wykorzystując słupek A, przekładamy dyski 1 i 2 na słupek B, analogicznie jak wcześniej (też 3 ruchy). Tym samym ułożyliśmy zagadkę w $$3 + 1 + 3 = 7$$ ruchach.
+
+#### Cztery i więcej krążków
+
+W przypadku czterech krążków zaczynamy od powtórzenia ruchów, które wykonaliśmy dla trzech krążków (7 ruchów). Nie musisz przejmować się tym, że czasem będziesz musieć wykorzystać słupek zajęty przez największy krążek — jest to dozwolony ruch. Następnie przenosimy największy krążek na wolny słupek i ponownie przenosimy pozostałe trzy krążki (znowu 7 ruchów). Tym samym wykonaliśmy łącznie $$7 + 1 + 7 = 15$$ ruchów.
+
+Widzisz tutaj schemat? Jeśli aktualną liczbę krążków oznaczymy jako $$n$$, to musimy wykonać zagadkę dla $$n-1$$ ruchów, przeprowadzić ruch przesuwający największy krążek na docelowe miejsce, a potem ponownie wykonujemy zagadkę dla $$n-1$$ ruchów.
+
+<Image
+  image={nKrazkow}
+  alignCenter
+  fullSize
+  alt="Rozwiązanie zagadki dla dowolnej liczby krążków"
+  caption={<>
+  </>}
+/>
+
+Jeśli kojarzysz dowolny algorytm <Link href="/post/rekurencja-co-to-jest">rekurencyjny</Link> oraz strategię <Link href="/post/wyszukiwanie-w-listach">„dziel i zwyciężaj”</Link>, możesz tutaj dostrzec ten charakterystyczny schemat. Problem dzielimy na coraz mniejsze problemy i ostateczne budujemy na ich podstawie rozwiązanie.
+
+### Minimalna liczba ruchów
+
+Kolejną rzeczą, jaką można dostrzec, to jak zwiększała nam się liczba ruchów. Zobaczmy jeszcze raz:
+
+- 1 krążek — 1 ruch
+- 2 krążki — 3 ruchy
+- 3 krążki — 7 ruchów
+- 4 krążki — 15 ruchów
+
+Można zauważyć powiązanie z kolejnymi potęgami dwójki, ponieważ układa nam się z tego wzór $$2^n -1$$. Zobaczmy to raz jeszcze. Aby przełożyć $$n$$ krążków, musimy 2 razy przełożyć $$n-1$$ krążków plus dodatkowy ruch na przełożenie największego z krążków. Czyli dla 2 krążków musimy 2 razy wykonać po 1 ruchu plus dodatkowy, co daje 3. Dla 3 krążków —  2 razy po 3 ruchy plus dodatkowy, co daje 7. Jednak aby mieć stuprocentową pewność, przeprowadźmy prosty dowód matematyczny na udowodnienie tego wzoru.
+
+#### Dowód
+
+Dla jednego krążka mamy 1 ruch. Z racji tego, że $$2^1 - 1 = 1$$, oznacza to prawdziwość wzoru dla tego przypadku. Zakładając, że wzór jest prawdziwy we wszystkich przypadkach, to dla $$n-1$$ krążków wykonamy $$2^{n-1} - 1$$ ruchów. Wiemy, że zawsze wykonujemy 2 razy ilość ruchów dla $$n-1$$ krążków oraz jeden dodatkowy. W takim razie z naszą dotychczasową wiedzą policzmy ilość ruchów potrzebną dla ułożenia $$n$$ krążków:
+
+$$
+2\cdot(2^{n-1}-1)+1=2^n-2+1=2^n-1
+$$
+
+Tym samym udowodniliśmy prawdziwość wzoru metodą indukcji matematycznej.
+
+#### Mnisi i ich 64 krążki
+
+Dla przetestowania wzoru sprawdźmy teraz, czy według legendy o braminach możemy spodziewać się szybkiego końca świata. Jak pamiętamy, mieli oni przenieść 64 krążki. Obliczmy sobie, ile ruchów muszą wykonać, zakładając, że nigdy się nie pomylili:
+
+$$
+2^{64}  - 1 = 18446744073709551615 \approx 1,84\cdot 10^{19}
+$$
+
+Liczba dość spora, bo mamy ponad 18 trylionów ruchów. Nawet zakładając, że mnisi są wyjątkowo zwinni i wykonują 1 ruch na sekundę, to po szybkich obliczeniach dowiemy się, że zajęłoby im to ponad 500 miliardów lat. Dla porównania, aktualny wiek wszechświata szacuje się na ok. 13,7 miliarda lat. Jednak nie mogli zacząć układać, gdy nie było Ziemi, a jej wiek jest szacowany na ok. 4,5 miliarda lat. W takim razie można stwierdzić, że ledwie zaczęli swoją pracę. I pewnie jej nie skończą, bo szacuje się, że za ok. 7,6 miliarda lat Ziemia zostanie pochłonięta przez Słońce, ale w sumie skończmy już na tym te rozważania o kosmosie.
+
+### Implementacja
+
+Zaimplementowanie algorytmu w kodzie sprowadza się do bardzo prostej rekurencji, którą moglibyśmy zobrazować takim kodem:
+
+```javascript
+// n - liczba krążków; A, B, C - słupki
+function hanoi(n, A, B, C) {
+  // w każdym wywołaniu ściągamy elementy z A i ustawiamy na C
+  if (n > 0) {
+    // wywołujemy funkcję rekurencyjnie tak, że elementy będziemy przenosić z A na B
+    hanoi(n - 1, A, C, B);
+    // ściągamy ostatni element z A i ustawiamy go na końcu C
+    C.push(A.pop());
+    // ponownie wywołujemy rekurencyjnie, ale z przenoszeniem z B na C
+    hanoi(n - 1, B, A, C);
+  }
+}
+```
+
+Wykonujemy tutaj dokładnie ten sam schemat, który zauważyliśmy przy omawianiu sekwencji ruchów. Najpierw wykonujemy ruchy dla problemu mniejszego, gdzie przenosimy elementy ze słupka A na słupek B. Następnie wykonujemy ruch przenoszący największy krążek na docelowy słupek C. Po tym ponownie rozwiązujemy problem mniejszy, tym razem przenosząc ze słupka B na C.
+
+Poniżej możesz przetestować ten algorytm w praktyce. Na górze wybierz, ile krążków ma być do ułożenia (między 1 a 10), i kliknij Start. Potem pod rysunkiem słupków możesz kontrolować algorytm — wykonywać go krok po kroku, obejrzeć całą sekwencję albo przewinąć na sam koniec. Na dole znajduje się konsola, w której odnotowywane są operacje wykonywane przez algorytm.
+
+<Iframe src="/iframe-content/hanoi-tower/index.html?algorithm=recursive" minHeight={800} />
+
+Jeśli jesteś ciekaw(a) kodu źródłowego prezentacji, znajdziesz go na moim [GitHubie](https://github.com/swistak-codes/towers-of-hanoi/tree/main/visualizer). Całość została napisana w TypeScript z wykorzystaniem frameworka Svelte.
+
+## Iteracyjny sposób rozwiązania
+
+Oczywiście istnieją też prostsze, iteracyjne sposoby rozwiązywania wież Hanoi. Nie mają one mocy edukacyjnej w kontekście algorytmów, ale zdecydowanie łatwiej jest je zapamiętać, jeśli chcielibyśmy rozwiązywać taką zagadkę samodzielnie. Zresztą jak zobaczysz, w praktyce wykonujemy takie same ruchy jak w wersji rekurencyjnej, tylko inaczej podchodzimy do ich znalezienia.
+
+### Podejście do problemu
+
+Jak się okazuje, do rozwiązania wież Hanoi można podejść bardzo schematycznie, co zaraz pokażę. W rozwiązaniu dalej będę posługiwał się nazywaniem słupków A, B i C, przy czym, krążki będę numerować od 1, gdzie 1 to najmniejszy z krążków.
+
+To, co musimy zapamiętać, to że najmniejszym krążkiem (1) będziemy ruszać w pierwszym ruchu (zresztą nie mamy innego wyjścia), a potem w co drugim ruchu. Innymi słowy, każdy nieparzysty ruch to ruch najmniejszego krążka. Ruchy pomiędzy to ruchy najmniejszego z dostępnych krążków, który nie jest krążkiem nr 1. Poniżej możesz zobaczyć ten schemat rozwiązywania dla czterech dysków, co rozwiążemy opisanym powyżej sposobem optymalnie, w 15 ruchach:
+
+<Image
+  image={iteracyjne}
+  alignCenter
+  fullSize
+  alt="Schemat rozwiązania wieży Hanoi z 4 krążkami"
+  caption={<>
+    Schemat ruchów dla 4-krążkowej wieży Hanoi. Na żółto jest zaznaczony krążek, który zostanie przeniesiony w następnym ruchu, a na zielono ostatnio przeniesiony.
+  </>}
+/>
+
+### Algorytm Olive'a
+
+Patrząc na powyższy rysunek, można zauważyć, że pojawia nam się pewna powtarzalność ruchów. Mianowicie, krążek 1 porusza się w sposób cykliczny. Kiedy mamy nieparzystą liczbę krążków (tego przypadku akurat na rysunku nie ma, ale możesz sprawdzić samodzielnie), przenosimy go w kolejności: ze źródłowego słupka, przez docelowy słupek na pomocniczy. Natomiast gdy liczba krążków jest parzysta (jak na rysunku), przenosimy ze słupka źródłowego, przez pomocniczy na docelowy. Jeśli zamiast nazywać słupki A, B, C jak do tej pory, oznaczymy je liczbami 0, 1 i 2, a do tego źródłowy oznaczymy $$i$$, docelowy $$j$$, to będziemy mogli wyznaczać kierunek ruchu następująco:
+
+- dla nieparzystej liczby krążków wykonujemy ruch z $$i$$ na $$j$$ (najczęściej z 0 na 2);
+- dla parzystej liczby krążków wykonujemy ruch z $$i$$ na $$3-i-j$$ (najczęściej z 0 na 1).
+
+Tę cykliczność zauważył siostrzeniec Lucasa, Raul Maurice Olive, i to od jego nazwiska został nazwany ten algorytm układania. Jest to prawdopodobnie najstarsza opisana metoda rozwiązania tej zagadki.
+
+### Algorytm Idle Peg
+
+Uproszczeniem algorytmu Olive'a jest algorytm Idle Peg (z ang. nieczynny słupek). Idea tego podejścia jest taka, że jeden słupek traktujemy jako nietykalny i ruch wykonujemy tylko między pozostałymi dwoma, dając nam tak naprawdę tylko jeden możliwy ruch do wykonania. Po wykonaniu ruchu bądź gdy nie da się żadnego wykonać, zmieniamy nieaktywny słupek.
+
+Na początku jako nieczynny traktujemy słupek startowy, z którego przenosimy wszystkie krążki, więc kolejnym krokiem będzie zmiana słupka. Kolejnym nieczynnym słupkiem staje się słupek:
+
+- dwa w lewo, jeśli liczba krążków jest nieparzysta;
+- dwa w prawo, jeśli liczba krążków jest parzysta.
+
+Jeżeli słupki oznaczamy liczbami, analogicznie jak wcześniej, to kolejny nieczynny wyznaczymy w następujący sposób:
+
+$$
+\begin{align*}
+kierunek &= (-1)^n(j-i) \\
+słupek &= (słupek + kierunek) \text{ mod } 3
+\end{align*}
+$$
+
+Pamiętaj, żeby się upewnić, jak Twój język programowania oblicza resztę z dzielenia dla liczb ujemnych. Pokazany tutaj wzór zakłada, że wynik będzie dodatni (definicja euklidejska). Więcej informacji na ten temat znajdziesz w moim artykule <Link href="/post/dziwny-przypadek-reszty-z-dzielenia" target="_blank">„Dziwny przypadek reszty z dzielenia”</Link>.
+
+Sam algorytm można opisać następująco:
+
+- Potraktuj słupek startowy jako nieczynny i oblicz kierunek zmiany słupka
+- Dopóki na słupku końcowym nie ma wszystkich krążków:
+  - Oblicz, który słupek jest nowym nieczynnym
+  - Wykonaj dozwolony ruch pomiędzy słupkami innymi niż nieczynny
+
+Poniżej możesz przetestować ten algorytm w praktyce. Prezentacja działa tak samo, jak wcześniejsza:
+
+<Iframe src="/iframe-content/hanoi-tower/index.html?algorithm=iterative" minHeight={800} />
+
+## Matematyka wież Hanoi
+
+Algorytmy rozwiązywania zagadki wież Hanoi to zdecydowanie najpopularniejszy temat z nimi związany. Jednak poruszmy trochę rzadziej omawiane, aczkolwiek też warte uwagi, matematyczne tematy. Pamiętajmy tylko, że obliczenia te są prawdziwe jedynie wtedy, kiedy podążamy za idealnym rozwiązaniem, czyli takim, jakie wskazały nam powyższe algorytmy.
+
+Zanim jednak przejdziemy do wzorów, ustalmy wspólny język symboli:
+
+- Utrzymujmy dalej założenie, że zamiast słupków A, B i C mamy słupki 0, 1 i 2.
+- $$i$$ — słupek startowy; $$j$$ — końcowy.
+- $$d$$ — aktualnie rozpatrywany krążek.
+- $$n$$ — liczba wszystkich krążków w grze.
+- $$l$$ — numer aktualnego ruchu.
+
+### Obliczenie ruchu krążka
+
+Jak wynika z analizy algorytmu rekurencyjnego, pozycja krążka podczas ruchu zmienia się o:
+
+$$
+\Big( (j-i)\cdot \big( (n-d) \text{ mod } 2 + 1  \big) \Big) \text{ mod } 3
+$$
+
+Tak wyliczoną wartość dodajemy do aktualnej pozycji krążka (z modulo 3).
+
+Przykładowo, pamiętamy z przykładu algorytmu iteracyjnego (4 krążki w grze), że krążek nr 4 przesunęliśmy tylko raz, ze słupka A (0) na słupek C (2). Sprawdźmy, czy wyjdzie nam to samo ze wzoru:
+
+$$
+\Big( (2-0)\cdot \big( (4-4) \text{ mod } 2 + 1  \big) \Big) \text{ mod } 3 = ( 2\cdot1) \text{ mod } 3 = 2
+$$
+
+Inny przykład. W tej samej grze przesunęliśmy w jednym z ruchów krążek nr 1 ze słupka C (2) na słupek A (0). Obliczmy więc teraz ten przypadek, żeby przekonać się, że to działa:
+
+$$
+\begin{align*}
+\Bigg(2 &+  \Big( (2-0)\cdot \big( (4-1) \text{ mod } 2 + 1  \big) \Big) \text{ mod } 3 \Bigg) \text{ mod } 3 \\
+&= \Bigg(2 +  \Big( 2\cdot \big( 3 \text{ mod } 2 + 1  \big) \Big) \text{ mod } 3 \Bigg) \text{ mod } 3 \\
+&= \Bigg(2 +  \Big( 2\cdot \big( 1 + 1  \big) \Big) \text{ mod } 3 \Bigg) \text{ mod } 3 \\
+&= \Bigg(2 +   4 \text{ mod } 3 \Bigg) \text{ mod } 3 = 3 \text{ mod } 3  = 0
+\end{align*}
+$$
+
+### Który krążek przesuniemy w danym ruchu
+
+Jak pamiętamy z algorytmu iteracyjnego, w każdym nieparzystym ruchu ruszamy krążkiem nr 1. W parzystych ruchach zawsze przesuwaliśmy najmniejszy dostępny, który nie był jedynką. Na przedstawionym przeze mnie wówczas rysunku, gdzie mieliśmy cztery krążki, były to kolejno: 2, 3, 2, 4, 2, 3, 2. Zgadza się to też z teorią algorytmu rekurencyjnego, według którego najpierw wykonujemy ruchy dla problemu n-1, przesuwamy największy element i znowu wykonujemy zestaw ruchów dla n-1. Jak się okazuje, możemy to zapisać prostym wzorem:
+
+$$
+d_l = \begin{cases}
+1 && \text{dla l nieparzystego} \\
+1 + d_{l / 2} && \text{dla l parzystego}
+\end{cases}
+$$
+
+Zobaczmy wartości dla kilku kolejnych parzystych liczb, żeby zobaczyć, że wszystko się zgadza. Pamiętamy, że każda nieparzysta wynosi 1.
+
+$$
+\begin{align*}
+d_2 &= 1 + d_1 = 1 + 1 = 2 \\
+d_4 &= 1 + d_2 = 1 + 2 = 3 \\
+d_6 &= 1 + d_3 = 1 + 1 = 2 \\
+d_8 &= 1 + d_4 = 1 + 3 = 4 \\
+d_{10} &= 1 + d_5 = 1 + 1 = 2 \\
+d_{12} &= 1 + d_6 = 1 + 2 = 3 \\
+d_{14} &= 1 + d_7 = 1 + 1 = 2
+\end{align*}
+$$
+
+Jak widzimy, wszystko pokrywa się z ruchami, które widzieliśmy na schemacie algorytmu iteracyjnego. Jeśli chcesz zobaczyć dalsze elementy, ciąg ten znajdziesz w [encyklopedii ciągów OEIS](https://oeis.org/) pod numerem [A001511](https://oeis.org/A001511).
+
+### W których ruchach przesuniemy krążek
+
+Kolejnym przydatnym wzorem, jaki został wyprowadzony na podstawie obserwacji optymalnych ruchów krążków w zagadce wież Hanoi, jest wzór na określenie, w których ruchach przesuniemy wybrany krążek. Jest to trochę obrócenie sytuacji opisanej powyżej. Wzór wygląda następująco:
+
+$$
+\begin{align*}
+l &= (2k+1)\cdot2^{d-1} \\
+&\text{gdzie: } \\
+0 &\leqslant k < 2^{n-d}
+\end{align*}
+$$
+
+$$k$$ w powyższym wzorze to numer ruchu wybranego krążka. Tym razem ruchy wyjątkowo numerujemy od zera. Sprawdźmy ten wzór dla krążka nr 1, gdyż wiemy, że zawsze będzie poruszany w nieparzystych ruchach:
+
+$$
+\begin{align*}
+l_0 &= (2 \cdot 0 + 1) \cdot 2^{1-1} = 1 \cdot 1 = 1 \\
+l_1 &= (2 \cdot 1 + 1) \cdot 2^{1-1} = 3 \cdot 1 = 3 \\
+l_2 &= (2 \cdot 2 + 1) \cdot 2^{1-1} = 5 \cdot 1 = 5
+\end{align*}
+$$
+
+Jeszcze dla porównania zobaczmy krążek nr 4. Pamiętamy, że w grze z czterema krążkami ruszył się tylko raz w 8 ruchu:
+
+$$
+l_0 = (2 \cdot 0 + 1) \cdot 2^{4-1} = 1 \cdot 8 = 8
+$$
+
+### Pierwszy i ostatni ruch krążka
+
+Z poprzedniego wzoru możemy wysunąć dalsze wzory dla szczególnych przypadków. Okazuje się, że krążek zostanie po raz pierwszy przesunięty w ruchu $$2^{d-1}$$ ($$k = 0$$), a ostatni raz w $$2^n - 2^{d-1}$$ ($$k = 2^{n-d} - 1$$). Zobaczmy to na dwóch przypadkach, które mogliśmy również zaobserwować w schemacie algorytmu iteracyjnego.
+
+Sprawdźmy najpierw, kiedy będziemy ruszać krążkiem nr 4 w grze z czterema krążkami:
+
+- Pierwszy ruch: $$2^{4 - 1} = 2^{3} = 8$$
+- Ostatni ruch: $$2^4 - 2^{4 - 1} = 2^4 - 2^3 = 16 - 8 = 8$$
+
+Czyli wszystko się zgadza, ponieważ krążkiem nr 4 ruszyliśmy tylko raz w ósmym ruchu. Jak natomiast będzie z krążkiem nr 2?
+
+- Pierwszy ruch: $$2^{2 - 1} = 2^{1} = 2$$
+- Ostatni ruch: $$2^4 - 2^{2 - 1} = 2^4 - 2^1 = 16 - 2 = 14$$
+
+To również się zgadza, ponieważ jak mogliśmy zaobserwować, drugi krążek był przesuwany jako drugi z kolei, a także jako przedostatni.
+
+### Określenie nieczynnego słupka w dowolnym momencie
+
+Tym razem wróćmy do algorytmu Idle Peg, gdzie opisywaliśmy słupek, który nie uczestniczył w danym ruchu. W algorytmie określaliśmy to prostym dodawaniem, ale co w sytuacji, gdy chcemy podejrzeć sytuację w dowolnym ruchu, nie powtarzając wielokrotnie dodawania?
+
+Okazuje się, że możemy to określić bardzo prostym wzorem:
+
+$$
+słupek = \Big( \big(2 - (n \text{ mod } 2)\big) \cdot l\Big) \text{ mod } 3
+$$
+
+Polecam przetestować wzór, posiłkując się pokazaną wcześniej prezentacją.
+
+### Określenie położenia krążka w dowolnym momencie
+
+Ostatni ze wzorów, jakie chciałem pokazać, to sposób na obliczenie, na którym słupku znajduje się dowolny z krążków w dowolnym momencie. Jest to w dużej mierze połączenie poznanych przez nas do tej pory wzorów w jeden duży, w zasadzie najbardziej przydatny ze wszystkich.
+
+Przydadzą nam się do tego, dokładniej mówiąc, dwa wzory: wzór na obliczenie, w którym ruchu przesuniemy krążek, oraz wzór na przesuwanie krążka w danym ruchu. Przypomnijmy je sobie:
+
+$$
+\begin{align}
+l &= (2k+1)\cdot2^{d-1} \\
+\Big( (j-i)&\cdot \big( (n-d) \text{ mod } 2 + 1  \big) \Big) \text{ mod } 3
+\end{align}
+$$
+
+W przypadku pierwszego ze wzorów przyda nam się przekształcenie pierwszego ze wzorów tak, aby mieć wzór na $$k$$, czyli który aktualnie ruch danego krążka wykonujemy:
+
+$$
+\begin{align*}
+l &= (2k+1)\cdot2^{d-1} \\
+2k+1 &= \frac{l}{2^{d-1}} \\
+2k &= \frac{l}{2^{d-1}} - 1\\
+k &= \frac{l}{2^d} - \frac{1}{2}
+\end{align*}
+$$
+
+Teraz połączmy te dwa wzory. Dzięki wzorowi na $$k$$ wiemy, ile razy do tej pory krążek był już przesunięty, więc wystarczy pomnożyć wzór na ruch przez $$k+1$$. Dodatkowo do tego wszystkiego musimy dodać pozycję początkowego słupka. Podsumowując, wychodzi nam następujący wzór:
+
+$$
+s_d = \left( \left\lfloor \frac{l}{2^d} + \frac{1}{2} \right\rfloor (j-i)\cdot \big( (n-d) \text{ mod } 2 + 1  \big) + i \right) \text{ mod } 3
+$$
+
+Poniżej możesz sprawdzić ten wzór w praktyce dla różnych wartości parametrów:
+
+<Iframe src="/iframe-content/hanoi-tower-calculator/index.html" minHeight={500} />
+
+Tę prezentację również napisałem w TypeScript z użyciem Svelte i znajdziesz ją na moim [GitHubie](https://github.com/swistak-codes/towers-of-hanoi/tree/main/calculate).
+
+## Inne odmiany wież Hanoi
+
+Do tej pory omawialiśmy najbardziej klasyczną wersję zagadki wieży Hanoi — 3 słupki, jeden kolor krążków, bardzo proste zasady i ograniczenia. Mamy jednak wiele innych, ciekawych odmian, które pokrótce tutaj opiszę.
+
+### Więcej słupków
+
+Pierwszą kategorią odmian są wieże Hanoi z więcej niż trzema słupkami. Możemy wyróżnić w szczególności zagadkę Reve'go. Ta odmiana od tradycyjnej gry różni się tylko liczbą słupków. Są ich cztery, dzięki czemu zagadki można rozwiązać w mniejszej liczbie ruchów.
+
+<Image
+  image={reve}
+  alignCenter
+  fullSize
+  alt="Schemat rozwiązania 4-krążkowej zagadki Revy'ego"
+  caption={<>
+    Jedno z dwóch dostępnych, optymalnych rozwiązań zagadki dla 4 krążków. Jak widzimy, sekwencja ruchów jest zupełnie inna niż dla 3 słupków, a także wykonujemy ich mniej (10 zamiast 15).
+  </>}
+/>
+
+### Różne kolory krążków
+
+Popularne są też odmiany z różnymi kolorami krążków. Wartą wyróżnienia jest Tower of Antwerpen (z ang. Wieża Antwerpii). Mamy tutaj do czynienia z trzema słupkami, gdzie każdy z nich jest zajęty krążkami: żółtymi, czerwonymi i czarnymi. Naszym celem jest tak przemieścić krążki, aby na każdym słupku znalazły się jedynie krążki jednego koloru, innymi niż oryginalnie. Dochodzi nam dodatkowa zasada, że przekładając krążki, nie musimy ich układać jedynie na większych, ale także na tych o tej samej wielkości.
+
+<Image
+  image={antwerpen}
+  alignCenter
+  fullSize
+  alt="Zagadka Tower of Antwerpen"
+  caption={<>
+    Stan początkowy i jeden ze stanów końcowych w Tower of Antwerpen.
+  </>}
+/>
+
+Jako ciekawostkę dodam, że w przypadku tej zagadki nie istnieje jedno optymalne rozwiązanie, tylko trzy. Do tego optymalną liczbę ruchów możemy obliczyć wzorem:
+
+$$
+3\cdot2^{n+2} - 8n - 10
+$$
+
+Inną prostszą, wielokolorową odmianą jest Little Tower of Antwerpen (z ang. Mała Wieża Antwerpii). Ponownie mamy trzy słupki, jednak już tylko dwa kolory krążków — złoty i srebrny. Do tego na starcie nie mamy sytuacji, gdzie na jednym słupku znajdują się same złote, a na drugim same srebrne.  Krążki na słupkach są ułożone naprzemiennie.
+
+<Image
+  image={little}
+  alignCenter
+  fullSize
+  alt="Zagadka Little Tower of Antwerpen"
+  caption={<>
+    Stan początkowy i możliwe dwa rozwiązania w Little Tower of Antwerpen.
+  </>}
+/>
+
+### Tower of London
+
+Ostatnią odmianą wież Hanoi, o jakiej chciałem opowiedzieć, jest Tower of London (z ang. Londyńska Tower / Wieża Londyńska). Wymyślił ją w 1982 r. brytyjski psycholog Tim Shallice. Możemy tu już zobaczyć pewną różnicę, gdyż do tej pory wszystko, co omawialiśmy, wychodziło spod ręki matematyków bądź informatyków.
+
+Tower of London zostało przygotowane z myślą o byciu testem psychologicznym. Jest z jednej strony uproszczeniem wież Hanoi, jednak zmieniającym nieco zasady. Mianowicie tutaj mamy trzy słupki różnej długości i trzy piłeczki (zamiast krążków). Słupki mogą mieścić kolejno: 1, 2 lub 3 piłeczki. Zagadka wygląda tak, że mamy przedstawione dwa stany: początkowy i końcowy, i musimy dojść do tego końcowego stanu w najmniejszej liczbie ruchów.
+
+<Image
+  image={london}
+  alignCenter
+  fullSize
+  alt="Zagadka Tower of London"
+  caption={<>
+    Przykładowe stan początkowy i końcowy w Tower of London.
+  </>}
+/>
+
+Zagadka jest jednak dosyć prosta, dlatego Tower of London doczekał się własnych odmian. Na przykład, J. R. Tunstall zaproponował wersję, gdzie przy trzech słupkach mamy cztery piłeczki, a dodatkowo każdy ze słupków został wydłużony względem oryginalnej wersji, tak aby mieściły kolejno: 2, 3 i 4 piłeczki. Reszta zasad jest taka sama. Spotkać możemy także inne odmiany, jednak dwie pokazane tutaj przeze mnie są zdecydowanie najbardziej znane.
+
+<Image
+  image={tunstall}
+  alignCenter
+  fullSize
+  alt="Zagadka Tower of London w odmianie Tunstalla"
+  caption={<>
+    Przykładowe stany gry w Tower of London w odmianie Tunstalla.
+  </>}
+/>
+
+## Zastosowania
+
+Skoro tyle opowiedzieliśmy sobie o wieżach Hanoi, na pewno jesteś ciekaw(a), jakie to ma w ogóle zastosowania. Oczywiście sama gra jest bardzo przyjemną zagadką logiczną, idealną dla dzieci. Opisany przeze mnie na koniec Tower of London ma znowu zastosowanie jako część różnych zestawów testów neuropsychologicznych. Jednak czy są zastosowania w informatyce?
+
+Okazuje się, że jest jedno, bardzo ciekawe. Sekwencję ruchów w optymalnym rozwiązaniu wież Hanoi możemy wykorzystać do generowania kodu Graya. Kod Graya to system binarnego zapisu liczb, gdzie każda kolejna liczba różni się od poprzedniej tylko jednym bitem. Wspomniałem o nim krótko w artykule <Link href="/post/sposoby-zapisywania-liczb-przez-komputery">„Sposoby zapisywania liczb przez komputery”</Link>.
+
+$$
+\begin{align*}
+0_{10} &= 0000_{Gray}\\
+d_1 = 1 \implies 1_{10} &= 0001_{Gray} \\
+d_2 = 2 \implies 2_{10} &= 0011_{Gray} \\
+d_3 = 1 \implies 3_{10} &= 0010_{Gray} \\
+d_4 = 3 \implies 4_{10} &= 0110_{Gray} \\
+d_5 = 1 \implies 5_{10} &= 0111_{Gray} \\
+d_6 = 2 \implies 6_{10} &= 0101_{Gray} \\
+d_7 = 1 \implies 7_{10} &= 0100_{Gray} \\
+d_8 = 4 \implies 8_{10} &= 1100_{Gray} \\
+\end{align*}
+$$
+
+W przypadku kodu Graya istnieją znacznie popularniejsze sposoby obliczania go, jednak ten z matematycznego punktu widzenia jest zdecydowanie najprostszy.
+
+## Słowo na koniec
+
+Jeśli temat Cię zaciekawił, to gorąco zachęcam do zapoznania się z książką [The Tower of Hanoi: myths and maths](https://doi.org/10.1007%2F978-3-319-73779-9), która jest prawdopodobnie najbardziej rozbudowaną, naukową monografią w tej tematyce, i ten artykuł jest w znacznej mierze oparty właśnie na niej. Dowiesz się z niej wszystkiego, co trzeba, nie tylko o podstawowej wersji wież Hanoi, ale także o jej wielu różnych odmianach. Bardzo wiele zawartych tam rzeczy jest nie do znalezienia poza publikacjami naukowymi, a sama książka jest napisana dość lekko jak na pozycję tego typu.
+
+## Literatura
+
+- Spitznagel E., „The Tower of Brahma” w *Selected topics in mathematics*. New York, USA: Holt, Rinehart and Winston, 1971, s. 137-142
+- Hinz A., Klavžar S. & Petr C. *The Tower of Hanoi: myths and maths*. Cham, Switzerland: Birkhäuser, 2018 [doi:10.1007/978-3-319-73779-9](https://doi.org/10.1007%2F978-3-319-73779-9)
+
+<small>(zdjęcie na okładce własnego autorstwa)</small>

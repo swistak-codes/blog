@@ -1,0 +1,35 @@
+.xAxis {
+  font-size: 12px;
+}
+
+.tick {
+  stroke: gray;
+  stroke-width: 1px;
+  stroke-dasharray: 2,2;
+}
+
+.vLine {
+  stroke: gray;
+  stroke-width: 1px;
+  stroke-dasharray: 2,2;
+  stroke-opacity: 0.5;
+}
+
+.circle {
+  fill-opacity: 0.8;
+}
+
+.label {
+  font-size: 12px;
+  fill: var(--sc--text)
+}
+
+.container {
+  margin-left: 10px;
+  margin-right: 10px;
+  width: calc(100% - 20px);
+
+  * {
+    transition: none;
+  }
+}

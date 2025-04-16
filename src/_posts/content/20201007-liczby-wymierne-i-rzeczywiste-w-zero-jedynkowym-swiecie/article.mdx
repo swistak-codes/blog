@@ -1,0 +1,110 @@
+import Link from 'next/link';
+import {Image} from '@swistak-codes/components';
+import cover from './rozgwiazdy.jpg';
+
+export const meta = {
+  title: 'Liczby wymierne i rzeczywiste w zero-jedynkowym świecie',
+  abstract:
+    'Artykuł omawia jak komputery przechowują liczby wymierne i rzeczywiste, zarówno jako liczby stałoprzecinkowych oraz zmiennoprzecinkowe.',
+  firstParagraph: (
+    <>
+      Poprzednio omawialiśmy <Link href="/post/matematyka-zero-jedynkowa">system binarny</Link> oraz jak z jego
+      wykorzystaniem <Link href="/post/sposoby-zapisywania-liczb-przez-komputery">komputery przechowują liczby naturalne i
+      całkowite</Link>. Czas poszerzyć horyzonty. Przejdźmy do rzeczy mniej oczywistej, czyli do liczb wymiernych i
+      rzeczywistych. W końcu co to za maszyna licząca, jeśli nie obsługuje ułamków, a przy dzieleniu zawsze zaokrągla
+      lub zwraca resztę. Tutaj mamy dwa zupełnie różne podejścia do trzymania liczb — liczby stałoprzecinkowe oraz
+      liczby zmiennoprzecinkowe.
+    </>
+  ),
+  keyword: 'liczby wymierne',
+  categories: ['Teoria informatyki'],
+  tags: [
+    'liczby wymierne',
+    'liczby rzeczywiste',
+    'liczby stałoprzecinkowe',
+    'liczby zmiennoprzecinkowe',
+    'IEEE-754',
+    'kod Qm.n',
+    'bcd',
+    'postać wykładnicza',
+    'mantysa',
+    'float',
+    'double'
+  ],
+  slug: 'liczby-wymierne-i-rzeczywiste-w-zero-jedynkowym-swiecie',
+  updateTime: '2020-10-07T21:37:28+00:00',
+  publishTime: '2020-10-07T09:00:04+00:00',
+  cover,
+};
+
+## Liczby stałoprzecinkowe
+
+Zacznijmy od liczb stałoprzecinkowych ze względu na to, że są dużo prostsze. Jak sama nazwa wskazuje, w tym przypadku mamy z góry narzuconą liczbę miejsc po przecinku. W arytmetyce stałoprzecinkowej najczęściej spotykany jest kod stałopozycyjny, znany też jako kod *Qm.n*. Jest to rozszerzenie kodu U2 polegające na tym, że część cyfr traktujemy jako część znajdującą się po przecinku. W nazwie m i n oznaczają kolejno ilość miejsc przed przecinkiem (nie licząc bitu znaku) i liczbę miejsc po przecinku. Jako że często najłatwiej jest zrozumieć coś na przykładzie, rozpatrzmy sobie dość niestandardowy przypadek, czyli 5-bitową liczbę 11010. Potraktujmy ją sobie, podstawiając kolejne liczby pod *m* i *n*.
+
+- 11010 – kod Q4.0, czyli tradycyjne U2: $$1 \cdot 2^4 \cdot (-1) + 1 \cdot 2^3 + 0 \cdot 2^2 + 1 \cdot 2^1 + 0 \cdot 2^0 = -16 + 8 + 2 = -6$$
+- 1101.0 – kod Q3.1: $$1 \cdot 2^3 \cdot (-1) + 1 \cdot 2^2 + 0 \cdot 2^1 + 1 \cdot 2^0 + 0 \cdot 2^{-1} = -8 + 4 + 1 = -3$$
+- 110.10 – kod Q2.2: $$1 \cdot 2^2 \cdot (-1) + 1 \cdot 2^1 + 0 \cdot 2^0 + 1 \cdot 2^{-1} + 0 \cdot 2^{-2} = -4 + 2 + 0,5 = -1,5$$
+- 11.010 – kod Q1.3: $$1 \cdot 2^1 \cdot (-1) + 1 \cdot 2^0 + 0 \cdot 2^{-1} + 1 \cdot 2^{-2} + 0 \cdot 2^{-3} = -2 + 1 + 0,25 = -0,75$$
+- 1.1010 – kod Q0.4 (w skrócie Q4): $$1 \cdot 2^0 \cdot (-1) + 1 \cdot 2^{-1} + 0 \cdot 2^{-2} + 1 \cdot 2^{-3} + 0 \cdot 2^{-4} = -1 + 0,5 + 0,125 = -0,375$$
+
+Jak widzicie, zasada jest analogiczna, z tą tylko różnicą, że odliczanie wykładników potęg zaczynamy od liczby m, a potem schodzimy w dół przez ujemne potęgi, aż do wykładnika -n. Jeżeli chcielibyśmy wyliczyć zakres takiego zapisu liczby, to wynosi on od $$-(2^{m-1})$$ do $$2^{m-1} - 2^{-n}$$. Dodatkowo mówimy tu także o dokładności reprezentacji, która wynosi $$2^{-n}$$. Dla powyższych przykładów wynoszą one:
+
+- Q4.0: od $$-(2^3) = -8$$ do $$2^3 - 2^0 = 7$$, dokładność $$2^0 = 1$$
+- Q3.1: od $$-(2^2) = -4$$ do $$2^2 - 2^{-1} = 3,5$$, dokładność $$2^{-1} = 0,5$$
+- Q2.2: od $$-(2^1) = -2$$ do $$2^1 - 2^{-2} = 1,75$$, dokładność $$2^{-2} = 0,25$$
+- Q1.3: od $$-(2^0) = -1$$ do $$2^0 - 2^{-3} = 0,875$$, dokładność $$2^{-3} = 0,125$$
+- Q4: od $$-(2^{-1}) = -0,5$$ do $$2^{-1} - 2^{-4} = 0,4375$$, dokładność $$2^{-4} = 0,0625$$
+
+Jak widzimy, zdecydowaną wadą tego formatu zapisu jest niska precyzja po przeliczeniu do zapisu dziesiętnego. Warto też zauważyć, że jest niewspierany przez procesory komputerów. Oznacza to, że programiści muszą ręcznie zaprogramować obliczenia na nich, traktując je jak zwykłe liczby binarne. Mimo to znalazł kilka zastosowań. Tradycyjnie wykorzystywano go do obliczeń liczb rzeczywistych na procesorach niewspierających formatu zmiennoprzecinkowego lub na takich, które te obliczenia wykonywały powoli. Przykładowo, gra Doom (wydana w 1993 roku) używała kod Q16.16, aby działać bez problemu na popularnych wówczas procesorach 386 i 486SX, które nie wspierały szybkich obliczeń liczb rzeczywistych. Jednak tam, gdzie potrzebna nam jest wysoka precyzja (finanse), zwykle używa się wariantów kodu BCD, gdzie ustalamy, ile czwórek będzie stanowiło część dziesiętną. Wygląda to analogicznie do zwykłego kodu BCD omawianego w poprzednim artykule z tej serii, dlatego pominę przykład.
+
+## Liczby zmiennoprzecinkowe
+
+Zdecydowanie popularniejsze, wspierane przez procesory, ale zarazem mniej „naturalne” z ludzkiego punktu widzenia, są liczby zmiennoprzecinkowe. Zanim przejdziemy do tego, w jaki sposób komputery zapisują takie liczby, rozpatrzmy na razie teorię z punktu widzenia systemu dziesiętnego, bo w nim także możemy taki zapis stosować. Nazywamy go wtedy postacią wykładniczą lub notacją naukową. Przygotujcie się teraz na jazdę bez trzymanki i sporo matematyki.
+
+### Postać wykładnicza
+
+Na liczbę zmiennoprzecinkową składają się trzy elementy: znak, mantysa i cecha. Znak (oznaczany jako S) to oczywiście nasze + i -, więc matematycznie 1 lub -1. Mantysa (oznaczana jako M) to liczba ułamkowa, której wartość może wynosić od 1 do 10 (nie włącznie). 10 znajduje się tutaj dlatego, że operujemy na systemie dziesiętnym. W przypadku innych oczywiście dalibyśmy tutaj ich podstawę (oznaczamy ją jako B). Ostatnim elementem jest wykładnik (oznaczany jako E). Jest nim liczba całkowita, do której musimy podnieść podstawę systemu liczbowego w celu obliczenia liczby. Aby obliczyć wartość liczby zmiennoprzecinkowej, stosujemy wzór:
+
+$$
+x = S \cdot M \cdot B^E
+$$
+
+Jednocześnie stosujemy ograniczenia. Załóżmy, że na mantysę przeznaczymy m cyfr, natomiast n+1 cyfr na wykładnik (dodajemy 1, ponieważ wykładnik może być dodatni bądź ujemny). Od razu rozpatrzmy przykład dla systemu dziesiętnego, gdzie na wykładnik przeznaczamy 2 cyfry (n=1) a na mantysę 6 (m=6). Wtedy:
+
+- Wykładnik musi mieścić się w przedziale od $$-B^n$$ do $$B^n - 1$$. Dla naszego przykładu: od -9 do 9.
+- Mantysa zaś od 1 do $$B - B^{-(m-1)}$$. Czyli w przykładzie: od 1 do 9,99999.
+
+Patrząc na nasz wzór, możemy się domyśleć, że aby obliczyć najmniejszą dostępną liczbę dodatnią, należy podstawić pod wzór najmniejszą mantysę i najmniejszy wykładnik, i analogicznie — aby największą, wstawiamy górne limity. Czyli w przykładzie będą to $$1 \cdot 10^{-9} = 0,000000001$$ i $$9,99999 \cdot 10^9 = 9999990000$$. Dla ujemnych liczb będą to te same wartości tylko z przeciwnym znakiem. Oczywiście zawsze musi być łyżka dziegciu w beczce miodu — w zapisie tym niestety nie jesteśmy w stanie zapisać 0.
+
+To teraz zajmijmy się przykładem jak przeliczyć liczbę na zapis zmiennoprzecinkowy. Dalej trzymamy się przykładu, gdzie wykładnik to 2 cyfry a mantysa 6, w systemie dziesiętnym. Przekształćmy sobie do naszego zapisu liczbę 3141,592653:
+
+1. Na początek zakładamy, że mantysa to nasza początkowa liczba a wykładnik to 0. Czyli: $$M = 3141,592653$$, $$E = 0$$. Oczywiście mantysa musi mieścić się w przedziale od 0 do 10, tak więc nie możemy w tym momencie zakończyć obliczeń.
+2. Musimy teraz doprowadzić mantysę do tego przedziału. Operację taką nazywamy normalizacją. Robimy to poprzez… przesunięcie przecinka w lewo (czyli dzielenie przez wielokrotności 10 – podstawy naszego systemu liczbowego). Przesuwając przecinek w lewo, zwiększamy wykładnik o 1 co każde miejsce. Analogicznie, przesuwając w prawo, zmniejszamy o 1. W naszym przypadku przesuwamy o trzy miejsca, czyli otrzymujemy: $$M = 3,141592653$$, $$E = 3$$.
+3. Nasza liczba to $$3,141592653 \cdot 10^3$$. Jednak to nie jest koniec, ponieważ nasza mantysa może mieć jedynie 6 cyfr a wykładnik 2. W przypadku wykładnika nie ma problemu, ale mantysa w przykładzie ma 10 cyfr. W takim razie zaokrąglamy. Nasza liczba to od teraz $$3,141592 \cdot 10^3$$.
+
+### Standard IEEE-754
+
+Wiemy już, jak to wygląda w systemie dziesiętnym, ale co oczywiste, komputer trzyma to wszystko binarnie. Tylko jak? Jest tutaj stosowany standard IEEE-754. Definiuje on, w jaki sposób zapisujemy liczby, jakie operacje na nich wykonujemy, a także szczegóły typu jak zaokrąglać liczby. Przyjęło się wyróżniać dwa podstawowe formaty tego kodowania – pojedynczy (32-bitowy, w programowaniu spotykany pod nazwą *float*) i podwójny (64-bitowy, spotykany jako *double*). W przypadku pojedynczego wykładnik ma 8 bitów, natomiast mantysa 23. W podwójnym wykładnik ma 11 bitów a mantysa 52. Znak zawsze zajmuje 1 bit. Tutaj jeszcze warto wspomnieć, że wykładnik jest zapisany kodem z przesunięciem (<Link href="/post/sposoby-zapisywania-liczb-przez-komputery">o czym była mowa wcześniej</Link>) i wynosi ono tutaj 127 w formacie pojedynczym oraz 1023 w 64-bitowym. Mantysa natomiast jest zapisana w formacie stałoprzecinkowym Q23 lub Q52. Oprócz tego format definiuje wartości specjalne:
+
+- NaN, czyli nie-liczba (od ang. not a number). Jest to specjalna wartość zwracana przy wykonaniu niedozwolonych operacji. W tym przypadku wszystkie bity wykładnika są jedynkami, a mantysa ma dowolną nie-zerową wartość.
+- Zero. Jak pamiętamy, zero nie istnieje w normalnym zapisie zmiennoprzecinkowym. W IEEE-754 zero jest wtedy, kiedy wszystkie bity wykładnika i mantysy są zerami. Co ciekawe, znak może być + lub -, czyli ponownie mamy sytuację znaną chociażby z kodowania U1. Tutaj jednak nie wpływa to na liczbę dostępnych liczb do zapisania.
+- Nieskończoność. Może wystąpić ona w przypadku nadmiaru, czyli kiedy liczba jest na tyle duża, że nie jesteśmy w stanie jej zapisać w naszym kodowaniu, lub przy dzieleniu przez zero. Zapisujemy ją, ustawiając wszystkie bity wykładnika na jedynki a mantysy na zera. Mamy oczywiście dostępne dwa rodzaje nieskończoności, plusową i minusową.
+
+Aby przeliczyć liczbę z zapisu IEEE-754 na system dziesiętny, stosujemy wzór, który wcześniej już zaprezentowałem:
+
+$$
+x = (-1)^S \cdot M \cdot 2^{E - b}
+$$
+
+We wzorze tym S to bit znaku (0 to liczba dodatnia, 1 to liczba ujemna – więc potęgowanie zwróci nam odpowiedni znak) a b to przesunięcie wykładnika. Zaszalejmy i spróbujmy rozwiązać sobie jakiś przykład. Weźmy pod uwagę liczbę 010001010110001000101100101111100 (dla uproszczenia pominę część obliczeń wyjaśnianych wcześniej):
+
+1. Rozbijmy sobie tę liczbę najpierw na elementy składowe: $$S = 0$$, $$E = 10001010$$, $$M = 110001000101100101111100$$.
+2. Liczymy wykładnik. Po przeliczeniu $$E = 138$$. Oczywiście musimy wziąć poprawkę na to, że jest to kodowanie z przesunięciem 127, więc $$E - b = 11$$.
+3. Najtrudniejszą częścią jest policzenie mantysy z racji, że mamy do przeliczenia dużo ujemnych potęg. Pominę tę część i podam od razu wynik: $$M = 1,533980846405029296875$$.
+4. Teraz podstawiamy wszystko pod wzór i sięgamy po kalkulatory: $$(-1)^0 \cdot 1,533980846405029296875 \cdot 2^{11} = 1,533980846405029296875 \cdot 2048 = 3141,59277344$$
+
+## Podsumowanie
+
+Jak widzimy, IEEE-754 nie jest najprostszym formatem, aczkolwiek stał się szeroko stosowanym standardem. Gdy tylko obliczamy na komputerach jakieś działania z liczbami rzeczywistymi, to możemy być pewni, że w pamięci komputera są one zapisane dokładnie w taki sposób. Również format jest wspierany obecnie przez niemal każdy procesor, co umożliwia szybkie obliczenia. W szczególności szybkie procesory do przeliczania liczb w formacie zmiennoprzecinkowym mają karty graficzne, które wykonują bardzo wiele obliczeń na nich.
+
+<small>(zdjęcie na okładce: <a href="https://commons.wikimedia.org/wiki/File:CSIRO_ScienceImage_955_Asterias_amurensis_Northern_Pacific_Seastar.jpg" target="_blank">CSIRO</a> / <a href="https://creativecommons.org/licenses/by/3.0" target="_blank">CC BY</a> z modyfikacjami)</small>

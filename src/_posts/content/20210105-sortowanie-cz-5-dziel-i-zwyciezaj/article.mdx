@@ -1,0 +1,290 @@
+import Link from 'next/link';
+import {Image, Iframe} from '@swistak-codes/components';
+import cover from './zajac.jpg';
+import quickZwyciezaj from './quicksort_zwyciezaj.png';
+import quickDziel from './quicksort_dziel.png';
+import mergeSort from './mergesort.png'
+import mergeZwyciezaj from './mergesort_zwyciezaj.png'
+import mergeScal from './mergesort_scalanie.png'
+import mergeDziel from './mergesort_dziel.png'
+
+export const meta = {
+  title: 'Sortowanie, cz. 5 — „dziel i zwyciężaj”',
+  abstract:
+    'W tym artykule przejdziemy do omawiania podejść do sortowania, które okazują się być bardzo wydajne i bazują na metodzie „dziel i zwyciężaj”.',
+  firstParagraph: (
+    <>
+      W <Link href="/post/sortowanie-cz-2-sortowanie-babelkowe">poprzednich</Link> <Link href="/post/sortowanie-cz-3-sortowanie-przez-wstawianie">częściach</Link> <Link href="/post/sortowanie-cz-4-sortowanie-przez-wybieranie">serii</Link> opisywałem, w jaki sposób tworzyć algorytmy
+      sortowania bazujące na tym, jak na co dzień sortujemy, oraz jak podejścia te można optymalizować. Jednak, jak
+      mogłeś się przekonać, nie są to najszybsze rozwiązania, dlatego teraz przejdziemy do omawiania tych mniej
+      oczywistych podejść do sortowania, które okazują się być wydajniejsze. Omówimy algorytmy, które bazują na <Link href="/post/wyszukiwanie-w-listach">metodzie „dziel i zwyciężaj”</Link>.
+    </>
+  ),
+  keyword: 'sortowanie',
+  categories: ['Sortowanie'],
+  tags: [
+    'sortowanie',
+    'quicksort',
+    'quick sort',
+    'merge sort',
+    'sortowanie szybkie',
+    'sortowanie przez scalanie',
+    'dziel i zwyciężaj',
+    'rekurencja',
+    'top-down',
+    'bottom-up',
+    'fibonacci',
+    'javascript',
+    'java',
+    'timsort'
+  ],
+  slug: 'sortowanie-cz-5-dziel-i-zwyciezaj',
+  updateTime: '2021-08-17T16:36:29+00:00',
+  publishTime: '2021-01-05T10:00:11+00:00',
+  cover,
+};
+
+## Uwaga wstępna
+
+Tak jak poprzednio, kod użyty przy tworzeniu tego artykułu znajdziesz na moim GitHubie: [https://github.com/swistak-codes/sorting-algorithms](https://github.com/swistak-codes/sorting-algorithms). Myślę, że już pamiętasz, że nie są to wzorcowe implementacje, a jedynie takie, które się dobrze wizualizuje.
+
+## Dziel i zwyciężaj a sortowanie
+
+<Link href="/post/wyszukiwanie-w-listach">W artykule o wyszukiwaniu</Link> miałem okazję poruszyć temat metody „dziel i zwyciężaj”. Jest to jedna z podstawowych technik projektowania algorytmów, która w dużym skrócie polega na rozwiązywaniu problemów po ich uprzednim podzieleniu na mniejsze.
+
+Dokładnie w taki sposób wykorzystujemy tę metodę w sortowaniu. Dzielimy nasze sortowane kolekcje na coraz mniejsze, wykonując podczas dzielenia bądź też podczas późniejszego złączania operacje, które doprowadzają do posortowania kolekcji. W taki właśnie sposób działają dwa najbardziej znane algorytmy sortowania tego typu, a zarazem uważane za jedne z najszybszych, jakie powstały — sortowanie szybkie (z ang. quicksort) oraz sortowanie przez scalanie (z ang. merge sort). Omówmy je.
+
+## Sortowanie szybkie
+
+Sortowanie szybkie to prawdopodobnie najbardziej znany algorytm sortowania, który jednocześnie sprawdza się w prawdziwych zastosowaniach. Wykorzystuje on metodę „dziel i zwyciężaj” i jest zaliczany do algorytmów sortowania przez zamianę (czyli tej samej kategorii, co <Link href="/post/sortowanie-cz-2-sortowanie-babelkowe">sortowanie bąbelkowe</Link>). Warto dodać, że algorytm nie wykorzystuje dodatkowych struktur danych, czyli sortuje w miejscu. Omówmy sobie teraz, jak algorytm działa. Podzielimy to na dwa etapy — dzielenie i „zwyciężanie”.
+
+### Dziel
+
+Aby zacząć sortowanie szybkie, musimy podzielić tablicę na dwie mniejsze. Jednak aby podział miał sens, wszystkie elementy w lewej podtablicy muszą być mniejsze od każdego z elementów w prawej podtablicy. Żeby tego dokonać, porównujemy po kolei elementy z końca i początku kolekcji do wybranego elementu zwanego piwotem (zwykle uznajemy za niego pierwszy element). Interesuje nas taka kolejność, ponieważ elementy odmierzane przez lewy wskaźnik mają być mniejsze od piwota, natomiast przez prawy wskaźnik — większe. Jeżeli kolejność nie jest zachowana, zamieniamy je ze sobą. Gdy wskaźniki te się spotkają, oznacza to, że skończyliśmy rozmieszczanie, a miejsce ich spotkania to właśnie miejsce, według którego dzielimy. Pamiętajmy, że w tym momencie nie mamy posortowanej tablicy. Jedynie rozdzieliliśmy tablicę na dwie mniejsze, gdzie w jednej każdy element jest większy od każdego elementu z drugiej.
+
+Zobaczmy, jak się to odbywa na poniższym obrazku:
+
+<Image
+  image={quickDziel}
+  alignCenter
+  fullSize
+  alt="Schemat podziału w algorytmie quick sort"
+  caption={<>
+    Schemat krok po kroku, na przykładzie, jak wygląda podział tablicy w algorytmie quicksort.
+  </>}
+/>
+
+Zaczynamy od trzymania wskaźników poza rozpatrywaną tablicą (niepokazane na schemacie). Najpierw przesuwamy prawy wskaźnik do momentu, gdy trafimy na liczbę w złej kolejności, a potem analogicznie lewy. Każdy krok zaczynamy od przesunięcia jednego ze wskaźników. W pierwszym kroku od razu trafiliśmy na element w złym miejscu, więc zatrzymujemy wskaźnik. W drugim kroku sprawdzamy od lewej strony. Element na pozycji 0 też jest w złej kolejności (ma być mniejszy, nie równy!), dlatego zatrzymujemy wskaźnik. Stąd, w trzecim kroku dokonujemy zamiany obu elementów. Krok czwarty, piąty i szósty to powtórka tego co widzieliśmy wcześniej, czyli znowu szukamy elementów w złej kolejności i je zamieniamy. Krok siódmy zaczynamy oczywiście od przesunięcia wskaźnika i dochodzi tu do sytuacji, gdzie spotykają się one w jednej pozycji. Oznacza to, że przerywamy algorytm dzielenia i pozycję tę zwracamy — jest to miejsce, według którego dzielimy tablicę.
+
+### Zwyciężaj
+
+Zwycięstwem w przypadku takiego algorytmu byłoby otrzymanie posortowanej tablicy. Oczywiście po jednym podziale jeszcze tego nie mamy — podzieliliśmy dopiero na elementy mniejsze i większe od wybranego. W takim razie co robimy następnie? Aby zwyciężyć, powtarzamy procedurę dzielenia na tych mniejszych tablicach. Robimy to tak długo, aż podtablice będą jednoelementowe. Dzięki temu, że zamienialiśmy ze sobą elementy na bazie mniejsze-większe, w momencie kiedy dojdziemy do takich małych podtablic, otrzymujemy posortowaną tablicę. Możesz to zobaczyć na poniższym schemacie (moment dzielenia pokazany na poprzednim schemacie pominąłem i od razu zaprezentowałem jego rezultat).
+
+<Image
+  image={quickZwyciezaj}
+  alignCenter
+  fullSize
+  alt="Schemat zwyciężania w algorytmie quick sort"
+  caption={<>
+    Schemat zwyciężania w algorytmie quicksort. Dzięki coraz większym podziałom problemu ostatecznie otrzymujemy posortowaną tablicę.
+  </>}
+/>
+
+### Rekurencja
+
+Myślę, że wszystko, co opisałem do tej pory, ma sens w teorii i wydaje się być całkiem zrozumiałe. Jednak z tego opisu nie do końca wynika, jak to zaprogramować. Najbardziej problematyczny moment to oczywiście dzielenie na coraz to mniejsze tablice. Dlaczego? Nie wiemy, ile razy będziemy dzielić tablice, ile razy każdą z podzielonych tablic będziemy dzielić, a następnie, w jakiej kolejności rozwiązywać problem. Problemy tego typu najłatwiej jest rozwiązać, stosując rekurencję (zwaną też rekursją).
+
+W celu wyjaśnienia tego pojęcia zacytuję jeden żart popularny wśród matematyków i informatyków żart: aby zrozumieć, czym jest rekurencja, musisz zrozumieć, czym jest rekurencja. Jaki to ma sens? Ano taki, że rekurencja to, w dużym skrócie, zapętlenie przez odwołanie się funkcji do samej siebie. Przykładowo, z matematyki możesz kojarzyć ciąg Fibonacciego, który wyglądał tak: 0, 1, 1, 2, 3, 5, 8, 13, 21... Wzór na niego wygląda następująco:
+
+$$
+\text{fib}(n) = \begin{cases}
+0 & \text{dla } n = 0, \\
+1 & \text{dla } n = 1, \\
+\text{fib}(n-1) + \text{fib}(n-2) & \text{dla } n > 1.
+\end{cases}
+$$
+
+Jest to nic innego jak funkcja rekurencyjna. O ile zerowy i pierwszy element obliczymy od razu, wyższe wymagają odwoływania się do poprzednich wartości funkcji. Przykładowo, aby poznać wartość trzeciego elementu, zrobimy to następująco:
+
+$$
+\text{fib(3)} = \text{fib(2)} + \text{fib(1)} = (\text{fib(1)} + \text{fib(0)}) + \text{fib(1)}  = (1 + 0) + 1 = 2
+$$
+
+Natomiast w językach programowania zrobilibyśmy to w taki sposób (na przykładzie JavaScript, ale w wielu innych będzie wyglądać bardzo podobnie):
+
+```javascript
+function fib(n) {
+  switch (n) {
+    case 0: return 0;
+    case 1: return 1;
+    default: return fib(n - 1) + fib(n - 2);
+  }
+}
+```
+
+### Rekursja a sortowanie szybkie
+
+Tylko teraz jak zastosować tę technikę na przykładzie sortowania szybkiego? Schemat wygląda następująco. Najpierw wykonujemy procedurę dzielenia, w wyniku której otrzymujemy punkt podziału. Gdy otrzymaliśmy punkt podziału, znowu odpalamy sortowanie szybkie, tym razem dwa razy z rzędu — pierwszy raz dla tablicy w zakresie początek-podział, a drugi raz dla podział-koniec. Wykonujemy to tylko i wyłącznie wtedy, kiedy koniec zakresu naszej podtablicy nie zrównał się z jej początkiem. W kodzie wyglądałoby to następująco:
+
+```javascript
+function quickSort(A, p, r) {
+  if (p < r) {
+    var q = partition(A, p, r);
+    quickSort(A, p, q);
+    quickSort(A, q + 1, r);
+  }
+}
+```
+
+Spójrzmy na to, co przedstawia powyższy kod. Funkcja quickSort przyjmuje jako parametry tablicę do posortowania A, wskaźnik początku podtablicy p i wskaźnik końca podtablicy r.  Jeżeli podtablica ma jakieś elementy, to wykonujemy sortowanie. Najpierw mamy procedurę dzielenia partition, która zwraca nam punkt podziału q. Jak widzisz, zgadza się wszystko do tej pory z opisem przedstawionym powyżej, więc dwóch kolejnych linii już opisywać nie będę. Jeżeli chcesz zaprogramować to na własną rękę, to jedyne co Ci pozostaje, to napisać funkcję dzielącą.
+
+### Przetestuj!
+
+Jeśli czytałeś poprzednie artykuły, to spotkałeś się już z moimi wizualizacjami sortowania. Tak też jest i tutaj. Pokombinuj z różnymi parametrami i sprawdź, jak sprawuje się sortowanie szybkie zaimplementowane w najprostszy możliwy sposób.
+
+<Iframe src="/iframe-content/sorting-visualizer/index.html?algorithm=quickSort" minHeight={620} />
+
+### Wydajność sortowania szybkiego
+
+Jak można zauważyć, nazwa nie wzięła się znikąd. Sortowanie szybkie faktycznie jest szybkie, jednak ma dość duży mankament — jego szybkość jest zależna od stopnia, w jakim dane wejściowe są posortowane. W przeciętnym przypadku osiągamy wręcz idealną wydajność $$O(n\log{n})$$, natomiast w najgorszym $$O(n^2)$$. Od czego to zależy?
+
+Najlepszy przypadek dla quicksort jest wtedy, gdy element dzielący zawsze jest medianą sprawdzanej podtablicy (czyli elementem, który po posortowaniu byłby w jej środku). Najgorszy jest wtedy, gdy element dzielący jest największym lub najmniejszym elementem w podtablicy. Ten najgorszy przypadek możesz zasymulować na powyższym przykładzie przez posortowanie uprzednio posortowanej tablicy.
+
+Aby usprawnić algorytm, moglibyśmy eksperymentować z metodą dzielenia. Sposób pokazany przeze mnie jest najpopularniejszym i najprostszym, jednakże, jak widać, nieidealnym. Innym znanym powszechnie sposobem jest algorytm podziałów Lomuta, jednak tu również osiągniemy kwadratową złożoność w najgorszym przypadku. Obecnie do optymalizacji podchodzi się przez dzielenie tablicy na więcej niż dwie podtablice. Tutaj jako ciekawostkę warto zauważyć, że podejście to było kiedyś uważane za niewydajne (np. Sedgewick, 1977), jednak najnowsze badania temu zaprzeczają (np. Yaroslavskiy, 2009).
+
+Innym mankamentem sortowania szybkiego, niezbyt widocznym na pierwszy rzut oka, jest tak szeroko omówiona przeze mnie rekurencja. O ile wydawać by się mogło, że jest to super sprawa, a do tego algorytm działa w miejscu, bo nie tworzymy kopii tablicy, to aby wykonać rekurencję, komputer musi utrzymywać tak zwany stos wywołań, co powoduje coraz większe zajmowanie pamięci wraz z każdym wywołaniem rekurencyjnym. Dlatego też powstała wersja sortowania szybkiego niewykorzystująca rekursji (opisana np. przez Wirtha), jednak rzadko można się z nią spotkać w praktyce.
+
+## Sortowanie przez scalanie
+
+Innym popularnym rodzajem sortowania bazującym na metodzie „dziel i zwyciężaj” jest sortowanie przez scalanie. Jest to algorytm najbardziej unikatowy ze wszystkich, które do tej pory sobie omówiliśmy, bo wyznacza on własną kategorię algorytmów — algorytmy sortowania przez scalanie. Do tego, co ciekawe, jest też jednym z najstarszych podejść do sortowania, ponieważ został opisane już w 1945 roku przez Johna von Neumanna.
+
+Podejście do dzielenia i zwyciężania w merge sort jest zupełnie inne niż w quicksort. Gdy w sortowaniu szybkim główny nacisk był na dzielenie, i to w jego trakcie wykonywaliśmy najważniejsze operacje, tak tutaj ciężar przechodzi na „zwyciężanie”.
+
+### Dziel
+
+Procedura dzielenia w algorytmie sortowania przez scalanie ogranicza się tylko i wyłącznie do... dzielenia. Nie robimy tutaj nic więcej. Naszym celem jest takie podzielenie wejściowej tablicy, aby otrzymać tablice jednoelementowe.
+
+<Image
+  image={mergeDziel}
+  alignCenter
+  fullSize
+  alt="Schemat dzielenia w algorytmie merge sort"
+  caption={<>
+    Dzielenie w algorytmie sortowania przez scalanie.
+  </>}
+/>
+
+### Zwyciężaj
+
+Skoro dzielenie było proste, to w fazie zwyciężania musi być ciężej. Tak też właśnie jest. Faza zwyciężania jest nazywana scalaniem, ponieważ to, co tutaj robimy, to złączamy na nowo podzielone tablice. Oczywiście nie jest to po prostu złączenie. Złączając, dbamy o to, aby elementy połączyć w odpowiedniej kolejności, dlatego w jego trakcie porównujemy ze sobą elementy obu tablic i wstawiamy je do nowej, złączonej w odpowiedniej kolejności. Możesz to zobaczyć na poniższym schemacie, gdzie scalimy tablicę podzieloną na poprzednim rysunku.
+
+<Image
+  image={mergeZwyciezaj}
+  alignCenter
+  fullSize
+  alt="Schemat zwyciężania w algorytmie merge sort"
+  caption={<>
+    Schemat zwyciężania w merge sort.
+  </>}
+/>
+
+Jak możesz zobaczyć na tym przykładzie, złączamy tablicę aż do momentu uzyskania posortowanej. Tylko teraz jak dokładnie wygląda samo scalanie?
+
+### Scalanie
+
+Zerknijmy na kolejny schemat:
+
+<Image
+  image={mergeScal}
+  alignCenter
+  fullSize
+  alt="Schemat scalania w algorytmie merge sort"
+  caption={<>
+    Schemat działania scalania w algorytmie merge sort.
+  </>}
+/>
+
+Aby scalić ze sobą elementy, tworzymy nową tablicę wynikową. Następnie przechodzimy po kolei po obu rozpatrywanych tablicach. Porównujemy ze sobą elementy i bierzemy mniejszy z nich. W tablicy, z której wzięliśmy element, przesuwamy wskaźnik, natomiast w drugiej zostawiamy go na miejscu. Dalej porównujemy i zbieramy elementy. W pewnym momencie dojdziemy do przypadku, gdzie w jednej z tablic wyszliśmy wskaźnikiem poza jej zakres (na schemacie punkt 6). Wtedy możemy wprost przepisać pozostałą część drugiej tablicy do wyniku.
+
+### Podejście top-down
+
+Podsumowując to, co do tej pory zobaczyliśmy, możemy algorytm sortowania przez scalanie sprowadzić do takiego oto prostego schematu działania:
+
+<Image
+  image={mergeSort}
+  alignCenter
+  fullSize
+  alt="Schemat działania algorytmu merge sort"
+  caption={<>
+    Schemat działania merge sort.
+  </>}
+/>
+
+Jest to tak zwane podejście top-down. Najpierw rozdzielamy tablicę na jednoelementowe podtablice, a następnie wykonujemy operację scalania. Wszystko to możemy ponownie zrobić za pomocą rekurencji. W kodzie wygląda to bardzo podobnie jak w przypadku quicksort:
+
+```javascript
+function mergeSort(A, p, r) {
+  if (p < r) {
+    var q = Math.floor((p + r) / 2);
+    mergeSort(A, p, q);
+    mergeSort(A, q + 1, r);
+    merge(A, p, q, r);
+  }
+}
+```
+
+Jedynymi różnicami jest to, że tym razem punkt podziału wyznaczamy jako efekt dzielenia (zaokrąglone w dół), a po wywołaniach rekurencyjnych wywołujemy funkcję złączającą.
+
+### Podejście bottom-up
+
+Możesz sobie teraz zadać pytanie — tylko po co rozdzielać? Przecież od razu możemy potraktować tablicę wejściową jako składającą się z n jednoelementowych tablic. Na tym też polega podejście bottom-up. W tej odmianie sortowania przez scalanie całkowicie rezygnujemy z rekurencji. Pominę jednak przedstawianie tego podejścia i zachęcam Cię do sprawdzenia go na własną rękę.
+
+### Przetestuj!
+
+Poniżej możesz sprawdzić działanie sortowania przez scalanie w wersji top-down. Od razu jednak wspomnę, że wizualizacja może sprawiać wrażenie „skakania”, Bierze się to stąd, że układamy elementy do tablicy w określone pozycje, a nie tak jak dotąd zamienialiśmy.
+
+<Iframe src="/iframe-content/sorting-visualizer/index.html?algorithm=mergeSort" minHeight={640} />
+
+### Wydajność sortowania przez scalanie
+
+Sortowanie przez scalanie, podobnie jak quicksort, również bardzo szybko sortuje tablice. Zdecydowaną zaletą tego algorytmu jest to, że na jego wydajność nie wpływa stopień uprzedniego posortowania danych. Dzięki temu w każdym przypadku osiągamy złożoność obliczeniową $$O(n\log{n})$$. Brzmi idealnie?
+
+Aż za bardzo idealnie, więc musi coś być tutaj nie tak. Owe „nie tak” to złożoność pamięciowa tego algorytmu. Podczas gdy w sortowaniu szybkim obciążaliśmy pamięć wywołaniami rekurencyjnymi, tak tutaj dodatkowo używamy tablic pomocniczych do scalania elementów. Oznacza to, że w najgorszym wypadku algorytm potrafi zająć dodatkowo tyle samo pamięci, co zajmowała oryginalna tablica!
+
+### Optymalizacja
+
+Zadajmy sobie tradycyjne pytanie — czy możemy coś z tym zrobić? Czy możemy polepszyć jeszcze bardziej sortowanie przez scalanie? Tak, i jest do tego kilka podejść, które krótko omówię.
+
+Jedną z optymalizacji sortowania przez scalanie, która może ograniczyć liczbę porównań, jest tak zwany naturalny merge sort. W tym podejściu nie dzielimy tablicy do jednoelementowych podtablic, ale zatrzymujemy się w momencie, gdy podtablica jest posortowana. Dzięki temu można ograniczyć liczbę złączeń, a w najlepszym wypadku (dane posortowane) uzyskujemy liniowy czas wykonania algorytmu.
+
+Dla zmniejszenia zajętości pamięciowej algorytmu możemy zastosować listy wiązane zamiast tablic. Wówczas nie będziemy potrzebowali dodatkowej tablicy na wynik scalania. Co warto tu podkreślić, merge sort to jeden z niewielu algorytmów sortowania, które działają szybko na kolekcjach tego typu, ponieważ nie mamy tutaj pętli przechodzących po kolei po elementach. Jednak pamiętajmy, że zamiana tablicy na listę wiązaną tylko po to, żeby wykonać sortowanie (a potem w drugą stronę), może kosztować nas więcej niż sortowanie na tablicy.
+
+Popularnym podejściem do optymalizacji jest hybrydyzacja algorytmów. Polega ona na łączeniu różnych algorytmów sortujących tak, aby mniejsze problemy rozwiązywać prostszymi algorytmami, które mogą rozwiązać je bez dodatkowego obciążania pamięci. Często łączy się sortowanie przez scalanie z sortowaniem przez wstawianie — po podziale odpowiednio małe tablice sortujemy przez wstawianie, a następnie scalamy tradycyjnym podejściem. Optymalizacje tego typu są szczególnie dobre przy niskopoziomowym programowaniu. Przykładowo, tiled merge sort wykorzystuje sortowanie przez wstawianie na poziomie cache procesora, więc omija zapytania do pamięci RAM, które zajmują więcej czasu.
+
+## Właściwości algorytmów sortowania opartych na metodzie „dziel i zwyciężaj”.
+
+W celu podsumowania artykułu przyjrzyjmy się z góry właściwościom obu przedstawionym w tym artykule algorytmom.
+
+Jak już omówiliśmy dość szeroko, pod kątem wydajności oba algorytmy wyglądają bardzo dobrze — w przeciętnych przypadkach posiadają złożoność liniowo-logarytmiczną $$O(n\log{n})$$. Jednak o ile merge sort ma taką samą złożoność w najgorszym przypadku, to quicksort spada w złożoność kwadratową $$O(n^2)$$. Z drugiej strony, sortowanie szybkie jest mniej obciążające dla pamięci komputera. Z tego powodu oba algorytmy, w dość nowoczesnych wariantach, są stosowane w praktyce. Przykładowo, w najnowszej wersji Javy (w momencie pisania artykułu jest to Java 15), do sortowania, w zależności od typu danych, są stosowane dwupiwotowy quicksort lub TimSort (jedna z hybrydowych odmian merge sort). Ten pierwszy jest stosowany do typów prostych, natomiast drugi do złożonych obiektów.
+
+Nie zapominajmy o interesującej nas stabilności sortowania. Niestety, sortowanie szybkie jest niestabilne, stąd w Javie używa się je tylko do typów prostych, gdzie stabilność jest nieistotna. Natomiast sortowanie przez scalanie jest najczęściej stabilne. Wiele zależy tu od sposobu implementacji, jednak książkowy sposób zachowuje kolejność elementów.
+
+Myślę, że ostatnią rzeczą, którą warto dodać przy okazji tych algorytmów, jest fakt, że dzięki stosowaniu przez nie metody „dziel i zwyciężaj”, możemy z powodzeniem pisać ich równoległe wersje. Oznacza to, że jesteśmy w stanie tak napisać algorytm, aby z powodzeniem korzystał z wielu procesorów (czy rdzeni na jednym procesorze) a nawet wielu komputerów. Jednakże wykracza to daleko poza ramy prostego opisywania algorytmów sortowania.
+
+## Literatura
+
+### Pozycje podstawowe
+
+- Cormen T. H., Leiserson C. E., Rivest R.L., „Quicksort — sortowanie szybkie” w *Wprowadzenie do algorytmów*. Warszawa: Wydawnictwa Naukowo-Techniczne, 2001, s. 186-205
+- Knuth D. E., „Sortowanie przez zamienianie” w *Sztuka programowania Tom 3 Sortowanie i wyszukiwanie.* Warszawa: Wydawnictwa Naukowo-Techniczne, 2002, s. 110-145
+- Knuth D. E., „Sortowanie przez scalanie” w *Sztuka programowania Tom 3 Sortowanie i wyszukiwanie.* Warszawa: Wydawnictwa Naukowo-Techniczne, 2002, s. 166-178
+- Wirth N., „Sortowanie przez podział” w *Algorytmy + struktury danych = programy.* Warszawa: Wydawnictwa Naukowo-Techniczne, 2002, s. 94–100
+- Wirth N., „Sortowanie plików sekwencyjnych” w *Algorytmy + struktury danych = programy.* Warszawa: Wydawnictwa Naukowo-Techniczne, 2002, s. 105–144
+
+### Pozycje uzupełniające
+
+- Kushagra S., López-Ortiz A., Qiao A., Munro I. J. (2014). Multi-Pivot Quicksort: Theory and Experiments. *2014 Proceedings of the Meeting on Algorithm Engineering and Experiments (ALENEX)*, 47-60.
+- Bozidar D., Dobravec T. (2015). Comparison of parallel sorting algorithms. *arXiv: 1511.03404*.
+- Class Arrays, [https://docs.oracle.com/en/java/javase/15/docs/api/java.base/java/util/Arrays.html](https://docs.oracle.com/en/java/javase/15/docs/api/java.base/java/util/Arrays.html) (ostatnio odwiedzone 23 grudnia 2020)
+
+<small>(źródło zdjęcia na okładce: [pxhere](https://pxhere.com/en/photo/1616213))</small>

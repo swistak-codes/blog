@@ -1,0 +1,286 @@
+import Link from 'next/link';
+import {Image} from '@swistak-codes/components';
+import cover from './rzymski-swistak.jpg';
+
+export const meta = {
+  title: 'Liczby rzymskie',
+  abstract:
+    'W artykule opisuję, jak wygląda rzymski system zapisu liczb oraz jak możemy do niego podejść algorytmicznie.',
+  firstParagraph: (
+    <>
+      W codziennym zastosowaniu oprócz wszechobecnego systemu dziesiętnego utrzymał się do naszych czasów również system rzymski. Zapisując wiele nazw czy imion, nie wyobrażamy sobie, żeby zapisać je z użyciem cyfr arabskich — w końcu „Benedykt XVI” wygląda znacznie poważniej niż „Benedykt 16.”. Nas jednak interesuje inna strona systemu rzymskiego, czyli jak zaprogramować jego obsługę. Stoją za tym proste algorytmy, które są zwykle zadaniami na kursach podstaw programowania, dlatego spróbujmy napisać je wspólnie.
+    </>
+  ),
+  keyword: 'liczby rzymskie',
+  categories: ['Matematyka', 'Algorytmy'],
+  tags: [
+    'systemy addytywne',
+    'matematyka',
+    'liczby rzymskie',
+    'javascript',
+    'wyrażenia regularne'
+  ],
+  slug: 'liczby-rzymskie',
+  updateTime: '2022-11-16T07:00:00+00:00',
+  publishTime: '2022-11-16T07:00:00+00:00',
+  cover,
+};
+
+## System rzymski
+
+Rzymski system zapisu liczb miałem już okazję opisać na blogu w artykule *<Link href="/post/systemy-liczbowe-uzupelnienie">Systemy liczbowe — uzupełnienie</Link>*. Rozpiszmy sobie jednak ten system nieco bardziej szczegółowo, raczej pod kątem tego, żeby zrozumieć podstawowe zasady jego działania.
+
+### System addytywny
+
+Zacznijmy od tego, że system rzymski to system addytywny. Oznacza to tyle, że aby odczytać zapisaną w nim wartość, musimy zsumować symbole reprezentujące konkretne liczby, a ich pozycja nie ma w tym przypadku znaczenia. Przy czym pozycje w systemie rzymskim mają znaczenie, chociaż inne niż w systemach pozycyjnych:
+
+- Znaki są zapisywane od lewej strony w kolejności od reprezentującego największą liczbę do reprezentującego najmniejszą liczbę.
+- Od tej reguły jest jednak wyjątek, że możemy połączyć ze sobą znak reprezentujący mniejszą liczbę ze znakiem reprezentującym liczbę większą. Wówczas zamiast dodawać, to od liczby większej odejmujemy tą mniejszą.
+
+### Symbole systemu rzymskiego
+
+Przejdźmy jednak do samych znaków używanych w systemie rzymskim. Możemy wyróżnić:
+
+| symbol | wartość |
+| :-: | :-: |
+| M | 1000 |
+| D | 500 |
+| C | 100 |
+| L | 50 |
+| X | 10 |
+| V | 5 |
+| I | 1 |
+
+Symbole możemy łączyć ze sobą analogicznie, jak opisałem wcześniej, stąd: III to 3, VI to 6, MMXI to 2011.
+
+Należy wspomnieć, że każdy z symboli może być powtórzony co najwyżej 3 razy. Oznacza to, że domyślnie nie jesteśmy w stanie zapisać takich liczb jak np. 4, 9, 40, 90, 900. Jak wspomniałem wcześniej, możemy łączyć większy znak z mniejszym w celu odejmowania, tym samym zyskując następujące kombinacje:
+
+| symbol | wartość |
+| :-: | :-: |
+| CM | 900 |
+| CD | 400 |
+| XC | 90 |
+| XL | 40 |
+| IX | 9 |
+| IV | 4 |
+
+Dzięki temu możemy tworzyć kombinacje takie jak: XIV to 14, DIX to 509, MMMCXL to 3140. Możemy też ułożyć największą liczbę dostępną w standardowym systemie rzymskim — MMMCMXCIX, czyli 3999.
+
+Swoją drogą warto dodać, że symbole D i M zostały wprowadzone później niż pozotałe. Rzymianie liczbę 500 zapisywali początkowo jako IↃ (z czasem uproszczone do D), a 1000 jako CIↃ (z czasem uproszczone do ↀ i utrzymało się tak aż do wprowadzenia M w średniowieczu).
+
+### Zapis liczb spoza zakresu 1-3999
+
+Według powyższej definicji możemy zauważyć, że system rzymski jest w stanie zapisać nam jedynie liczby z zakresu od 1 do 3999. Jednak system ten był w Europie wykorzystywany w matematyce przez bardzo długi czas i istniała możliwość zapisu innych liczb. Z racji tego, że dziś się tego nie stosuję, nie rozpiszę się szczegółowo na ten temat, a jedynie rozpiszę w ramach ciekawostki.
+
+- Przez długi czas w matematyce nie znano koncepcji liczby zero, stąd system rzymski jej nie posiadał. Z czasem zaczęto oznaczać je literą N od łacińskiego *nihil* (po polsku: *nic*).
+- W kwestii ułamków najpowszechniejsze wśród rzymian było dzielenie na dwanaście części (system dwunastkowy). Ułamki od $$\frac{1}{12}$$ do $$\frac{5}{12}$$ zapisywano przez stawianie kropek, np. $$\frac{4}{12}$$ to ···· (lub ∷). Połowa, czyli $$\frac{6}{12}$$, była oznaczana literą S (od łacińskiego *semis*), a potem kolejne ułamki konstruowano przez dokładanie kropek, np. $$\frac{11}{12}$$ to S····· (lub S⁙). Oprócz tego istniały symbole używane do bardziej specjalistycznych ułamków, np. $$\frac{1}{72}$$ ($$\frac{1}{6}$$ uncji) to 𐆓.
+- Nie powstał nigdy jeden standard zapisu liczb większych niż 3999. Rzymianie w swoim oryginalnym zapisie liczby 1000 dodawali po obu stronach litery C, aby uzyskać większe liczby, np. CCIↃↃ to 10000, a samo IↃↃ to 5000. Innym, bardziej współczesnym sposobem jest stosowanie poziomej kreski nad liczbą w celu pomnożenia jej przez 1000, np. $$\overline{\text{IV}}$$ to 4000. Jednak to zapis mylący, bo powszechne jest dekorowanie liczb rzymskich przez dodanie nad i pod nimi poziomych linii.
+
+### Odstępstwa od reguł
+
+Oczywiście niemożliwe jest, żeby przez około trzy tysiące lat ludzie trzymali się idealnie jednego ustandaryzowanego systemu zapisu. Zresztą standard w znaczeniu takim, jak dziś to rozumiemy, nigdy nie powstał. Dlatego o ile symbole i zasady używane dla liczb 1-3999 są powszechnie znane i używane, tak przez lata było wiele odstępstw:
+
+- Często łamano zasadę, że można zapisać maksymalnie trzy takie same znaki. Najpowszechniejsze jest używanie IIII zamiast IV, co po dziś możemy spotkać na zegarach.
+- W średniowieczu powstało wiele dodatkowych symboli, np. F to 40, Y to 150, O to 11.
+- Zapis dużych liczb bywał upraszczany zgodnie z tym, jak wymawiano je w różnych językach. Np. w języku angielskim rok 1612 wymawia się jako szesnaście-dwanaście (sixteen-twenty), stąd zapis rzymski to XVIXII. Innym przykładem są teksty francuskie, w których możemy znaleźć powiększanie liczb przez zapis w indeksie górnym, np. IIII<sup>XX</sup>XIX, co dosłownie odpowiada francuskiej wymowie tej liczby jako cztery-dwadzieścia-dziewiętnaście (quatre-vingt-dix-neuf).
+- Bardziej współczesny przykład: Microsoft Excel w implementacji funkcji `=RZYMSKIE()` oferuje 5 różnych sposobów zapisu liczb rzymskich. Ich podsumowanie możesz znaleźć [w dokumentacji Excela](https://support.microsoft.com/pl-pl/office/rzymskie-funkcja-d6b0b99e-de46-4704-a518-b45a0f8b56f5?ns=macexcel&version=90&ui=pl-pl&rs=pl-pl&ad=pl).
+
+Warto jednak wiedzieć, że w większości przypadków nie musimy przejmować się tymi rzeczami. Przy dalej tłumaczonych przeze mnie podejściach algorytmicznych całkowicie zignoruję te odstępstwa, jak i to, że można zapisywać liczby inne niż naturalne z przedziału 1-3999.
+
+## Zamiana systemu rzymskiego na dziesiętny
+
+Zacznijmy od moim zdaniem najprostszej operacji, czyli przekształcenia liczby w systemie rzymskim na system dziesiętny (zapisany cyframi arabskimi).
+
+Wszystko, co musimy wiedzieć, aby tego dokonać, to znać 7 symboli zapisu rzymskiego. Wtedy odczytujemy po kolei znaki i sumujemy ich wartości. Należy jednak pamiętać, że znak o wyższej wartości może być poprzedzony znakiem o niższej wartości — wówczas odejmujemy wartość.
+
+### Algorytm
+
+Sposobów na zalgorytmizowanie tego zapewne znalazłoby się kilka. My przełóżmy wprost to, co opisałem powyżej. Możemy rozpisać to algorytmicznie na następujące kroki:
+
+1. Zainicjujmy zmienną, która przechowa wynik. Z racji tego, że będziemy sumować, początkową wartością musi być 0.
+2. Przechodzimy po kolei (od lewej do prawej) po znakach liczby zapisanej w systemie rzymskim:
+    1. Zamieńmy aktualny znak na jego wartość w systemie dziesiętnym i przechowajmy tę wartość.
+    2. Jeśli istnieje, pobierzmy następny znak:
+        1. Zamieńmy ten znak na jego wartość w systemie dziesiętnym. Jeśli wartość jest większa niż poprzedniego znaku, odejmijmy od niej wartość poprzedniego i przechowajmy tę wartość (zamiast wartości poprzedniego znaku).
+        2. W tym momencie należy pamiętać, że rozpatrzyliśmy kolejny znak niż aktualny w iteracji, więc powinniśmy go pominąć.
+    3. Do wyniku dodajmy przechowaną wartość.
+3. Zwracamy zmienną z wynikiem.
+
+### Implementacja
+
+Opisany powyżej algorytm możemy przenieść na język JavaScript w następujący sposób:
+
+```javascript
+// słownik konwersji wyznaczający, który symbol
+// odpowiada której liczbie
+const CONVERSION_MAP = {
+  M: 1000,
+  D: 500,
+  C: 100,
+  L: 50,
+  X: 10,
+  V: 5,
+  I: 1
+};
+
+function romanToInt(numeral) {
+  // zmienna, która przechowa wynik
+  let result = 0;
+
+  // przechodzimy po kolejnych znakach stringa zawierającego liczbę rzymską
+  for (let i = 0; i < numeral.length; i++) {
+    // pobieramy wartość aktualnego znaku
+    let value = CONVERSION_MAP[numeral[i]];
+    // jeśli nie jesteśmy na końcu, może być sytuacja,
+    // że trzeba będzie wykonać odejmowanie
+    if (i < numeral.length - 1) {
+      // sprawdzamy wartość następnego znaku
+      const nextValue = CONVERSION_MAP[numeral[i + 1]];
+      // jeśli jest wyższa, to znaczy,
+      // że będziemy musieli odejmować
+      if (nextValue > value) {
+        // przypisujemy pomniejszoną wartość
+        value = nextValue - value;
+        // ponieważ rozpatrzyliśmy kolejny znak,
+        // musimy przeskoczyć o jedną iterację
+        i++;
+      }
+    }
+    // dodajemy wyliczoną liczbę do aktualnego wyniku
+    result += value;
+  }
+
+  // zwracamy wynik
+  return result;
+}
+```
+
+Implementację możesz przetestować [na stronie repl.it](https://replit.com/@tswistak/roman-to-int#index.js).
+
+## Zamiana systemu dziesiętnego na rzymski
+
+Działanie w drugą stronę jest już nieco mniej intuicyjne, jednak wciąż jest to bardzo prosta operacja.
+
+Aby liczbę zapisaną w systemie dziesiętnym zapisać w systemie rzymskim, najprościej jest sprawdzać, ile razy dany znak mieści się w naszej liczbie. Zaczynamy od największego znaku, czyli od M, sprawdzamy, ile w liczbie jest tysięcy, i tyle razy zapisujemy symbol M. Potem schodzimy po kolei, aż do najmniejszej wartości, czyli I (1). Musimy jednak pamiętać, że zamiast powtarzać symbol 4 razy, powinniśmy zastosować odejmowanie, stąd w każdym takim przypadku zamieniamy 4 symbole na odpowiadające im odejmowanie pokazane przeze mnie wcześniej. Ewentualnie możemy te złączenia symboli również włączyć do „schodzenia po kolei po wartościach” — wówczas zamiast sprawdzać M, potem D, sprawdzimy: M, CM i D.
+
+### Algorytm
+
+Podobnie jak poprzednio, nie ma jednego konkretnego algorytmu jak zamieniać, dlatego przełóżmy na język algorytmiki wprost to, co opisałem powyżej. Zastosujemy uproszczenie polegające na tym, że nie będziemy ręcznie odejmować symboli, tylko włączymy te kombinacje do iteracji. Warto także wspomnieć, że w języku matematyki to, ile razy coś się mieści w czymś, wyznacza nam dzielenie, natomiast ile po takiej operacji pozostaje — <Link href="/post/dziwny-przypadek-reszty-z-dzielenia">reszta z dzielenia</Link>.
+
+Możemy w takim razie przejść do kroków algorytmu:
+
+1. Zainicjujmy zmienną przechowującą wynik, która na starcie będzie pustym łańcuchem znaków*.
+2. Przechodźmy po kolei po symbolach (M, CM, D, CD, C, XC, L, XL, X, IX, V, IV, I):
+    1. Pobierzmy wartość symbolu w systemie dziesiętnym.
+    2. Podzielmy liczbę przez wartość symbolu, co wyznaczy, ile razy mamy symbol powtórzyć.
+    3. Zapamiętajmy do następnej iteracji resztę z dzielenia liczby przez wartość symbolu.
+    4. Dodajmy do wyniku symbol tyle razy, ile wyznaczyliśmy w punkcie 2.2.
+3. Zwracamy zmienną z wynikiem.
+
+\* W zależności od języka programowania warto się zapoznać, który sposób rozbudowywania łańcucha o kolejne znaki będzie najszybszy, np. stosując obiekty typu StringBuilder (Java, C#). Weź jednak pod uwagę, że w przypadku liczb rzymskich możemy mieć do czynienia z ok. 10 konkatenacjami, co przy zwykłym typie znakowym będzie nieodczuwalne wydajnościowo.
+
+### Implementacja
+
+Opisany powyżej algorytm możemy przenieść na język JavaScript w następujący sposób:
+
+```javascript
+// tablica konwersji, gdzie zaczynamy od największego symbolu
+// i idziemy po kolei, do najmniejszego;
+// dla uproszczenia algorytmu zapisujemy w niej
+// także wartości pomniejszone,
+// takie jak IX (10 pomniejszone o 1 = 9) czy IV (5 pomniejszone o 1 = 4)
+const CONVERSION_TABLE = [
+  ['M', 1000],
+  ['CM', 900],
+  ['D', 500],
+  ['CD', 400],
+  ['C', 100],
+  ['XC', 90],
+  ['L', 50],
+  ['XL', 40],
+  ['X', 10],
+  ['IX', 9],
+  ['V', 5],
+  ['IV', 4],
+  ['I', 1],
+]
+
+function intToRoman(number) {
+  // zmienna, która przechowa, ile liczby jeszcze zostało nam
+  // do konwersji
+  let leftToConvert = number;
+  // zmienna przechowująca wynik
+  let result = '';
+
+  // iterujemy po kolei po tablicy konwersji
+  // do dwóch zmiennych: symbol i value
+  // zapis [symbol, value] to destrukturyzacja tablicy
+  for (const [symbol, value] of CONVERSION_TABLE) {
+    // sprawdzamy, ile razy symbol musi zostać powtórzony
+    const times = Math.trunc(leftToConvert / value)
+    // wyliczamy liczbę, która będzie przekształcana
+    // w następnej iteracji
+    leftToConvert %= value;
+    // dodajemy do wyniku symbole powtórzone odpowiednią liczbę razy
+    result += symbol.repeat(times);
+  }
+
+  return result;
+}
+```
+
+Implementację możesz przetestować [na stronie repl.it](https://replit.com/@tswistak/int-to-roman#index.js).
+
+## Sprawdzenie poprawności liczby rzymskiej
+
+Ostatnia kwestia pozostająca do wykonania, związana z liczbami rzymskimi, to sprawdzenie, czy są one poprawne według najpowszechniejszych reguł. Reguły zapisu przedstawiłem na samym początku, ale zapiszmy je w bardziej zwięzły i konkretny sposób. Zaczynając od początku ciągu znaków:
+
+- Litera M może pojawić się 0, 1, 2 lub 3 razy.
+- Następnie możemy mieć CM, CD albo (opcjonalnie) D i C powtórzone 0, 1, 2 lub 3 razy.
+- Analogicznie jest z symbolem X. Możemy mieć XC, XL albo (opcjonalnie) L i X powtórzone 0, 1, 2 lub 3 razy.
+- Tak samo z I. Możemy mieć IX, IV albo (opcjonalnie) V i I powtórzone 0, 1, 2 lub 3 razy.
+- W tym momencie ciąg powinien się skończyć.
+
+Jeśli zadany ciąg liter spełnia te warunki, mamy do czynienia z liczbą zapisaną w systemie rzymskim.
+
+### Wyrażenie regularne
+
+W takim przypadku jak ten, gdzie musimy sprawdzić, czy ciąg znaków pasuje do pewnego zadanego wzorca, nie ma co się zmuszać do napisania algorytmu. Zdecydowanie lepiej zapisać tę regułę w jeden z najbardziej znienawidzony przez programistów sposób — jako wyrażenie regularne.
+
+Wbrew powszechnemu przekonaniu pisanie wyrażeń regularnych w większości przypadków nie jest trudne. Można się przy tym posiłkować takimi stronami, jak np. [RegExr](https://regexr.com/), gdzie mamy jednocześnie edytor wyrażeń, pole do ich testowania oraz ściągę jak je pisać.
+
+Wyrażenie regularne, które sprawdzi powyżej opisane reguły, wygląda następująco:
+
+```regex
+^M{0,3}(C[MD]|D?C{0,3})(X[CL]|L?X{0,3})(I[XV]|V?I{0,3})$
+```
+
+Jego składowe oznaczają:
+
+- `^` — początek ciągu. W ten sposób zaznaczamy, że nasze wyrażenie regularne ma sprawdzać ciąg znaków od początku.
+- `M{0,3}` — `M` może być powtórzone od 0 do 3 razy.
+- `C[MD]` — `CM` lub `CD`. W nawiasie kwadratowym zapisuje się, spośród których znaków możemy wybierać na wskazanej pozycji.
+- `C[MD]|D` — pojawi się wyrażenie spełniające albo regułę `C[MD]`, albo `D` (czyli wystąpienie litery D).
+- `D?` — `D` jest opcjonalne. Jest to skrócona forma zapisu `D{0,1}`.
+- Nawiasy oznaczają grupę, którą tutaj możemy rozumieć jako zamknięty zestaw reguł. Dzięki temu znak `|` nie oddziałuje poza nawias.
+- Dwie pozostałe grupy są zbudowane analogicznie, stąd nie będę już ich opisywać.
+- Ostatni znak, który nam pozostał, to `$` oznaczający koniec ciągu znaków. Tym samym, mając zarówno `^`, jak i `$`, mówimy, że nasze wyrażenie regularne musi być spełnione przez cały ciąg, a nie tylko jego fragment.
+
+### Implementacja
+
+Tak naprawdę implementacja w tym przypadku to jedynie przekopiowanie wyrażenia regularnego do języka programowania i użycie funkcji, która sprawdzi, czy ciąg „przechodzi” przez nie. W JavaScript wygląda to następująco:
+
+```javascript
+function isValidRomanNumeral(numeral) {
+  const regex = /^M{0,3}(C[MD]|D?C{0,3})(X[CL]|L?X{0,3})(I[XV]|V?I{0,3})$/;
+  return regex.test(numeral);
+}
+```
+
+Implementację możesz przetestować [na stronie repl.it](https://replit.com/@tswistak/is-valid-roman#index.js).
+
+## Podsumowanie
+
+W artykule przedstawiłem: czym jest system rzymski, jak działa oraz z jakimi zadaniami algorytmicznymi z nim związanymi możemy się mierzyć. Nie są to jedyne słuszne algorytmy, a jedynie przykładowe, które wymyśliłem na podstawie definicji systemu rzymskiego. Możliwe, że w innych miejscach w Internecie znajdziesz inne rozwiązania albo nawet analogiczne, i jest to całkowicie normalne. Zagadnienie to jest bardzo proste i nie ma co się wysilać na jakieś wyszukane rozwiązania. Liczę, że pomogło Ci to zrozumieć tok myślenia — od problemu, przez opisanie jego rozwiązania, po opracowanie algorytmu go rozwiązującego.
+
+<small>Zdjęcie na okładce wygenerowane przez DALL-E. Oryginał znajduje się [tutaj](https://labs.openai.com/s/9ZjG5g5gstHh4vzR2Zi1MaWx).</small>

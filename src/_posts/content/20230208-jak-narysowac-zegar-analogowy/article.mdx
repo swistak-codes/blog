@@ -1,0 +1,527 @@
+import Link from 'next/link';
+import {Image} from '@swistak-codes/components';
+import {Presentation} from './presentation';
+import cover from './swistaki_zegar.jpg';
+import pyFinal from './py-final.png';
+import jsFinal from './js-final.png';
+import drawBorder from './draw-border.png';
+import zegarKola from './zegar_kola.png';
+import zegarKaty from './zegar_katy.png';
+import okragTrojkat from './okrag-trojkat.png';
+import trojkat from './trojkat.png';
+import zegarWskazowki from './zegar_wskazowki.png';
+
+export const meta = {
+  title: 'Jak narysować zegar analogowy?',
+  abstract:
+    'W artykule omawiam, w jaki sposób, stosując prostą matematykę, możemy stworzyć animację zegara analogowego.',
+  firstParagraph: (
+    <>
+      Do tej pory na blogu przedstawiałem przede wszystkim gotowe i znane rozwiązania algorytmiczne, ale rzadko pokazywałem, jak od podstaw coś zrobić, czego nie znajdziemy w podręcznikach do algorytmiki. Za to możemy znaleźć w podręcznikach do informatyki. Pokażę w tym wpisie, w jaki sposób, wykorzystując prostą matematykę, zrobić coś, co działa i wyświetla więcej niż ciągi liczb. A dokładniej — stworzymy prosty, animowany zegar analogowy.
+    </>
+  ),
+  keyword: 'zegar analogowy',
+  categories: ['Data i czas', 'Matematyka', 'Programowanie', 'Grafika komputerowa'],
+  tags: [
+    'javascript',
+    'canvas',
+    'rysowanie',
+    'grafika komputerowa',
+    'geometria',
+    'trygonometria',
+    'czas'
+  ],
+  slug: 'jak-narysowac-zegar-analogowy',
+  updateTime: '2023-02-08T07:00:00+00:00',
+  publishTime: '2023-02-08T07:00:00+00:00',
+  cover,
+  moveCoverToTop: true,
+};
+
+## Zegar analogowy z punktu widzenia matematyki
+
+Nie będę opisywać, jak działa zegar analogowy ani jak go odczytywać. To, na czym się skupimy, to jak go potraktować od strony matematycznej tak, byśmy byli w stanie narysować go za pomocą dowolnego języka programowania (obsługującego rysowanie po ekranie).
+
+Przede wszystkim zegar analogowy musimy widzieć jako kilka kół ze wspólnym środkiem. Każda ze wskazówek, pokazując czas, wyznacza okrąg o innym promieniu. Możemy to sobie zobrazować w poniższy sposób:
+
+<Image
+  image={zegarKola}
+  alignCenter
+  fullSize
+  forceWhiteBackground={false}
+  maxWidth="500px"
+  alt="Zegar analogowy z dwoma wskazówkami — godzinową i minutową. Narysowane są dodatkowo okręgi wyznaczane przez ruch każdej ze wskazówek."
+  caption={<>Kolorem granatowym zaznaczyłem okrąg wyznaczany przez wskazówkę minutową, a na zielono przez godzinową.
+    <br/>(oryginalny rysunek: <a href="https://commons.wikimedia.org/wiki/File:ClockIcon.svg">ClkerFreeVectorImages</a>, CC0, via Wikimedia Commons)</>}
+/>
+
+Skoro każda ze wskazówek wyznacza okrąg, oznacza to, że jej aktualne wskazanie możemy traktować jako wyznaczenie łuku okręgu. Inaczej to ujmując, wyobraź sobie wirtualną wskazówkę, która zawsze pokazuje godzinę 12. Wskazanie każdej kolejnej ze wskazówek zamiast jako czas możemy traktować jako kąt środkowy łuku, mniej więcej tak, jak na poniższym rysunku:
+
+<Image
+  image={zegarKaty}
+  alignCenter
+  fullSize
+  forceWhiteBackground={false}
+  maxWidth="500px"
+  alt="Zegar analogowy z dwoma wskazówkami — godzinową i minutową. Dodatkowo narysowano czerwoną wskazówkę wskazującą godzinę dwunastą. Między dodatkową wskazówką a dwoma pozostałymi wyznaczono kąty."
+  caption={<>Na czerwono dorysowałem wirtualną wskazówkę wyznaczającą godzinę 12. Na niebiesko zaznaczyłem kąt wyznaczony między nią a wskazówką minutową, a na zielono kąt do wskazówki godzinowej.
+    <br/>(oryginalny rysunek: <a href="https://commons.wikimedia.org/wiki/File:ClockIcon.svg">ClkerFreeVectorImages</a>, CC0, via Wikimedia Commons)</>}
+/>
+
+Dobrze, ale co nam to daje? Otóż znając kąt środkowy łuku i promień koła, jesteśmy w stanie obliczyć współrzędne punktu (w kartezjańskim układnie współrzędnych) na okręgu, w którym dany łuk się kończy. Innymi słowy, dokładnie ten punkt, który wskazuje wskazówka. Wzór na to prawdopodobnie znajduje się w szkolnych kartach wzorów, ale możemy go wyznaczyć prostą trygonometrią. Zwizualizujmy sobie najpierw to, zapominając na chwilę o zegarze, a pamiętając jedynie o kole.
+
+<Image
+  image={okragTrojkat}
+  alignCenter
+  fullSize
+  maxWidth="500px"
+  alt="Okrąg w kartezjańskim układzie współrzędnych z narysowanym trójkątem, który ma wspólny kąt z kołem w punkcie między 7 a 8 minutą na tarczy zegara."
+  caption={<>Okrąg o promieniu 1 oraz trójkąt prostokątny mający jeden punkt wspólny z kołem.
+    <br/>(wygenerowano z użyciem desmos.com)</>}
+/>
+
+W tym momencie nawet nie musimy znać równania okręgu ($$x^2-y^2=r^2$$, gdyby ktoś nie pamiętał). Jedyne, co nas interesuje, to narysowany przeze mnie trójkąt prostokątny. Znamy długość przeciwprostokątnej, bo jest to promień koła. Znamy też jeden z kątów. Innymi słowy, mamy wszystkie informacje potrzebne do znalezienia przyprostokątnych, które wyznaczą nam punkt na okręgu.
+
+<Image
+  image={trojkat}
+  alignCenter
+  fullSize
+  maxWidth="300px"
+  alt="Trójkąt prostokątny z zaznaczonym kątem alfa (po lewej stronie na dole) oraz zaznaczonym kątem prostym (po prawej stronie na dole). Przeciwprostokątna jest opisana jako r, pozioma przyprostokątna jako x, pionowa przyprostokątna jako y."
+  caption={<></>}
+/>
+
+Aby wyznaczyć przyprostokątną, która da pozycję na osi OX (zakładając środek koła w punkcie $$(0,0)$$), wykorzystamy poniższy wzór:
+
+$$
+\begin{align*}
+\cos \alpha &= \frac{x}{r} \\
+x &= r \cdot \cos \alpha
+\end{align*}
+$$
+
+A jak wyznaczyć pozycję na osi OY? Analogicznie, czyli wykorzystując inny wzór trygonometryczny:
+
+$$
+\begin{align*}
+\sin \alpha &= \frac{y}{r} \\
+y &= r \cdot \sin \alpha
+\end{align*}
+$$
+
+## Przygotowanie środowiska programistycznego
+
+Użycie tych wzorów w praktyce zaprezentuję na przykładzie języka programowania JavaScript (przeglądarkowego). Aczkolwiek na samym końcu, dla chętnych, pokażę także przeniesienie dokładnie tego samego kodu na Python (z [pygame](https://www.pygame.org/news)).
+
+Teraz w artykule opiszę krok po kroku, jak stworzyć różne elementy składające się na zegar analogowy. Całość mojej implementacji zamieszczę również na końcu artykułu, w wersji umożliwiającej interaktywne przerabianie kodu.
+
+Skończona aplikacja w JavaScript będzie wyglądać następująco:
+
+<Image
+  image={jsFinal}
+  alignCenter
+  fullSize
+  maxWidth="500px"
+  alt="Rysunek zegara analogowego."
+  caption={<></>}
+/>
+
+A w Pythonie:
+
+<Image
+  image={pyFinal}
+  alignCenter
+  fullSize
+  maxWidth="500px"
+  alt="Rysunek zegara analogowego."
+  caption={<></>}
+/>
+
+### Baza do tworzenia kodu
+
+W tym przypadku tak naprawdę jedyne, co potrzebujemy, to stworzyć plik HTML zawierający element typu `<canvas>` (płótno) oraz pusty plik ze skryptem JS (np. `script.js`) do użycia w pliku HTML. Może to wyglądać następująco:
+
+```html
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>Zegar analogowy</title>
+</head>
+
+<body>
+  <canvas id="canvas" width="500" height="500">
+    Twoja przeglądarka nie wspiera Canvas
+  </canvas>
+  <script src="script.js"></script>
+</body>
+
+</html>
+```
+
+Jeśli nigdy nic nie pisałeś(-aś) w postaci strony internetowej, zamiast tworzyć wszystko na swoim komputerze, prościej może być Ci skorzystać z serwisu typu [CodePen](https://codepen.io/), gdzie można szybko stworzyć środowisko przystosowane pod pisanie HTML, CSS i JavaScript. Wówczas na nasze potrzeby wystarczy, że w części HTML utworzysz jedynie element typu `<canvas>` i zaczniesz od razu pisać kod w JavaScript. Innymi alternatywami są np. [CodeSandbox](https://codesandbox.io) (z wykorzystaniem szablonu *Vanilla JavaScript*) lub [repl.it](https://replit.com/) (z szablonem *HTML, CSS, JS*). Istnieją też inne serwisy, ale te trzy mogę z całą pewnością polecić.
+
+### Przygotowanie do rysowania animacji
+
+Aby przygotować się do rysowania po płótnie, musimy wyciągnąć je z HTML-a i dostać się do jego kontekstu rysowania 2D. Jeśli `<canvas>` został zdefiniowany w HTML-u tak jak powyżej, można to zrobić poniższym kodem JS:
+
+```javascript
+const canvas = document.getElementById("canvas");
+const context = canvas.getContext("2d");
+```
+
+Zdefiniujmy od razu funkcję czyszczącą ekran:
+
+```javascript
+const clear = () => {
+  context.clearRect(0, 0, canvas.width, canvas.height);
+};
+```
+
+Teraz możemy przejść do samej pętli rysującej animację. W JavaScript najprościej jest zrobić funkcję, która wywoła się rekurencyjnie po określonym czasie. Z racji tego, że chcemy płynną animację, najlepiej do tego wykorzystać `window.requestAnimationFrame`, które wykona wskazaną funkcję w następnym oknie rysowania (czyli np. przy odświeżaniu ekranu 60 Hz, po 16,6 milisekundach). Skoro aktualnie mamy tylko czyszczenie ekranu, wrzućmy je tam. Będzie to wyglądać następująco:
+
+```javascript
+const draw = () => {
+  clear();
+
+  window.requestAnimationFrame(() => {
+    draw();
+  });
+}
+
+draw();
+```
+
+Na końcu oczywiście wywołujemy `draw()`, aby zainicjować pętlę. Jesteśmy teraz gotowi do uzupełnienia tej funkcji o kod rysujący zegar.
+
+## Ustalenie stałych i narysowanie obramowania tarczy
+
+Zanim przejdziemy do właściwego wykorzystania pokazanej wcześniej wiedzy matematycznej, najpierw narysujmy obramowanie tarczy zegara, przy okazji ustawiając parę rzeczy i tłumacząc, jak działa rysowanie w JavaScript.
+
+### Ustawienie stałych
+
+Najpierw ustawmy stałą, w której przechowamy promień całego zegara. Ja jako promień przyjąłem 250 pikseli (i tak rozmiar płótna w HTML-u ustawiłem 500×500, więc większego nie dałbym rady).
+
+```javascript
+const OUTER_RADIUS = 250;
+```
+
+Przy okazji możemy ustawić również promienie okręgów wyznaczanych przez każdą ze wskazówek. Zawsze najkrótsza jest godzinowa, a dłuższa od niej minutowa. Sekundową rozróżnia się przede wszystkim kolorem, natomiast co do długości nie wiem, czy jest reguła. Ja ustawiłem u siebie, że będzie najdłuższa:
+
+```javascript
+const SECOND_RADIUS = 200;
+const MINUTE_RADIUS = 180;
+const HOUR_RADIUS = 120;
+```
+
+Następnymi przydatnymi dla nas wartościami będą współrzędne środka naszego płótna. Możemy oczywiście wpisać w ciemno $$(250, 250)$$, skoro wiemy, że ustawiliśmy wymiary 500×500, ale lepszym podejściem jest wyciągnąć te wymiary i podzielić przez dwa:
+
+```javascript
+const centerX = canvas.width / 2;
+const centerY = canvas.height / 2;
+```
+
+### Narysowanie okręgu
+
+Zdefiniujmy wreszcie funkcję rysującą okrąg stanowiący ramkę zegara. Wyróżniam ten etap głównie dlatego, że wskaże nam, jak wygląda rysowanie w JavaScript oraz jak możemy nim sterować. Najpierw pokażę implementację funkcji, a potem ją wyjaśnię:
+
+```javascript
+const drawBorder = () => {
+  context.beginPath();
+  context.strokeStyle = "black";
+  context.arc(centerX, centerY, OUTER_RADIUS, 0, 2 * Math.PI);
+  context.stroke();
+};
+```
+
+Idąc po kolei:
+
+- Rysowanie inicjujemy funkcją `beginPath()`. Wskazujemy w ten sposób kontekstowi rysującemu, że zaczynamy nową figurę, która będzie mieć wspólne ustawienia rysowania, takie jak kontur czy wypełnienie.
+- `strokeStyle` ustawia kolor konturu.
+- W JavaScript nie ma funkcji dedykowanej rysowaniu okręgów, ale możemy to wykonać przy użyciu `arc()`. Jest to funkcja rysująca łuk. Dwoma pierwszymi argumentami są współrzędne środka, następnie wskazujemy promień koła, na którym wyznaczamy łuk. Kolejne dwa argumenty to wartości w radianach: kąta, od którego zaczynamy rysowanie łuku i na którym kończymy. Jeśli chcemy narysować cały okrąg, oczywiście zaczynamy od 0 radianów, a kończymy na $$2\pi$$ radianach ($$360^{\circ}$$).
+- `stroke()` wywołuje narysowanie wskazanej ścieżki z określonym wcześniej konturem.
+
+Zapamiętajmy te rzeczy, bo wszystko to (z wyjątkiem `arc()`) będziemy używać cały czas — właśnie tak definiuje się rysowanie jakichkolwiek figur w JavaScript.
+
+Możemy teraz dodać funkcję rysującą ramkę do `draw()`, tym samym otrzymując poniższy kod:
+
+```javascript
+const draw = () => {
+  clear();
+  drawBorder();
+
+  window.requestAnimationFrame(() => {
+    draw();
+  });
+};
+```
+
+Wizualnie będzie to wyglądać następująco:
+
+<Image
+  image={drawBorder}
+  alignCenter
+  fullSize
+  maxWidth="500px"
+  alt="Czarny okrąg na białym tle"
+  caption={<></>}
+/>
+
+Może nic ciekawego, ale właśnie pomyślnie narysowałeś(-aś) okrąg w JavaScript.
+
+## Rysowanie wskazówek
+
+Przejdźmy teraz do rysowania wskazówek. Aby się nie powtarzać, zrobimy wspólny kod rysujący dla wszystkich trzech wskazówek, a także napiszemy oddzielnie funkcję wyznaczającą pozycję punktu na okręgu (przyda się przy wielu innych okazjach niż tylko narysowanie wskazówek).
+
+### Funkcja określająca położenie punktu na okręgu
+
+Jak pamiętasz z początku artykułu, pozycję na okręgu możemy wyznaczyć z następujących wzorów:
+
+$$
+\begin{align*}
+x &= r \cdot \cos \alpha \\
+y &= r \cdot \sin \alpha
+\end{align*}
+$$
+
+Tak więc czy coś jeszcze potrzebujemy dodatkowo zrobić? W zasadzie tak. Spowodowane jest to dwiema rzeczami:
+
+- Według wzoru środek okręgu jest w punkcie $$(0,0)$$ więc musimy go przesunąć odpowiednio w przestrzeni.
+- Natomiast kąt $$0^{\circ}$$ znajduje się „na osi” OX, podczas gdy na zegarze znajduje się na OY.
+
+W kwestii pierwszego problemu rozwiązaniem jest po prostu dodanie współrzędnych środka płótna. Natomiast w przypadku drugiego musimy kąt „przesunąć” o $$90^{\circ}$$ ($$\frac{1}{2}\pi$$ radianów). Kąt ten oczywiście odejmujemy, aby przesunąć wszystkie wartości przeciwnie do (nomen omen) ruchu wskazówek zegara. Tym samym, gdy według wzoru godzina 12 byłaby na stopniu 90, a godzina 3 na stopniu 0, teraz 12 będzie na stopniu 0, a 3 na stopniu 90.
+
+Mając tę wiedzę, możemy napisać ogólną funkcję wyznaczającą punkt na okręgu. Jako zmienne przyjmujemy kąt (w radianach, ponieważ funkcje trygonometryczne w JavaScript na nich operują) oraz promień. Zwracamy współrzędne punktu w postaci tablicy.
+
+```javascript
+const getPosition = (angle, radius) => {
+  const x = radius * Math.cos(angle - 0.5 * Math.PI) + centerX;
+  const y = radius * Math.sin(angle - 0.5 * Math.PI) + centerY;
+  return [x, y];
+};
+```
+
+### Funkcja rysująca wskazówkę
+
+Przejdźmy następnie do rysowania wskazówek. Aby je narysować, potrzebujemy mieć:
+
+- aktualny czas,
+- informacje o wyglądzie (w naszym przypadku będzie to tylko kolor konturu),
+- promień koła, którego okrąg rysuje wskazówka.
+
+Jeśli chcemy napisać uniwersalną funkcję, nie będzie nas interesować aktualny czas, bo to jest coś, co powinno być znane tylko na poziomie rysowania konkretnej wskazówki. W przypadku ogólnej funkcji potrzebujemy jedynie informacji o odchyleniu wskazówki od godziny 12, czyli kąta. Z obliczeniem go będziemy martwić się później. Na razie wystarczy, żebyśmy dostali kąt w radianach.
+
+Taka funkcja może wyglądać następująco:
+
+```javascript
+const drawHand = (angle, color, radius) => {
+  const [x, y] = getPosition(angle, radius);
+  context.beginPath();
+  context.strokeStyle = color;
+  context.moveTo(centerX, centerY);
+  context.lineTo(x, y);
+  context.stroke();
+};
+```
+
+Jako argumenty przyjmujemy nasze trzy niewiadome, czyli kąt, kolor oraz promień. Natomiast co wykonujemy dalej? Pierwsze, co musimy znać, to współrzędne punktu na okręgu przy wskazanym kącie i promieniu. Dokładnie to obliczała poprzednio napisana przez nas funkcja, więc ją wykonujemy i od razu zrobimy destrukturyzację tablicy w celu uzyskania współrzędnych `x` i `y` jako oddzielnych zmiennych. Następnie rysujemy ścieżkę o wskazanym kolorze w znany już nam sposób. Dwie nowe funkcje, które zostały użyte zamiast `arc()`, to:
+
+- `moveTo()` przesuwa punkt, od którego zaczynamy rysowanie, do wskazanych współrzędnych.
+- `lineTo()` rysuje odcinek do wskazanego punktu.
+
+### Funkcje do rysowania poszczególnych wskazówek
+
+Następnie zdefiniujmy funkcje, które narysują konkretne wskazówki. Możemy to zrobić na dwa sposoby: prościej (ale niezgodnie z tym, jak działają zegary) oraz trudniej.
+
+Sposób prosty to oczywiście byłoby pobranie jako argument funkcji jedynie tej składowej czasu, którą dana wskazówka wskazuje, czyli np. dla godzinowej godzinę. Funkcja taka mogłaby wyglądać następująco:
+
+```javascript
+const drawHoursHand = (hours) => {
+  const angle = 2 * Math.PI * hours / 12;
+  drawHand(angle, "black", HOUR_RADIUS);
+};
+```
+
+To, co tutaj robimy, to przede wszystkim obliczamy kąt, pod którym ma zostać narysowana wskazówka względem godziny 12. Jak to robimy? Otóż zatoczenie całego okręgu to kąt $$360^{\circ}$$, czyli $$2\pi$$ radianów. Taki sam kąt wyznacza również 12 godzin wyświetlanych przez zegar. Stąd możemy podzielić aktualną liczbę godzin przez 12, aby otrzymać, ile całości okręgu przebyła wskazówka godzinowa. Potem, aby mieć to w radianach, mnożymy przez $$2\pi$$.
+
+Wersja ta jednak nie jest najlepsza, ale za to prosta — nasza wskazówka stoi cały czas na konkretnej godzinie. Tymczasem na zegarach analogowych wskazówka się przesuwa, na przykład o 2:30 będzie w połowie drogi między 2 a 3. Jak to zrobić? Tutaj przechodzimy do tej trudniejszej wersji, ale różni się ona tylko jednym dodatkowym działaniem. Otóż weźmiemy dodatkowo pod uwagę też mniejszą jednostkę czasu, czyli dla godzin minuty. Zobacz kod:
+
+```javascript
+const drawHoursHand = (hours, minutes) => {
+  const time = hours + minutes / 60;
+  const angle = 2 * Math.PI * time / 12;
+  drawHand(angle, "black", HOUR_RADIUS);
+};
+```
+
+W dodatkowej zmiennej time do liczby godzin dodajemy ułamek, który stanowi liczba przebytych minut. Reszta obliczeń jest dokładnie taka sama. W ten właśnie sposób zróbmy pozostałe wskazówki. Nie będę się już rozpisywać, bo obliczenie jest dokładnie takie samo, a zmienia się jedynia liczba, przez którą dzielimy, co wynika oczywiście z tego, ile minut czy sekund widzimy na zegarze.
+
+```javascript
+const drawMinutesHand = (minutes, seconds) => {
+  const time = minutes + seconds / 60;
+  const angle = 2 * Math.PI * time / 60;
+  drawHand(angle, "black", MINUTE_RADIUS);
+};
+
+const drawSecondsHand = (seconds, milliseconds) => {
+  const time = seconds + milliseconds / 1000;
+  const angle = 2 * Math.PI * time / 60;
+  drawHand(angle, "red", SECOND_RADIUS);
+};
+```
+
+W przypadku sekund sam(a) zdecyduj, które działanie wolisz. Jedne zegary analogowe płynnie przesuwają sekundnik (to będzie odwzorowane przez powyższy kod), a w innych sekundnik przeskakuje. Jeśli wolisz przeskakiwanie, to usuń wykorzystanie milisekund przy obliczaniu kąta.
+
+### Pobranie aktualnego czasu i wstawienie do funkcji rysującej
+
+To, co nam zostaje, to wykorzystać napisany kod w funkcji rysującej animację. Tylko że najpierw musimy pobrać aktualny czas. Aby nie było rozjazdów między wskazówkami, zrobimy to tylko raz, a następnie przekażemy konkretne wartości do poszczególnych funkcji. W JavaScript możemy to zrobić następująco:
+
+```javascript
+const currentTime = new Date();
+const hours = currentTime.getHours() % 12;
+const minutes = currentTime.getMinutes();
+const seconds = currentTime.getSeconds();
+const milliseconds = currentTime.getMilliseconds();
+```
+
+W przypadku godzin interesuje nas wartość modulo 12, ponieważ zegary analogowe pracują w trybie 12-godzinnym, podczas gdy `getHours()` zwraca wartości między 0 a 24.
+
+Skoro mamy pobrany czas, możemy złożyć wszystko w całość. Funkcja `draw()` będzie teraz wyglądać następująco:
+
+```javascript
+const draw = () => {
+  const currentTime = new Date();
+  const hours = currentTime.getHours() % 12;
+  const minutes = currentTime.getMinutes();
+  const seconds = currentTime.getSeconds();
+  const milliseconds = currentTime.getMilliseconds();
+
+  clear();
+  drawBorder();
+  drawHoursHand(hours, minutes);
+  drawMinutesHand(minutes, seconds);
+  drawSecondsHand(seconds, milliseconds);
+
+  window.requestAnimationFrame(() => {
+    draw();
+  });
+};
+```
+
+Graficznie daje to taki efekt, który dla wielu może być już zupełnie wystarczający:
+
+<Image
+  image={zegarWskazowki}
+  alignCenter
+  fullSize
+  maxWidth="500px"
+  alt="Czarny okrąg na białym tle z trzema wskazówkami."
+  caption={<>Jak coś, to tylko zrzut ekranu, dlatego nic się nie rusza.</>}
+/>
+
+## Narysowanie tarczy
+
+Mamy już działający, minimalistyczny zegar, ale zrezygnujmy z tego prostego wyglądu i udekorujmy nieco tarczę. Proponuję dodać:
+
+- oznaczenia konkretnych minut (krótkie odcinki),
+- nieco bardziej wyraźne oznaczenie co 5 minut (trochę dłuższe odcinki),
+- oznaczenia godzin (tekst).
+
+Wszystko to możemy zrobić za pomocą narzędzi matematycznych, które już poznaliśmy wcześniej — tylko tym razem zamiast do rysowania dynamicznego wskazówek, wykorzystamy je do dekoracji.
+
+### Zdefiniowanie dodatkowych stałych
+
+Zacznijmy od początku, czyli od zdefiniowania dodatkowych stałych. Podobnie jak przy poprzednich przypadkach, tutaj też będziemy umieszczać rzeczy na okręgu. A będą nam potrzebne trzy dodatkowe promienie:
+
+- promień okręgu wyznaczającego koniec odcinka oznaczenia minut (początek będzie mieć taki sam promień jak cały zegar),
+- to, co wyżej, ale dla odcinka rysowanego co 5 minut,
+- oraz promień okręgu, na którym będą wypisywane godziny.
+
+W pierwszym przypadku ustalmy sobie, że np. promień ten będzie mniejszy o 5 pikseli od promienia całego zegara. W drugim przypadku możemy np. uzależnić się od poprzednio wyznaczonego promienia, że będzie mniejszy o kolejne 5 pikseli. A co z ostatnim przypadkiem? Liczby najlepiej będą wyglądać między ścieżką najdłuższej wskazówki (w naszym przypadku sekundowej) a końcem odcinka wyznaczanego co 5 minut.
+
+Jeśli chcemy te wartości uzależnić od wcześniej wyznaczanych przez nas promieni, moglibyśmy to zrobić w następujący sposób:
+
+```javascript
+const MINUTE_MARKER_RADIUS = OUTER_RADIUS - 5;
+const SECOND_MINUTE_MARKER_RADIUS = MINUTE_MARKER_RADIUS - 5;
+const HOUR_MARKER_RADIUS = (SECOND_RADIUS + SECOND_MINUTE_MARKER_RADIUS) / 2;
+```
+
+W ostatnim przypadku liczymy średnią arytmetyczną dla dwóch wskazanych przeze mnie promieni, aby otrzymać wartość „pośrodku”.
+
+### Narysowanie oznaczeń minut
+
+Zacznijmy od narysowania oznaczeń minut. Aby to zrobić, musimy najzwyczajniej w świecie <Link href="/post/iteracja-co-to-jest">przeiterować</Link> po kolejnych liczby od 1 do 60. Oczywiście wszystko zamknijmy w funkcji, aby móc to ładnie wywołać w `draw()`:
+
+```javascript
+const drawFace = () => {
+  for (let i = 1; i <= 60; i++) {
+    // tutaj wstawimy kod, który będziemy dalej pisać
+  }
+};
+```
+
+Następnie całe rysowanie powiela w zasadzie to, co robiliśmy dotychczas. Najpierw obliczamy kąt — robimy to tak samo, jak dla minut (w końcu rysujemy minuty, jedynie nie bierzemy pod uwagę sekund). Następnie liczymy pozycję na brzegu zegara, a potem, w zależności czy wartość jest podzielna przez 5, pozycję do bliższego lub dalszego okręgu. Mając obie pozycje, możemy przystąpić do rysowania odcinka. Wszystko to zamkniemy w poniższym kodzie:
+
+```javascript
+const divisibleBy5 = i % 5 === 0;
+const angle = 2 * Math.PI * i / 60;
+const radius = divisibleBy5
+  ? SECOND_MINUTE_MARKER_RADIUS
+  : MINUTE_MARKER_RADIUS;
+const [startX, startY] = getPosition(angle, radius);
+const [endX, endY] = getPosition(angle, OUTER_RADIUS);
+
+context.beginPath();
+context.strokeStyle = "black";
+context.moveTo(startX, startY);
+context.lineTo(endX, endY);
+context.stroke();
+```
+
+### Narysowanie oznaczeń godzin
+
+Jak możesz się spodziewać, rysowanie godzin nie będzie dużo bardziej skomplikowane, jest to tylko napisanie tekstu w miejscu wyznaczonym przez `getPosition`. Kąt już mamy. Jedyne, co musimy ustalić, to którą godzinę rysujemy, ale to można obliczyć, dzieląc aktualną wartość licznika przez 5 (w końcu wskazanie kolejnej godziny jest co „5 minut”).
+
+Nie przedłużając, zrobimy to następującym kodem:
+
+```javascript
+if (divisibleBy5) {
+  const hour = (i / 5).toString();
+  const [x, y] = getPosition(angle, HOUR_MARKER_RADIUS);
+  context.font = "24px serif";
+  context.textAlign = "center";
+  context.textBaseline = "middle";
+  context.fillText(hour, x, y);
+}
+```
+
+W zasadzie robimy tutaj analogiczne rzeczy jak do tej pory. Nowością jest pisanie tekstu na ekranie. W `font` ustawiamy czcionkę — jej rozmiar i krój. W tym przypadku nie ustaliłem konkretnej czcionki, a jedynie rodzaj — szeryfową. `textAlign` decyduje o ułożeniu tekstu w poziomie, więc aby został napisany na środku wyznaczonego przez nas punktu, musimy go wyśrodkować. `textBaseline` to analogiczna własność, ale układa tekst w pionie — tutaj też nas interesuje wyśrodkowanie.
+
+Po złożeniu w całość funkcji `drawFace()` możesz ją dopisać do `draw()`.
+
+## Koniec implementacji (gotowce tutaj)
+
+Oto skończyliśmy implementację. Jeśli podążałeś(-aś) za moimi instrukcjami, na Twoim ekranie powinno być widoczne mniej więcej coś takiego jak poniżej:
+
+<Presentation />
+
+Cały kod wraz z możliwością edycji znajdziesz na poniższych platformach. Wybierz, którą wolisz:
+
+- [CodePen](https://codepen.io/tswistak/pen/XWBgrbJ)
+- [repl.it](https://replit.com/@tswistak/clock-js#script.js)
+
+Daję również obiecaną przeze mnie na początku wersję napisaną w Pythonie z pygame. Znajdziesz ją także na [repl.it](https://replit.com/@tswistak/clock-py#main.py). Zegar ten w przeciwieństwie do JavaScriptowego może wydawać się miejscami krzywo narysowany, ale jest to wina zaokrągleń przy obliczaniu pozycji i równocześnie braku antyaliasingu. Na canvasie w JS antyaliasing jest domyślnie włączony, dlatego mimo niedoskonałości wynikających z zaokrągleń całość wygląda dobrze. W pygame są [funkcje umożliwiające rysowanie z antyaliasingiem](https://www.pygame.org/docs/ref/gfxdraw.html), więc jeśli jesteś chętny(-a), możesz spróbować przerobić gotowca i sprawdzić, czy będzie wyglądać wtedy lepiej.
+
+## Podsumowanie
+
+W artykule pokazałem, w jaki sposób, wykorzystując matematykę na poziomie szkoły średniej, możemy zrobić prostą i użyteczną animację. Pokazuje to też dość typowy sposób rozwiązywania wszelkich problemów przy programowaniu:
+
+- Znaleźć uogólnienie problemu — tutaj: potraktowanie wskazówek jako czegoś, co wskazuje konkretny punkt na okręgu.
+- Znaleźć sposób rozwiązania uogólnionego problemu — wykorzystanie wzorów trygonometrycznych na boki trójkąta w celu znalezienia pozycji punktu na okręgu.
+- Zastosować rozwiązanie na naszym szczegółowym problemie — wykorzystanie wzoru do znajdowania pozycji wskazówek w zależności od aktualnej godziny.
+
+Mam nadzieję, że artykuł pokazał Ci, jak podchodzić do takich prostych problemów. A jeśli jesteś tutaj tylko po gotowca, to mam nadzieję, że się przyda 😊.
+
+<small>Zdjęcie na okładce wygenerowane przez Stable Diffusion.</small>

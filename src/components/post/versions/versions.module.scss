@@ -1,0 +1,27 @@
+.container {
+  width: 80%;
+  margin: 12px auto;
+  border-radius: 10px;
+  border-style: solid;
+  border-width: 1px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 16px;
+
+  i {
+    font-size: 32px;
+  }
+}
+
+.youtube {
+  background-color: var(--sc__youtube--background);
+  color: var(--sc__youtube--color);
+  border-color: var(--sc__youtube--border);
+}
+
+.english {
+  background-color: var(--sc__english--background);
+  color: var(--sc__english--color);
+  border-color: var(--sc__english--border);
+}

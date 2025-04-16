@@ -1,0 +1,517 @@
+import Link from 'next/link';
+import {Image, Iframe} from '@swistak-codes/components';
+import cover from './pies-lapiacy-swoj-ogon.jpg';
+import kolejki from './kolejki.png';
+import wykres1 from './wykres-1.png';
+import wykres2 from './wykres-2.png';
+import wykres3 from './wykres-3.png';
+import wykres4 from './wykres-4.png';
+
+export const meta = {
+  title: 'Derekursywacja',
+  abstract:
+    'Opowiedzmy sobie o tym, jak rekurencji możemy się pozbyć. Proces ten nazywamy derekursywacją i opisuję tutaj kilka sposobów jak to zrobić.',
+  firstParagraph: (
+    <>
+      <Link href="/post/rekurencja-co-to-jest">Z mojego poprzedniego artykułu wiemy już czym jest rekurencja, rekursja
+        ogonowa oraz jak je stosujemy.</Link> Jednak temat rekurencji jest dość rozległy i warto opowiedzieć sobie o
+      tym, jak rekurencji możemy się najzwyczajniej w świecie… pozbyć. Proces ten nazywamy derekursywacją i możemy
+      podejść do tego na różne sposoby, których część tutaj opiszę.
+    </>
+  ),
+  keyword: 'derekursywacja',
+  categories: ['Programowanie', 'Matematyka'],
+  tags: [
+    'rekurencja',
+    'rekurencja ogonowa',
+    'wzór Bineta',
+    'stos',
+    'kolejki',
+    'FIFO',
+    'LIFO',
+    'derekursywacja',
+    'optymalizacja',
+    'silnia',
+    'fibonacci',
+    'matematyka',
+    'funkcje tworzące',
+    'szeregi',
+  ],
+  slug: 'derekursywacja',
+  updateTime: '2021-02-16T19:22:40+00:00',
+  publishTime: '2021-02-17T10:00:48+00:00',
+  cover,
+};
+
+## Po co pozbywać się rekurencji?
+
+Najpierw zacznijmy od tego, dlaczego warto to robić. Przede wszystkim, o ile rekurencja jest bliższa matematyce i często pewne problemy jest tak dużo łatwiej rozwiązać, to pamiętajmy, że koniec końców po kompilacji otrzymujemy ciąg poleceń dla procesora. A dla tych, tradycyjne iteracje są o wiele prostsze, ponieważ nie musimy przechowywać stosu wywołań. Możesz to zobaczyć już [w samym porównaniu zwykłej rekurencji do ogonowej w kodzie Assemblerowym](https://godbolt.org/z/PMd61P) — prawie 300 linijek kodu dla rekursji w porównaniu do około 20 dla wersji ogonowej. Różnica jest znaczna. Analogicznie jest w przypadku tradycyjnych iteracji, ale do tego przejdziemy już za chwilę.
+
+## Derekursywacja rekurencji ogonowej
+
+Najprostszy przypadek to derekursywacja rekurencji ogonowej ze względu na jej duże podobieństwo do tradycyjnych iteracji. Bardzo często możemy je w prosty sposób przełożyć na pętle while, analogicznie do poniżej zaprezentowanego schematu:
+
+```javascript
+// rekurencja ogonowa
+function a(x) {
+  if (warunek(x)) {
+    return a(przetworz(x));
+  } else {
+    return koncowa_wartosc(x);
+  }
+}
+
+// wersja iteracyjna
+function a(x) {
+  while (warunek(x)) {
+    x = przetworz(x);
+  }
+  return koncowa_wartosc(x);
+}
+```
+
+Czasami aby dokonać takiej transformacji trzeba na przykład odwrócić warunki. Zobacz, że tutaj wchodzimy w rekurencję gdy warunek jest spełniony, a przerywamy ją, gdy nie jest. W dotychczas rozpatrywanych przez nas przypadkach było na odwrót, jednak obrócenie warunków nie jest trudnym zadaniem.
+
+Przełóżmy w dokładnie taki sposób pokazane w poprzednim artykule, ogonowe wersje funkcji Fibonacciego i silni, tym razem tylko w C. Jeżeli nie czytałeś <Link href="/post/rekurencja-co-to-jest">poprzedniego artykułu</Link>, zachęcam zerknąć do implementacji tam zamieszczonych.
+
+```c
+int fibonacci(int n) {
+  int a = 0;
+  int b = 1;
+  while (n > 1) {
+    int tmp = a; // zmienna pomocnicza do obliczenia wartości
+    a = b;
+    b = tmp + b;
+    n -= 1;
+  }
+  if (n == 0) {
+    return a;
+  }
+  return b;
+}
+
+int factorial(int n) {
+  int acc = 1;
+  while (n > 0) {
+    acc = n * acc;
+    n -= 1;
+  }
+  return acc;
+}
+```
+
+Kod możesz sprawdzić na platformie [repl.it pod tym linkiem](https://repl.it/@tswistak/iteration-from-tail#main.c). Natomiast porównanie kodu Assemblera dla rekurencji oraz iteracyjnej wersji Fibonacciego, [znajdziesz tutaj](https://godbolt.org/z/9cfrq8).
+
+Wszystkie zabiegi jakie musieliśmy dokonać, to tak naprawdę przeniesienie dodatkowych argumentów funkcji do jej środka oraz obrócenie warunków. Prawda jest taka, że bardzo podobnie można by te funkcje napisać nierekurencyjnie prosto z definicji. Możliwe, że jedynie zamiast pętli `while`, użyłbyś pętli `for`, która jest bardziej „naturalna” dla odliczania. Dodatkowo, w Fibonaccim warunek dla elementu zerowego umieściłbyś wcześniej w kodzie, jednak nie robi to dużej różnicy.
+
+## Derekursywacja przez użycie kolejek
+
+Nie zawsze derekursywacja jest tak prostym zadaniem, jak pokazałem powyżej, głównie dlatego, że zwykle nie mamy do czynienia z rekursją ogonową. Wówczas najprostszym sposobem pozbycia się rekurencji jest jej „zasymulowanie” w iteracyjny sposób. Wykorzystać do tego możemy struktury danych zwane kolejkami.
+
+### Kolejki
+
+Możemy wyróżnić kolejki FIFO (First In, First Out — pierwszy wszedł, pierwszy wychodzi; możesz kojarzyć z kolejkami w sklepie) oraz LIFO (Last In, First Out — ostatni przyszedł, pierwszy wychodzi; popularnie nazywane stosami). Są to bardzo proste struktury, gdzie po dodaniu na nie elementów, ściągamy je w kolejności wyznaczonej przez kolejkę (czyli właśnie FIFO bądź LIFO). Dla zobrazowania różnicy między FIFO i LIFO zobacz poniższy obrazek:
+
+<Image
+  image={kolejki}
+  alignCenter
+  fullSize
+  alt="Z lewej strony pokazano schemat działania kolejek FIFO, z prawej kolejek LIFO"
+  caption={<>
+    Zobrazowanie działania kolejek FIFO i LIFO zakładając, że dodawaliśmy elementy w kolejności 1, 2, 3.
+  </>}
+/>
+
+Jak możesz zobaczyć na powyższym schemacie, kolejki działają w taki sposób, że dodając po kolei elementy \[1, 2, 3\], ściągniemy je w kolejności:
+
+- \[1, 2, 3\] w kolejce FIFO — zachowujemy kolejność dodawania elementów
+- \[3, 2, 1\] w kolejce LIFO — ostatnio dodany będzie pierwszym ściąganym
+
+### Wykorzystanie stosu w rekurencji
+
+Wróćmy do rekurencji i derekursywacji. Jak możesz sobie przypomnieć, wywołując funkcje rekurencyjnie, przenosiliśmy wywołania... na stos, czyli kolejkę LIFO. Tak, programy same z siebie utrzymują takie struktury danych, aby obsłużyć rekurencję. Jednak nikt nie broni nam zrobić tego na własną rękę. Początkowa wersja tak przepisanego algorytmu może być bardzo nieczytelna i na pewno mniej wydajna niż napisana choćby w poprzednio pokazany sposób, jednak zawsze możemy kod upraszczać i optymalizować.
+
+Zacznijmy od tego, w jaki sposób to działa. Funkcję dzielimy na kilka przypadków, które mogą zajść, gdzie każdy z nich ma określony adres. W pamięci komputera jest to adres pierwszego rozkazu procesora dla danego przypadku. Utrzymujemy także stos, w którym (zależnie od funkcji) trzyma się adres, na jaki powinniśmy wrócić, akumulator (zapamiętany wynik wywołania) oraz argument, z jakim została funkcja wywołana. Oczywiście wszystko zależy od rodzaju funkcji i w niektórych przypadkach jedyne, co wystarczy trzymać, to argument i adres (np. przy silnii) bądź sam adres (np. przy przechodzeniu drzew).
+
+Stos na samym starcie otrzymuje pusty akumulator, adres powrotu wskazujący punkt zwrócenia końcowej wartości oraz argument pierwszego wywołania funkcji. Następnie przechodzimy do wykonania pierwszego przypadku. W kwestii przypadków najczęściej mamy do czynienia z trzema: wywołanie rekursji, co wykonujemy w trakcie rekursji i co robimy, gdy zakończymy rekursję.
+
+Iterację zapewnia nam tradycyjna pętla działająca tak długo jak mamy elementy w stosie. Maszynowo jest to wykonywane instrukcjami skoku, jednak jak mielibyśmy przenosić to na imperatywne języki programowania, wykorzystalibyśmy dobrze znaną nam pętlę while. Oprócz pętli trzymamy informację, do jakiej instrukcji idziemy jako kolejnej. Wewnątrz pętli rozpisujemy wspomniane wcześniej przypadki, gdzie, jak już wspomniałem, każdy ma „adres”.
+
+W owych przypadkach musimy operować na stosie. Zazwyczaj na początku ściągamy wartości ze stosu — argument i akumulator.
+
+### Omówienie przykładowej derekursywacji — silnia
+
+Poniżej zamieszczam kod źródłowy (w języku C) algorytmu obliczającego silnię zderekursywowanego w opisany powyżej sposób. Kod jest opatrzony w komentarze wyjaśniające działanie i dlaczego akurat tak zostało coś zaimplementowane.
+
+```c
+int factorial(int n) {
+  // zmienna przechowująca "adres" aktualnego przypadku
+  // adresy: 10 - wywołanie; 20 - obliczenie; 30 - koniec
+  int currentAddress = 10;
+  // tymczasowa zmienna na przechowanie wyniku
+  int currentResult = n;
+  // stos wywołań; załóżmy że 1024 elementy wystarczą
+  int stack[1024];
+  // wskaźnik ostatniego elementu na stosie;
+  int stackPtr = -1;
+
+  // dodajemy na stos adres ostatniego przypadku
+  stack[++stackPtr] = 30;
+  // dodajemy na stos aktualną wartość n, czyli aktualny wynik
+  stack[++stackPtr] = currentResult;
+
+  /*
+    Drobne wyjaśnienie dla osób nieznających zapisu:
+    ++A - najpierw zwiększa wartość zmiennej A, a potem zwraca jej wartość
+    A++ - najpierw zwraca wartość zmiennej A, potem zwiększa jej wartość
+    Analogicznie jest z dwoma minusami (zmniejszanie wartości.
+    Działa to tutaj na takiej zasadzie, że przed dodaniem do stosu
+    zawsze podnosimy wskaźnik o 1 i dodajemy w puste miejsce.
+    Natomiast ściągając ze stosu (A--) najpierw używamy
+    aktualną wartość wskaźnika, a potem cofamy go.
+  */
+
+  // uruchamiamy pętlę, która będzie się wykonywać póki stos ma elementy
+  while (stackPtr > -1) {
+    switch (currentAddress) {
+      case 10: // wywołanie
+        /* Odpowiednik:
+          if (n == 0) {
+            return 1;
+          } else {
+            return factorial(n - 1)
+          }
+        */
+        // "wywołujemy" funkcję z n zapisanym w stosie
+        n = stack[stackPtr--];
+        // sprawdzamy czy jesteśmy w stanie podać od razu wartość
+        if (n == 0) {
+          // zamiast zwracać wartość pobieramy ze stosu
+          // adres poprzedniego przypadku
+          currentAddress = stack[stackPtr--];
+          // natomiast rezultat zapisujemy na stosie
+          stack[++stackPtr] = 1;
+        } else {
+          // jeżeli nie to tworzymy sztuczne wywołanie "rekurencyjne"
+          // najpierw wrzucamy na stos aktualne n
+          stack[++stackPtr] = n;
+          // następnie adres w który powinno się przejść po obliczeniu
+          stack[++stackPtr] = 20;
+          // oraz n pomniejszone o 1, z którym "wywołujemy" funkcję
+          stack[++stackPtr] = n - 1;
+          // i powtórzymy aktualny krok
+          currentAddress = 10;
+        }
+        break;
+      case 20: // obliczenie
+        /* Odpowiednik:
+          return factorial(n - 1) * n;
+        */
+        // pobieramy aktualną wartość ze stosu
+        currentResult = stack[stackPtr--];
+        // następnie n dla którego obliczamy wartość
+        n = stack[stackPtr--];
+        // oraz adres dokąd mamy przejść po obliczeniu
+        currentAddress = stack[stackPtr--];
+        // obliczamy wartość wg wzoru na silnię
+        currentResult = n * currentResult;
+        // wrzucamy wartość na stos
+        stack[++stackPtr] = currentResult;
+        break;
+      case 30: // koniec
+        currentResult = stack[stackPtr--];
+    }
+  }
+
+  // zwracamy ostateczny wynik
+  return currentResult;
+}
+```
+
+Jeżeli chcesz przetestować tę funkcję w praktyce, to znajdziesz ją [na serwisie repl.it pod tym linkiem](https://repl.it/@tswistak/nonrecursive-stack#main.c). Dodatkowo znajdziesz tam również zderekursywowaną w analogiczny sposób funkcję Fibonacciego. Aby nie przedłużać niepotrzebnie artykułu, nie zamieszczam jej tutaj, bo zaraz przed nami długa przygoda (i to właśnie z Fibonaccim).
+
+Warto jeszcze tylko zadać sobie pytanie — czy jest sens tak robić? Odpowiedź brzmi: to zależy. W takich przypadkach, jak silnia czy ciąg Fibonacciego, możemy napisać znacznie prościej wersje nierekurencyjne. Jednak dla bardziej rozbudowanych algorytmów rekurencyjnych, tak przeprowadzona derekursywacja może być dobrą bazą do dalszych optymalizacji.
+
+## Derekursywacja matematyczna
+
+Derekursywację możemy przeprowadzać nie tylko programistycznie, w matematyce też jest to możliwe — mówimy wówczas o otrzymaniu wzoru jawnego ze wzoru rekurencyjnego. Jest to nieco bardziej zaawansowany temat, jednak postaram się go przybliżyć w prosty sposób.
+
+Uwaga! Teraz pojawi się dużo wzorów matematycznych prezentujących jak przekształcać funkcje. Nie będzie tutaj bardzo zaawansowanej matematyki, ale jeżeli chcesz, możesz pominąć ten rozdział jako niezwiązany w pełni z programowaniem.
+
+### Funkcje tworzące
+
+Jedną z technik, jaką możemy wykorzystać, są funkcje tworzące, a dokładniej — wykorzystanie funkcji tworzącej do wyprowadzenia wzoru jawnego. Krótko mówiąc, funkcja tworząca $$G(x)$$ dla ciągu liczb $$(g_0, g_1, g_2, ...)$$ to szereg funkcyjny, który opisujemy wzorem:
+
+$$
+G(x) = \sum^{\infin}_{n=0}g_nx^n
+$$
+
+Jednak dla ułatwienia nie będziemy wprost rozpisywać z tego wzoru, tylko skorzystamy z pewnego uproszczenia możliwego do wykorzystania w funkcjach rekurencyjnych.
+
+### Wyprowadzenie funkcji tworzącej dla funkcji rekurencyjnej
+
+Sposób ten możemy wykorzystać dla funkcji rekurencyjnych, które można w ogólnym wypadku opisać poniższym wzorem:
+
+$$
+a_n = c_1a_{n-1} + c_2a_{n-2} + ... + c_ka_{n-k}, \text{dla } n \geq k
+$$
+
+Równania takie nazywamy równaniami rekurencyjnymi liniowymi. W taki sposób, przykładowo, zapisujemy dobrze znane nam równanie na elementy ciągu Fibonacciego (dla odróżnienia będziemy tutaj stosować literkę $$f$$):
+
+$$
+\begin{align*}
+f_n &= f_{n-1} + f_{n-2}
+\\ \text{gdzie: }& k = 2, c_1 = 1,  c_2 = 1
+\end{align*}
+$$
+
+Teraz przenieśmy sobie wszystko na jedną stronę równania, aby po znaku równości mieć 0. Otrzymujemy wtedy:
+
+$$
+\begin{align*}
+&a_n - c_1a_{n-1} - c_2a_{n-2} - ... - c_ka_{n-k} = 0
+\\ \text{Fibonacci: }& f_n - f_{n-1} - f_{n-2} = 0
+\end{align*}
+$$
+
+Jak już w taki sposób wyprowadziliśmy wzór na n-ty element ciągu, możemy przystąpić do wyprowadzenia wzoru na jego funkcję tworzącą. Jak pamiętamy, jest to suma: $$\sum_{n=0}g_nx^n$$, więc rozpiszmy ją sobie, podstawiając od razu kolejne wartości elementów z ciągu:
+
+$$
+\begin{align*}
+A &= \sum^{\infin}_{n=0}a_nx^n = a_0 + a_1x + a_2x^2 + a_3x^3 + ...
+\\ \text{Fibonacci: } F &= \sum^{\infin}_{n=0}f_nx^n = 0  + x + x^2 + 2x^3 + 3x^4 + 5x^5 + 8x^6 +...
+\end{align*}
+$$
+
+Jednak taka forma nas nie interesuje, ponieważ niewiele możemy z nią zrobić. Teraz przyda nam się wcześniej wyprowadzone równanie, gdzie wszystkie elementy ciągu dają nam zero. Mianowicie, będziemy mnożyć funkcję tworzącą przez $$-c_kx^k$$. Wtedy zapiszmy to razem z poprzednio pokazanym wzorem funkcji tworzącej:
+
+$$
+\begin{align*}
+A &= a_0 + a_1x + a_2x^2 + a_3x^3 + ...
+\\ -c_1xA &= -c_1a_0x - c_1a_1x^2 - c_1a_2x^3 - ...
+\\ -c_2x^2A &= -c_2a_0x^2 - c_2a_1x^3 - c_2a_2x^4 - ...
+\\ -c_3x^3A &= -c_3a_0x^3 - c_3a_1x^4 - c_3a_2x^5 - ...
+\\ &\text{itd...}
+\end{align*}
+$$
+
+Dla ciągu Fibonacciego będzie to wyglądać następująco:
+
+$$
+\begin{align*}
+F &= x + x^2 + 2x^3 +  3x^4 + 5x^5 + 8x^6 +...
+\\ -xF &= -x^2 - x^3 - 2x^4 - 3x^5 - 5x^6 - 8x^7 - ...
+\\ -x^2F &= -x^3 - x^4 - 2x^5- 3x^6 - 5x^7 - 8x^8 - ...
+\end{align*}
+$$
+
+Teraz „złączymy” wszystko w jeden wzór. Po obu stronach równania dodajemy do siebie (w zasadzie odejmujemy, jednak można powiedzieć, że to jest to samo) te części równania, które mają $$x$$ w tej samej potędze. Z prawej strony, gdzie dochodzimy do nieskończoności, przerywamy sumowanie, gdy tylko zaczną nam się powtarzać zera. Następnie równanie upraszczamy przez wyciągnięcie $$A$$ przed nawias z lewej strony znaku równości. Następnie doprowadzamy równanie do takiej postaci, aby z lewej strony mieć tylko $$A$$ i tym samym wyprowadzić wzór funkcji tworzącej. Żeby nie rozwlekać już ogólnego przypadku, pokażę to dla ciągu FIbonacciego (stąd $$F$$ zamiast $$A$$):
+
+$$
+\begin{align*}
+F - xF - x^2F &= x + 0x^2 + 0x^3+0x^4 + ...
+\\ F - xF - x^2F &= x
+\\ (1 - x - x^2)F &= x
+\end{align*}
+$$
+
+$$
+\\ F = \frac{x}{1 - x - x^2}
+$$
+
+### Zapisanie funkcji tworzącej jako szeregu potęgowego
+
+Następnie musimy przekształcić funkcję tworzącą z powrotem na szereg potęgowy, jednak tym razem taki, który nie będzie zawierać we wzorze kolejnych wartości ciągu. Zacznijmy od zajęcia się wielomianem w mianowniku, a więc musimy znaleźć jego punkty zerowe. Na szczęście w przypadku Fibonacciego jest to równanie kwadratowe, które zapewne nie raz rozwiązywałeś w szkole przez wyliczanie tzw. delty (prawidłowo — wyróżnik równania kwadratowego). I dokładnie ową deltę musimy tutaj wyliczyć, a następnie z niej otrzymać miejsca zerowe:
+
+$$
+\begin{align*}
+1-x-x^2 &= 0
+\\ -x^2-x+1 &= 0
+\\ (-1)(-x^2-x+1) &= (-1) \cdot 0
+\\ x^2 + x - 1 &= 0
+\end{align*}
+$$
+
+$$
+\begin{align*}
+\\ \Delta &= b^2 - 4ac = 1^2 - 4\cdot1\cdot(-1) = 1 + 4 = 5
+\\ x_1 &= \frac{-b-\sqrt{\Delta}}{2a} = \frac{-1-\sqrt{5}}{2} = -\frac{1+\sqrt{5}}{2}
+\\ x_2 &= \frac{-b+\sqrt{\Delta}}{2a} = \frac{-1+\sqrt{5}}{2} = -\frac{1-\sqrt{5}}{2}
+\end{align*}
+$$
+
+Skoro mamy miejsca zerowe równania kwadratowego, to możemy zapisać je w postaci iloczynowej:
+
+$$
+\begin{align*}
+ax^2+bx+c &= a(x-x_1)(x-x_2)
+\\ 1 - x - x^2 &= -1\cdot(x-x_1)(x-x_2)
+\\ 1 - x - x^2 &= x_1x_2(\tfrac{x}{x_1} - 1)(\tfrac{x}{x_2}-1)
+\end{align*}
+$$
+
+Skoro $$x_1$$ oraz $$x_2$$ mają znaną wartość, to wyliczmy, ile wynosi $$x_1x_2$$:
+
+$$
+\begin{align*}
+x_1x_2 &= (-\frac{1+\sqrt{5}}{2})(-\frac{1-\sqrt{5}}{2})
+\\ x_1x_2 &= \frac{(1+\sqrt{5})(1-\sqrt{5})}{(-2)\cdot(-2)}
+\\ x_1x_2 &= \frac{1-\sqrt{5}+\sqrt{5}-5}{4} = \frac{-4}{4} = -1
+\end{align*}
+$$
+
+Wracając do naszej funkcji tworzącej, możemy ją teraz zapisać w następującej postaci:
+
+$$
+F = \frac{x}{-(\tfrac{x}{x_1} - 1)(\tfrac{x}{x_2}-1)} = \frac{x}{(1 - \tfrac{x}{x_1})(1 - \tfrac{x}{x_2})}
+$$
+
+Kolejny krok jest już nieco trudniejszy, ponieważ aby jeszcze bardziej uprościć równanie, musimy dokonać rozkładu na ułamki proste. Nie będę już tego etapu przedstawiać krok po kroku, tylko od razu wyprowadzę wzór:
+
+$$
+\begin{align*}
+\frac{x}{(1 - \tfrac{x}{x_1})(1 - \tfrac{x}{x_2})} &= \frac{A}{1 - \tfrac{1}{x_1}x} + \frac{B}{1 - \tfrac{1}{x_2}x}
+\\ &...
+\\ \text{ }
+\\ \frac{x}{(1 - \tfrac{x}{x_1})(1 - \tfrac{x}{x_2})} &= \frac{\tfrac{1}{\sqrt{5}}}{1 - \tfrac{1}{x_1}x} + \frac{-\tfrac{1}{\sqrt{5}}}{1 - \tfrac{1}{x_2}x}
+\\ \text{ }
+\\ \frac{x}{(1 - \tfrac{x}{x_1})(1 - \tfrac{x}{x_2})} &= \frac{1}{\sqrt{5}} \bigg( \frac{1}{1 - \tfrac{1}{x_1}x} - \frac{1}{1 - \tfrac{1}{x_2}x} \bigg)
+\end{align*}
+$$
+
+Następnie zaprezentuję dwa przydatne wzory, które przydadzą się nam przy dalszych obliczeniach. Pierwszy z nich to wzór na funkcję tworzącą ciągu geometrycznego, a drugi na kombinację liniową dwóch szeregów:
+
+$$
+\begin{align}
+\sum_{n=0}^\infty a^nx^n&= \frac{1}{1-ax}
+\\ \alpha \sum\limits_{n=0}^\infty a_n x^n + \beta \sum\limits_{n=0}^\infty b_n x^n &= \sum\limits_{n=0}^\infty (\alpha a_n + \beta b_n) x^n
+\end{align}
+$$
+
+Teraz wykorzystamy te wzory, aby otrzymać z powrotem wzór na szereg, tylko tym razem niewykorzystujący kolejnych elementów ciągu. Wzór ten jest potrzebny, aby na jego podstawie stworzyć wzór na n-ty element.
+
+$$
+\begin{align*}
+F &= \frac{1}{\sqrt{5}} \bigg(  \frac{1}{1 - \tfrac{1}{x_1}x} - \frac{1}{1 - \tfrac{1}{x_2}x} \bigg)
+\\ F &= \frac{1}{\sqrt{5}} \bigg( \sum_{n=0}^\infty(\tfrac{1}{x_1})^nx^n - \sum_{n=0}^\infty(\tfrac{1}{x_2})^nx^n \bigg)
+\\ F &= \frac{1}{\sqrt{5}}  \sum_{n=0}^\infty(\tfrac{1}{x_1})^nx^n - \frac{1}{\sqrt{5}} \sum_{n=0}^\infty(\tfrac{1}{x_2})^nx^n
+\\ F &= \sum_{n=0}^\infty \bigg( \frac{1}{\sqrt{5}} \Big((\tfrac{1}{x_1})^n - (\tfrac{1}{x_2})^n\Big)\bigg)x^n
+\end{align*}
+$$
+
+### Wyprowadzenie wzoru jawnego
+
+Teraz przypomnijmy sobie, że pierwszym wzorem, od którego wychodziliśmy, był $$F = \sum^{\infin}_{n=0}f_nx^n$$, gdzie $$f_n$$ to n-ty element ciągu Fibonacciego. Oznacza to, że otrzymaliśmy pożądany przez nas wzór jawny:
+
+$$
+\begin{align*}
+f_n &=  \frac{1}{\sqrt{5}} \Big((\tfrac{1}{x_1})^n - (\tfrac{1}{x_2})^n\Big)
+\\ \text{ }
+\\ f_n &=  \frac{1}{\sqrt{5}} \Big((\tfrac{1}{-\frac{1+\sqrt{5}}{2}})^n - (\tfrac{1}{-\frac{1-\sqrt{5}}{2}})^n\Big)
+\\ \text{ }
+\\ f_n &= \frac{1}{\sqrt{5}} \Big((\tfrac{1 + \sqrt{5}}{2})^n - (\tfrac{1 - \sqrt{5}}{2})^n\Big)
+\end{align*}
+$$
+
+Czy ten wzór działa? Sprawdźmy dla kilku pierwszych elementów:
+
+$$
+\begin{align*}
+f_0 &=   \frac{1}{\sqrt{5}} \Big((\tfrac{1 + \sqrt{5}}{2})^0 - (\tfrac{1 - \sqrt{5}}{2})^0\Big) =  \frac{1}{\sqrt{5}} (1 -1) = \frac{1}{\sqrt{5}}  \cdot 0 = 0
+\\ f_1 &= \frac{1}{\sqrt{5}} \Big((\tfrac{1 + \sqrt{5}}{2})^1 - (\tfrac{1 - \sqrt{5}}{2})^1\Big)=  \frac{1}{\sqrt{5}} \Big(\tfrac{1 + \sqrt{5} -(1-\sqrt{5})}{2})\Big) =  \frac{1}{\sqrt{5}} \sqrt{5} = 1
+\\ f_2 &= \frac{1}{\sqrt{5}} \Big((\tfrac{1 + \sqrt{5}}{2})^2 - (\tfrac{1 - \sqrt{5}}{2})^2\Big) =   1
+\\ f_3 &= \frac{1}{\sqrt{5}} \Big((\tfrac{1 + \sqrt{5}}{2})^3 - (\tfrac{1 - \sqrt{5}}{2})^3\Big) =   2
+\\ f_4 &= \frac{1}{\sqrt{5}} \Big((\tfrac{1 + \sqrt{5}}{2})^4 - (\tfrac{1 - \sqrt{5}}{2})^4\Big) =   3
+\\ f_5 &= \frac{1}{\sqrt{5}} \Big((\tfrac{1 + \sqrt{5}}{2})^5 - (\tfrac{1 - \sqrt{5}}{2})^5\Big) =   5
+\\ f_6 &= \frac{1}{\sqrt{5}} \Big((\tfrac{1 + \sqrt{5}}{2})^6 - (\tfrac{1 - \sqrt{5}}{2})^6\Big) =   8
+\\ f_7 &= \frac{1}{\sqrt{5}} \Big((\tfrac{1 + \sqrt{5}}{2})^7 - (\tfrac{1 - \sqrt{5}}{2})^7\Big) =   13
+\\ &...
+\end{align*}
+$$
+
+Jak widać, wartości pokrywają się idealnie.  Wzór, który otrzymaliśmy, to tzw. wzór Bineta, oryginalnie odkryty w 1843 r. przez J.P.M. Bineta. Jako ciekawostkę można dodać, że $$\tfrac{1 + \sqrt{5}}{2}$$ to wzór na złotą liczbę. W ten sposób możemy udowodnić powiązanie między złotą liczbą a ciągiem Fibonacciego, gdzie, jak wiadomo, sąsiadujące ze sobą elementy wyznaczają złoty podział.
+
+## Wersje rekurencyjne vs nierekurencyjne
+
+Na sam koniec artykułu sprawdźmy, czy warto było robić to wszystko. Porównajmy sobie prędkość wykonania programu obliczającego kolejne elementy ciągu Fibonacciego w wersjach:
+
+- rekurencyjnej
+- rekurencyjnej ogonowej
+- bez rekurencji (metoda usuwania rekurencji ogonowej)
+- bez rekurencji (wykorzystująca stos)
+- bez rekurencji (obliczająca ze wzoru Bineta)
+- bez rekurencji (wyprowadzona ze wzoru rekurencyjnego z zapamiętywaniem wyników, wykorzystująca w swojej optymalizacji fakt, że będziemy wyliczać kolejne elementy)
+
+### Metodologia badania
+
+Badanie wydajności powyższych funkcji zostało zrobione w programie napisanym w języku C. Kod aplikacji znajdziesz na platformie repl.it pod tym linkiem. Poniżej przedstawiłem wyniki wygenerowane przez ten program. Obliczałem n-ty element ciągu Fibonacciego od elementu 0 do 40. Każde obliczenie powtarzałem 10 razy, po czym zapisywałem średni czas wykonania. Czas został zapisany w nanosekundach ($$1 ns = 1 000 000 000 s$$) i obliczony z wykorzystaniem licznika czasu `CLOCK_PROCESS_CPUTIME_ID`, który oferuje mierzenie czasu dla wykonywanego procesu w bardzo wysokiej rozdzielczości.
+
+### Wyniki
+
+Najpierw spójrzmy na wykres ze wszystkimi wynikami przedstawiający czas wykonania wybranej funkcji dla n-tego wyrazu ciągu. Pierwszy jest zaprezentowany w skali liniowej na osi Y, natomiast drugi w skali logarytmicznej dla lepszego zobrazowania różnic. Oś X przedstawia, dla którego elementu ciągu Fibonacciego wykonywaliśmy program, a oś Y czas w nanosekundach.
+
+<Image
+  image={wykres1}
+  alignCenter
+  fullSize
+  alt="Czas wykonywania algorytmów na skali liniowej"
+  caption={<></>}
+/>
+
+<Image
+  image={wykres2}
+  alignCenter
+  fullSize
+  alt="Czas wykonywania algorytmów na skali logarytmicznej"
+  caption={<></>}
+/>
+
+Z wykresu liniowego od razu widać, że najgorzej spisuje się funkcja zderekursywowana z wykorzystaniem stosu. Czas wykonania rośnie bardzo szybko w tempie wykładniczym. Jednak widać też, że nie najlepiej wygląda wydajność tradycyjnej wersji rekurencyjnej. O ile pierwszy wykres tego tak nie przedstawia, o tyle wykres logarytmiczny już jak najbardziej. Dzięki niemu widzimy, że czas wykonania wersji rekurencyjnej również przyrasta wykładniczo, ale nieco wolniej. Problem na wykresie liniowym zobaczymy wtedy, gdy pozbędziemy się wersji zderekursywowanej:
+
+<Image
+  image={wykres3}
+  alignCenter
+  fullSize
+  alt="Czas wykonywania algorytmów na skali liniowej, bez wersji zderekursywowanej przy użyciu stosu"
+  caption={<></>}
+/>
+
+Słaby czas wykonania wersji zderekursywowanej bierze się stąd, że tutaj dosłownie odwzorowujemy to, co robi komputer na poziomie procesora, ale na kodzie wysokopoziomowym. W końcu ten kod i tak zostaje skompilowany do niskopoziomowego kodu maszynowego bez wszelkich optymalizacji, jakie po drodze są robione dla metod rekurencyjnych, za to dodatkowo trzeba obsłużyć pętlę, instrukcje warunkowe czy dostęp do pamięci.
+
+Przyjrzyjmy się jeszcze pozostałym sposobom obliczania na wykresie liniowym:
+
+<Image
+  image={wykres4}
+  alignCenter
+  fullSize
+  alt="Czas wykonywania algorytmów na skali liniowej, bez wersji zderekursywowanej przy użyciu stosu oraz bez wersji rekurencyjnej"
+  caption={<></>}
+/>
+
+Jak widzimy, zarówno w przypadku rekurencji ogonowej, jak i pozostałych metod nierekurencyjnych, różnice są niewielkie. W pewien sposób wybija się tutaj obliczanie ze wzoru Bineta, co spowodowane jest tym, że obliczenia zmiennoprzecinkowe oraz operacje takie, jak pierwiastkowanie i potęgowanie, są wolniejsze niż wielokrotne dodawanie liczb całkowitych. Różnica jest jednak niewielka i przy tej wielkości problemu pomijalna.
+
+Jednakże możesz zadać pytanie — dlaczego sposób, gdzie zapamiętujemy w pamięci wartości funkcji, nie jest znacznie szybszy? Składają się na to głównie dwa czynniki: czas dostępu do pamięci (odczyt, zapis) oraz wykorzystanie pamięci podręcznej procesora. W przypadku tak prostych obliczeń jak ciąg Fibonacciego procesor potrafi często lepiej poradzić sobie z iteracjami na wartościach zapisywanych bezpośrednio w nim niż z odczytem i zapisem do pamięci operacyjnej komputera.
+
+## Używać rekurencję czy też nie?
+
+Odpowiedź na to pytanie brzmi tradycyjnie — to zależy. Algorytmy rekurencyjne niejednokrotnie bywają czytelniejsze i prostsze w zrozumieniu niż ich iteracyjne odpowiedniki; w szczególności takie, jak algorytmy sortowania czy przechodzenia po drzewach. Z drugiej strony, jak sami się przed chwilą przekonaliśmy, nawet przy bardzo prostych algorytmach, przy odpowiedniej wielkości problemu, czasy wykonania mogą być długie z powodu liczby operacji potrzebnych do wykonania, ukrytych przed programistą.
+
+Zachęcająco brzmi rekursja ogonowa — ma wydajność zbliżoną do wersji iteracyjnej. Jednak w temacie rekurencji ogonowej, dlaczego ją stosować bądź nie, wypowiedziałem się w <Link href="/post/rekurencja-co-to-jest">poprzednim artykule o rekurencji</Link>. W skrócie — aby mieć wersję ogonową, i tak dokonujemy w pewnym stopniu derekursywacji, gdyż wersje ogonowe bardzo mocno przypominają tradycyjne iteracyjne, a kompilatory niekoniecznie muszą obsługiwać tę optymalizację.
+
+Wersje nierekurencyjne, w takim przypadku jak tutaj, zdecydowanie radzą sobie najlepiej, o ile były od samego początku napisane w taki sposób (bądź przepisane z rekursji ogonowej). Warto jednak wiedzieć, że algorytmy iteracyjne nie zawsze są tak proste do napisania, a także to, że nie zawsze styl/paradygmat, w jakim piszemy, może być odpowiedni do ich zapisu (patrz: programowanie funkcyjne). Uniwersalny (pod względem paradygmatów) jest sposób matematyczny, bo ostatecznie otrzymujemy pojedyncze równanie, ale jego przydatność jest ograniczona.
+
+Co natomiast z derekursywacją z użyciem stosu? Można sobie zadać pytanie: jaki jest jej sens, skoro uzyskujemy jeszcze gorszą wydajność niż przy zwykłej rekurencji? Otóż tak jak wspomniałem, to jest tylko baza do dalszych poprawek i optymalizacji, przy czym jeżeli da się coś zapisać iteracyjnie bez użycia kolejek, zwykle będzie to sposób lepszy.
+
+## Literatura
+
+### Pozycje podstawowe
+
+- Bailey, M. W., & Weston, N. C. (2001). *Performance benefits of tail recursion removal in procedural languages*. Tech. Rep. TR-2001-2, Hamilton College, Clinton, NY.
+- R. S. Bird. 1977. Notes on recursion elimination. Commun. ACM 20, 6 (June 1977), 434–439. [DOI:10.1145/359605.359630](https://doi.org/10.1145/359605.359630)
+Lehman E., Leighton F. T., Meyer A.R., „Solving Linear Recurrences” w *Mathematics for Computer Science*, 2010, s. 370-373
+
+### Pozycja dodatkowa dla zainteresowanych
+
+- Liu, Y. A., & Stoller, S. D. (1999, November). From recursion to iteration: what are the optimizations?. In *Proceedings of the 2000 ACM SIGPLAN workshop on Partial evaluation and semantics-based program manipulation* (pp. 73-82).
+
+<small>(zdjęcie na okładce: [Goran tek-en](https://commons.wikimedia.org/wiki/File:Dog_tail_sri-lanka.jpg), [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0), via Wikimedia Commons)</small>

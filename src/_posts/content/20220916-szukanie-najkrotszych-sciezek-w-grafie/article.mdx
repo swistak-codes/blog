@@ -1,0 +1,552 @@
+import Link from 'next/link';
+import {Image} from '@swistak-codes/components';
+import cover from './gesi.jpg';
+import wagi1 from './wagi1.png';
+import wagi2 from './wagi2.png';
+import wagi3 from './wagi3.png';
+import grafSciezkiUjemne from './graf-sciezki-ujemne.png';
+import grafSciezkiNieujemne from './graf-sciezki-nieujemne.png';
+
+export const meta = {
+  title: 'Szukanie najkrótszych ścieżek w grafie',
+  abstract:
+    'Artykuł opisuje, jak wyszukiwać najkrótsze ścieżki w grafach ważonych, stosując klasyczne algorytmy - Dijkstry oraz Bellmana-Forda',
+  firstParagraph: (
+    <>
+      Gdy mówimy <Link href="/post/grafy-wprowadzenie">o grafach</Link> i rozwiązywaniu problemów za ich pomocą, w kontekście algorytmiki pierwszą rzeczą, która wielu przychodzi na myśl, jest wyszukiwanie najkrótszych ścieżek. Co prawda <Link href="/post/praktyczne-zastosowania-przechodzenia-po-grafie">omówiliśmy już to dla grafów nieważonych</Link>, ale powiedzmy sobie szczerze — zwykle musimy to robić w ważonych. Opiszę tutaj trzy klasyczne algorytmy rozwiązujące ten problem.
+    </>
+  ),
+  keyword: 'grafy',
+  categories: ['Grafy', 'Programowanie', 'Algorytmy'],
+  tags: [
+    'grafy',
+    'najkrótsza ścieżka',
+    'algorytm Bellmana-Forda',
+    'algorytm Dijkstry',
+    'algorytm Floyda-Warshalla',
+    'sortowanie topologiczne',
+    'relaksacja',
+    'programowanie dynamiczne',
+    'grafy ważone',
+    'javascript'
+  ],
+  slug: 'szukanie-najkrotszych-sciezek-w-grafie',
+  updateTime: '2022-09-16T07:00:00+00:00',
+  publishTime: '2022-09-17T11:00:00+00:00',
+  cover,
+};
+
+## Wstęp teoretyczny
+
+### Grafy ważone
+
+Na początek, zanim przejdziemy do algorytmów, powiedzmy sobie, z czym będziemy mieć do czynienia. Jak możesz pamiętać z <Link href="/post/grafy-wprowadzenie">wprowadzenia do grafów</Link>, graf ważony zawiera „wagi”, czyli pewne wartości przypisane krawędziom lub wierzchołkom oznaczające jakieś ich właściwości. W zasadzie na tym można by skończyć definicję, ale chcę trochę dopowiedzieć do tematu.
+
+Do tej pory we wszystkich artykułach grafy, które pokazywałem, były nieważone. W kontekście wyboru ścieżek oznaczało to tyle, że nieważne, którą drogą szliśmy, najważniejsze było przejść przez jak najmniej wierzchołków czy też krawędzi (zależy, jak spojrzymy). Jeśli pamiętasz mój <Link href="/post/praktyczne-zastosowania-przechodzenia-po-grafie">poprzedni artykuł o zastosowaniach przechodzenia po grafie</Link>, to nieznacznie modyfikując przechodzenie wszerz (BFS), mogliśmy wyznaczyć najkrótsze ścieżki. Jest to proste i przyjemne podejście, ale jak wspomniałem na wstępie — gdy szukamy ścieżek, rzadko mamy do czynienia z grafem nieważonym.
+
+Dlaczego tak jest? Otóż jako ścieżkę zwykle traktujemy drogę, którą należy przejść z miejsca do miejsca. Jeśli nasz graf reprezentuje miasta i połączenia drogowe między nimi, wagą krawędzi może być odległość między dwoma miastami. Szukamy najkrótszej ścieżki między komputerami w rozległej sieci (takiej jak Internet)? Ścieżkami będą oczywiście połączenia między urządzeniami (routerami), ale wagami mogą być np. średnie opóźnienia w przesyle pakietów.
+
+### Rola wag
+
+W zasadzie wyjaśniliśmy sobie przy okazji, że w kontekście problemu szukania najkrótszych ścieżek w grafie interesują nas jedynie wagi krawędzi. Ale właściwie dlaczego?
+
+Otóż szukając najkrótszej ścieżki w grafie ważonym, szukamy takiej, gdzie sumując wagi, otrzymamy najmniejszą liczbę. Przykład możesz zobaczyć na rysunku poniżej.
+
+<Image
+  image={wagi1}
+  alignCenter
+  fullSize
+  alt="Graf z trzema wierzchołkami: 1, 2 i 3. Między 1 i 3 jest ścieżka z wagą 8, między 1 i 2 ścieżka z wagą 2, między 2 i 3 ścieżka z wagą 3"
+  caption={<></>}
+/>
+
+Mamy dwie drogi, którymi możemy dojść z wierzchołka 1 do 3 — bezpośrednią oraz przez wierzchołek 2. Gdybyśmy nie mieli grafu ważonego, algorytm BFS jako najkrótszą wskazałby ścieżkę bezpośrednią, co jest jak najbardziej sensowne. Jednak tutaj, jeśli zsumujemy wagi, okazuje się, że krótsza droga wiedzie przez wierzchołek 2 ($$2+3=5 < 8$$), i to też tę drogę wskaże nam dowolny z algorytmów opisanych w tym artykule.
+
+Jednak nie wszystko jest takie proste i oczywiste. Skomplikujmy sobie nieco temat.
+
+### Wagi ujemne
+
+W rzeczywistości jesteśmy przyzwyczajeni, że odległości między punktami są liczbami dodatnimi. Z Wrocławia do Warszawy mamy ok. 360 kilometrów, a pociąg pokonuje tę trasę w ok. 5 godzin. W zależności od tego, jak chcielibyśmy wyznaczać trasę, jako wagę użylibyśmy albo odległość, albo czas pokonania trasy (albo w jakiś sposób łączylibyśmy obie te wartości). Jednakże w teorii grafów krawędź może mieć ujemną wagę. Zobacz rysunek poniżej.
+
+<Image
+  image={wagi2}
+  alignCenter
+  fullSize
+  alt="Dwa grafy. Pierwszy jest acykliczny i zawiera jedną ścieżkę z wagą ujemną. Drugi zawiera dwie ścieżki z ujemnymi wagami oraz cykl."
+  caption={<></>}
+/>
+
+Na pierwszym grafie sytuacja wydaje się dość klarowna. Wybierając najkrótszą ścieżkę, układamy taką, która da najmniejszą sumę wag. W takim razie dla wierzchołków 1-4 wybieramy tą, gdzie jedna z krawędzi ma wagę ujemną — w końcu $$-2 + 3 = 1$$ to mniej niż $$3+2=5$$. Problem natomiast pojawia się przy drugim grafie, gdzie mamy pętlę. Teoretycznie moglibyśmy bez przerwy przechodzić przez ujemne krawędzie, by coraz bardziej skracać drogę. Tylko że szukanie najkrótszej ścieżki na tym nie polega, musimy jakoś dojść do jej końca. Na powyższym przykładzie, mimo że między 1 i 2 mamy bezpośrednią ścieżkę, to jednak możemy użyć pętli (1->2->3->1), aby konstruować bez przerwy ścieżkę coraz krótszą. Tym samym suma wag zmierza do $$-\infty$$.
+
+Jak takie przypadki rozwiązujemy? Otóż uznajemy, że nie da się wyznaczyć najkrótszej ścieżki. Jeśli algorytm, który zastosujemy, wspiera ujemne wagi, to powinien zwrócić błąd, że nie da się określić drogi między daną parą wierzchołków.
+
+### Cykl z wagą zerową
+
+Może pojawić się jeszcze jeden problem. Skoro waga krawędzi może być dodatnia lub ujemna, to nic nie stoi na przeszkodzie, żeby była zerowa. Nawet możemy nie mieć wag zerowych, ale cykl z dodatnią i ujemną krawędzią zsumuje się nam do zera. Zobacz poniższy graf.
+
+<Image
+  image={wagi3}
+  alignCenter
+  fullSize
+  alt="Graf zawierający cykl, w którym wagi sumują się do zera."
+  caption={<></>}
+/>
+
+W tej sytuacji ponownie możemy wyznaczyć nieskończoną ścieżkę, jednak tym razem suma wag nie będzie dążyć do nieskończoności, a będzie stała ($$-2 + 2 + 0 = 0$$). Jest to kolejny przypadek, który musimy obsłużyć w algorytmach. Tutaj jednak rozwiązanie jest prostsze — jeśli wykryjemy, że w naszej ścieżce wpadliśmy w pętlę spowodowaną cyklem tego typu, usuwamy go ze ścieżki.
+
+### Problemy algorytmiczne najkrótszych ścieżek w grafie
+
+W tym miejscu warto dodać, że jeśli chodzi o najkrótsze ścieżki w grafie, możemy mówić o dwóch różnych problemach algorytmicznych:
+
+- znalezienie najkrótszych ścieżek od pojedynczego źródła
+- znalezienie wszystkich par najkrótszych ścieżek
+
+W artykule, który czytasz, rozwiążemy oba te problemy. Przedstawiam dwa algorytmy pozwalające znaleźć najkrótsze ścieżki zaczynające od jednego wierzchołka (algorytmy Bellmana-Forda oraz Dijkstry) oraz jeden dla drugiego problemu (algorytm Floyda-Warshalla). Są to najbardziej klasyczne podejścia do rozwiązania obu problemów znajdujące się w podręcznikach do algorytmiki. Na koniec wspomnę też o innych algorytmach, dzięki którym możemy rozwiązać te problemy.
+
+## Algorytm Bellmana-Forda
+
+Przejdźmy w takim razie do pierwszego podejścia — algorytmu Bellmana-Forda. Pomysł na algorytm opracował Alfonso Shimbel (1955 r.), a opublikowali go Richard Bellman (1958 r.) i Lester Ford Jr. (1956 r.).
+
+### Idea algorytmu
+
+Z racji tego, że jest to algorytm określający najkrótsze ścieżki z pojedynczego źródła, będziemy potrzebować dwóch struktur (zwykle tablic), które przechowają nam: odległość od źródła do każdego z wierzchołków oraz z jakiego wierzchołka mogliśmy najszybciej się dostać do aktualnego. Tą drugą możesz pamiętać z poprzedniego artykułu, gdzie używaliśmy BFS do wyszukiwania ścieżek w grafach nieważonych. Teraz jednak będziemy potrzebować informacji o wagach.
+
+#### Relaksacja
+
+Podstawowa idea, na której opiera się wykonanie algorytmu, to wykonywanie relaksacji. Jest to strategia rozwiązywania trudnych problemów obliczeniowych przez rozwiązywanie podobnego, prostszego, dostarczając nam informacji na temat pierwotnego problemu. W przypadku wyszukiwania ścieżek relaksacja wygląda następująco:
+
+- Jeśli doszliśmy do wierzchołka `v` po raz pierwszy, zapamiętujemy, z którego wierzchołka `u` dotarliśmy oraz sumę długości ścieżki prowadzącej do `u` i wagi krawędzi `(u,v)`.
+- Jeśli trafiliśmy znowu do `v`, sprawdzamy, czy suma długości ścieżki prowadzącej do niego jest mniejsza niż aktualna. Jeśli tak, podmieniamy poprzednika i długość ścieżki.
+
+Możemy to zapisać jako prosty algorytm. Na wejściu otrzymujemy:
+
+- aktualny wierzchołek `v`,
+- wierzchołek `u`, z którego dotarliśmy do `v`,
+- tablicę `d` aktualnych odległości wierzchołków od wierzchołka źródłowego,
+- tablicę `π` poprzedników, czyli wierzchołków, z których prowadzi do aktualnego najkrótsza trasa od wierzchołka startowego,
+- funkcję wagową `w` zwracającą wagę dla krawędzi.
+
+1. Jeśli `d[v] > d[u] + w(u,v)`:
+    1. Przypisz `d[v]` wartość `d[u] + w(u,v)`.
+    2. Przypisz `π[v]` wartość `u`.
+
+#### Użycie relaksacji do znalezienia najkrótszych ścieżek
+
+Pomysł stojący za algorytmem Bellmana-Forda jest bardzo prosty. Relaksację wykonujemy, co oczywiste, dla wszystkich krawędzi. Jednak nie wystarczy raz. Jeśli pamiętasz <Link href="/post/sortowanie-cz-2-sortowanie-babelkowe">sortowanie bąbelkowe</Link>, to tam w celu wykonania algorytmu musieliśmy powtórzyć operację przechodzenia po tablicy z zamianą elementów tyle razy, ile było w niej elementów. Analogicznie jest tutaj. Relaksację wszystkich krawędzi musimy powtórzyć tyle razy, do ilu wierzchołków szukamy ścieżek (czyli o 1 mniej niż liczba wszystkich wierzchołków w grafie).
+
+W zasadzie na tym moglibyśmy zakończyć podstawowy opis algorytmu. Ciągłe powtarzanie relaksacji to podstawowa idea algorytmu Bellmana-Forda. Jednak jest jeszcze jeden aspekt, który przytoczyłem we wprowadzeniu teoretycznym.
+
+#### Wykrycie cykli z wagami ujemnymi
+
+Powiedzieliśmy sobie, że algorytm powinien być w stanie poinformować, że nie można ułożyć ścieżek, ponieważ znajduje się w grafie cykl, przez który długość ścieżki dąży do $$-\infty$$. W zależności od źródła jest to nieco inaczej rozpisane, dlatego od razu powiem, że poniższy sposób pochodzi z *Wprowadzenia do algorytmów* T. Cormena.
+
+Okazuje się, że cykl tego typu możemy sprawdzić bardzo prosty warunkiem, tym samym co przy relaksacji. Stosując dotychczasowe nazewnictwo: jeśli po wyznaczeniu najkrótszych ścieżek, iterując po wszystkich krawędziach `(u,v)`, trafimy na przypadek, że `d[v] > d[u] + w(u,v)`, oznacza to, że mamy w grafie cykl z wagami ujemnymi. Po wielokrotnie wykonanej relaksacji taka sytuacja może się zdarzyć tylko w przypadku istnienia niepożądanego przez nas cyklu.
+
+### Kroki algorytmu
+
+Algorytm na wejściu przyjmuje graf `G` i wierzchołek startowy `s` oraz funkcję wagową `w`. Na wyjściu powinniśmy uzyskać trzy rzeczy:
+
+- Tablicę odległości od wierzchołka startowego do dowolnego innego (`d`). Ewentualnie odległość może zostać zapisana jako właściwość wierzchołka.
+- Tablicę poprzedników wierzchołków (`π`). Analogicznie, poprzednik może zostać zapisany jako właściwość wierzchołka.
+- Informację, czy graf zawiera cykl z wagami ujemnymi.
+
+1. Etap 1 — inicjalizacja algorytmu
+    1. Dla wszystkich wierzchołków grafu ustaw odległość w tablicy `d` na nieskończoność oraz poprzednika na wartość niezdefiniowaną (`null`).
+    2. Ustaw `d[s]` na 0 (odległość wierzchołka startowego od wierzchołka startowego).
+2. Etap 2 — powtarzanie relaksacji wierzchołków
+    1. Powtórz $$|G.V| - 1$$ razy (dla przypomnienia: $$|V|$$ — liczba wierzchołków w grafie):
+        1. Dla każdej krawędzi `(u,v)` znajdującej się w G.E wykonaj relaksację.
+3. Etap 3 — znalezienie cykli z ujemnymi wagami
+    1. Dla każdej krawędzi `(u,v)`:
+        1. Jeśli `d[v] > d[u] + w(u,v)`, zwróć błąd, że istnieje w grafie cykl z wagami ujemnymi.
+
+Samo wypisanie najkrótszych ścieżek wygląda analogicznie jak w przypadku szukania ich algorytmem BFS, co pokazywałem <Link href="/post/praktyczne-zastosowania-przechodzenia-po-grafie">w poprzednim artykule</Link>.
+
+### Złożoność
+
+Złożoność czasowa algorytmu wynosi $$\Omicron(|V| \cdot |E|)$$. Widać to przy etapie drugim, gdzie przejście po wszystkich krawędziach wykonujemy niemal tyle razy, ile jest wierzchołków (przy określaniu złożoności operujemy na zaokrągleniach). Dodatkowo w etapie 1 przechodzimy po wszystkich wierzchołkach, a w etapie 3 po wszystkich krawędziach, jednak nie wpływa to znacznie na kształt asymptoty, stąd możemy je pominąć.
+
+Złożoność pamięciowa jest liniowa, zależna od liczby wierzchołków — $$\Omicron(|V|)$$ (dwie tablice o długości takiej jak liczba wierzchołków).
+
+### Implementacja w JavaScript
+
+Poniżej znajdziesz implementację algorytmu w JavaScript. Analogicznie jak w poprzednim artykule, jest niezależna od struktury, w której graf jest przechowany, dlatego stosuję funkcje pomocnicze:
+
+- `getAllEdges(G)` — zwraca wszystkie krawędzie grafu `G`
+- `getVerticesCount(G)` — zwraca liczbę wierzchołków grafu `G`
+
+Wierzchołki tradycyjnie będą liczbami, wówczas algorytm wygląda następująco:
+
+```javascript
+function getShortestPath(graph, start, getWeight) {
+  // dla ułatwienia pobieramy zawczasu liczbę wierzchołków oraz krawędzie
+  const vertices = getVerticesCount(graph);
+  const edges = getAllEdges(graph);
+
+  // etap 1 - inicjalizacja
+  // tworzymy tablicę poprzedników i wypełniamy ją wartościami null
+  const previous = Array(vertices).fill(null);
+  // tworzymy tablicę odległości i wypełniamy ją nieskończonością
+  const distance = Array(vertices).fill(Number.POSITIVE_INFINITY);
+  // ustawiamy dystans do wierzchołka startowego na 0
+  distance[start] = 0;
+
+  // etap 2 - powtarzanie relaksacji
+  // iterujemy V-1 razy
+  for (let i = 0; i < vertices - 1; i++) {
+    // iterujemy po wszystkich krawędziach
+    for (const [u, v] of edges) {
+      const newDistance = distance[u] + getWeight(u, v)
+
+      // sprawdzamy, czy aktualna ścieżka jest krótsza od znanej
+      if (distance[v] > newDistance) {
+        // ustawiamy nową ścieżkę
+        distance[v] = newDistance;
+        previous[v] = u;
+      }
+    }
+  }
+
+  // etap 3 - znalezienie cykli
+  // iterujemy po wszystkich krawędziach
+  for (const [u, v] of edges) {
+    // jeśli warunek znany z relaksacji jest prawdziwy, mamy cykl
+    if (distance[v] > distance[u] + getWeight(u, v)) {
+      throw new Error('Znaleziono cykl z wagami ujemnymi');
+    }
+  }
+
+  return {
+    distance,
+    previous
+  };
+}
+```
+
+Przykładową implementację bazującą na macierzy sąsiedztwa znajdziesz [pod tym linkiem w serwisie repl.it](https://replit.com/@tswistak/bellman-ford). Implementacja zawiera graf widoczny na poniższym rysunku i szuka ścieżek do każdego wierzchołka od wierzchołka 0. Możesz spróbować przerobić graf i np. dodać do niego cykl, zmieniając wagę krawędzi `(5,3)` na -3.
+
+<Image
+  image={grafSciezkiUjemne}
+  alignCenter
+  fullSize
+  alt="Graf"
+  caption={<>
+    Graf użyty w implementacji algorytmu znajdującej się <a href="https://replit.com/@tswistak/bellman-ford">tutaj</a>.
+  </>}
+/>
+
+Algorytm zwróci dla powyższego przypadku następujące ścieżki; sprawdź sam(a) z rysunkiem, czy są faktycznie najkrótsze, biorąc pod uwagę wagi krawędzi:
+
+- `0->1`, długość 5
+- `0->1->2`, długość 4
+- `0->5->3`, długość -1
+- `0->8->4`, długość 1
+- `0->5`, długość 1
+- `0->8->4->7->6`, długość 6
+- `0->8->4->7`, długość 5
+- `0->8`, długość 3
+
+## Algorytm Dijkstry
+
+Innym podejściem do wyszukiwania najkrótszych ścieżek od pojedynczego źródła jest prawdopodobnie jeden z najbardziej znanych algorytmów — algorytm Dijkstry. Opracował go w 1956 r. Edsger Dijkstra, a opublikował trzy lata później.
+
+### Idea algorytmu
+
+Już na samym początku warto zaznaczyć, że algorytm ten nie jest tak uniwersalny jak algorytm Bellmana-Forda. Jednym z warunków poprawnego wykonania algorytmu jest posiadanie grafu, który nie zawiera ujemnych wag krawędzi. Znacznie upraszcza to problem, więc tym samym jesteśmy w stanie napisać wydajniejszy algorytm. Pomijając to, że nie musimy już pisać etapu sprawdzania cyklu, możemy podejść w inny sposób do określania, które krawędzie są najkrótsze.
+
+Algorytm Dijkstry, analogicznie jak Bellmana-Forda, również bazuje na relaksacji. Różnica polega jednak na tym, że zdecydowanie zmniejszamy liczbę iteracji. Dzięki temu, że wagi wierzchołków zawsze będą wynosić co najmniej 0, możemy inaczej podejść do iteracji po krawędziach.
+
+#### Zmniejszenie liczby relaksacji
+
+Idea opiera się na tym, że nie będziemy iterować po wszystkich krawędziach tyle razy, ile jest wierzchołków. Zamiast tego będziemy iterować po wszystkich wierzchołkach, a potem sprawdzać przyległe do nich krawędzie. Tylko jak zrobić to w odpowiedni sposób? Biorąc w iteracji zawsze ten wierzchołek, o którym wiemy, że aktualnie jest najbliżej źródła, i zarazem odrzucając te, które już sprawdziliśmy.
+
+Tym samym zakładamy, że jeśli jesteśmy na wierzchołku, który znajduje się najbliżej źródłowego, w dalszym ciągu będziemy w stanie z niego wyznaczyć najkrótszą ścieżkę. Jest to tzw. algorytm zachłanny, czyli algorytm, który dokonuje decyzji optymalnej w aktualnej chwili i na jej podstawie kontynuuje rozwiązywanie większego problemu. Technika ta nie zawsze się sprawdza, jednak działa w przypadku wyszukiwania ścieżek w grafie z wagami nieujemnymi.
+
+#### Wybór najbliższego wierzchołka
+
+To, co wbrew pozorom może być podchwytliwe w algorytmie, to sposób, w jaki powinniśmy wybrać wierzchołek aktualnie najbliższy do źródłowego. O ile wydaje się to proste do zrobienia i każdy raczej umie znaleźć minimum, pytanie brzmi, jak zrobić to wydajnie?
+
+Ponownie wracając myślami do sortowania, przypomnij sobie algorytm <Link href="/post/sortowanie-cz-4-sortowanie-przez-wybieranie/">sortowania przez kopcowanie</Link>. Stosowaliśmy tam specjalną, dodatkową strukturę danych (kopiec), która umożliwiała szybkie znalezienie największego bądź najmniejszego elementu. Podobnie jest tutaj. Niekoniecznie musimy zastosować kopiec, tylko ogólnie mówiąc — kolejkę priorytetową (dokładniej — typu min).
+
+Kolejka priorytetowa to abstrakcyjny typ danych będący zbiorem elementów, z którego zawsze możemy się dostać do mającego najmniejszą (typ min) lub największą (typ max) wartość*. W kontekście algorytmu Dijkstry nasza kolejka musi mieć trzy operacje:
+
+- wstawienie elementu
+- zwrócenie elementu najmniejszego z jednoczesnym usunięciem go z kolejki
+- zmiana wartości elementu
+
+Kolejki mogą być implementowane na różne sposoby. Mogą to być <Link href="/post/listy-z-dowiazaniami">listy</Link> lub <Link href="/post/tablice-i-listy-tablicowe">tablice</Link> sortowane podczas wstawiania, kopce albo drzewa. Zanim zaczniesz implementację algorytmu Dijkstry, zapoznaj się, która implementacja jaką wydajnością się charakteryzuje. Najczęściej przy implementacji algorytmu Dijkstry jako kolejki stosuje się kopiec binarny (czyli taki jak w sortowaniu przez kopcowanie) — jest to podejście opracowane przez D. Johnsona w 1977 r. Wszystkie z interesujących nas operacji wykonuje on w czasie $$\Omicron(\log{n})$$, co jest całkowicie akceptowalne. Natomiast jeśli chcielibyśmy optymalizować, to kopiec Fibonacciego wykonuje wstawianie oraz zmianę wartości w czasie liniowym $$\Omicron(1)$$ (usunięcie najmniejszego elementu wciąż jest w czasie logarytmicznym). Mówimy wówczas o podejściu opracowanym przez M. Fredmana i R. Tarjana w 1984 r. Oryginalny algorytm opisany przez Dijkstrę bazował na tablicach.
+
+\* W nomenklaturze kolejek poprawnie powinno się na to mówić *klucz*, jednak nazwa ta może być myląca dla osób nieobeznanych z teorią tej struktury danych. W artykule będę raczej trzymać się nazwy *wartość* lub *priorytet* zamiast *klucz*.
+
+### Kroki algorytmu
+
+Skoro wiemy, na jakiej zasadzie działa algorytm, możemy przejść do jego opisu. Wejście i wyjście są identyczne jak w algorytmie Bellmana-Forda z tą różnicą, że nie otrzymamy informacji o cyklu z wagami ujemnymi (operujemy tylko na wagach nieujemnych).
+
+1. Inicjalizujemy algorytm. Wygląda to tak samo jak etap 1 w algorytmie Bellmana-Forda.
+2. Tworzymy kolejkę priorytetową `Q` ze wszystkimi wierzchołkami grafu. Priorytetem kolejki będzie aktualnie wyliczona odległość, stąd w tym momencie wierzchołek startowy dodajemy z wartością 0, natomiast pozostałe z nieskończonością.
+3. Dopóki kolejka nie jest pusta:
+    1. Ściągamy wierzchołek `u` o najmniejszym priorytecie (najbliżej źródłowego) z kolejki.
+    2. Dla każdego wierzchołka `v` sąsiadującego z `u`:
+        1. Wykonujemy relaksację dla krawędzi `(u, v)`.
+        2. Jeśli w wyniku relaksacji zmniejszyliśmy odległość wierzchołka, zmieniamy jego wartość w kolejce priorytetowej.
+
+W tym miejscu warto dodać, że jeśli nie interesują nas wszystkie ścieżki, tylko jedna, do konkretnego wierzchołka, to w punkcie 3.1 możemy przerwać wykonanie algorytmu, jeśli z kolejki ściągnęliśmy wierzchołek docelowy.
+
+### Złożoność
+
+Algorytm najczęściej implementowany jest na podstawie kopca binarnego i charakteryzuje się wtedy złożonością $$\Omicron((|E|+|V|)\log{|V|})$$, gdzie $$|V|$$ to liczba wierzchołków, a $$|E|$$ to liczba krawędzi. Jeśli zastosujemy kopiec Fibonacciego, możemy zmniejszyć złożoność do $$\Omicron(|E|+|V|\log{|V|})$$ (jeśli na pierwszy rzut oka nie widzisz różnicy, przypatrz się nawiasom). Natomiast jeśli zamiast kolejki priorytetowej będziesz wolał(a) wyszukiwanie najmniejszego elementu w tablicy przechowującej odległości, złożoność wzrośnie do $$\Omicron(|V|^2)$$. Stąd stosowanie kolejek jest tutaj tak istotne, szczególnie przy dużych grafach.
+
+### Implementacja w JavaScript
+
+Podobnie jak w implementacji algorytmu Bellmana-Forda, tak i tutaj implementacja jest niezależna od sposobu przechowywania grafu. Zakładam, że posiadamy kolejkę priorytetową (JavaScript takiej nie posiada, wykorzystuję bibliotekę [ts-fibonacci-heap](https://www.npmjs.com/package/@tyriar/fibonacci-heap)), funkcję `getNeighbors(G, v)` zwracającą sąsiadów wierzchołka oraz `getAllNodes(G)` zwracającą wszystkie wierzchołki grafu.
+
+```javascript
+function getShortestPath(graph, start, getWeight) {
+  // pobieramy tablicę wierzchołków
+  const vertices = getAllNodes(graph);
+  // tworzymy tablicę poprzedników i wypełniamy ją wartościami null
+  const previous = Array(vertices.length).fill(null);
+  // tworzymy tablicę odległości i wypełniamy ją nieskończonością
+  const distance = Array(vertices.length).fill(Number.POSITIVE_INFINITY);
+  // ustawiamy dystans do wierzchołka startowego na 0
+  distance[start] = 0;
+  // tworzymy kolejkę priorytetową
+  const queue = new FibonacciHeap();
+  // dodajemy wierzchołki do kolejki; ze względu na implementację kolejki
+  // musimy przechować w niej referencje do wierzchołków;
+  // jeśli napiszesz kolejkę samodzielnie, można tego uniknąć
+  const queueNodes = Array(vertices.length);
+  for (let i = 0; i < vertices.length; i++) {
+    queueNodes[i] = queue.insert(distance[i], i);
+  }
+  // dopóki kolejka nie jest pusta...
+  while (!queue.isEmpty()) {
+    // ściągamy wierzchołek o najmniejszym priorytecie
+    const u = queue.extractMinimum().value;
+    // dla każdego wierzchołka sąsiadującego...
+    for (const v of getNeighbors(graph, u)) {
+      const newDistance = distance[u] + getWeight(u, v)
+      // sprawdzamy, czy aktualna ścieżka jest krótsza od znanej
+      if (distance[v] > newDistance) {
+        // ustawiamy nową ścieżkę
+        distance[v] = newDistance;
+        previous[v] = u;
+        // aktualizujemy priorytet w kolejce
+        queue.decreaseKey(queueNodes[v], newDistance);
+      }
+    }
+  }
+
+  return {
+    distance,
+    previous
+  };
+}
+```
+
+Analogicznie, przykładową implementację bazującą na macierzy sąsiedztwa znajdziesz [pod tym linkiem w serwisie repl.it](https://replit.com/@tswistak/dijkstra#index.js). Implementacja zawiera graf, który możesz zobaczyć na poniższym rysunku, i szuka ścieżek do każdego wierzchołka od wierzchołka 0.
+
+<Image
+  image={grafSciezkiNieujemne}
+  alignCenter
+  fullSize
+  alt="Graf"
+  caption={<>
+    Graf użyty w implementacji algorytmu znajdującej się <a href="https://replit.com/@tswistak/dijkstra#index.js">tutaj</a>.
+  </>}
+/>
+
+Algorytm zwróci dla powyższego przypadku następujące ścieżki; sprawdź sam(a) z rysunkiem, czy są faktycznie najkrótsze, biorąc pod uwagę wagi krawędzi:
+
+- `0->1`, długość 5
+- `0->1->2`, długość 6
+- `0->5->3`, długość 1
+- `0->8->4`, długość 4
+- `0->5`, długość 1
+- `0->8->6`, długość 9
+- `0->8->4->7`, długość 8
+- `0->8`, długość 3
+
+## Algorytm Floyda-Warshalla
+
+Ostatni algorytm, który chciałem pokazać, to algorytm Floyda-Warshalla. Jest w stanie znaleźć wszystkie najkrótsze ścieżki w grafie. Graf, podobnie jak w algorytmie Bellmana-Forda, może mieć ujemne wagi, jednak nie może mieć cykli z ujemnymi wagami. Został opublikowany przez Roberta Floyda w 1962 r., a podobne pomysły przedstawili Bernard Roy w 1959 r. oraz Stephen Warshall w 1962 r. Natomiast jego współczesny kształt opracował Peter Ingerman, również w 1962 r. Stąd czasami znajdziemy ten algorytm pod alternatywnymi nazwami: algorytm Roya-Warshalla, algorytm Roya-Floyda, algorytm WFI (Warshall Floyd Ingerman) lub po prostu algorytm Floyda.
+
+### Idea algorytmu
+
+#### Podstawowe założenia
+
+Załóżmy, że nasz graf $$G$$ zawiera wierzchołki $$V$$ ponumerowane od $$1$$ do $$N$$. Mamy też funkcję `najkrótszaDroga(i,j,k)` zwracającą najkrótszą ścieżkę między wierzchołkami $$i$$ i $$j$$, korzystając jedynie z wierzchołków ze zbioru $${1, 2, ..., k}$$. Następnie naszym zadaniem jest znalezienie za jej pomocą najkrótszych ścieżek dla wszystkich możliwych par $$(i,j)$$ z wykorzystaniem wszystkich wierzchołków grafu. Na razie nie odkryliśmy tutaj nic nowego, ale dopiero zaczynamy.
+
+Wyznaczając ścieżkę za pomocą `najkrótszaDroga(i,j,k)` dla dowolnej pary wierzchołków, możemy spotkać się z dwoma sytuacjami:
+
+1. Ścieżka nie przechodzi przez wierzchołek $$k$$, a jedynie korzysta z wierzchołków ze zbioru $${1, 2, ..., k-1}$$.
+2. Ścieżka przechodzi przez wierzchołek $$k$$. Mamy wówczas sytuację, że z wierzchołka $$i$$ dojdziemy do wierzchołka $$k$$, a z $$k$$ do $$j$$. Ponownie, wykorzystujemy między nimi jedynie wierzchołki ze zbioru $${1, 2, ..., k-1}$$.
+
+W takim razie możemy iść dalej. Najlepsza ścieżka z $$i$$ do $$j$$ przez wierzchołki od 1 do $$k-1$$ będzie zdefiniowana przez `najkrótszaDroga(i,j,k-1)`. Jeśli więc jesteśmy w stanie wyznaczyć najkrótszą ścieżkę z $$i$$ do $$k$$ (korzystając z wierzchołków od 1 do $$k-1$$) i najkrótszą od $$k$$ do $$j$$ (z tym samym zestawem wierzchołków), to najkrótsza droga z $$i$$ do $$j$$ będzie połączeniem dwóch poprzednich ścieżek.
+
+Ponownie mamy funkcję wagową $$w(i,j)$$. Możemy w takim razie założyć, że jeśli między $$i$$ oraz $$j$$ jest bezpośrednia droga, możemy ją zapisać jako `najkrótszaDroga(i,j,0) = w(i,j)`. Następnie możemy zapisać cały opisany powyżej problem jako wzór rekurencyjny:
+
+```
+najkrótszaDroga(i,j,k) = min(
+  najkrótszaDroga(i,j,k-1),
+  najkrótszaDroga(i,k,k-1) + najkrótszaDroga(k,j,k-1)
+)
+```
+
+#### Programowanie dynamiczne
+
+To, co wykonaliśmy powyżej, to rozpisanie problemu wyszukiwania najkrótszej ścieżki dla wszystkich krawędzi grafu przez rozbicie go rekurencyjnie na mniejsze podproblemy. Wykorzystana tutaj technika projektowania algorytmów jest programowaniem dynamicznym (nie mylić z dynamicznym językiem programowania). Ogólnie mówiąc, polega na rozbiciu problemu na mniejsze, ale nierozłączne (w przeciwieństwie do „dziel i zwyciężaj”), które rozwiązujemy w celu uzyskania rozwiązania głównego problemu. Dlatego też problem rozpisujemy rekurencyjnie, aby zobaczyć, jak rozwiązanie całości zależy od rozwiązania mniejszych części.
+
+Sama technika jest oczywiście bardziej rozbudowana, więc pominę jej opis, w szczególności jak podchodzimy do rozwiązywania problemów zdefiniowanych w ten sposób.
+
+#### Wykorzystanie w praktyce
+
+We właściwej implementacji jednak nie będziemy wchodzić w rekurencję, natomiast wykorzystamy tę ideę, którą opisaliśmy wyżej do obliczania ścieżek. W jaki sposób? Otóż będziemy najpierw coraz bardziej zwiększać $$k$$, iterując od $$1$$ do $$N$$. Dla każdej wartości $$k$$ będziemy sprawdzać wszystkie możliwe pary wierzchołków $$(i,j)$$, a tam, która ścieżka jest krótsza — z $$i$$ do $$j$$, czy z $$i$$ przez $$k$$ do $$j$$. Oczywiście wykorzystamy fakt, że wierzchołki, które są już ze sobą połączone krawędzią, będą miały zapisaną odległość między sobą.
+
+Od razu zaznaczam, że nie będziemy stosować tablicy odległości, tylko macierz (tablicę dwuwymiarową). Będziemy ją czytać na zasadzie takiej, że wiersze definiują wierzchołek, z którego ścieżka się zaczyna ($$i$$), a kolumny wierzchołek końcowy ($$j$$).
+
+Możemy zauważyć, że będziemy mieć w implementacji trzy zagnieżdżone pętle iterujące po wszystkich wierzchołkach. Oznacza to, że algorytm będzie posiadać złożność czasową $$\Omicron(|V|^3)$$. Jest to bardzo wysoka złożoność, jednak mniejsza, niż jeśli mielibyśmy wyznaczać wszystkie możliwe ścieżki algorytmem Bellmana-Forda. Dodatkowo złożoność pamięciowa wynosi $$\Omicron(|V|^2)$$.
+
+#### Określenie najkrótszych ścieżek
+
+Podstawowa wersja algorytmu zakłada jedynie określenie odległości między dowolną parą wierzchołków. Jednak możemy łatwo rozbudować algorytm o to, abyśmy byli w stanie zrekonstruować te ścieżki. Musimy po prostu oprócz spisywania odległości między parami wierzchołków spisywać także, który wierzchołek jest następny po aktualnym (więc odwrotnie względem omawianych wcześniej algorytmów). Jeśli wierzchołki $$i$$ i $$j$$ są połączone bezpośrednio, to następnikiem $$i$$ będzie $$j$$. Natomiast jeśli krótsza ścieżka między nimi przebiega przez $$k$$, wtedy ustalamy, że następnikiem $$i$$ będzie wierzchołek, który był następnikiem w drodze z $$i$$ do $$k$$. Oczywiście tutaj również zastosujemy do zapisu macierz.
+
+Następnie, aby odbudować ścieżkę, zastosujemy prosty algorytm, gdzie będziemy po kolei przechodzić po macierzy następników i spisywać wierzchołek zapisany w danej komórce, aż trafimy na wierzchołek docelowy.
+
+### Kroki algorytmu
+
+#### Znalezienie ścieżek
+
+Algorytm na wejściu przyjmuje graf `G` oraz funkcję wagową `w`. Jako wyjście otrzymamy dwie macierze: odległości i następników wierzchołków.
+
+1. Zainicjalizujmy macierze odległości i następników. Obie będą miały wymiary $$|G.V| \times |G.V|$$. Macierz odległości będzie wypełniona wartościami $$\infty$$, natomiast macierz następników wartościami niezdefiniowanymi (`null`).
+2. Dla wszystkich krawędzi $$(u,v)$$ w grafie `G`:
+    1. W macierzy odległości przypisz na pozycji $$(u,v)$$ wartość funkcji wagowej $$w(u,v)$$.
+    2. W macierzy następników przypisz na pozycji $$(u,v)$$ wierzchołek $$v$$.
+3. Dla wszystkich wierzchołków $$v$$ w grafie `G`:
+    1. W macierzy odległości przypisz na pozycji $$(v,v)$$ wartość 0.
+    2. W macierzy następników przypisz na pozycji $$(v,v)$$ wierzchołek $$v$$.
+4. Dla wszystkich $$k$$ od 1 do $$|G.V|$$:
+    1. Dla wszystkich $$i$$ od 1 do $$|G.V|$$:
+        1. Dla wszystkich $$j$$ od 1 do $$|G.V|$$:
+            1. Jeśli wartość w macierzy odległości na pozycji $$(i,j)$$ jest większa niż suma wartości z pozycji $$(i,k)$$ i $$(k,j)$$:
+                1. W macierzy odległości przypisz na pozycji $$(i,j)$$ jako wartość sumę wartości z pozycji $$(i,k)$$ i $$(k,j)$$.
+                2. W macierzy następników przypisz na pozycji $$(i,j)$$ wierzchołek z pozycji $$(i,k)$$.
+
+#### Rekonstrukcja ścieżek
+
+Na wejściu algorytm przyjmuje wierzchołek startowy `u`, wierzchołek docelowy `v` oraz macierz następników. Na wyjściu otrzymujemy tablicę ze zrekonstruowaną ścieżką.
+
+1. Jeśli w macierzy następników na pozycji $$(u,v)$$ znajduje sie niezdefiniowana wartość, zwracamy pustą tablicę.
+2. Tworzymy tablicę ze ścieżką. Na samym starcie umieszczamy w niej jako pierwszy element wierzchołek $$u$$.
+3. Tak długo jak $$u \neq v$$:
+    1. Przypisz do u wierzchołek zapisany w macierzy na pozycji $$(u,v)$$.
+    2. Dodaj aktualne $$u$$ na koniec tablicy ze ścieżką.
+4. Zwróć tablicę ze ścieżką.
+
+### Implementacja w JavaScript
+
+Czas na niezależną od zapisu grafu implementację w JavaScript. Tym razem zakładam istnienie funkcji `getAllEdges(G)` zwracającej wszystkie krawędzie grafu oraz `getAllNodes(G)` zwracającej wszystkie jego wierzchołki. Algorytm Floyda-Warshalla i algorytm rekonstruujący ścieżki wyglądają następująco:
+
+```javascript
+// funkcja szukająca najkrótsze ścieżki algorytmem Floyda-Warshalla
+function getShortestPath(graph, getWeight) {
+  // pobieramy wszystkie wierzchołki
+  const vertices = getAllNodes(graph);
+  // inicjalizujemy macierz odległości
+  const distance = Array(vertices.length).fill().map(() => Array(vertices.length).fill(Number.POSITIVE_INFINITY));
+  // inicjalizujemy macierz następników
+  const next = Array(vertices.length).fill().map(() => Array(vertices.length).fill(null));
+  // ustawiamy wartości w macierzach dla krawędzi
+  for (const [u, v] of getAllEdges(graph)) {
+    distance[u][v] = getWeight(u, v);
+    next[u][v] = v;
+  }
+  // ustawiamy wartości w macierzach dla wierzchołków
+  for (const v of vertices) {
+    distance[v][v] = 0;
+    next[v][v] = v;
+  }
+  // główna, potrójna pętla algorytmu; będziemy iterować od 0
+  for (let k = 0; k < vertices.length; k++) {
+    for (let i = 0; i < vertices.length; i++) {
+      for (let j = 0; j < vertices.length; j++) {
+        const newDistance = distance[i][k] + distance[k][j];
+        // sprawdzamy, czy aktualna ścieżka jest mniejsza
+        if (distance[i][j] > newDistance) {
+          // przypisujemy nową odległość
+          distance[i][j] = newDistance;
+          // przypisujemy prawidłowego następnika
+          next[i][j] = next[i][k];
+        }
+      }
+    }
+  }
+
+  return {
+    distance,
+    next
+  }
+}
+
+// funkcja wypisująca najkrótszą ścieżkę między dwoma wierzchołkami
+function constructShortestPath(next, startNode, endNode) {
+  // jeśli nie ma drogi, zwracamy pustą tablicę
+  if (!next[startNode][endNode]) {
+    return [];
+  }
+  // ścieżkę zaczynamy od węzła startowego
+  const result = [startNode];
+  // tak długo, jak u jest różny od końcowego węzła...
+  let u = startNode;
+  while (u !== endNode) {
+    // pobieramy następnik
+    u = next[u][endNode];
+    // dodajemy go do wyniku
+    result.push(u);
+  }
+  return result;
+}
+```
+
+Analogicznie, przykładową implementację bazującą na macierzy sąsiedztwa znajdziesz [pod tym linkiem w serwisie repl.it](https://replit.com/@tswistak/floyd-warshall#index.js). Implementacja opiera się na tym samym grafie, który użyłem do zaprezentowania algorytmu Bellmana-Forda, więc nie wstawiam rysunku ponownie. Z racji tego, że dostajemy wszystkie ścieżki, w powyższej implementacji wypisuję ścieżki dla wszystkich par różnych wierzchołków.
+
+Wyników zwróconych przez algorytm nie będę wklejać ze względu na ich liczbę (72 ścieżki). Jeśli jesteś ciekaw(a), wejdź w powyższy link i uruchom aplikację w przeglądarce.
+
+## Inne podejścia
+
+Oprócz omówionych powyżej podejść możemy wymienić jeszcze kilka zależnych od tego, z jakim grafem mamy do czynienia.
+
+Dla problemu znajdowania ścieżek z pojedynczego źródła mamy następujące algorytmy:
+
+- Algorytm Thorupa — wymaga, aby wagi były liczbami naturalnymi (w algorytmie Dijkstry wagami mogą być nieujemne liczby rzeczywiste). W grafie nieskierowanym osiąga złożoność czasową $$\Omicron(|E|)$$, natomiast w skierowanym $$\Omicron(|E|+|V|\log\log{|V|})$$.
+- Algorytm Diala — zmodyfikowany algorytm Dijkstry wykorzystujący kolejki kubełkowe z $$L$$ kubełkami. Z tego powodu również zawęża wagi do liczb naturalnych. W swojej podstawowej implementacji osiąga złożoność czasową $$\Omicron(|E|+L|V|)$$.
+- Jeśli mamy do czynienia z grafem bez wag, najwydajniejsze będzie znajdowanie ścieżek przechodzeniem wszerz — złożoność czasowa $$\Omicron(|E|+|V|)$$.
+- W przypadku acyklicznego grafu skierowanego również możemy osiągnąć złożoność czasową $$\Omicron(|E|+|V|)$$. Aby tego dokonać, powinniśmy najpierw posortować topologicznie wierzchołki, a następnie w tej kolejności relaksować krawędzie do sąsiadów każdego z nich. Opis tego algorytmu możesz znaleźć np. we *Wprowadzeniu do algorytmów* T. Cormena.
+
+Natomiast dla wyszukiwania wszystkich ścieżek poza algorytmem Floyda-Warshalla możemy wyróżnić:
+
+- Algorytm Seidela — dla grafów acyklicznych nieważonych. Wykonuje się w czasie $$\Omicron(|V|^\omega\log{|V|})$$, gdzie $$\omega$$ to wykładnik potęgi złożoności algorytmu mnożenia macierzy (zwykle wynosi ok. 2).
+- Algorytm Johnsona — działa dla grafów skierowanych z dowolnymi wagami, jedynie nie możemy mieć ujemnych cykli. Sam algorytm to dość ciekawe połączenie algorytmów Bellmana-Forda i Dijkstry. Jego złożoność czasowa to $$\Omicron(|E|\cdot |V|+|V|^2\log{|V|})$$.
+- W przypadku grafów nieskierowanych z wagami będącymi liczbami naturalnymi możemy wykonać algorytm Thorupa dla każdego z wierzchołków. Wykona się to ze złożonością $$\Omicron(|E| \cdot |V|)$$.
+
+W tym miejscu warto też wspomnieć o jeszcze jednym popularnym algorytmie związanym z problemem wyszukiwania najkrótszych ścieżek — A*. Jest to algorytm szukający najkrótszej ścieżki dla wskazanej pary wierzchołków, który w celu przyspieszenia wyszukiwania wykorzystuje heurystykę estymującą, jaką długość powinna mieć szukana ścieżka. Jego złożoność czasowa w najgorszym wypadku to $$\Omicron(|E|)$$. Z tego powodu jest używany tam, gdzie jesteśmy w stanie przybliżyć odległość między wierzchołkami, a zarazem zależy nam na szybkości i przeszukaniu jak najmniejszej części grafu, np. przy wyszukiwaniu tras na mapie czy przy generowaniu ścieżek omijających przeszkody (w grach komputerowych lub robotyce).
+
+## Podsumowanie
+
+W tym artykule dowiedzieliśmy się, jak działają trzy algorytmy wyszukiwania najkrótszych ścieżek w grafach. Podsumujmy krótko, w których sytuacjach który algorytm stosujemy i jaką ma wydajność:
+
+- Jeśli potrzebujemy znać wszystkie ścieżki w grafie, korzystamy z algorytmu Floyda-Warshalla. Musimy tylko pamiętać, że nie możemy mieć ujemnych cykli. Algorytm ma złożoność czasową $$\Omicron(|V|^3)$$.
+- Jeśli graf jest nieważony, to nie używamy żadnego z powyższych algorytmów, tylko korzystamy z BFS, tak jak to opisałem <Link href="/post/praktyczne-zastosowania-przechodzenia-po-grafie">w poprzednim artykule</Link>. Algorytm ma złożoność czasową $$\Omicron(|E|+|V|)$$.
+- Jeśli graf jest ważony i wagi są nieujemne, korzystamy z algorytmu Dijkstry. Algorytm ma złożoność czasową $$\Omicron(|E|+|V| \log{|V|})$$, jeśli jest oparty na kopcu Fibonacciego.
+- W innych przypadkach korzystamy z algorytmu Bellmana-Forda. Algorytm ma złożoność czasową $$\Omicron(|V| \cdot |E|)$$.
+
+## Literatura
+
+- Cormen, T. H.; Leiserson, C. E.; Rivest R. L.; Stein C. “Single-Source Shortest Paths” w *Introduction to algorithms, 3rd ed.*. MIT Press, Cambridge, MA, U.S.A., s. 643-683.
+- Cormen, T. H.; Leiserson, C. E.; Rivest R. L.; Stein C. “All-Pairs Shortest Paths” w *Introduction to algorithms, 3rd ed.*. MIT Press, Cambridge, MA, U.S.A., s. 684-707.
+- Shortest path problem, https://en.wikipedia.org/w/index.php?title=Shortest_path_problem&oldid=1099324849 (ostatnie odwiedziny 16.08.2022).
+- Priority queue, https://en.wikipedia.org/w/index.php?title=Priority_queue&oldid=1104465740 (ostatnie odwiedziny 16.08.2022).
+
+<small>(zdjęcie na okładce:
+  Image by <a href="https://pixabay.com/users/jemkaye-31694/?utm_source=link-attribution&amp;utm_medium=referral&amp;utm_campaign=image&amp;utm_content=5452698">Jayne</a> from <a href="https://pixabay.com//?utm_source=link-attribution&amp;utm_medium=referral&amp;utm_campaign=image&amp;utm_content=5452698">Pixabay</a>)</small>

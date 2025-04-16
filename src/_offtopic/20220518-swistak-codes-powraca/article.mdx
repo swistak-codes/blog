@@ -1,0 +1,155 @@
+import { Image } from '@swistak-codes/components';
+import Link from 'next/link';
+import cover from './swistak.jpg';
+import xmlrpc from './xmlrpc.png';
+import ip from './ip.png';
+import mock from './mock.png'
+
+export const meta = {
+  title: 'świstak.codes powraca!',
+  abstract:
+    'świstak.codes po przerwie powróciło do nadawania nowych wpisów! Więcej szczegółów w środku.',
+  firstParagraph: (
+    <>
+      W końcu nadszedł ten długo oczekiwany dzień. <a href="https://swistak.codes">świstak.codes</a> powróciło w nowej odsłonie.  Poza dość widoczną zmianą wyglądu, zmieniła się część techniczna strony — nie polegam już na WordPressie, tylko w całości na autorskim rozwiązaniu. Jesteś ciekaw(a) szczegółów? Więcej w dalszej części wpisu.
+    </>
+  ),
+  keyword: 'powrót',
+  categories: [],
+  tags: [],
+  slug: 'swistak-codes-powraca',
+  updateTime: '2022-05-18T07:00:00+00:00',
+  publishTime: '2022-05-18T07:00:00+00:00',
+  isOfftopic: true,
+  cover,
+};
+
+## Drobna uwaga na wstęp
+
+Jest to dość nietypowy wpis jak na mojego bloga, bo zwykle piszę o jakimś (chyba) ciekawym zagadnieniu, a nie wiem, czy opis zmian na czyimś blogu można nazwać jakkolwiek interesującym. Dlatego też postarałem się zorganizować go od ogółu do szczegółu. Najpierw bardzo krótko podsumuję, co nowego jest na blogu oraz co planuję dalej zrobić, żeby na sam koniec przejść bardziej do niekoniecznie mocno technicznych szczegółów. Jeśli chcesz szybciej przeskakiwać do interesujących Cię fragmentów, zapraszam do korzystania ze spisu treści, który znajdziesz tuż nad tym akapitem. Aczkolwiek liczę, że mimo wszystko cały wpis będzie dla Ciebie interesujący.
+
+Od razu chcę dodać, że jeśli zauważysz jakiś błąd na stronie, to skontaktuj się ze mną [mailowo](mailto:tomasz@swistak.codes), na [LinkedIn](https://www.linkedin.com/in/tomasz-swistak/) lub napisz w komentarzu na [Facebooku](https://www.facebook.com/swistak.codes/). Będę bardzo wdzięczny za każdą informację zwrotną!
+
+## Co nowego?
+
+Bez owijania w bawełnę, oto spis, najważniejszych z mojego punktu widzenia, nowości:
+
+- Nowy silnik
+  - Stary blog bazował na WordPressie, a teraz jest oparty na rozwiązaniu napisanym od zera przeze mnie.
+- Lepsza optymalizacja strony
+  - Zarówno skrypty, style, jak i obrazki zajmują teraz mniej miejsca, więc strona ładuje się szybciej.
+- Kategoria offtopic
+  - Właśnie tutaj się znajdujesz. Strona główna będzie od teraz zawierać tylko treści na tematy informatyczne, natomiast w offtopicu znajdą się ogłoszenia, wpisy takie jak ten i może też czasem coś z zupełnie innej beczki.
+- Nowy wygląd
+  - Przy okazji przebudowy strony postanowiłem też zrobić od zera layout. Poprzedni był darmowy, ogólnodostępny i nawet trafiałem na inne blogi z tym samym wyglądem. Jednak wolę być bardziej oryginalny. Od razu jednak mówię, że pewnie będę go jeszcze modyfikować mniej lub bardziej.
+- Ciemny motyw
+  - Jeśli blog dawniej był dla Ciebie zbyt jasny, to teraz dodałem przełącznik w prawym górnym rogu strony, który zmieni motyw na ciemny. Do tego, jeśli preferujesz w systemie ciemne barwy, to powinien włączyć się automatycznie.
+- Spis treści
+  - Nie tylko ten, ale ogólnie wszystkie wpisy doczekały się spisów treści, aby móc szybciej nawigować do najciekawszych fragmentów (chociaż ja polecam zawsze przeczytać całość 😉).
+- Indeks zagadnień
+  - Na WordPressowym blogu tagi ustawiałem głównie po to, żeby były. Teraz postanowiłem wykorzystać je do utworzenia czegoś na wzór indeksu w książkach. Staram się wypisać w nich wszystkie zagadnienia poruszone w tekście, aby można było łatwo szukać po nich artykuły.
+- Koniec banneru o ciasteczkach i Google Analytics
+  - Poprzednia wersja bloga posiadała skrypt Google Analytics, co wymagało też ode mnie umieszczenia powiadomienia o przetwarzaniu ciasteczek. Postanowiłem jednak zrezygnować z usług Google, więc tym samym nie muszę już Was nękać informacją o plikach cookies.
+- Szybkie udostępnianie wpisów
+  - Spodobało Ci się to, co przeczytałeś(-aś) i chcesz podzielić się z innymi? Teraz możesz szybko podzielić się artykułem ze znajomymi, bez potrzeby kopiowania linka.
+- Nowe hasło strony
+  - Dobra, może nie jest to istotna zmiana, ale biorąc pod uwagę treści, jakie pisałem, i jak się zmieniało moje podejście do bloga, stwierdziłem, że mogę zmienić „O programowaniu i informatyce” na „O programowaniu, informatyce i matematyce”. Wciąż się jednak zastanawiam, czy zostawić „przystępnym językiem” 🤔.
+
+<Image
+  image={mock}
+  alignCenter
+  fullSize
+  alt="Mockup lo-fi strony głównej zrobiony w Balsamiq"
+  caption="„Profesjonalny” projekt strony głównej mojego autorstwa (raczej nikt nikomu by za takie coś nie zapłacił)."
+/>
+
+## Co dalej?
+
+Oczywiście to nie koniec zmian, jakie planowałem zrobić. Jest jeszcze trochę rzeczy, których nie zdążyłem zrobić przed premierą (i tak przesuniętą, bo środek maja to nie jest koniec kwietnia):
+
+- Newsletter
+  - Tak, newsletter miał już być, nawet uruchomiłem na niego zapisy na poprzedniej wersji bloga. Niestety platforma, którą wybrałem, nie działała tak, jakbym chciał. Cóż, co nagle, to po diable. Jednak do pisania newslettera mam zamiar powrócić.
+- Komentarze
+  - Wciąż szukam odpowiedniego systemu komentarzy, który mógłbym zintegrować ze stroną. Z jednej strony nie chcę pisać takiego rozwiązania na własną rękę (przykładowe trudności, z jakimi trzeba się mierzyć: anty-spam, zarządzanie danymi osobowymi, XSS), a z drugiej zależy mi na takim, który zachowa Waszą prywatność (więc chociażby popularny Disqus odpada już na samym starcie). Na razie zapraszam do komentowania wpisów na [Facebooku](https://www.facebook.com/swistak.codes/) lub [LinkedIn](https://www.linkedin.com/in/tomasz-swistak/).
+- Lepsze accessibility
+  - Myślę, że jest już lepiej, niż było w poprzedniej wersji, ale wciąż istnieje pole do poprawy. Chciałbym, żeby strona była dostępna dla każdego, niezależnie od tego, jak korzysta z Internetu.
+- Różne mniejsze usprawnienia, zarówno pod kątem funkcjonalności, jak i wydajności.
+  - Na swojej liście rzeczy do zrobienia na nowego bloga miałem 50 pozycji, z czego zrobiłem 35. Niby to tylko 70%, ale najważniejsze rzeczy są już wprowadzone.
+
+## Szczegóły
+
+Przejdźmy teraz do szczegółów związanych z wybranymi, wprowadzonymi przeze mnie nowościami. Jeśli ciekawi Cię, dlaczego wprowadziłem pewne zmiany, tutaj znajdziesz wytłumaczenie.
+
+### Nowy silnik
+
+#### Dlaczego odszedłem od WordPressa?
+
+Jak wspomniałem, poprzedni blog był oparty na [WordPressie](https://pl.wordpress.org/). Na pewno nie raz obiła Ci się ta nazwa o uszy — jest to chyba najbardziej znany system typu CMS, a do tego darmowy. Kiedyś kojarzony tylko z blogami, dziś oparte są na nim też sklepy czy różne landing page. Generalnie wszystko, gdzie trzeba szybko przekazać jakąś treść. I absolutnie szczerze? WordPress jest świetny. Poprzednia wersja bloga świstak.codes nie jest jedyną stroną, którą stawiałem na WordPressie, i pewnie też nie ostatnią, bo ten system się po prostu sprawdza w swoich zastosowaniach.
+
+Jednak dlaczego postanowiłem od WordPressa odejść? Otóż w przypadku, gdy jest jeden autor strony, do tego jest to programista mający na co dzień do czynienia z HTML-ami i JavaScriptami, nie ma jakiejś szczególnej potrzeby utrzymywać pełnego CMS-a. Strona taka jak ta zmienia się raz na jakiś czas, zwykle raz na dwa tygodnie. Do tego nie ma żadnych ukrytych treści dostępnych tylko po zalogowaniu. Zamiast generować dynamicznie co wejście użytkownika strony na podstawie wpisu zapisanego w bazie danych, można serwować po prostu uprzednio skompilowaną treść znajdującą się na serwerze.
+
+Oprócz tego przyznam, że w WordPressie irytowała mnie jedna rzecz — nie znam go od strony technicznej. Niestety, w kwestii PHP najwięcej, co mogę powiedzieć, to tyle, że ma `<?php` i [`T_PAAMAYIM_NEKUDOTAYIM`](http://phpsadness.com/sad/1). Tym samym mocno mi to ograniczało możliwości rozbudowywania skryptu czy też nawet tworzenia layoutu na własną rękę (kto kiedykolwiek widział, jak tworzy się motywy do WordPressa, ten na pewno wie, że nie ogranicza się to do prostych HTML-i i CSS-ów). A ja lubię mieć kontrolę nad stroną techniczną i obecnie „ja tu tworzę ustrój, cały świat mam u stóp” — jak to śpiewał pewien raper, którego słuchałem w podstawówce.
+
+Chciałbym też wziąć WordPressa nieco w obronę, bo często poruszanym argumentem przeciwko niemu jest to, że jest często atakowany. Tak, to prawda, i sam to widziałem po logach serwera (losowe próby wejścia na `wp-login.php` czy `xmlrpc.php`). Tylko z drugiej strony nie ma co się dziwić — według [W3Techs](https://w3techs.com/technologies/details/cm-wordpress) opiera się na nim 43% wszystkich stron w Internecie. Jakbym był script-kiddie, który chce rozwalić losową stronę dla rozrywki, też bym próbował atakować WordPressy. Na szczęście WordPress jest często aktualizowany i znajdziemy do niego pluginy zwiększające bezpieczeństwo.
+
+<Image
+  image={xmlrpc}
+  alignCenter
+  fullSize
+  alt="Zrzut ekranu z panelu zarządzania serwerem, gdzie widać najczęstszy błąd — próbę dostępu do xmlrpc.php"
+  caption="Codzienność administratorów stron opierających się na WordPressie."
+/>
+
+#### A co używam teraz?
+
+Tak jak wspomniałem na początku, zastosowałem autorskie rozwiązanie. Blog napisałem w całości w [TypeScript](https://www.typescriptlang.org/) z wykorzystaniem frameworka [Next.js](https://nextjs.org/). Next.js to framework dla [Node.js](https://nodejs.org/en/), który najbardziej znany jest z tego, że generuje po stronie serwera HTML-ki bazujące na kodzie napisanym w [React](https://pl.reactjs.org/) — zarówno dynamicznie dla każdego żądania, jak i w trakcie kompilacji.
+
+W momencie gdy piszę ten artykuł, wszystkie strony są generowane w trakcie kompilacji i praktycznie nie stosuję możliwości serwerowych (brak API, brak bazy danych). Stąd też pewnie brzmi to jak porwanie się z motyką na słońce, że mając kilkadziesiąt statycznych stron, używam kompletnego frameworka serwerowego. Prawda, mógłbym użyć czegoś prostszego, jak [Jekyll](https://jekyllrb.com/) czy [Gatsby](https://www.gatsbyjs.com/). Jednak z jednej strony chciałem sobie zostawić otwarte drzwi pod dalsze rozbudowywanie strony, a z drugiej po prostu lepiej poznać Next.js, które na pewno mi się przyda w mojej pracy komercyjnej. Zresztą w samym Next.js jest też opcja wyeksportowania statycznych stron bez stawiania pełnego serwera. Mimo to nie skorzystałem z tego, bo posiadanie serwera Next.js-owego ma parę zalet z mojego punktu widzenia: przede wszystkim optymalizacja obrazków oraz łatwe zarządzanie przekierowaniami (nie chciałbym tego robić ręcznie z poziomu konfiguracji serwera WWW np. w [Apache](https://httpd.apache.org/), który uruchamiał WordPressa na poprzednim hostingu).
+
+<small>Tak swoją drogą, to przeraża mnie, że w jednym akapicie jednego artykułu użyłem więcej nazw różnych technologii stosowanych w dzisiejszych czasach niż we wszystkich 50 artykułach napisanych przez 2 lata istnienia bloga...</small>
+
+### Brak Google Analytics
+
+#### Google Analytics
+
+Obecnie wchodząc na niemal każdą stronę (nie posiadając blokad w przeglądarce), jesteśmy atakowani bannerem bądź popupem o przetwarzaniu danych. Zazwyczaj dotyczą one tworzenia profili reklamowych, treści spersonalizowanych i zbierania danych analitycznych. W poprzedniej wersji bloga również posiadałem taki banner, dokładnie z tego ostatniego powodu. Strona miała podpięte Google Analytics, które jest najpopularniejszym systemem do zbierania danych analitycznych, do tego darmowym do potrzeb, które ja miałem. Jest też bardzo wygodne — podpięcie GA do WordPressa to wgranie wtyczki Google SiteKit i nie musimy się niczym przejmować. Tylko czy jest to takie świetne rozwiązanie?
+
+Pewnie każdy, kto się zna na marketingu, popukałby się w głowę, czytając to, ale uważam, że Google Analytics nie jest takie wspaniałe. Wymienię dwa powody, które poniekąd z siebie wynikają: prywatność użytkowników i wszechobecne blokowanie Google Analytics.
+
+#### Prywatność a Google Analytics
+
+Nie ukrywajmy, nie ma na świecie nic za darmo (no, może poza artykułami na moim blogu). To, że Google udostępnia tak zaawansowany system za darmo, nie wynika z ich dobroci serca, tylko z tego, że mają z tego konkretne profity. Mianowicie informacje zbierane przez niego są wykorzystywane w celu profilowania danych użytkowników pod to, na czym korporacja zarabia: reklamy. Innymi słowy, wchodząc na taki blog programistyczny z Google Analytics, będziesz potem dostawać reklamy kursów programowania. Jeśli do tego wszystkiego przeglądasz Internet przez Chrome'a, masz smartfona z Androidem oraz skrzynkę pocztową na Gmailu, to można śmiało powiedzieć, że Google wie o Tobie więcej niż ktokolwiek, może nawet i włącznie z Tobą.
+
+Teraz możesz zadać pytanie, czy jest to w ogóle zgodne z prawem? Cały szkopuł tkwi w tym, że nie do końca. Na przykład 16 lutego 2022 r. francuskie CNIL (odpowiednik naszego Urzędu Ochrony Danych Osobowych) stwierdziło, że [Google Analytics narusza przepisy RODO](https://gdpr.pl/organ-nadzorczy-google-analytics-narusza-rodo). Nie jest to też pierwszy taki wyrok. [W styczniu 2022 r. to samo stwierdzono w Austrii](https://www.gazetaprawna.pl/firma-i-prawo/artykuly/8334416,korzystanie-z-google-analytics-narusza-rodo.html), i można by tak dalej wymieniać. Prawnikiem nie jestem, więc po szczegóły odsyłam do [bardziej specjalistycznego artykułu](https://piwik.pro/blog/is-google-analytics-gdpr-compliant/), chociaż trzeba wziąć poprawkę na to, że został napisany przez konkurenta Google Analytics (swoją drogą, to polska firma z Wrocławia).
+
+#### Blokady śledzenia
+
+Poruszyłem kwestię prywatności, która dotyka użytkowników strony. Jednak jest jeszcze druga strona medalu, która dotyka twórców stron — Google Analytics powszechnie się blokuje. Nie zrozumcie mnie źle, nie mam nic przeciwko temu. Sam jestem uzbrojony w AdGuarda na każdym urządzeniu, który blokuje mi między innymi skrypty analityczne. Tylko siedząc po tej drugiej stronie, gdzie chcę widzieć statystyki oglądalności bloga, to jednak przeszkadza.
+
+Zresztą to nie tylko zasługa wtyczek typu uBlock Origin, aplikacji typu AdGuard czy domowych serwerów DNS typu Pi-hole (swoją drogą, jeśli nie korzystasz z niczego takiego, to szczerze polecam — warto dbać o swoją prywatność w sieci, a także miło jest widzieć mniej reklam). Niektóre przeglądarki, takie jak Firefox czy Brave, z automatu blokują skrypty śledzące. Do tego jako porządny webmaster blokowałem Google Analytics tak długo, dopóty ktoś nie wyraził zgody na korzystanie z plików cookies. Więc nawet jeśli ktoś nie korzystał z blokad reklam, ani też z dbającej o prywatność przeglądarki, to mógł po prostu nie kliknąć zgody na dole strony i już nie dostałem danych analitycznych. Jednak podejrzewam, że najczęściej zdarzały się blokady, patrząc na to, pod jaką widownię celuję treści.
+
+Co to dawało w praktyce? Że prawdziwa oglądalność strony, a ta mierzona przez Google Analytics, to dwie różne rzeczy. W praktyce to, co pokazywało Google Analytics to były w większości dane o popularności w wyszukiwarce Google, które i tak widzę z poziomu Google Search Console. Wiem o tym z innego źródła wiedzy na temat popularności strony — logów serwera. Są one zdecydowanie bardziej zaszumione, ciężej jest tam dostrzec trendy i przede wszystkim nie ma takiego ładnego interfejsu jak Google Analytics, ale tych danych nie da się przekłamać. Nagle okazało się, że ruch pochodzący z innych stron (przede wszystkim social mediów jak LinkedIn, Facebook czy Oh My Dev) jest zdecydowanie większy, niż wskazywało na to Google. Od razu zaznaczę, że tak, na pewno dużą częścią tego ruchu były boty (np. losowe uderzenia na wspomniane wcześniej `wp-login.php`), ale myślę, że w celu sprawdzenia udało mi się odpowiednio odfiltrować ten ruch (nierealistyczne informacje o stosowanej przeglądarce czy inne kraje niż Polska).
+
+<Image
+  image={ip}
+  alignCenter
+  fullSize
+  alt="Zrzut ekranu z logów strony z 27 kwietnia 2022 r. Dwa wpisy — pierwszy to adres IP z Chin, korzystający z przestarzałego Firefoksa próbuje się dostać do xmlrpc.php. Drugi — rosyjski adres IP z przestarzałej Opery na Windows Mobile odwiedza stronę główną."
+  caption="Przykładowe logi, jakie odrzuca się, analizując ruch strony internetowej. Pierwszy to próba ataku na xmlrpc.php — chiński adres IP, do tego user agent wskazuje 4-letnią przeglądarkę (Firefox 62) — najprawdopodobniej fałszywy. Drugi to odwiedziny strony głównej, więc nic podejrzanego. Jednak odwiedziny są nie dość, że z rosyjskiego IP, to jeszcze z Opery Mini 5.1, która wyszła 12 lat temu; do tego z systemu Windows Mobile, którego ostatnia wersja również jest sprzed 12 lat."
+/>
+
+#### Analiza ruchu obecnie
+
+Na tę chwilę do analizy ruchu wykorzystuję dwa sposoby. Pierwszy to logi serwera, bo to zawsze niezawodne źródło danych na temat tego, co się dzieje na stronie internetowej. Surowe, bez ciekawych detali, ale nie do obejścia w żaden sposób. Też ciężko tu mówić o jakimś mocnym śledzeniu — z tych danych niewiele się dowiem na temat użytkowników.
+
+Oprócz logów serwera testuję też [Matomo](https://matomo.org). Jest otwartoźródłowy, darmowy (w wersji on-premise, czyli instalowanej na własnym serwerze) i mocno zorientowany na zachowanie prywatności. Jest w pełni zgodny z RODO i innymi podobnymi przepisami o ochronie danych osobowych, i [nawet nie jest wymagana zgoda na przetwarzanie plików cookie](https://matomo.org/cookie-consent-banners/). Matomo zaufały takie organizacje, jak Komisja Europejska, ONZ, NASA i Amnesty International, więc dlaczego nie miałbym spróbować i ja?
+
+Analityka, którą teraz prowadzę, jest w pełni zanonimizowana. Nie ma śledzących ciastek, adresy IP są zamaskowane (2 ostatnie bajty), a także nie zbieram żadnych innych danych, które mogłyby doprowadzić do rozpoznania konkretnego użytkownika. Jednak jeśli nie chcesz być śledzony(-a), to w <Link href="/privacy-policy">polityce prywatności</Link> znajduje się formularz wycofania zgody na śledzenie analityką Matomo.
+
+## Podsumowując...
+
+Na sam koniec chciałbym podziękować Ci, że postanowiłeś(-aś) przeczytać artykuł aż do tego miejsca. Liczę, że nowa odsłona świstak.codes Ci się podoba i że będziesz regularnie sprawdzać stronę w poszukiwaniu nowych treści. Planuję raczej trzymać się dotychczasowego harmonogramu jednego wpisu na dwa tygodnie, ale z racji tego, że może się różnie wydarzyć, nie jestem w stanie obiecać takiej punktualności. Dlatego gorąco zachęcam do śledzenia strony w mediach społecznościowych lub za pomocą kanału RSS. Odpowiednie linki znajdują się w nagłówku strony.
+
+Do zobaczenia wkrótce!
+
+<small>(oryginał zdjęcia na okładce opublikowany w serwisie [Flickr](https://www.flickr.com/photos/bernd_thaller/50895953051) przez [Bernd Thaller](https://www.flickr.com/photos/bernd_thaller/) na licencji [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/))</small>

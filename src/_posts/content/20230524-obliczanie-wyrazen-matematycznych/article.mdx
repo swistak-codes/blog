@@ -1,0 +1,199 @@
+import Link from 'next/link';
+import {Image} from '@swistak-codes/components';
+import cover from './swistak-kalkulator.jpg';
+
+export const meta = {
+  title: 'Obliczanie wyrażeń matematycznych',
+  abstract:
+    'Z artykułu dowiesz się, jak algorytmicznie obliczać wyrażenia matematyczne. Wykorzystamy do tego odwrotną notację polską.',
+  firstParagraph: (
+    <>
+      W ostatnim artykule przedstawiłem <Link href="/post/odwrotna-notacja-polska">odwrotną notację polską</Link> (ONP) i jak obliczać wyrażenia matematyczne zapisane za jej pomocą. Jednak powiedzmy sobie szczerze — pisząc aplikację obliczającą wyrażenia, nie możemy zmuszać użytkowników do stosowania małopopularnej notacji tylko dlatego, że wygodnie się ją programuje. Dlatego też w tym artykule opiszę, w jaki sposób wiedzę na temat ONP zastosować do obliczania wyrażeń matematycznych zapisanych w tradycyjny, infiksowy sposób.
+    </>
+  ),
+  keyword: 'odwrotna notacja polska',
+  categories: ['Algorytmy', 'Matematyka'],
+  tags: [
+    'javascript',
+    'matematyka',
+    'rpn',
+    'onp',
+    'odwrotna notacja polska',
+    'reverse polish notation',
+    'stos'
+  ],
+  slug: 'obliczanie-wyrazen-matematycznych',
+  updateTime: '2023-05-24T07:00:00+00:00',
+  publishTime: '2023-05-24T07:00:00+00:00',
+  cover,
+};
+
+## Uwaga wstępna
+
+Artykuł jest bezpośrednią kontynuacją mojego poprzedniego wpisu *<Link href="/post/odwrotna-notacja-polska">Odwrotna notacja polska</Link>*. Jeśli go nie czytałeś(-aś), polecam jego lekturę, bo nie będę powtarzać pokazanych tam pojęć i opisów.
+
+Jednak jeśli nie są Ci obce takie pojęcia jak notacja infiksowa, notacja polska i odwrotna notacja polska, a także znasz algorytm obliczania wyrażeń zapisanych w ONP, możesz spokojnie czytać dalej ten artykuł.
+
+## Podejście do obliczania wyrażeń matematycznych
+
+Problem, który chcemy rozwiązać na łamach tego artykułu, wygląda następująco. Użytkownik naszej aplikacji wprowadza wyrażenie matematyczne w postaci typu `6 / 2 * (2 + 1)`, czyli fachowo mówiąc, w postaci infiksowej. Ze względu na istnienie kolejności wykonywania działań, nie możemy po prostu liczyć po kolei od lewej do prawej. Co w takim razie zrobić?
+
+Jak pisałem w poprzednim artykule, wyrażenia matematyczne najprościej oblicza się algorytmicznie, gdy są zapisane w postaci postfiksowej, czyli tzw. odwrotnej notacji polskiej (w skrócie: ONP). W niej faktycznie możemy obliczyć wartość wyrażenia, idąc od lewej do prawej, tylko tyle, że musimy pomocniczo wykorzystać dodatkową strukturę danych, a dokładniej stos.
+
+Wykorzystajmy to. Tylko jak? Najprościej: zamieniając postać infiksową na postfiksową, a następnie obliczając tak zapisane wyrażenie. Drugą część wiemy, jak wykonać. W takim razie pozostaje nam tylko poznać algorytm konwersji tradycyjnego zapisu do odwrotnej notacji polskiej.
+
+## Algorytm stacji rozrządowej
+
+Najpopularniejszym i najprostszym podejściem na konwersję z postaci infiksowej na postfiksową jest algorytm stacji rozrządowej (po ang. shunting yard algorithm). Został opublikowany w 1961 r. przez słynnego E. Dijkstrę, którego możesz kojarzyć choćby z najbardziej znanego <Link href="/post/szukanie-najkrotszych-sciezek-w-grafie">algorytmu szukania najkrótszych ścieżek</Link> nazwanego jego nazwiskiem.
+
+Algorytm, jak zobaczysz dalej, bardzo przypomina w swojej budowie obliczenie wyrażeń zapisanych w ONP. Tutaj również będziemy odczytywać równanie od lewej do prawej i wykonywać operacje w zależności od tego, czy mamy do czynienia z operatorem, czy liczbą. Do tego znowu będziemy posiłkować się stosem w celu otrzymania wyniku.
+
+Wersja, którą tutaj pokażę, będzie uproszczona i będzie brać pod uwagę tylko podstawowe operatory (`+`, `-`, `*`, `/`) oraz nawiasy. Jeśli chcesz wiedzieć, jak obsłużyć funkcje i inne operatory, polecam pokombinować na własną rękę, bo algorytm wymaga wówczas niewielkich, stosunkowo prostych zmian.
+
+### Kroki algorytmu
+
+Algorytm na wejściu przyjmuje wyrażenie zapisane w notacji infiksowej (dla uproszczenia załóżmy, że mamy je rozdzielone na tablicę poszczególnych symboli). Na wyjściu otrzymamy wyrażenie zapisane w notacji postfiksowej (odwrotna notacja polska).
+
+1. Utwórz stos.
+2. Dla każdego symbolu w wyrażeniu:
+    1. Jeśli symbol jest liczbą, dodaj go do wyniku.
+    2. Jeśli symbol jest operatorem (oznaczmy go jako `a`):
+        1. Jeśli operator na górze stosu ma kolejność wykonywania mniejszą lub równą `a`, zdejmij go ze stosu, dodaj do wyniku i powtórz punkt 2.2.1.
+        2. Dodaj operator `a` na stos.
+    3. Jeśli symbol jest lewym nawiasem, dodaj go na stos.
+    4. Jeśli symbol jest prawym nawiasem:
+        1. Jeśli symbol na górze stosu nie jest lewym nawiasem, zdejmij go ze stosu, dodaj do wyniku i powtórz punkt 2.4.1.
+        2. Jeśli symbol na górze stosu to lewy nawias, zdejmij go ze stosu (bez dodawania do wyniku).
+3. Zdejmij wszystkie operatory ze stosu i dodaj je do wyniku w kolejności ściągania.
+
+Drobne uwagi do powyższych kroków, które mogą się przydać przy rozbudowie algorytmu:
+
+- (pkt. 2.2.1) Jeśli obsługujemy potęgowanie i jest ono operatorem `a`, wówczas nie interesuje nas taka sama kolejność wykonywania przy warunku. Wynika to z faktu, że potęgowanie jest działaniem prawostronnie łącznym (w uproszczeniu — liczymy najpierw wszystko, co znajduje się po prawej stronie, a nie po lewej) w przeciwieństwie do reszty działań.
+- (pkt 2.4) Jeśli opróżnimy stos, nie trafiając ani razu na lewy nawias, oznacza to, że działanie było źle zapisane.
+- (pkt 3) Jeśli natrafimy na nawias, również oznacza to, że działanie było źle zapisane.
+
+### Przykładowe rozwiązanie
+
+Sprawdźmy najpierw na kartce algorytm dla wykorzystywanego cały czas w poprzednim artykule działania $$6/2 \cdot (2+1)$$. Jak możemy stamtąd pamiętać, w odwrotnej notacji polskiej jest to $$6 \text{ } 2 \text{ } / \text{ } 2 \text{ } 1 \text{ } + \text{ } \cdot$$. Zobaczmy, czy otrzymamy to samo.
+
+1. Najpierw odczytujemy symbol `6`. Jest to liczba, więc go dodajemy do wyniku. Wynik: `6`, stos: `[]`.
+2. Kolejny symbol to `/`. Jest to operator, więc dodajemy go od razu na stos, ponieważ stos jest pusty. Wynik: `6`, stos: `["/"]`.
+3. Następnie mamy `2`. Liczbę od razu dajemy do wyniku. Wynik: `6 2`, stos: `["/"]`.
+4. Kolejny symbol to `*`. Jest to operator, więc:
+    1. Sprawdzamy operator na górze stosu. Jest to dzielenie i ma ono taką samą kolejność wykonywania co mnożenie, więc zdejmujemy go ze stosu i dodajemy do wyniku. Wynik: `6 2 /`, stos: `[]`.
+    2. Stos jest pusty, więc dodajemy do niego aktualny operator. Wynik: `6 2 /`, stos: `["*"]`.
+5. Teraz odczytujemy `(`. Jest to lewy nawias, czyli od razu dodajemy go na stos. Wynik: `6 2 /`, stos: `["(", "*"]`.
+6. Znowu mamy `2`, czyli liczbę. Dodajemy do wyniku. Wynik: `6 2 / 2`, stos: `["(", "*"]`.
+7. Następnie mamy `+`. Oczywiście jest to operator, stąd wykonujemy kolejno:
+    1. Sprawdzamy szczyt stosu. Jest tam lewy nawias. Z racji tego, że nie jest to operator, to nic nie wykonujemy.
+    2. Dodajemy operator na stos. Wynik: `6 2 / 2`, stos: `["+", "(", "*"]`.
+8. Odczytujemy `1`. Liczby dodajemy od razu do wyniku. Wynik: `6 2 / 2 1`, stos: `["+", "(", "*"]`.
+9. Tym razem mamy `)`. Jest to prawy nawias, więc:
+    1. Sprawdzamy symbol na górze stosu. Jest to dodawanie, więc ściągamy go ze stosu i dodajemy do wyniku. Wynik: `6 2 / 2 1 +`, stos: `["(", "*"]`.
+    2. Ponownie sprawdzamy symbol na szczycie stosu. Tym razem jest to lewy nawias, więc ściągamy go ze stosu. Wynik: `6 2 / 2 1 +`, stos: `["*"]`.
+10. Doszliśmy do końca działania, więc ściągamy symbole ze stosu i dodajemy je do wyniku. Wynik: `6 2 / 2 1 + *`, stos: `[]`.
+
+Jak widać na powyższym przypadku, otrzymaliśmy to samo działanie.
+
+### Implementacja w kodzie
+
+Przełóżmy w takim razie to, co napisaliśmy w krokach, na kod. Jak wcześniej wspomniałem, zaimplementujemy cztery podstawowe operacje. Oto przykładowe podejście do implementacji w JavaScripcie:
+
+```javascript
+// mapa priorytetów operatorów
+// niższy to wcześniejsza kolejność wykonywania
+const OPERATOR_PRIORITY = {
+  '+': 2,
+  '-': 2,
+  '*': 1,
+  '/': 1
+};
+
+// lista operatorów
+const OPERATORS = ['+', '-', '*', '/'];
+
+// zakładamy, że wyrażenie jest tablicą stringów
+function infixToRpn(expression) {
+  // inicjujemy stos jako listę tablicową
+  const stack = [];
+  // inicjujemy wynik, dla uproszczenia niech będzie tablicą
+  const result = [];
+  // dla każdego symbolu w wyrażeniu...
+  for (const symbol of expression) {
+    // jeśli wyrażenie jest liczbą
+    const symbolAsNumber = parseFloat(symbol);
+    if (!Number.isNaN(symbolAsNumber)) {
+      result.push(symbol);
+    }
+    // jeśli jest operatorem
+    else if (OPERATORS.includes(symbol)) {
+      // tak długo, jak na szczycie stosu jest operator
+      // i ma mniejszą bądź równą kolejność wykonywania...
+      // szczyt stosu to u nas ostatni element (-1)
+      while (stack.length > 0
+        && OPERATORS.includes(stack.at(-1))
+        && OPERATOR_PRIORITY[stack.at(-1)] <= OPERATOR_PRIORITY[symbol]) {
+        // ...to ściągamy go ze stosu i dodajemy do wyniku
+        result.push(stack.pop());
+      }
+      // dodajemy operator na stos
+      stack.push(symbol);
+    }
+    // jeśli jest lewym nawiasem
+    else if (symbol === '(') {
+      // dodajemy na stos
+      stack.push(symbol);
+    }
+    // jeśli jest prawym nawiasem
+    else if (symbol === ')') {
+      // tak długo, jak symbol na szczycie stosu nie jest lewym nawiasem...
+      while (stack.length > 0 && stack.at(-1) !== '(') {
+        // ...ściągamy ze stosu i dodajemy do wyniku
+        result.push(stack.pop());
+      }
+      // jeśli symbol na górze stosu to lewy nawias
+      if (stack.at(-1) === '(') {
+        // zdejmujemy go ze stosu
+        stack.pop();
+      }
+    }
+  }
+  // tak długo, jak stos zawiera jeszcze operatory...
+  while (stack.length > 0) {
+    // ...dodajemy je do wyniku
+    result.push(stack.pop());
+  }
+  // zwracamy wynik
+  return result;
+}
+```
+
+Kod możesz przetestować na [Replit](https://replit.com/@tswistak/infix-to-rpn#index.js).
+
+## Łączymy algorytmy w jeden
+
+Napisany przed chwilą kod pozwoli nam przekonwertować notację infiksową do postfiksowej (ONP). Natomiast w poprzednim artykule pokazałem <Link href="/post/odwrotna-notacja-polska/#implementacja-onp-w-kodzie">kod umożliwiający obliczenie wartości wyrażeń</Link> zapisanych w ten sposób.
+
+Całości kodu po połączeniu obu algorytmów nie będę tutaj wklejać, ale możesz go znaleźć [na Replit](https://replit.com/@tswistak/infix-solver#index.js).
+
+Warto się zastanowić, jak przerobić kod tak, aby przyjmował dowolne wyrażenie wpisane przez użytkownika i je obliczał (czyli na wejściu typ `string` zamiast tablicy ze stringiem podzielonym na poszczególne symbole). Napisanie czegoś takiego ma pewne pułapki, na przykład:
+
+- Użytkownik może używać spacji między symbolami lub ich nie używać (albo raz używać, raz nie).
+- Można pomijać operator mnożenia.
+- Należy rozróżnić liczby ujemne od odejmowania.
+- Jeśli chcemy napisać uniwersalną aplikację, warto zwrócić uwagę, że w niektórych krajach (w tym w Polsce) separatorem dziesiętnym jest przecinek, gdy w reszcie świata (oraz w językach programowania) jest nim kropka.
+
+## Podsumowanie
+
+W tym krótkim uzupełnieniu do poprzedniego artykułu pokazałem, jak bardzo prostym algorytmem możemy zamienić tradycyjnie stosowaną notację infiskową wyrażeń matematycznych na odwrotną notację polską, która jest prosta do obliczenia algorytmicznie. Łącząc ten algorytm z przedstawionym poprzednio przeze mnie algorytmem obliczania wartości wyrażenia zapisanego w odwrotnej notacji polskiej, jesteśmy w stanie napisać program obliczający wyrażenia zapisane postacią infiksową. Mimo że musimy tu zastosować jeden po drugim dwa różne algorytmy, nie stanowi to problemu, ponieważ oba mają liniową złożoność obliczeniową ($$\Omicron(n)$$, gdzie $$n$$ to liczba symboli w wyrażeniu).
+
+## Literatura
+
+- RPN, https://www.hpmuseum.org/rpn.htm (ostatnia wizyta 11.04.2023).
+- McIlroy, Mark. "Reverse Polish Notation." From MathWorld--A Wolfram Web Resource, created by Eric W. Weisstein. https://mathworld.wolfram.com/ReversePolishNotation.html
+- Edsger W. Dijkstra, "Algol 60 translation : An Algol 60 translator for the x1 and Making a translator for Algol 60", Research Report 35, Mathematisch Centrum, Amsterdam, 1961. PDF: http://www.cs.utexas.edu/users/EWD/MCReps/MR35.PDF.
+- Norvell T. "Parsing Expressions by Recursive Descent", 1999 (https://www.engr.mun.ca/~theo/Misc/exp_parsing.htm)
+- Infix, Prefix and Postfix Expressions, http://books.icse.us.edu.pl/runestone/static/pythonds/BasicDS/InfixPrefixandPostfixExpressions.html
+- Shunting yard algorithm, https://en.wikipedia.org/w/index.php?title=Shunting_yard_algorithm&oldid=1146365818 (ostatnie odwiedziny 06.05.2023).
+
+<small>Zdjęcie na okładce wygenerowane przez DALL-E.</small>

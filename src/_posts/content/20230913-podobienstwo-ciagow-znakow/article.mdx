@@ -1,0 +1,438 @@
+import Link from 'next/link';
+import {Image} from '@swistak-codes/components';
+import cover from './swistak_detektyw.jpg';
+
+export const meta = {
+  title: 'Mierzenie podobieństwa ciągów znaków',
+  abstract:
+    'Artykuł jest poświęcony metryce odległości edycyjnej oraz jej implementacji jako odległości Hamminga i Levenshteina.',
+  firstParagraph: (
+    <>
+      Patrząc na tekst, jesteśmy wzrokowo w stanie powiedzieć, czy dwa słowa są do siebie podobne: czy to znaczeniowo, czy pod kątem różnic w liczbie liter, czy jakkolwiek tylko przyjdzie nam do głowy. Tylko jak taką metrykę zdefiniować formalnie, a następnie w jaki sposób ją zapisać algorytmicznie? Idąc dalej tymi pytaniami — skąd wyszukiwarka internetowa wie, że jeśli wpisałeś(-aś) <i>„dwistak”</i>, to tak naprawdę miałeś(-aś) na myśli <i>„świstak”</i>? Poznajmy odpowiedzi na te pytania.
+    </>
+  ),
+  keyword: 'levenshtein',
+  categories: ['Algorytmy', 'Programowanie'],
+  tags: [
+    'javascript',
+    'string',
+    'odległość edycyjna',
+    'odległość Hamminga',
+    'odległość Levenshteina',
+    'programowanie dynamiczne',
+    'rekurencja',
+    'rekursja'
+  ],
+  slug: 'podobienstwo-ciagow-znakow',
+  updateTime: '2023-09-13T07:00:00+00:00',
+  publishTime: '2023-09-13T07:00:00+00:00',
+  cover,
+};
+
+## Podobieństwo ciągu znaków
+
+W tym momencie muszę się poprawić, bo nieco skłamałem we wstępie. To, co będziemy mierzyć, to nie tyle podobieństwo, a odmienność ciągu znaków. Bo na tym właśnie polegają metryki ciągów (*string metric*).
+
+Formalnie, matematycznie metryka to funkcja obliczająca odległość między każdą parą elementów zbioru, dla którego została określona. W przypadku tekstów najłatwiej jest określić odległość na podstawie tego, jak bardzo różnią się od siebie — im bardziej, tym większa. Stąd jej polska nazwa *miara odmienności ciągów znaków*.
+
+Warto także dodać, że aby metryka była miarodajna, funkcja musi spełniać warunek nierówności trójkąta. Na pewno znasz to pojęcie z geometrii, gdzie się sprawdzało, czy z odcinków da się skonstruować trójkąt, sprawdzając, czy suma dwóch jest większa bądź równa trzeciemu. W przestrzeniach metrycznych uogólnia się to do prostej nierówności:
+
+$$
+d(x,\ z) \leqslant d(x,\ y) + d(y,\ z)
+$$
+
+gdzie $$d$$ jest funkcją obliczającą miarę, a $${x, y, z}$$ należą do przestrzeni metrycznej. W naszym przypadku będą to trzy dowolne ciągi znaków.
+
+### Odległość edycyjna
+
+Najpopularniejszą miarą odmienności ciągów znaków jest odległość edycyjna. Obliczamy ją poprzez zliczenie, ile operacji edycji jest potrzebnych, aby teksty były takie same.
+
+Mamy różne rodzaje operacji, które możemy zliczać. Możemy wymienić:
+
+- wstawienie pojedynczego symbolu,
+- usunięcie pojedynczego symbolu,
+- zmianę symbolu na inny,
+- zamianę (transpozycję) sąsiadujących symboli.
+
+Nie ma jednego algorytmu obliczającego odległość edycyjną. Różne implementacje biorą pod uwagę różne operacje, co zobaczysz dalej w artykule. Z tego powodu, gdy mówimy o tym, że obliczyliśmy odległość edycyjną, warto wskazać którym algorytmem, lub które operacje były brane pod uwagę. Żeby zobrazować znaczenie, zobacz poniższy przykład, gdzie liczymy różnymi podejściami odległość między wyrazami *brawo* i *bramka*.
+
+- Zakładając, że możemy wstawiać i zmieniać, odległość wynosi 3:
+    1. bra**w**o → bra**m**o — zmiana *w* na *m*.
+    2. bram**o** → bram**k** — zmiana *o* na *k*.
+    3. bramk → bramk**a** — wstawienie *a*.
+- Natomiast, jeśli moglibyśmy wstawiać i usuwać, odległość wynosi 5:
+    1. bra**w**o → brao — usunięcie *w*.
+    2. bra**o** → bra — usunięcie *o*.
+    3. bra → bra**m** — wstawienie *m*.
+    4. bram → bram**k** — wstawienie *k*.
+    5. bramk → bramk**a** — wstawienie *a*.
+
+## Odległość Hamminga
+
+Najprostszą z odległości edycyjnych, które możemy zaimplementować, jest odległość Hamminga. Mierzymy nią odległość między dwoma ciągami znaków o **tej samej długości** i jedyna operacja edycji, którą bierzemy pod uwagę, to **zmiana symbolu na inny**. Innymi słowy, metryka ta zlicza, ile znaków się różni na tych samych pozycjach.
+
+Przykłady:
+
+- bra**ma** i bra**wo** — odległość 2
+- **dru**karz i **pie**karz — odległość 3
+- **świst**a**k** i **pelik**a**n** — odległość 6
+- j**a**n i j**o**n — odległość 1
+- gwizd i gwizd — odległość 0
+
+Jak możesz się domyślać, skoro liczba zmian symbolu na inny to nic innego jak zliczenie różnic na tych samych pozycjach, algorytm sprowadza się do bardzo prostego schematu. Załóżmy, że na wejściu przyjmujemy ciągi znaków `a` i `b`, indeksowane od zera:
+
+1. Jeśli długość `a` i `b` jest różna, zwróć błąd.
+2. Ustaw zmienną z wynikiem na wartość 0.
+3. Dla liczb od `i = 0` do długości `a`:
+    1. Jeśli znak ciągu `a` na pozycji `i` jest różny od znaku ciągu `b` na pozycji `i`, zwiększ wynik o 1.
+4. Zwróć wynik.
+
+Sprowadza się to do bardzo prostego kodu:
+
+```javascript
+// a i b to ciągi znaków
+function hamming(a, b) {
+  // rzucamy błąd, jeśli ciągi są różnej długości
+  if (a.length !== b.length) {
+    throw new Error("Ciągi muszą być tej samej długości!");
+  }
+  // ustawiamy zmienną z wynikiem na wartość 0
+  let result = 0;
+  // iterujemy po kolejnych znakach
+  for (let i = 0; i < a.length; i++) {
+    // jeśli znaki są różne, zwiększamy wynik
+    if (a[i] !== b[i]) {
+      result++;
+    }
+  }
+  // zwracamy wynik
+  return result;
+}
+```
+
+Możesz go przetestować na [Replit](https://replit.com/@tswistak/hamming#index.js). Znajdziesz tam te same przykłady ciągów, które pokazałem dotychczas w tekście.
+
+## Odległość Levenshteina
+
+Odległość Hamminga była bardzo prosta do zaimplementowania, jednak ma widoczne dwie wady:
+
+- ciągi muszą być tej samej długości,
+- sprawdzamy tylko pod kątem zmiany znaku na inny.
+
+Żeby mieć bardziej uniwersalną metrykę, powinniśmy mieć taką, gdzie długość ciągów może być różna. W tym celu musimy wziąć pod uwagę też wstawianie i usuwanie znaków.
+
+Metrykę, która spełnia te założenia, opracował w 1965 r. rosyjski informatyk Władimir Lewensztejn i od jego nazwiska została nazwana odległością Levenshteina. Algorytm jest na tyle popularny i szeroko stosowany, że odległość edycyjną często utożsamia się właśnie z nim.
+
+### Przykład działania
+
+Odległość Levenshteina, jak wspomniałem wcześniej, bierze pod uwagę zamianę, wstawianie i usuwanie znaków, dzięki czemu ciągi mogą być różnej długości.
+
+W przypadku ciągów o tej samej długości, z racji tego, że wystarczy zamieniać, wartość będzie taka sama jak w przypadku odległości Hamminga. Natomiast dla różnej długości miałem okazję pokazać już na początku artykułu, jak działa odległość Levenshteina. Przypominając, dla wyrazów *brawo* i *bramka* odległość wynosi 3, ponieważ musimy wykonać następujące operacje wstawiania, usuwania i zmiany:
+
+1. bra**w**o → bra**m**o — zmiana *w* na *m*
+2. bram**o** → bram**k** — zmiana *o* na *k*
+3. bramk → bramk**a** — wstawienie *a*
+
+Inne przykłady:
+
+- brama i brawo — odległość 2, ponieważ:
+    - bra**m**a → bra**w**a — zmiana *m* na *w*
+    - braw**a** → braw**o** — zmiana *a* na *o*
+- świst i gwizdek — odległość 5, ponieważ:
+    - **ś**wist → **g**wist — zmiana *ś* na *g*
+    - gwi**s**t → gwi**z**t — zmiana *s* na *z*
+    - gwiz**t** → gwiz**d** — zmiana *t* na *d*
+    - gwizd → gwizd**e** — wstawienie *e*
+    - gwizde → gwizde**k** — wstawienie *k*
+
+W przypadku ciągów różnej długości funkcja działa symetrycznie, ponieważ każdemu wstawieniu będzie odpowiadać usunięcie i vice versa:
+
+- bramka i brawo — odległość 3, tak samo jak odwrotnie, ponieważ:
+    - bra**m**ka → bra**w**ka — zmiana *m* na *w*
+    - braw**k**a → braw**o**a — zmiana *k* na *o*
+    - brawo**a** → brawo — usunięcie *a*
+- gwizdek i świst — tutaj ponownie odległość 5:
+    - **g**wizdek → **ś**wizdek — zmiana *g* na *ś*
+    - świ**z**dek → świ**s**dek — zmiana *z* na *s*
+    - świs**d**ek → świs**t**ek — zmiana *d* na *t*
+    - świst**e**k → świstk — usunięcie *e*
+    - świst**k** → świst — usunięcie *k*
+
+W tym momencie warto też dodać, że jeśli porównujemy pusty ciąg znaków z ciągiem o dowolnej długości, odległość wynosi tyle, co długość tego ciągu, ponieważ musimy wykonać tyleż operacji wstawienia.
+
+### Definicja rekurencyjna
+
+#### Uzyskanie wzoru rekurencyjnego
+
+Wszystko wygląda fajnie, gdy rozpisujemy to ręcznie, tylko jak to wyliczyć algorytmicznie? Na potrzeby naszej analizy przyjmijmy następujące symbole:
+
+- $$a$$ i $$b$$ — porównywane ciągi znaków (dalej będę pisać $$x$$, aby nie powielać symboli)
+- $$|x|$$ — długość ciągu $$x$$
+- $$x[i]$$ — $$i$$-ty znak ciągu $$x$$ (liczymy od 0)
+- $$\operatorname{tail}(x)$$ — funkcja zwracająca $$x$$ bez pierwszego znaku (np. $$\operatorname{tail}("bla") = "la"$$)
+- $$\min$$ — funkcja zwracająca najmniejszą z podanych wartości
+
+Rozpiszmy przypadki, byśmy mogli złożyć je we wzór funkcji. Zacznijmy od najprostszych, czyli gdy jeden z ciągów jest pusty — wówczas zwracamy długość drugiego ciągu:
+
+- $$\operatorname{lev}(a,b) = |a|$$, jeśli $$|b| = 0$$
+- $$\operatorname{lev}(a,b) = |b|$$, jeśli $$|a| = 0$$
+
+Kolejny oczywisty przypadek jest taki, że odległości nie zwiększamy, jeśli znaki są takie same, więc mamy już trzeci przypadek. Żeby ładnie zapisać to rekurencyjnie, sprawdźmy pierwszy znak obu ciągów i wywołajmy funkcję rekurencyjnie, skracając ciągi funkcją $$\operatorname{tail:}$$
+
+- $$\operatorname{lev}(a,b) = \operatorname{lev}(\operatorname{tail}(a),\operatorname{tail}(b))$$, jeśli $$a[0] = b[0]$$
+
+Teraz zostaje jeszcze obsługa najpopularniejszego przypadku, czyli że znaki są od siebie różne. Oznacza to, że w tym momencie wstawiamy, usuwamy lub zmieniamy znaki. Tylko jak to zapisać matematycznie? Z góry dodajmy 1 do długości, a następnie zróbmy trzy wywołania rekurencyjne zakładające każdy z tych wariantów. Możemy śmiało założyć, że najmniejszą z wartości, którą dostaniemy, jest wartość dla faktycznego przypadku, ponieważ nie wykonujemy wówczas nadmiarowych operacji.
+
+Warianty te zapiszemy następująco:
+
+- usunięcie znaku z $$a$$ lub dodanie do $$b$$: $$\operatorname{lev}(a,b) = \operatorname{lev}(\operatorname{tail}(a),b)$$
+- dodanie znaku do $$a$$ lub usunięcie znaku z $$b$$: $$\operatorname{lev}(a,b) = \operatorname{lev}(a,\operatorname{tail}(b))$$
+- zmiana znaku: $$\operatorname{lev}(a,b) = \operatorname{lev}(\operatorname{tail}(a),\operatorname{tail}(b))$$
+
+Połączmy wszystko w całość, aby otrzymać <Link href="/post/rekurencja-co-to-jest">wzór rekurencyjny</Link> na odległość Levenshteina:
+
+$$
+\operatorname{lev}(a,b)=
+\begin{cases}
+  |a| &\text{ jeśli } |b|=0\\
+  |b| &\text{ jeśli } |a|=0\\
+  \operatorname{lev} \left(\operatorname{tail}(a),\operatorname{tail}(b) \right)& \text{ jeśli } a[0]=b[0]\\
+  1+\min
+  \begin{cases}
+    \operatorname{lev} \left(\operatorname{tail}(a),b \right)\\
+    \operatorname{lev} \left(a,\operatorname{tail}(b) \right)\\
+    \operatorname{lev} \left(\operatorname{tail}(a),\operatorname{tail}(b) \right)\\
+  \end{cases}
+  & \text{ w przeciwnym przypadku}
+\end{cases}
+$$
+
+Z racji skomplikowania wzoru nie będę pokazywać obliczeń krok po kroku na jednym z przykładów. Jego poprawność zweryfikujemy po zaimplementowaniu go w kodzie.
+
+#### Implementacja
+
+Przełożenie wzorów rekurencyjnych wprost na język programowania, bez optymalizacji, jest zwykle bardzo proste, więc nie będę się tu za bardzo rozpisywać jak do tego podejść, tylko od razu pokażę przykładową implementację w JavaScript:
+
+```javascript
+// a i b to ciągi znaków
+function lev(a, b) {
+  // przypadki, w których zwracamy długość drugiego ciągu
+  if (b.length === 0) {
+    return a.length;
+  }
+  if (a.length === 0) {
+    return b.length;
+  }
+  // znaki są takie same
+  if (a[0] === b[0]) {
+    // w JavaScript "odciąć" pierwszy znak możemy funkcją slice
+    return lev(a.slice(1), b.slice(1));
+  }
+  // pozostałe przypadki
+  return 1 + Math.min(
+    lev(a.slice(1), b),
+    lev(a, b.slice(1)),
+    lev(a.slice(1), b.slice(1))
+  );
+}
+```
+
+Kod znajdziesz na [Replit](https://replit.com/@tswistak/levenshteinrecursive#index.js), gdzie zamieściłem też uruchomienie go dla pokazanych wcześniej przykładów, na czym możesz zweryfikować, czy obliczenia są prawidłowe.
+
+Powiedzmy sobie szczerze, ta rekurencja wygląda strasznie. Nie trzeba być specjalistą od optymalizacji algorytmów, aby zauważyć, że wywoływanie rekurencyjnie tej samej funkcji trzykrotnie w najgorszym przypadku (który jednocześnie jest typowym przypadkiem) nie jest dobrym pomysłem. Złożoność czasowa tego algorytmu wynosi $$\Omicron(3^{n})$$, gdzie $$n$$ to długość najdłuższego z ciągów (n = $$\max(|a|,|b|)$$). W przypadku nieco dłuższych ciągów obliczenie będzie bardzo wolne, więc szybko może też dojść do przepełnienia stosu.
+
+Jeśli ciekawi Cię, kiedy to się stanie, zobacz [ten Replit](https://replit.com/@tswistak/levenshteinrecursivestresstest#index.js), gdzie zrobiłem test na losowych ciągach znaków. Oczywiście nie jest to bardzo miarodajne, ale może pomóc w zobrazowaniu problemu. Na Replit już przy długości ciągu 7 musiałem czekać półtorej minuty, potem zrezygnowałem z obserwowania. Uruchamiając lokalnie, dla ciągów o długości 8 musiałem czekać na obliczenie 4 minuty, dalej sobie odpuściłem.
+
+### Wersja iteracyjna
+
+Najpopularniejsza optymalizacja obliczania odległości Levenshteina to jej <Link href="/post/derekursywacja">derekursywacja</Link> wraz z zapamiętywaniem wyników poszczególnych etapów. Często porównujemy ze sobą te same części ciągów, więc warto nie powtarzać obliczeń, a jak już optymalizujemy w ten sposób, nie ma potrzeby trzymać się na siłę rekurencji.
+
+#### Algorytm Wagnera-Fischera
+
+Iteracyjny sposób obliczania był wymyślany wielokrotnie przez różnych informatyków, jednak najbardziej rozpowszechniła się wersja opublikowana przez R. Wagnera i M. Fischera w 1974 r., stąd nazwa algorytm Wagnera-Fischera. Algorytm opiera się na programowaniu dynamicznym, czyli rozbija problem na mniejsze, oblicza je i na tej podstawie dochodzimy do rozwiązania większego problemu. Tę klasę algorytmów możesz znać choćby z popularnego <Link href="/post/szukanie-najkrotszych-sciezek-w-grafie">algorytmu Floyda-Warshalla</Link>. Jednak tłumacząc ten algorytm, postaram się zrobić to bez wchodzenia w niuanse programowania dynamicznego, tylko wytłumaczę, o co w tym chodzi.
+
+Główna idea stojąca za tym algorytmem jest taka, że konstruujemy dwuwymiarową tablicę (macierz), którą uzupełnimy odległościami Levenshteina dla kombinacji różnych podciągów. Ponieważ będziemy szli od najkrótszych (w tym pustych ciągów) podciągów, zawsze powiększając je o jeden znak, możemy wykorzystać poprzednie obliczenia. Stąd ominiemy rekursję i de facto tu widać już ideę z programowania dynamicznego — rozwiązujemy mały problem, na jego bazie większe, aż rozwiążemy nasz główny problem.
+
+Wzór na obliczenie każdej z komórek macierzy ($$C_{0..|a|,0..|b|}$$), wykorzystywany w tym algorytmie, to:
+
+$$
+\begin{align*}
+C_{i,0} &= i \\
+C_{0,j} &= j \\
+C_{i,j} &=
+  \begin{cases}
+    C_{i-1,j-1} &\text{ jeśli } a[i] = b[j] \\
+    1 + min(C_{i-1,j}, C_{i,j-1}, C_{i-1,j-1})  &\text{ w przeciwnym przypadku}
+  \end{cases}
+\end{align*}
+$$
+
+Jak widzisz, jest to wzór analogiczny do wzoru rekurencyjnego, ale zanim zaimplementujemy obliczanie takiej macierzy, zobaczmy, jak to w ogóle rozumieć, jak ta macierz wygląda i jak odczytać interesującą nas odległość. Jest tylko drobna uwaga — z racji tego, że bierzemy pod uwagę też puste ciągi, aby równość $$a[i] = b[j]$$ miała sens, zakładamy, że numerujemy znaki w ciągu od 1 (a nie od 0 jak poprzednio).
+
+#### Wytłumaczenie działania na przykładzie
+
+Algorytm zobrazuję na wykorzystywanym wcześniej przykładzie obliczania odległości dla słów *brawo* i *bramka*.
+
+- Tworzymy tablicę dwuwymiarową, wypisując po kolei wszystkie znaki ciągów w nagłówkach kolumn i wierszy:
+
+|    | ""  | B   | R   | A   | W   | O   |
+|:--:|:---:|:---:|:---:|:---:|:---:|:---:|
+| "" |     |     |     |     |     |     |
+| **B** |  |     |     |     |     |     |
+| **R** |  |     |     |     |     |     |
+| **A** |  |     |     |     |     |     |
+| **M** |  |     |     |     |     |     |
+| **K** |  |     |     |     |     |     |
+| **A** |  |     |     |     |     |     |
+
+- Uzupełniamy pierwszy wiersz i kolumnę, czyli odległości podciągów do pustego ciągu. Odległość w takim przypadku zawsze równa się długości ciągu (czyli numerowi wiersza lub kolumny), ponieważ tyle znaków musimy wstawić. Warto dodać, jak czytamy tę tabelę. Patrząc na kolumnę z literą *B*, naszym podciągiem jest *B*, ale gdy spojrzymy na kolejną (*R*), to naszym podciągiem jest *BR*. Analogicznie dalej, dla kolumny *A* — *BRA*, *W* — *BRAW*, *O* — *BRAWO*. Wiersze odczytujemy podobnie.
+
+|   | "" | B | R | A | W | O |
+|:-:|:--:|:-:|:-:|:-:|:-:|:-:|
+| "" | 0 | 1 | 2 | 3 | 4 | 5 |
+| **B** | 1 |   |   |   |   |   |
+| **R** | 2 |   |   |   |   |   |
+| **A** | 3 |   |   |   |   |   |
+| **M** | 4 |   |   |   |   |   |
+| **K** | 5 |   |   |   |   |   |
+| **A** | 6 |   |   |   |   |   |
+
+- W pozostałych komórkach mamy już do czynienia z porównywaniem do siebie niepustych ciągów. W tym miejscu skorzystamy z trzeciej części wzoru, który pokazałem wcześniej. Wypełniamy wiersz po wierszu.
+- Na początku trafimy na porównanie ciągów *B* i *B*, czyli takich samych, więc będziemy spisywać wartość, która jest w komórce w lewym górnym rogu od aktualnej.
+
+|   | "" | B | R | A | W | O |
+|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
+| "" | 0  | 1  | 2  | 3  | 4  | 5  |
+| **B** | 1  | 0  |    |    |    |    |
+| **R** | 2  |    |    |    |    |    |
+| **A** | 3  |    |    |    |    |    |
+| **M** | 4  |    |    |    |    |    |
+| **K** | 5  |    |    |    |    |    |
+| **A** | 6  |    |    |    |    |    |
+
+- Następnie porównujemy *BR* z *B*. Z racji tego, że znaki *R* i *B* są od siebie różnie, patrzymy na sąsiadujące wartości, z których wybierzemy najmniejszą, a następnie dodamy do niej 1 (bo została wykonana jakaś operacja):
+  - komórkę na lewo od aktualnej, zakładając, że znak został dodany: 0,
+  - komórkę nad aktualną, zakładając, że znak został usunięty: 2,
+  - komórkę w lewym górnym rogu, zakładając, że znak został zamieniony: 1.
+- Skoro najmniejszą z odczytanych wartości jest 0, czyli został dodany znak, to dodajemy do tej wartości 1 i wpisujemy w tabeli.
+
+|    | "" | B  | R  | A  | W  | O  |
+|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
+| "" | 0  | 1  | 2  | 3  | 4  | 5  |
+| **B** | 1  | 0  | 1  |    |    |    |
+| **R** | 2  |    |    |    |    |    |
+| **A** | 3  |    |    |    |    |    |
+| **M** | 4  |    |    |    |    |    |
+| **K** | 5  |    |    |    |    |    |
+| **A** | 6  |    |    |    |    |    |
+
+- Analogicznie rozpatrujemy kolejne komórki w tym wierszu. Tutaj, jak można się domyślić, zawsze będzie przypadek dodawania znaku, więc będziemy brać wartość komórki z lewej strony i dodawać do niej 1.
+
+|    | "" | B | R | A | W | O |
+|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
+| "" | 0  | 1 | 2 | 3 | 4 | 5 |
+| **B** | 1 | 0 | 1 | 2 | 3 | 4 |
+| **R** | 2 |   |   |   |   |   |
+| **A** | 3 |   |   |   |   |   |
+| **M** | 4 |   |   |   |   |   |
+| **K** | 5 |   |   |   |   |   |
+| **A** | 6 |   |   |   |   |   |
+
+- Nie będę pokazywać wypełnienia całej macierzy, ale dosłownie cały czas wykonujemy to samo. Porównujemy, czy znaki, które wskazują kolumna i wiersz, są takie same, a potem w zależności od tego, czy tak, czy nie, wykonujemy inną operację. Reguła jest bardzo prosta; takie same — przepisujemy wartość z komórki w lewym górnym rogu, różne — weźmy najmniejszą wartość z trzech sąsiadujących komórek (góra, lewy górny róg, lewo) i dodajmy do niej jeden.
+
+|   | "" | B | R | A | W | O |
+|:-:|:--:|:--:|:--:|:--:|:--:|:--:|
+| "" | 0 | 1 | 2 | 3 | 4 | 5 |
+| **B** | 1 | 0 | 1 | 2 | 3 | 4 |
+| **R** | 2 | 1 | 0 | 1 | 2 | 3 |
+| **A** | 3 | 2 | 1 | 0 | 1 | 2 |
+| **M** | 4 | 3 | 2 | 1 | 1 | 2 |
+| **K** | 5 | 4 | 3 | 2 | 2 | 2 |
+| **A** | 6 | 5 | 4 | 3 | 3 | 3 |
+
+- Pamiętając regułę odczytywania odległości dla różnych podciągów, możemy zauważyć, że długość między ciągami, które były wejściem algorytmu, znajduje się w prawym dolnym rogu tabeli.
+
+Widząc, że szukaną przez nas wartość obliczyliśmy dopiero na końcu, a zarazem wiedząc, że przechodziliśmy przez wszystkie komórki tabeli, możemy łatwo obliczyć, że złożoność obliczeniowa i pamięciowa tego algorytmu to $$\Omicron(|a|\cdot|b|)$$, więc znacznie lepiej niż w przypadku wersji rekurencyjnej.
+
+#### Implementacja
+
+Wiedząc, jak ręcznie wypełnić macierz, przejdźmy do implementacji. Warto tylko zwrócić uwagę, że będziemy musieli nieco zmodyfikować porównywanie znaków, ponieważ w większości języków programowania znaki w ciągach numerujemy od zera. Nie jest to jednak duży problem, co zobaczysz w kodzie poniżej (JavaScript):
+
+```javascript
+// a i b to ciągi znaków
+function lev(a, b) {
+  // tworzymy tablicę dwuwymiarową o rozmiarze |a|+1,|b|+1 (miejsce na pusty ciąg)
+  // niestety w JS nie jest to tak proste jak w innych językach
+  // normalnie wystarczyłoby zrobić coś w stylu `new int[a.length + 1][b.length + 1]`
+  const distances = Array.from(Array(a.length + 1), () => new Array(b.length + 1));
+  // uzupełniamy pierwszą kolumnę
+  for (let i = 0; i < distances.length; i++) {
+    distances[i][0] = i;
+  }
+  // uzupełniamy pierwszy wiersz
+  for (let i = 0; i < distances[0].length; i++) {
+    distances[0][i] = i;
+  }
+  // iterujemy po kolejnych komórkach, wiersz po wierszu
+  for (let i = 1; i < distances.length; i++) {
+    for (let j = 1; j < distances[i].length; j++) {
+      // sprawdźmy, czy znaki są takie same
+      // musimy sprawdzić liczniki o 1 wstecz
+      if (a[i - 1] === b[i - 1]) {
+        // jeśli są takie same, przepisujemy poprzednią wartość
+        distances[i][j] = distances[i - 1][j - 1];
+      } else {
+        // w przeciwnym przypadku bierzemy najmniejszą z sąsiadujących wartości
+        // i dodajemy do niej 1
+        distances[i][j] = 1 + Math.min(
+          distances[i - 1][j],
+          distances[i][j - 1],
+          distances[i - 1][j - 1]
+        );
+      }
+    }
+  }
+  // zwracamy wynik, który znajduje się w ostatnim wierszu, w ostatniej kolumnie
+  return distances.at(-1).at(-1)
+}
+```
+
+Kod możesz przetestować na [Replit](https://replit.com/@tswistak/levenshteiniterative#index.js).
+
+#### Możliwe optymalizacje
+
+Algorytm napisany w wyżej pokazany sposób działa znacznie szybciej od rekurencyjnej wersji, jednak wciąż jest pole do popisu pod kątem optymalizacji. Przykładowe, które moglibyśmy zrobić, to:
+
+- Nie przechowywać całej macierzy, a jedynie ostatnio obliczony wiersz. Zauważ, że nigdy nie odwołujemy się do wcześniejszych wierszy niż ostatni, więc po co zajmować nimi pamięć. Dzięki temu moglibyśmy zredukować złożoność pamięciową algorytmu z $$\Omicron(|a|\cdot|b|)$$ do $$\Omicron(2\cdot|a|)$$.
+- Moglibyśmy, zamiast przechodzić wiersz po wierszu, przechodzić po przekątnej i w razie potrzeby wyliczać odpowiednie sąsiadujące elementy. W przypadku gdy odległość między ciągami jest mała, może to zaoszczędzić dużo iteracji.
+
+## Inne podejścia
+
+Na koniec warto wspomnieć, że o ile odległość Levenshteina jest zdecydowanie najpopularniejszą metryką odległości ciągów znaków, a odległość Hamminga najprostszą do zaprogramowania, to mamy też inne warte uwagi. Można wśród nich wymienić:
+
+- Odległość Damerau-Levenshteina — dodatkowo bierze pod uwagę operację transpozycji.
+- Odległość LCS (Longest Common Subsequence, po polsku najdłuższy wspólny podciąg) — bierze pod uwagę jedynie dodawanie i usuwanie. Co ciekawe, algorytmy obliczające tę metrykę, zarówno rekurencyjne jak iteracyjne, są bardzo podobne do obliczania odległości Levenshteina.
+- Odległość Jaro-Winklera — bierze pod uwagę: ile znaków jest na tych samych pozycjach, na zbliżonych do siebie pozycjach oraz ile transpozycji należałoby wykonać, dodatkowo faworyzując ciągi zaczynające się tak samo. Daje znormalizowaną miarę między 0 (identyczne) a 1 (całkowicie różne). Jednak nie jest to metryka z matematycznego punktu widzenia, ponieważ nie spełnia zasady nierówności trójkąta.
+
+## Zastosowania
+
+Powiedzmy sobie jeszcze, jakie zastosowania mają metryki ciągów znaków, chociaż już we wstępie artykułu co nieco na ten temat zdążyłem napisać.
+
+Możemy wyróżnić następujące zastosowania:
+
+- Najpowszechniejszym zastosowaniem jest rozwiązanie problemu przybliżonego dopasowania ciągów (rozmyte wyszukiwanie ciągów, angielskie odpowiedniki: *approximate string matching*, *fuzzy string searching*). Jest to właśnie to, co robią wyszukiwarki internetowe, aby dopasować wyniki zbliżone do tego, co wpisałeś(-aś) w zapytaniu, czyli chociażby poprawienie literówek (jak przykład we wstępie — *dwistak* poprawione na *świstak*).
+- Algorytm Hirschberga znajdujący optymalne dopasowanie sekwencji między ciągami znaków wykorzystuje do obliczeń odległość Levenshteina. Sam algorytm wykorzystuje się do analizy DNA.
+- Algorytm Smitha-Watermana, który również wykorzystuje się do analizy DNA w celu znajdowania podobnych do siebie obszarów w dwóch ciągach znaków.
+
+## Podsumowanie
+
+Mierzenie podobieństwa ciągów znaków to bardzo przydatna i często wykorzystywana w praktyce dziedzina algorytmów. Jak pokazałem w tym artykule, najprostsze i zarazem najpopularniejsze metryki są proste do obliczenia i nie stoją za nimi żadne skomplikowane algorytmy. Polecam zapoznać się na własną rękę z tym, w jaki sposób obliczać odległości LCS i Jaro-Winklera, ponieważ również są proste do obliczenia. W szczególności LCS, gdzie wystarczy tylko nieznacznie przerobić pokazany tutaj algorytm obliczania odległości Levenshteina.
+
+## Literatura
+
+- Navarro, Gonzalo (2001). "A guided tour to approximate string matching". ACM Computing Surveys. 33 (1): 31–88. [doi:10.1145/375360.375365](https://doi.org/10.1145%2F375360.375365).
+- String metric, https://en.wikipedia.org/w/index.php?title=String_metric&oldid=1169461566 (ostatnie odwiedziny 3 września, 2023).
+- Edit distance, https://en.wikipedia.org/w/index.php?title=Edit_distance&oldid=1171261795 (ostatnie odwiedziny 3 września, 2023).
+- Levenshtein distance, https://en.wikipedia.org/w/index.php?title=Levenshtein_distance&oldid=1169975534 (ostatnie odwiedziny 3 września, 2023).
+
+<small>Zdjęcie na okładce wygenerowane przez Stable Diffusion.</small>

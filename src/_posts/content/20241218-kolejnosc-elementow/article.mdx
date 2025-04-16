@@ -1,0 +1,427 @@
+import Link from 'next/link';
+import {Image} from '@swistak-codes/components';
+import cover from './swistak_z_ksiazkami.webp';
+import {Presentation} from "./presentation";
+import jira1 from './jira1.png';
+import jira2 from './jira2.png';
+import jira3 from './jira3.png';
+import jira4 from './jira4.png';
+import jira5 from './jira5.png';
+import jira6 from './jira6.png';
+import jira7 from './jira7.png';
+
+export const meta = {
+  title: 'Ustawianie kolejności elementów',
+  abstract:
+    'Artykuł omawia, dlaczego ustawianie kolejności elementów może sprawiać problem oraz jak do tego tematu podejść.',
+  firstParagraph: (
+    <>
+      Przez 8 artykułów na blogu omawiałem <Link href="/category/algorytmy/sortowanie">sortowanie</Link> i wówczas interesowało nas ułożenie elementów rosnąco bądź malejąco na podstawie ich cech — w tamtym przypadku po wartości numerycznej. Często też sortujemy po nazwie lub czasie utworzenia. Jednak w praktyce, przy pisaniu aplikacji, często spotykamy się z przypadkiem, gdy chcemy umożliwić użytkownikom ustawienie własnej kolejności elementów. Mimo że brzmi to prosto, implementacja wbrew pozorom niekoniecznie taka musi być. Zobaczmy, jak ten problem rozwiązać.
+    </>
+  ),
+  keyword: 'kolejność',
+  categories: ['Algorytmy'],
+  tags: [
+    'lexorank',
+    'jira',
+    'ranking',
+    'sortowanie',
+  ],
+  slug: 'kolejnosc-elementow',
+  updateTime: '2024-12-18T07:00:00+00:00',
+  publishTime: '2024-12-18T07:00:00+00:00',
+  cover,
+};
+
+## Dlaczego to jest problem?
+
+Zacznijmy od tego, dlaczego coś, co wydaje się takie proste, jest w ogóle problemem. Przeanalizujmy to po kolei.
+
+Użytkownikowi dajemy możliwość poukładania elementów na własny sposób. Pomijając, jak to zostanie zrobione z jego perspektywy, to kwestia zachowania kolejności wydaje się być prosta — po prostu ją przechowajmy. Tylko pytanie brzmi: jak?
+
+Pierwszą oczywistą odpowiedzią jest to, że elementy mamy zapisane w tablicy, więc kolejność zapisania danych w tablicy jest tu istotna. Tylko że w praktyce:
+
+- Chcemy kolejność elementu mieć zapisaną gdzieś, a nie tylko w postaci pozycji w tablicy.
+- Jeśli elementy zapisujemy w bazie danych, szczególnie w najpopularniejszych relacyjnych bazach danych, zwykle nie możemy po prostu zapisać tablicy.
+    - To znaczy, możemy, ale jest to wbrew zasadom projektowania relacyjnych baz danych (patrz: pierwsza postać normalna).
+    - Oczywiście zawsze znajdą się kontrprzykłady, ale żeby temat skrócić: jeśli owe porządkowane elementy mają znaczenie logiczne/biznesowe/jakiekolwiek w innych kontekstach w aplikacji, to powinny być niezależnym bytem w bazie danych, niezależnie czy jest ona relacyjna, nierelacyjna, dokumentowa, grafowa itd.
+
+Dobra, czyli w takim razie niech każdy element przechowuje swoją pozycję. Wtedy nie trzeba trzymać żadnej tablicy, a posortować po liczbie jest bardzo prosto. Tylko że znowu pojawia się problem. Im więcej elementów musimy zaktualizować naraz w bazie danych, tym wolniejsza jest to operacja.
+
+- Pamiętajmy przy okazji, że dobrą praktyką jest zamykać powiązane operacje w transakcji, dzięki czemu zapewniamy konsystencję danych. W końcu nie chcielibyśmy mieć sytuacji, że w wyniku awarii zaktualizujemy tylko część elementów i nie mamy prostej możliwości cofnięcia tego.
+- Pojawia się kolejny problem — długo trwające transakcje są problematyczne (m.in. ze względu na blokowanie danych) i dobrą praktyką jest ich unikać.
+
+Oczywiście w niedużych zastosowaniach nie będzie problemu z takim zapisem. Jednak warto brać pod uwagę realistyczne użycie aplikacji i w praktyce nieraz może się okazać, że jednocześnie trzeba będzie aktualizować nie kilkanaście elementów, a setki czy nawet tysiące. Prawda jest taka, że całkowicie problemu konieczności przepisywania wszystkiego nie obejdziemy, ale możemy go skutecznie odsuwać w czasie. Jak więc to zrobić?
+
+## Użycie liczb z przeskokami
+
+### Idea
+
+Najprostszym, skutecznym i często wystarczającym sposobem jest nadawanie kolejności (rankingu) z odpowiednio dużymi przeskokami. W jaki sposób to działa?
+
+- Dodając nowe elementy, zawsze ustawiamy im kolejność z odpowiednio dużym przeskokiem, np. co 1000\*. Stąd pierwszy dodany element będzie miał ranking 1000, następny 2000, 3000, 4000 itd.
+- Chcąc przesunąć element między dwa wybrane, jako ranking ustawiamy mu połowę odległości między sąsiadami. Stąd jeśli chcemy dodać element między 1000 a 2000, nadajemy mu kolejność 1500.
+    - W przypadku przesunięcia na początek ustalamy wartość między 0 a rankingiem pierwszego elementu.
+    - W przypadku przesunięcia na koniec po prostu dodajemy przeskok do rankingu ostatniego elementu.
+
+\* Można też co 1024, żeby liczba była bardziej okrągła. Żarty żartami, ale wtedy dzieląc na dwa, nie będziemy musieli zaokrąglać do najbliższej liczby całkowitej, bo dopóki nie dojdziemy do limitu, to wynik zawsze będzie parzysty.
+
+### Limit przesunięć elementów
+
+Oczywiście nie możemy nadawać rankingu jako połowy odległości w nieskończoność. Jeśli ranking trzymamy jako liczbę całkowitą, to możemy tak przesuwać w jedno miejsce maksymalnie $$\lceil \log_2(n) \rceil$$ razy, gdzie $$n$$ to wielkość przeskoku. Stąd dla $$n=1000$$ możemy to zrobić maksymalnie 10 razy. Działa to wówczas analogicznie jak <Link href="/post/wyszukiwanie-w-listach">wyszukiwanie binarne</Link>.
+
+Tutaj możemy oczywiście sterować wielkością przeskoku, aczkolwiek warto wówczas znać ograniczenia zakresu typu liczbowego, z którego korzystamy, ponieważ zwiększenie $$n$$ zmniejszy możliwą do zapisu liczbę elementów bez przesuwania. W przypadku 32-bitowego całkowitoliczbowego typu znakowego (najpopularniejszy przypadek) i $$n=1000$$ możemy zapisać bez przesuwania $$(2^{31})/1000 \approx 2147483$$ elementów.
+
+Teoretycznie możemy ten problem odsunąć jeszcze bardziej w czasie, stosując <Link href="/post/liczby-wymierne-i-rzeczywiste-w-zero-jedynkowym-swiecie">typy zmiennoprzecinkowe</Link> zamiast całkowitoliczbowych. Wówczas między dwoma sąsiadującymi liczbami całkowitymi (np. 0 i 1), na typie o podwójnej precyzji (`double` w C lub `number` w JavaScript), zyskujemy jeszcze 52 dodatkowe pozycje, aż dojdziemy do granicy utraty precyzji zapisu. Wartość ta bierze się z tego, że mantysa w `double` jest zapisywana na 52 bitach, a dzielenie przez 2 to po prostu przesuwanie się po niej co bit.
+
+### Rebalans rankingu
+
+Jednak co robić, jeśli w końcu dojdzie do nieuchronnego, czyli utraty możliwości przesuwania w którymś miejscu? Wówczas musimy zrobić rebalans rankingu, czyli nadanie jego wartości na nowo.
+
+Rebalans polega na aktualizacji wszystkich elementów, nadając im kolejność na nowo z uwzględnieniem aktualnej wersji przeskoku. Więc pierwszy element, jeśli miał np. ranking 125, dostanie 1000; drugi miał 250, to otrzyma 2000, i tak dalej.
+
+To oczywiście znowu sprowadza nas do dyskusji z początku artykułu, że aktualizacja wszystkich elementów jest zła, ale... nie musimy tego robić co zmianę kolejności, a jedynie co jakiś odgórnie ustalony czas. Dobrym sposobem może być przechowywanie informacji o najmniejszej dostępnej odległości. Jeśli ta przekroczy pewien limit, wówczas należy zaplanować wykonanie rebalansu, np. na czas nieaktywności użytkownika.
+
+### Implementacja
+
+Zobaczmy, jak w prosty sposób moglibyśmy zaimplementować ranking tego typu. Aby to zrobić, potrzebujemy tak naprawdę zaimplementować następujące funkcje:
+
+- `getNextRank()` — zwraca wartość rankingu dla nowego elementu wstawianego na koniec listy
+- `getFirstRank()` — zwraca wartość rankingu dla elementu, który chcemy wstawić na początek listy
+- `getRankBetween(a, b)` — zwraca wartość rankingu dla elementu, który chcemy wstawić między dwa wskazane
+- `getMinDistance()` — zwraca, ile jeszcze elementów możemy wstawić w miejscu, gdzie odległość rankingów jest najmniejsza
+- `rebalance()` — nadaje nowe rankingi wszystkim elementom
+
+W JavaScript mogłoby to wyglądać następująco:
+
+```javascript
+// krok, co ile wartości przeskakujemy
+const STEP = 1000;
+// tablica rankingowanych elementów
+// zakładamy, że każdy element to obiekt z polem `rank`
+let elements = [];
+
+// uwaga — jeśli masz zapamiętaną tablicę w posortowanej wersji,
+// to wystarczy sprawdzić jedynie ostatni element i dodać do niego STEP;
+// poniższa implementacja zakłada, że nie mamy dostępu do posortowanych danych
+function getNextRank() {
+  // szukamy maksymalnej wartości rankingu
+  let rank = 0;
+  for (let i = 0; i < elements.length; i++) {
+    // przypisujemy większą wartość rankingu
+    rank = Math.max(rank, elements[i].rank);
+  }
+  // zwracamy ranking o STEP większy niż ostatni
+  return rank + STEP;
+}
+
+// podobnie jak poprzednio, można tutaj prościej rozwiązać, mając dostęp do posortowanych danych
+function getFirstRank() {
+  // jeśli nie ma elementów, zwracamy STEP jako ranking
+  if (elements.length === 0) {
+    return STEP;
+  }
+  // szukamy minimalnej wartości rankingu
+  let rank = Infinity;
+  for (let i = 0; i < elements.length; i++) {
+    // przypisujemy mniejszą wartość rankingu
+    rank = Math.min(rank, elements[i].rank);
+  }
+  // zwracamy wynik całkowitoliczbowego dzielenia rank przez 2
+  return Math.trunc(rank / 2);
+}
+
+// a i b to obiekty z polem `rank`
+// uwaga - nie sprawdzamy, czy a i b faktycznie ze sobą sąsiadują
+function getRankBetween(a, b) {
+  // zwracamy średnią rankingów podzieloną całkowitoliczbowo
+  return Math.trunc((a.rank + b.rank) / 2);
+}
+
+// funkcja zwracająca najmniejszą odległość między elementami
+function getMinDistance() {
+  // jeśli nie ma elementów, zwracamy nieskończoność
+  if (elements.length === 0) {
+    return Infinity;
+  }
+  // najpierw musimy posortować dane w kolejności rosnącej
+  const sortedElements = elements.toSorted((a, b) => a.rank - b.rank);
+  // szukamy minimalnej wartości odległości
+  let distance = Infinity;
+  for (let i = 0; i < sortedElements.length; i++) {
+    // bierzemy ranking poprzedniego elementu
+    // jeśli aktualnie sprawdzamy pierwszy, poprzedni ranking wynosi 0
+    const prevRank = i > 0 ? sortedElements[i - 1].rank : 0;
+    // bierzemy ranking aktualnego elementu
+    const currentRank = sortedElements[i].rank;
+    // liczymy odległość między rankingami
+    const currentDistance = currentRank - prevRank;
+    distance = Math.min(distance, currentDistance);
+  }
+  // zwracamy, ile elementów jeszcze możemy wstawić na najbardziej zajętą pozycję
+  return Math.ceil(Math.log2(distance));
+}
+
+// funkcja wykonująca rebalans
+function rebalance() {
+  // najpierw musimy posortować dane w kolejności rosnącej
+  const sortedElements = elements.toSorted((a, b) => a.rank - b.rank);
+  // nadajemy kolejnym elementom nowe rankingi
+  for (let i = 0; i < sortedElements.length; i++) {
+    // nowy ranking to indeks elementu +1 pomnożony przez STEP
+    sortedElements[i].rank = (i + 1) * STEP;
+  }
+  // zwracamy nową tablicę elementów
+  return sortedElements;
+}
+```
+
+Kompletny przykład znajdziesz na [Replit](https://replit.com/@tswistak/simple-ranking#index.js). Wykonuję tam prosty test, aby sprawdzić, jak nadawanie rankingów działa w praktyce. Warto też tam wejść, żeby pokombinować z wartością `STEP`.
+
+### Prezentacja
+
+Żeby móc potestować to w przyjaźniejszej formie, poniżej możesz sprawdzić, w jaki sposób działa nadawanie takich rankingów na bardzo prostym przykładzie aplikacji z karteczkami. Możesz dodawać karteczki, usuwać je oraz przesuwać, łapiąc je i przenosząc w wybrane miejsce. W każdej chwili możesz także sprawdzać minimalną dostępną liczbę elementów, a także zrebalansować listę.
+
+<Presentation algorithm="simple" />
+
+## LexoRank
+
+Powyżej opisany sposób z przeskokami w wielu przypadkach będzie całkowicie wystarczający. Tak też zakładali programiści z firmy Atlassian, tworząc swoje oprogramowanie do zarządzania projektami [Jira](https://www.atlassian.com/pl/software/jira). Okazało się jednak, że w tym przypadku, gdzie przeorganizowywane przez użytkowników listy są bardzo duże (projekty mogą mieć po dziesiątki tysięcy zadań) i tych reorganizacji jest dużo (np. układanie priorytetów na tablicy Kanban lub przenoszenie zadań do sprintu scrumowego), potrzeba rebalansu była zbyt częsta. Stąd też opracowali zupełnie inny sposób na nadawanie rankingów, bardziej odporny na tego typu przypadki — LexoRank.
+
+### Idea
+
+Pomysł, na czym polega LexoRank, widać już częściowo w jego nazwie. *Lexo* odnosi się do sortowania leksykograficznego, czyli można powiedzieć — alfabetycznego. Rankingi nie są tutaj liczbą, tylko tekstem. Ewentualnie można powiedzieć, że są liczbą, ale zapisaną jako `string` w systemie liczbowym base-36 (cyfry i podstawowe litery łacińskie od a do z). W przypadku wspomnianej wcześniej Jiry wykorzystuje się 6 znaków. Stąd przykładowo możemy mieć rankingi `bbbbbb` i `cccccc`, a element między nimi może mieć ranking `bttttt`.
+
+Warto dodać, że rankingi w Jirze mają postać `[liczba]|xxxxxx:`, gdzie liczba jest z zakresu od 0 do 2 włącznie. Tą część omówimy później, teraz skupmy się na tych 6 znakach wyznaczających ranking.
+
+Nie znalazłem niestety dokładnego opisu od programistów z Atlassian, jak algorytm ten działa u nich. Poniższy opis napisałem na podstawie obserwacji zachowania Jiry (pole z rankingiem można wyświetlić w aplikacji w zakładce `Issues`), a także działania niezależnej implementacji [lexorank-ts](https://github.com/kvandake/lexorank-ts).
+
+### Dodawanie elementów
+
+Zacznijmy analizę działania LexoRank od dodawania nowych elementów. Wygląda to następująco:
+
+- Określamy minimalny oraz maksymalny ranking. Minimalny to `000000`, a maksymalny to `zzzzzz`. Daje nam to możliwość zapisania $$2\text{ }176\text{ }782\text{ }335$$ elementów, zakładając użycie wszystkich dostępnych wartości po kolei.
+- Dodając pierwszy element, wstawiamy go na środkową pozycję. Dlatego też pierwszy dodany element ma ranking `hzzzzz`. Wynika to z tego, że mamy dostępne liczby od 0 do 35 (`z`), więc środek wypada między 17 (`h`) a 18 (`i`).
+- Kolejne elementy są dodawane z odstępami o 8. Stąd drugi element ma ranking `i00007`, a trzeci `i0000f`.
+
+<Image
+  image={jira1}
+  alignCenter
+  fullSize
+  maxWidth="500px"
+  alt={'Tabela z listą zadań w Jirze. Kolumny: Typ, Klucz, Podsumowanie, Ranking. Wiersze: KAN-1 z podsumowaniem "1" i rankingiem "0|hzzzzz:", KAN-2 z podsumowaniem "2" i rankingiem "0|i00007:", KAN-3 z podsumowaniem "3" i rankingiem "0|i0000f:". Widoczny zakres: 1-3 z 3.'}
+  caption={<>Zrzut ekranu z Jiry, gdzie dodano 3 elementy do tablicy Kanban i nie zmieniano ich kolejności. Jak widać, pierwszy ranking jest środkowy, czyli <code>hzzzzz</code>, natomiast kolejne są odsunięte od niego co 8.</>}
+/>
+
+### Przenoszenie elementów na początek i na koniec
+
+Co się natomiast dzieje, jeśli przesuniemy element na początek listy? Wtedy przesunięty element dostaje ranking o 8 mniejszy od wówczas pierwszego na liście.
+
+<Image
+  image={jira2}
+  alignCenter
+  fullSize
+  maxWidth="500px"
+  alt={'Tabela z listą zadań w Jirze. Kolumny: Typ, Klucz, Podsumowanie, Ranking. Wiersze: KAN-3 z podsumowaniem "3" i rankingiem "0|hzzzzr:", KAN-1 z podsumowaniem "1" i rankingiem "0|hzzzzz:", KAN-2 z podsumowaniem "2" i rankingiem "0|i00007:". Widoczny zakres: 1-3 z 3.'}
+  caption={<>Względem poprzedniego zrzutu element nr 3 został przesunięty na początek listy. Jak widzimy, otrzymał identyfikator o 8 mniejszy (<code>r</code> jest 8 znaków wcześniej od <code>z</code>) od elementu nr 1, który wcześniej był na początku.</>}
+/>
+
+Natomiast jeśli przesuniemy go z powrotem na koniec, to ponownie otrzyma ranking o 8 większy od ostatniego elementu. Zachowanie jest tutaj identyczne jak przy dodawaniu nowego elementu. Dla tego przypadku zrzutu ekranu nie zamieszczam, bo wynik jest taki sam jak przy pierwszym — element nr 3 dostał ranking `i0000f`.
+
+### Przenoszenie elementów pomiędzy
+
+Ciekawą sprawą jest oczywiście przenoszenie elementów między wybrane, jak wówczas nadajemy ranking. W najprostszym przypadku nie ma większej filozofii. Liczymy pozycję środkową między dwoma elementami, gdzie chcemy wstawić wybrany. Przykładowo, między `hzzzzz` a `i00007` środek znajduje się na pozycji `i00003`
+
+<Image
+  image={jira3}
+  alignCenter
+  fullSize
+  maxWidth="500px"
+  alt={'Tabela z listą zadań w Jirze. Kolumny: Typ, Klucz, Podsumowanie, Ranking. Wiersze: KAN-1 z podsumowaniem "1" i rankingiem "0|hzzzzz:", KAN-3 z podsumowaniem "3" i rankingiem "0|i00003:", KAN-2 z podsumowaniem "2" i rankingiem "0|i00007:". Widoczny zakres: 1-3 z 3.'}
+  caption={<>Zgodnie z powyższym opisem przesunięcie elementu nr 3 między 1 a 2 nadało mu wartość środkową, czyli <code>i00003</code>.</>}
+/>
+
+Odstęp co zaledwie 8 wydaje się mały. W końcu w poprzedniej metodzie robiliśmy odstępy co 1000. Jak więc w LexoRank zachować się, gdy braknie miejsca? Wówczas wykorzystujemy wspomniany wcześniej dwukropek. Za nim wstawiamy kolejne znaki (dalej według reguły wyznaczania środkowego) tak, aby zachować dalej kolejność alfabetyczną. Czyli między `hzzzzz` a `i00000` wstawiamy element o rankingu `hzzzzz:i`. Między `hzzzzz` a `hzzzzz:i` wstawimy `hzzzzz:9`, potem `hzzzzz:4` i tak dalej. A co między `hzzzzz` a `hzzzzz:1`? Wówczas wydłużamy ranking o kolejny znak i powtarzamy ten cykl od początku, czyli nadajemy wartość `hzzzzz:0i`, potem `hzzzzz:09` itd.
+
+Działa to prawidłowo dzięki temu, że <Link href="/post/kryptarytmy/#leksykograficzne-generowanie-permutacji">sortujemy leksykograficznie</Link>. Mając tablicę `[1, 2, 10, 11, 100]`, w wyniku sortowania leksykograficznego otrzymamy `[1, 10, 100, 11, 2]`. Jest tak dlatego, że cyfry traktujemy jako zwykłe znaki, a nie jako część liczby.
+
+<Image
+  image={jira4}
+  alignCenter
+  fullSize
+  maxWidth="500px"
+  alt={'Tabela z listą zadań w Jirze. Kolumny: Typ, Klucz, Podsumowanie, Ranking. Wiersze: KAN-1 z podsumowaniem "1" i rankingiem "0|hzzzzz:", KAN-12 z podsumowaniem "12" i rankingiem "0|hzzzzz:09", KAN-11 z podsumowaniem "11" i rankingiem "0|hzzzzz:0i", KAN-10 z podsumowaniem "10" i rankingiem "0|hzzzzz:1", KAN-9 z podsumowaniem "9" i rankingiem "0|hzzzzz:2", KAN-8 z podsumowaniem "8" i rankingiem "0|hzzzzz:4", KAN-7 z podsumowaniem "7" i rankingiem "0|hzzzzz:9", KAN-6 z podsumowaniem "6" i rankingiem "0|hzzzzz:i", KAN-5 z podsumowaniem "5" i rankingiem "0|i00000:", KAN-4 z podsumowaniem "4" i rankingiem "0|i00001:", KAN-3 z podsumowaniem "3" i rankingiem "0|i00003:", KAN-2 z podsumowaniem "2" i rankingiem "0|i00007:". Widoczny zakres: 1-12 z 12.'}
+  caption={<>Po dodaniu dodatkowych 9 elementów, i przesuwając je wszystkie po kolei zawsze zaraz za pierwszy, możemy zobaczyć opisane wyżej zachowanie dokładania kolejnych znaków.</>}
+/>
+
+Dzięki takiemu zabiegowi możemy bez problemu nadawać kolejne wartości w rankingu bez obawy, że szybko zabraknie nam miejsca.
+
+### Podział na koszyki i rebalans
+
+#### Koszyki
+
+Wróćmy do pełnego zapisu LexoRanka, gdzie ranking w pełnym zapisie wyglądał np. `0|hzzzzr:`. Skupmy się teraz na wartości przed pionową kreską — jest to identyfikator użytego koszyka. O co chodzi?
+
+Nawet w przypadku LexoRank trzeba czasem przeprowadzić rebalans rankingów. Tak jak wspominałem wcześniej, operacja nadania nowych rankingów dla wszystkich elementów może być kosztowna czasowo, jednak taka aplikacja jak Jira nie może pozwolić sobie na opóźnienia i wstrzymywanie pracy. Dlatego rebalans musi odbywać się bez blokowania danych i w taki sposób, żeby kolejność była cały czas zachowania. W tym celu wykorzystuje się koszyki.
+
+#### Nadawanie nowych wartości
+
+W Jirze są trzy koszyki numerowane od 0 do 2. Zawsze używany jest tylko jeden. W trakcie rebalansu jako aktualny koszyk jest ustawiany następny koszyk w kolejności 0 → 1 → 2 → 0 → 1 itd. Następnie zmieniane są wartości rankingowe elementów jeden po drugim tak, aby zachować prawidłową kolejność:
+
+- Jeśli zmiana koszyka jest rosnąca, wówczas nadajemy nowe wartości od dołu listy. Przykładowo, jeśli na dole listy mieliśmy `0|zzaabb:`, to dostanie on ranking `1|hzzzzr:`, czyli środkową wartość w następnym koszyku. Następnie kolejne elementy dodajemy na górę nowego koszyka, więc dostają wartości z odjętym za każdym razem `8`.
+- W przypadku przejścia z drugiego koszyka na zerowy działamy odwrotnie. Tym razem przenosimy od góry listy i dodajemy na koniec nowego koszyka. Czyli przykładowo element `2|00000z:` stanie się `0|hzzzzr:`. Kolejne oczywiście dostają identyfikatory z dodaną wartością `8` do poprzedniego.
+
+<Image
+  image={jira5}
+  alignCenter
+  fullSize
+  maxWidth="500px"
+  alt={'Tabela z listą zadań w Jirze. Kolumny: Typ, Klucz, Podsumowanie, Ranking. Wiersze: KAN-1 z podsumowaniem "1" i rankingiem "1|hzzzxj:", KAN-12 z podsumowaniem "12" i rankingiem "1|hzzzzr:", KAN-11 z podsumowaniem "11" i rankingiem "1|hzzzxz:", KAN-10 z podsumowaniem "10" i rankingiem "1|hzzzy7:", KAN-9 z podsumowaniem "9" i rankingiem "1|hzzzyf:", KAN-8 z podsumowaniem "8" i rankingiem "1|hzzzyn:", KAN-7 z podsumowaniem "7" i rankingiem "1|hzzzyv:", KAN-6 z podsumowaniem "6" i rankingiem "1|hzzz3:", KAN-5 z podsumowaniem "5" i rankingiem "1|hzzzb:", KAN-4 z podsumowaniem "4" i rankingiem "1|hzzzj:", KAN-3 z podsumowaniem "3" i rankingiem "1|hzzzr:", KAN-2 z podsumowaniem "2" i rankingiem "1|hzzzz:". Widoczny zakres: 1-12 z 12.'}
+  caption={<>Wcześniej pokazana tabela po wykonaniu rebalansu. Jak widzimy, wszystkie wartości zostały przeniesione do koszyka numer 1, i widać także kolejność przenoszenia — od ostatniego elementu, który otrzymał środkową wartość, aż do pierwszego.</>}
+/>
+
+<Image
+  image={jira6}
+  alignCenter
+  fullSize
+  maxWidth="500px"
+  alt={'Tabela z listą zadań w Jirze. Kolumny: Typ, Klucz, Podsumowanie, Ranking. Wiersze: KAN-1 z podsumowaniem "1" i rankingiem "2|hzzzxj:", KAN-12 z podsumowaniem "12" i rankingiem "2|hzzzzr:", KAN-11 z podsumowaniem "11" i rankingiem "2|hzzzxz:", KAN-10 z podsumowaniem "10" i rankingiem "2|hzzzy7:", KAN-9 z podsumowaniem "9" i rankingiem "2|hzzzyf:", KAN-8 z podsumowaniem "8" i rankingiem "2|hzzzyn:", KAN-7 z podsumowaniem "7" i rankingiem "2|hzzzyv:", KAN-6 z podsumowaniem "6" i rankingiem "2|hzzz3:", KAN-5 z podsumowaniem "5" i rankingiem "2|hzzzb:", KAN-4 z podsumowaniem "4" i rankingiem "2|hzzzj:", KAN-3 z podsumowaniem "3" i rankingiem "2|hzzzr:", KAN-2 z podsumowaniem "2" i rankingiem "2|hzzzz:". Widoczny zakres: 1-12 z 12.'}
+  caption={<>Jak możemy zauważyć powyżej, przeniesienie z koszyka 1 do 2 odbyło się w dokładnie taki sam sposób, jak z 0 do 1.</>}
+/>
+
+<Image
+  image={jira7}
+  alignCenter
+  fullSize
+  maxWidth="500px"
+  alt={'Tabela z listą zadań w Jirze. Kolumny: Typ, Klucz, Podsumowanie, Ranking. Wiersze: KAN-1 z podsumowaniem "1" i rankingiem "0|hzzzzz:", KAN-12 z podsumowaniem "12" i rankingiem "0|i00007:", KAN-11 z podsumowaniem "11" i rankingiem "0|i0000f:", KAN-10 z podsumowaniem "10" i rankingiem "0|i0000n:", KAN-9 z podsumowaniem "9" i rankingiem "0|i0000v:", KAN-8 z podsumowaniem "8" i rankingiem "0|i00013:", KAN-7 z podsumowaniem "7" i rankingiem "0|i0001b:", KAN-6 z podsumowaniem "6" i rankingiem "0|i0001j:", KAN-5 z podsumowaniem "5" i rankingiem "0|i0001r:", KAN-4 z podsumowaniem "4" i rankingiem "0|i0001z:", KAN-3 z podsumowaniem "3" i rankingiem "0|i00027:", KAN-2 z podsumowaniem "2" i rankingiem "0|i0002f:". Widoczny zakres: 1-12 z 12.'}
+  caption={<>Natomiast ciekawie dzieje się w tym przypadku. Tutaj przenoszone były wartości z koszyka 2 do 0. Widać, że kolejność przenoszenia elementów była odwrotna — środkową wartość otrzymał pierwszy element, a potem rankingi rosną jak przy zwykłym dodawaniu na koniec listy.</>}
+/>
+
+W trakcie rebalansu dalej można przenosić elementy i nadawać im nowe rankingi. Wówczas musimy po prostu uważać, czy element powinien dostać jeszcze wartość rankingową w starym koszyku, czy już w nowym, aby cały czas została zachowana odpowiednia kolejność.
+
+#### Jak często wykonywać?
+
+Jeszcze tylko dodajmy do całej tej układanki, jak często wykonywać rebalans, skoro wartości możemy wydłużać, wydawać by się mogło, w nieskończoność. W przypadku Jiry wygląda to tak:
+
+- Jeśli któryś z rankingów osiągnął 128 znaków, zostaje zaplanowana operacja rebalansu do wykonania po 12 godzinach.
+- Jeśli w ciągu tych 12 godzin któryś z rankingów osiągnie 160 znaków, rebalans odbywa się natychmiastowo.
+- Co więcej, jeśli w trakcie tego któryś z rankingów zajmie co najmniej 254 znaki, to niemożliwe będzie nadawanie nowych rankingów, które będą miały doprowadzić do takiej sytuacji.
+
+Można rebalans wymusić także ręcznie, co ja robiłem, aby pokazać wyniki na wyżej pokazanych zrzutach ekranu. W tym celu trzeba znaleźć w ustawieniach Jiry *LexoRank management* i wybrać *Balance field*.
+
+### Uproszczona implementacja
+
+Poniżej zamieszczam uproszczoną implementację LexoRanka, która nie obsługuje ani koszyków, ani dodatkowych wartości po dwukropku. Pozwoli Ci ona lepiej zrozumieć opisane tutaj idee. Implementacja ta wykorzysta wbudowane w JavaScript funkcje do konwersji między systemami liczbowymi (konwersja do typu liczbowego: `parseInt(liczba, 36)`; i konwersja na ciąg znaków w base-36: `liczba.toString(36)`). Jeśli Twój język nie posiada takich funkcji (raczej powinien mieć w swojej bibliotece standardowej), to sposoby na konwersje między systemami liczbowymi opisałem w artykule *<Link href="/post/matematyka-zero-jedynkowa">1 0 0 0? 0 1 0 1! 1 0 0 1 – czyli matematyka zero-jedynkowa</Link>* — wystarczy jedynie zamiast podstawy systemu $$2$$ użyć $$36$$.
+
+```javascript
+// pomocnicze funkcje do konwersji między systemami liczbowymi
+function toBase36(number) {
+  return number.toString(36);
+}
+function fromBase36(base36) {
+  return parseInt(base36, 36);
+}
+
+// dla uproszczenia obliczamy wstępnie ranking środkowy
+const MIDDLE = toBase36(Math.trunc(fromBase36("zzzzzz") / 2));
+// stała wartość dodawana między kolejnymi elementami
+const STEP = 8;
+
+// tablica rankingowanych elementów
+// zakładamy, że każdy element to obiekt z polem `rank`
+let elements = [];
+
+// uwaga — jeśli masz zapamiętaną tablicę w posortowanej wersji,
+// to wystarczy sprawdzić jedynie ostatni element i dodać do niego STEP;
+// poniższa implementacja zakłada, że nie mamy dostępu do posortowanych danych
+function getNextRank() {
+  // jeśli nie ma elementów, zwracamy środkową wartość jako ranking
+  if (elements.length === 0) {
+    return MIDDLE;
+  }
+  // szukamy maksymalnej wartości rankingu
+  let rank = 0;
+  for (let i = 0; i < elements.length; i++) {
+    // przypisujemy większą wartość rankingu
+    // pamiętajmy o konwersji z systemu dziesiętnego na system 36
+    rank = Math.max(rank, fromBase36(elements[i].rank));
+  }
+  // zwracamy ranking o STEP większy niż ostatni
+  // również tutaj pamiętajmy o konwersji między systemami liczbowymi
+  return toBase36(rank + STEP);
+}
+
+// podobnie jak poprzednio można tutaj prościej rozwiązać, mając dostęp do posortowanych danych
+function getFirstRank() {
+  // jeśli nie ma elementów, zwracamy środkową wartość jako ranking
+  if (elements.length === 0) {
+    return MIDDLE;
+  }
+  // szukamy minimalnej wartości rankingu
+  let rank = Infinity;
+  for (let i = 0; i < elements.length; i++) {
+    // przypisujemy mniejszą wartość rankingu
+    // pamiętajmy o konwersji z systemu dziesiętnego na system 36
+    rank = Math.min(rank, fromBase36(elements[i].rank));
+  }
+  // zwracamy ranking o STEP mniejszy niż pierwszy
+  // również tutaj pamiętajmy o konwersji między systemami liczbowymi
+  return toBase36(rank - STEP);
+}
+
+// a i b to obiekty z polem `rank`
+// uwaga - nie sprawdzamy, czy a i b faktycznie ze sobą sąsiadują
+function getRankBetween(a, b) {
+  // konwertujemy rankingi na system dziesiętny
+  const aRank = fromBase36(a.rank);
+  const bRank = fromBase36(b.rank);
+  // obliczamy średnią rankingów podzieloną całkowitoliczbowo
+  const avg = Math.trunc((aRank + bRank) / 2);
+  // zwracamy ranking w systemie 36
+  return toBase36(avg);
+}
+
+// funkcja wykonująca rebalans
+// uwaga - w tej implementacji ignorujemy istnienie koszyków
+function rebalance() {
+  // najpierw musimy posortować dane w kolejności rosnącej
+  const sortedElements = elements.toSorted((a, b) =>
+    a.rank.localeCompare(b.rank),
+  );
+  // nadajemy pierwszemu elementowi ranking środkowy
+  sortedElements[0].rank = MIDDLE;
+  // nadajemy kolejnym elementom nowe rankingi
+  for (let i = 1; i < sortedElements.length; i++) {
+    // nowy ranking to ranking poprzedniego elementu +STEP
+    const prevRank = fromBase36(sortedElements[i - 1].rank);
+    const newRank = toBase36(prevRank + STEP);
+    // nadajemy elementowi nowy ranking
+    sortedElements[i].rank = newRank;
+  }
+  // zwracamy nową tablicę elementów
+  return sortedElements;
+}
+```
+
+Podobnie jak poprzednio, kompletny przykład wraz z testami znajdziesz na [Replit](https://replit.com/@tswistak/lexorank#index.js).
+
+### Prezentacja
+
+Teraz również daję możliwość przetestowania w praktyce działania algorytmu. Całość prezentacji działa analogicznie jak za poprzednim razem.
+
+<Presentation algorithm="lexorank" />
+
+## Podsumowanie
+
+Coś tak, wydawać by się mogło, prozaicznego jak ustawianie kolejności elementów niekoniecznie musi być tak proste, jak się wydaje. Opisane tutaj sposoby są z powodzeniem stosowane w praktyce i możesz je spokojnie używać w swoich projektach. Pamiętaj jednak, że niekoniecznie musisz tego potrzebować. Najlepiej znasz swoją aplikację, jej użycie i architekturę danych. Jeśli przykładowo robisz najpopularniejszą spośród początkujących programistów *todo listę*, to użycie LexoRanka będzie w zdecydowanej większości przypadków strzelaniem z armaty do muchy.
+
+## Literatura
+
+- Çağdaş Alagöz, Lexorank—Managing Sorted Tables With Ease, Medium (Turkcell, Oct. 10, 2019), https://medium.com/turkcell/lexorank-managing-sorted-tables-with-ease-f404f7eb00a9 (ostatnie odwiedziny 15 grudnia 2024).
+- Whisper Arts, LexoRanks—What Are They and How to Use Them for Efficient List Sorting, Medium (Whisper Arts, Dec. 20, 2020), https://medium.com/whisperarts/lexorank-what-are-they-and-how-to-use-them-for-efficient-list-sorting-a48fc4e7849f (ostatnie odwiedziny 15 grudnia 2024).
+- TMC Application Lifecycle Management, Jira’s Ranking System Explained, TMC ALM Blog, https://tmcalm.nl/blog/lexorank-jira-ranking-system-explained/ (ostatnie odwiedziny 15 grudnia 2024).
+- Ahmad Azfar, JIRA Lexorank Explained, YouTube (Mar. 15, 2016), https://www.youtube.com/watch?v=OjQv9xMoFbg (ostatnie odwiedziny 15 grudnia 2024).
+- Atlassian, Managing LexoRank, Confluence Atlassian Documentation (Jira Data Ctr. 10.3, Nov. 2024), https://confluence.atlassian.com/adminjiraserver/managing-lexorank-938847803.html (ostatnie odwiedziny 15 grudnia 2024).
+
+<small>Zdjęcie na okładce wygenerowane przez DALL-E.</small>

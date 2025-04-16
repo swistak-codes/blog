@@ -1,0 +1,321 @@
+import Link from 'next/link';
+import {Image} from '@swistak-codes/components';
+import cover from './szkola-grecka.jpg';
+
+export const meta = {
+  title: 'Podstawy algorytmiki: największy wspólny dzielnik',
+  abstract:
+    'Artykuł przedstawia jeden z najprostszych i najbardziej znanych algorytmów, czyli sposób znalezienia największego wspólnego dzielnika dwóch liczb.',
+  firstParagraph: (
+    <>
+      Obliczanie największego wspólnego dzielnika dwóch liczb to prawdopodobnie jeden z pierwszych algorytmów, które poznajemy podczas swojej edukacji. Zarazem jest to też bardzo proste do zapamiętania. Omówmy sobie to klasyczne podejście, a także różne inne podejścia.
+    </>
+  ),
+  keyword: 'największy wspólny dzielnik',
+  categories: ['Matematyka', 'Algorytmy'],
+  tags: [
+    'matematyka',
+    'javascript',
+    'nwd',
+    'gcd',
+    'gcf',
+    'największy wspólny dzielnik',
+    'algorytm Euklidesa',
+    'rekurencja',
+    'system binarny'
+  ],
+  slug: 'najwiekszy-wspolny-dzielnik',
+  updateTime: '2022-11-30T07:00:00+00:00',
+  publishTime: '2022-11-30T07:00:00+00:00',
+  cover,
+};
+
+## Największy wspólny dzielnik
+
+Zanim zaczniemy poznawać algorytmy znajdujące największy wspólny dzielnik, najpierw poznajmy definicję, co to jest. Jak sama nazwa wskazuje, jest to największa liczba naturalna dzieląca wskazane liczby całkowite. Funkcję, która znajdzie taką wartość dla liczb $$a$$ i $$b$$, zapiszemy jako $$\text{NWD}(a,b)$$. Dla ułatwienia sobie życia będę używać w tekście skrótu NWD zamiast pełnej nazwy. W literaturze angielskiej, która w świecie informatycznym dominuje, problem ten nazywa się *greatest common divisor*, a funkcję zapisujemy wówczas jako $$\text{GCD}(a,b)$$ (czasami *greatest common factor* $$\text{GCF}$$).
+
+Z ciekawych własności funkcji NWD można wyróżnić to, że:
+
+- jest przemienna, czyli $$\text{NWD}(a,b) = \text{NWD}(b,a)$$
+- jest łączna, czyli $$\text{NWD}(a,\text{NWD}(b,c)) = \text{NWD}(\text{NWD}(a,b),c)$$
+- $$\text{NWD}(a,0) = \lvert a \rvert$$
+- dla nieujemnej liczby całkowitej $$m$$ mamy własność: $$\text{NWD}(m \cdot a, m \cdot b) = m \cdot \text{NWD}(a,b)$$
+
+Największy wspólny dzielnik jest też powiązany z innym pojęciem matematycznym — najmniejszą wspólną wielokrotnością ($$\text{NWW}$$). Znając sposób obliczania NWD, możemy ją obliczyć następująco:
+
+$$
+\begin{align*}
+\text{NWW}(a_1,a_2) &= \frac{a_1 \cdot a_2}{\text{NWD}(a_1,a_2)} \\
+\text{NWW}(a_1,a_2, ..., a_n) &= \text{NWW}(a_1,\text{NWW}(a_2, a_3, ..., a_n))
+\end{align*}
+$$
+
+## Znalezienie NWD przez rozkład na czynniki pierwsze
+
+Zanim jednak omówimy to klasyczne podejście, które *każdy zna*, zacznijmy od podejścia pokazującego wprost, czym jest największy wspólny dzielnik. Mianowicie jest to podejście opierające się na rozkładzie liczb na czynniki pierwsze.
+
+Rozkład liczby na czynniki pierwsze to znalezienie dzielników liczby, które są liczbami pierwszymi. Cała idea znalezienia największego wspólnego dzielnika z jego użyciem wygląda tak:
+
+1. Wykonujemy rozkład na czynniki pierwsze liczb, których NWD chcemy znaleźć.
+2. Znajdujemy część wspólną pośród czynników pierwszych liczb.
+3. Mnożymy wspólne czynniki ze sobą, w ten sposób obliczając NWD.
+
+Dla przykładu znajdźmy $$\text{NWD}(80, 180)$$. Pisemnie najłatwiej jest to zrobić, wykonując po kolei dzielenia przez najmniejszą liczbę pierwszą. Dla liczby 80 wygląda to następująco:
+
+$$
+\begin{align*}
+80 / 2 &= 40 \\
+40 / 2 &= 20 \\
+20 / 2 &= 10 \\
+10 / 2 &= 5 \\
+5 / 5 &= 1 \\
+80 &= 2 \cdot 2 \cdot 2 \cdot 2 \cdot 5
+\end{align*}
+$$
+
+Analogicznie postąpimy dla liczby 180:
+
+$$
+\begin{align*}
+180 / 2 &= 90 \\
+90 / 2 &= 45 \\
+45 / 3 &= 15 \\
+15 / 3 &= 5 \\
+5 / 5 &= 1 \\
+180 &= 2 \cdot 2 \cdot 3 \cdot 3 \cdot 5
+\end{align*}
+$$
+
+Możemy zauważyć, że wspólne czynniki pierwsze to 2, 2 i 5. W takim razie:
+
+$$
+\text{NWD}(80,180) = 2 \cdot 2 \cdot 5 = 20
+$$
+
+Pokazane powyżej działania możemy zapisać następująco językiem matematyki, tym samym tworząc formalną definicję funkcji NWD:
+
+$$
+\begin{align*}
+a = 2^{a_2}3^{a_3}5^{a_5}7^{a_7}11^{a_{11}}... &= \prod_{p \text{ pierwsze}} p^{a_p} \\
+\text{NWD}(a,b) &= \prod_{p \text{ pierwsze}} p^{\min(a_p,b_p)}
+\end{align*}
+$$
+
+Pierwsza linia to definicja rozkładu liczby na czynniki pierwsze, natomiast druga to bazująca na niej definicja NWD.
+
+Warto jednak zauważyć, że obliczanie NWD w ten sposób jest niepraktyczne, dlatego też nie będziemy go implementować.
+
+## Algorytm Euklidesa
+
+Przejdźmy więc do tej właściwej, klasycznej metody znanej jako algorytm Euklidesa. Jego autorstwo przypisuje się Euklidesowi, ponieważ najwcześniejszy znany zapis pochodzi z jego dzieła *Elementy* z IV wieku p.n.e. Prawdopodobnie jednak Euklides jedynie skompilował wówczas znaną wiedzę w jedno dzieło, więc algorytm może być jeszcze starszy.
+
+### Wersja z odejmowaniem
+
+Oryginalny algorytm Euklidesa działał tylko dla dodatnich liczb całkowitych i można go rozpisać jak poniżej.
+
+Na wejściu algorytm otrzymuje liczby $$a$$ i $$b$$, natomiast wyjściem jest ich największy wspólny dzielnik.
+
+1. Tak długo, jak $$a \neq b$$:
+    1. Jeśli $$a > b$$, przypisz $$a$$ wartość $$a - b$$.
+    2. W przeciwnym wypadku przypisz $$b$$ wartość $$b - a$$.
+2. Zwróć $$a$$.
+
+Oznacza to, że w kodzie zapiszemy go w taki oto krótki sposób:
+
+```javascript
+function gcd(a, b) {
+  while (a !== b) {
+    if (a > b) {
+      a = a - b;
+    } else {
+      b = b - a;
+    }
+  }
+  return a;
+}
+```
+
+Działanie możesz przetestować w serwisie [repl.it](https://replit.com/@tswistak/euclid-substraction#index.js).
+
+Algorytm opiera się na tym, że największy wspólny dzielnik dwóch liczb nie zmienia się, gdy od większej odejmujemy mniejszą. Na wcześniej pokazanym przykładzie możemy łatwo obliczyć, że $$\text{NWD}(80,180) = \text{NWD}(80,100) = \text{NWD}(80,20) = \text{NWD}(40,20) = \text{NWD}(20,20) = 20$$. Wynikiem jest 20, bo oczywiście największym dzielnikiem liczby jest ona sama.
+
+### Wersja z modulo
+
+Poprzednia wersja ma dwie wady. Po pierwsze wymaga dużo obliczeń, a po drugie liczby muszą być dodatnie całkowite. Chcielibyśmy, aby nasz algorytm nie wymagał tylu operacji, a po drugie, żeby operował na całym przedziale liczb całkowitych.
+
+W celu zmniejszenia liczby operacji spójrzmy jeszcze raz na to, jak działa poprzednio opisany algorytm. Warto zauważyć w nim, że gdy $$a > b$$ i odejmujemy $$b$$ odpowiednio długo, to tak naprawdę otrzymujemy resztę z dzielenia $$a$$ przez $$b$$, czyli $$a \text{ mod } b$$. Zmieniając działanie na modulo, zyskujemy także obsługę liczb ujemnych. Dzięki temu algorytm można zapisać następująco (zakładając to samo wejście i wyjście co poprzednio):
+
+1. Tak długo, jak $$b \neq 0$$:
+    1. Zapamiętaj dotychczasową wartość $$b$$.
+    2. Przypisz $$b$$ wynik działania $$a \text{ mod } b$$.
+    3. Przypisz $$a$$ poprzednią wartość $$b$$.
+2. Zwróć $$a$$.
+
+Zanim przejdziemy do implementacji, wyjaśnijmy sobie różnice. Zacznijmy najpierw od tego, dlaczego nie sprawdzamy, która liczba jest większa. Otóż w przypadku jeśli $$a < b$$, to $$a \text{ mod } b = a$$, a w następnej iteracji wartości zostaną zamienione miejscami, więc wyjdzie na to samo. Musimy wykonać jedną iterację więcej, ale z drugiej strony nie musimy robić warunków komplikujących algorytm. Następną rzeczą jest zmiana warunku pętli będąca naturalnym następstwem tego, że gdy $$a$$ jest podzielne przez $$b$$, to reszta z dzielenia wynosi 0. Gdybyśmy w poprzedniej wersji z odejmowaniem w momencie zrównania liczb wykonali odejmowanie, to też otrzymalibyśmy 0, więc algorytmy są tożsame.
+
+Implementacja wygląda następująco:
+
+```javascript
+function gcd(a, b) {
+  while (b !== 0) {
+    const temp = b;
+    b = a % b;
+    a = temp;
+  }
+  return Math.max(a, -a);
+}
+```
+
+Działanie możesz przetestować w serwisie [repl.it](https://replit.com/@tswistak/euclid-modulo#index.js).
+
+Obserwując implementację, możesz się zastanawiać, skąd nagle wzięło się branie wartości maksymalnej z $$a$$ i $$-a$$. Otóż wynika ono z definicji reszty z dzielenia. W matematycznej (euklidesowej) definicji operacja modulo zawsze zwraca liczbę dodatnią, niezależnie od znaku liczb biorących udział w operacji. Niestety, większość języków programowania tego nie przestrzega, co opisałem szczegółowo w artykule *<Link href="/post/dziwny-przypadek-reszty-z-dzielenia">Dziwny przypadek reszty z dzielenia</Link>*.
+
+### Wersja rekurencyjna
+
+Połączmy teraz w jedno to, co pokazałem przy obu wersjach, aby uzyskać jeszcze inną wersję — <Link href="/post/rekurencja-co-to-jest">rekurencyjną</Link>. Jak pokazałem przy wersji z odejmowaniem, wersja ta działa dlatego, że odejmując liczbę mniejszą od większej, wartość NWD pozostaje taka sama. Skoro metoda rekurencyjna jest uproszczeniem metody z odejmowaniem, to zachodzi tutaj dosłownie ta sama własność. Powtarzając ten sam przykład, mamy teraz sytuację następującą:
+
+$$
+\text{NWD}(80,180) = \text{NWD}(180,80) = \text{NWD}(80,20) = \text{NWD}(20,0) = 20
+$$
+
+Ostatnia część wynika oczywiście z własności NWD, o której wspomniałem na początku artykułu. Natomiast oprócz tego zauważmy, że operacje wyżej pokazane możemy zapisać jako:
+
+$$
+\text{NWD}(a, b) = \text{NWD}(b, a \text{ mod } b)
+$$
+
+Dopisując do tego własność związaną z liczeniem NWD, gdy jedna z liczb jest zerem, możemy ułożyć bardzo prosty wzór rekurencyjny:
+
+$$
+\begin{cases}
+\text{NWD}(a, 0) = a \\
+\text{NWD}(a, b) = \text{NWD}(b, a \text{ mod } b)
+\end{cases}
+$$
+
+W kodzie będzie to wyglądać następująco:
+
+```javascript
+function gcd(a, b) {
+  if (b === 0) {
+    return Math.max(a, -a);
+  } else {
+    return gcd(b, a % b);
+  }
+}
+```
+
+Działanie możesz przetestować w serwisie [repl.it](https://replit.com/@tswistak/euclid-recursive#index.js).
+
+## Binarne NWD
+
+Innym podejściem do obliczania NWD jest algorytm binarne NWD (ang. binary GCD), znany też jako algorytm Steina. W swojej aktualnej formie został opublikowany przez J. Steina w 1967 r., aczkolwiek prawdopodobnie podobne podejście było znane już w II w. p.n.e. w Chinach (jest spór, jak należy rozumieć niedokładny opis zachowany do naszych czasów).
+
+Algorytm bazuje na wykorzystaniu poniższych obserwacji (zakładamy, że wejściem są liczby $$a$$ i $$b$$):
+
+1. Jeśli zarówno $$a$$, jak i $$b$$ są parzyste, wówczas: $$\text{NWD}(a,b) = 2\cdot\text{NWD}(a/2,b/2)$$
+2. Jeśli $$a$$ jest parzyste, a $$b$$ nieparzyste, to: $$\text{NWD}(a,b) = \text{NWD}(a/2,b)$$
+3. Jeśli obie liczby są nieparzyste, to: $$\text{NWD}(a,b) = \text{NWD}(|a-b|/2,b)$$
+
+Jak widać powyżej, większość z nich opiera się na mnożeniu lub dzieleniu przez 2, co w systemie binarnym możemy bardzo łatwo zaimplementować za pomocą przesunięć bitowych, co opisałem w artykule *<Link href="/post/matematyka-zero-jedynkowa">1 0 0 0? 0 1 0 1! 1 0 0 1 – czyli matematyka zero-jedynkowa</Link>*. Zresztą od tego przystosowania pod system binarny wywodzi się nazwa algorytmu.
+
+Zanim przejdziemy do implementacji, warto zaznaczyć, że algorytm działa tylko dla dodatnich liczb całkowitych.
+
+### Podstawowa wersja
+
+Kroki podstawowej wersji algorytmu są następujące (znowu wejście i wyjście są takie same):
+
+1. Ustaw wartość $$g$$ na 1. Wartość ta oznacza, przez ile należy pomnożyć wynik, co wynika z obserwacji nr 1.
+2. Tak długo, jak $$a$$ i $$b$$ są parzyste:
+    1. Przypisz $$a = a/2$$.
+    2. Przypisz $$b = b/2$$.
+    3. Przypisz $$g = g \cdot 2$$.
+3. Tak długo, jak $$a > 0$$:
+    1. Jeśli $$a$$ jest parzyste, przypisz $$a = a/2$$.
+    2. W przeciwnym wypadku, jeśli $$b$$ jest parzyste, przypisz $$b = b/2$$.
+    3. W przeciwnym wypadku ($$a$$ i $$b$$ nieparzyste) wykonaj:
+        1. Jeśli $$a < b$$, przypisz $$b = |a-b|/2$$.
+        2. W przeciwnym wypadku przypisz $$a = |a-b|/2$$.
+4. Zwróć wynik mnożenia $$b \cdot g$$.
+
+Implementacja w JavaScript wygląda następująco:
+
+```javascript
+function gcd(a, b) {
+  let g = 1;
+  while (a % 2 === 0 && b % 2 === 0) {
+    a = a / 2;
+    b = b / 2;
+    g = g * 2;
+  }
+  while (a > 0) {
+    if (a % 2 === 0) {
+      a = a / 2;
+    } else if (b % 2 === 0) {
+      b = b / 2;
+    } else {
+      const temp = Math.abs(a - b) / 2;
+      if (a < b) {
+        b = temp;
+      } else {
+        a = temp;
+      }
+    }
+  }
+  return b * g;
+}
+```
+
+Działanie możesz przetestować w serwisie [repl.it](https://replit.com/@tswistak/binary-basic#index.js).
+
+### Wersja z przesunięciami bitowymi
+
+Jak zaznaczyłem wcześniej, to, czym wyróżnia się ten algorytm, to użycie dzieleń i mnożeń przez 2, co można w systemie binarnym bardzo łatwo zaimplementować przesunięciami bitowymi. Jak wiemy, liczby w komputerze są właśnie w ten sposób reprezentowane, więc właśnie tak możemy niskopoziomowo zoptymalizować algorytm.
+
+Nie będę podawać od nowa listy kroków, a jedynie zmiany, które należy zrobić:
+
+- W punkcie 2.3 zamiast mnożenia będziemy zwiększać $$g$$ o 1 co iterację. W ten sposób zliczymy, przez którą potęgę liczby 2 musimy pomnożyć wynik. Z tego też powodu w punkcie 1 inicjujemy zmienną zerem.
+- Wszystkie dzielenia przez 2 zastępujemy przesunięciem w prawo o 1 ($$>> 1$$).
+- W punkcie 4 zamiast $$b \cdot g$$ wykonujemy $$b << g$$ (jest to binarny odpowiednik działania $$b \cdot 2^{g}$$).
+
+Implementacja wygląda jak poniżej. Co prawda została zrobiona w JavaScript, gdzie takie niskopoziomowe optymalizacje nie mają sensu, ale analogicznie można zaprogramować to w dowolnym innym języku.
+
+```javascript
+function gcd(a, b) {
+  let g = 0;
+  while ((a & 1) === 0 && (b & 1) === 0) {
+    a = a >> 1;
+    b = b >> 1;
+    g++;
+  }
+  while (a > 0) {
+    if ((a & 1) === 0) {
+      a = a >> 1;
+    } else if ((b & 1) === 0) {
+      b = b >> 1;
+    } else {
+      const temp = Math.abs(a - b) >> 1;
+      if (a < b) {
+        b = temp;
+      } else {
+        a = temp;
+      }
+    }
+  }
+  return b << g;
+}
+```
+
+Działanie możesz przetestować w serwisie [repl.it](https://replit.com/@tswistak/binary-shifts#index.js). W implementacji oprócz wyżej opisanej optymalizacji związanej z wykorzystaniem przesunięć bitowych zmieniłem też sposób sprawdzania parzystości na sprawdzanie wartości ostatniego bitu (liczby parzyste zawsze mają 0).
+
+## Podsumowanie
+
+W artykule pokazałem trzy różne sposoby, jak możemy obliczać największy wspólny dzielnik. Są to bardzo podstawowe i proste algorytmy, ale nawet takie warto pisać na własną rękę dla poszerzenia swojej wiedzy i rozwinięcia umiejętności programistycznych. Warto też dodać, że na bazie algorytmu Euklidesa bazuje *rozszerzony algorytm Euklidesa*, który swoje zastosowanie znalazł w kryptografii.
+
+## Literatura
+
+- Cormen, T. H.; Leiserson, C. E.; Rivest R. L.; Stein C. “Greatest common divisor” w *Introduction to algorithms, 3rd ed.*. MIT Press, Cambridge, MA, U.S.A., s. 933-939.
+- Knuth, D. E. “The Greatest Common Divisor” w *The art of computer programming: Volume 2.*. Addison-Wesley, 2011, s. 333-356
+- Paul E. Black, "binary GCD", in Dictionary of Algorithms and Data Structures \[online\], Paul E. Black, ed. 2 November 2020. (ostatni dostęp: 22.11.2022) Dostępne na: https://www.nist.gov/dads/HTML/binaryGCD.html
+
+<small>Zdjęcie na okładce wygenerowane przez DALL-E. Oryginał znajduje się [tutaj](https://labs.openai.com/s/NVb92UCDaMdZcAhwbHtkgTPQ).</small>

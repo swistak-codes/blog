@@ -1,0 +1,273 @@
+import Link from 'next/link';
+import {Image} from '@swistak-codes/components';
+import cover from './swistak-szachy.jpg';
+import konikRuchy from './konik-ruchy.png';
+import sciezka from "./768px-Knight's_tour.svg.png";
+import konikGraf from "./768px-Knight's_graph_showing_number_of_possible_moves.svg.png";
+import tutte from "./Tutte_graph.png";
+import { Chessboard } from "./Chessboard";
+
+export const meta = {
+  title: 'Problem skoczka szachowego',
+  abstract:
+    'Problem skoczka szachowego to jeden z popularniejszych problemów algorytmicznych. W artykule pokazuję, jak go rozwiązać.',
+  firstParagraph: (
+    <>
+      Problem skoczka szachowego to jeden z popularniejszych problemów algorytmicznych. Często możemy go spotkać pośród zadań z algorytmiki dla adeptów programowania. Zobaczmy, na czym ten problem polega oraz jak go rozwiązać, i przede wszystkim... co ma to wspólnego z szeroko opisywanym przeze mnie ostatnio tematem grafów.
+    </>
+  ),
+  keyword: 'szachy',
+  categories: ['Grafy', 'Programowanie', 'Zagadki logiczne', 'Problemy obliczeniowe'],
+  tags: [
+    'grafy',
+    'szachy',
+    'gry',
+    'Warnsdorff',
+    'Pohl-Warnsdorff',
+    'cykl Hamiltona',
+    'ścieżka Hamiltona'
+  ],
+  slug: 'problem-skoczka-szachowego',
+  updateTime: '2022-10-26T07:00:00+00:00',
+  publishTime: '2022-10-26T07:00:00+00:00',
+  cover,
+};
+
+## Problem skoczka szachowego
+
+Zacznijmy od tego, czym jest ten problem algorytmiczny. Chodzi o to, aby znaleźć sekwencję ruchów skoczka szachowego (konia) taką, że odwiedzimy każde pole planszy tylko raz. W angielskiej literaturze znajdziemy go pod nazwą *knight's tour problem*.
+
+Teraz małe wyjaśnienie dla osób, które nigdy nie grały w szachy. Jest to gra odbywająca się na kwadratowej planszy zawierającej 64 pola (kwadrat 8×8), ale bardziej interesujące jest to, na czym polega nietypowość skoczka. Otóż jest to bierka poruszająca się na kształt litery L, tak jak zostało to pokazane na poniższym rysunku.
+
+<Image
+  image={konikRuchy}
+  alignCenter
+  fullSize
+  forceWhiteBackground={false}
+  alt="Fragment planszy szachowej ze skoczkiem na środkowym polu. Zaznaczone są pozycje, gdzie może się przesunąć na kształt litery L, czyli 2 w pionie, 1 w poziomie; albo 1 w pionie, 2 w poziomie."
+  caption={<>
+    Fragment planszy szachowej z zaznaczonymi miejscami, jak można przesunąć skoczka.
+  </>}
+/>
+
+Przy rozwiązywaniu problemu zakładamy następujące rzeczy:
+
+- plansza zawiera tylko jedną bierkę,
+- bierka może zostać umieszczona na starcie w dowolnym miejscu planszy,
+- plansza może mieć dowolne wymiary i nie musi być kwadratem.
+
+Dodatkowo problem ma różne odmiany:
+
+- znalezienie dowolnej ścieżki,
+- znalezienie ścieżki zamkniętej (jest możliwość przeskoczenia z ostatniego pola na pole, z którego zaczynaliśmy),
+- znalezienie ścieżki otwartej (przeciwieństwo powyższego),
+- znalezienie ścieżki bez przecięć (otwartej lub zamkniętej).
+
+Pierwszy z problemów jest najprostszy, stąd też najczęściej spotykany w zadaniach algorytmicznych, i nim się zajmiemy. Warto jednak wiedzieć o istnieniu pozostałych.
+
+<Image
+  image={sciezka}
+  alignCenter
+  fullSize
+  maxWidth="400px"
+  forceWhiteBackground={false}
+  alt="Fragment planszy szachowej ze skoczkiem na środkowym polu. Zaznaczone są pozycje, gdzie może się przesunąć na kształt litery L, czyli 2 w pionie, 1 w poziomie; albo 1 w pionie, 2 w poziomie."
+  caption={<>
+    Otwarta ścieżka z przecięciami na tradycyjnej planszy 8×8.<br/>
+    (źródło: <a href="https://commons.wikimedia.org/wiki/File:Knight%27s_tour.svg">Created by Ilmari Karonen</a>, Public domain, via Wikimedia Commons)
+  </>}
+/>
+
+## Podstawowe podejście do rozwiązania
+
+Najbardziej podstawowy sposób rozwiązania problemu, który jest w pełni akceptowalny w zadaniach, to zastosowanie metody siłowej. Oczywiście losowanie rozwiązań i sprawdzanie, czy są poprawne, nie ma sensu. Zamiast tego możemy wykonywać kolejne możliwe kroki. Gdy nie mamy możliwości dalszego rozwiązywania, cofamy się i próbujemy inaczej. Jest to algorytm z nawrotami, który opisałem przy okazji artykułu <Link href="/post/sudoku">o algorytmicznym rozwiązywaniu sudoku</Link>.
+
+Z racji tego, że algorytm już raz opisałem, nie będę pokazywać go ponownie ani też dawać kodu, jak to zrobić. Jeśli chcesz spróbować, zainspiruj się tym, w jaki sposób rozwiązujemy w tamtym artykule sudoku, i przerób na problem skoczka szachowego. Jednak nie przejmuj się — w dalszej części artykułu problem rozwiążemy, tylko w inny, ciekawszy sposób.
+
+## Problem skoczka szachowego jako problem grafowy
+
+Kilka moich poprzednich artykułów na blogu zostało poświęconych <Link href="/category/grafy">grafom</Link>, a jak mogłeś(-aś) zauważyć, ten artykuł również jest otagowany jako powiązany z grafami. Nie bez powodu zresztą piszę go właśnie teraz. Otóż problem skoczka szachowego możemy sprowadzić do problemu grafowego. A dokładniej, jest to problem znalezienia na grafie ścieżki Hamiltona lub cyklu Hamiltona (jeśli mówimy o znalezieniu ścieżki zamkniętej).
+
+### Ścieżka i cykl Hamiltona
+
+W tym momencie powinno się zadać pytanie — a co to są ścieżka i cykl Hamiltona? W takim razie po kolei.
+
+Ścieżka Hamiltona to ścieżka w grafie, która przebiega przez wszystkie wierzchołki grafu, ale przechodzi przez każdy z wierzchołków tylko raz. Natomiast cykl Hamiltona jest wtedy, gdy ścieżka kończy się i zaczyna na tym samym wierzchołku, ale wciąż przechodzi po jednym razie przez wszystkie pozostałe. Czy nie brzmi to dosłownie tak jak problem skoczka szachowego?
+
+Dodam jeszcze kilka pobocznych informacji z zakresu teorii grafów, które niekoniecznie się przydadzą do rozwiązania problemu, ale na pewno mogą rozszerzyć wiedzę:
+
+- Graf zawierający cykl Hamiltona nazywamy grafem hamiltonowskim.
+- Jeśli graf zawiera ścieżkę Hamiltona bez cyklu, nazywamy go wtedy grafem półhamiltonowskim.
+- Cykl Hamiltona możesz kojarzyć też z innego popularnego problemu algorytmicznego — problemu komiwojażera. Wówczas szukamy cyklu Hamiltona, ale o minimalnej sumie wag krawędzi.
+
+### Plansza jako graf
+
+Jeśli chcemy problem rozwiązać jako problem grafowy, warto byłoby pomyśleć, jak planszę szachową przedstawić jako graf. Myślę, że jeśli zapoznałeś(-aś) się z artykułem poświęconym <Link href="/post/szybkie-wyszukiwanie-sciezek">szybkiemu szukaniu ścieżek</Link>, to masz już pewnie pomysł, jak to zrobić. Przypomnijmy sobie, jak to robiliśmy:
+
+- Pojedyncze pole planszy to wierzchołek grafu.
+- Krawędź między dwoma wierzchołkami to możliwość przejścia między dwoma polami.
+
+W tym momencie warto zauważyć, że z racji tego, iż interesują nas jedynie ruchy skoczka, nie będziemy łączyć ze sobą sąsiadujących wierzchołków. Zamiast tego krawędzie zostaną wyznaczone przez to, jak skoczek może się poruszać. Tym samym połączenia będą nieco skomplikowane, co możesz zobaczyć na poniższym rysunku, który prezentuje planszę 8×8 jako graf możliwych ruchów skoczka.
+
+<Image
+  image={konikGraf}
+  alignCenter
+  fullSize
+  maxWidth="400px"
+  alt="Graf z 64 wierzchołkami reprezentujący możliwości ruchu skoczka szachowego na planszy 8×8."
+  caption={<>
+    Graf obrazujący ruchy skoczka na planszy 8×8. Kolory i liczby zapisane w wierzchołkach opisują stopień wierzchołka, czyli ile krawędzi jest połączonych z wierzchołkiem (innymi słowy — ile skoczek może wykonać ruchów z danego miejsca).<br/>
+    (źródło: <a href="https://commons.wikimedia.org/wiki/File:Knight%27s_graph_showing_number_of_possible_moves.svg">R. A. Nonenmacher</a>, <a href="https://creativecommons.org/licenses/by-sa/4.0">CC BY-SA 4.0</a>, via Wikimedia Commons)
+  </>}
+/>
+
+Z powodu natury takiego grafu warto wiedzieć, że w przypadku implementacji w dowolnym języku programowania nie ma potrzeby tworzenia tego w formie dowolnego z <Link href="/post/sposoby-reprezentacji-grafow">tradycyjnych zapisów grafu w pamięci</Link>. Tak naprawdę wystarczy, że będziemy mieć funkcję, która dla dowolnych współrzędnych zwróci współrzędne pól, na które możemy się przesunąć. Jest to o tyle wydajniejsze od normalnych sposobów zapisu grafu, że już dla typowej planszy szachowej musielibyśmy zrobić macierz sąsiedztwa o wymiarach 64×64 (4096 komórek) i wielkość ta rosłaby wraz z planszą. Przy planszy 100×100 macierz sąsiedztwa zawierałaby 100 000 000 komórek. Nie są to wielkości niemożliwe do obsłużenia dla komputera (ostatni przypadek zająłby około 100 MB pamięci), ale nie ma sensu niepotrzebnie zapychać RAM-u przy tak prostym przypadku.
+
+### Reguła Warnsdorffa
+
+Jednym ze sposobów znajdowania ścieżek Hamiltona jest reguła Warnsdorffa. Została opracowana w 1823 r. przez H. C. von Warnsdorffa jako sposób rozwiązania problemu skoczka szachowego. Z czasem sposób ten zgeneralizowano i wykorzystuje się go do szukania ścieżek Hamiltona. Nie sprawdzi się w każdym grafie, ale akurat w przypadku naszego problemu poradzi sobie ze znalezieniem rozwiązania.
+
+Oryginalnie reguła Warnsdorffa brzmiała: zawsze przesuwaj się do nieodwiedzonego sąsiadującego wierzchołka o najmniejszym stopniu (najmniejszej liczbie sąsiadów). Jeśli takich jest kilka, wybierz losowy.
+
+Odwiedzanie wierzchołków zawsze w ten sposób ma taki sens, że jeśli mają mało sąsiadów, to jest mniej okazji, aby je odwiedzić. Jednak jak się okazuje, samo takie podejście nie jest wystarczające. W 1996 r. D. Squirrel doświadczalnie wykazał, że reguła ta sprawdza się dla małych plansz, ale im są większe, tym gorzej to wypada (85% szans na znalezienie trasy dla plansz mniejszych niż 50×50; 50% dla mniejszych niż 100×100).
+
+### Ulepszenia reguły Warnsdorffa
+
+Naukowcy starali się poprawić regułę tak, aby była w stanie znajdować ścieżki z większą szansą powodzenia. Warto tu spojrzeć przede wszystkim na podejścia I. Pohla (1967), A. Rotha (1992) oraz D. Squirrela (1996). Wszyscy oni skupili się na tym, jak wybierać najlepszy następny ruch w przypadku, gdy według Warnsdorffa powinniśmy go losować. Jak się okazuje, jest to kluczowy moment dla powodzenia metody. Nazwijmy go dalej „blokadą”.
+
+Z racji tego, że chcemy poznać sposób znajdowania ścieżki Hamiltona na dowolnym grafie, skupimy się w artykule na podejściu Iry Pohla, ponieważ jak sam autor twierdzi, znajduje zastosowanie poza problemem skoczka szachowego. Dwa pozostałe skupiają się standardowo na problemie szachowym — Roth wybiera pole planszy znajdujące się geometrycznie najdalej od środka, natomiast Squirrel decyduje się podążać konkretnymi ścieżkami w zależności od momentu, w którym trafiliśmy na blokadę.
+
+Jeśli chcielibyśmy skupić się typowo na problemie skoczka szachowego, najlepiej sprawdza się algorytm Squirrela. Według autora zadziała on na każdej kwadratowej planszy o wymiarach co najmniej 5×5. Jednak z późniejszej literatury możemy się dowiedzieć, że algorytm nie radzi sobie z planszą o wymiarach 74×74.
+
+### Algorytm Pohla-Warnsdorffa
+
+Jak wspomniałem, my skupimy się na podejściu opracowanym przez Irę Pohla. Nie działa tak idealnie jak algorytm Squirrela przy problemie skoczka szachowego, ale przy odpowiednim przerobieniu pomoże nam znaleźć ścieżkę Hamiltona na dowolnym grafie.
+
+To, co zrobił I. Pohl, to ponowne zastosowanie reguły Warnsdorffa w przypadku blokady. Zakładamy sytuację, jakbyśmy już weszli na dany wierzchołek, i sumujemy stopnie jego sąsiadów. Robimy to dla wszystkich wierzchołków, które mają ten sam stopień, po czym wybieramy ten, dla którego wyliczona w ten sposób suma jest najmniejsza. Teoretycznie w przypadku, gdy mamy równe sumy, moglibyśmy po raz kolejny zastosować regułę Warnsdorffa, tym razem dla sąsiadów sąsiadów, jednak złożoność algorytmu rosłaby wówczas wykładniczo. Dlatego też Pohl stwierdził, że w przypadku takiej podwójnej blokady remis powinniśmy rozwiązać w dowolny sposób.
+
+Metoda została opisana w zgeneralizowany sposób przez Pohla następująco:
+
+> Weź pod uwagę wszystkie ścieżki *k* ruchów i zlicz pozostałe połączenia dla każdej ze ścieżek. Wybierz pierwszy ruch dla ścieżki, która ma maksymalną liczbę, jeśli nie jest to ślepa uliczka. Remisy należy rozwiązywać przez rozpatrzenie *k + 1* ruchów.
+
+W przypadku problemu skoczka szachowego wartość *k* jest równa 1.
+
+Dla udowodnienia, że sposób działa nie tylko w problemie skoczka szachowego, Pohl użył algorytmu do wyznaczenia ścieżki Hamiltona na grafie Tutte'a. Wynik wygląda następująco:
+
+<Image
+  image={tutte}
+  alignCenter
+  fullSize
+  alt="Graf Tutte z ponumerowanymi wierzchołkami od 1 do 46, tym samym z wyznaczoną ścieżką Hamiltona."
+  caption={<>
+    Graf Tutte'a z wyznaczoną ścieżką Hamiltona za pomocą algorytmu Pohla-Warnsdorffa. Diagram jest wzorowany na rysunku nr 6 z oryginalnej pracy Pohla. Liczby obok wierzchołków wskazują kolejność ich odwiedzania.<br/>
+    (szablon grafu Tutte'a wzięty z: <a href="https://commons.wikimedia.org/wiki/File:Tutte_graph.svg">Koko90</a>, <a href="https://creativecommons.org/licenses/by-sa/3.0">CC BY-SA 3.0</a>, via Wikimedia Commons)
+  </>}
+/>
+
+## Implementacja
+
+Wyjątkowo bez pseudokodu od razu zaimplementujemy algorytm w JavaScript. Pominę w tym przykładzie implementację grafu, jedynie zakładam, że mam funkcję `getUnvisitedNeighbours(wierzchołek, plansza)`, która zwraca liczbę nieodwiedzonych sąsiadów dla wskazanego wierzchołka. Wierzchołki dość nietypowo będą wyrażane jako współrzędne *(x,y)* zamiast standardowo pojedynczej liczby z racji tego, że jest to wygodniejszy zapis dla problemu skoczka szachowego. Algorytm wygląda następująco:
+
+```javascript
+// funkcja zwracająca wierzchołek o najmniejszym stopniu
+function getNodeWithMinDegree(nodes, board, recursionDepth) {
+  // aktualny najmniejszy stopień
+  let min = Number.POSITIVE_INFINITY;
+  // lista wierzchołków o najmniejszym stopniu
+  let minCoords = [];
+  // iterujemy po wszystkich wierzchołkach
+  for (const node of nodes) {
+    // pobieramy listę sąsiadów, interesuje nas tylko ich liczba
+    const neighbors = getUnvisitedNeighbours(node, board).length;
+    // jeśli liczba jest taka sama jak aktualne minimum,
+    // to dokładamy aktualny wierzchołek
+    if (min === neighbors) {
+      minCoords.push(node);
+      // jeśli jest mniejsza, to podmieniamy aktualne minimum
+    } else if (min > neighbors) {
+      min = neighbors;
+      minCoords = [node];
+    }
+  }
+  // jeśli nie znaleźliśmy żadnego minimum, zwracamy błąd
+  if (minCoords.length === 0) {
+    throw Error("Ślepa uliczka!")
+  }
+  // jeśli tylko jeden wierzchołek ma minimalną wartość,
+  // zwracamy go
+  if (minCoords.length === 1) {
+    return minCoords[0];
+  }
+  // w tej sytuacji mamy remis, więc podejmujemy odpowiednie kroki:
+  // jeśli nie jesteśmy za głęboko w rekursji,
+  // wywołujemy funkcję rekurencyjnie
+  if (recursionDepth > 0) {
+    return getNodeWithMinDegree(minCoords, board, recursionDepth - 1);
+    // usuwając ten krok, uzyskamy oryginalną metodę Warnsdorffa
+  }
+  // jeśli zaszliśmy zbyt głęboko, losujemy wierzchołek
+  return minCoords[Math.trunc(Math.random() * minCoords.length)];
+}
+
+// funkcja wyszukująca trasę skoczka
+function findKnightsTour(boardSize, startCoords, recursionDepth) {
+  // generujemy nową planszę
+  let board = generateBoard(boardSize);
+  // zmienna przechowująca aktualne pole na planszy
+  let currentCoords = startCoords;
+  // licznik ruchów
+  let move = 0;
+  // ustawiamy, że wierzchołek startowy jest juz odwiedzony
+  board[currentCoords.y][currentCoords.x] = ++move;
+  // iterujemy tak długo, póki są nieodwiedzone wierzchołki
+  while (board.some(x => x.some(y => y == null))) {
+    // pobieramy sąsiadów aktualnego wierzchołka
+    const neighbors = getUnvisitedNeighbours(currentCoords, board);
+    try {
+      // wywołujemy znalezienie sąsiada o najmnijeszym stopniu
+      // i przypisujemy go jako aktualny wierzchołek
+      currentCoords = getNodeWithMinDegree(neighbors, board, recursionDepth);
+    } catch (err) {
+      // w przypadku błędu wypiszmy go
+      // i zwróćmy to, co zostało znalezione do tej pory
+      console.error(err);
+      return board;
+    }
+    // ustawiamy wierzchołek jako odwiedzony
+    board[currentCoords.y][currentCoords.x] = ++move;
+  }
+  // zwracamy planszę
+  return board;
+}
+```
+
+Implementacja wyboru następnego kroku algorytmem Pohla-Warnsdorffa zawarta jest w funkcji `getNodeWithMinDegree`, natomiast `findKnightsTour` znajduje rozwiązanie dla problemu skoczka szachowego. Argument `recursionDepth` pozwala na ustawienie wartości `k`, czyli jak głęboko rekurencyjnie należy szukać wierzchołka, który powinien zostać wybrany jako następny. Jeśli ustawimy wartość na 0, otrzymamy oryginalną metodę Warnsdorffa; natomiast 1 jest wartością, którą Pohl rozwiązał problem skoczka w swojej pracy.
+
+Całość implementacji znajdziesz na serwisie [repl.it](https://replit.com/@tswistak/knights-tour#index.js), gdzie możesz od razu przetestować algorytm dla plansz różnych wielkości, jak i różnych startowych pozycji. Przykładowo, dla planszy 8×8 i pozycji startowej `(1,0)` (we współrzędnych szachowych B8; startowa pozycja jednego ze skoczków) jeden z wyników wygląda następująco:
+
+<Chessboard>
+| | | | | | | | |
+|-|-|-|-|-|-|-|-|
+4 |  1 |  6 | 21 | 46 | 43 | 16 | 23
+7 | 20 |  3 | 44 | 17 | 22 | 49 | 42
+2 |  5 | 18 | 47 | 60 | 45 | 24 | 15
+19 |  8 | 61 | 34 | 37 | 48 | 41 | 50
+62 | 33 | 36 | 59 | 64 | 57 | 14 | 25
+9 | 30 | 63 | 56 | 35 | 38 | 51 | 40
+32 | 55 | 28 | 11 | 58 | 53 | 26 | 13
+29 | 10 | 31 | 54 | 27 | 12 | 39 | 52
+</Chessboard>
+
+## Podsumowanie
+
+Algorytm Pohla-Warnsdorffa to bardzo proste podejście, które w czasie liniowym (zależnie od głębokości rekursji) znajduje ścieżkę Hamiltona. Nie ma gwarancji, że zawsze się uda, tak samo jak i nie mamy pewności, jaki rodzaj ścieżki otrzymamy. Warto jednak znać to podejście, choćby po to, żeby wiedzieć, jak rozwiązywać problem skoczka szachowego, który jest bardzo popularnym zagadnieniem. Nawet warto zapamiętać zwykłe podejście Warnsdorffa, bo aby je wykonać, nie potrzebujemy komputera, więc możemy w taki sposób rozwiązywać tę zagadkę ręcznie, aczkolwiek z jeszcze mniejszą gwarancją znalezienia rozwiązania niż pokazanym tutaj algorytmem.
+
+## Literatura
+
+- Ira Pohl. 1967. A method for finding Hamilton paths and Knight's tours. Commun. ACM 10, 7 (July 1967), 446–449. [doi:10.1145/363427.363463](https://doi.org/10.1145/363427.363463)
+- Squirrel, D., & Cull, P. (1996). A Warnsdorff-rule algorithm for knight’s tours on square chessboards. *Oregon State REU Program*. [PDF](https://github.com/douglassquirrel/warnsdorff/blob/master/5_Squirrel96.pdf)
+- Ganzfried, S., & Cull, P. (2004). A Simple Algorithm for Knight’s Tours. *Math. Oregon State Univ, 1*, 63-90. [PDF](https://github.com/douglassquirrel/warnsdorff/blob/master/SGKnightsTourPaper.pdf)
+- Roth. A. *The Problem of the Knight. A Fast and Simple Algorithm*, https://www.wolframcloud.com/objects/nbarch/2018/10/2018-10-10r6l3m/Knight.nb (ostatnie odwiedziny 22.10.2022).
+- Pohl, Ira & Stockmeyer, Larry. (2004). Pohl-Warnsdorf – Revisited. *Proceedings of the IASTED International Conference on Intelligent Systems and Control*. [ResearchGate](https://www.researchgate.net/publication/267853697_Pohl-Warnsdorf_-_Revisited)
+
+<small>Zdjęcie na okładce wygenerowane przez DALL-E. Oryginał znajduje się [tutaj](https://labs.openai.com/s/hNSNo7e4lbjM0WGT6Fda0IPq).</small>

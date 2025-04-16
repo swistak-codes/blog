@@ -1,0 +1,250 @@
+import Link from 'next/link';
+import {Image, Iframe} from '@swistak-codes/components';
+import cover from './sudoku.jpg';
+import niewypelnione from './niewypelnione-sudoku.png';
+import wypelnione from './wypelnione-sudoku.png';
+import terminologia from './terminologia.png';
+
+export const meta = {
+  title: 'Sudoku',
+  abstract:
+    'Rozwiążmy sudoku, przy okazji poznając algorytm, który może się przydać przy wyszukiwaniu rozwiązań wielu różnych problemów.',
+  firstParagraph: (
+    <>
+      Na przestrzeni ostatnich kilku artykułów zdążyłem poruszyć dwie zagadki logiczne: <Link href="/post/wieze-hanoi">wieże Hanoi</Link> oraz <Link href="/post/kryptarytmy">kryptarytmy</Link>. Dlaczego więc nie opowiedzieć o najpopularniejszej z liczbowych zagadek logicznych, dostępnej w każdym osiedlowym kiosku — sudoku? Przy okazji poznamy kolejny algorytm, który może się przydać przy wyszukiwaniu rozwiązań wielu różnych problemów, nie tylko sudoku.
+    </>
+  ),
+  keyword: 'sudoku',
+  categories: ['Algorytmy', 'Zagadki logiczne'],
+  tags: [
+    'backtracking',
+    'sudoku',
+    'CSP',
+    'problemy spełniania ograniczeń',
+    'algorytm z nawrotami',
+    'matematyka',
+    'forward checking',
+    'wyszukiwanie stochastyczne',
+    'exact cover',
+  ],
+  slug: 'sudoku',
+  updateTime: '2021-10-27T06:01:42+00:00',
+  publishTime: '2021-10-27T06:00:40+00:00',
+  cover,
+};
+
+## Co nieco o sudoku
+
+Zanim jednak przejdziemy do rozwiązywania sudoku, opowiedzmy sobie o nim trochę. Mimo że jest dosyć prawdopodobne, że znasz tę zagadkę i jej zasady, to jednak dla formalności przedstawię ją wraz z odrobiną historii.
+
+### O grze
+
+Sudoku (z jap. 数独, sūdoku — pojedyncza cyfra) to zagadka logiczna, w której mamy siatkę 9×9 częściowo wypełnioną cyframi. Wbrew nazwie zagadka nie powstała w Japonii. Oryginalnie nazywała się Number Place i jej współczesna wersja została opracowana najprawdopodobniej przez Howarda Gamsa w 1979 r. Skąd jednak ta japońska nazwa? Otóż gra trafiła w 1984 r. do Japonii dzięki Maki Kaji. Początkowo nazwał ją *Sūji wa dokushin ni kagiru* (z jap. 数字は独身に限る — cyfry muszą być pojedynczo), co później zostało skrócone do Sudoku. Nazwa ta jest w Japonii zastrzeżona i częściej te zagadki znajdziemy tam pod nazwą Number Place (ナンバープレース, *Nanbāpurēsu*) lub w skróconej wersji Nanpure (ナンプレ).
+
+<Image
+  image={niewypelnione}
+  alignCenter
+  fullSize
+  maxWidth="307px"
+  alt="Niewypełnione sudoku"
+  caption={<>
+    Przykładowe, nierozwiązane sudoku.
+  </>}
+/>
+
+Dalsze losy tej zagadki to zdobycie przez nią dzisiejszej popularności. W 1997 r. w japońskiej księgarni w Hongkongu odkrywa ją Wayne Gould. Zainspirowała go do stworzenia aplikacji, która będzie szybko generować unikalne zagadki tego typu. Po sześciu latach spróbował z nią dostać się do brytyjskiego The Times, gdzie została ostatecznie opublikowana w 2004 r. pod nazwą Su Doku. Od tego czasu zagadka ta stała się stałym punktem gazety i zaczęła zdobywać popularność na całym świecie.
+
+<Image
+  image={wypelnione}
+  alignCenter
+  fullSize
+  maxWidth="307px"
+  alt="Wypełnione sudoku"
+  caption={<>
+    Rozwiązanie powyższego sudoku.
+  </>}
+/>
+
+### Zasady rozwiązywania
+
+Diagram, w którym rozwiązujemy sudoku, składa się z 9 wierszy i 9 kolumn (9×9), czyli zawiera 81 pól.  Do tego diagram jest podzielony na 9 kwadratów, gdzie każdy z nich zawiera 9 pól. Dodatkowo grupę trzech kolumn nazywa się stosem, a grupę trzech wierszy pasem. Aczkolwiek aby umieć rozwiązywać sudoku, absolutnie nie musisz znać tego nazewnictwa; ja, dopóki nie przeczytałem pozycji książkowej o tej grze, nie wiedziałem o tym, a sudoku rozwiązywałem prawie bez problemu.
+
+<Image
+  image={terminologia}
+  alignCenter
+  fullSize
+  alt="Terminologia sudoku zaznaczona graficznie: pas, stos, kolumna, wiersz, kwadrat"
+  caption={<>
+    Nazewnictwo elementów diagramu w sudoku.
+  </>}
+/>
+
+Każde z pól diagramu może zawierać cyfrę z zakresu 1 -9. Mamy tutaj trzy proste zasady definiujące, jaka cyfra gdzie może się znajdować:
+
+- W każdym wierszu musi znajdować się każda z cyfr 1, 2, 3, 4, 5, 6, 7, 8, 9.
+- W każdej kolumnie musi znajdować się każda z cyfr 1, 2, 3, 4, 5, 6, 7, 8, 9.
+- W każdym kwadracie musi znajdować się każda z cyfr 1, 2, 3, 4, 5, 6, 7, 8, 9.
+
+Jednocześnie wynika z tego, że w ramach każdego wiersza, kolumny i kwadratu nie możemy mieć powtórzonych cyfr, wszystkie muszą być unikalne. Właśnie te trzy proste zasady sprawiają, że sudoku jest zagadką prostą do opanowania, ale nieraz trudną do rozwiązania.
+
+Istnieje bardzo dużo sposobów ręcznego rozwiązywania sudoku. Jednak w ramach tego artykułu nie chcę poświęcać im miejsca, bo zasługiwałyby na wiele oddzielnych artykułów. Jeśli chciałbyś/chciałabyś się z nimi zapoznać, polecam stronę [SudokuWiki.org](https://www.sudokuwiki.org/sudoku.htm), gdzie można znaleźć symulator ręcznego rozwiązywania sudoku, omawiający po kolei, jakie stosowano strategie, wraz z ich opisami.
+
+## Sudoku w liczbach
+
+Żeby zrozumieć, z jak, wbrew pozorom, rozbudowaną zagadką mamy do czynienia, popatrzmy na trochę liczb wokół sudoku.
+
+### Liczba możliwych rozwiązań
+
+Dość istotną informacją jest, ile mamy unikalnych sposobów wypełnienia diagramu sudoku. To tak naprawdę definiuje nam stopień skomplikowania zagadki.
+
+Zadania policzenia liczby rozwiązań podjęli się w 2005 r. naukowcy B. Felgenhauer i F. Jarvis. Napisali oni program generujący i zliczający unikalne rozwiązania. Oczywiście zastosowali po drodze parę technik, dzięki którym nie musieli sprawdzać dosłownie każdej konfiguracji. Wynik, jaki otrzymali, to:
+
+$$
+N_0 = 6670903752021072936960 \approx 6,671 ×10^{21}
+$$
+
+Jest to dość dużo (6 tryliardów), przy czym pamiętajmy, że jest to liczba sposobów, na jakie może być wypełniony cały diagram. Z jednego ułożonego diagramu możemy stworzyć wiele gier, w zależności od tego, które pola zostawimy jako wstępnie wypełnione oraz jak dużo ich zostawimy.
+
+A jeśli chcesz lepiej zrozumieć wielkość tej liczby — szacuje się, że na Ziemii znajduje się $$10^{21}$$ ziaren piasku. Czyli można śmiało założyć, że trzeba mieć dużego pecha (albo kiepski generator), żeby trafić drugi raz na identyczne sudoku.
+
+### Najmniejsza liczba wstępnie wypełnionych pól
+
+Prawidłowo skonstruowane sudoku powinno mieć tylko jedno rozwiązanie. Jednocześnie, aby zagadka była jak najbardziej wymagająca, chcemy mieć jak najmniej wstępnie wypełnionych pól. W większości sudoku najczęściej jest ok. 25 takich podpowiedzi, jednak nie jest to minimalna liczba.
+
+Bazując na pracy z 2013 r. (McGuire G., Tugemann B., Civario G.), jestem w stanie powiedzieć, że aby zapewnić unikalne rozwiązanie, **sudoku musi mieć co najmniej 17 wstępnie wypełnionych pól**. Jej autorzy wygenerowali ogromną liczbę sudoku z zaledwie 16 wypełnionymi polami i nie znaleźli żadnego z jednym rozwiązaniem. Swoją drogą, praca ma bardzo szczegółowy opis, jak generowano wszystkie możliwości i je sprawdzano, dlatego zdecydowanie warto ją przejrzeć (jej preprint jest dostępny za darmo i podlinkowałem go w literaturze).
+
+## Znajdowanie rozwiązań sudoku
+
+### Idea podejścia algorytmicznego
+
+Skoro wiemy już dość dużo na temat sudoku, przejdźmy do rozwiązywania go. Jak pisałem wcześniej, pominę tutaj ręczne sposoby. Algorytmów i podejść do rozwiązania, które można stosować „w pamięci”, jest bardzo dużo, a ja tym razem skupiłem się na czymś bardziej uniwersalnym. Mianowicie, rozwiążemy sudoku poprzez przeszukanie przestrzeni rozwiązań.
+
+Tutaj jednak może zapalić Ci się czerwona lampka. Przecież tych rozwiązań jest sporo. Już wcześniej zobaczyliśmy, jak wiele jest wszystkich możliwych sudoku, a gdybyśmy wypełniali po kolei planszę kolejnymi cyframi, to uzyskalibyśmy $$9^{81} \approx 2 \cdot 10^{77}$$ możliwości (ponieważ mamy 81 pól i 9 możliwości wypełnienia każdego z nich). Może i jest to mniej niż atomów we wszechświecie ($$10^{80}$$), ale to wciąż horrendalnie duża liczba. Jeśli założylibyśmy, że jedno rozwiązanie sprawdzamy w 1 milisekundę, to sprawdzenie wszystkich zajęłoby ponad $$10^{66}$$ lat. Już wiele razy na łamach tego bloga opisywałem, co się stanie w odległych latach, dlatego tym razem jedynie zacytuję Dysona Freemana: „W skali czasowej $$10^{65}$$ lat każdy kawałek skały zachowuje się jak ciecz, która pod wpływem grawitacji spływa w kulisty kształt. Jej atomy i molekuły będą nieustannie rozprzestrzeniać się niczym molekuły w kropli wody”.
+
+Na szczęście w przypadku sudoku mamy jasno określone zasady, dzięki którym wiemy, że nie musimy odwiedzać wszystkich tych przypadków. Wykorzystajmy te ograniczenia przy generowaniu kolejnych potencjalnych rozwiązań.
+
+### Algorytm z nawrotami
+
+Algorytm, który proponuję wykorzystać w tym problemie, to algorytm z nawrotami (ang. backtracking). Nie jest to jeden konkretny algorytm, a raczej cała grupa wielu różnych algorytmów charakteryzujących się bardzo podobnym schematem działania.
+
+Najbardziej ogólnie mówiąc, algorytm z nawrotami polega na stopniowym budowaniu rozwiązania problemu. Dodajemy nową wartość, po czym sprawdzamy, czy rozwiązanie do tej pory jest poprawne. Jeśli nie, zmieniamy wartość na inną. Jeśli tak, to akceptujemy wartość i szukamy kolejnej.
+
+Z racji tego, że algorytm jest bardzo ogólny, nie ma konkretnego prawidłowego sposobu jego implementacji. Można też dostosować go do dowolnego problemu, gdzie rozwiązanie trzeba znaleźć przez przeszukiwanie przestrzeni rozwiązań, a jednocześnie jesteśmy w stanie wprowadzić ograniczenia pozwalające redukować liczbę iteracji. Przykładowo, kryptarytmy z poprzedniego artykułu również moglibyśmy rozwiązać backtrackingiem, wykorzystując np. jako ograniczenie fakt, że nie każda z cyfr mogła być zerem.
+
+### Problemy spełniania ograniczeń
+
+Oczywiście algorytm możemy zgeneralizować, aby nie był dostosowany stricte pod jeden problem. Wiele popularnych problemów możemy opisać językiem matematyki jako CSP (Constraint Satisfaction Problems, po polsku: problemy spełniania ograniczeń) i wtedy napisać ogólny algorytm z nawrotami.
+
+W formalnym zapisie matematycznym CSP definiujemy jako krotkę $$\langle X, D, C \rangle$$, gdzie:
+
+- $$X = \{X_1, ..., X_n\}$$ to zbiór zmiennych, czyli miejsc, pod które podstawiamy wartości.
+- $$D = \{D_1, ..., D_n\}$$ to zbiór dziedzin, czyli wartości, które możemy podstawić pod zmienne.
+- $$C = \{C_1, ..., C_n\}$$ to zbiór ograniczeń, jakim podlegają zmienne.
+
+W taki sposób jesteśmy w stanie zapisać wiele problemów, w tym ogrom zagadek logicznych — sudoku, krzyżówki, kryptarytmy, kakuro, magiczne kwadraty itd. Jednak zastosowania nie ograniczają się tylko do zagadek logicznych. Z praktycznych zastosowań można wymienić automatyczne planowanie, czy alokację zasobów.
+
+### Zastosowanie w Sudoku
+
+Dla ułatwienia nie rozpatrujemy ogólnego przypadku, tylko skupimy się stricte na sudoku. Rozbijmy więc na czynniki pierwsze to, co potrzebujemy, aby rozpocząć implementację algorytmu z nawrotami. Zastosujemy nazewnictwo z problemów spełniania ograniczeń, jednak bez formalizmów matematycznych.
+
+#### Zmienne
+
+Zacznijmy od sposobu przechowywania danych o stanie gry, czyli stosując nomenklaturę z CSP — zmienne. Pierwsze, co nam się nasuwa, to dwuwymiarowa tablica liczb całkowitych o wymiarach 9×9, co jest oczywiście dobrym podejściem. Wtedy możemy bardzo łatwo dostać się do konkretnych kolumn czy wierszy, co przyda się przy pisaniu ograniczeń. Jednak ja zaproponowałbym tutaj inne podejście.
+
+Ze względu na naturę algorytmu z nawrotami, gdzie będziemy się często cofać po tablicy, dwuwymiarowa struktura może okazać się niewygodna. Zamiast tego zróbmy jednowymiarową tablicę 81-elementową. Przechowamy wciąż te same dane, jednak wykonywanie nawrotów będzie zdecydowanie prostsze. Jak jednak możemy wtedy odwoływać się do pól po oryginalnych współrzędnych?
+
+Załóżmy, że $$(x, y)$$ to współrzędne z tablicy dwuwymiarowej, natomiast $$i$$ to indeks w jednowymiarowej. Wówczas:
+
+$$
+\begin{align*}
+x &= \left\lfloor \frac{i}{9} \right\rfloor \\
+y &= i \text{ mod } 9 \\
+i &= x \cdot 9 + y
+\end{align*}
+$$
+
+Prawda, że proste?
+
+Jeszcze w kwestii przechowywania danych warto mieć też gdzieś informację, które z pól były już wstępnie wypełnione, abyśmy nie operowali na nich naszym algorytmem generującym kolejne wartości. Również musimy jakoś oznaczać niewypełnione pola. Możemy do tego zastosować cyfrę 0 albo wartość NULL.
+
+#### Dziedzina
+
+Tutaj raczej nie ma co się rozpisywać. W sudoku jedyne dozwolone wartości to cyfry od 1 do 9, więc są one naszą dziedziną.
+
+#### Ograniczenia
+
+Na koniec przyjrzyjmy się  od strony algorytmicznej regułom rozwiązywania sudoku, bo to one definiują ograniczenia. Jak wiemy, cyfry muszą być unikalne w kolumnach, wierszach i kwadratach.
+
+Dla dwóch pierwszych przypadków sytuacja jest oczywista. Są to proste pętle, gdzie zbieramy po kolei wartości, iterując po tylko jednej współrzędnej. Unikalność najłatwiej jest sprawdzić, stosując strukturę danych zwaną tablicą haszowaną (znana też jako zbiór lub słownik/mapa, w zależności od zastosowania; najczęściej w językach programowania dostępna jako `Set` lub `HashSet`, ewentualnie `Map` albo `Dictionary`). Jej ograniczenie jest takie, że każda wartość (w przypadku mapy/słownika — klucz) musi być unikalna, więc nigdy nie będziemy mieć duplikatów wartości (klucza). Wystarczy, że zapamiętamy, ile razy wkładaliśmy wartości do zbioru, i porównamy z faktyczną liczbą zawartych w nim elementów. Jeśli jest tyle samo elementów, ile wstawiliśmy, mamy poprawne rozwiązanie.
+
+W przypadku kwadratów one też sprowadzają się do prostej iteracji, jednak tym razem już musimy zwiększać wartości w dwóch wymiarach. A w kwestii zakresu iteracji wystarczy zapamiętać dwie współrzędne: lewego górnego rogu kwadratu i prawego dolnego. Dla ułatwienia wypiszę je tutaj. Indeksujemy tradycyjnie, od zera:
+
+$$
+\begin{align*}
+0&: (0,0), (2,2) \\
+1&: (3, 0), (5,2)\\
+2&: (6,0), (8,2)\\
+3&: (0,3),(2,5)\\
+4&:(3,3),(5,5)\\
+5&:(6,3),(8,5)\\
+6&:(0,6),(2,8)\\
+7&:(3,6),(5,8)\\
+8&:(6,6),(8,8)
+\end{align*}
+$$
+
+### Przykładowa implementacja
+
+Kod backtrackingu napisany według powyższych wskazówek i przystosowany pod sudoku znajdziesz [na moim GitHubie](https://github.com/swistak-codes/sudoku-solver/blob/main/src/algorithms/backtrack.ts). Jest opisany po kolei komentarzami wyjaśniającymi, co robi każda z linijek kodu.
+
+Natomiast poniżej możesz zobaczyć prezentację pokazującą ten algorytm w praktyce. Możesz wykorzystać albo pokazaną planszę sudoku, albo uzupełnić po swojemu. Możesz nawet zostawić pustą planszę — algorytm i tak zatrzyma wykonanie po odnalezieniu pierwszego rozwiązania.
+
+<Iframe src="/iframe-content/sudoku/index.html" minHeight={650} />
+
+Tak jak przy większości dotychczasowych wizualizacji,  ta też została napisana w języku TypeScript z wykorzystaniem frameworka Svelte. Kod całości znajduje się [tutaj na GitHubie](https://github.com/swistak-codes/sudoku-solver/).
+
+
+### Zalety i wady algorytmu z nawrotami
+
+Algorytm z nawrotami to bardzo proste do zaprogramowania, uniwersalne podejście, więc zastanówmy się, czy warto je stosować. Zacznijmy od jego zalet:
+
+- Powtórzę się — jest to algorytm bardzo prosty w implementacji.
+- Zawsze otrzymamy rozwiązanie, nawet przy „niemożliwych” sudoku, czyli takich, których nie da się rozwiązać tradycyjnymi sposobami.
+- Czas rozwiązania jest niezależny od poziomu trudności zagadki. Zależny jest głównie od liczby wstępnie uzupełnionych pól, a te nie zawsze przekładają się na poziom trudności.
+
+Są też wady:
+
+- Przede wszystkim algorytm nie jest szybki. Mimo że ograniczamy przestrzeń wyszukiwania za pomocą warunków, wciąż iteracji jest bardzo dużo. Możesz to zobaczyć na powyższym przykładzie. Dla sudoku, które umieściłem, potrzebujemy 20 355 iteracji do rozwiązania go. Nie jest to problem przy dzisiejszych komputerach, jednak trzeba pamiętać, że przy niektórych sudoku liczba iteracji może dochodzić nawet do okolic miliona.
+- Czas wykonania jest nieprzewidywalny ze względu na mocno zmienną liczbę iteracji. Domyślnie w algorytmie idziemy po kolei wartościami od najmniejszych do największych. To sprawia, że sudoku, które w górnym wierszu będą mieć rozwiązanie „987654321”, będą się rozwiązywać bardzo długo. Za to wiersz „123456789” zostanie znaleziony niemal natychmiastowo.
+
+### Inne możliwe podejścia
+
+Algorytm z nawrotami nie jest oczywiście jedynym słusznym podejściem. Są nawet podejścia, które mogą sprawdzić się lepiej.
+
+Najprostszym z alternatywnych podejść jest algorytm sprawdzania w przód (z ang. forward checking, look-ahead). Jest to modyfikacja backtrackingu, gdzie przy sprawdzaniu, czy aktualna wartość spełnia ograniczenia, przy okazji dowiadujemy się, jak powinniśmy zawęzić dziedzinę dla następnej wartości. Dzięki temu jesteśmy w stanie zmniejszyć liczbę iteracji, a tym samym przyspieszyć wykonanie.
+
+Do rozwiązywania sudoku i innych zagadek, czy ogólnie mówiąc problemów złożonych obliczeniowo, możemy zastosować metody wyszukiwania stochastycznego (znane też jako metody losowego przeszukiwania). Polegają one na generowaniu losowych rozwiązań w kontrolowany sposób, czyli faworyzujący rozwiązania zawierające coraz mniej błędów, ostatecznie dochodząc do bezbłędnego. Mamy tu cały ogrom różnych sposobów, między innymi symulowane wyżarzanie, algorytmy ewolucyjne, algorytm mrówkowy i wiele innych. Warto jednak pamiętać, że sposoby te mogą być dużo wolniejsze niż backtracking.
+
+Sudoku można też potraktować jako problem dokładnego pokrycia zbioru (z ang. exact cover). Mimo że sam problem należy do klasy NP-zupełnych, to okazuje się, że w przypadku sudoku rozwiązanie można znaleźć szybko (szybciej niż backtrackingiem). Nie chcę tutaj wchodzić w szczegóły, na czym polega ta reprezentacja, ani jakie jest podejście do rozwiązywania takich problemów. Natomiast powiem, że do tego celu wykorzystuje się zwykle algorytm X autorstwa Donalda Knutha, który, co ciekawe, bazuje na idei algorytmu z nawrotami.
+
+Po opisy jak można implementować rozwiązywanie sudoku na te sposoby, zapraszam do sekcji *Literatura*, gdzie wypisałem prace opisujące zarówno podejście stochastyczne (Perez, Marwala), jak i dokładnego pokrycia zbioru (Kapanowski). Obie z tych prac zostały udostępnione na arXiv, gdzie prace naukowe z dziedziny informatyki możemy czytać legalnie za darmo.
+
+## Podsumowanie
+
+Gdy w poprzednich artykułach opisywałem <Link href="/post/wieze-hanoi">wieże Hanoi</Link> czy <Link href="/post/kryptarytmy">kryptarytmy</Link>, to mimo wszystko zagadki te wydawały się dość odległe. Wieże Hanoi zna się z zabawki, ale niekoniecznie poprawnie się rozwiązuje; zaś kryptarytmy do najpopularniejszych nie należą. Natomiast odkąd sudoku dostało się do szaradziarskiego świata, stało się natychmiastowym hitem. Innymi słowy, jest to problem codzienny, o którym warto wiedzieć, jak można rozwiązać algorytmicznie. Mimo że dokładnie opisałem jedynie jeden ze sposobów, to liczę, że zapoznasz się z pozostałymi podejściami, aby poszerzyć swoje horyzonty o nowe, ciekawe podejścia do rozwiązywania przeróżnych problemów obliczeniowych, w tym sudoku.
+
+## Literatura
+
+- Sudoku, [https://en.wikipedia.org/w/index.php?title=Sudoku&oldid=1047338510](https://en.wikipedia.org/w/index.php?title=Sudoku&oldid=1047338510) (ostatnie odwiedziny 06.10.2021).
+- Mathematics of Sudoku, [https://en.wikipedia.org/w/index.php?title=Mathematics_of_Sudoku&oldid=1049105408](https://en.wikipedia.org/w/index.php?title=Mathematics_of_Sudoku&oldid=1049105408) (ostatnie odwiedziny 10.10.2021).
+- Vorderman C. „Wstęp” i „Zasady sudoku” w *Sudoku krok po kroku*. Warszawa: Amber, 2005, s. 6-8, 11-17
+- Delahaye, Jean-Paul, ["The Science Behind Sudoku"](http://www.cs.virginia.edu/~robins/The_Science_Behind_SudoKu.pdf), *Scientific American*, June 2006.
+- Provan, J. S. (2009). Sudoku: Strategy versus Structure. *The American Mathematical Monthly*, 116(8), 702–707. [http://www.jstor.org/stable/40391196](http://www.jstor.org/stable/40391196)
+- Felgenhauer, B., & Jarvis, F. (2005). Enumerating possible Sudoku grids. [http://www.afjarvis.staff.shef.ac.uk/sudoku/sudoku.pdf](http://www.afjarvis.staff.shef.ac.uk/sudoku/sudoku.pdf)
+- McGuire, G., Tugemann, B., & Civario, G. (2014). There is no 16-clue Sudoku: Solving the Sudoku minimum number of clues problem via hitting set enumeration. *Experimental Mathematics*, 23(2), 190-217. [arXiv:1201.0749](https://arxiv.org/abs/1201.0749)
+- Simonis, H. (2005). "Sudoku as a Constraint Problem". Cork Constraint Computation Centre at University College Cork: Helmut Simonis. [CiteSeerX10.1.1.88.2964](https://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.88.2964)
+- Perez, M. and Marwala, T. (2008) *Stochastic Optimization Approaches for Solving Sudoku* [arXiv:0805.0697](https://arxiv.org/abs/0805.0697)
+- Kapanowski, A. (2010). Python for education: the exact cover problem. *arXiv preprint [arXiv:1010.5890](https://arxiv.org/abs/1010.5890)*.
+- Dyson, F. J. (1979). "Time Without End: Physics and Biology in an Open Universe". *Reviews of Modern Physics*. **51** (3): 447–460. [doi:10.1103/RevModPhys.51.447](https://doi.org/10.1103%2FRevModPhys.51.447)
+
+<small>(na okładce wykorzystano następujące obrazki z domeny publicznej: [1](https://commons.wikimedia.org/wiki/File:Sudoku_Puzzle_by_L2G-20050714_standardized_layout.svg), [2](https://freesvg.org/snake-number-one-vector-clip-art), [3](https://freesvg.org/two-1574111248))</small>

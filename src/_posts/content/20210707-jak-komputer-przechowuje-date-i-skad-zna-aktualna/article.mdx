@@ -1,0 +1,237 @@
+import Link from 'next/link';
+import {Image, Iframe} from '@swistak-codes/components';
+import cover from './kukulka.jpg';
+import date from './date.png';
+import dateUnix from './dateunix.png';
+import ntp from './NTP_stratum.png';
+
+export const meta = {
+  title: 'Jak komputer przechowuje datę i skąd zna aktualną?',
+  abstract:
+    'W tym artykule dowiesz się, jak oprogramowanie przechowuje datę i skąd ją zna. Poznasz między innymi, czym jest czas uniksowy, co to NTP itd.',
+  firstParagraph: (
+    <>
+      Po artykule o tym, <Link href="/post/jak-komputer-mierzy-czas">w jaki sposób sprzęt komputerowy odmierza czas</Link>,
+      mogłeś(-aś) zastanawiać się, co dalej się z tym dzieje? Parę razy podkreślałem, że na co dzień nie korzystamy
+      bezpośrednio ze sprzętowych wskaźników, tylko wykorzystujemy te wbudowane w systemy operacyjne czy języki
+      programowania. W tym artykule dowiesz się, jak oprogramowanie przechowuje datę i skąd ją zna. Poznasz między
+      innymi, czym jest czas uniksowy, co to jest NTP, a także co się wydarzy w roku 2137.
+    </>
+  ),
+  keyword: 'data',
+  categories: ['Teoria informatyki', 'Data i czas'],
+  tags: [
+    'NTP',
+    'czas uniksowy',
+    'epoch',
+    'GPS',
+    'ISO 8861',
+    'RFC 3339',
+    'PTP',
+    'zegar atomowy',
+    'rok 2000',
+    '19 stycznia 2038',
+    'stratum',
+    'bts',
+    'rds',
+    'dcf77',
+  ],
+  slug: 'jak-komputer-przechowuje-date-i-skad-zna-aktualna',
+  updateTime: '2021-08-17T16:42:13+00:00',
+  publishTime: '2021-07-07T09:00:08+00:00',
+  cover,
+};
+
+## Sposoby przechowywania i zapisu czasu
+
+Teraz przejdźmy do tej części niesprzętowej, a mianowicie, w jaki sposób oprogramowanie komputera przechowuje datę. Odbywa się to na różne sposoby, inne niż zapis w CMOS, dlatego opowiemy sobie o tym dość szczegółowo.
+
+### Epoka
+
+Przede wszystkim, zacznijmy od teoretycznych podstaw. Mówiąc na co dzień o datach, nie myślimy o żadnych „limitach”. Mamy co prawda podział na naszą erę i czasy przed nią, jednak tak naprawdę, patrząc na przeszłość, możemy podawać dowolne wartości przed naszą erą. Tymczasem komputery tak nie działają i musimy mieć pewną datę graniczną, od której liczymy czas. Nazywamy ją epoką (z ang. epoch).
+
+W tym miejscu zaczyna się ciekawie, bo komputery nie mają jednego konkretnego wydarzenia, które oznaczałoby początek czasu. Nie jest to ani wielki wybuch, ani też orientacyjna data narodzin Chrystusa (tak nawiasem mówiąc, najprawdopodobniej nie urodził się roku pierwszego). Każdy producent systemów operacyjnych, a nawet oprogramowania, przyjął własny start epoki. Do najpopularniejszych możemy zaliczyć:
+
+- 1 stycznia 1601 roku — zwany też czasem epokowym NT (z ang. NT time epoch); od tej daty zaczynają liczyć systemy Microsoft Windows w wersji NT (czyli NT, 2000, XP i nowsze). Data ta nie ma żadnego historycznego znaczenia, jedynie matematyczne, o czym możemy przeczytać [w krótkiej notce na stronie Microsoftu](https://devblogs.microsoft.com/oldnewthing/20090306-00/?p=18913).
+- 0 stycznia 1900 roku — jest to najstarsza data, którą używają arkusze kalkulacyjne Microsoft Excel oraz Lotus 1-2-3. Oczywiście taki dzień jak 0 stycznia nie istnieje i oznacza on wtedy 31 grudnia poprzedniego roku. Przy czym ze względu na błąd, który traktował 1900 rok jako rok przestępny (a nim nie jest), trzeba było wprowadzić korektę, że 0 stycznia to tak naprawdę 30 grudnia 1899. Stąd też często można spotkać się z tym, że epoka ta zaczyna się od tegoż właśnie dnia.
+- 1 stycznia 1970 roku — najbardziej znany komputerowy początek czasu, znany jako czas uniksowy (z ang. Unix Time, Unix Epoch; też spotyka się nazwę czas POSIX). Wykorzystywany jest przez systemy uniksowe (np. BSD, macOS, iOS) oraz uniksopodobne (np. Linux, Android) oraz wiele popularnych języków programowania.
+- 6 stycznia 1980 roku — od tej daty czas liczy system nawigacji GPS. Taka nietypowa data wzięła się stąd, że pod tą datą kryje się pierwsza niedziela 1980 roku, a niedzielę uznaje się za początek tygodnia (amerykańskie podejście do oznaczania tygodni).
+
+### Czas uniksowy
+
+Poświęćmy nieco uwagi czasowi uniksowemu, ponieważ jest najpowszechniej stosowanym sposobem zapisu daty i zdecydowanie jednym z najważniejszych. W zapisie tym data jest przedstawiona jako liczba sekund, jaka minęła od godziny 00:00 1 stycznia 1970 na równoleżniku zerowym (czyli czasu UTC). Moment ten nazywa się epoką uniksową.
+
+Standardowo czas ten jest zapisywany w postaci zmiennej całkowitoliczbowej 32-bitowej ze znakiem. Biorąc pod uwagę, że jeden dzień trwa 86400 sekund, zapis ten może przechować około 136 lat. Związany z tym problem opisałem pod koniec artykułu.
+
+Spotykane są także formy odliczające czas dokładniej, np. jako liczba milisekund od epoki uniksowej albo nawet nanosekund. Tradycyjnie w systemach uniksowych zwraca się wówczas dwie wartości — liczbę sekund oraz część ułamkową. Natomiast inne implementacje mogą działać inaczej, np. w JavaScripcie jest to po prostu jedna liczba całkowita wyrażająca liczbę milisekund.
+
+Jako ciekawostkę dodam, że czas uniksowy nie zawsze zaczynał się od daty 1.01.1970 i nie zawsze odmierzał liczbę sekund. Wersja opisana w „Unix Programmer's Manual” z 1971 roku odliczała czas od 00:00:00 1 stycznia 1971 roku w 1/60 sekundy. Tym samym 32-bitowy zakres zmiennej wyczerpał się po około 2,5 roku.
+
+<Image
+  image={date}
+  alignCenter
+  fullSize
+  alt="Terminal z macOS z uruchomionym poleceniem 'date +%s'"
+  caption={<>
+    Czas uniksowy sprawdzony w momencie pisania artykułu. Jesteś w stanie odczytać, kiedy wykonałem polecenie?
+  </>}
+  forceWhiteBackground={false}
+/>
+
+### ISO 8601 / RFC 3339
+
+Standard ISO 8601 nie jest stricte związany z komputerami, jednak programiści mogą bardzo często na niego trafić, a także z niego korzystać. Jest bowiem najpowszechniejszym i (nomen omen) standardowym sposobem zapisu daty i czasu jako ciągu znaków. W zastosowaniach informatycznych jego implementacją jest standard RFC 3339.
+
+Nie chcę wchodzić w szczegóły standardu, jak i jego szczegółów. Definiowane są tam rzeczy, które uznajemy za oczywiste, jak chociażby, jaki kalendarz wykorzystujemy. Z punktu widzenia praktyka informatyki najbardziej interesuje nas format zapisu. Standard operuje kilkoma postaciami, z których najważniejsze (zapisujące równocześnie datę i czas) to:
+
+- [YYYY]-[MM]-[DD]T[hh]:[mm]:[ss]Z
+- [YYYY]-[MM]-[DD]T[hh]:[mm]:[ss.sss]±[hh]:[mm]
+- [YYYY][MM][DD]T[hh][mm][ss]Z
+- [YYYY][MM][DD]T[hh][mm][ss]±[hh]:[mm]
+
+W powyższym schemacie zapisu zastosowano poniższe oznaczenia:
+
+- [YYYY] — rok w postaci czterocyfrowej. Jeżeli natomiast potrzebowalibyśmy określić rok przed naszą erą, dopuszczalny jest też zapis [±YYYYY] (niedopuszczalny w standardzie RFC 3339). Co jest istotne w przypadku dat, pierwszy rok naszej ery to rok 0000, natomiast ostatni rok przed naszą erą to 0001.<br />
+Przykłady lat zapisanych w tej formie:
+  - 2021
+  - 0000
+  - +0234
+  - -12333
+- [MM] — miesiąc w postaci dwucyfrowej oraz [DD] — dzień w postaci dwucyfrowej. Odliczanie zaczynamy zawsze od 1 i w przypadku jednocyfrowych liczb dopisujemy z przodu zero.
+- [hh] — godzina w postaci dwucyfrowej, [mm] — minuty w postaci dwucyfrowej oraz [ss] — sekundy w postaci dwucyfrowej. Tutaj również stosujemy dopisywanie zera, jednak odliczanie zaczynamy od 0. Natomiast jeżeli zapis zawiera sekundy wraz z częścią dziesiętną (dokładnie do trzech miejsc po przecinku), to są to milisekundy.
+- T — separator daty od czasu. Warto wspomnieć, że RFC 3339 dopuszcza zastąpienie go spacją dla czytelności.
+- Z lub ±[hh]:[mm] — oznaczenie strefy czasowej. Z to „zerowa” strefa czasowa, natomiast pozostałe określamy jako różnica czasu względem niej.
+
+<Image
+  image={dateUnix}
+  alignCenter
+  fullSize
+  alt="Terminal z macOS z uruchomionym poleceniem 'date +%s ; date -u +%FT%TZ'"
+  caption={<>
+    Czas uniksowy i odpowiadający mu zapis w standardzie ISO 8601.
+  </>}
+  forceWhiteBackground={false}
+/>
+
+Jako ciekawostkę dodam, że w wielu krajach na świecie, ichniejsze urzędy odpowiadające za miary przyjęły ISO 8601 jako standard formalnego zapisu daty i czasu. Do tych krajów, co ciekawe, Polska zaliczała się tylko do maja 2008 roku, gdy to norma PN-EN 28601 przyjmująca ISO 8601 została wycofana bez zastąpienia inną.
+
+### Aktualna data i czas w różnych formatach
+
+<Iframe src="/iframe-content/time/index.html" minHeight={255} />
+
+## Skąd komputery znają aktualną datę?
+
+Opowiedzieliśmy sobie o odliczaniu czasu i jego przechowywaniu, jednak uniknęliśmy bardzo ważnej informacji — skąd w ogóle komputer wie, jaka jest aktualna data?
+
+Tak, oczywiście najprostsza odpowiedź to taka, że użytkownik sam podaje datę. Jednak oprócz tego istnieje wiele sposobów, dzięki którym komputer może samodzielnie poznać aktualną datę i czas, dlatego krótko sobie o nich opowiedzmy.
+
+### NTP
+
+Najpopularniejszą metodą odkrywania czasu jest wykorzystanie protokołu sieciowego Network Time Protocol (w skrócie NTP) lub jego uproszczonej wersji SNTP. Używa się go do pobierania czasu o bardzo wysokiej dokładności ze specjalnie przystosowanych do tego celu serwerów, które są albo podłączone bezpośrednio do wzorców czasu, albo do innych serwerów czasu. Urządzenie stanowiące wzorzec czasu należy do warstwy zwanej STRATUM 0, natomiast kolejne warstwy komputerów to STRATUM 1 do 15. Liczba oznacza odległość do wzorca czasu.
+
+<Image
+  image={ntp}
+  alignCenter
+  fullSize
+  alt="STRATUM 0: Dwa zegary. STRATUM 1: Dwa serwery połączone z zegarami i między sobą. STRATUM 2: Trzy serwery połączone z warstwą STRATUM 1 oraz dwa między sobą. STRATUM 3: 4 serwery połączone z warstwą STRATUM 2 oraz między sobą"
+  caption={<>
+    Schemat warstw STRATUM i możliwych połączeń między serwerami i zegarami.
+  </>}
+/>
+
+Oryginalnie wzorcem STRATUM 0 był cezowy zegar atomowy, jednak obecnie dopuszcza się też różne inne źródła, jak satelitarne czy radiowe. Są one podłączane bezpośrednio do serwerów czasu i nie są udostępniane w Internecie. Opóźnienie na tym połączeniu liczone jest w kilku mikrosekundach.
+
+Serwery czasu przesyłają informację o czasie zapisaną na 64-bitach, gdzie pierwsze 32 bity składają się na liczbę sekund, jaka upłynęła od 1 stycznia 1900 roku, a kolejne odpowiedzialne są za ułamkową część sekundy. Oznacza to, że można w ten sposób zapisać około 136 lat ($$2^{32}$$ sekund) z rozdzielczością 233 pikosekund ($$2^{-32}$$ sekund). Jednak mimo tak wysokiej rozdzielczości zakłada się, że błąd pomiaru może wynosić ok. 1 milisekundy.
+
+Obecnie praktycznie każdy system operacyjny posiada możliwość synchronizacji czasu za pomocą NTP, dzięki czemu mając połączenie do Internetu, zwykle nie trzeba ustawiać daty. W zależności od systemu wykorzystywane są różne serwery od dostawców systemów, jak time.windows.com czy time.apple.com. Warto jednak wiedzieć, że możemy też korzystać z serwerów bliżej nas. Przykładowo, Główny Urząd Miar utrzymuje dwa serwery czasu typu STRATUM 1: `tempus1.gum.gov.pl` i `tempus2.gum.gov.pl`.
+
+### PTP
+
+Precision Time Protocol (PTP) to kolejne podejście do synchronizacji czasu przez Internet. W założeniu ma być bardziej precyzyjne niż NTP, tym samym nadające się do bardziej specjalistycznych rozwiązań, gdzie jest potrzebna wysoka precyzja pomiaru czasu. PTP jest opisany przez standard IEEE 1588.
+
+Wysoka precyzja czasu w przypadku PTP oznacza, że błąd pomiaru może wynosić tutaj jedynie ok. 100 nanosekund. Do większości codziennych zastosowań taka dokładność nie jest jednak potrzebna, dlatego nie znajdziemy darmowych serwerów PTP.
+
+Zasada działania jest bardzo zbliżona do NTP. Posiadamy wzorzec czasu (tutaj nazywany STRATUM 1), który jest podłączony do głównego serwera czasu (z ang. Grand Master Clock, STRATUM 2). Następnie mamy trzecią warstwę (STRATUM 3), gdzie znajdują się serwery czasu. Różnica względem NTP jest taka, że gdy w nim serwer czasu zwracał informację na konkretne żądanie, tak w PTP serwer czasu stale rozsyła aktualny czas do wszystkich podłączonych do niego serwerów (za pomocą multicast). Standard definiuje jeszcze możliwą warstwę STRATUM 4.
+
+### Zegary atomowe
+
+Komputery oczywiście nie muszą jedynie w taki sposób odkrywać aktualnego czasu. Istnieje także wiele innych źródeł, do których niekoniecznie trzeba mieć połączenie z Internetem.
+
+Przede wszystkim należy wiedzieć, że serwery czasu, czy to działające w protokole NTP, czy PTP, muszą skądś brać czas. Wspomniałem, że zwykle są to zegary atomowe i jest to jak najbardziej kolejne źródło czasu dla komputera. Obecnie takie zegary są niewielkich rozmiarów, ale bardzo drogie, więc nie spodziewajmy się, że będą montowane w zwykłych komputerach. Za to oprócz serwerów czasu możemy je znaleźć także w bardzo specjalistycznych sprzętach, jak np. satelity.
+
+### GPS
+
+Mówiąc o satelitach, one też mogą być źródłem czasu. W szczególności mowa tutaj o satelitach geolokalizacyjnych, czyli GPS, GLONASS, Beidou i Galileo. Jak już wspomniałem wcześniej, posiadają one na pokładzie zegary atomowe będące w stałej synchronizacji między sobą. W przypadku GPS, odbierając sygnał z satelity, otrzymujemy 5 ramek wiadomości, gdzie pierwsza zawiera informację o czasie. Składa się ona z dwóch wartości: liczby tygodni, które minęły od 6 stycznia 1980 roku oraz czasu tygodnia. Czas tygodnia liczony jest w rozdzielczości 1,5 sekundy i tym samym mieści się w zakresie wartości 0 do 403199.
+
+### Nadajniki naziemne
+
+Ostatnim źródłem czasu, o jakim chciałem wspomnieć, jest data nadawana z nadajników naziemnych. Możemy tutaj wymienić następujące sposoby:
+
+- Telefony są w stanie poznać aktualny czas z nadajników sieci komórkowej (BTS).
+- Sygnał RDS przesyłany wraz ze stacjami radiowymi na standardowym paśmie FM oprócz informacji, które widzimy na odbiorniku jak nazwa piosenki, przesyła także informację o dacie.
+- Istnieją specjalne wzorce czasu nadawane na długich falach radiowych. Najbardziej znanym w Europie jest niemiecki DCF77, który swoim zasięgiem pokrywa niemal cały kontynent. Pojedyncza ramka transmisji trwa 59 sekund, gdzie każdy bit trwa sekundę. Bity od 21 do 57 przechowują informację o dacie, która jest zapisana w kodowaniu BCD.
+
+## Komputerowe „apokalipsy”
+
+Jak możesz wiedzieć, wszystko na komputerze ma skończoną pojemność. Często w tym artykule zaznaczałem chociażby o przechowywaniu czegoś w 32- lub 64-bitach. Problem ten dotyczy także dat i może mieć poważne konsekwencje. Wiele aplikacji polega na aktualnej dacie, np. systemy bankowe. Gdyby w takim systemie oraz innych na świecie data nagle cofnęła się na 1 stycznia 1900 roku, raczej można by wówczas spokojnie mówić o komputerowej apokalipsie. Zobaczmy, kiedy takie problemy mogły i mogłyby się zdarzyć, oraz jak postanowiono im zaradzić.
+
+### Rok 2000
+
+Zacznijmy od „apokalipsy”, której udało się uniknąć, czyli problem roku 2000, znany też jako pluskwa milenijna. Problem ten wynikał z faktu, że na dawnych komputerach, dla zaoszczędzenia miejsca, rok zapisywano w postaci dwóch ostatnich cyfr. Jednocześnie zakładano, że oprogramowanie wtedy powstające nie będzie w użyciu na tyle długo, że może to sprawić problem. Dziś oszczędność dwóch cyfr wydaje się śmieszna, jednak należy wziąć pod uwagę, iż, przykładowo, jeden z pierwszych popularnych komputerów typu mainframe — IBM 1401 miał zaledwie 2 kilobajty pamięci.
+
+Na to niedociągnięcie zwracał uwagę Bob Bemer już w 1958 roku, ale wówczas mało kto był tym zainteresowany. Problem zaczęto brać na poważnie dopiero w późniejszych latach, w szczególności dopiero w latach 90. Kłopoty zaczęły się jeszcze przed 2000 rokiem, np. karty kredytowe z datą ważności po 1999 roku potrafiły być odrzucane jako nieważne.
+
+Problem rozwiązano na wiele sposobów. Wymieniając przykładowe:
+
+- Najbardziej oczywistym było rozszerzenie roku z dwóch cyfr do czterech. Niestety, o ile rozwiązanie to jest najczystsze, to jednak sprawia kłopot, ponieważ wymaga konwersji danych, w tym bardzo często łącznie z typem danych.
+- Ciekawym tymczasowym obejściem było tzw. „date windowing”. Polegało na tym, że odgórnie zakładano, który przedział dwucyfrowych lat będzie należeć do XX wieku, a który do XXI wieku. Na przykład zakładano, że lata większe od 70 to XX wiek, natomiast mniejsze to XXI wiek. Jest to oczywiście tylko tymczasowe rozwiązanie, które było traktowane jako przejściowe przed migracją na nowe, lepsze systemy.
+- Kolejnym ciekawym i nietypowym podejściem była zmiana formatu zapisu daty. W bazach danych, gdzie datę zapisywano za pomocą sześciu cyfr (po dwie cyfry na rok, miesiąc i dzień), zmieniono konwencję, aby przechowywać trzy cyfry roku i trzy cyfry dnia roku. Przykładowo, w takim zapisie rok 1999 był zapisany jako 099, a 2001 jako 101. Przesuwa to problem dat na rok 2899, jednak można dość bezpiecznie założyć, że systemy do tego czasu zostaną zastąpione innymi.
+
+### 19 stycznia 2038
+
+19 stycznia 2038 to data, kiedy przekręci się licznik czasu uniksowego w zapisie 32-bitowym (zmienna ze znakiem). Jest to wbrew pozorom spory problem, ponieważ Uniksy i systemy uniksopodobne to najpopularniejsze systemy do zastosowań profesjonalnych, systemów wbudowanych, a także na nich stoi zdecydowana większość urządzeń sieciowych. Nawet pomijając te systemy, to wiele języków programowania, nawet na Windowsie, wewnętrznie posługuje się właśnie tym sposobem zapisu czasu (np. typ danych time_t w języku C).
+
+Rozwiązanie problemu wydaje się być proste i oczywiste — zmienić rozmiar zmiennej do 64 bitów. Nie jest to jednak takie łatwe, jak mogłoby się wydawać. Zmiany wprowadza się stopniowo i tak, aby najlepiej nie popsuć kompatybilności nowych wersji oprogramowania ze starymi. Wymieniając kilka rzeczy:
+
+- Większość systemów uruchamianych na 64-bitowych architekturach procesorów rozszerza rozmiar czasu uniksowego do 64-bitowej zmiennej.
+- Proponowano przejście ze znakowej wersji zmiennej do bezznakowej, tym samym zwiększając jej zakres do 7 lutego 2106 roku. Niestety, w ten sposób uniemożliwia się zapis dat sprzed 1970 roku, które to właśnie zapisuje się ujemną liczbą sekund.
+- Różne języki programowania wprowadziły dokładniejszy zapis w mili- bądź mikrosekundach od 1970 roku, przechowywany również w formie 64-bitowej. Robi tak choćby wspomniany już wcześniej przeze mnie JavaScript, ale także i Java.
+- Żeby wskazać, że problem jest rozwiązywany do dziś, warto pokazać, że system plików XFS, wykorzystywany czasem pod Linuksem, dostał rozwiązanie problemu roku 2038 dopiero w grudniu 2020, wraz z pojawieniem się Linuksa 5.10.
+
+### Inne możliwe i niemożliwe daty końca czasu
+
+Dwa poprzednie przypadki były najpopularniejsze, jednak możemy wyróżnić jeszcze wiele innych, ciekawych dat, kiedy odliczanie czasu na komputerach się popsuje, albo już się popsuło i trzeba było naprawiać tego efekty. Część z nich potraktuj jako przestrogę podczas pisania swoich programów, a część jako ciekawostkę, może nawet i śmieszną.
+
+- 1978 — bardzo ciekawy przypadek: twórcy systemu OS/8 dla komputerów PDP-8 uznali, że 3 bity to wystarczająca liczba, aby zapisać rok. Tym samym komputery z takim systemem obsługiwały jedynie daty między 1970 a 1977 rokiem.
+- 22.08.1999, 06.04.2019 i 20.11.2038 — to daty przekręcenia się licznika tygodni w systemie GPS. Jak widać, dwie z tych dat były już za nami i większość systemów bazujących na dacie z GPS-u dała radę, może z wyjątkiem niezaktualizowanych iPhonów i iPadów wydanych przed rokiem 2012. Warto jednak wspomnieć, że aby zapobiec temu problemowi w 2038 roku, w najnowszej wersji protokołu zwiększono zmienną przechowującą liczbę tygodni z 10 bitów do 13.
+- 2010 — w tym przypadku problem polegał na tym, że 10 w zapisie dziesiętnym to inna liczba niż 10 w systemie szesnastkowym. W systemach, które kodowały daty w postaci BCD, powodowało to problem w przypadku złego odczytu. Przykładowo, protokół wiadomości SMS przechowuje daty w tej postaci i niektóre telefony zaczęły podawać datę 2016 zamiast 2010.
+- 2020 — dość ciekawe jest, że niektóre systemy nie potrafiły ustawić roku 2020 albo aplikacje nie potrafiły odczytać takiej daty z systemu. Ten problem był zresztą dość głośny w naszym kraju, kiedy to na początku roku przestały działać kasy fiskalne w tysiącach sklepów i kin. A chyba najśmieszniejszym przypadkiem związanym z tym rokiem było to, że wspomniany błąd znajdował się w grze WWE 2K20, która była wydana.... w październiku 2019 roku.
+- 7.02.2036 — w tym roku nastąpi przepełnienie zmiennej przechowującej czas w protokole NTP. Problem jednak zdaje się być rozwiązany przez NTPv4, które rozszerza zapis czasu z 64  na 128 bitów.
+- 06.02.2040, 31.12.2107 — w tych latach skończą się liczniki czasów systemów plików: kolejno HFS+ (Apple) i FAT (DOS, Windows i pamięci przenośne). O ile ten pierwszy jest już coraz częściej zastąpiony przez APFS, o tyle ten drugi nie zapowiada się, by miał być czymś zastąpiony. Co więcej, problem ten dotknie też format plików ZIP, który wewnętrznie też ma to samo ograniczenie, co system FAT.
+- Lata przestępne (np. 1996, 2012, 2020, 2100) — okazuje się, że wiele programów, a czasem nawet systemów, źle oblicza lata przestępne. Jak wiemy, występują one co cztery lata, jednak z wyjątkiem lat podzielnych przez 100 i jednocześnie niepodzielnych przez 400. Niestety programiści zapominają o tej regule, przez co pojawił się problem choćby w roku 2000 i prawdopodobnie pojawi się też w roku 2100. Inną sprawą jest to, że niektórzy zapominali całkowicie o latach przestępnych, przez co, np. w 2012 roku awarię zaliczyły Gmail oraz Azure.
+- 2137 — tego roku znowu przekręci się licznik czasu systemu GPS, tym razem po rozszerzeniu do zmiennej 13-bitowej. Przepraszam, jeśli spodziewałeś się, że w tym roku „odjaniepawli się” coś ciekawszego.
+- 10000 — pamiętasz problem roku 2000 związany z zapisem roku dwoma cyframi? Za prawie 8 tysięcy lat będzie powtórka z rozrywki, bo obecnie rok zapisujemy czterema cyframi 🙂.
+- 14.09.30828 — tego dnia kończy się zapis daty w systemach z rodziny Windows. Dlaczego? Ponieważ przechowuje datę w 64-bitach jako liczba 100-nanosekundowych interwałów od roku 1601. Jednakże dość wątpliwe jest, że do tego roku ktoś jeszcze będzie korzystać z tego systemu.
+- 17.08.292278994 (za 292 miliony lat) — właśnie tego dnia przekręci się licznik czasu w Javie, który na 64 bitach zapisuje liczbę milisekund, jakie upłynęły od 1 stycznia 1970 roku. Ciekawe, czy wtedy wciąż będą 3 miliardy urządzeń z Javą.
+- 04.12.292277026596 (za 292 miliardy lat) — tego dnia przekręci się licznik czasu uniksowego zapisywanego w zmiennej 64-bitowej. Absolutnie jednak nie ma czym się przejmować. Jeżeli równanie Drake'a jest poprawne, to możliwe jest, że nasza cywilizacja skończy się za 10 tysięcy lat (albo 100 milionów lat, zależnie od tego, jak się liczy). A nawet jeśli przeżyjemy, to za około miliard lat mają wymrzeć wszystkie organizmy eukariotyczne (czyli też my). Za prawie 8 miliardów lat Ziemia zostanie pochłonięta przez Słońce. Do tego zakłada się, że za 22 miliardy lat może dojść do końca Wszechświata (scenariusz Wielkiego Rozdarcia). Jak widać, nie ma szans na osiągnięcie tej daty.
+
+## Podsumowanie
+
+Mam wrażenie, że już nie raz pisałem na blogu, iż temat artykułu wydaje się być prosty i oczywisty, jednak gdy się w niego zagłębimy, to przestaje takim być. Nie inaczej jest w kwestii czasu. Jak sam(a) widzisz, jest to bardzo rozległy temat. Z jednej strony mamy ciekawe rozwiązania sprzętowe służące do odmierzania go, a z drugiej strony przeróżne sposoby jego przechowywania i obsługi w oprogramowaniu.
+
+To, co pokazałem tutaj na przestrzeni obu artykułów, mimo że zajęło dość dużo tekstu, to jest zaledwie draśnięciem tematu. Jest wiele drobnych niuansów związanych z datami i czasem, które można podsumować w dość prosty sposób — nie próbuj wynaleźć koła na nowo. Korzystaj z dostępnych w systemie/języku programowania funkcji obsługi dat i czasu. Naprawdę zbyt wiele wpadek można popełnić po drodze, związanych zarówno z przeszłością, teraźniejszością, jak i przyszłością (o czym powinien uświadomić poprzedni akapit). Niech Twoje oprogramowanie powiela ograniczenia języka albo systemu, a nie tworzy kolejne, z ewentualnymi błędami.
+
+## Literatura
+
+- Epoch (computing), [https://en.wikipedia.org/w/index.php?title=Epoch_(computing)&oldid=1025205918](https://en.wikipedia.org/w/index.php?title=Epoch_(computing)&oldid=1025205918) (ostatnie odwiedziny 09.06.2021)
+- System time, [https://en.wikipedia.org/w/index.php?title=System_time&oldid=1018536065](https://en.wikipedia.org/w/index.php?title=System_time&oldid=1018536065) (ostatnie odwiedziny 09.06.2021)
+- „The Open Group Base Specifications Issue 7, section 4.16 Seconds Since the Epoch". The Open Group: [https://pubs.opengroup.org/onlinepubs/9699919799/basedefs/V1_chap04.html#tag_04_16](https://pubs.opengroup.org/onlinepubs/9699919799/basedefs/V1_chap04.html#tag_04_16) (ostatnie odwiedziny 09.06.2021)
+- ISO 8601, [https://en.wikipedia.org/w/index.php?title=ISO_8601&oldid=1027217295](https://en.wikipedia.org/w/index.php?title=ISO_8601&oldid=1027217295) (ostatnie odwiedziny 09.06.2021)
+- RFC 3339, [https://datatracker.ietf.org/doc/html/rfc3339](https://datatracker.ietf.org/doc/html/rfc3339) (ostatnie odwiedziny 09.06.2021)
+- Neagoe, Teodor, Valentin Cristea, and Logica Banica. "NTP versus PTP in com puter networks clock synchronization." *2006 IEEE International Symposium on Industrial Electronics*. Vol. 1. IEEE, 2006.
+- „3.3.4 GPS Time and SV Z-Count.”, [NAVSTAR GPS Space Segment/Navigation User Segment Interfaces (GPS-IS-200K)](https://www.gps.gov/technical/icwg/IS-GPS-200K.pdf), 06.05.2019
+- DCF77, [https://www.ptb.de/cms/en/ptb/fachabteilungen/abt4/fb-44/ag-442/dissemination-of-legal-time/dcf77.html](https://www.ptb.de/cms/en/ptb/fachabteilungen/abt4/fb-44/ag-442/dissemination-of-legal-time/dcf77.html) (ostatnie odwiedziny 09.06.2021)
+- Britannica, The Editors of Encyclopaedia. "Y2K bug". *Encyclopedia Britannica*, Apr 21, 2021, [https://www.britannica.com/technology/Y2K-bug](https://www.britannica.com/technology/Y2K-bug). Accessed 9 June 2021.
+- Time formatting and storage bugs, [https://en.wikipedia.org/w/index.php?title=Time_formatting_and_storage_bugs&oldid=1027624749](https://en.wikipedia.org/w/index.php?title=Time_formatting_and_storage_bugs&oldid=1027624749) (ostatnie odwiedziny 09.06.2021)
+
+<small>Zdjęcie na okładce: SchiDD, CC BY-SA 4.0 [https://creativecommons.org/licenses/by-sa/4.0](https://creativecommons.org/licenses/by-sa/4.0), via Wikimedia Commons</small>

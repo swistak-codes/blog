@@ -1,0 +1,49 @@
+.borderedDiagram {
+  :global(.diagram) {
+    border: 1px solid var(--sc--text);
+  }
+}
+
+.chessboard {
+  table {
+    border-collapse: collapse;
+
+    thead {
+      display: none;
+    }
+
+    tr {
+      td {
+        text-align: center;
+        width: 12.5%;
+        height: 12.5%;
+        position: relative;
+
+        &:after,
+        &:before {
+          content: '';
+          display: block;
+          margin-top: 25%;
+        }
+      }
+    }
+
+    tr:nth-of-type(even) td:nth-of-type(odd),
+    tr:nth-of-type(odd) td:nth-of-type(even) {
+      color: black;
+      background-color: #ffcf9f;
+    }
+
+    tr:nth-of-type(even) td:nth-of-type(even),
+    tr:nth-of-type(odd) td:nth-of-type(odd) {
+      color: black;
+      background-color: #d28c45;
+    }
+  }
+
+  table,
+  tr,
+  td {
+    border: 0;
+  }
+}

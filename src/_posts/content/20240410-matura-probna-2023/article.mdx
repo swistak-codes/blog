@@ -1,0 +1,798 @@
+import Link from 'next/link';
+import {Image} from '@swistak-codes/components';
+import cover from './swistak_mundurek.webp';
+
+export const meta = {
+  title: 'Rozwiązujemy maturę próbną 2023 z informatyki',
+  abstract:
+    'W artykule pokazuję przykładowe rozwiązania wybranych zadań z matury próbnej 2023 z informatyki.',
+  firstParagraph: (
+    <>
+      Rok temu na łamach bloga pokazywałem przykładowe rozwiązania zadań z <Link href="/post/matura-probna-2022">matury próbnej 2022 z informatyki</Link>. Postanowiłem też i w tym roku, z okazji nadchodzącego maja, rozwiązać próbną wersję z egzaminu z punktu widzenia osoby na co dzień pracującej jako programista.
+    </>
+  ),
+  keyword: 'matura próbna 2023',
+  categories: ['Programowanie', 'Teoria informatyki'],
+  tags: [
+    'matura',
+    'python',
+    'szachy',
+    'szybkie potęgowanie',
+    'potęgowanie modularne',
+    'sql',
+    'bazy danych',
+    'modulo'
+  ],
+  slug: 'matura-probna-2023',
+  updateTime: '2024-04-10T07:00:00+00:00',
+  publishTime: '2024-04-10T07:00:00+00:00',
+  cover,
+  moveCoverToTop: true,
+};
+
+## Uwagi wstępne
+
+Zanim jednak przejdziemy do rozwiązywania zadań, parę uwag wstępnych ode mnie. W dużej mierze są takie same jak w zeszłorocznym artykule, ale je powtórzę, bo niekoniecznie musiałeś(-aś) czytać starszy artykuł:
+
+- Nie będę podawać treści zadań. Sam brałem je ze strony [arkusze.pl](https://arkusze.pl/matura-informatyka-2023-przykladowy-arkusz-cke-poziom-rozszerzony/) ([kopia na archive.org](https://web.archive.org/web/20230523202435/https://arkusze.pl/matura-informatyka-2023-przykladowy-arkusz-cke-poziom-rozszerzony/)) i Ty też możesz je stamtąd wziąć.
+- Nie jestem ani nauczycielem, ani egzaminatorem, stąd nie mam pojęcia, czy moje odpowiedzi wstrzelą się w klucz. Zapoznałem się z dokumentem zasad oceniania rozwiązań zadań, ale nie oznacza to, że moje rozwiązania miałyby zawsze maksimum punktów.
+- Maturę z informatyki zdawałem ok. 15 lat temu, więc nie jestem na bieżąco z wymaganiami ani z tym, co jest w aktualnym programie nauczania. Starałem się jednak w tej kwestii doszkolić z różnych źródeł.
+- Przykłady napiszę w Pythonie. Dopuszczalne są też Java i C++, ale stwierdziłem, że najprościej będzie napisać w tymże języku.
+  - Na marginesie dodam, że sam pisałem maturę w Pascalu, ale dziś brałbym Pythona albo Javę. C++ jest trudny do debugowania i w warunkach stresu można się łatwo zgubić. Natomiast z tego, co widziałem, Pascala nie ma już na maturze. Zarówno Java, jak i Python są nowoczesnymi językami z bogatą biblioteką standardową i potrafią sensownie informować o problemach w kodzie.
+  - Jeśli wybierzesz Javę, od razu wybierz edytor IntelliJ IDEA, bo zapewni Ci podpowiedzi nieocenione w trakcie egzaminu. Analogicznie do Pythona polecam PyCharm z tego samego powodu. Oba edytory są zarówno na Windowsie, jak i Linuksie, i (z tego co widziałem) dopuszczone na egzaminie.
+- Wszystko w kodzie będę nazywać po angielsku, tak jak to się robi w dobrze prowadzonych aplikacjach.
+- Pomijam rozwiązanie zadań excelowego (4) i bazodanowego (5 z wyłączeniem zadań teoretycznych), skupiając się tylko na programistycznych i teoretycznych.
+
+### Python a inne języki
+
+Zdaję sobie sprawę, że Python ma dość charakterystyczną składnię, znacznie inną niż również dostępne na maturze Java i C++, dlatego w skrócie opisuję najważniejsze różnice w składni:
+
+- W Pythonie nie mamy bloków ograniczonych przez `{` i `}`. Zamiast tego blok otwierany jest dwukropkiem (`:`), a następnie cała zawartość bloku jest wyznaczana wcięciem. Do codziennej pracy w PyCharm polecam wtyczkę [Indent Rainbow](https://plugins.jetbrains.com/plugin/13308-indent-rainbow), która koloruje wcięcia.
+- Na końcu linii nie stawiamy średnika.
+- Python nie ma typowej <Link href="/post/iteracja-co-to-jest/#for-jako-pętla-z-licznikiem">pętli for z licznikiem</Link>. W języku tym `for` iteruje po kolekcji, dlatego generujemy listę kolejnych liczb za pomocą funkcji `range()`. Poniżej znajdziesz parę przykładowych odpowiedników pętli z Javy/C++ w Pythonie:
+  - `for (int i = 0; i < N; i++)` → `for i in range(N)`
+  - `for (int i = a; i < N; i++)` → `for i in range(a, N)`
+  - `for (int i = N; i >= 0; i--)` → `for i in reversed(range(N + 1))`
+    - Ten przypadek warto zapamiętać, bo `range()` ma ograniczenie, że zawsze generuje ciągi rosnące, dlatego w celu iteracji od tyłu musimy je odwracać za pomocą funkcji `reversed()`.
+- Zamiast `else if` mamy `elif`.
+- Deklarując funkcję, poprzedzamy je słowem kluczowym `def`. Natomiast deklarując zmienne, nie musimy poprzedzać ich żadnym słowem kluczowym.
+- W Pythonie jest system typów, aczkolwiek nie musimy jawnie definiować typów. Ja tego robić tutaj nie będę. Jeśli będziesz chciał(a) przenieść rozwiązanie na inny język, myślę, że nie będziesz mieć problemów z domyśleniem się typów. Zwykle będą tutaj `string`, `bool`, `int` oraz struktury takie jak tablice i słowniki (mapy).
+- Spójniki logiczne w warunkach zapisujemy słownie, stąd `and` zamiast `&&` i `or` zamiast `||`.
+- Komentarze jednoliniowe oznaczamy znakiem `#`.
+- Całą bibliotekę zewnętrzną importujemy za pomocą `import [nazwa biblioteki]`. Natomiast jeśli chcemy zaimportować z niej tylko jedną funkcję, piszemy `from [nazwa biblioteki] import [nazwa funkcji]`.
+- Ciągi znaków w Pythonie możemy oznaczać zarówno `'`, jak i `"`. Nie ma tu rozróżnienia, że apostrof to pojedynczy znak (`char`), a cudzysłów to ciąg.
+- `f'{zmienna1} blabla {zmienna2}'` to interpolacja stringów.
+  - Odpowiednik w C++: `std::format("{} blabla {}", zmienna1, zmienna2)`.
+  - Odpowiednik w Javie: `String.format("%s blabla %s", zmienna1, zmienna2)`.
+    - Chociaż nigdy nie testowałem tego w praktyce, to od dość niedawna wprowadzono też *string templates*, którymi można osiągnąć podobny efekt. [Więcej informacji tutaj](https://openjdk.org/jeps/430).
+- W Pythonie możemy szybko zadeklarować wypełniony słownik (mapę) za pomocą konstrukcji `słownik = { klucz: wartość }`.
+  - W C++ mamy podobny sposób inicjalizacji: `słownik = { {klucz, wartość} }`.
+  - W Javie najprościej byłoby najpierw zadeklarować słownik za pomocą `słownik = new HashMap<>()`, a potem dodawać wartości za pomocą metody `put`: `słownik.put(klucz, wartość)`.
+
+Poza tymi kilkunastoma różnicami w przykładowych rozwiązaniach nie zastosuję żadnych innych charakterystycznych instrukcji.
+
+## Zadanie 1. Szachy
+
+### Praca wstępna
+
+W każdym z podzadań będziemy potrzebować danych zapisanych w plikach `szachy.txt` lub `szachy_przyklad.txt`. Wynik każdego zadania będziemy musieli zapisać do pliku, do czego napiszmy od razu funkcje. Nie będę wchodzić w detale, komentarze w kodzie powinny wyjaśnić działanie.
+
+Najpierw odczytanie pliku do tablicy zawierającej kolejne plansze:
+
+```python
+# funkcja wczytująca dane z podanego pliku
+def load_data(filename):
+  # zmienna, która przechowa wynik
+  # będzie to tablica plansz
+  result = []
+  # zmienna, która przechowa aktualną planszę (tablica stringów)
+  board = []
+  # otwieramy plik
+  # konstrukcja `with` zadba o to, żebyśmy nie musieli pamiętać o zamknięciu pliku
+  with open(filename, "r") as f:
+    # iterujemy po kolejnych liniach pliku
+    for line in f:
+      # usuwamy białe znaki
+      line = line.strip()
+      # sprawdzamy, czy linia nie jest pusta
+      if line:
+        # dodajemy linię do planszy
+        board.append(line)
+      else:
+        # jeśli linia jest pusta, dodajemy planszę do wyniku
+        result.append(board)
+        # samą planszę zerujemy
+        board = []
+  # dodajemy ostatnią planszę do wyniku, jeśli jest niepusta
+  if len(board) > 0:
+    result.append(board)
+  # zwracamy wynik
+  return result
+```
+
+Oraz zapis rezultatu do pliku:
+
+```python
+# funkcja zapisująca wynik zadania
+def save_result(result, name):
+  # otwieramy plik do zapisu
+  # parametr 'w' spowoduje nadpisanie istniejącego pliku
+  with open(f"{name}.txt", "w") as f:
+    # zapisujemy wynik
+    f.write(result)
+  # dodatkowo wypiszmy go też w konsoli
+  print(result)
+```
+
+Rozwiązanie zadania w całości znajdziesz na [Replit](https://replit.com/@tswistak/mp2023-zadanie1#main.py), natomiast poniżej opiszę kolejne podzadania i na co zwrócić uwagę podczas ich rozwiązywania.
+
+### Zadanie 1.1
+
+O ile zadanie jest typową iteracją po dwuwymiarowej tablicy (ciąg znaków możemy interpretować jako tablicę znaków), to podchwytliwa może tu być kolejność, po czym iterujemy. Zwykle najpierw iterujemy po wierszach, a potem po kolumnach, tak tutaj musimy zrobić na odwrót. Dlatego warto zamiast typowych `i` oraz `j` ponazywać liczniki, co one odliczają. Dodatkowo dla uproszczenia kodu skorzystajmy z faktu, że plansze są zawsze o wymiarach 8×8.
+
+Rozwiązanie będzie wyglądać następująco:
+
+```python
+# zadanie 1.1
+def task1(data):
+  # zmienna przechowująca liczbę plansz z pustymi kolumnami
+  count = 0
+  # zmienna z max liczbą pustych kolumn
+  max_cols = 0
+  # iterujemy po kolei po planszach
+  for board in data:
+    # zmienna przechowująca liczbę pustych kolumn
+    empty = 0
+    # iterujemy po kolei po 8 kolumnach
+    for col_index in range(8):
+      # zmienna przechowująca, czy kolumna jest pusta
+      is_empty = True
+      # iterujemy po kolei po 8 wierszach kolumny
+      for row_index in range(8):
+        # sprawdzamy, czy w danej pozycji jest inny znak niż '.'
+        if board[row_index][col_index] != ".":
+          # jeśli tak, zmieniamy zmienną na False
+          is_empty = False
+          # i przerywamy pętlę
+          break
+      # jeśli kolumna była pusta
+      if is_empty:
+        # zwiększamy liczbę pustych kolumn
+        empty += 1
+    # jeśli była przynajmniej jedna pusta kolumna
+    if empty > 0:
+      # zwiększamy liczbę plansz z pustymi kolumnami
+      count += 1
+      # jeśli liczba pustych kolumn jest większa od poprzedniej,
+      # to przypisujemy ją do max_cols
+      max_cols = max(max_cols, empty)
+  # zwracamy rezultat zadania
+  return f"{count} {max_cols}"
+```
+
+Kod możesz sprawdzić na [Replit](https://replit.com/@tswistak/mp2023-zadanie1#task1.py).
+
+### Zadanie 1.2
+
+W przypadku tego zadania najprościej będzie zliczać, ile razy wystąpił każdy ze znaków, a następnie porównywać ze sobą liczbę odpowiadających symboli, np. `k` z `K`. Najprościej będzie użyć do tego celu słownika, który wstępnie wypełnimy wszystkimi możliwymi znakami jako kluczami, a jako wartości ustawimy zera. Reszta kodu to iteracja po kolei po tablicy dwuwymiarowej.
+
+Rozwiązanie będzie wyglądać następująco:
+
+```python
+# zadanie 1.2
+def task2(data):
+  # zmienna przechowująca liczbę plansz w równowadze
+  count = 0
+  # zmienna z min liczbą bierek
+  min_stones = 9999
+  # iterujemy po kolei po planszach
+  for board in data:
+    # zmienna ze słownikiem zliczającym bierki danego rodzaju
+    # dla ułatwienia zliczajmy też liczbę pustych pól
+    symbols = {
+        'K': 0,
+        'k': 0,
+        'W': 0,
+        'w': 0,
+        'S': 0,
+        's': 0,
+        'H': 0,
+        'h': 0,
+        'G': 0,
+        'g': 0,
+        'P': 0,
+        'p': 0,
+        '.': 0,
+    }
+    # iterujemy po kolei po wierszach
+    for row in board:
+      # iterujemy po kolei po znakach
+      for char in row:
+        # zwiększamy liczbę
+        symbols[char] += 1
+    # sprawdźmy, czy jest stan równowagi
+    # zróbmy to w najprostszy możliwy sposób
+    if (symbols['K'] == symbols['k'] and symbols['W'] == symbols['w']
+        and symbols['S'] == symbols['s'] and symbols['H'] == symbols['h']
+        and symbols['G'] == symbols['g'] and symbols['P'] == symbols['p']):
+      # jeśli tak, zwiększamy liczbę plansz w równowadze
+      count += 1
+      # i sprawdzamy, czy liczba bierek jest mniejsza od poprzedniej
+      # wykorzystajmy fakt, że plansza ma 64 pola (8*8) i znamy liczbę pustych pól
+      min_stones = min(min_stones, 64 - symbols['.'])
+  # zwracamy rezultat zadania
+  return f"{count} {min_stones}"
+```
+
+Kod możesz sprawdzić na [Replit](https://replit.com/@tswistak/mp2023-zadanie1#task2.py).
+
+### Zadanie 1.3
+
+To zadanie jest najbardziej podchwytliwe, ponieważ nie wystarczy jak ostatnio spisywać liczby bierek, ale też musimy je wyszukiwać, a następnie określać stan gry.
+
+Ogólny pomysł na rozwiązanie jest taki, że dla każdej planszy:
+
+1. Znajdujemy pozycje, na których znajdują się białe i czarne wieże. Dzięki temu będziemy od razu wiedzieć, od których pozycji sprawdzać stan gry.
+2. Sprawdzamy, czy któraś z białych wieży szachuje czarnego króla. Szach będzie tylko w jednym kierunku, ponieważ król jest tylko jeden.
+3. Analogicznie sprawdzamy dla czarnych wież, czy któraś szachuje białego króla.
+
+### Znajdowanie znaku
+
+Najprostsze co mamy do zrobienia, to znaleźć wszystkie pozycje, na których znajduje się wskazany znak. Tak jak pisałem wcześniej, dzięki temu uprościmy sobie dalsze zadanie sprawdzania stanu gry.
+
+Algorytm to najzwyklejsze <Link href="/post/wyszukiwanie-w-listach">wyszukiwanie liniowe</Link> po dwuwymiarowej tablicy ze spisywaniem współrzędnych do tablicy za każdym razem, gdy trafimy na szukany znak. Kod jest następujący:
+
+```python
+# funkcja pomocnicza do zadania 1.3
+# znajduje pozycje, na których znajduje się wskazany znak
+def find_char(board, char):
+  # zmienna przechowująca pozycje
+  result = []
+  # iterujemy po kolei po wierszach
+  for row_index in range(8):
+    # iterujemy po kolei po znakach
+    for col_index in range(8):
+      # jeśli na danej pozycji jest wskazany znak, zapisujemy go
+      if board[row_index][col_index] == char:
+        result.append((row_index, col_index))
+  # zwracamy wynik
+  return result
+```
+
+### Sprawdzenie stanu gry
+
+Następnie musimy sprawdzić, czy wskazana wieża szachuje króla. Tak naprawdę do tego celu nie musimy stosować żadnej większej logiki. Wystarczy napisać funkcje, które po podaniu pozycji startowej sprawdzą, czy jesteśmy w stanie w prostej linii dojść do wskazanego znaku. Dla ułatwienia sobie zadania proponuję napisać cztery funkcje:
+
+- sprawdzenie, czy szachujemy *poziomo*, iterując od lewej do prawej
+- sprawdzenie, czy szachujemy *poziomo*, iterując od prawej do lewej
+- sprawdzenie, czy szachujemy *pionowo*, iterując od góry do dołu
+- sprawdzenie, czy szachujemy *pionowo*, iterując od dołu do góry
+
+Każda z tych funkcji będzie zawierać prostą pętlę, gdzie będziemy iść w danym kierunku po tablicy znak po znaku:
+
+- Po trafieniu na puste pole iterujemy dalej.
+- Jeśli trafiliśmy na szukany znak, zwracamy prawdę.
+- Jeśli trafiliśmy na inny znak, zwracamy fałsz.
+- Jeśli przeiterowaliśmy do końca, oznacza to, że były same puste pola, więc również zwracamy fałsz.
+
+Kompletny kod dla takich czterech funkcji znajdziesz poniżej. Mimo że się bardzo powtarza, powieliłem go dla uproszczenia rozwiązania.
+
+```python
+# funkcja pomocnicza do zadania 1.3
+# sprawdza, czy jest pusta ścieżka poziomo do wskazanego znaku
+# wersja z przejściem w prawo
+def is_horizontal_right(board, row, col, char):
+  # iterujemy po kolei po wskazanym wierszu od zadanej pozycji
+  for col_index in range(col + 1, 8):
+    # pobieramy aktualny znak do zmiennej
+    current_char = board[row][col_index]
+    # jeśli trafiliśmy na szukany znak, zwracamy True
+    if current_char == char:
+      return True
+    # jeśli trafiliśmy na znak inny niż pusty, zwracamy False
+    elif current_char != ".":
+      return False
+  # jak doszliśmy do końca, nie znajdując znaku, również zwracamy False
+  return False
+
+
+# funkcja pomocnicza do zadania 1.3
+# sprawdza, czy jest pusta ścieżka poziomo do wskazanego znaku
+# wersja z przejściem w lewo
+def is_horizontal_left(board, row, col, char):
+  # iterujemy po kolei po wskazanym wierszu od zadanej pozycji
+  # reversed() w celu interowania od aktualnej pozycji do zera
+  for col_index in reversed(range(col)):
+    # pobieramy aktualny znak do zmiennej
+    current_char = board[row][col_index]
+    # jeśli trafiliśmy na szukany znak, zwracamy True
+    if current_char == char:
+      return True
+    # jeśli trafiliśmy na znak inny niż pusty, zwracamy False
+    elif current_char != ".":
+      return False
+  # jak doszliśmy do końca, nie znajdując znaku, również zwracamy False
+  return False
+
+
+# funkcja pomocnicza do zadania 1.3
+# sprawdza, czy jest pusta ścieżka pionowo do wskazanego znaku
+# wersja z przejściem w dół
+def is_vertical_down(board, row, col, char):
+  # iterujemy po kolei po wskazanym wierszu od zadanej pozycji
+  for row_index in range(row + 1, 8):
+    # pobieramy aktualny znak do zmiennej
+    current_char = board[row_index][col]
+    # jeśli trafiliśmy na szukany znak, zwracamy True
+    if current_char == char:
+      return True
+    # jeśli trafiliśmy na znak inny niż pusty, zwracamy False
+    elif current_char != ".":
+      return False
+  # jak doszliśmy do końca, nie znajdując znaku, również zwracamy False
+  return False
+
+
+# funkcja pomocnicza do zadania 1.3
+# sprawdza, czy jest pusta ścieżka pionowo do wskazanego znaku
+# wersja z przejściem w górę
+def is_vertical_up(board, row, col, char):
+  # iterujemy po kolei po wskazanym wierszu od zadanej pozycji
+  # reversed() w celu iterowania od aktualnej pozycji do zera
+  for row_index in reversed(range(row)):
+    # pobieramy aktualny znak do zmiennej
+    current_char = board[row_index][col]
+    # jeśli trafiliśmy na szukany znak, zwracamy True
+    if current_char == char:
+      return True
+    # jeśli trafiliśmy na znak inny niż pusty, zwracamy False
+    elif current_char != ".":
+      return False
+  # jak doszliśmy do końca, nie znajdując znaku, również zwracamy False
+  return False
+```
+
+### Połączenie wszystkiego w całość
+
+Teraz pozostało nam połączyć wszystko, co napisaliśmy do tej pory, w całość, aby rozwiązać zadanie. Zrobimy dosłownie to, co opisałem na początku akapitu, dlatego zostawiam od razu kod bez dodatkowych opisów:
+
+```python
+# zadanie 1.3
+def task3(data):
+  # liczba plansz z szachem białej wieży
+  white = 0
+  # liczba plansz z szachem czarnej wieży
+  black = 0
+  # iterujemy po kolei po planszach
+  for board in data:
+    # pobierzmy pozycje wież
+    white_pos = find_char(board, 'W')
+    black_pos = find_char(board, 'w')
+    # sprawdźmy najpierw, czy któraś biała wieża szachuje
+    for (row, col) in white_pos:
+      # sprawdzamy, czy szachuje poziomo lub pionowo
+      if (is_horizontal_right(board, row, col, 'k')
+          or is_horizontal_left(board, row, col, 'k')
+          or is_vertical_down(board, row, col, 'k')
+          or is_vertical_up(board, row, col, 'k')):
+        # jeśli tak, zwiększamy zmienną o 1
+        white += 1
+    # powtarzamy to samo dla czarnych wież
+    for (row, col) in black_pos:
+      # sprawdzamy, czy szachuje poziomo lub pionowo
+      if (is_horizontal_right(board, row, col, 'K')
+          or is_horizontal_left(board, row, col, 'K')
+          or is_vertical_down(board, row, col, 'K')
+          or is_vertical_up(board, row, col, 'K')):
+        # jeśli tak, zwiększamy zmienną o 1
+        black += 1
+  # zwracamy rezultat zadania
+  return f"{white} {black}"
+```
+
+Kod w całości możesz sprawdzić na [Replit](https://replit.com/@tswistak/mp2023-zadanie1#task3.py).
+
+## Zadanie 2. Gra
+
+### Zadanie 2.1
+
+W zadaniu tym warto zwrócić uwagę, że nie musimy wykonywać w `Tura(k)` wszystkich iteracji w kolejności malejącej. Zauważmy pewne rzeczy, dzięki którym skrócimy sobie obliczenia:
+
+- Wykorzystajmy fakt, że zawsze sprawdzamy pole o współrzędnych `i - A[k]`, i sprawdzajmy tylko te `i`, które w wyniku dadzą zajęte pola.
+- Dla `k = 1` sytuacja jest o tyle prosta, że zajmiemy zawsze pole, gdzie `i = A[1]`.
+- Co więcej, zawsze zajmiemy pole `i = A[k]` w każdej iteracji.
+- W ostatniej rundzie wystarczy sprawdzić jedynie `i = s`.
+- Możemy wcześniej sprawdzać, czy mamy możliwość zajęcia interesującego nas pola, symulując grę w przód z aktualnie znanym stanem (tylko dodajemy nowe zajęte pola).
+
+Do tego pamiętajmy, żeby nie przekroczyć limitu iteracji `k = n`.
+
+#### Pierwszy wiersz (rozwiązany przykład)
+
+Dla pokazanego, rozwiązanego przykładu wygląda to tak:
+
+- `k = 1`, zajęte B: `[0]`, `i = 5..1`:
+  - Jedyne zajęte pole to `B[1 - 1]` (0), więc zajmujemy pole `B[1]`.
+- `k = 2`, zajęte B: `[0, 1]`, `i = 5..2`:
+  - `B[3 - 2]` (1) jest zajęte, więc zajmujemy `B[3]`.
+  - `B[2 - 2]` (0) jest zajęte, więc zajmujemy `B[2]`.
+- `k = 3`, zajęte B: `[0, 1, 2, 3]`, `i = 5..3`:
+  - `B[5 - 3]` (2) jest zajęte, więc zajmujemy `B[5]`.
+  - Z racji tego, że `B[5]` to pole, które mieliśmy zająć, możemy zakończyć sprawdzanie i zaznaczyć, że gra jest wygrana.
+
+#### Drugi wiersz
+
+Dla uproszczenia pominę `k = 1`, bo dla każdej gry zajmiemy pole `B[A[1]]`. W tym przypadku będzie to pole `B[1]`. Wygrać możemy, mając zajęte pola (w kolejnych iteracjach): `B[14 - 2]` (12, `k = 2`), `B[14 - 5]` (9, `k = 3`) lub `B[14 - 10]` (4, `k = 4`).
+
+- `k = 2`, zajęte B: `[0, 1]`, `i = 14..2`:
+  - `B[3 - 2]` (1) zajęte — zajmujemy `B[3]`.
+  - `B[2 - 2]` (0) zajęte — zajmujemy `B[2]`.
+- `k = 3`, zajęte B: `[0, 1, 2, 3]`, `i = 14..5`:
+  - Przyśpieszmy trochę. Zajęte są: `B[8 - 5]` (3), `B[7 - 5]` (2), `B[6 - 5]` (1), `B[5 - 5]` (0).
+  - Czyli na podstawie powyższego zajmujemy B: `[5, 6, 7, 8]`.
+- `k = 4` (ostatnia iteracja), zajęte B: `[0, 1, 2, 3, 5, 6, 7, 8]`, `i = 14..10`:
+  - `B[14 - 10]` (4) nie jest zajęte, więc gra jest przegrana.
+
+#### Trzeci wiersz
+
+Tym razem zwróć uwagę, że `A[1]` nie wynosi 1, tylko 13. Dlatego po pierwszej rundzie zajmujemy pole `B[13]`. Wygrać możemy, mając zajęte pola: `B[17 - 5]` (12, `k = 2, 3`), `B[17 - 2]` (15, `k = 4`) lub `B[17 - 7]` (10, `k = 5`).
+
+- `k = 2`, zajęte B: `[0, 13]`, `i = 17..5`:
+  - Nie istnieje takie `i`, które sprawdziłoby `B[13]`, ponieważ najdalszym sprawdzonym polem będzie `17 - 5 = 12`.
+  - `B[5 - 5]` (0) zajęte — zajmujemy `B[5]`.
+- `k = 3`, zajęte B: `[0, 5, 13]`, `i = 17..5`:
+  - Ponownie nie sprawdzimy `B[13]`.
+  - `B[10 - 5]` (5) zajęte — zajmujemy `B[10]`.
+  - Pamiętamy, że aby wygrać, potrzebujemy mieć zajęte m.in. pole `B[10]`. Stąd gra jest wygrana.
+
+#### Czwarty wiersz
+
+Po pierwszej rundzie zajmujemy pole `B[7]`, a biorąc pod uwagę każdą z rund, będziemy potrzebować mieć zajęte jedno z pól: `B[25 - 6]` (19, `k = 2`), `B[25 - 5]` (20, `k = 3`), `B[25 - 4]` (21, `k = 4`), `B[25 - 3]` (22, `k = 5`), `B[25 - 2]` (23, `k = 6`), `B[25 - 1]` (24, `k = 7`).
+
+- `k = 2`, zajęte B: `[0, 7]`, `i = 25..6`:
+  - `B[13 - 6]` (7) zajęte — zajmujemy `B[13]`.
+  - `B[6 - 6]` (0) zajęte — zajmujemy `B[6]`.
+- `k = 3`, zajęte B: `[0, 6, 7, 13]`, `i = 25..5`:
+  - `B[18 - 5]` (13) zajęte — zajmujemy `B[18]`.
+  - `B[12 - 5]` (7) zajęte — zajmujemy `B[12]`.
+  - `B[11 - 5]` (6) zajęte — zajmujemy `B[11]`.
+  - Zajmujemy także `B[5]`.
+- `k = 4`, zajęte B: `[0, 5, 6, 7, 11, 12, 13, 18]`, `i = 25..4`.
+  - `B[22 - 4]` (18) zajęte — zajmujemy `B[22]`.
+  - Widzimy, że w rundzie `k = 5` potrzebujemy mieć zajęte `B[22]`, więc stwierdzamy już teraz, że wygrywamy grę.
+
+### Zadanie 2.2
+
+Zwracamy uwagę, że `A` zawiera ciąg arytmetyczny, który za każdym razem przyrasta o 5. Oznacza to, że gra będzie mieć 20 iteracji (ponieważ `100 / 5 = 20`). Oczywiście nie ma co wszystkich sprawdzać, dlatego sprawdźmy jedynie kilka pierwszych iteracji, aby znaleźć schemat przyrastania liczby zajętych pól.
+
+- Zaczynamy z jednym zajętym polem (`B[0]`).
+- `k = 1`. Na starcie mamy zajęte jedno pole `B[0]`, natomiast pamiętając reguły z poprzedniego zadania, zajęte będzie też `B[5]`. Czyli wzrasta nam liczba zajętych pól o 1.
+- `k = 2`. Zajęte B: `[0, 5]`, `i = 500..10`.
+  - `B[15 - 10]` (5) zajęte — zajmujemy `B[15]`.
+  - `B[10 - 10]` (0) zajęte — zajmujemy `B[10]`.
+  - Liczba zajętych pól wzrosła o 2.
+- `k = 3`. Zajęte B: `[0, 5, 10, 15]`, `i = 500..15`.
+  - `B[30 - 15]` (15) zajęte — zajmujemy `B[30]`.
+  - `B[25 - 15]` (10) zajęte — zajmujemy `B[25]`.
+  - `B[20 - 15]` (5) zajęte — zajmujemy `B[20]`.
+  - Liczba zajętych pól wzrosła o 3.
+- `k = 4`. Zajęte B: `[0, 5, 10, 15, 20, 25, 30]`, `i = 500..20`.
+  - Zajęte są: `B[50 - 20]` (30), `B[45 - 20]` (25), `B[40 - 20]` (20), `B[35 - 20]` (15).
+  - Zajmujemy w takim razie B: `[35, 40, 45, 50]`, więc liczba zajętych pól wzrosła o 4.
+
+Zauważamy, że zawsze zajmujemy tyle pól, ile wynosi `k`. Czyli mamy do czynienia z sumą kolejnych liczb od 1 do 20, co oznaczałoby, że zajęliśmy `210 + 1 = 211` pól (doliczamy 1 ze względu na `B[0]`). Pamiętajmy jednak, że gra kończy się, gdy zajmiemy pole 500, a możemy obliczyć, że dla `k = 20` zajęlibyśmy `B[210 * 5]`, czyli `B[1050]`. Maksymalnie zajmiemy `B[100 * 5]`, czyli zajętych pól będzie 101.
+
+Teoretycznie moglibyśmy od razu stwierdzić, że zostanie zajęte 101 pól, ponieważ maksymalnym będzie `100 * 5`. Aczkolwiek dzięki obliczeniu, że bez przerywania zajęlibyśmy pole `B[210 * 5]`, można zauważyć, że gra będzie w ogóle wygrana w limicie iteracji.
+
+### Zadanie 2.3
+
+W tym przypadku rozwiązań może być wiele, więc musimy po prostu wykombinować jedno dowolne rozwiązanie, nawet niemające 10 elementów. Ważne jest tylko, aby po wszystkich iteracjach mieć wypełnione wszystkie pola od 1 do 200. Poniżej pokażę przykład, jak ja doszedłem do swojego rozwiązania.
+
+- Zauważmy od razu, że aby wygrać grę dla `s = 1`, w tablicy musimy mieć przynajmniej raz jedynkę, aby osiągnąć ją podczas iteracji. Tak możemy zacząć nasze rozwiązanie, więc mamy `A = [1]`.
+- Dzięki poprzedniemu zadaniu widzimy, że jeśli wartości A układają się w ciąg arytmetyczny, wartości maksymalnie osiągną wartość równą sumie kolejnych liczb iteracji pomnożonej przez różnicę tego ciągu. Problem jest jednak taki, że wtedy zajęte pola również należą do tego ciągu, stąd jedyny ciąg, który moglibyśmy utworzyć, to `A = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]`. Możemy jednak szybko policzyć, że wygramy maksymalnie dla `s = 55`, więc nie jest to nasze rozwiązanie.
+- To może ciąg geometryczny? Oczywiście robienie ciągu, gdzie iloraz wynosiłby 1, nie ma sensu. Sprawdźmy więc z odrobinę większym, czyli 2. Sprawdźmy, czy jeśli `A` będzie zawierać kolejne potęgi dwójki (liczone według wzoru $$2^{k-1}$$), to czy w ciągu iteracji zajmiemy wszystkie pola po kolei:
+  - `k = 1` oczywiście wypełni nam B: `[0, 1]`.
+  - `k = 2`:
+    - `B[3 - 2]` (1), czyli wypełniamy `B[3]`.
+    - `B[2 - 2]` (0), czyli wypełniamy `B[2]`.
+  - `k = 3`, czyli tym razem maksymalną liczbą będzie 4.
+    - `B[7 - 4]` (3), czyli wypełniamy `B[7]`.
+    - `B[6 - 4]` (2), czyli wypełniamy `B[6]`.
+    - `B[5 - 4]` (1), czyli wypełniamy `B[5]`.
+    - `B[4 - 4]` (0), czyli wypełniamy `B[4]`.
+  - `k = 4`, czyli tym razem maksymalną liczbą będzie 8.
+    - `B[15 - 8]` (7), czyli wypełniamy `B[15]`.
+    - W tym miejscu przestańmy już wypełniać. Widzimy, że z każdym k mamy uzupełnione wszystkie liczby po kolei aż do $$2^k-1$$.
+- W takim razie możemy spokojnie ułożyć tablicę zawierającą kolejne potęgi dwójki. Tylko jaka maksymalna wartość będzie nam potrzebna? 200 mieści się między $$2^7 = 128$$ a $$2^8 = 256$$.
+- Łącząc wszystko w całość, oznacza to, że odpowiedzią do zadania będzie tablica: `A = [1, 2, 4, 8, 16, 32, 64, 128]`.
+
+Jeśli masz inne rozwiązanie, możesz w komentarzu podzielić się, w jaki sposób do niego doszedłeś/doszłaś.
+
+## Zadanie 3. Potęgowanie modulo
+
+Wstępnie zaznaczę, że tematy związane z potęgowaniem modulo poruszałem już na blogu w artykułach:
+
+- *<Link href="/post/dziwny-przypadek-reszty-z-dzielenia">Dziwny przypadek reszty z dzielenia</Link>* — obliczanie samego modulo (reszty z dzielenia)
+- *<Link href="/post/szybkie-potegowanie">Podstawy algorytmiki: szybkie potęgowanie</Link>* — algorytmiczne podejścia do potęgowania
+- *<Link href="/post/szybkie-szukanie-duzych-liczb-pierwszych/#potęgowanie-modularne">Szybkie szukanie dużych liczb pierwszych</Link>* — algorytm obliczania potęgi modulo
+
+### Zadania teoretyczne
+
+#### Zadanie 3.1
+
+W tym zadaniu mamy dwa wiersze do normalnego obliczenia ze wzoru i dwa, gdzie trzeba podejść do tematu nieco kreatywniej. Popatrzmy po kolei.
+
+##### Pierwszy wiersz
+
+To jest rozwiązany przykład, ale pozwoli nam zobaczyć, jak te obliczenia działają. Kroki obliczenia są następujące:
+
+- Liczymy $$a^x = 2^5$$. Wynik to 25.
+- Dzielimy całkowitoliczbowo (z pominięciem części ułamkowej) $$25 / 7$$. Wynik to 3 ($$7 \cdot 3 = 21$$).
+- Następnie liczymy $$25 - 21$$. Oznacza to, że $$b = 4$$.
+
+##### Drugi wiersz
+
+W tym przypadku sytuacja jest bardzo prosta, bo musimy zrobić dosłownie to samo co powyżej.
+
+- Liczymy $$3^3$$. Wynik to 27.
+- Dzielimy całkowitoliczbowo $$27 / 11$$. Wynik to 2 ($$11 \cdot 2 = 22$$).
+- $$27 - 22 = 5$$.
+
+##### Trzeci wiersz
+
+W tym przypadku musimy znaleźć, dla której potęgi piątki, po obliczeniu modulo 31, otrzymamy 25. Przejdźmy po kolei po potęgach:
+
+- Za dużo się nie naszukamy: $$5^2 = 25$$.
+- Z racji tego, że $$25 \operatorname{mod} 31 = 25$$, możemy spokojnie wpisać, że $$x = 2$$.
+
+##### Czwarty wiersz
+
+Tutaj znowu musimy poszukać. Sprawdźmy kolejne potęgi dwójki:
+
+- Od razu możemy odrzucić wszystkie mniejsze od 59, ponieważ żadna potęga dwójki nie zwróci 5. Dlatego odrzucamy: $$2^2=4$$, $$2^3=8$$, $$2^4=16$$, $$2^5=32$$.
+- $$2^6=64$$, więc mamy liczbę większą od 59. Tutaj się zatrzymajmy.
+- $$64 - 59 = 5$$, więc wynikiem będzie $$x = 6$$.
+
+Swoją drogą, polecam zapamiętać wszystkie potęgi dwójki do 10 lub 11. Ze względu na to, jak działa system binarny, jest to przydatna wiedza w informatyce.
+
+##### Piąty wiersz
+
+Wracamy do oryginalnego schematu obliczeń.
+
+- $$9^2 = 81$$.
+- $$81 - 80 = 1$$, czyli $$b = 1$$.
+
+#### Zadanie 3.2
+
+W zadaniu widzimy, że algorytm powinien wykonywać się w czasie $$\Omicron(\log x)$$ i możemy wykorzystać jedynie podstawowe operacje arytmetyczne i instrukcje sterujące. Oznacza to, że nie możemy posiłkować się wbudowaną w język programowania operacją potęgowania ani też nie możemy policzyć potęgi modulo w sposób naiwny (czyli przez mnożenie kolejnych liczb przez siebie).
+
+W tym miejscu warto przypomnieć sobie algorytm szybkiego potęgowania. Wykonuje obliczenia w czasie $$\Omicron(\log x)$$, więc dokładnie tak jak potrzebujemy. Należy jedynie przerobić go na algorytm liczenia potęgi modulo. Możemy to zrobić w bardzo prosty sposób — wystarczy zawsze przy mnożeniu dodatkowo liczyć resztę z dzielenia. Jeśli pamiętasz wersję rekurencyjną, zawsze gdy zwracasz wynik, policz dodatkowo `% M` (`%` to operator modulo we wszystkich językach programowania dostępnych na maturze). Natomiast jeśli lepiej pamiętasz wersję iteracyjną, `% M` wykonaj zawsze podczas przypisywania nowej wartości zmiennej z wynikiem lub gdy podnosisz podstawę do kwadratu.
+
+Z racji tego, że zadanie dopuszcza dowolny zapis, pokażę poniżej zapis tego algorytmu w Pythonie w wersji iteracyjnej. Wykorzystamy ten kod później do rozwiązania zadań praktycznych. Jeśli chcesz zobaczyć inne wersje, wróć kawałek wyżej, gdzie zalinkowałem swoje artykuły na temat szybkiego potęgowania i potęgowania modulo.
+
+```python
+def pow_mod(a, x, M):
+  result = 1
+  while x > 0:
+    if x % 2 != 0:
+      result = (result * a) % M
+    x = x // 2
+    a = (a * a) % M
+  return result
+```
+
+Dla osób niepythonowych: `//` to operator dzielenia całkowitoliczbowego.
+
+Po dodatkowe wyjaśnienia, co tu się dzieje, zapraszam jeszcze raz do *<Link href="/post/szybkie-potegowanie">artykułu o szybkim potęgowaniu</Link>*.
+
+### Zadania praktyczne
+
+#### Praca wstępna
+
+Ponownie najpierw napiszmy kod, który odczyta dane i zapisze wynik do pliku.
+
+Tym razem w każdej linii znajdziemy trzy liczby. Od razu w trakcie odczytywania rozdzielmy ją na trzy liczby i przekonwertujmy tekst na typ liczbowy. W Pythonie zapiszę to jako tablicę przechowującą trójki (krotkę 3-elementową).
+
+```python
+# funkcja wczytująca dane z podanego pliku
+def load_data(filename):
+  # zmienna, która przechowa wynik
+  # będzie to tablica trójek
+  result = []
+  # otwieramy plik
+  # konstrukcja `with` zadba o to, żebyśmy nie musieli pamiętać o zamknięciu pliku
+  with open(filename, "r") as f:
+    # iterujemy po kolejnych liniach pliku
+    for line in f:
+      # usuwamy białe znaki
+      line = line.strip()
+      # sprawdzamy, czy linia nie jest pusta
+      if line:
+        # rozdzielamy linię na trzy elementy po spacji
+        [M, a, b] = line.split(' ')
+        # zapisujemy wynik w tablicy po konwersji na liczby
+        result.append((int(M), int(a), int(b)))
+  # zwracamy wynik
+  return result
+```
+
+W przypadku zapisu zwróć uwagę, że gdy w zadaniu 1 musieliśmy zapisać wynik każdego podzadania oddzielnie, tak tutaj mamy zapisywać wszystko w jednym pliku. Dlatego nieco zmodyfikujmy kod zapisu z poprzedniego zadania, aby to odwzorować:
+
+```python
+# funkcja zapisująca wynik zadań
+def save_result(result):
+  # otwieramy plik do zapisu
+  # parametr 'w' spowoduje nadpisanie istniejącego pliku
+  with open("wyniki3.txt", "w") as f:
+    # zapisujemy wynik
+    f.write(result)
+```
+
+Rozwiązanie zadania w całości znajdziesz na [Replit](https://replit.com/@tswistak/mp2023-zadanie3#main.py), natomiast poniżej opiszę kolejne podzadania i na co zwrócić uwagę podczas ich rozwiązywania.
+
+#### Zadanie 3.3
+
+W tym miejscu absolutnie nie ma co się wysilać na napisanie jakiegoś wydajnego algorytmu na sprawdzanie pierwszości liczb. W zupełności wystarczy tak zwana metoda naiwna, którą opisałem w artykule *<Link href="/post/liczby-pierwsze-i-proste-sposoby-na-ich-sprawdzanie">Liczby pierwsze i proste sposoby na ich sprawdzanie</Link>*. W skrócie: polega na sprawdzeniu wszystkich liczb naturalnych z przedziału $$(2, \sqrt{n}]$$, gdzie $$n$$ to liczba, której pierwszość sprawdzamy. Jeśli liczba nie była podzielna przez żadną z liczb, oznacza to, że jest pierwsza.
+
+Kod rozwiązanego zadania wygląda następująco:
+
+```python
+import math
+
+
+# zadanie 3.3
+def task3(data):
+  # zmienna przechowująca liczbę liczb pierwszych
+  count = 0
+  # iterujemy po kolejnych liczbach
+  for (M, a, b) in data:
+    # zmienna, gdzie zapiszemy, czy liczba jest pierwsza
+    is_prime = True
+    # sprawdzimy pierwszość metodą naiwną
+    # iterując od 2 do sqrt(M)
+    for i in range(2, int(math.sqrt(M)) + 1):
+      # jeśli M jest podzielne przez i, to liczba nie jest pierwsza
+      if M % i == 0:
+        is_prime = False
+        break
+    # jeśli liczba była pierwsza, zwiększamy licznik
+    if is_prime:
+      count += 1
+  # zwracamy wynik
+  return count
+```
+
+Kod możesz sprawdzić na [Replit](https://replit.com/@tswistak/mp2023-zadanie3#task3.py).
+
+#### Zadanie 3.4
+
+W tym zadaniu musimy przypomnieć sobie jeszcze inny algorytm — algorytm obliczania największego wspólnego dzielnika. Jest kilka metod na to, co opisałem w artykule *<Link href="/post/najwiekszy-wspolny-dzielnik">Podstawy algorytmiki: największy wspólny dzielnik</Link>*. Ja wykorzystam w kodzie algorytm Euklidesa w wersji modulo.
+
+Całe rozwiązanie wygląda następująco:
+
+```python
+# funkcja pomocnicza do zadania 3.4
+# oblicza NWD dwóch liczb
+def gcd(a, b):
+  # algorytm Euklidesa w wersji modulo
+  while b != 0:
+    temp = b
+    b = a % b
+    a = temp
+  return a
+
+
+# zadanie 3.4
+def task4(data):
+  # zmienna przechowująca liczbę liczb względnie pierwszych
+  count = 0
+  # iterujemy po kolejnych liczbach
+  for (M, a, b) in data:
+    # znajdujemy NWD liczb M i a
+    gcd_Ma = gcd(M, a)
+    # jeśli ich NWD jest równy 1, to są względnie pierwsze
+    if gcd_Ma == 1:
+      count += 1
+  # zwracamy wynik
+  return count
+```
+
+Kod znajdziesz także na [Replit](https://replit.com/@tswistak/mp2023-zadanie3#task4.py).
+
+#### Zadanie 3.5
+
+W tym zadaniu wykorzystamy już napisany w ramach zadania 3.2 algorytm potęgowania modulo. Z racji tego, że opisałem go wcześniej, przejdę od razu do pokazania kodu (pomijając kod funkcji `pow_mod`):
+
+```python
+# zadanie 3.5
+def task5(data):
+  # zmienna przechowująca liczbę liczb spełniających warunek
+  count = 0
+  # iterujemy po kolejnych liczbach
+  for (M, a, b) in data:
+    # dla wszystkich x z przedziału [0..M-1]
+    for x in range(M):
+      # obliczamy a^x mod M
+      a_x = pow_mod(a, x, M)
+      # jeśli a^x mod M = b, to liczba spełnia warunek
+      if a_x == b:
+        count += 1
+        # możemy przestać iterować dalej
+        break
+  # zwracamy wynik
+  return count
+```
+
+Kod w całości znajdziesz na [Replit](https://replit.com/@tswistak/mp2023-zadanie3#task5.py).
+
+## Zadanie 5. Statki
+
+Zadania teoretyczne nie wymagają tutaj zrobienia bazy danych (czego wymagają 3 pierwsze podzadania) ani nawet znajomości danych. Do ich wykonania w zupełności wystarczy widoczny nad zadaniem 5.4. diagram bazy danych wzięty z Accessa.
+
+### Zadania teoretyczne
+
+#### Zadanie 5.4
+
+Przez zestawienie typów działalności chodzi po prostu o wypisanie unikalnych wpisów w kolumnie `Typ_dzialalnosci`, co moglibyśmy osiągnąć albo grupowaniem, albo przez `SELECT DISTINCT`. Jednak musimy także podać, ilu armatorów prowadzi dany typ działalności, więc aby móc zliczać, potrzebujemy dane zgrupować.
+
+Zapytanie będzie wyglądać następująco:
+
+```sql
+SELECT Typ_dzialalnosci, COUNT(*)
+FROM Armator
+GROUP BY Typ_dzialalnosci;
+```
+
+Mając zgrupowane dane, możemy za pomocą `COUNT(*)` wyciągnąć, ile rekordów jest w danej grupie (w tym przypadku grupy wyznacza kolumna `Typ_dzialalnosci`).
+
+Tak na marginesie dodam, że w karcie odpowiedzi jest mały błąd i podana została nazwa tabeli `Armatorzy`. Prawdopodobnie wynika to z tego, że nazwy wszystkich tabel są w liczbie mnogiej, a tabela `Armator` łamie tę konwencję.
+
+#### Zadanie 5.5
+
+Tutaj ponownie potrzebujemy unikalnych wpisów (ze `Statki.Nazwa_statku`), aczkolwiek nie dostaniemy się do nich tak łatwo, bo musimy przefiltrować wynik na podstawie danych z tabeli `Armator`. Z racji tego, że `Statki` i `Armator` nie są bezpośrednio ze sobą powiązane, musimy dołączyć do naszego zapytania jeszcze tabelę `Przybycia`.
+
+Podsumowując, musimy wykonać trzy rzeczy:
+
+- Wypisać unikatowe nazwy statków, co ponownie możemy zrobić grupowaniem albo przez `SELECT DISTINCT`.
+- Odfiltrować armatorów, aby byli tylko o nazwie `XYZ`.
+- Złączyć ze sobą tabele `Armator`, `Przybycia` i `Statki`. Wykorzystamy do tego pokazane na diagramie klucze obce w każdej z tabel.
+
+Rozwiązań tego zadania jest wiele. Możemy grupować albo zrobić `SELECT DISTINCT`. Do tego mamy dowolność, od której tabeli zaczniemy zapytanie w klauzuli `FROM`. Przykładowe rozwiązanie mogłoby wyglądać następująco:
+
+```sql
+SELECT DISTINCT Statki.Nazwa_statku
+FROM Statki
+LEFT JOIN Przybycia ON Statki.Nr_IMO = Przybycia.Nr_IMO
+LEFT JOIN Armator ON Armator.Id_armatora = Przybycia.Id_armatora
+WHERE Armator.Armator = 'XYZ';
+```
+
+Swoją drogą, tutaj też karta odpowiedzi ma błędy, a dokładniej literówki (`Armatot`, `Id_armarota`), ale to jest szczegół. Podane tam rozwiązania jednak nie podobają mi się z dwóch powodów:
+
+- Wiemy, że nazwa armatora ma mieć dokładną wartość, więc lepiej użyć `=` zamiast `LIKE`. `LIKE` powinno się stosować tylko wtedy, gdy podajemy wzorzec, lub w bardzo szczególnych przypadkach (`=` wg standardu [ANSI/ISO SQL-92](http://www.contrib.andrew.cmu.edu/~shadow/sql/sql1992.txt) usuwa spacje na początku i końcu porównywanych ciągów, `LIKE` tego nie robi).
+- W SQL ciągi znaków powinniśmy zapisywać w apostrofach, a nie w cudzysłowie. Tak jest zgodnie ze standardem SQL. Do tego większość silników bazodanowych interpretuje tekst zapisany w cudzysłowiach jako odwołania do nazw elementów bazy, takich jak tabele. Jedynymi wyjątkami od tej reguły, które znam, są MySQL/MariaDB i SQL Server. Zdaję sobie sprawę, że na maturze jest dopuszczalne MariaDB, ale trzymałbym się tu standardu SQL, żeby mieć dobre nawyki na przyszłość.
+
+## Zadanie 6. Wikipedia
+
+1. Fałsz
+    - Treści na Wikipedii są publikowane na licencji [CC BY-SA 4.0 DEED](https://creativecommons.org/licenses/by-sa/4.0/deed.pl), według której należy oznaczyć oryginalnych autorów, wskazać zmienione miejsca i wydać tekst na tej samej licencji.
+2. Prawda
+    - Generalnie wszystkie zasoby multimedialne na Wikipedii powinny być używalne też poza nią. Warto jednak zwrócić uwagę na licencję, na co pozwala, a na co nie. Więcej szczegółów znajdziesz tutaj: https://commons.wikimedia.org/wiki/Commons:Reusing_content_outside_Wikimedia.
+3. Prawda
+    - Każdy może edytować Wikipedię i, jeśli nie masz nic przeciwko udostępnieniu swojej treści na licencji CC BY-SA 4.0 DEED, jak najbardziej uzupełnić artykuł. Pamiętaj jednak, aby najpierw zapoznać się z [zasadami Wikipedii](https://pl.wikipedia.org/wiki/Wikipedia:Zasady).
+
+## Zadanie 7.
+
+- Należy zapisać w bazie danych sklepu w całości: login
+  - W całości oznacza zapisanie w postaci tekstu jawnego, więc z podanych tutaj trzech opcji ta jest jedyną, którą możemy tak przechować.
+- Nie należy przechowywać w bazie danych sklepu w żadnej formie: dane karty kredytowej
+  - Ze względu na prawne zawiłości, które są związane z przechowywaniem takich danych, nie róbmy tego. Najlepiej przekazać odpowiedzialność za wszystko, co związane z płatnościami, firmom trzecim, które specjalizują się w obsłudze płatności internetowych.
+- Należy zapisać jedynie skrót (hash) danych, a nie całą oryginalną treść: hasło
+  - Przechowywanie pełnego hasła w bazie (czy jako tekst jawny, czy w formie zaszyfrowanej) jest niebezpiecznie, a nigdy nie potrzebujemy mieć go w całości. Wystarczy jedynie <Link href="/post/sumy-kontrolne/#funkcje-skrótu">hash</Link>, aby porównywać go z hasłem podanym przez użytkownika przy logowaniu. Warto wiedzieć, że nie wszystkie funkcje haszujące są bezpieczne, więc warto trochę bardziej zgłębić temat, zanim zabierzemy się za programowanie tego.
+
+## Słowo na koniec
+
+Tak oto doszliśmy do końca zadań z próbnej matury z informatyki z 2023 roku. Mam nadzieję, że dostałbym za to maks punktów, ale jeśli widzisz jakiś błąd lub że zrobiłem coś niezgodnie z kluczem, daj mi znać w komentarzu.
+
+Jeśli pierwszy raz jesteś na moim blogu, zachęcam Cię do przejrzenia artykułów, które pisałem. Z racji tego, że w większości przypadków poruszają tematy z podstaw programowania, algorytmiki i ogólnie informatyki, wiedza z nich może się przydać na maturze. A nawet jeśli poruszają jakiś mniej potrzebny temat, to zwykle przemycam tam nieco przydatnej, bardziej podstawowej wiedzy teoretycznej. Listę wszystkich artykułów znajdziesz tutaj: <Link href="/spis-artykulow">{'https://swistak.codes/spis-artykulow/'}</Link>.
+
+<small>Zdjęcie na okładce wygenerowane przez DALL-E.</small>

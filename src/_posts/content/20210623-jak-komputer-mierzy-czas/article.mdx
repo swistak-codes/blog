@@ -1,0 +1,132 @@
+import Link from 'next/link';
+import {Image, Iframe} from '@swistak-codes/components';
+import cover from './kogut.jpg';
+import adafruit from './Adafruit_DS1307_Real_Time_Clock_module_-_assembled.jpg';
+import intel from './Ic-photo-IntelC8253.jpg';
+
+export const meta = {
+  title: 'Jak komputer mierzy czas?',
+  abstract:
+    'Skąd komputer wie, która jest godzina, jak mierzy czas i jak to jest przechowywane? Tego dowiesz się w niniejszym artykule.',
+  firstParagraph: (
+    <>
+      W dwóch ostatnich artykułach o grafice komputerowej poświęciłem sporo miejsca obliczeniom <Link href="/post/przeksztalcenia-grafiki-3d">w przestrzeni trójwymiarowej</Link> i <Link href="/post/przeksztalcenia-grafiki-2d">dwuwymiarowej</Link>. Trochę odchodząc od grafiki, ale pozostając w temacie
+      przestrzeni… spójrzmy w czwarty wymiar czasoprzestrzeni, czyli czas. A dokładniej, skąd komputer wie, która jest
+      godzina, jak mierzy czas i jak to jest przechowywane? Tego dowiesz się w niniejszym artykule.
+    </>
+  ),
+  keyword: 'czas',
+  categories: ['Teoria informatyki', 'Data i czas'],
+  tags: [
+    'czas',
+    'cmos',
+    'bios',
+    'rtc',
+    'pit',
+    'tsc',
+    'hpet',
+    'c',
+  ],
+  slug: 'jak-komputer-mierzy-czas',
+  updateTime: '2021-10-24T08:29:16+00:00',
+  publishTime: '2021-06-23T08:30:35+00:00',
+  cover,
+};
+
+## Podstawy podstaw
+
+Przede wszystkim mówiąc o czasie w kontekście komputerów, możemy rozpatrywać to od dwóch stron.  Z jednej strony jest to odmierzanie czasu, natomiast z drugiej przechowywanie go. Odmierzanie jest tutaj dziedziną sprzętu, a przechowywanie i dalsze przetwarzanie należy do oprogramowania. W tym krótkim artykule omówię jedynie część sprzętową. O części programowej będzie w następnym artykule.
+
+## Sprzętowe odmierzanie czasu
+
+Zacznijmy od sprzętowego odmierzania czasu. Od razu zaznaczę, że jeśli jesteś programistą, to jest spora szansa, że nigdy nie będziesz wykorzystywać sposobów tutaj opisanych, chyba że programujesz niskopoziomowo, np. systemy operacyjne. Warto jednak wiedzieć, co komputery w sobie kryją i jakie możliwości oferują.
+
+### RTC
+
+Za odmierzanie czasu odpowiedzialny jest układ elektroniczny znajdujący się na płycie głównej komputera, zwany zegarem czasu rzeczywistego (z ang. Real-Time Clock, RTC). Jego zasada działania niemal nie różni się od tego, jak działają zwykłe zegary i zegarki. RTC najczęściej bazują na rezonatorze kwarcowym. Po podpięciu go do zasilania (baterii, która jest przymocowana do płyty głównej) generuje impulsy z częstotliwością 32,768 kHz, czyli dokładnie $$2^{15}$$ razy na sekundę.
+
+<Image
+  image={adafruit}
+  alignCenter
+  fullSize
+  alt="Adafruit DS1307"
+  caption={<>
+    Układ typu RTC — Adafruit DS1307, który możemy kupić dość tanio w sklepach z elektroniką. Pokazany tutaj model można wykorzystać w Arduino lub Raspberry Pi.<br />
+    (by oomlout - Real Time Clock Module KitUploaded by bomazi, <a href="https://creativecommons.org/licenses/by-sa/2.0/" target="_blank">CC BY-SA 2.0</a>, <a href="https://commons.wikimedia.org/w/index.php?curid=28260798" target="_blank">https://commons.wikimedia.org/w/index.php?curid=28260798</a>)
+  </>}
+/>
+
+Ze względu na małą rozdzielczość nie nadaje się do precyzyjnych pomiarów czasu, np. w celu badania wydajności algorytmów, ale jest całkowicie wystarczający do tego, by po prostu odmierzać upływający czas kalendarzowy. Wymienione dalej sposoby mają bardziej specyficzne zastosowania, jednak wspomnę o nich z racji tego, że również odmierzają czas, aczkolwiek nie ten, który widzimy na systemowym zegarze.
+
+### PIT
+
+Kolejnym układem odmierzającym czas jest Programmable Interval Timer (PIT). Jego zadanie jest bardzo proste — czeka określony czas, po czym wydaje sygnał. Układ ten posiada wbudowane trzy liczniki, gdzie pierwszy (Timer 0) jest ogólnego zastosowania, natomiast drugi i trzeci miały bardziej historyczne funkcje. Drugi (Timer 1) był wykorzystywany do podtrzymywania stanu pamięci RAM, a trzeci (Timer 2) używano do generowania dźwięków z wbudowanego w płytę główną głośniczka (PC Speaker). PIT zawiera rezonator, który oscyluje z częstotliwością 1,19 MHz, więc oferuje wyższą rozdzielczość pomiaru czasu niż RTC, jednak wciąż znacznie mniejszą niż taktowanie procesora.
+
+<Image
+  image={intel}
+  alignCenter
+  fullSize
+  alt="Intel 8253"
+  caption={<>
+    Układ typu PIT — Intel 8253.<br />
+    (by User:ZyMOS - CPU Grave Yard, my CPU collection, <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank">CC BY-SA 4.0</a>, <a href="https://commons.wikimedia.org/w/index.php?curid=7448823" target="_blank">https://commons.wikimedia.org/w/index.php?curid=7448823</a>)
+  </>}
+/>
+
+Układy typu PIT są historycznie najstarszymi sposobami odmierzania czasu w komputerach klasy PC. Najczęściej spotykanymi układami scalonymi typu PIT były Intel 8253 i Intel 8254. Ich zastosowanie było bardzo proste — ustawiało się podstawowe parametry, jak częstotliwość licznika (jako dzielnik częstotliwości rezonatora) i tryb pracy, po czym układ wysyłał przerwanie do procesora za każdym odmierzeniem czasu.
+
+### TSC
+
+Time Stamp Counter (TSC) to licznik czasu wbudowany w procesor komputera (jako rejestr procesora) od czasów Intel Pentium. Ma pojemność 64 bity i jest inkrementowany co określony czas. Dawniej w czasach jednordzeniowych procesorów zwiększenie wartości odbywało się co cykl procesora; natomiast obecnie odbywa się to niezależnie od liczby cykli, ponieważ procesory mogą obecnie wchodzić w tryby niższej częstotliwości. Jednak warto wziąć pod uwagę, że nigdy nie powinno się wykorzystywać tej wartości bezpośrednio, lepiej skorzystać ze specjalistycznych funkcji do wysoce szczegółowego odmierzania czasu.
+
+Jeżeli natomiast chciał(a)byś kiedyś odczytać tę wartość bezpośrednio, to jest to dość proste (w przeciwieństwie do pozostałych liczników). W Assemblerze procesorów x86 otrzymamy ją dzięki instrukcji RDTSC. [Pod tym linkiem](https://replit.com/@tswistak/TSC-time-counter#main.c) znajdziesz kod w języku C, dzięki któremu można odczytać wartość licznika TSC i wypisać ją na ekranie.
+
+### HPET
+
+Najbardziej współczesnym rozwiązaniem są High Precision Event Timers (HPET), opracowane wspólnie przez Intela i Microsoft. Oryginalnie powstały w celu synchronizowania strumieni multimediów, jednak dziś są szeroko wykorzystywane do odmierzania czasu w bardzo wysokiej rozdzielczości. HPET działa podobnie do TSC i po prostu liczy czas od momentu włączenia komputera z częstotliwością odliczania co najmniej 10 MHz (specyfikacja nie precyzuje konkretnej wartości, jedynie minimum). Jego zaletą wobec TSC jest oddzielenie tego układu od procesora, tym samym uznaje się go za bardziej niezawodny.
+
+### Drobna uwaga na koniec
+
+Pamiętaj, że jeżeli programując potrzebujesz odmierzać czas w bardzo wysokiej rozdzielczości, korzystaj ze specjalnie przeznaczonych do tego funkcji, a nie wykorzystuj bezpośrednio sprzętowych liczników. Na przykład w języku C możesz skorzystać z [`clock_gettime()`](https://linux.die.net/man/3/clock_gettime), który daje dostęp do kilku różnych sposobów mierzenia czasu w wysokiej rozdzielczości.
+
+## Gdzie i jak przechowywana jest data?
+
+Skoro mamy licznik czasu rzeczywistego odpowiedzialny za liczenie czasu kalendarzowego, to warto wspomnieć, gdzie przechowuje datę. A przechowuje ją... w swojej pamięci zwanej popularnie CMOS, a właściwie jest to nieulotna pamięć BIOS (CMOS to technologia wytwarzania układów scalonych). Posiada ona zwykle 256 bajtów pojemności i oprócz daty przechowuje też ustawienia BIOSu.
+
+Komórki pamięci CMOSu (adresy) są popularnie nazywane rejestrami i każdy z nich przechowuje 1 bajt danych. 14 pierwszych rejestrów jest odpowiedzialnych za kontrolę i dostęp do RTC. Poniżej znajdziesz tabelkę, gdzie przedstawiam zawartość każdego z rejestrów odpowiedzialnych za datę. Adresy są zapisane w formie szesnastkowej (oznacza to przedrostek 0x):
+
+| Rejestr | Zawartość | Zakres |
+|-|-|-|
+| 0x00 | sekunda | 0-59 |
+| 0x02 | minuta | 0-59 |
+| 0x04 | godzina | 0-23 lub 1-12\* |
+| 0x06 | dzień tygodnia | 1-7\*\* |
+| 0x07 | dzień miesiąca | 1-31 |
+| 0x08 | miesiąc | 1-12 |
+| 0x09 | rok | 0-99 |
+| 0x32 | wiek | 19-20\*\*\* |
+
+\* w 12-godzinnym zapisie czasu najwyższy bit odpowiada za wartość AM (0) i PM (1)<br />
+\*\* 1 oznacza niedzielę<br />
+\*\*\* należy rozumieć jako przedrostek roku, czyli 19 oznacza XX wiek, a 20 XXI wiek
+
+Jeżeli jesteś ciekaw(a), co przechowują inne rejestry CMOSu, polecam do tego [tę stronę internetową](https://web.archive.org/web/20240119203005/http://www.bioscentral.com/misc/cmosmap.htm).
+
+## Podsumowanie
+
+Odmierzanie czasu od strony sprzętowej to zagadnienie, które odczuwa się sporadycznie i nawet w codziennej pracy programisty rzadko kiedy myśli się nawet o tym (pomijając niskopoziomowe dziedziny). Warto jednak wiedzieć, jakie opcje istnieją i jak ewoluowały w czasie. A także warto pamiętać, że jak zaczyna się „rozjeżdżać” zegar w komputerze, to może czas najwyższy na wymianę bateryjki w układzie RTC na płycie głównej.
+
+<Link href="/post/jak-komputer-przechowuje-date-i-skad-zna-aktualna">W kolejnym artykule opowiemy sobie o przetwarzaniu czasu od strony programowej</Link>. Zarówno jak się go przechowuje i przetwarza, a także jakie konsekwencje niosą ze sobą decyzje projektantów oprogramowania związane z datą i czasem.
+
+## Literatura
+
+- High Performance Windows Timers, [http://www.luxford.com/high-performance-windows-timers](http://www.luxford.com/high-performance-windows-timers) (ostatnie odwiedziny 09.06.2021)
+- RTC, [https://wiki.osdev.org/index.php?title=RTC&oldid=26010](https://wiki.osdev.org/index.php?title=RTC&oldid=26010) (ostatnie odwiedziny 09.06.2021)
+- Programmable Interval Timer, [https://wiki.osdev.org/index.php?title=Programmable_Interval_Timer&oldid=25699](https://wiki.osdev.org/index.php?title=Programmable_Interval_Timer&oldid=25699) (ostatnie odwiedziny 09.06.2021)
+- Time Stamp Counter, [https://en.wikipedia.org/w/index.php?title=Time_Stamp_Counter&oldid=1024580284](https://en.wikipedia.org/w/index.php?title=Time_Stamp_Counter&oldid=1024580284) (ostatnie odwiedziny 09.06.2021)
+- HPET, [https://wiki.osdev.org/index.php?title=HPET&oldid=25772](https://wiki.osdev.org/index.php?title=HPET&oldid=25772) (ostatnie odwiedziny 09.06.2021)
+- CMOS, [https://wiki.osdev.org/index.php?title=CMOS&oldid=25770](https://wiki.osdev.org/index.php?title=CMOS&oldid=25770) (ostatnie odwiedziny 09.06.2021)
+
+<small>Zdjęcie na okładce:<br />
+  pierwszy plan — Image by [Beverly Buckley](https://pixabay.com/users/buntysmum-5497946/?utm_source=link-attribution&utm_medium=referral&utm_campaign=image&utm_content=2699338) from [Pixabay](https://pixabay.com/?utm_source=link-attribution&utm_medium=referral&utm_campaign=image&utm_content=2699338)<br />
+  tło — [PC Motherboard by Luke Jones](https://www.flickr.com/photos/befuddledsenses/7265981394), [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/)</small>

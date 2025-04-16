@@ -1,0 +1,17 @@
+.menuContainer {
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: center;
+  align-items: center;
+  column-gap: 2rem;
+  row-gap: 0.75rem;
+  color: var(--sc__header--title);
+
+  &.menuContainerMargin {
+    margin-top: 1rem;
+  }
+
+  .longNbsp {
+    letter-spacing: 6px;
+  }
+}

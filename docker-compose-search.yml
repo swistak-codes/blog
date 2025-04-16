@@ -1,0 +1,26 @@
+version: "3"
+
+services:
+  typesense:
+    image: typesense/typesense:28.0
+    restart: "no"
+    ports:
+      - "8108:8108"
+    volumes:
+      - ./typesense-data:/data
+      - ./typesense-analytics:/analytics
+    environment:
+      - TYPESENSE_API_KEY=jp2137
+      - TYPESENSE_DATA_DIR=/data
+      - TYPESENSE_ENABLE_SEARCH_ANALYTICS=true
+      - TYPESENSE_ANALYTICS_DIR=/analytics
+
+  typesense-dashboard:
+    image: ghcr.io/bfritscher/typesense-dashboard:latest
+    restart: "no"
+    volumes:
+      - ./typesense-dashboard-config.json:/srv/config.json
+    ports:
+      - "2137:80"
+    depends_on:
+      - typesense

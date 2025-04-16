@@ -1,0 +1,142 @@
+import Link from 'next/link';
+import {Image} from '@swistak-codes/components';
+import cover from './bizony.jpg';
+import karta from './Karta_dziurkowana_1.jpg';
+
+export const meta = {
+  title: 'Sposoby zapisywania liczb przez komputery',
+  abstract:
+    'To jak komputery zapisują liczby możemy rozpatrzeć na dwa sposoby: fizyczny i logiczny. W tym wpisie opisuję krótko jak to wygląda.',
+  firstParagraph: (
+    <>
+      W poprzednim wpisie napisałem nieco o liczbach binarnych, i że komputery w tej formie trzymają dosłownie wszystko.
+      Jednak ktoś, kto nigdy komputera nie widział na oczy, mógłby pomyśleć, że w środku takiej maszyny coś trzyma
+      jedynki i zera. <Link href="/post/matematyka-zero-jedynkowa">A jak już wspomniałem o spojrzeniu w pamięć, gdzie liczby
+      przelatują jak w Matriksie</Link>, to jeszcze
+      ktoś, kto jeździł koleją w Polsce w czasach sprzed wszechobecnych elektronicznych tablic, mógłby oczyma wyobraźni
+      zobaczyć taki mechanizm, który w każdej komórce pamięci obraca się i wyświetla albo 0, albo 1, albo pustkę, a może
+      nawet i jakiś napis typu „WARSZAWA ZACH. przez KOLUSZKI, Opóźnienie 180 min”. Oczywiście tak nie jest, nikt nie
+      chciałby mieć w komputerze takich opóźnień ani żeby jego dane były dostarczane przez Koluszki. Takiego sposobu
+      zapisu danych też nie, bo może i by działał, ale zbyt efektywnym raczej by nie był. Ale wróćmy do rzeczy. To, jak
+      komputery zapisują liczby, możemy rozpatrzeć na dwa sposoby. Fizyczny (czyli jak to w świecie fizycznym się
+      dzieje) i logiczny (czyli jak to jest interpretowane).
+    </>
+  ),
+  keyword: 'liczby',
+  categories: ['Teoria informatyki'],
+  tags: [
+    'system binarny',
+    'u2',
+    'kod uzupełnieniowy',
+    'bcd',
+    'przechowywanie danych',
+    'nośniki optyczne',
+    'nośniki magnetyczne',
+    'karty perforowane',
+    'dyski ssd',
+    'pamięci flash',
+    'bit',
+    'bajt',
+    'jednostki',
+    'kod z przesunięciem',
+    'kod znak-moduł',
+    'kod Graya',
+    'końcówkowość',
+    'little endian',
+    'big endian',
+  ],
+  slug: 'sposoby-zapisywania-liczb-przez-komputery',
+  updateTime: '2020-10-01T18:57:10+00:00',
+  publishTime: '2020-09-30T09:00:07+00:00',
+  cover,
+};
+
+## Świat fizyczny
+
+Fizycznie, jak już zauważyliśmy, nikt nie trzyma dosłownie 0 ani 1 w komputerze. Więc jak? Zauważmy, że mając dwie cyfry, możemy je zapisać czymkolwiek, co nam umożliwia przedstawienie dwóch przeciwności, bo w końcu 0 — brak, 1 — coś jest. Znawca logiki mógłby powiedzieć: 0 — fałsz, 1 — prawda. A w naszym fizycznym świecie? Mamy naprawdę wiele możliwości, więc wymieńmy sobie:
+
+- Najbardziej oczywiste, mechaniczne: 0 — brak zmian na powierzchni, 1 — wgłębienie lub otwór. Najczęściej spotykany w nośnikach optycznych, takich jak płyty CD/DVD (wypalane są mikroskopijne pola na powierzchni płyty), ale też w historycznych kartach perforowanych.
+- W przypadku prądu elektrycznego: 0 — brak zasilania lub ładunku (bądź niskie napięcie), 1 — jest zasilanie lub ładunek. Przechowywanie ładunku elektrycznego odbywa się w pamięciach zwanych elektrycznymi, np. pamięciach flash czy dyskach SSD.
+- Alternatywnie w przypadku prądu: 0 — napięcie ujemne, 1 — napięcie dodatnie. Stosuje się ten sposób przy przesyłaniu danych przewodowo, czyli w sieciach komputerowych.
+- Analogicznie w przypadku magnetyzmu: 0 — namagnesowanie ujemne, 1 — namagnesowanie dodatnie. Używa się je w coraz rzadziej spotykanych już nośnikach magnetycznych, takich jak dyski HDD.
+
+<Image
+  image={karta}
+  alignCenter
+  fullSize
+  alt="Karta perforowana"
+  caption={<>
+    Tak właśnie wyglądały karty perforowane, czyli jeden z najstarszych rodzajów zapisu programów komputerowych. Ich historia sięga 1805 roku, kiedy to były wykorzystywane w maszynie Jacquarda, później natomiast przystosowano je do użycia w komputerach. Zapis polegał na dziurkowaniu karty w odpowiednich miejscach. Pojedyncza karta potrafiła pomieścić 80 bajtów (80 kolumn do przedziurkowania).<br/>
+    Źródło: <a href="https://commons.wikimedia.org/wiki/File:Karta_dziurkowana_1.jpg" target="_blank">Nova at pl.wikipedia</a> / <a href="http://creativecommons.org/licenses/by-sa/3.0/" target="_blank">CC BY-SA</a>
+  </>}
+/>
+
+## Bity i bajty
+
+Jak widzimy, system binarny sprawia, że liczby możemy zapisywać w stosunkowo łatwy do określenia sposób. Ale ustalmy wreszcie dobrą nomenklaturę. Te 0 i 1 będące zapisane w jednej z powyższych form nazywamy w informatyce bitem (od angielskiego binary digit — cyfra binarna). Ogólniej mówiąc, bit to jednostka informacji, a 1 bit to najmniejsza możliwa ilość informacji. Wszystko, co przechowujesz w komputerze, zajmuje określoną liczbę bitów, a ona oznacza, z ilu zer i jedynek składa się dana rzecz (plik). Oczywiście nie zdziwię się, jeśli nie kojarzysz z tego nazwy bit. Prędzej spotyka się ją w kontekście transmisji danych, gdzie dostawcy Internetu lubią prześcigać się w tym, jak wiele megabitów oferują. I właśnie tu zachodzi najczęstszy błąd, czyli mylenie dwóch jednostek — bitów i bajtów. Bajt to jednostka określająca najmniejszą ilość informacji, do jakiej można się odwołać w pamięci komputera. Obecnie jest tożsama 8 bitom, chociaż patrząc w przeszłość, nie było tak cały czas. I to jest jedna z najważniejszych rzeczy w kontekście komputerowych jednostek, jaką trzeba zapamiętać: 1 bajt = 8 bitów. Mówiąc o ważnych rzeczach, nie można zapomnieć o przedrostkach, takich jak kilo, mega, giga czy tera. W końcu bardzo rzadko się mówi, że coś waży ileś bajtów, a raczej kilobajtów czy też megabajtów. I tu czeka na nas kolejna pułapka. Jak zapewne pamiętasz ze szkoły (fizyka, jednostki SI): kilo to tysiąc ($$10^3 = 1000^1$$), mega to milion ($$10^6 = 1000^2$$), a giga to miliard ($$10^9 = 1000^3$$). I teoretycznie 1 kilobajt to 1000 bajtów, ale w ten sposób rozmiar określają tylko producenci dysków i pamięci. Na co dzień jednak stosujemy przedrostki binarne, a w nich kilo to 1024 ($$2^{10} = 1024^1$$), mega to 1 048 576 ($$2^{20} = 1024^2$$), a giga to 1 073 741 824 ($$2^{30} = 1024^3$$). Jak widać, jest to mylące, dlatego swego czasu zaproponowano, by zmienić w tym przypadku nazwy na kibi, mibi i gibi, ale chyba nie muszę mówić, że to się nie przyjęło.
+
+## Świat logiczny
+
+Wróćmy jednak do liczb i tego, jak są zapisywane. Powiedzieliśmy sobie o fizycznym zapisie, o jednostkach, to teraz przejdźmy do tego, jak faktycznie na różne sposoby są trzymane liczby. Cała rzecz polega na tym, że o ile faktycznie możemy $$1001_2$$ odczytać jako $$9_{10}$$, to w praktyce, w użyciu są różne sposoby kodowania, dzięki którym jesteśmy w stanie zapisać (niemal) cały zakres liczb rzeczywistych, a nie tylko naturalne.
+
+### Rozmiar liczby
+
+Zacznijmy od tego, że liczby w komputerze mają stałą długość. Nieważne, czy chcesz zapisać 7, czy 2130 — zawsze będzie zajmować w pamięci tyle samo miejsca. Bierze się to stąd, że nie wiemy odgórnie, czy liczbę zapisuje się trzema, czy dziesięcioma cyframi, tylko korzystamy z pewnych określonych z góry standardowych rozmiarów. Najmniejsze liczby w komputerze (czyli najmniejsza wielkość, jaką możemy zaadresować w pamięci) zajmują 8 bitów, czyli 1 bajt, i w świecie informatyki nazywa się je właśnie bajtami (dawniej oktetem). Następnie wyróżnia się słowo, co w informatyce oznacza porcję informacji, na jakiej operuje procesor. Kojarzysz takie pojęcia, jak procesor 32-bitowy, 64-bitowy? Owa ilość bitów to właśnie to, na jak dużych liczbach procesor potrafi operować, czyli jest to słowo. Oprócz tego wyróżniamy też półsłowo, podwójne słowo, poczwórne słowo itd. Najczęściej spotykane są liczby 32-bitowe, co wynika z tego, że procesory 32-bitowe były przez długi czas standardem, a wiele aplikacji po dziś dzień pisze się z myślą o nich…
+
+…czego nie znoszą twórcy systemów operacyjnych, z tego powodu, że muszą specjalnie programować obsługę aplikacji, które „nie wykorzystują w pełni” procesora. Jest to choćby jeden z powodów, dlaczego Apple postanowiło wraz z premierą macOS Catalina porzucić wsparcie dla aplikacji 32-bitowych, rozwścieczając niektórych twórców aplikacji, jak i ich użytkowników. Jednak często właśnie takie drastyczne kroki są potrzebne, aby ruszyć do przodu z techniką. Mają już w tym doświadczenie (np. porzucenie wyjścia słuchawkowego w telefonach), za co często im się obrywało, ale inni producenci później szli za ciosem i robili to samo.
+
+### Liczby całkowite
+
+Skupmy się teraz na liczbach całkowitych. W zasadzie tylko na nich dla zwięzłości wpisu (liczby wymierne/rzeczywiste będą wkrótce). Przedstawiając przeliczenia między systemami liczbowymi, pokazywałem tylko liczby naturalne, jednak chcielibyśmy też móc przedstawić liczby ujemne. Oczywiście nie możemy sobie dopisać minusa przed liczbą, jakbyśmy to zrobili na kartce, więc jak to zrobić? Otóż do tego celu wykorzystuje się kodowanie znane jako kod uzupełnień do dwóch (w skrócie: U2). Polega to na tym, że najstarszy bit (ten najbardziej z lewej) przy przeliczaniu na system dziesiętny mnożymy przez -1. Jeżeli teraz pomyślałeś — o, to pierwsza cyfra oznacza znak: 1 minus, 0 plus — masz rację, ale jeżeli pomyślałeś, że to jedyna różnica… to się mylisz. Weźmy na warsztat dwie liczby $$00010010_{U2}$$ i $$10010010_{U2}$$. Pierwsza z nich to 18, więc przez analogię można by pomyśleć, że druga to $$-18_{10}$$. Ale tak nie jest. Druga z nich to $$-110_{10}$$. Skąd to się bierze? Właśnie z mnożenia przez -1. Przeanalizujmy to:
+
+$$
+\begin{align*}
+&00010010_{U2} =\\
+&= 0 \cdot 2^7 \cdot (-1) + 0 \cdot 2^6 + 0 \cdot 2^5 + 1 \cdot 2^4 + 0 \cdot 2^3 + 0 \cdot 2^2 + 1 \cdot 2^1 + 0 \cdot 2^0 \\
+&= 16 + 2 = 18_{10}
+\end{align*}
+$$
+
+$$
+\begin{align*}
+&10010010_{U2} = \\
+&= 1 \cdot 2^7 \cdot (-1) + 0 \cdot 2^6 + 0 \cdot 2^5 + 1 \cdot 2^4 + 0 \cdot 2^3 + 0 \cdot 2^2 + 1 \cdot 2^1 + 0 \cdot 2^0 \\
+&= -128 + 16 + 2 = -110_{10}
+\end{align*}
+$$
+
+Jak widzimy, nie pojawiło nam się tutaj po prostu mnożenie całości przez -1, tylko odejmowanie 128 od całości wyniku. Jednak można by pomyśleć, że w takim razie zrobienie czegoś tak banalnego jak zmiana znaku sprawia, że trzeba na nowo liczyć całą liczbę. Na szczęście tak nie jest. Kodowanie to ma dosyć ciekawą właściwość — w celu znalezienia liczby przeciwnej, wystarczy zamienić wszystkie 0 na 1 i odwrotnie, a następnie dodać 1. W takim razie $$11101110_{U2}$$ (11101101 + 1) powinno wynosić $$-18_{10}$$, a $$01101110_{U2}$$ (01101101 + 1) $$110_{10}$$. Sprawdźmy:
+
+$$
+\begin{align*}
+&11101110_{U2} = \\
+&= 1 \cdot 2^7 \cdot (-1) + 1 \cdot 2^6 + 1 \cdot 2^5 + 0 \cdot 2^4 + 1 \cdot 2^3 + 1 \cdot 2^2 + 1 \cdot 2^1 + 0 \cdot 2^0 \\
+&= -128 + 64 + 32 + 8 + 4 + 2 = -18_{10}
+\end{align*}
+$$
+
+$$
+\begin{align*}
+&01101110_{U2} = \\
+&= 0 \cdot 2^7 \cdot (-1) + 1 \cdot 2^6 + 1 \cdot 2^5 + 0 \cdot 2^4 + 1 \cdot 2^3 + 1 \cdot 2^2 + 1 \cdot 2^1 + 0 \cdot 2^0 \\
+&= 64 + 32 + 8 + 4 + 2 = 110_{10}
+\end{align*}
+$$
+
+Zapis taki wiąże się z pewnymi niedogodnościami. Oczywistym jest, że mamy nieco inny przedział możliwych liczb do zapisania. Gdybyśmy nie mieli bitu znaku, na 8 bitach możemy zapisać liczby od 0 do 255. Jednak w kodzie U2 nasz przedział się rozkłada niemal po równo na liczby ujemne i dodatnie, przez co dostajemy przedział od -128 do 127. Oznacza to, że nie jesteśmy w stanie zapisać odwrotności liczby -128 — próbując to obliczyć, nie zmieścilibyśmy się w 8 cyfrach. Generalizując, przedział liczb wynosi od $$-2^{n-1}$$ do $$2^{n-1} – 1$$, gdzie n to liczba dostępnych bitów. Myślę, że nie brzmi to jakoś skomplikowanie i jest dość oczywiste. W kwestii działań matematycznych odbywają się one analogicznie jak w zwykłym zapisie binarnym, dlatego też nie będę ich rozpisywać.
+
+### Inne sposoby zapisu liczb całkowitych
+
+Do zapisu liczb całkowitych istnieją także inne kodowania, jednak to właśnie uzupełnieniowy do dwóch jest najczęściej wykorzystywany. Mimo wszystko, z kronikarskiego obowiązku wymienię kilka innych:
+
+- Kod uzupełnień do jedności — bardzo zbliżony do U2, jednak w nim liczba przeciwna ma wszystkie cyfry odwrotne. Przykładowo, gdy $$00001111_{U1}$$ wynosi $$15_{10}$$, to $$-15_{10}$$ wynosi $$11110000_{U1}$$. Jak widać, jest to prostszy sposób, jednak ma jedną zasadniczą wadę – można w nim zapisać 0 na dwa sposoby ($$00000000_{U1}$$ i $$11111111_{U1}$$).
+- Kod z przesunięciem — w dość ogólnej definicji jest to kod, gdzie do każdej liczby dodajemy pewną wartość N, gdzie dla -N przypisujemy 0, a potem odliczamy po kolei. Przykładowo, jeżeli zapisujemy liczbę na 4 bitach i zastosujemy przesunięcie o N=8, to wówczas -8 to 0000, -7 to 0001, 0 to 1000, 1 to 1001, a 7 to 1111. Nie jest stosowany w praktyce do liczb całkowitych, jednak na nim wzorowany jest najpopularniejszy sposób zapisywania liczb rzeczywistych, o czym powiemy sobie później.
+- Kod znak-moduł (ZM) — to format zapisu, gdzie pierwszy bit oznacza znak (0 to +, 1 to -), a reszta liczby jest zapisana bez zmian. Oznacza to, że $$0000_{ZM}$$ to 0, $$0001_{ZM}$$ to 1, a 1001ZM to -1. Ponownie mamy problem dwóch sposobów zapisu liczby 0.
+- Kod BCD (kod dwójkowo-dziesiętny) — jest to sposób zapisu liczb, gdzie każdą cyfrę zapisujemy na oddzielnych 4 bitach, np. $$37_{10}$$ to $$00110111_{BCD}$$, ponieważ $$3_{10} = 0011_2$$, a $$7_{10} = 0111_2$$. Jest używany m.in. w systemach finansowych, gdzie ważne jest zachowanie wysokiej precyzji liczb.
+- Kod Graya — jest to jedyny sposób zapisu liczb, gdzie nie ma aż tak oczywistego przełożenia na system dziesiętny jak w poprzednich przypadkach. Jest on ułożony tak, żeby kolejne cyfry różniły się jedynie jednym bitem. Kolejne liczby od 0 do 16 w nim to: 0000, 0001, 0011, 0010, 0110, 0111, 0101, 0100, 1100, 1101, 1111, 1110, 1010, 1011, 1001, 1000. Z racji, że nie jest to zbyt proste, pominąłem tutaj sposób obliczania tych liczb. Kod najczęściej wykorzystuje się tam, gdzie konwertuje się sygnał analogowy na cyfrowy w celu minimalizacji błędów.
+
+## Na koniec — końcówkowość
+
+Swoją drogą, już na sam koniec warto powiedzieć o jednym z wielu problemów informatyki związanym właśnie z zapisem. Jak już na początku wspomniałem, najmniejszy adresowalny obszar pamięci zajmuje 1 bajt, natomiast wiele formatów zapisu liczb stosuje rozmiary większe, jak 16 bitów (2 bajty), 32 bity (4 bajty) czy 64 bity (8 bajtów). Jak się okazuje, kolejność zapisu kolejnych bajtów nie jest rzeczą oczywistą, bo podobnie, jak w jednych alfabetach piszemy od lewej do prawej (np. w naszym), w innych na odwrót (jak w arabskim), to tak samo jest i tutaj. Jedne procesory zapisują od „lewej” (czyli od najmniejszego adresu) do „prawej” (największego adresu) i nazywamy to big endian (czasem stosowane jest tłumaczenie — grubokońcówkowość), natomiast inne stosują zapis odwrotny, który nazywamy little endian (cienkokońcówkowość). Co ciekawe, ten drugi (wydawać by się mogło, że mniej intuicyjny) używany jest w najpopularniejszych procesorach do użytku domowego, czyli w procesorach o architekturze x86 (do nich zaliczamy wszelkie Intel Core, Pentium, Ryzen, Celeron, Duron i wiele innych podobnych, zastrzeżonych prawnie nazw). Procesory, które znajdziemy w większości urządzeń przenośnych typu smartfony czy tablety (architektura ARM) wspierają oba sposoby zapisu, jednak zwykle jest wykorzystywany cienkokońcówkowy.
+
+<small>(oryginał zdjęcia na okładce opublikowany w serwisie [Pixabay](https://pixabay.com/photos/bison-animals-buffalo-wild-horns-4861278/))</small>

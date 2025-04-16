@@ -1,0 +1,15 @@
+@use '../consts';
+
+.container {
+  position: relative;
+  background: var(--sc__header--background);
+  margin: 0;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  @media (max-width: consts.$mobile-breakpoint) {
+    gap: 16px;
+  }
+}

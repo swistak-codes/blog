@@ -1,0 +1,39 @@
+@use '../consts';
+
+.list {
+  list-style-type: none;
+  list-style-position: outside;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-column-gap: 1rem;
+  grid-row-gap: 0.3rem;
+
+  @media (max-width: consts.$mobile-breakpoint) {
+    grid-template-columns: repeat(1, 1fr);
+  }
+}
+
+.searchContainer {
+  display: flex;
+  justify-content: flex-end;
+
+  i {
+    padding: 0.5rem;
+    background: var(--sc--text);
+    color: var(--sc--background);
+    min-width: 2rem;
+    text-align: center;
+  }
+
+  input {
+    padding: 0.5rem;
+    outline: none;
+    background: var(--sc--background);
+    color: var(--sc--text);
+    border: 1px solid var(--sc--text);
+  }
+}
+
+.tagExplorerContainer {
+  padding: 2rem 0;
+}

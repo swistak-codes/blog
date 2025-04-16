@@ -1,0 +1,166 @@
+import { Image } from '@swistak-codes/components';
+import Link from 'next/link';
+import cover from './swistak_gh.webp';
+
+export const meta = {
+  title: 'świstak.codes staje się open‑source!',
+  abstract:
+    'W artykule opisuję przejście świstak.codes na open-source i dlaczego kod wygląda tak, a nie inaczej.',
+  firstParagraph: (
+    <>
+      Jak możesz wiedzieć z artykułu „<Link href="/offtopic/swistak-codes-powraca">świstak.codes powraca!</Link>”, blog obecnie działa na moim autorskim rozwiązaniu. Jednak nie dzieliłem się do tej pory jego kodem. Z okazji 5-lecia bloga i 3-lecia jego przepisania postanowiłem udostępnić jego źródła na GitHubie. Jeśli jesteś ciekaw(a) więcej szczegółów, a także informacji o tym, dlaczego kod jest napisany tak, a nie inaczej, to zapraszam do lektury.
+    </>
+  ),
+  keyword: 'swistak.codes',
+  categories: [],
+  tags: [],
+  slug: 'opensource',
+  updateTime: '2025-04-17T07:00:00+00:00',
+  publishTime: '2025-04-17T07:00:00+00:00',
+  isOfftopic: true,
+  cover,
+};
+
+## Gdzie jest kod?
+
+Zacznijmy od najważniejszej rzeczy. Kod źródłowy znajdziesz tutaj:
+
+<center>https://github.com/swistak-codes/blog</center>
+
+Jest dostępny na licencji MIT, więc możesz go dowolnie wykorzystywać, modyfikować i rozwijać. Natomiast same artykuły oraz grafiki są objęte prawami autorskimi i nie możesz ich wykorzystywać bez mojej zgody, chyba że licencja stanowi inaczej. Więcej szczegółów znajdziesz w pliku `LICENSE` w repozytorium.
+
+Samo repozytorium jest jedynie automatyczną kopią gałęzi `main` z prywatnego repozytorium bloga, bez zachowania historii pojedynczych commitów. Dlatego też nie będę przyjmować żadnych pull requestów. W przypadku sugestii poprawek proponuję skorzystać z [dyskusji na GitHubie](https://github.com/orgs/swistak-codes/discussions/categories/pomys%C5%82y).
+
+## Uruchamianie
+
+Aplikacja to zwykły projekt Next.js, więc aby go uruchomić, potrzebujesz [Node.js](https://nodejs.org/en). W momencie pisania artykułu serwer jest uruchamiany na wersji 22.12.0 (możesz zawsze to sprawdzić w `Dockerfile`), ale powinien działać także na każdej późniejszej wersji LTS.
+
+Aby uruchomić aplikację, wystarczy sklonować repozytorium i uruchomić polecenia:
+
+```bash
+npm install
+npm start
+```
+
+Jeśli korzystasz z [Visual Studio Code](https://code.visualstudio.com/), możesz też uruchomić aplikację z poziomu edytora za pomocą zielonego przycisku uruchomienia aplikacji — skonfigurowałem to w `.vscode/launch.json`.
+
+Blog posiada także analitykę [Matomo](https://matomo.org/) i wyszukiwarkę opartą na [Typesense](https://typesense.org/). Jeśli chcesz uruchomić je lokalnie, to musisz zainstalować [Dockera](https://www.docker.com/) (najprościej — Docker Desktop), a następnie uruchomić `npm run docker:matomo` lub `npm run docker:search`.
+
+## Dlaczego open source?
+
+Zanim opowiem o kodzie, chcę poświęcić chwilę, dlaczego w ogóle po trzech latach stwierdziłem, że opublikuję kod. Powód jest dość prozaiczny — chcę zachować kopię treści, które przez lata napisałem w miejscu, gdzie powinno przetrwać długi czas. A jak zachowywać kopię, to pełną — z całą interaktywnością, która jest na blogu. Stąd też decyzja o publikacji kodu, a nie jedynie przeniesieniu treści na inną platformę.
+
+Od razu też dodam, że absolutnie nie oznacza to końca bloga. Ostatnio zwolniłem tempo, ale nie zamierzam go zamykać. Dopóki widzę, że są czytelnicy, a także wszechobecne dziś AI crawlery [nie zjadają mi całego transferu](https://diff.wikimedia.org/2025/04/01/how-crawlers-impact-the-operations-of-the-wikimedia-projects/), blog będzie działać.
+
+## Struktura kodu i trochę historii
+
+### Technologia
+
+Obecna wersja bloga została napisana na początku 2022 roku. Zestaw narzędzi, który wykorzystałem wtedy do jego stworzenia, to:
+
+- [Next.js](https://nextjs.org/) w wersji 12
+- [styled-components](https://styled-components.com/) do stylowania
+- [Nx](https://nx.dev/) do zarządzania monorepo
+
+W momencie pisania tego artykułu wygląda to następująco:
+
+- Next.js zaktualizowałem do wersji 15, aby pracować na najnowszej wersji frameworka.
+- Zamiast styled-components używam [CSS Modules](https://github.com/css-modules/css-modules) z [SCSS](https://sass-lang.com/). Dzięki temu strona zajmuje mniej miejsca, szybciej się wczytuje, a tym samym osiąga lepsze wyniki w [Lighthouse](https://github.com/GoogleChrome/lighthouse).
+- Nie ma już monorepo, całość jest trzymana jako pojedynczy projekt. Nx jest świetnym narzędziem, ale praktycznie nie wykorzystywałem jego możliwości.
+
+Zmiany te miałem okazję już opisywać, <Link href="/offtopic/historie-zza-kulis-bloga-4-lecie/#szok-odkry%C5%82-jeden-prosty-trick-by-zwi%C4%99kszy%C4%87-performance-swojego-bloga-reactowcy-go-nienawidz%C4%85">ogłaszając przejście na CSS Modules</Link> i [update do Next.js 15](https://www.linkedin.com/posts/activity-7280508310695407616-CF6V).
+
+### Pozostałości po oryginalnych technologiach
+
+Kod wciąż zawiera pozostałości po rozwiązaniach, które były używane w poprzednich wersjach, stąd:
+
+- Mimo że nie ma już monorepo, kod dalej jest rozdzielony między foldery `/src` (główny kod aplikacji) a `/libs` (prezentacje, narzędzia itp.). Jednak jest to wszystko zawarte w jednym projekcie i nie jest budowane oddzielnie. Możliwe, że z czasem struktura zostanie zmieniona.
+- Next.js korzysta z Pages Routera. Nie mam w planach tego zmieniać, bo zdecydowanie bardziej podoba mi się to rozwiązanie niż App Router.
+- Aplikacja jest budowana za pomocą [Webpacka](https://webpack.js.org/), a nie [Turbopacka](https://nextjs.org/docs/app/api-reference/turbopack), ponieważ nie udało mi się go skonfigurować tak, aby działał poprawnie. Dopóki Webpack działa, nie ma większej potrzeby zmiany.
+- Tak samo korzystam wciąż ze starych podejść Next.js do obrazków (`next/legacy/image`) i linków (`legacyBehavior` z `next/link`). Są używane w wielu miejscach i może w przyszłości to przerobię. Na pewno będę do tego zmuszony, gdy tylko Next.js usunie kompatybilność z rozwiązaniami ze starszych wersji.
+- Część styli może być dziwnie porozdzielana, co wynika z tego, że wprost je kopiowałem ze styled-components do plików SCSS, dodając jedynie najbardziej konieczne zmiany.
+
+### Struktura stron
+
+Blog ma dość nietypową strukturę stron wynikającą z tego, że jest to projekt, na którym uczyłem się Next.js po wielu latach pracy z czystym [Reaktem](https://react.dev/). Podglądałem wtedy, jak inne blogi były napisane, ale nic mi nie pasowało do mojej *idealnej architektury*, więc stworzyłem własnego potworka, który wygląda fatalnie, ale działa tak jak chciałem.
+
+- Artykuły są pisane w MDX z dość nietypową sekcją metadanych. Standardem jest stosowanie [frontmatter](https://github.com/remarkjs/remark-frontmatter), ale nie potrafiłem go doprowadzić do działania tak, jak chciałem, więc zdecydowałem się na własne rozwiązanie.
+- Artykuły są rozdzielone między folderami `/src/_posts` (główna treść bloga), `/src/_offtopic` (artykuły offtopicowe) i `/src/_pages` (pozostałe strony, które chciałem pisać w MDX). Od razu rzuca się w oczy fakt, że nie jest to trzymane w standardowym dla Next.js `/src/pages` (w przypadku używanego przeze mnie pages routera). Aby wygenerować strony widoczne przez routing Next.js, używam skryptu `npm run generate-pages` (`/tools/slugs-helper/generate-post-pages.js`), który generuje odpowiednie pliki `.tsx`.
+- Tak przy okazji, dość nietypowo działają też zasilanie wyszukiwarki, generowanie RSS i sitemap.
+    - W przypadku wyszukiwarki aktualnie dane do niej generuję przez... scraping własnej strony. Nie jest to idealne rozwiązanie, ale działa. Znajduje się on w `./tools/scraper/scrape.mjs`, ale działa jedynie z lokalnie odpalaną wersją bloga, więc nie ściągniesz nim wszystkich danych (te i tak masz już tutaj dostępne).
+    - RSS generuję za pomocą skryptu `public-fix.sh`. Dlaczego tak? Z którymś update Next.js przestało mi działać dynamiczne generowanie RSS i ich cache'owanie po uruchomieniu serwera. W ramach szybkiej poprawki napisałem ten skrypt i już tak zostało. Tak samo generowane są również sitemapy dla wyszukiwarek — dokładnie tym samym skryptem i dokładnie z tego samego powodu.
+
+### Unit testy i TypeScript
+
+Blog został napisany w TypeScript, a w kodzie źródłowym możesz znaleźć nieco testów jednostkowych dla logiki. Jednak zarówno TypeScript, jak i testy nie działają:
+
+- Ponownie jak wcześniej, któraś aktualizacja (już nie pamiętam, czy Nx, Jesta, czy Babela) zepsuła mi działanie testów jednostkowych na tyle, że nie byłem w stanie jej naprawić. Głównym problemem był hack, który używałem do wyciągania metadanych z MDX-ów na potrzeby testów (`./tools/testing/mdx-transform.js`). Na szczęście logiki praktycznie nie modyfikowałem od momentu napisania, więc nie miałem większej potrzeby przywracania testów. Możliwe, że kiedyś je przywrócę.
+- W kwestii TypeScript problemem jest napisana przeze mnie obsługa plików MDX, o której wspomniałem wcześniej. Stwierdziłem jednak, że nic się nie stanie, jeśli w momencie kompilacji zignoruję TypeScript. Wystarcza mi on jedynie do sprawdzania typów podczas pisania na bieżąco.
+
+## Dlaczego użyłeś X, a nie Y?
+
+Teraz dla chętnych opiszę, dlaczego wybrałem takie, a nie inne rozwiązania. Częściowo już to opisałem w *<Link href="/offtopic/swistak-codes-powraca">świstak.codes powraca!</Link>*, ale teraz dodam też nieco kontekstu współczesnego.
+
+### Next.js
+
+Chciałem napisać blog od zera, a przy okazji poznać jakiekolwiek rozwiązanie do [Server-Side Rendering (SSR)](https://nextjs.org/docs/pages/building-your-application/rendering/server-side-rendering) lub [Static Site Generation (SSG)](https://nextjs.org/docs/pages/building-your-application/rendering/static-site-generation), ponieważ dotąd pracowałem jedynie z aplikacjami typu [SPA](https://pl.wikipedia.org/wiki/Single_Page_Application). Next.js był mi najbliższy, bo pracuję głównie z Reaktem, a tak czy inaczej musiałbym się go nauczyć.
+
+Jako alternatywy w tamtym czasie rozpatrywałem:
+
+- [Gatsby](https://www.gatsbyjs.com/) — jednak chciałem mieć też SSR, którego Gatsby nie ma. Gdybym jednak z góry postawił jedynie na generowanie stron w trakcie kompilacji, bardzo poważnie bym się nad nim zastanawiał.
+- [Jekyll](https://jekyllrb.com/) — podobnie jak wyżej, a co więcej, tutaj niestety jeszcze bardziej zostałbym ograniczony. Do wizualizacji na blogu mocno wykorzystuję możliwości, jakie daje [MDX](https://mdxjs.com/), a Jekyll ograniczyłby mnie do czystego [Markdown](https://www.markdownguide.org/).
+- [Nuxt](https://nuxtjs.org/) — ale nie umiałem (i dalej nie umiem) przekonać się do [Vue](https://vuejs.org/). Jest to zdecydowanie najmniej podobający mi się framework front-endowy. Dla ewentualnych obrońców Vue dodam, że miałem okazję pracować z nim w jednym komercyjnym projekcie, więc nie jest to opinia wynikająca jedynie z czytania dokumentacji.
+- [Remix](https://remix.run/) — ale chciałem jednak mieć SSG, którego Remix nie ma. Do tego, w czasie gdy pisałem bloga, była to nowość, więc miałem wątpliwości, czy warto w ogóle tworzyć na tym coś większego. Na swój sposób miałem dobre przeczucie, bo dzisiaj [React Router przejął jego funkcje i nie wychodzą już nowe wersje Remiksa](https://remix.run/blog/incremental-path-to-react-19) (aczkolwiek migracja jest bardzo prosta).
+
+Dziś możliwe, że wybrałbym [Astro](https://astro.build/) do pisania od zera albo skorzystał z gotowca typu [Docusaurus](https://docusaurus.io/). Po czasie stwierdzam, że pisanie wszystkiego od zera nie dało mi szczególnej przewagi, a wręcz przeciwnie — sporo czasu poświęciłem na pisanie rzeczy, które są już gotowe w innych rozwiązaniach. Z drugiej strony nie miałbym okazji nauczyć się tak dogłębnie Next.js, więc nie żałuję tej decyzji.
+
+### CSS Modules z SCSS
+
+Dwa powody:
+
+- Lubię CSS Modules i najłatwiej było mi do niego przemigrować ze styled-components.
+- W trakcie gdy przepisywałem style, jeszcze nie wszystkie przeglądarki obsługiwały [zagnieżdżone style](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_nesting), a przy okazji też wykorzystuję [mixiny](https://sass-lang.com/documentation/at-rules/mixin/) i [wbudowane w SCSS funkcje](https://sass-lang.com/documentation/modules/color/).
+
+Z racji popularności [Tailwinda](https://tailwindcss.com/) odpowiem, dlaczego go nie użyłem — po prostu nie przepadam za nim, czysty CSS jest dla mnie znacznie czytelniejszy i nie czuję, żebym przez to tracił jakoś znacznie na szybkości programowania. Także prościej było mi przekopiować istniejące style do CSS Modules niż pisać je od nowa jako Tailwindowe klasy. Do tego kolejną trudnością byłby fakt, że musiałbym przemigrować wszystkie wartości typu wielkość czcionki, marginesy itd. do motywu Tailwindowego, a one nie są jakoś szczególnie dobrze ustrukturyzowane. Znowu, korzystając z domyślnych wartości Tailwinda, musiałbym zmieniać wszystkie style, aby do niego pasowały. Jak więc widać, tak było po prostu łatwiej.
+
+A dlaczego oryginalnie korzystałem ze Styled Components? Bo jest bardzo wygodne i korzystałem wówczas z niego w projektach komercyjnych. Dziś jednak bym go nie wybrał. Pomijając fakt, że czysty CSS jest wydajniejszy, to w marcu 2025 roku [zaprzestano aktywnego rozwoju tej biblioteki](https://opencollective.com/styled-components/updates/thank-you). Natomiast mógłbym rozważyć alternatywne rozwiązania, takie jak [Vanilla Extract](https://vanilla-extract.style/) lub [Stitches](https://stitches.dev/), które są znacznie bardziej wydajne, ponieważ mimo pisania styli w JavaScript, są one kompilowane do czystego CSS.
+
+### Matomo
+
+Zależało mi na analityce szanującej prywatność użytkowników, która nie zbiera nadmiarowych danych, aby przesyłać je do reklamodawców. [Matomo](https://matomo.org) stawia przede wszystkim na bezpieczeństwo danych. Do tego jest darmowe w przypadku hostowania na własnym serwerze. Z racji tego, że dane, które zbiera Matomo, są bardzo mocno zanonimizowane, nie musisz klikać potwierdzeń, że zgadzasz się na zbieranie danych. Śledzenie aktywności nie opiera się na żadnych ciasteczkach, a do tego analityka przestrzega mechanizmu [Do Not Track](https://en.wikipedia.org/wiki/Do_Not_Track). Ten niestety z racji ogólnego braku adopcji jest już powoli wycofywany (np. [Firefox zrobił to w grudniu 2024 roku](https://arstechnica.com/gadgets/2024/12/firefox-one-of-the-first-do-not-track-supporters-no-longer-offers-it/)).
+
+W momencie wyboru Matomo nie rozpatrywałem żadnych alternatyw. Istotne było dla mnie pozbycie się Google Analytics, które dotychczas (z bólem serca) używałem, a Matomo miałem okazję poznać już nieco wcześniej. Dzisiaj możliwe, że zastanawiałbym się nad [Litlyx](https://litlyx.com/) albo [Plausible](https://plausible.io/). Jednak jestem bardzo zadowolony z Matomo, więc nie zamierzam go zmieniać.
+
+Oprócz Matomo dodatkowo korzystam także z analiz dostarczanych przez [Ahrefs](https://ahrefs.com/), gdzie mam podsumowanie rzeczy, które łatwo przeoczyć (podstawowe błędy na stronie, błędne linki itp.), a także zagregowane dane z Google Search Console. Mogę tutaj powiedzieć, że do takich zastosowań jak prywatna strona darmowa wersja jest całkowicie wystarczająca.
+
+### Typesense
+
+Zawsze byłem pod wrażeniem działania [Algolii](https://www.algolia.com/), jednak przed jej użyciem zniechęcało mnie to, że nie chciałem integrować zewnętrznej usługi niebędącej open source. [Typesense](https://typesense.org/) to najbliższa funkcjonalnie, darmowa alternatywa, którą mogę lokalnie hostować. Chociaż warto dodać, że spokojnie zmieściłbym się w limitach darmowej wersji Algolii.
+
+To, co dodatkowo mnie „kupiło”, to możliwość użycia Typesense jako bazy wektorowej, co daje mi możliwość przeszukiwania treści za pomocą „sztucznej inteligencji” (bardzo mocne uproszczenie, ale tak było najprościej to wytłumaczyć). W teorii mógłbym dzięki temu stworzyć chatbota bazującego na moich danych ([RAG](https://typesense.org/docs/28.0/api/conversational-search-rag.html#create-a-conversation-history-collection)), ale w praktyce wykorzystuję to tylko i wyłącznie do automatycznego określania, które artykuły poruszają podobne tematy.
+
+Inne alternatywy? Gdy wybierałem silnik wyszukiwania, to nie rozpatrywałem innych, ponieważ miałem okazję wcześniej pracować z Typesense i mi się spodobał. Dziś możliwe, że rozważałbym [Meilisearch](https://www.meilisearch.com/), szczególnie dlatego, że wykorzystuje mniej pamięci RAM. Aczkolwiek przy zbiorze danych z bloga nie ma to obecnie aż takiego znaczenia. Oczywiście istnieje też słynny [ElasticSearch](https://www.elastic.co/), ale użycie go byłoby strzelaniem z armaty do muchy. Prowadzę prostego bloga o programowaniu, nie zarządzam danymi wielkiej korporacji.
+
+### Giscus
+
+[Giscus](https://giscus.app/) to system komentarzy bazujący na dyskusjach GitHuba. Jest to jedyna usługa wykorzystywana na blogu, która używa zewnętrznego serwera, jednak w zupełnie innej formie niż inne systemy komentarzy.
+
+Sam serwer Giscus również hostuję lokalnie, jedynie komentarze są trzymane zewnętrznie. Z GitHuba podczas logowania pobierany jest token użytkownika, który następnie wykorzystuje się do tworzenia i komentowania dyskusji w Twoim imieniu. Po swojej stronie nie trzymam ani komentarzy, ani danych użytkowników.
+
+Giscus jest również otwartoźródłowy i można przeanalizować, że nie zbiera żadnych danych. Jedyna identyfikacja użytkownika po zalogowaniu się przez GitHuba to token użytkownika zapisany w `localStorage`. GitHub nie śledzi Cię w żaden sposób. Jedynie wie, że zalogowałeś(-aś) się na blogu i ewentualnie skomentowałeś(-aś) wpis.
+
+### Self-hosting usług
+
+Jak możesz zauważyć, wszystkie usługi, które do tej pory wymieniłem, są open source i mają możliwość lokalnego hostowania, co dokładnie robię. Dlaczego tak?
+
+- Mam wtedy pewność, że usługi nie zbierają więcej danych, niż chcę, a także, że nie przekazują ich dalej. Teraz dzięki wypuszczeniu bloga jako open source możesz tym bardziej się upewnić, że nie zbieram danych, które nie są mi potrzebne.
+- Hostowanie samodzielne Giscus, analityki i wyszukiwarki nie zużywa dużo zasobów na serwerze, więc nie ma większego problemu z ich uruchomieniem obok bloga.
+- Także w ten sposób zabezpieczam się przed ewentualnym vendor lock-inem — nie jestem uzależniony od konkretnej usługi chmurowej. Nawet jeśli dana usługa przestanie być rozwijana, wciąż mogę ją samodzielnie hostować.
+
+Oczywiście wymaga to więcej pracy. Zamiast kupić usługę i ją jedynie podpiąć, muszę skonfigurować serwer i odpowiednio go zabezpieczyć. To samo zresztą tyczy się hostowania całego bloga — mógłbym skorzystać z prostej w obsłudze chmury typu [Vercel](https://vercel.com/). Jednak nie przeszkadza mi to, chociaż przyznam, że <Link href="/offtopic/historie-zza-kulis-bloga-4-lecie/#tw%C3%B3j-blog-u-mnie-nie-dzia%C5%82a">administracja serwerem potrafi być momentami frustrująca</Link>. Co więcej, polecam każdemu programiście aplikacji webowych chociaż raz zrobić coś takiego od początku do końca — podstawy obsługi Linuksa, zrozumienie narzędzi typu [Docker](https://www.docker.com/) i prostych narzędzi CI/CD (np. [Github Actions](https://github.com/features/actions)) mogą być bardzo przydatną wiedzą, nawet (albo tym bardziej) w erze [vibe-codingu](https://en.wikipedia.org/wiki/Vibe_coding).
+
+## Podsumowanie
+
+Na koniec chciałbym podziękować Ci za przeczytanie do końca. Mam nadzieję, że nawet jeśli nie potrzebujesz kodu mojego bloga, to zainteresowały Cię moje argumenty za i przeciw różnym technologiom oraz jak się one zmieniały w przeciągu lat. Jeśli masz jakieś pytania lub sugestie, to śmiało pisz w komentarzach pod tym artykułem lub na GitHubie.
+
+<small>Zdjęcie na okładce wygenerowane z użyciem Midjourney i ChatGPT.</small>

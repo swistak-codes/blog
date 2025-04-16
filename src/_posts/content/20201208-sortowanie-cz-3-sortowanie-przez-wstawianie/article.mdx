@@ -1,0 +1,205 @@
+import Link from 'next/link';
+import {Image, Iframe} from '@swistak-codes/components';
+import cover from './ratel-miodozerny.jpg';
+import wstawianie from './wstawianie.png';
+import insertSort1 from './insert-sort-1.png';
+import insertSort2 from './insert-sort-2.png';
+import shellSort from './shellsort.png';
+
+export const meta = {
+  title: 'Sortowanie, cz. 3 — sortowanie przez wstawianie',
+  abstract:
+    'W poprzednim artykule z serii o sortowaniu pokazałem algorytmy sortowania przez zamianę. Tym razem zamiast zamieniać, będziemy wstawiać.',
+  firstParagraph: (
+    <>
+      <Link href="/post/sortowanie-cz-2-sortowanie-babelkowe">W poprzednim artykule z serii o sortowaniu</Link> pokazałem, jak można odtworzyć krok po kroku podstawowy algorytm sortowania przez zamianę — sortowanie bąbelkowe, a także wywodzące się z niego sortowanie koktajlowe i sortowanie grzebieniowe. Tym razem zróbmy inaczej — zamiast zamieniać, będziemy wstawiać.
+    </>
+  ),
+  keyword: 'sortowanie',
+  categories: ['Sortowanie'],
+  tags: [
+    'sortowanie',
+    'insert sort',
+    'shell sort',
+    'złożoność pamięciowa',
+    'sortowanie przez wstawianie',
+    'sortowanie Shella',
+    'algorytm online'
+  ],
+  slug: 'sortowanie-cz-3-sortowanie-przez-wstawianie',
+  updateTime: '2021-08-17T16:34:08+00:00',
+  publishTime: '2020-12-08T10:00:31+00:00',
+  cover,
+};
+
+## Uwaga wstępna
+
+Podobnie jak poprzednio, pomijam w artykule implementacje w konkretnym języku programowania. Jeżeli jesteś ciekaw, znajdziesz go w repozytorium na GitHubie: [https://github.com/swistak-codes/sorting-algorithms](https://github.com/swistak-codes/sorting-algorithms). Kod został napisany w JavaScript, jednak jest bogato opatrzony w komentarze w języku polskim, abyś mógł lepiej zrozumieć, co się tam dzieje. Pamiętaj jednak, że kod został zrobiony tak, aby dobrze się wizualizował, a nie był napisany w wydajny sposób, dlatego nie powinien być wzorem do własnych implementacji.
+
+## Wstawianie do kolekcji
+
+Artykuł zacznę od dość problematycznego pojęcia, jakim jest wstawianie w kontekście algorytmów sortujących. Dlaczego tak jest? Otóż w przypadku tablic, a najczęściej to je sortujemy… nie ma „darmowej” operacji wstawiania. Aby zrealizować wstawienie lub przeniesienie elementu na inne miejsce, musimy wszystkie pozostałe poprzesuwać. A w jaki sposób przesuwamy? Zamieniając pozycje. Jest to niestety operacja kosztowna. Przykładowo, mając tablicę 100-elementową, chcemy wstawić element na sam początek. Co wówczas musimy zrobić? 99 operacji zamiany przesuwających elementy w prawą stronę kolekcji.
+
+Jak można operację wstawiania zrealizować, możecie zobaczyć na poniższym schemacie. W praktyce niewiele różni się to od tego, w jaki sposób robimy to na co dzień, choćby na półkach z książkami. Najpierw wyciągamy element (1), potem przesuwamy pozostałe, aby zrobić miejsce tam, gdzie chcemy wstawić element (2), po czym, gdy już mamy wolne miejsce (3), wstawiamy tam element (4).
+
+<Image
+  image={wstawianie}
+  alignCenter
+  fullSize
+  alt="Schemat wstawiania elementu w odpowiednie miejsce w tablicy"
+  caption={<>
+    Przykładowy schemat operacji wstawiania przenoszącej element tablicy z miejsca na miejsce, tak jak ma to miejsce przy sortowaniu.
+  </>}
+/>
+
+Pamiętajmy, że mamy również kolekcje, gdzie operacja wstawiania jest darmowa. Są to, przykładowo, listy wiązane. W ich przypadku możemy bez problemu włożyć element w dowolne miejsce. Innymi kolekcjami tego typu są drzewa, których jeszcze na blogu nie omawiałem. Warto jednak zaznaczyć, że koszt operacji wstawiania w tym przypadku zależy od rodzaju drzewa.
+
+## Złożoność pamięciowa
+
+W tym momencie możesz się zastanawiać, jak sortować wykorzystując mechanizm wstawiania. Oczywiście, jak to zwykle bywa, mamy wiele podejść. Zanim jednak przejdę do konkretnych algorytmów, chciałbym omówić temat złożoności pamięciowej, który pojawi nam się tutaj po raz pierwszy. Ale o co chodzi i dlaczego o tym teraz mówię?
+
+W sortowaniu bąbelkowym i innych posługujących się zamienianiem elementów cały czas operowaliśmy na tej samej strukturze, którą otrzymaliśmy. Nie musieliśmy tworzyć dodatkowych tablic czy to w formie pomocniczej, czy jako nowa wynikowa. Po prostu zamienialiśmy i tyle. Oznacza to, że tamte algorytmy miały złożoność pamięciową $$O(1)$$ — niezależnie, ile danych mieliśmy, zużywaliśmy na potrzeby algorytmu zawsze tyle samo pamięci (ważna uwaga: w złożoności pamięciowej nie liczymy wielkości danych wejściowych).
+
+Algorytmy sortowania wykorzystujące mechanizm wstawiania można realizować dwojako. Podstawowy sposób polega na tym, że tworzymy nową strukturę, w której układamy nowe elementy. Rozróżniamy w ten sposób wprost to, co jest posortowane, od nieposortowanego. Jednak przez to algorytm zyskuje złożoność pamięciową, ponieważ tworzymy dodatkową strukturę (będzie to $$O(n)$$). Przy małych rozmiarach danych nie ma z tym problemu, ale jeśli tablica miałaby, przykładowo, milion elementów, to już się robi pewien problem.
+
+Drugi sposób podejścia polega na tym, że cały czas działamy na tej samej strukturze danych, a jedynie zapamiętujemy sobie, która jej część jest już posortowana, a która nie. Zwykle za część posortowaną uznaje się początek kolekcji i stopniowo ją rozszerza wraz ze wstawianiem kolejnych elementów. Sprawia to, że algorytmy mogą działać nieco mniej intuicyjnie, jednak zachowujemy złożoność pamięciową $$O(1)$$.
+
+## Sortowanie przez wstawianie
+
+Skoro rozwiązaliśmy już wszelkie zawiłości, jakie istnieją w temacie sortowania przez wstawianie, przejdźmy do niego. Jak możesz wiedzieć chociażby z pierwszego artykułu z tej serii, sortowanie przez wstawianie to nie tylko sposób konstrukcji algorytmów, ale też nazwa konkretnego. Znany w literaturze występuje również pod angielską nazwą insert sort.
+
+### Podejście z dodatkową kolekcją
+
+Jego mechanizm działania jest bardzo prosty. Tworzymy nową strukturę o tej samej długości, co oryginalna, i wstawiamy do niej kolejne elementy w odpowiednie miejsca. Zaczynamy od pierwszego, który oczywiście trafi na sam początek, a potem przy kolejnych stosujemy następujące kroki:
+
+1. Sprawdzamy wstawiany element z ostatnio wstawionym.
+2. Jeżeli wstawiając element po nim, zachowamy kolejność sortowania, wstawiamy go.
+3. Jeżeli nie zachowalibyśmy kolejności, sprawdzamy poprzedni element. Jeśli byłaby zachowana kolejność, wstawiamy element po nim, a jeżeli nie, to znowu się cofamy i sprawdzamy.
+
+Można to skojarzyć z tym, jak układamy alfabetycznie książki na półce, które leżą w innym miejscu. Najpierw wkładamy pierwszą lepszą, po czym pozostałe wstawiamy tak, aby zachować odpowiednią kolejność.
+
+<Image
+  image={insertSort1}
+  alignCenter
+  fullSize
+  alt="Schemat działania insert sort w wersji z tworzeniem nowej kolekcji"
+  caption={<>
+    Schemat sortowania 5-elementowej kolekcji (z prawej strony) z wykorzystaniem dodatkowej, pustej (z lewej strony). Pominąłem tutaj krok wyszukiwania miejsca do wstawienia nowego elementu (wygląda on analogicznie do poprzedniego schematu).
+  </>}
+/>
+
+Po dodaniu w taki sposób po kolei wszystkich elementów z oryginalnej kolekcji otrzymujemy nową, posortowaną. Niestety tak jak wspomniałem wcześniej, przez to, że tworzymy nową kolekcję, to mamy słabą złożoność pamięciową.
+
+### Podejście na jednej kolekcji
+
+Tak jak wcześniej wspomniałem, możemy wstawianie zorganizować na jednej kolekcji po prostu uznając, że jej jedna część już jest posortowana. Tutaj od razu przejdźmy do życiowego przykładu — grasz w karty i masz ich kilka w ręce. Chcesz je ułożyć od najsłabszej do najmocniejszej. Zapewne to, co robisz, to bierzesz jakąś kartę i wstawiasz ją w odpowiednie miejsce i powtarzasz ten proces tak długo, aż wszystkie są posortowane. Robiąc to, wykonujesz algorytm sortowania przez wstawianie na jednej kolekcji.
+
+A jak to wyglądałoby na komputerze? Najprościej w ten sposób, że pierwszy element uznajemy za posortowany i potem przechodzimy po kolejnych elementach. Bierzemy go i porównujemy z poprzednim, i wstawiamy przed nim lub zostawiamy w miejscu. Po wstawieniu w odpowiednie miejsce uznajemy, że nasza posortowana kolekcja ma długość 2 i przechodzimy do kolejnego elementu. W zasadzie mechanizm działania jest taki sam jak przy dwóch kolekcjach, tylko przesuwamy w obrębie jednej.
+
+<Image
+  image={insertSort2}
+  alignCenter
+  fullSize
+  alt="Schemat działania insert sort w wersji bez tworzenia nowej kolekcji"
+  caption={<>
+    Schemat sortowania przez wstawianie na jednej kolekcji. Pionową kreską oddzielamy na schemacie część posortowaną od nieposortowanej.
+  </>}
+/>
+
+Ten sposób działania algorytmu sortowania przez wstawianie możesz przetestować na poniższej, prostej aplikacji. Podobnie jak poprzednio, skonfiguruj dane i sposób działania algorytmu, naciśnij Start, po czym obserwuj działanie (stosując przyciski pod wykresem). Na wizualizacji zielonym kolorem jest zaznaczony aktualnie rozpatrywany element a żółtym element, do którego go porównujemy.
+
+<Iframe src="/iframe-content/sorting-visualizer/index.html?algorithm=insertSort" minHeight={620} />
+
+Warto w tym momencie uruchomić sobie w drugiej karcie poprzednią część artykułu z sortowaniem bąbelkowym i porównać osiągane rezultaty na podobnych konfiguracjach algorytmu. Możemy zauważyć, że wydajność często jest lepsza niż w sortowaniu bąbelkowym, jednak wciąż różnica nie jest znacząca.
+
+## Podejście Donalda Shella
+
+Podobnie jak za poprzednim razem i w przypadku sortowania przez wstawianie możemy pokusić się o dalsze optymalizacje. Jednak nie jest to w tym przypadku już tak proste — nie da się ograniczać przeszukiwanej przestrzeni, bo cała logika opiera się na jej ograniczaniu. Sprawdzanie, czy już posortowaliśmy, nic nie zmieni, bo tak naprawdę, mając posortowaną wcześniej kolekcję, będziemy robić po jednym porównaniu aż do zakończenia algorytmu. Rozpatrywanie kolekcji „na przemian” nie zadziałałoby. Dlatego też zostaje nam ostatnie podejście — wprowadzenie odstępów. Taki sposób opracował w 1959 roku Donald Shell i znany jest jako sortowanie Shella (z ang. Shell sort) lub sortowanie za pomocą malejących przyrostów.
+
+W podejściu tym, analogicznie jak w sortowaniu grzebieniowym (warto zauważyć, że sortowanie Shella było wcześniej), stosujemy odstępy. W tym przypadku może być to nieco mniej intuicyjne — mianowicie wykonując operację wstawiania, nie przesuwamy się co 1, tylko właśnie co ów odstęp. Przez to nie mamy jasno wyznaczonej granicy między posortowaną i nieposortowaną częścią kolekcji. Warto zauważyć, że co iterację zmniejszamy odstęp, dzięki czemu ostatecznie dochodzimy do zwykłego sortowania przez wstawianie. Poniżej można zobaczyć schemat działania dla odstępów 5-3-1:
+
+<Image
+  image={shellSort}
+  alignCenter
+  fullSize
+  alt="Schemat działania shell sort"
+  caption={<>
+    Schemat przykładowego zastosowania sortowania Shella.
+  </>}
+/>
+
+Teraz możesz zadać pytanie, w jaki sposób definiować odstępy? Jak pamiętamy, w sortowaniu grzebieniowym zaczynaliśmy od długości tablicy, a potem co iterację dzieliliśmy aktualne odstępy przez współczynnik 1,3. Shell, opisując swoje podejście, zaproponował generowanie ich ze wzoru: $$\lfloor N / 2^k \rfloor$$, gdzie N to liczba elementów, a k to licznik iteracji. Algorytm z takimi też odstępami możesz sprawdzić poniżej:
+
+<Iframe src="/iframe-content/sorting-visualizer/index.html?algorithm=shellSort&generator=shell" minHeight={640} />
+
+Jak widzimy, znowu zredukowaliśmy liczbę porównań, dzięki czemu otrzymujemy posortowaną kolekcję zdecydowanie szybciej. Tylko po raz kolejny możesz zadać pytanie — czy da się jeszcze poprawić osiągi tego algorytmu? Odpowiedź brzmi: tak!
+
+### Wpływ ciągu odstępów na wydajność
+
+Dość szybko okazało się, że stosowane w algorytmie odstępy mają wpływ na szybkość jego wykonania. Wielu informatyków zaczęło eksperymentować z różnymi ciągami, dzięki czemu niektórym udało się poprawić osiągi algorytmu. Wymienię tutaj kilka przeze mnie wybranych propozycji wraz z nazwiskami autorów. Warto tylko zauważyć, że w przypadku małych tablic (jak domyślna 15 w prezentacji) nie zauważymy różnicy. Różnice dostrzeżemy przy większych, np. 100-elementowych.
+
+#### Knuth (1973)
+
+Pierwsza z propozycji modyfikacji ciągu odstępów, jaką chciałem przedstawić, została zaproponowana przez Donalda Knutha (na którego książki często się powołuję na tym blogu) w 1973 roku. Zaproponował wyznaczanie odstępów ze wzoru $$\frac{3^k-1}{2}$$ i jednocześnie, aby nie mieć wartości wyższych niż $$\lceil \frac{N}{3} \rceil$$. Jak działa algorytm z takimi odstępami, możesz sprawdzić poniżej:
+
+<Iframe src="/iframe-content/sorting-visualizer/index.html?algorithm=shellSort&generator=knuth" minHeight={640} />
+
+#### Sedgewick (1986)
+
+Robert Sedgewick w swoich pracach zaproponował dwa różne podejścia do obliczania odstępów w algorytmie Shella (w 1982 i 1986 roku). Ja chciałem w tym miejscu pokazać to późniejsze podejście, które jest określone poniższym wzorem:
+
+$$
+\begin{cases}
+9(2^k-2^{\frac{k}{2}})+1 & \text{$k$ parzyste} \\
+8 \cdot 2^k - 6 \cdot 2^{(k+1)/2} + 1 & \text{$k$ nieparzyste}
+\end{cases}
+$$
+
+Przetestować algorytm Shella z tak zdefiniowanymi odstępami możesz tutaj:
+
+<Iframe src="/iframe-content/sorting-visualizer/index.html?algorithm=shellSort&generator=sedgewick" minHeight={640} />
+
+#### Ciura (2001)
+
+Obecnie za najlepszy ciąg odstępów uznaje się odkryty doświadczalnie w 2001 roku przez Marcina Ciurę. Składa się on z następujących wartości niepochodzących z żadnego konkretnego wzoru: 1, 4, 10, 23, 57, 123, 301 i 701. Podobnie jak w poprzednich przypadkach, możesz przetestować to podejście tutaj:
+
+<Iframe src="/iframe-content/sorting-visualizer/index.html?algorithm=shellSort&generator=ciura" minHeight={640} />
+
+Jeżeli jesteś ciekaw innych propozycji ciągów odstępów, które były proponowane przez lata, polecam tabelkę z nimi na angielskiej Wikipedii: [https://en.wikipedia.org/wiki/Shellsort#Gap_sequences](https://en.wikipedia.org/wiki/Shellsort#Gap_sequences).
+
+## Wydajność i właściwości sortowania przez wstawianie
+
+Na koniec chciałbym opisać, jakie interesujące nas właściwości posiada sortowanie przez wstawianie oraz jaka jest jego wydajność.
+
+### Wydajność
+
+Niestety, sortowanie przez wstawianie wciąż nie zachwyca wydajnością i może pochwalić się złożonością $$O(n^2)$$ tak samo jak sortowanie bąbelkowe. Jednak, co warto podkreślić, takie określenie złożoności traktuje się orientacyjnie, a nie dosłownie, stąd mimo wszystko insert sort jest wydajniejszy, tylko zalicza się do tej samej klasy wydajnościowej.
+
+Ciekawiej sprawa ma się z sortowaniem Shella. Tutaj w najgorszych przypadkach możemy mówić o złożoności $$O(n^2)$$ (dla najgorszego ciągu odstępów) lub $$O(n \log^2 n)$$ (dla najlepszego ciągu odstępów). Natomiast w najlepszym wypadku możemy mówić o złożoności $$O(n \log n)$$ dla niemal wszystkich ciągów odstępów. Warto jednak zwrócić uwagę, że ze względu na to, że od powstania algorytmu pojawiło się wiele różnych ciągów odstępów, które oferowały różną wydajność, uznaje się, że złożoność sortowania Shella nie jest definitywnie określona i w każdej chwili podręczniki w tej kwestii mogą się zdezaktualizować.
+
+### Stabilność
+
+Tutaj krótko. Sortowanie przez wstawianie jest algorytmem stabilnym, identyczne elementy nie mają zamienianej kolejności. Natomiast sortowanie Shella jest już niestabilne.
+
+### Online
+
+To, co jest najciekawsze w przypadku sortowania przez wstawianie, to fakt, że jest to algorytm online. Algorytmy tego typu charakteryzują się tym, że aby działać prawidłowo, nie potrzebują dostać wszystkich danych naraz, a mogą dostawać je w częściach, a i tak wykonać się prawidłowo. Jak to się ma do naszego sortowania?
+
+Sortowanie przez wstawianie działa w taki sposób, że możemy za jego pomocą bez problemu dodawać elementy do kolekcji. Algorytm dostaje posortowaną kolekcję oraz nowy element i jest w stanie wstawić go na miejsce. Stąd też możemy użyć go jako podstawę do samosortujących się kolekcji opartych na tablicach, chociaż warto zauważyć, że są lepsze sposoby na zrobienie tego.
+
+Co warto dodać, własności tej nie posiada sortowanie Shella.
+
+## Podsumowanie
+
+Sortowanie przez wstawianie to zupełnie inne podejście do sortowania niż poznane przez nas wcześniej bąbelkowe, jednak wciąż bardzo proste i niestety również niecharakteryzujące się dużą wydajnością. Jest lepiej niż w sortowaniu bąbelkowym, jednak dalej nie jest idealnie. Warto ponadto wziąć pod uwagę właściwość sortowania przez wstawianie, jaką jest to, że jest to algorytm online.
+
+Natomiast bardzo ciekawy jest algorytm sortowania Shella. Pozwala on na osiągnięcie lepszych wyników niż tradycyjny insert sort i też ciekawą rzeczą z nią związaną jest fakt, że wciąż nie określono bezsprzecznie najlepszego ciągu odstępów. Z tego powodu złożoność algorytmu Shella to wciąż otwarty, nierozwiązany problem.
+
+## Literatura
+
+- Knuth D. E., „Sortowanie przez wstawianie” w *Sztuka programowania Tom 3 Sortowanie i wyszukiwanie*. Warszawa: Wydawnictwa Naukowo-Techniczne, 2002, s. 83-110
+- Harris S., Ross J., „Sortowanie przez wstawianie” w *Od podstaw Algorytmy*. Gliwice: Helion, 2006, s. 170–173
+- Wirth N., „Sortowanie za pomocą malejących przyrostów” w *Algorytmy + struktury danych = programy*. Warszawa: Wydawnictwa Naukowo-Techniczne, 2002, s. 86–88
+- Ciura M., „Best Increments for the Average Case of Shellsort” w *Freiwalds, Rusins (ed.). Proceedings of the 13th International Symposium on Fundamentals of Computation Theory*. Londyn: Springer-Verlag, 2001,  s. 106–117.
+
+<small>(zdjęcie na okładce: [Derek Keats from Johannesburg, South Africa](https://commons.wikimedia.org/wiki/File:Honey_badger,_Mellivora_capensis,_carrying_young_pup_in_her_mouth_at_Kgalagadi_Transfrontier_Park,_Northern_Cape,_South_Africa_(34484155600).jpg), [CC BY 2.0](https://creativecommons.org/licenses/by/2.0), via Wikimedia Commons)</small>

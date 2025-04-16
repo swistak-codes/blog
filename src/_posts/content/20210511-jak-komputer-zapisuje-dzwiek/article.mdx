@@ -1,0 +1,226 @@
+import Link from 'next/link';
+import {Image, Iframe, VideoPlayer} from '@swistak-codes/components';
+import cover from './ptaki.jpg';
+import fala from './fala.png';
+import pcmdsd from './PCM-vs-DSD.png';
+
+export const meta = {
+  title: 'Jak komputer zapisuje dźwięk?',
+  abstract:
+    'W artykule opisuję jak zapisywane jest medium, którego zapis w cyfrowej postaci nie jest zbyt intuicyjny, czyli dźwięk.',
+  firstParagraph: (
+    <>
+      Jakiś czas temu na blogu miałem okazję pisać o tym, że <Link href="/post/nie-liczby-jako-liczby-czyli-zapis-danych-cyfrowych">na komputerze wszystko jest przechowywane w postaci liczb</Link>. Pokazywałem to na przykładach zapisu tekstu, a także przedstawiłem, <Link href="/post/przetwarzanie-plikow-w-praktyce-obrazy-bmp">jak interpretować zapisane tak obrazy</Link>. Dlatego tym razem postanowiłem przejść do przedstawienia innego medium, którego zapis w postaci cyfrowej jest najmniej intuicyjny — dźwięk.
+    </>
+  ),
+  keyword: 'dźwięk',
+  categories: ['Przetwarzanie danych', 'Świat rzeczywisty a IT'],
+  tags: [
+    'pcm',
+    'dźwięk',
+    'mp3',
+    'lpcm',
+    'fizyka',
+    'przetwarzanie sygnałów',
+    'sygnał analogowy',
+    'sygnał cyfrowy',
+    'przetwornik',
+    'matematyka dyskretna',
+    'próbkowanie',
+    'kwantyzacja',
+    'rozdzielczość',
+    'kompresja',
+    'częstotliwość Nyquista',
+    'szum kwantyzacji',
+    'dynamika sygnału',
+    'efektywność kwantowania',
+    'pdm',
+    'dsd',
+    'wav'
+  ],
+  slug: 'jak-komputer-zapisuje-dzwiek',
+  updateTime: '2021-08-17T16:40:34+00:00',
+  publishTime: '2021-05-11T09:00:30+00:00',
+  cover,
+};
+
+## Sposoby zapisu dźwięku
+
+Zacznijmy od tego, że na komputerze dźwięk możemy przechowywać w dwóch różnych postaciach:
+
+- Jako wierny zapis dźwięku, np. z mikrofonu — tutaj możemy widzieć analogię do grafiki rastrowej, która to zapisuje tylko informacje o poszczególnych pikselach.
+- Jako zapis notacji muzycznej — stosując analogię do grafiki, można przyrównać to do grafiki wektorowej przechowującej informację o figurach.
+
+Z naszego punktu widzenia najciekawszy jest ten pierwszy, dlatego też jemu poświęcona jest dalsza część tego artykułu.
+
+Jednak żeby nie pozostawić Cię z niczym o tym drugim sposobie, to napiszę tylko, że jest tutaj stosowany zazwyczaj standard MIDI. Powstał początkowo do ustandaryzowania komunikacji pomiędzy klawiaturami a syntezatorami, a z czasem powstał bazujący na nim format plików. Możliwe, że kiedyś poświęcę temu tematowi oddzielny, szczegółowy artykuł.
+
+## Dźwięk w świecie fizycznym
+
+### Fale akustyczne
+
+Zanim jednak przejdziemy do świata cyfrowego, opowiedzmy sobie o tym, czym jest dźwięk w otaczającym nas świecie fizycznym. Otóż dźwięk, który słyszymy, to fale akustyczne rozchodzące się w tzw. ośrodkach sprężystych, do których zaliczamy powietrze, wodę czy metale. Innymi słowy, to, co słyszymy, to nic innego jak drgania powietrza o różnej częstotliwości i natężeniu. A drgania skąd się biorą? Stąd, że wszystko, co wydaje dźwięk, drga. Jak grasz na instrumencie, to drgania elementu zwanego wibratorem (np. struna lub membrana) powodują, że ten wydaje dźwięk. Jak słuchasz czegokolwiek przez głośniki, to ich membrana wibruje. I gdy mówisz, to drgają Twoje struny głosowe. Te właśnie drgania są opisane przez fizyków za pomocą fali akustycznej.
+
+<VideoPlayer
+  url="/videos/struna_480.mp4"
+  muted
+  controls
+  width={640}
+  height={360}
+  caption={
+    <>
+      Drganie struny gitary podczas wybrzmiewania dźwięku, zarejestrowane w zwolnionym tempie (480 FPS przekonwertowane do 30 FPS, czyli 1 sekunda w rzeczywistości odpowiada 16 sekundom filmiku). Grany jest dźwięk E2, którego częstotliwość wynosi 82,41Hz.
+    </>
+  }
+/>
+
+Co warto dodać, nie wszystkie dźwięki słyszymy. Te, które odbiera ludzkie ucho, znajdują się w przedziale częstotliwości (około) 16 Hz do 20 kHz. Powyżej 20 kHz mówimy o ultradźwiękach, natomiast poniżej 16 Hz o infradźwiękach. Ta informacja może wydawać się dla wielu oczywista, jednak powtarzam to, ponieważ ma ona znaczenie w temacie zapisu dźwięku przez komputer.
+
+### Nagrywanie dźwięku
+
+Wiemy już, w jaki sposób powstają fale dźwiękowe, jednak jak to się dzieje, że jesteśmy w stanie je nagrywać? Służą do tego urządzenia zwane przetwornikami elektroakustycznymi, najczęściej w formie mikrofonu, chociaż są też inne np. przetworniki w gitarze elektrycznej. Jest dużo różnych technik działania przetworników, dlatego nie ma sensu się w to zagłębiać. Z naszej perspektywy najistotniejsze jest to, że w wyniku ich działania drgania zostają zamienione na sygnał elektryczny. I tutaj zaczyna się cała zabawa.
+
+### Sygnały analogowe i cyfrowe
+
+Sygnał, który otrzymujemy z mikrofonu, to sygnał analogowy. Sygnały analogowe charakteryzują się tym, że mogą przyjmować dowolną wartość, którą można określić dla dowolnej chwili. Taki sygnał można bez problemu zapisać na nośnikach, które są znane pod nazwą nośników analogowych — różnego rodzaju taśmy magnetyczne (np. kaseta magnetofonowa) lub płyta winylowa. Jednak cyfrowo nie jesteśmy w stanie obsłużyć takiego sygnału bezpośrednio, bez żadnej obróbki.
+
+<VideoPlayer
+  url="/videos/fala-dzwiekowa.mp4"
+  muted
+  controls={false}
+  playing
+  loop
+  width={600}
+  height={105}
+  caption={
+    <>
+      Fala dźwiękowa „w przybliżeniu”. Widzimy, że przybliżając coraz bardziej, wciąż widzimy ciągłość fali. Animacja oczywiście jest zrobiona na komputerze, przez co sygnał został poddany obróbce, jednak ze względu na wysoką jakość (i brak odpowiednio bliskiego przybliżenia) nie jest to widoczne. W tym przypadku pokazałem to w programie do edycji dźwięku (Audacity), jednak dość zbliżony efekt moglibyśmy obserwować na oscyloskopie.
+    </>
+  }
+/>
+
+Komputery operują na sygnałach cyfrowych. Od analogowych różnią się tym, że są dyskretne zarówno w czasie, jak i amplitudzie. Oczywiście dyskretny nie oznacza tutaj, że nie rzuca się w oczy itp. W matematyce dyskretny, to przeciwieństwo słowa ciągły — w tym przypadku oznacza to, że sygnał ma wartość tylko w określonych momentach i może przyjmować jedynie z góry określone wartości. Warto jednak zaznaczyć, że w zależności od kontekstu definicja sygnału cyfrowego jest inna. Dalej w artykule będę opierał się na definicji w kontekście przetwarzania sygnałów.
+
+<Image
+  image={fala}
+  alignCenter
+  fullSize
+  alt="Sygnał dyskretny na osi czasu"
+  caption={<>
+    Sygnał cyfrowy. Widzimy, że fala nie jest ciągła, tylko są określone wartości w konkretnych momentach czasu.
+  </>}
+/>
+
+Jak jednak pogodzić to, że z jednej strony mikrofon daje nam sygnał analogowy, a komputer odbiera cyfrowy? Do tego służą urządzenia zwane przetwornikami analogowo-cyfrowymi (oraz w drugą stronę — cyfrowo-analogowymi). Są wbudowane w karty dźwiękowe komputera bądź też w same mikrofony (w przypadku tych na USB lub Bluetooth). Nie będziemy zagłębiać się w techniczne detale działania tych przetworników, jednak omówimy ogólną ideę działania.
+
+## Zamiana sygnału analogowego na cyfrowy
+
+W celu reprezentacji sygnału analogowego w postaci cyfrowej zwykle wykorzystuje się kodowanie PCM (Pulse-Code Modulation, po polsku: Modulacja impulsowo-kodowa). Najprościej mówiąc, polega ono na zapisie wartości sygnału w określonych momentach. Wyróżniamy 2 istotne pojęcia opisujące ten proces:
+
+- Próbkowanie — czyli tworzenie tzw. próbek, które są wartościami sygnału w danym momencie czasu. To, jak często są tworzone, określamy wartością zwaną częstotliwością próbkowania. Określa ona, z ilu próbek składa się jedna sekunda nagrania, i jest przedstawiana w hercach (zwykle kilohercach).
+- Kwantyzacja — czyli przypisanie pojedynczej wartości liczbowej dla danej próbki. Zakres liczb, jakimi możemy opisać próbkę, nazywamy rozdzielczością, którą określamy liczbą bitów.
+
+Na marginesie, mówiąc o zapisie dźwięku, spotykamy się z liniową odmianą PCM znaną jako LPCM (Linear Pulse-Code Modulation). Wyróżnia się ona tym, że kwantyzacja przebiega w sposób liniowy. Ta odmiana jest na tyle powszechna, że często przy opisie PCM spotykamy opisy właśnie LPCM. W tym artykule dla uproszczenia również pisząc PCM, będę miał na myśli LPCM.
+
+Wracając do meritum, parametry opisujące kodowanie PCM można bardzo powszechnie spotkać jako opisujące jakość dźwięku. Najpopularniejszym w dzisiejszych czasach jest oczywiście ilość bitów na sekundę, jednak oprócz tego możemy spotkać się z częstotliwością w kilohercach oraz czasem rozdzielczością w bitach. Przykładowo, w standardzie opisanym przez Czerwoną Księgę (ang. Red Book), czyli popularne CD-Audio, częstotliwość próbkowania wynosi 44100 Hz (44,1 kHz), a rozdzielczość 16 bitów.
+
+## Formaty plików bazujące na PCM
+
+Różne formaty plików potrafią przechowywać sygnał dźwiękowy zakodowany przez PCM. Najbardziej znanym z nim jest Waveform, czyli powszechny .wav będący standardem zapisu dźwięku opracowanym przez Microsoft z IBM, stąd zwykle widujemy go w Windowsie. Innym powszechnie stosowanym standardem jest AIFF, czyli Audio Interchange File Format opracowany przez Apple, stąd jest powszechny na ich sprzętach. Jeszcze na dokładkę mamy format AU opracowany przez Sun Microsystems, tym samym stając się standardem na systemach Uniksowych.
+
+Formaty te tak naprawdę niewiele się od siebie różnią. Różnią się nagłówkiem oraz tym, jak dokładnie przechowywane są dane, jednak same dane to czysty PCM. Obsługują wiele różnych odmian PCM, w tym tę najpowszechniejszą, czyli LPCM.
+
+Co istotne w kontekście wymienionych tu formatów, PCM przechowuje pojedynczy sygnał, a więc pojedynczy kanał dźwięku. Dlatego też aby mieć dźwięk stereo bądź przestrzenny, w pliku przechowuje się wiele ścieżek dźwięku równocześnie. Stąd jeżeli chcielibyśmy obliczać szacunkowy rozmiar pliku, musimy wziąć to pod uwagę. A możemy to zrobić następującym wzorem (wynik w bitach):
+
+$$
+\text{rozmiar [b]}  = \text{częstotliwość} \cdot \text{czas} \cdot \text{rozdzielczość} \cdot \text{liczba kanałów}
+$$
+
+Ostatnią rzeczą, którą warto nadmienić, jest to, że tak zapisane pliki uznajemy jako formaty bezstratne, a samo PCM jako kodowanie bezstratne. Oznacza to, że nie tracimy żadnej informacji **w wyniku kompresji**.
+
+## Parametry kodowania a jakość dźwięku
+
+W poprzednim zdaniu pogrubiłem „w wyniku kompresji”, ponieważ część informacji tracimy na poziomie konwersji sygnału. Stąd odpowiednie ustawienie parametrów częstotliwości próbkowania i rozdzielczości ma nie tylko wpływ na rozmiar pliku, ale także przede wszystkim na jakość dźwięku.
+
+Wspomniane przeze mnie wcześniej parametry standardu czerwonej książki są dziś uważane za typowe parametry pozwalające na wierne odwzorowanie dźwięku. Myślę, że dla przeciętnego słuchacza taka jakość, jaką oferują płyty CD, jest wystarczająca. Jednak stosuje się także inne parametry. Przykładowo, na płytach DVD oraz Blu-ray (w przypadku zapisu dźwięku w postaci PCM) stosuje się częstotliwości próbkowania 48 kHz (najpowszechniejsze), 96 kHz lub 192 kHz przy rozdzielczości 16 lub 24 bitach.
+
+### Częstotliwość Nyquista
+
+Nagrywając dźwięk, możesz oczywiście ustawiać parametry kodowania tak, jak tylko chcesz, ale warto wiedzieć, że im niższe wartości zarówno częstotliwości, jak i rozdzielczości, to jakość dźwięku będzie niższa. Również warto wiedzieć o jeszcze jednej właściwości związanej z częstotliwością próbkowania — od niej zależy, jaki zakres pasma fal dźwiękowych skutecznie zapiszemy. Pojawia się tutaj pojęcie **częstotliwości Nyquista**, czyli maksymalnej częstotliwości składowych sygnału poddawanych próbkowaniu. Pomijając całą matematykę za tym stojącą, wynosi ona połowę częstotliwości próbkowania. Oznacza to, że, przykładowo, w standardzie CD Audio, gdzie częstotliwość próbkowania wynosi 44,1 kHz, częstotliwość Nyquista wynosi 22,05 kHz. Tym samym jest to bezpieczna wielkość, bo jak powiedzieliśmy sobie wcześniej, ludzkie ucho nie słyszy częstotliwości powyżej 20 kHz.
+
+Własność ta bierze się z twierdzenia o próbkowaniu (zwanym też twierdzeniem Nyquista-Shannona). Ogólnie mówiąc, opisuje ono warunki, jakie są potrzebne, aby z sygnału dyskretnego można było wiernie odwzorować sygnał ciągły. Dowód na nie opiera się na szeregach Fouriera, co by niepotrzebnie skomplikowało ten artykuł, ale chętnych jak najbardziej zapraszam do zapoznania się.
+
+### Szum kwantyzacji
+
+W kwestii rozdzielczości, gdy ta jest zbyt niska, mówimy o zniekształceniu sygnału zwanym **szumem kwantyzacji**. Jest to nic innego jak błąd zaokrąglenia do odgórnie ustalonych wartości. Aby obliczyć, czy grozi nam ten szum i co najmniej ile bitów rozdzielczości jest potrzebne, trzeba nieco więcej zachodu niż z częstotliwością, ale nie jest to nic strasznego.
+
+W tym momencie zacznie się nieco obliczeń matematycznych, więc jeśli nie jesteś nimi zainteresowany/a (a raczej jest mała szansa, że mogą Ci się przydać), możesz przejść kilka akapitów niżej (do poświęconego tematowi formatu MP3).
+
+Aby wiedzieć, czy dźwięk nie będzie odbierany jako zniekształcony, możesz obliczyć współczynnik szumu do sygnału (SQNR — Signal-to-quantization-noise ratio). Oblicza się go następująco:
+
+$$
+SQNR = 20\log_{10}{(2^Q)} \approx 6,02\cdot Q \text{ dB}
+$$
+
+W powyższym wzorze $$Q$$ jest rozdzielczością w bitach. Oznacza to, że zwiększając rozdzielczość o 1 bit, zwiększamy współczynnik o ok. 6 decybeli. Co istotne, im wyższa wartość, tym lepiej. Przykładowo, dla 16 bitów SQNR wynosi ok. 96 dB.
+
+### Dynamika sygnału i efektywność kwantowania
+
+Kolejna ważna rzecz — wartość współczynnika szumu do sygnału jest równoznaczna dynamice sygnału. Dynamika sygnału to stosunek między najwyższym a najniższym poziomem sygnału. Obliczamy ją poniższym wzorem:
+
+$$
+DR = 20 \log_{10}{\big(\frac{A_{max}}{A_{min}} \big)}
+$$
+
+$$A_{max}$$ to maksymalna wartość amplitudy sygnału, a $$A_{min}$$ to jej wartość minimalna. Znając te 2 wzory oraz parametry sygnału, możemy określić, jaką minimalną rozdzielczość bitową potrzebujemy, żeby zapisać dźwięk. Jednak warto znać jeszcze jedną zależność związaną z dynamiką sygnału i kwantowaniem. Aby móc poprawnie skwantować sygnał, musi być spełniony poniższy warunek:
+
+$$
+\frac{A_{max}}{A_{min}} \leqslant 2^Q - 1
+$$
+
+Stąd możemy wyznaczyć wzór na liczbę bitów rozdzielczości:
+
+$$
+\begin{align*}
+\log_{10}{2^Q} &= \log_{10}{\big(\frac{A_{max}}{A_{min}} + 1 \big)} \\
+Q \cdot \log_{10}{2} &= \log_{10}{\big(\frac{A_{max}}{A_{min}} + 1 \big)} \\ \text{} \\
+Q &= \frac{\log_{10}{\big(\frac{A_{max}}{A_{min}} + 1 \big)} }{\log_{10}{2}}
+\end{align*}
+$$
+
+Wartość Q wyjdzie niecałkowita (a liczba bitów musi taka być), jednak wtedy zaokrąglamy jej wartość w górę. Natomiast aby obliczyć efektywność kwantowania, obliczamy stosunek niezaokrąglonej wartości do zaokrąglonej i mnożymy przez 100%.
+
+## A co z MP3?
+
+Mówiłem o formacie WAV, a także o mniej znanych przeciętnej osobie, takich jak AIFF czy AU. A co z najpopularniejszym z formatów, czyli MP3? Otóż takie formaty, jak MP3, OGG Vorbis (pliki .ogg) i AAC (pliki .m4a), są dodatkowo skompresowane, aby osiągnąć mniejszy rozmiar pliku. Jest to tzw. kompresja stratna, ponieważ w jej wyniku tracimy część oryginalnych informacji o sygnale. Formaty te stosują tzw. modele psychoakustyczne, które opisują niedoskonałości ludzkiego słuchu i sposoby ich wykorzystania. Sama kompresja natomiast (w przypadku MP3) opiera się na zmodyfikowanej dyskretnej transformacji kosinusowej (MDCT), której nie będę opisywać.
+
+W przypadku formatów stratnych parametrem opisującym jakość jest bitrate, czyli liczba bitów składających się na sekundę nagrania. To ona decyduje o tym, jak mocno algorytm będzie obcinać liczbę informacji w celu uzyskania docelowego rozmiaru pliku. Im niższy bitrate, tym mocniej słychać zniekształcenia kompresji, takie jak dzwonienie czy zanik niskich i wysokich tonów.
+
+Oczywiście istnieją też inne popularne formaty bezstratne, jak FLAC lub ALAC (pliki .m4a). Oferują mniejsze rozmiary plików niż WAV/AIFF/AU przy braku utraty informacji, jednak wymagają większej mocy obliczeniowej do ich odczytania ze względu na użycie silnych algorytmów kompresji.
+
+## Co poza LPCM?
+
+Jak wspomniałem wielokrotnie, LPCM to najpopularniejsza odmiana PCM, ale nie jedyna. Również PCM nie jest jedynym sposobem na zapis dźwięku cyfrowo. Z odmian PCM możemy wyróżnić jeszcze między innymi DPCM, ADPCM, PCMU czy PCMA, które stosują kompresję już na poziomie przetwarzania sygnału.
+
+Zupełnie innym podejściem niż PCM jest PDM (Pulse-Density Modulation, po polsku: Modulacja gęstości impulsów) wykorzystywany w standardzie Super Audio CD pod nazwą DSD (Direct Stream Digital).  Tutaj rozdzielczość wynosi zaledwie 1 bit, gdzie wartość 1 oznacza podnoszenie się fali, a 0 jej opadanie. Wymaga to bardzo wysokich częstotliwości próbkowania. Przykładowo, w Super Audio CD częstotliwość wynosi 2,8 MHz, czyli 64 razy więcej niż na zwykłych płytach CD Audio.
+
+<Image
+  image={pcmdsd}
+  alignCenter
+  fullSize
+  alt="Porównanie formatów PCM i PDM (DSD)"
+  caption={<>
+    Różnica w reprezentacji sygnału dla PCM i PDM (DSD)<br />
+    (By Paweł Zdziarski, <a href="https://creativecommons.org/licenses/by/2.5/deed.en" target="_blank">CC BY 2.5</a>, <a href="https://commons.wikimedia.org/w/index.php?curid=985994" target="_blank">https://commons.wikimedia.org/w/index.php?curid=985994</a>)
+  </>}
+  forceWhiteBackground={false}
+/>
+
+## Literatura
+
+- e-Fizyka, „5.13. Fale akustyczne”, [http://ilf.fizyka.pw.edu.pl/podrecznik/3/5/13](http://ilf.fizyka.pw.edu.pl/podrecznik/3/5/13) (ostatnio odwiedzone 8.05.2021)
+- Analog vs. Digital, [https://learn.sparkfun.com/tutorials/analog-vs-digital/all](https://learn.sparkfun.com/tutorials/analog-vs-digital/all) (ostatnio odwiedzone 8.05.2021)
+- Linear Pulse Code Modulated Audio (LPCM): [https://www.loc.gov/preservation/digital/formats/fdd/fdd000011.shtml](https://www.loc.gov/preservation/digital/formats/fdd/fdd000011.shtml) (ostatnio odwiedzone 8.05.2021)
+- Compact Disc Digital Audio, [https://en.wikipedia.org/w/index.php?title=Compact_Disc_Digital_Audio&oldid=1019151495](https://en.wikipedia.org/w/index.php?title=Compact_Disc_Digital_Audio&oldid=1019151495) (ostatnio odwiedzone 8.05.2021)
+- C. E. Shannon, "Communication in the Presence of Noise," in *Proceedings of the IRE*, vol. 37, no. 1, pp. 10-21, Jan. 1949, doi: 10.1109/JRPROC.1949.232969.
+- Quantization (signal processing), [https://en.wikipedia.org/w/index.php?title=Quantization_(signal_processing)&oldid=1005634302](https://en.wikipedia.org/w/index.php?title=Quantization_(signal_processing)&oldid=1005634302) (ostatnio odwiedzone 8.05.2021)

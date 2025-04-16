@@ -1,0 +1,362 @@
+import Link from 'next/link';
+import {Image} from '@swistak-codes/components';
+import cover from './listonosz_swistak.jpg';
+import pubsub from './pubsub.png';
+
+export const meta = {
+  title: 'Wzorzec obserwator w UI — podejścia scentralizowane',
+  abstract:
+    'W artykule pokazuję scentralizowane podejścia do implementacji wzorca obserwator.',
+  firstParagraph: (
+    <>
+      W <Link href="/post/obserwator">poprzednim artykule</Link> pokazałem, jak wygląda podstawowa implementacja wzorca obserwator, a także w jaki sposób z czasem modyfikowano podejście do niego. Jednak trzymaliśmy się schematu, że obserwowaliśmy zawsze jedną konkretną wartość. Popularne są także scentralizowane implementacje tego wzorca, gdzie mamy centralne miejsce zarządzające powiadomieniami o zmianach wartości różnych zmiennych. Poznajmy przykładowe i jak one działają.
+    </>
+  ),
+  keyword: 'wzorzec observer',
+  categories: ['Programowanie'],
+  tags: [
+    "pub-sub",
+    "publish-subscribe",
+    "typescript",
+    "javascript",
+    "rxjs",
+    "programowanie zdarzeniowe",
+    "event loop",
+    "event dispatcher"
+  ],
+  slug: 'scentralizowany-obserwator',
+  updateTime: '2023-10-18T07:00:00+00:00',
+  publishTime: '2023-10-18T07:00:00+00:00',
+  cover,
+};
+
+## Uwaga wstępna
+
+Tekst jest bezpośrednią kontynuacją artykułu *<Link href="/post/obserwator">Podstawy działania UI — wzorzec obserwator</Link>*. Jeśli go nie przeczytałeś(-aś), polecam to nadrobić, ponieważ będę zakładać, że tematy tam poruszone są Ci znane.
+
+## Publish-Subscribe
+
+Omawiając poprzednio wzorzec obserwator, celowo pominąłem, że Banda Czterech jako synonim jego nazwy traktuje też *Publish-Subscribe* (po pol. *publikuj-subskrybuj*). Pod nazwą *Publish-Subscribe* (lub w skrócie *Pub-Sub*; czasem stosuje się w nazwach ukośnik zamiast myślnika) częściej kojarzy się wzorzec architektoniczny, którego implementacją programową jest obserwator, aczkolwiek nieco inaczej zrobiony.
+
+### Wzorzec architektoniczny
+
+Zacznijmy od tego, czym jest wzorzec architektoniczny i czym się różni od projektowego. Idea jest podobna, tylko dotyczą innego aspektu wytwarzania oprogramowania. O ile wzorce projektowe były zorientowane na kod i traktowały o klasach czy obiektach, tak wzorce architektoniczne są zorientowane na system informatyczny lub jego moduły jako całość. Określają strukturę, z jakich elementów się składa, ich zakres funkcji, a także jak się komunikują między sobą.
+
+Różnice w uproszczeniu można by podsumować następująco:
+
+- Wzorce architektoniczne określają podział i komunikację. Nie dają konkretnych implementacji, tylko mówią, jak coś ma działać.
+- Wzorce projektowe pokazują, jak osiągnąć pewien cel. Są konkretnymi implementacjami rozwiązującymi pewien problem (niealgorytmiczny).
+
+Warto podkreślić, że elementami określanymi przez wzorce architektoniczne mogą być zarówno całe serwery, aplikacje na nich, jak i moduły w kodzie aplikacji. Dlatego też, mimo że pokażę tutaj wzorzec architektoniczny, jego ideę przeniesiemy na kod, który będzie bazować na wzorcu projektowym. Może to brzmieć nieco skomplikowanie, ale zobaczysz, że nie ma w tym nic strasznego.
+
+### Architektura Pub-Sub
+
+Skoro już wiemy, czym są wzorce architektoniczne, zobaczmy, czym jest architektura Pub-Sub.
+
+Wzorzec Pub-Sub określa, jak zrobić system, gdzie jednostki mogą komunikować się między sobą w scentralizowany sposób. Wyróżniamy tutaj publikujących i subskrybentów, między którymi zachodzi komunikacja, i centralny element — broker wiadomości (lub kolejka komunikatów). Broker wiadomości posiada kanały (tematy), do których publikujący przesyłają wiadomości, a subskrybenci je odbierają. Co istotne, ani publikujący, ani subskrybenci nie muszą wiedzieć o sobie nawzajem — spektrum zainteresowania jest po prostu temat wiadomości.
+
+Zauważ, że mamy tutaj bardzo duże podobieństwo do wzorca obserwator, gdzie jeden obiekt (temat) zmieniał swoją wartość (więc można założyć, że przesyłał wiadomość), o czym informował inny (obserwator). Znacząca różnica jest jednak taka, że w przypadku Pub-Sub publikujący ani subskrybenci nie mają bezpośredniej komunikacji między sobą. Jest natomiast centralna struktura, która odbiera i przesyła wiadomości. Można w zasadzie przyjąć, że ta centralna struktura to taki temat *na sterydach*, bo zarządza wieloma zmianami jednocześnie.
+
+<Image
+  image={pubsub}
+  alignCenter
+  fullSize
+  forceWhiteBackground={false}
+  alt="Diagram z trzema swimlane'ami — publikujący, broker i subskrybenci. Pokazane jest, że publikujący komunikują się z tematami składającymi się na brokera, a broker następnie przesyła wiadomości do subskrybentów."
+  caption={<>Diagram przedstawiający przykładową architekturę Pub-Sub. Zwróć uwagę, że publikujący mogą publikować w różnych kanałach, a subskrybenci mogą się subskrybować do wielu.</>}
+/>
+
+Przy okazji warto jeszcze wspomnieć o retencji wiadomości. O ile w klasycznym wzorcu obserwator mogliśmy pobrać wartość w każdej chwili, tak tutaj nie jest to sprecyzowane. Oznacza to, że wiadomość znika z brokera zaraz po rozesłaniu do subskrybentów albo można w każdej chwili odczytać ostatnią z nich bądź nawet każdą opublikowaną. Wszystko zależy od konkretnej implementacji, a każda z nich ma swoje własne zastosowania.
+
+### Implementacje
+
+Dlaczego jest to jednak wzorzec architektoniczny, a nie projektowy? Bo zaimplementować to możemy na wiele sposobów. Fakt, możemy przerobić wzorzec obserwator do tego celu (co nawet zrobimy), ale implementować go można także inaczej.
+
+W kontekście całego systemu informatycznego możemy postawić serwer typu [RabbitMQ](https://www.rabbitmq.com/), który będzie kolejką wiadomości i jedne serwisy będą przesyłać do niej dane, inne odbierać.
+
+Patrząc szerzej niż na zamknięty system, implementacją Pub-Sub mogą być newslettery. Mamy tu w końcu centralne miejsce, gdzie do interesującego tematu rejestrują się subskrybenci, a także mamy osobę, która publikuje wiadomość. Publikujący wiadomość nie wysyła ręcznie maila do każdej z osób, tylko przesyła go do specjalnej usługi serwerowej (typu [Amazon SES](https://aws.amazon.com/ses/)), która robi to za niego.
+
+Jeszcze inną implementacją wzorca Pub-Sub są serwisy społecznościowe. Brokerem wiadomości jest wówczas sam serwis społecznościowy, publikującymi osoby, które na nim piszą, tematami ich profile, a subskrybentami ich śledzący. Tutaj wspomnę, że zawsze możesz zostać subskrybentem mojego „tematu” na „brokerach” takich jak [Facebook](https://www.facebook.com/swistak.codes/), [Instagram](https://www.instagram.com/swistak.codes/) lub [LinkedIn](https://www.linkedin.com/in/tomasz-swistak/) 😉.
+
+### Implementacja programowa
+
+#### Pomysł
+
+Zaimplementujmy w takim razie programową wersję Pub-Suba, korzystając z uproszczonej implementacji wzorca obserwator, którą pokazałem <Link href="/post/obserwator/#implementacja-1">w poprzednim artykule</Link> ([link do oryginalnego Replit](https://replit.com/@tswistak/simplified-observer-ts#index.ts)). Zmienimy ją w taki sposób, że `Subject` przerobimy na brokera wiadomości rozsyłającego komunikaty do subskrybentów tematu. Tym samym w funkcji subskrybującej trzeba będzie zdefiniować, jaki temat interesuje subskrybenta. W tej implementacji zrezygnujemy z przechowywania wiadomości, więc nie będzie funkcji `getState()`, natomiast zamiast `setState(newValue)` zrobimy `sendMessage(channel, message)`, która roześle komunikat do subskrybentów. Dla uproszczenia kodu kanały będą zwykłymi ciągami znaków i nie będziemy walidować przy subskrypcji ani wysyłaniu wiadomości, czy wskazany kanał istnieje.
+
+#### Implementacja w TypeScript
+
+Zgodnie z powyższym opisem poprzednio pokazany „uproszczony obserwator” przerobiony na brokera wiadomości mógłby wyglądać następująco:
+
+```typescript
+// typ funkcji subskrybenta
+// otrzymuje od tematu wartość i nie musi nic zwrócić
+type Subscriber<T> = (value: T) => void;
+
+// klasa brokera wiadomości, przerobiony Subject
+class Broker<T> {
+  // mapa tablic przechowująca subskrybentów dla poszczególnych kanałów
+  private subscribers = new Map<string, Subscriber<T>[]>();
+  // metoda dołączająca subskrybenta do kanału (odpowiednik attach)
+  subscribe(channel: string, subscriber: Subscriber<T>) {
+    // pobieramy istniejącą listę subskrybentów dla kanału lub tworzymy nową
+    const list = this.subscribers.get(channel) || [];
+    // dodajemy subskrybenta do kanału
+    list.push(subscriber);
+    // aktualizujemy listę w mapie
+    this.subscribers.set(channel, list);
+  }
+  // metoda usuwająca subskrybenta (odpowiednik detach)
+  unsubscribe(channel: string, subscriber: Subscriber<T>) {
+    // pobieramy istniejącą listę subskrybentów dla kanału lub tworzymy nową
+    const list = this.subscribers.get(channel) || [];
+    // odfiltrowujemy subskrybenta z tablicy
+    this.subscribers.set(channel, list.filter(x => x !== subscriber));
+  }
+  // metoda wysyłająca wiadomość do subskrybentów (odpowiednik setState)
+  sendMessage(channel: string, message: T) {
+    // pobieramy istniejącą listę subskrybentów dla kanału
+    const list = this.subscribers.get(channel) || [];
+    // wysyłamy wiadomość do każdego z listy
+    list.forEach(send => send(message));
+  }
+}
+
+// przykład użycia - zwiększanie w pętli wartości licznika
+// wiadomości będziemy wysyłać na dwa różne kanały
+// tworzymy centralnego brokera rozsyłającego wiadomości typu number
+const numberBroker = new Broker<number>();
+// subskrybujemy się, aby wypisać liczby parzyste
+numberBroker.subscribe('even', value => console.log('Parzysta', value));
+// subskrybujemy się, aby wypisać liczby nieparzyste
+numberBroker.subscribe('odd', value => console.log('Nieparzysta', value));
+// wysyłamy liczby do brokera w pętli
+for (let i = 0; i < 10; i++) {
+  // sprawdzamy na podstawie parzystości, na który kanał wysłać liczbę
+  const channel = i % 2 === 0 ? 'even' : 'odd'
+  numberBroker.sendMessage(channel, i);
+}
+// po uruchomieniu w konsoli zostaną wypisane kolejne liczby od 0 do 9
+// wraz z informacją o parzystości
+```
+
+Kod możesz przetestować na [Replit](https://replit.com/@tswistak/centralized-observer-ts#index.ts). Zachęcam do próby przerobienia kodu tak, aby broker przechowywał ostatnią wiadomość w kanale w celu możliwości niezależnego jej pobrania. W tym artykule też pominę implementacje w Kotlinie — również zachęcam do spróbowania przerobienia ich na własną rękę.
+
+#### Przykładowa implementacja w RxJS
+
+W poprzednim artykule pokazałem biblioteki od [ReactiveX](https://reactivex.io) jako popularne, gotowe implementacje wzorca obserwator. Przełóżmy w takim razie powyższą implementację na [RxJS](https://github.com/ReactiveX/rxjs). Biblioteka ta nie wspiera kanałów wiadomości, ale możemy je zasymulować. Stworzymy obiekt wiadomości zawierający nazwę kanału i treść, a następnie przy subskrypcjach będziemy je odpowiednio filtrować.
+
+Przykładowa implementacja mogłaby wyglądać następująco:
+
+```typescript
+import { Subject } from 'rxjs';
+import { filter, map } from 'rxjs/operators';
+
+// typ wiadomości przesyłanej do RxJS
+type Message = {
+  channel: string;
+  message: number;
+}
+// tworzymy centralny temat
+const centralSubject = new Subject<Message>();
+// zróbmy funkcję do wysyłania wiadomości
+function sendMessage(channel: string, message: number) {
+  // przesyłamy wiadomość do tematu RxJS-owego
+  centralSubject.next({ channel, message });
+}
+// przyda się nam też funkcja zwracająca przefiltrowanego obserwatora
+function channel(name: string) {
+  // zwracamy obserwatora, który zawiera tylko wiadomości wskazanego typu
+  // od razu też przemapowane, aby ukryć wewnętrzną strukturę
+  return centralSubject.pipe(
+    filter(msg => msg.channel === name),
+    map(msg => msg.message)
+  );
+}
+// przykład użycia - zwiększanie w pętli wartości licznika
+// wiadomości będziemy wysyłać na dwa różne kanały
+// subskrybujemy się, aby wypisać liczby parzyste
+channel('even').subscribe(value => console.log('Parzysta', value));
+// subskrybujemy się, aby wypisać liczby nieparzyste
+channel('odd').subscribe(value => console.log('Nieparzysta', value));
+// wysyłamy liczby do brokera w pętli
+for (let i = 0; i < 10; i++) {
+  // sprawdzamy na podstawie parzystości, na który kanał wysłać liczbę
+  const channel = i % 2 === 0 ? 'even' : 'odd'
+  sendMessage(channel, i);
+}
+// po uruchomieniu w konsoli zostaną wypisane kolejne liczby od 0 do 9
+// wraz z informacją o parzystości
+```
+
+Kod możesz przetestować na [Replit](https://replit.com/@tswistak/centralized-observer-rxjs#index.ts).
+
+## Zdarzenia
+
+Na bazie wzorca Publish-Subscribe można oprzeć styl architektury aplikacji znany jako architektura sterowana zdarzeniami (ang. event-driven architecture). Zdarzeniami nazywamy zajście w systemie jakiejś sytuacji, np. naciśnięcie przycisku myszy, restart serwera, nawiązanie nowego połączenia.
+
+W architekturze sterowanej zdarzeniami zamiast o przesyłaniu wiadomości mówimy o wywoływaniu zdarzeń, publikujący to producenci zdarzeń, a subskrybenci to konsumenci. Tyle z opisu tego stylu, bo w zasadzie mógłbym powielić to, co pisałem o pub-sub. W zasadzie w niektórych źródłach wzorce te się utożsamia ze sobą.
+
+Nie chcę tu wchodzić w kwestie architektury aplikacji, bo totalnie nie o tym jest ten wpis. Nas interesuje implementacja programowa, gdyż o ile wcześniej nieco zaimprowizowaliśmy kanały wiadomości, tak w przypadku zdarzeń mechanizmy te są częścią języków programowania lub frameworków do nich (chociaż możemy pisać też własne).
+
+### Programowanie zdarzeniowe
+
+Implementując w kodzie architekturę sterowaną zdarzeniami, skorzystamy z tzw. programowania zdarzeniowego. Jest to paradygmat programowania, w którym działanie aplikacji, jej przepływ sterowania, jest oparte na reagowaniu na zdarzenia. Szczególnie często spotyka się go tam, gdzie programujemy interfejsy użytkownika, które mają reagować na akcje użytkownika, chociaż zdarzenia nie muszą pochodzić z akcji użytkownika, a mogą nawet być wywołane przez inny moduł aplikacji.
+
+W programowaniu zdarzeniowym możemy wyróżnić dwa komponenty, dzięki którym to wszystko działa i możemy pisać aplikacje w taki sposób:
+
+- Pętla zdarzeń (event loop) — jest to pętla działająca w głównym wątku aplikacji, która tak długo, jak system przekazuje do aplikacji komunikaty (zdarzenia), przetwarza je i przekazuje dalej. Dzisiaj w większości przypadków jej nie zobaczysz na własne oczy, ponieważ jest ukryta wewnątrz frameworków, stanowiąc ich podstawę. Aczkolwiek jeśli ciekawi Cię, jak to wygląda pod spodem, możesz zobaczyć np. przykłady użycia `GetMessage()` z WinAPI (np. [w dokumentacji WinAPI](https://learn.microsoft.com/pl-pl/windows/win32/api/winuser/nf-winuser-getmessage) lub [na Wikipedii](https://en.wikipedia.org/wiki/Message_loop_in_Microsoft_Windows)). Bardziej abstrakcyjny przykład pokażę dalej w artykule.
+- Event handlery (nie wiem, jak się to tłumaczy na język polski — agenci zdarzeń? opiekunowie zdarzeń? „obsługiwacze” zdarzeń?) — (najczęściej) funkcje obsługujące konkretne zdarzenia zachodzące w pętli.
+
+Zwykle w opisach programowania zdarzeniowego nie wymienia się tego, ponieważ nie jest to obowiązkowy element, aczkolwiek ja bym wyróżnił jeszcze dyspozytora zdarzeń (ang. event dispatcher). Pod tą nazwą rozumiem obiekt, do którego trafiają informacje o zdarzeniach i który następnie rozsyła je do konsumentów. Jest to odpowiednik brokera wiadomości w programowaniu zdarzeniowym. W zasadzie gdybyśmy mieli implementować go samodzielnie, zrobilibyśmy to w dokładnie taki sam sposób, jak pokazałem powyżej w implementacji programowej wzorca pub-sub. Dyspozytor może być jeden lub wiele wyspecjalizowanych (np. każdy komponent interfejsu ma własny).
+
+### Schemat frameworków
+
+Schemat (w pseudokodzie) frameworka implementującego programowanie zdarzeniowe wygląda następująco:
+
+```javascript
+// główna funkcja aplikacji
+function main() {
+    // dyspozytor zdarzeń może być np. jeden na całą aplikację
+    const dispatcher = new EventDispatcher();
+    // uruchamiamy kod aplikacji, przekazując dyspozytora zdarzeń
+    // w tej funkcji aplikacja powinna zarejestrować konsumentów
+    bootstrapApp(dispatcher);
+    // wszystko odbywa się w nieskończonej pętli zdarzeń
+    while (true) {
+        // pobieramy zdarzenie systemowe (funkcja wymyślona)
+        const systemEvent = getSystemEvent();
+        // zakładamy, że system może wysłać zdarzenie wyłączające aplikację
+        // przykładem takiego zdarzenia w systemach Uniksowych jest SIGTERM
+        if (systemEvent == 'SIGTERM') {
+            // w takim przypadku przerywamy pętlę
+            break;
+        }
+        // w innych przypadkach przetwarzamy zdarzenie systemowe na zrozumiałe dla aplikacji
+        const event = processEvent(systemEvent);
+        // i wysyłamy zdarzenie do dyspozytora,
+        // aby aplikacja wykonała odpowiednią akcję
+        dispatcher.dispatch(event);
+    }
+}
+```
+
+Jednak tak jak wspomniałem wcześniej, możliwe, że nigdy nie doświadczysz takiego kodu. Niezależnie, czy piszesz aplikację na komputery, smartfony, czy webową, raczej skorzystasz z gotowego frameworka, który zrobi to za Ciebie. Podstawą jest wtedy dowiedzieć się, jak wygląda przekazywanie zdarzeń i konsumowanie ich, bo to podstawa interakcji na graficznych interfejsach.
+
+### Programowanie zdarzeniowe w JavaScript
+
+W przypadku aplikacji webowych mówimy najczęściej o JavaScript, gdzie pętla zdarzeń jest wbudowana w przeglądarki internetowe i wykorzystujemy wbudowany dyspozytor zdarzeń do oprogramowania całej interakcji, bez jakiegokolwiek frameworka.
+
+#### Wykorzystanie wbudowanego dyspozytora zdarzeń
+
+W przeglądarkowym JavaScripcie dyspozytorzy zdarzeń to obiekty implementujące interfejs [`EventTarget`](https://developer.mozilla.org/en-US/docs/Web/API/EventTarget). Jest nimi sporo rzeczy, z którymi mamy do czynienia, m.in. elementy HTML-owe, cały dokument (`Document`), okno przeglądarki (`Window`). Implementacje `EventTarget` powinny zawierać:
+
+- możliwość rejestracji konsumentów (obserwatorów) — `addEventListener()`,
+- wyrejestrowywanie konsumentów — `removeEventListener()`,
+- coś, o czym mniej osób wie: możliwość publikowania zdarzeń — `dispatchEvent()`. Czasem jednak zdarza się, że nie mamy dostępu do obiektu typu `EventTarget`, ale udostępniany jest [`MessagePort`](https://developer.mozilla.org/en-US/docs/Web/API/MessagePort). Wówczas możemy przesłać wiadomość przy użyciu `postMessage()`, co skutkuje opublikowaniem wydarzenia.
+
+Mówiąc w skrócie, przeglądarka przechwytuje zdarzenie systemowe, po czym przekazuje je do właściwego dyspozytora zdarzeń. Naciśniesz przycisk, to zdarzenie zostanie przekazane do niego i do obiektów nadrzędnych w jego strukturze (elementy HTML-owe są ustrukturyzowane w drzewo [DOM](https://developer.mozilla.org/en-US/docs/Web/API/Document_Object_Model)). Wykorzystując ten fakt, możemy zdarzeniami zaprogramować interakcję w aplikacji. Co więcej, możemy publikować też własne zdarzenia, co jest przydatne, np. w komunikacji między oknami przeglądarki (w tym także ramkami z innymi stronami) czy oddzielnymi wątkami aplikacji ([Web Workers](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Using_web_workers)).
+
+W artykule skupiamy się na graficznych interfejsach, stąd mówię o przeglądarkowym JavaScript. Warto jednak dodać, że serwerowe rozwiązania oparte na JavaScript, jak Node.js, również posiadają wbudowane mechanizmy zarządzania zdarzeniami (np. [`EventEmitter`](https://nodejs.org/api/events.html) w Node.js). Pominę je w tym artykule.
+
+#### Scentralizowany?
+
+Możesz teraz zadać dość trafne pytanie — skoro mamy wyspecjalizowany emiter zdarzeń na każdym elemencie, to czy dalej jest to scentralizowany obserwator? To już zależy od interpretacji. Można uznać, że nie jest scentralizowany, ale na pewno jest wielozadaniowy, implementując podobne założenia do tego, co pokazałem wcześniej przy okazji Publish-Subscribe.
+
+Dlatego też, mimo że nie jest to do końca scentralizowana wersja obserwatora jak obiecał tytuł artykułu, stwierdziłem, że warto o tym opowiedzieć. Szczególnie że jest mocno powiązana z tym, w jaki sposób działają interfejsy użytkownika, a od tego zacząłem całe opowiadanie na temat wykorzystania wzorca obserwator.
+
+#### Przykład wykorzystania
+
+Dość teoretyzowania. Zobaczmy, jak to wszystko wygląda w kodzie. Postarałem się napisać kod, który zawiera wszystkie opisane powyżej rzeczy, czyli:
+
+- ustawia zdarzenia,
+- wysyła własne zdarzenia (w tym wykorzystując `postMessage()`).
+
+Usuwanie zdarzeń pominąłem, ale warto pamiętać o nim, szczególnie gdy konsumentów tworzymy w efektach (wyjaśnienie terminu: patrz poprzedni artykuł), co jest dość powszechne przy pisaniu kodu z użyciem frameworków.
+
+Część HTML potrzebna do działania kodu:
+
+```html
+<body>
+  <div id="root">
+    <div>Licznik:</div>
+    <div id="counter">0</div>
+    <button id="increase">Zwiększ wartość</button>
+    <button id="send-to-child">Przekaż wartość do ramki niżej</button>
+    <!-- ramka symulująca zewnętrzną zawartość -->
+    <iframe
+      id="child-frame"
+      srcdoc="<div id='text' style='text-align:center;'></div>
+      <script>
+        // odbieramy wiadomość przekazaną z zewnątrz
+        // nasłuchując na zdarzenie 'message'
+        window.addEventListener('message', (event) => {
+          // wpisujemy zawartość wiadomości do elementu text
+          document.getElementById('text').innerText = event.data;
+        })
+      </script>"
+    ></iframe>
+  </div>
+</body>
+
+```
+
+Właściwy kod w JavaScript:
+
+```javascript
+// dla uproszczenia wyciągnijmy do zmiennych elementy widoku
+const counter = document.getElementById('counter');
+const increaseBtn = document.getElementById('increase');
+const sendBtn = document.getElementById('send-to-child');
+const child = document.getElementById('child-frame');
+
+// tworzymy nasłuchiwanie na własne zdarzenie 'increase'
+// utworzymy je w obiekcie dokumentu
+document.addEventListener('increase', () => {
+  // pobieramy aktualną zawartość licznika
+  const value = parseInt(counter.innerText);
+  // wyświetlamy zwiększoną wartość
+  counter.innerText = value + 1;
+});
+
+// dodajemy nasłuchiwanie na zdarzenie kliknięcia
+// na przycisku zwiększania licznika
+// zrobimy to w jego dyspozytorze zdarzeń
+increaseBtn.addEventListener('click', () => {
+  // prześlijmy do dyspozytora zdarzeń własne zdarzenie 'increase'
+  document.dispatchEvent(new CustomEvent('increase'));
+});
+
+// analogicznie jak wyżej dla przycisku przesłania
+sendBtn.addEventListener('click', () => {
+  // wyślijmy wiadomość do ramki (na zewnątrz)
+  // prześlemy zawartość licznika
+  child.contentWindow.postMessage(counter.innerText);
+});
+
+```
+
+Całość kodu w wersji interaktywnej znajdziesz na [StackBlitz](https://stackblitz.com/edit/js-ay2emb?file=index.js).
+
+Z czysto kronikarskiego obowiązku dodam, że o ile mechanizm tworzenia własnych zdarzeń i ich przesyłania istnieje w JavaScripcie, tak przez wiele lat pracy komercyjnej w tym języku bardzo rzadko widziałem jego zastosowania, więc traktuję to jako ciekawostkę. Raczej, w razie potrzeby, stosuje się własne implementacje dyspozytora zdarzeń, np. bazujące na RxJS. Jeśli potrzebowałbyś/potrzebowałabyś takiej, wystarczy przerobić kod, który pokazałem na początku artykułu — w końcu przesyłanie wiadomości a przesyłanie zdarzeń to dokładnie ten sam mechanizm. Widać to nawet dosłownie powyżej, gdy przesyłaliśmy wiadomość do zewnętrznej strony (zawartej w ramce), co tak naprawdę było wywołaniem dyspozytora zdarzeń, tylko z odgórnie ustalonym zdarzeniem.
+
+## Podsumowanie
+
+Nazywając podchwytliwie poprzedni artykuł „podstawy działania UI”, przedstawiłem najbardziej bazową wersję wzorca obserwator, która raczej nie stoi typowo za działaniem UI, co za jego reaktywnością względem danych. To, co poznaliśmy teraz, jest już dosłownie podstawą interfejsów. Na zdarzeniach i ich oprogramowywaniu opiera się w zasadzie każdy graficzny interfejs. A samo przesyłanie zdarzeń jest na tyle tożsame z ideą Publish-Subscribe, która już w ogóle nie ma typowo powiązań z tematem UI, że warto było też i o tym wspomnieć.
+
+Warto znać obie strony, bo tworząc interfejsy, na pewno skorzystasz z wbudowanych dyspozytorów do zaprogramowania podstawowych interakcji, ale do przesyłania danych między różnymi elementami aplikacji napiszesz raczej własne mechanizmy pub-sub. Czasami taki centralny dyspozytor/broker może się lepiej sprawdzić niż wiele tematów/signalsów. Jednak decyzja co, gdzie i kiedy używać zależy całkowicie od projektu, potrzeby w nim i programistów, którzy za nim stoją.
+
+## Literatura
+
+- Keeling M., „Wzorzec publish-subscribe” w *Zostań Architektem Oprogramowania*. Wydawnictwo Naukowe PWN SA, Warszawa 2019, s. 97-98
+- Richards M., Ford N., „Event-Driven Architecture Style” w *Fundamentals of Software Architecture*. O'Reilly Media, 2020, s. 179-209
+- Gautam S., *Publisher-Subscriber (An Architectural Design Pattern)*, https://www.enjoyalgorithms.com/blog/publisher-subscriber-pattern (ostatni dostęp: 16.10.2023)
+- *What is Pub/Sub? The Publish/Subscribe model explained*, https://ably.com/topic/pub-sub (ostatni dostęp: 16.10.2023)
+- *Publisher-Subscriber Model*, https://www.baeldung.com/cs/publisher-subscriber-model (ostatni dostęp: 16.10.2023)
+- *Publisher-Subscriber pattern*, https://learn.microsoft.com/en-us/azure/architecture/patterns/publisher-subscriber (ostatni dostęp: 16.10.2023)
+- *Event-driven architecture style*, https://learn.microsoft.com/en-us/azure/architecture/guide/architecture-styles/event-driven (ostatni dostęp: 16.10.2023)
+- *Event-driven programming*, https://en.wikipedia.org/w/index.php?title=Event-driven_programming&oldid=1174274696 (ostatni dostęp: 16.10.2023)
+- *Event (computing)*, https://en.wikipedia.org/w/index.php?title=Event_(computing)&oldid=1174422514  (ostatni dostęp: 16.10.2023)
+- *Event loop*, https://en.wikipedia.org/w/index.php?title=Event_loop&oldid=1146557835 (ostatni dostęp: 16.10.2023)
+
+<small>Zdjęcie na okładce wygenerowane przez Stable Diffusion.</small>

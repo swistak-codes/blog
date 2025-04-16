@@ -1,0 +1,536 @@
+import Link from 'next/link';
+import {Image} from '@swistak-codes/components';
+import cover from './swistak_matrix2.webp';
+import geo2d from './geo2d.png';
+import geo3d from './geo3d.png';
+import det2x2 from './2x2.png';
+import sarrus1 from './sarrus1.png';
+import sarrus2 from './sarrus2.png';
+
+export const meta = {
+  title: 'Macierze — obliczanie wyznacznika',
+  abstract:
+    'Artykuł opisuje, w jaki sposób obliczać wyznacznik macierzy zarówno ręcznie, jak i algorytmicznie.',
+  firstParagraph: (
+    <>
+      Po pokazaniu ostatnio, czym są <Link href="/post/macierze-podstawy">macierze</Link> i jak wykonuje się na nich podstawowe operacje, przyszedł czas opowiedzieć o tych związanych z nimi nieco trudniejszych zagadnieniach. Teraz skupię się na obliczaniu wyznacznika macierzy, czyli operacji, która jest bardzo charakterystyczna, ale wbrew pozorom nie aż tak trudna, jak mogłoby się wydawać. Temat poruszę zarówno od strony obliczania na kartce, jak i programowania.
+    </>
+  ),
+  keyword: 'macierze',
+  categories: ['Matematyka'],
+  tags: [
+    'macierze',
+    'matematyka',
+    'wyznacznik',
+    'reguła Sarrusa',
+    'rozwinięcie Laplace\'a',
+    'algorytm Bareissa',
+    'układy równań',
+    'układy równań liniowych',
+    'macierz odwrotna'
+  ],
+  slug: 'macierze-wyznacznik',
+  updateTime: '2024-08-28T07:00:00+00:00',
+  publishTime: '2024-08-28T07:00:00+00:00',
+  cover,
+};
+
+## Uwaga wstępna
+
+W artykule zakładam, że wiesz, czym są macierze i jak wykonywać na nich podstawowe operacje. Jeśli nie jesteś zaznajomiony(-a) z tematem, zapraszam do mojego artykułu *<Link href="/post/macierze-podstawy">Macierze — podstawowe operacje</Link>*.
+
+## Co to jest?
+
+### Definicja
+
+Na początku warto odpowiedzieć sobie na pytanie, czym jest wyznacznik macierzy. Jest to o tyle dobre pytanie, że nie ma na nie konkretnej odpowiedzi, bo często znajdziemy, co oznacza wyznacznik w kontekście konkretnego zastosowania. Natomiast najbardziej ogólnie i uniwersalnie możemy powiedzieć, że wyznacznik to wartość (najczęściej liczba) przypisana do macierzy kwadratowej.
+
+### Sposób zapisu
+
+Wyznaczniki możemy zapisywać na różne sposoby. Zakładając, że mamy macierz $$\mathbf{A}$$ o wyrazach $$a_{ij}$$, wyznacznik możemy oznaczyć jako $$\det\mathbf{A}$$, $$\det[a_{ij}]$$ lub $$|a_{ij}|$$. Natomiast w rozwiniętej formie, czyli gdzie widzimy wszystkie wartości macierzy, wyznacznik oznaczamy na dwa sposoby:
+
+$$
+\begin{vmatrix}a_{1,1}&a_{1,2}&\ldots &a_{1,n}\\a_{2,1}&a_{2,2}&\ldots &a_{2,n}\\a_{3,1}&a_{3,2}&\ldots &a_{3,n}\\\vdots &\vdots &\ddots &\vdots \\a_{m,1}&a_{m,2}&\ldots &a_{m,n}\end{vmatrix} = \det \begin{bmatrix}a_{1,1}&a_{1,2}&\ldots &a_{1,n}\\a_{2,1}&a_{2,2}&\ldots &a_{2,n}\\a_{3,1}&a_{3,2}&\ldots &a_{3,n}\\\vdots &\vdots &\ddots &\vdots \\a_{m,1}&a_{m,2}&\ldots &a_{m,n}\end{bmatrix}
+$$
+
+W praktyce najczęściej spotykałem się z tym, że jeśli macierz oznaczamy symbolem, to wówczas piszemy $$\det$$, natomiast w rozwiniętej formie stosowało się notację z pionowymi liniami.
+
+### Przykładowa interpretacja wyznacznika
+
+Jak wspomniałem wcześniej, wartość wyznacznika nie ma konkretnej definicji, a raczej interpretuje się ją w kontekście zastosowania. Najczęściej spotykałem się z interpretacją geometryczną, która moim zdaniem jest najprostsza, dlatego przytoczę ją tutaj, jeszcze zanim nauczymy się obliczać wyznaczniki.
+
+Definicja ta mówi, że mając $$n$$ wektorów, możemy na nich rozpiąć równoległościan wielowymiarowy i wyznacznikiem obliczamy n-wymiarową objętość tej figury. Dobra, zdaję sobie sprawę, że brzmi to skomplikowanie, dlatego zobaczmy konkretne przykłady.
+
+W przypadku dwóch wymiarów mamy dwa wektory: $$\vec{u}=(a,b)$$ i $$\vec{v}=(c,d)$$, na których możemy rozpiąć równoległobok. Wówczas obliczając $$\det\mathbf{P}$$, obliczymy jego pole:
+
+$$
+P = \begin{vmatrix}a & b \\ c & d\end{vmatrix}
+$$
+
+<Image
+  image={geo2d}
+  maxWidth={"500px"}
+  alignCenter
+  alt={"Diagram przedstawiający równoległobok rozpięty na wektorach u i v zaczynających się w punkcie (0, 0) oraz kończących się odpowiednio w punktach (a, b) i (c, d). Dodatkowo został oznaczony punkt równoległoboku w prawym górnym rogu, który jest na pozycji (a+c, b+d)."}
+  caption={<>Interpretacja geometryczna wyznacznika kwadratowej macierzy stopnia 2.</>}
+/>
+
+Analogicznie wygląda to dla trzech wymiarów. Tym razem mamy trzy wektory: $$\vec{u}=(a,b,c)$$, $$\vec{v}=(d,e,f)$$ i $$\vec{w}=(g,h,i)$$, na których rozpinamy równoległościan. Wtedy obliczając $$\det\mathbf{V}$$, otrzymamy jego objętość:
+
+$$
+V = \begin{vmatrix}a & b & c \\ d & e & f \\ g & h & i\end{vmatrix}
+$$
+
+<Image
+  image={geo3d}
+  maxWidth={"500px"}
+  alignCenter
+  alt={"Diagram przedstawiający równoległościan z wektorami u, v i w zaczynającymi się w punkcie (0, 0, 0) oraz kończącymi się odpowiednio w punktach (a, b, c), (d, e, f) i (g, h, i), wraz z oznaczeniem objętości V."}
+  caption={<>Interpretacja geometryczna wyznacznika kwadratowej macierzy stopnia 3.</>}
+/>
+
+Działa to analogicznie dla wyższych wymiarów, ale tutaj już odpuszczę sobie rysunki.
+
+## Obliczanie wyznaczników macierzy
+
+Zanim przejdziemy do algorytmicznego obliczania wyznacznika macierzy, zobaczmy najpierw, jak robi się to pisemnie. Są do tego różne sposoby i niestety nie należą do najprostszych. Jednak najczęściej będziesz spotykać się z obliczaniem wyznaczników macierzy 2×2 i 3×3, które akurat są proste do obliczenia, dlatego skupię się najpierw na tych przypadkach.
+
+### Macierz 1×1
+
+Nim jednak przejdziemy do macierzy 2×2 i 3×3, zadajmy sobie pytanie, ile wynosi wyznacznik macierzy stopnia 1?
+
+Odpowiedź brzmi: tyle, co jedyny element zapisany w tej macierzy.
+
+$$
+\det\begin{bmatrix}a\end{bmatrix} = a
+$$
+
+Tutaj przy okazji widzimy, dlaczego warto stosować zapis $$\det$$. Gdybyśmy napisali równość w ten sposób: $$\begin{vmatrix}a\end{vmatrix} = a$$, byłoby to proste do pomylenia z liczeniem wartości bezwzględnej.
+
+### Macierz 2×2
+
+W przypadku macierzy stopnia 2 wyznacznik możemy obliczyć z bardzo prostego wzoru. Wystarczy pomnożyć wartości na przekątnych i odjąć je od siebie:
+
+$$
+\begin{vmatrix}
+a & b \\
+c & d
+\end{vmatrix} = ad - bc
+$$
+
+Można to dość łatwo zapamiętać wzrokowo w następujący sposób:
+
+<Image
+  image={det2x2}
+  alignCenter
+  maxWidth="250px"
+  alt={"Diagram przedstawiający obliczanie wyznacznika macierzy 2x2 z elementami a, b, c, d, gdzie czerwone i zielone strzałki wskazują kolejność mnożenia i odejmowania."}
+  caption={<>Mnożymy wartości, przez które przechodzi strzałka, i iloczyn ten dostaje znak widoczny na końcu.</>}
+/>
+
+Obliczenie jest dość proste, ale zaprezentuję je jeszcze na przykładzie:
+
+$$
+\begin{vmatrix}
+1 & 2 \\
+3 & 4
+\end{vmatrix} = 1 \cdot 4 - 2 \cdot 3 = 4 - 6 = -2
+$$
+
+### Macierz 3×3
+
+W tym przypadku jest już nieco ciężej, bo wzór jest nieco bardziej zawiły, ale wciąż jak najbardziej możliwy do zapamiętania:
+
+$$
+\begin{vmatrix}
+a & b & c \\
+d & e & f \\
+g & h & i
+\end{vmatrix} = aei + bfg + cdh - ceg - bdi - afh
+$$
+
+Przykładowe obliczenie mogłoby wyglądać tak:
+
+$$
+\begin{align*}
+\begin{vmatrix}
+1 & 2 & 3 \\
+4 & 5 & 6 \\
+7 & 8 & 9
+\end{vmatrix} &= 1 \cdot 5 \cdot 9 + 2 \cdot 6 \cdot 7 + 3 \cdot 4 \cdot 8 - 3 \cdot 5 \cdot 7 - 2 \cdot 4 \cdot 9 - 1 \cdot 6 \cdot 8 = \\
+&= 45 + 84 + 96 - 105 - 72 - 48 = 0
+\end{align*}
+$$
+
+W praktyce nie trzeba pamiętać tego wzoru, bo można go w bardzo prosty sposób uzyskać za pomocą reguły Sarrusa. Jest to mnemonik, gdzie *rozszerzamy* sobie macierz, powielając pierwszą i drugą kolumnę, a następnie znowu mnożymy wartości po przekątnych i je odpowiednio dodajemy lub odejmujemy. Schemat możesz zobaczyć poniżej:
+
+<Image
+  image={sarrus1}
+  alignCenter
+  maxWidth={"400px"}
+  alt={"Diagram przedstawiający metodę Sarrusa do obliczania wyznacznika macierzy 3x3 z elementami a, b, c, d, e, f, g, h, i, gdzie czerwone i zielone strzałki wskazują kolejność mnożenia i dodawania oraz odejmowania."}
+  caption={<>Ponownie mnożymy wartości, przez które przechodzi strzałka i iloczyn ten dostaje znak widoczny na końcu.</>}
+/>
+
+Alternatywnie możemy też rozszerzyć, powielając wiersze. Jest dowolność stosowania, po prostu wybierz to, co łatwiej Ci zapamiętać.
+
+<Image
+  image={sarrus2}
+  maxWidth={"300px"}
+  alignCenter
+  alt={"Diagram przedstawiający metodę Sarrusa do obliczania wyznacznika macierzy 3x3 z elementami a, b, c, d, e, f, g, h, i, gdzie czerwone i zielone strzałki wskazują kolejność mnożenia i dodawania oraz odejmowania, pokazane na przykładzie rozszerzonej macierzy."}
+  caption={<></>}
+/>
+
+Jest to dość proste do zapamiętania, ale należy wiedzieć, że schemat ten ma zastosowanie **tylko** dla macierzy 3×3.
+
+### Macierze n×n
+
+Jeśli chcemy obliczyć wyznacznik dowolnej macierzy, musimy się nieco bardziej wysilić. Sposób, który tutaj pokażę, to rozwinięcie Laplace'a, bo moim zdaniem jest najprostszy do zapamiętania i opisania.
+
+Formalnie metodę tę zapiszemy jako następującą równość:
+
+$$
+\det\mathbf{A} = \sum_{j=1}^n (-1)^{i+j}a_{ij}\mathbf{M}_{ij}
+$$
+
+W powyższym wzorze $$i$$ oraz $$j$$ to oczywiście wiersz i kolumna, przy czym $$i$$ jest stałe, wybieramy sobie dowolne (najczęściej $$i=1$$). $$\mathbf{M}_{ij}$$ to natomiast minor, czyli wyznacznik macierzy $$\mathbf{A}$$ z usuniętym i-tym wierszem i j-tą kolumną. Najprościej obliczanie wyznacznika tą metodą jest zapamiętać następująco:
+
+- Bierzemy pierwszy wiersz naszej macierzy.
+- Spisujemy z niego pierwszą wartość i mnożymy ją przez wyznacznik macierzy, do której spisujemy wszystko poza pierwszym wierszem i pierwszą kolumną.
+- Następnie odejmujemy od tego drugą wartość z wiersza pomnożoną przez wyznacznik macierzy, do której spisujemy wszystko poza pierwszym wierszem i drugą kolumną.
+- Powtarzamy to, aż dojdziemy do końca wiersza. Zapamiętujemy dwie rzeczy:
+    - Na przemian dodajemy i odejmujemy (odejmowanie, gdy rozpatrujemy parzystą kolumnę).
+    - Macierz, którą tworzymy, nigdy nie ma pierwszego wiersza oryginalnej macierzy. W przypadku kolumn zawsze pozbywamy się tej, która w oryginalnej macierzy zawiera spisaną przez nas przed chwilą wartość.
+
+Dla macierzy 4×4 i $$i=1$$ rozwinięcie Laplace'a wygląda następująco:
+
+$$
+\begin{vmatrix}
+a & b & c & d \\
+e & f & g & h \\
+i & j & k & l \\
+m & n & o & p
+\end{vmatrix} =
+a \begin{vmatrix}
+f & g & h \\
+j & k & l \\
+n & o & p
+\end{vmatrix} - b \begin{vmatrix}
+e & g & h \\
+i & k & l \\
+m & o & p
+\end{vmatrix} + c \begin{vmatrix}
+e & f & h \\
+i & j & l \\
+m & n & p
+\end{vmatrix} - d \begin{vmatrix}
+e & f & g \\
+i & j & k \\
+m & n & o
+\end{vmatrix}
+$$
+
+W tym momencie możemy spokojnie użyć reguły Sarrusa albo znowu wykonać rozwinięcie Laplace'a, aby otrzymać macierze 2×2. Możemy potem znowu wykonać rozwinięcie Laplace'a w celu otrzymania macierzy 1×1. Wzór ten stosujemy <Link href="/post/rekurencja-co-to-jest">rekurencyjnie</Link> tak długo, aż będziemy w stanie obliczyć wyznacznik. Patrząc już informatycznie, pod kątem złożoności obliczeniowej nie jest to najlepszy sposób, ale zdecydowanie najprostszy do zapamiętania.
+
+Inne sposoby jak możemy obliczać wyznaczniki macierzy o dowolnych rozmiarach to np. metoda eliminacji Gaussa (znana też jako dekompozycja LU) lub wzór Leibnitza. Są to jednak sposoby trudniejsze do zapamiętania, dlatego nie poruszam ich tutaj.
+
+## Podejścia algorytmiczne
+
+Zobaczyliśmy, jak obliczać wyznaczniki na kartce, przejdźmy więc do algorytmów. Pokażę dwa sposoby, w jaki sposób możemy zaprogramować obliczanie wyznacznika.
+
+### Rozwinięcie Laplace'a
+
+Pierwszy sposób to nic innego jak przeniesienie na język programowania opisanego przeze mnie wyżej rozwinięcia Laplace'a. Z racji tego, że nie ma tu większej filozofii, jest to jedynie przeniesienie rekurencyjnego wzoru matematycznego na kod, to nie będę się bardziej rozpisywać, jak to działa.
+
+Przykładowa implementacja w JavaScript mogłaby wyglądać następująco:
+
+```javascript
+function det(matrix) {
+  // pobieramy stopień macierzy
+  const n = matrix.length;
+  // wyznacznik macierzy stopnia 1 to jej jedyna wartość
+  if (n === 1) {
+    return matrix[0][0];
+  }
+  // tworzymy zmienną, w której będziemy trzymać wartość wyznacznika
+  let result = 0;
+  // iterujemy po kolumnach macierzy
+  for (let i = 0; i < n; i++) {
+    // tworzymy nową macierz
+    const subMatrix = matrix
+      // odcinając pierwszy (0) wiersz, stąd "slice" zwróci tablicę od 1 do końca
+      .slice(1)
+      // dla pozostałych wierszy odcinamy i-tą kolumnę
+      .map((row) => row.filter((_, j) => j !== i));
+    // obliczamy wartość na podstawie wzoru, wywołując funkcję rekurencyjnie
+    result += matrix[0][i] * det(subMatrix) * (i % 2 === 0 ? 1 : -1);
+  }
+  // zwracamy obliczony wyznacznik
+  return result;
+}
+```
+
+Kod w wersji wykonywalnej znajdziesz na [Replit](https://replit.com/@tswistak/determinant-laplace#index.js).
+
+Jak już pisałem wcześniej, rozwinięcie Laplace'a jest bardzo niewydajne obliczeniowo. Jego złożoność to aż $$\Omicron(n!)$$ ($$n$$ to stopień macierzy, $$!$$ to <Link href="/post/rekurencja-co-to-jest/#silnia">silnia</Link>), czyli jedna z najgorszych złożoności, z jakimi mamy do czynienia w algorytmice. Oczywiście moglibyśmy kod nieco zoptymalizować — znamy dokładne wzory na wyznaczniki dla macierzy 2×2 i 3×3, więc moglibyśmy szybciej ucinać rekurencję. Jednak wciąż będzie to podejście o małej wydajności.
+
+### Algorytm Bareissa
+
+Zdecydowanie wydajniejszym podejściem jest metoda Bareissa (opublikowana w 1967 r.; znana też jako metoda Montantego), która jednak wymaga nieco więcej wstępu teoretycznego, bo jest to modyfikacja innego sposobu ręcznego obliczania wyznaczników — metody eliminacji Gaussa. Samej metody gaussowskiej pokazywać jednak nie będę, zachęcam do doczytania na własną rękę. Algorytm Bareissa nad metodą Gaussa ma tę zaletę, że unika dzieleń małych liczb, dzięki czemu minimalizuje błędy wynikające z zaokrągleń.
+
+#### Idea algorytmu
+
+W metodzie Gaussa wyznacznik obliczamy przez wcześniejsze uproszczenie macierzy do macierzy trójkątnej (czyli zawierającej wartości różne od zera tylko na głównej przekątnej i nad nią). Aby to osiągnąć, wykonuje dzielenia wartości na wierszach, co wprowadza błędy przybliżeń, a jak chcemy patrzeć dogłębniej, jest wolniejszą operacją niż dodawanie czy mnożenie. Erwin Bareiss zasugerował, że można ten problem rozwiązać, przerabiając algorytm tak, żeby albo całkowicie pozbyć się operacji dzielenia, albo zostawić operację dzielenia, ale nie doprowadzić nigdy do sytuacji, że pojawią się wartości ułamkowe.
+
+Najczęściej spotykana implementacja algorytmu zupełnie porzuca ideę osiągania macierzy trójkątnej, jak to jest w metodzie Gaussa. Zamiast tego wykorzystujemy przekątną, żeby zapisywać minory główne macierzy. Minory główne to wyznaczniki macierzy powstałych przez usunięcie wierszy i kolumn o tych samych indeksach. Stąd możemy już się domyślić, że skoro przekątna zawiera wyznaczniki fragmentów macierzy, stopniowo coraz większych, to na końcu przekątnej będzie wyznacznik całej macierzy. Jest to podejście, które nie pozbywa się dzielenia, ale nie doprowadza do wartości ułamkowych, stąd też spotkamy się czasem w literaturze z nazwą *FFGE* (*Fraction Free Gaussian Elimination*, po pol. eliminacja Gaussa bez ułamków).
+
+Kroki algorytmu, wraz z wyjaśnieniem, są następujące:
+
+1. Tworzymy macierz pomocniczą $$\mathbf{B}$$, która w tym momencie jest kopią macierzy wejściowej. Będziemy operować tylko na niej.
+2. Otwieramy trzy zagnieżdżone iteracje. Idea jest taka, że mamy okno obliczeniowe, które rozpoczynamy od całości macierzy, a potem odcinamy wiersz z kolumną o tych samych indeksach, idąc od lewego górnego rogu do prawego dolnego. Jak wspomniałem wcześniej, na przekątnej zostawiamy wówczas wartość minora. Rozpiszmy jednak te iteracje:
+    1. Dla każdego $$k$$ od 0 do $$n$$ ($$k < n$$):
+        1. Dla każdego wiersza $$i$$ od $$k+1$$ do $$n$$:
+            1. Dla każdej kolumny $$j$$ od $$k+1$$ do $$n$$:
+                1. Obliczymy nową wartość elementu $$\mathbf{B}[i][j]$$. Będzie to dzielenie dwóch liczb, które dla ułatwienia rozbijemy na dwa kroki.
+                2. Dzielną obliczamy przez pomnożenie aktualnego $$\mathbf{B}[i][j]$$ przez lewy górny róg okna obliczeniowego, odejmując od tego iloczyn elementu najwyżej (w aktualnym oknie) nad $$\mathbf{B}[i][j]$$ i najbardziej na lewo (też w aktualnym oknie) od $$\mathbf{B}[i][j]$$. Czyli obliczamy: $$\mathbf{B}[i][j]\mathbf{B}[k][k] - \mathbf{B}[i][k]\mathbf{B}[k][j]$$.
+                3. Dzielnik to ostatnio obliczony minor, czyli wartość $$\mathbf{B}[k-1][k-1]$$. Wyjątkiem jest sytuacja, gdy $$k=0$$: wówczas używamy 1.
+3. Zwracamy wartość w $$\mathbf{B}[n-1][n-1]$$. Jest to wyznacznik wejściowej macierzy.
+
+#### Implementacja
+
+Powyższe kroki możemy bardzo łatwo przepisać na kod. Przykładowa implementacja w JavaScript będzie wyglądać następująco:
+
+```javascript
+function det(matrix) {
+  // pobieramy stopień macierzy
+  const n = matrix.length;
+  // kopiujemy macierz wejściową
+  const B = matrix.map((row) => [...row]);
+  // iterujemy po kolejnych elementach macierzy zgodnie z ideą algorytmu
+  for (let k = 0; k < n; k++) {
+    for (let i = k + 1; i < n; i++) {
+      for (let j = k + 1; j < n; j++) {
+        // obliczamy nową wartość elementu i,j
+        const dividend = B[i][j] * B[k][k] - B[i][k] * B[k][j];
+        const divider = k > 0 ? B[k - 1][k - 1] : 1;
+        B[i][j] = dividend / divider;
+      }
+    }
+  }
+  // wartość w prawym dolnym rogu macierzy to wyznacznik wejściowej
+  return B[n - 1][n - 1];
+}
+```
+
+Kod do przetestowania znajdziesz na [Replit](https://replit.com/@tswistak/determinant-bareiss#index.js).
+
+Jak widać na pierwszy rzut oka, mamy trzy zagnieżdżone iteracje zawsze iterujące do `n`. Oznacza to, że złożoność obliczeniowa algorytmu wynosi $$\Omicron(n^3)$$. Może nie jest to idealna złożoność, ale zdecydowanie lepsza niż $$\Omicron(n!)$$, z którą mieliśmy do czynienia przy poprzednim algorytmie.
+
+### Inne sposoby
+
+Oczywiście nie są to jedyne algorytmy do obliczania wyznacznika macierzy. O kilku już wspomniałem, ale wypiszę je razem z innymi:
+
+- Metoda eliminacji Gaussa — złożoność $$\Omicron(n^3)$$, jednak z powodu dzielenia małych liczb możemy utracić precyzję rozwiązania.
+- Wzór Leibnitza — wykorzystuje do obliczeń permutacje elementów macierzy. Złożoność $$\Omicron(n!)$$.
+- Algorytm Berkowitza — w przeciwieństwie do algorytmu Bareissa całkowicie eliminuje potrzebę dzielenia, a nie tylko zapewnia brak ułamków. Do tego algorytm można zrównoleglić i ma też inne zastosowania niż tylko obliczanie wyznaczników. Złożoność $$\Omicron(n^4)$$.
+- Algorytm Dodgsona — bardzo podobny do metody rozwinięć Laplace'a, aczkolwiek tutaj mimo dzielenia na mniejsze macierze cały czas trzymamy się zapisu wewnątrz jednej macierzy. Złożoność (o ile dobrze znalazłem) wynosi $$\Omicron(2^{2n})$$. Jako ciekawostkę dodam, że autora tego podejścia, C.L. Dodgsona, możesz lepiej znać pod pseudonimem Lewis Carroll.
+
+## Zastosowania
+
+Wiemy już, czym jest wyznacznik macierzy i jak go obliczamy, więc warto byłoby odpowiedzieć sobie na pytanie — do czego mi się to przyda poza zdaniem algebry na studiach? Otóż wyznaczniki mają zastosowania głównie w matematyce i opiszę tutaj te najważniejsze.
+
+### Rozwiązywanie układów równań liniowych
+
+Jednym z najpowszechniejszych zastosowań wyznaczników macierzy jest obliczanie za ich pomocą układów równań liniowych. Tylko jak to możliwe?
+
+Zacznijmy od tego, że dowolny układ równań liniowych możemy zapisać jako mnożenie macierzy:
+
+$$
+\begin{gather*}
+\begin{cases}
+\begin{matrix}
+a_{11}x_{1}&+&a_{12}x_{2}&+&\dots &+&a_{1n}x_{n}&=b_{1},\\
+a_{21}x_{1}&+&a_{22}x_{2}&+&\dots &+&a_{2n}x_{n}&=b_{2},\\
+\vdots &&\vdots &&\ddots &&\vdots &\vdots \\
+a_{m1}x_{1}&+&a_{m2}x_{2}&+&\dots &+&a_{mn}x_{n}&=b_{m}
+\end{matrix}
+\end{cases} \\
+\Updownarrow \\
+\begin{bmatrix}
+a_{11}&a_{12}&\dots &a_{1n}\\
+a_{21}&a_{22}&\dots &a_{2n}\\
+\vdots &\vdots &\ddots &\vdots \\
+a_{m1}&a_{m2}&\dots &a_{mn}
+\end{bmatrix} \begin{bmatrix}
+x_{1}\\
+x_{2}\\
+\vdots \\
+x_{n}
+\end{bmatrix} =
+\begin{bmatrix}b_{1}\\
+b_{2}\\
+\vdots \\
+b_{m}
+\end{bmatrix}
+\end{gather*}
+$$
+
+W ogólny sposób można to zapisać jako: $$\mathbf{A}\mathbf{X}=\mathbf{B}$$. A przykładowy układ równań w takim zapisie wygląda następująco:
+
+$$
+\begin{gather*}
+\begin{cases}
+2x + y = 10 \\
+x - y = 2
+\end{cases} \\
+\Updownarrow \\
+\begin{bmatrix}
+2 & 1 \\
+1 & -1
+\end{bmatrix} \begin{bmatrix}
+x \\ y
+\end{bmatrix} = \begin{bmatrix}
+10 \\ 2
+\end{bmatrix}
+\end{gather*}
+$$
+
+Aby znaleźć wartości niewiadomych, możemy zastosować wzory Cramera, które opierają się na dzieleniu przez siebie wyznaczników macierzy. Dla naszego zastosowania przyda się konkretnie takie równanie, gdzie wzór na obliczenie każdego $$x_i$$ nazywamy wzorami Cramera:
+
+$$
+x_i = \frac{\det\mathbf{A}_i}{\det\mathbf{A}}
+$$
+
+W zapisie tym $$\mathbf{A}_i$$ to macierz $$\mathbf{A}$$, gdzie i-ta kolumna została zastąpiona wartościami z macierzy $$\mathbf{B}$$.
+
+Nasz przykładowy układ równań moglibyśmy obliczyć następująco:
+
+$$
+\begin{align*}
+x &= \frac{
+\begin{vmatrix}
+10 & 1 \\
+2 & -1
+\end{vmatrix}
+}{
+\begin{vmatrix}
+2 & 1 \\
+1 & -1
+\end{vmatrix}
+} = \frac{-10 - 2}{-2 - 1} = \frac{-12}{-3} = 4 \\
+y &= \frac{
+\begin{vmatrix}
+2 & 10 \\
+1 & 2
+\end{vmatrix}
+}{
+\begin{vmatrix}
+2 & 1 \\
+1 & -1
+\end{vmatrix}
+} = \frac{4 - 10}{-2 - 1} = \frac{-6}{-3} = 2
+\end{align*}
+$$
+
+Wykorzystując wzory Cramera, możesz wyprowadzić sobie uniwersalne wzory do rozwiązywania układów równań. Nawet łatwo znajdziesz takie dla 2 i 3 niewiadomych. Z bardziej programistycznego punktu widzenia jest to bardzo prosty algorytmicznie sposób do zaprogramowania obliczania układów równań.
+
+Co warto dodać, jeśli $$\det\mathbf{A}$$ byłoby zerem, to układ nie ma jednego rozwiązania i oczywiście, z racji dzielenia przez zero, nie moglibyśmy użyć wzorów Cramera.
+
+### Obliczanie macierzy odwrotnych
+
+Jak ostatnio pokazywałem <Link href="/post/macierze-podstawy">mnożenie macierzy</Link>, tak nie pokazywałem dzielenia ani tym bardziej wynikającego z niego faktu, że gdy dzielimy liczbę przez samą siebie, to dostajemy 1. W obrębie macierzy mamy coś podobnego — gdy pomnożymy macierz $$\mathbf{A}$$ przez jej odwrotność ($$\mathbf{A}^{-1}$$), to otrzymamy macierz jednostkową: $$\mathbf{A}\cdot\mathbf{A}^{-1}=\mathbf{I}$$.
+
+Wzór na macierz odwrotną to:
+
+$$
+\mathbf{A}^{-1} = \mathbf{A}^D \cdot \frac{1}{\det\mathbf{A}}
+$$
+
+Od razu widzimy, że do obliczenia potrzebny jest wyznacznik i że nie może być równy 0. Jednak warto odpowiedzieć sobie na pytanie, co to jest $$\mathbf{A}^D$$ i jak to obliczamy?
+
+$$\mathbf{A}^D$$ to macierz dołączona, która to znowu jest transponowaną macierzą dopełnień algebraicznych (oznaczanych jako $$A_{ij}$$) macierzy $$\mathbf{A}^D$$:
+
+$$
+\mathbf{A}^D = \begin{bmatrix}A_{ij}\end{bmatrix}^T
+$$
+
+A w jaki sposób liczymy dopełnienie algebraiczne? Bardzo podobnie do tego, jak liczyliśmy wyznacznik metodą dopełnień Laplace'a, czyli stosując minory:
+
+$$
+A_{ij} = (-1)^{i+j}\mathbf{M}_{ij}
+$$
+
+Policzmy w takim razie prostą macierz odwrotną:
+
+$$
+\begin{align*}
+\mathbf{A} &= \begin{bmatrix}
+2 & -7 \\
+3 & -1
+\end{bmatrix} \\
+\det\mathbf{A} &= -2 + 21 = 19 \\
+\mathbf{A}^{-1} &=
+\mathbf{A}^D \cdot \frac{1}{\det\mathbf{A}}
+= \begin{bmatrix}
+(-1)^{(1+1)}\cdot(-1) & (-1)^{(1+2)}\cdot 3 \\
+(-1)^{(2+1)}\cdot(-7) & (-1)^{(2+2)}\cdot 2
+\end{bmatrix}^T \cdot \frac{1}{19} = \\ &=
+\begin{bmatrix}
+-1 & -3 \\
+7 & 2
+\end{bmatrix}^T \cdot \frac{1}{19} = \begin{bmatrix}
+-\frac{1}{19} & \frac{7}{19} \\
+-\frac{3}{19} & \frac{2}{19}
+\end{bmatrix}
+\end{align*}
+$$
+
+Sprawdźmy, czy po przemnożeniu faktycznie otrzymamy macierz jednostkową:
+
+$$
+\begin{align*}
+\begin{bmatrix}
+2 & -7 \\
+3 & -1
+\end{bmatrix} \begin{bmatrix}
+-\frac{1}{19} & \frac{7}{19} \\
+-\frac{3}{19} & \frac{2}{19}
+\end{bmatrix} &= \begin{bmatrix}
+2\cdot(-\frac{1}{19})+(-7)\cdot(-\frac{3}{19}) & 2\cdot\frac{7}{19}+(-7)\cdot\frac{2}{19} \\
+3\cdot(-\frac{1}{19})+(-1)\cdot(-\frac{3}{19}) & 3\cdot\frac{7}{19}+(-1)\cdot\frac{2}{19}
+\end{bmatrix} = \\ &= \begin{bmatrix}
+-\frac{2}{19}+\frac{21}{19} & \frac{14}{19}-\frac{14}{19} \\
+-\frac{3}{19}+\frac{3}{19} & \frac{21}{19}-\frac{2}{19}
+\end{bmatrix} = \begin{bmatrix}1 & 0 \\ 0 & 1\end{bmatrix} = \mathbf{I}_2
+\end{align*}
+$$
+
+### Inne
+
+To były dwa zastosowania wyznacznika, z którymi spotykałem się najczęściej podczas swojej przygody z matematyką akademicką. Zastosowań jest oczywiście więcej, a przykładowe, które znam, to:
+
+- Obliczanie pól i objętości figur, co pokazałem przy definicji wyznacznika.
+  - Jak obliczać pola i objętości, to możemy także w ten sposób obliczać iloczyn wektorowy zgodnie z jego geometryczną interpretacją. Jeśli czytałeś(-aś) wcześniej mojego bloga, możesz kojarzyć to zastosowanie, ponieważ wykorzystałem je do <Link href="/post/otoczka-wypukla/#wykrywanie-lewoskrętów">wykrywania lewoskrętów przy wyznaczaniu otoczki wypukłej</Link>. To, co tam tak naprawdę zrobiliśmy, to wykorzystaliśmy iloczyn wektorowy do obliczenia dwukrotności pola trójkąta.
+  - Rozwijając to, możemy w bardzo analogiczny sposób sprawdzić, czy trzy punkty są współliniowe. Wówczas obliczany tam wyznacznik powinien wynosić 0 (czyli trójkąt nie istnieje).
+  - Jeszcze dalej wykorzystując tę ideę — jeśli mielibyśmy tylko dwa punkty, a trzeci byłby niewiadomy, to wyznacznikiem wyprowadzilibyśmy wzór na prostą przecinającą oba znane punkty.
+- Przy bardziej zaawansowanych zagadnieniach z analizy matematycznej spotkasz się z hesjanami, jakobianami i wrońskianami. Są to wyznaczniki, kolejno: macierzy Hessego, Jacobiego i Wrońskiego. Dla zwięzłości odpuszczę sobie tłumaczenie, czym one są i do czego służą.
+- Twierdzenie Kirchhoffa (nie mylić z prawami Kirchhoffa znanymi z fizyki) wykorzystuje liczenie wyznacznika do obliczenia liczby drzew rozpinających grafu.
+
+Zastosowań jest zdecydowanie więcej, ale myślę, że te pokazują, iż temat wyznaczników często przewija się zarówno w tej zaawansowanej matematyce, jak i prostszej, gdzie używając konkretnych wzorów, możesz nawet nie zdawać sobie sprawy, że pochodzą one z obliczenia wyznaczników.
+
+## Podsumowanie
+
+Tak doszliśmy do końca mojego drugiego artykułu poświęconego macierzom. Mimo że zagadnienie to może brzmieć nieco abstrakcyjnie, znalazło wiele zastosowań w matematyce i zarazem też część z nich przenosi się na informatykę. Liczę, że artykuł pomógł Ci zrozumieć temat zarówno od strony matematycznej, jak i algorytmicznej.
+
+## Literatura
+
+- Jurlewicz, T., & Skoczylas, Z. (2001). Macierze i wyznaczniki. W T. Jurlewicz & Z. Skoczylas, Algebra liniowa 1: Definicje, twierdzenia, wzory (wyd. 8 zmienione, s. 49-89). Oficyna Wydawnicza GiS.
+- Jurlewicz, T., & Skoczylas, Z. (2001). Układy równań liniowych. W T. Jurlewicz & Z. Skoczylas, Algebra liniowa 1: Definicje, twierdzenia, wzory (wyd. 8 zmienione, s. 89-102). Oficyna Wydawnicza GiS.
+- Bareiss, E. H. (1968). Sylvester’s Identity and Multistep Integer-Preserving Gaussian Elimination. Mathematics of Computation, 22(103), 565–578. [doi:10.2307/2004533](https://doi.org/10.2307/2004533)
+- Bareiss algorithm, https://en.wikipedia.org/w/index.php?title=Bareiss_algorithm&oldid=1225504784 (ostatnie odwiedziny 02.08.2024).
+- Abdeljaoued, J. (1997). The Berkowitz Algorithm, Maple and Computing the Characteristic Polynomial in an Arbitrary Commutative Ring. MapleTech, 4(3), 21-32.
+- Stover, Christopher and Weisstein, Eric W. "Matrix Inverse." From MathWorld--A Wolfram Web Resource. https://mathworld.wolfram.com/MatrixInverse.html
+- Jones, J. Applications of Matrices. https://people.richland.edu/james/lecture/m116/matrices/applications.html (ostatnie odwiedziny 02.08.2024).
+
+<small>Zdjęcie na okładce wygenerowane przez DALL-E.</small>

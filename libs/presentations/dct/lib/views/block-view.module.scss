@@ -1,0 +1,33 @@
+.block-view {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  align-items: center;
+
+  .back {
+    width: max-content;
+    padding: 2px 6px;
+  }
+
+  .container {
+    display: flex;
+    justify-content: space-evenly;
+    width: 100%;
+    gap: 16px;
+
+    &.center {
+      justify-content: center;
+    }
+
+    .full-size {
+      width: 100%;
+    }
+  }
+
+  p {
+    padding: 0;
+    margin: 0;
+    text-align: center;
+  }
+}

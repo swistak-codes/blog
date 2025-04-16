@@ -1,0 +1,551 @@
+import Link from 'next/link';
+import {Image, Square, Grid} from '@swistak-codes/components';
+import cover from './dziki.jpg';
+import bit1 from './1bit.png';
+import dither1 from './1bit_dithering.png';
+import bit2 from './2bit.png';
+import dither2 from './2bit_dithering.png';
+import bit4 from './4bit.png';
+import dither4 from './4bit_dithering.png';
+import bit8 from './8bit.png';
+import dither8 from './8bit_dithering.png';
+import bit16 from './16bit-1.png';
+import bit24 from './24bit-1.png';
+import cga from './cga.png';
+import cie from './cie.png';
+import cie1931 from './cie1931.png';
+import cmy from './cmy.png';
+import ega from './ega.png';
+import hsl from './hsl.png';
+import hsv from './hsv.png';
+import preciki from './preciki.png';
+import rgb from './rgb.png';
+import ycbcr from './ycbcr.jpg';
+import ydbdr from './ydbdr.jpg';
+import yiq from './yiq.jpg';
+import yuv from './yuv.png';
+
+export const meta = {
+  title: 'Jak komputer zapisuje kolory?',
+  abstract:
+    'Opowiedzmy sobie o kolorach. Czym one są, jak możemy je reprezentować liczbowo oraz jak jest to wszystko zapisywane na komputerze?',
+  firstParagraph: (
+    <>
+      Poruszając kilka tematów z zakresu grafiki komputerowej, do tej pory skupiałem się na algorytmach i matematyce odpowiedzialnych za rysowanie tego, co widzimy na ekranie. Przy okazji opowiadałem o sprzętowych podstawach działania, ale jeszcze nigdy nie poświęciłem czasu temu, co faktycznie obserwujemy na ekranie, czyli kolorom, barwom. A jest to ciekawy i jak zwykle złożony temat, który postaram się przedstawić w prosty sposób.
+    </>
+  ),
+  keyword: 'kolor',
+  categories: ['Grafika komputerowa', 'Świat rzeczywisty a IT'],
+  tags: [
+    'kolory',
+    'rgb',
+    'cie',
+    'hsv',
+    'hsl',
+    'hsb',
+    'css',
+    'cmyk',
+    'teoria Younga-Helmholtza',
+    'rgba',
+    'sRGB',
+    'yuv',
+    'YCbCr',
+    'paleta barw',
+    'głębia koloru',
+    'rozdzielczość',
+    'jasność',
+    'odcień',
+    'saturacja',
+    'synteza subtraktywna',
+    'synteza addytywna',
+    'alfa',
+    'diagram chromatyczności',
+    'yiq',
+    'YDbDr',
+    'YPbPr',
+    'BT.709',
+    'cielab',
+    'ciexyz',
+    'cieluv',
+    'mda',
+    'cga',
+    'ega',
+    'vga',
+    'banding',
+    'dithering',
+  ],
+  slug: 'jak-komputer-zapisuje-kolory',
+  updateTime: '2021-11-23T20:19:34+00:00',
+  publishTime: '2021-11-24T06:00:22+00:00',
+  cover,
+};
+
+## Teoria koloru
+
+Zanim przejdziemy do meritum artykułu od strony technicznej, musimy poznać nieco teorii nietechnicznej. Ogólnie rzecz ujmując, dział wiedzy, który poruszymy, to teoria koloru. Jest to nauka interdyscyplinarna, bo znajdziemy tu zagadnienia z fizyki, biologii oraz psychologii. Jednak spokojnie, wszystko to będzie miało jak zawsze przełożenie na informatykę, co zobaczysz w dalszej części artykułu.
+
+### Czym jest kolor?
+
+Na początek nieco filozoficznie, bo chciałoby się napisać, że co to jest kolor, widzi prawie każdy. Jednak taka definicja nikogo nie zadowala. Najlepiej można powiedzieć, że kolor to wrażenie psychiczne wywoływane w mózgu po odebraniu przez odpowiedni narząd (oko) promieniowania elektromagnetycznego w pewnym zakresie. W przypadku człowieka jest to zakres ok. 400-700 nanometrów, czyli tzw. światło widzialne. Widzialne dla człowieka, bo wiele zwierząt ma inne zakresy widzenia i generalnie za światło uznaje się fale elektromagnetyczne w zakresie od 100 nanometrów do 1 milimetra. Jednak my, z raczej wiadomych powodów, skupimy się tylko na tej części widzialnej przez człowieka.
+
+Warto też dodać, że kolor to nie tylko wrażenie psychiczne. Jest to także wielkość mierzalna i to będzie nas najbardziej interesować w tym artykule. Barwy możemy zapisywać liczbowo w tak zwanych przestrzeniach barw, a mierzyć np. spektrofotometrem.
+
+Od razu dodam, że w artykule będę na przemian stosować słowa kolor i barwa. Są to synonimy z nieco innym znaczeniem, jednak w kontekście, w jakim my operujemy, oznaczają to samo. Tam, gdzie się je rozróżnia, np. w poligrafii, barwą nazywa się wrażenie wzrokowe, a kolorem cechę materii, np. farby.
+
+### Teoria Younga-Helmholtza
+
+Kluczową w teorii kolorów jest teoria Younga-Helmholtza, która wyjaśnia, jak powstają barwne wrażenia wzrokowe, które widzimy. Sformułował ją w 1802 r. T. Young, a rozbudował w 1852 r. H. Helmholtz.
+
+W 1801 r. Young wygłosił, że w siatkówce oka znajdują się trzy rodzaje włókien nerwowych, które reagują na promieniowanie całego widma światła widzialnego. Trzy, ponieważ każde z nich reaguje na różne zakresy długości fal, które odpowiadają barwom podstawowym — czerwonej, żółtej i niebieskiej. Jednocześnie stwierdził, że gdy wszystkie trzy rodzaje włókien są pobudzone tak samo, to widzimy biel, a jeśli w ogóle — czerń; jeśli są pobudzone w różnym stopniu, to widzimy różne barwy.
+
+Helmholtz zmodyfikował założenia Younga, stwierdzając, że powstawanie wrażeń barwnych zawdzięczamy procesom fotochemicznym zachodzącym pod wpływem promieniowania w trzech rodzajach światłoczułych receptorów. Tutaj Helmholtz założył, że trzy kolory podstawowe to czerwony, zielony i fioletowy. Oprócz tego wprowadził takie pojęcia, jak jasność, odcień, nasycenie, i rozróżnił mieszanie barw na subtraktywne i addytywne.
+
+Badana Younga i Helmholtza były kontynuowane jeszcze przez wiele lat, i gdy szczegóły okazały się być nieco inne, sama idea działania widzenia barwnego wciąż pozostaje taka sama. Dziś wiemy, że barwniki wzrokowe znajdujące się w fotoreceptorach na siatkówce oka reagują na barwy: niebieską, zieloną i czerwoną. Za widzenie kolorów odpowiadają czopki, a dodatkowo posiadamy także pręciki umożliwiające widzenie czarno-białe.
+
+<Image
+  image={preciki}
+  alignCenter
+  fullSize
+  alt="Wykres absorpcji światła do długości fali przez czopki i pręciki w ludzkim oku."
+  caption={<>
+    Absorpcja światła, a dokładniej zakresów fal świetlnych przez czopki (K, Ś, D) i pręciki (Pr).<br />
+    (CC BY-SA 3.0, <a href="https://commons.wikimedia.org/w/index.php?curid=6244086" target="_blank">https://commons.wikimedia.org/w/index.php?curid=6244086</a>)
+  </>}
+  forceWhiteBackground
+/>
+
+### Podstawowe pojęcia związane z barwami
+
+Żeby już nie rozwlekać tej części teoretycznej, to w tym krótkim akapicie wypiszę kilka moim zdaniem istotnych terminów, które warto znać w kontekście barw:
+
+- Jasność koloru — całkowita ilość światła, jaką źródło zdaje się emitować lub odbijać. Co ciekawe, termin ten nie jest jasno sprecyzowany, dlatego Międzynarodowa Komisja Oświetleniowa (CIE) nie uznaje go.
+- Odcień — czysty, nasycony kolor. Technicznie jest zdefiniowany jako stopień, w którym bodziec można opisać jako podobny lub różny od tego, który jest opisany jako czerwony, zielony, niebieski i żółty.
+- Saturacja — inaczej nasycenie. Barwy bardziej nasycone są odbierane jako żywe, natomiast mniej nasycone są przytłumione i zbliżone do szarości.
+- Synteza subtraktywna — zjawisko mieszania kolorów przez odejmowanie. Ten rodzaj syntezy zachodzi przy mieszaniu farb, stąd jest wykorzystywana m.in. w druku.
+- Synteza addytywna — zjawisko mieszania barw przez sumowanie. Ten rodzaj syntezy zachodzi przy mieszaniu światła, stąd jest wykorzystywana m.in. w wyświetlaczach.
+- Kanał alfa — dodatkowa informacja, którą często spotykamy w informatyce przy określaniu barwy. Określa poziom przezroczystości wyświetlanej informacji graficznej. Zerowa wartość oznacza pełną przezroczystość, a maksymalna jej brak.
+
+<Grid minWidth={239}>
+  <Image
+    image={cmy}
+    alignCenter
+    fullSize
+    maxWidth="239px"
+    alt="Synteza w przestrzeni CMY"
+    caption={<>
+      Synteza subtraktywna.<br />
+      (<a href="https://commons.wikimedia.org/wiki/File:Synthese-.svg" target="_blank">Quark67</a>, <a href="https://creativecommons.org/licenses/by-sa/2.5" target="_blank">CC BY-SA 2.5</a>, via Wikimedia Commons)
+    </>}
+  />
+  <Image
+    image={rgb}
+    alignCenter
+    fullSize
+    maxWidth="239px"
+    alt="Synteza w przestrzeni RGB"
+    caption={<>
+      Synteza addytywna.<br />
+      (<a href="https://commons.wikimedia.org/wiki/File:Synthese%2B.svg" target="_blank">Quark67</a>, <a href="https://creativecommons.org/licenses/by-sa/3.0" target="_blank">CC BY-SA 3.0</a>, via Wikimedia Commons)
+    </>}
+  />
+</Grid>
+
+## Przestrzeń barw
+
+Do tej pory widzenie barw określaliśmy jako zjawisko w dużej mierze psychiczne. Jednak <Link href="/post/nie-liczby-jako-liczby-czyli-zapis-danych-cyfrowych">jeśli chcemy coś zapisać na komputerze, trzeba to określić liczbowo</Link>. Z pomocą przychodzi nam tu idea przestrzeni barw. Są to matematyczne modele umożliwiające zapisanie barwy. Oczywiście można teraz powiedzieć — przecież to fala elektromagnetyczna, więc moglibyśmy zapisać długość fali. Niestety, nie do końca tak to działa, bo są barwy, których nie określimy długością fali (np. biała, czarna, różowa). Lukę tę łatają przestrzenie barw w taki sposób, że bardziej są związane z ludzką percepcją barwy.
+
+W tej części artykułu zapoznamy się z modelami przestrzeni barw, stawiając nacisk na te, które najczęściej spotykamy w informatyce. I to takie, na które trafimy przy przeróżnych aspektach pracy z grafiką komputerową.
+
+### RGB / RGBA / sRGB
+
+Podstawowym modelem przestrzeni barw w informatyce jest model RGB. Jego nazwa wywodzi się od nazw trzech kolorów podstawowych — czerwonego <Square color="#FF0000" /> (red), zielonego <Square color="#00FF00" /> (green) i niebieskiego <Square color="#0000FF" /> (blue).  Jest to model addytywny, w którym, jak można domyślić się z nazwy, określamy, jak mieszać ze sobą te trzy barwy w celu uzyskania pożądanego koloru. Obecnie model ten często rozszerza się do RGBA, gdzie A to kanał alfa (przezroczystość).
+
+Jeżeli założymy, że poszczególne kolory przyjmują wartości od 0% do 100%, to przykładowe barwy w tym modelu wyglądałyby następująco:
+
+- czarny <Square color="#000000" /> : R 0%, G 0%, B 0%
+- biały <Square color="#FFFFFF" /> : R 100%, G 100%, B 100%
+- zielony <Square color="#00FF00" /> : R 0%, G 100%, B 0%
+- żółty <Square color="#FFFF00" /> : R 100%, G 100%, B 0%
+
+W informatyce zazwyczaj spotykamy się z zakresem wartości 0-255 dla każdej ze składowych barw (zapis 24-bitowy), stąd w modelu tym możemy przedstawić maksymalnie $$256^3 = 16777216$$ barw.
+
+RGB jest modelem teoretycznym i każde urządzenie może nieco inaczej odwzorowywać zapisane w nim barwy. Z tego powodu powstał standard sRGB, początkowo opracowany przez HP i Microsoft, a obecnie jest nadzorowany przez Międzynarodową Komisję Elektrotechniczną (IEC) jako standard IEC 61966-2-1.
+
+<Image
+  image={cie}
+  alignCenter
+  fullSize
+  maxWidth="402px"
+  alt="Diagram chromatyczności z zaznaczonym zakresem sRGB"
+  caption={<>
+    Diagram chromatyczności przedstawiający zakres barw modelu sRGB. Szary obszar reprezentuje światło widziane przez człowieka (przy brzegu na niebiesko zostały opisane długości fal elektromagnetycznych). Punkt na środku (D65) to barwa biała.<br />
+    (By PolBr - Own work, CC BY-SA 4.0, <a href="https://commons.wikimedia.org/w/index.php?curid=98545086" target="_blank">https://commons.wikimedia.org/w/index.php?curid=98545086</a>)
+  </>}
+  forceWhiteBackground
+/>
+
+### CMYK
+
+CMYK to model przestrzeni barw wykorzystywany w poligrafii i wszędzie tam, gdzie mamy do czynienia z mieszaniem farb, czyli jest modelem reprezentującym syntezę subtraktywną. Jednak podobnie do RGB jego nazwa wywodzi się od użytych kolorów:
+
+- C — cyjan <Square color="#00FFFF" />. W RGB uzyskamy jako połączenie kolorów zielonego i niebieskiego.
+- M — magenta <Square color="#FF00FF" />. Jest to połączenie kolorów czerwonego i niebieskiego.
+- Y — żółty (od ang. yellow) <Square color="#FFFF00" />. Jest to połączenie czerwonego i zielonego.
+- K — czarny <Square color="#000000" />. Litera K oznacza ostatnią literę w angielskiej nazwie black, ewentualnie key color (kolor kluczowy).
+
+Teoretycznie kolor czarny powinno się dać uzyskać przez połączenie C, M i Y, jednak w praktyce otrzymuje się głęboki, ciemny brąz. Do tego dochodzi argument oszczędności farb (czarny jest najczęściej stosowanym np. do druku tekstu), stąd dołożono dodatkowo czarną farbę.
+
+CMYK nie jest modelem idealnym. Mimo że teoretycznie moglibyśmy otrzymać tak każdą barwę, to jednak w praktyce nie da się uzyskać idealnie czystych farb odpowiadających kolorom składowym. Z tego powodu dla uzyskania lepszych barw czasami dodaje się także inne barwniki niż czarny, bądź też miesza się kolory na mniej oczywiste sposoby. Przykładowo, niebieski uzyskany z połączenia barw C 100% i M 100% jest bardziej zbliżony do fioletowego, stąd zwykle odejmuje się nieco składowych C i M oraz dodaje trochę czerni. Warto o tym wiedzieć, ponieważ komputerowe reprezentacje często przeliczają kolory w najprostszy możliwy sposób.
+
+### YUV / YCbCr
+
+Ten model przestrzeni barw ma zupełnie inną historię niż powyższe. RGB to przełożenie syntezy addytywnej wprost na liczby, a CMYK syntezy subtraktywnej. Natomiast pochodzenie tej grupy modeli odnajdziemy w telewizji. Jak wiadomo, oryginalnie telewizja była czarnobiała, i nie wdając się w szczegóły, modulacja amplitudy fali elektrycznej wyznaczała jasność punktu na ekranie. Gdy opracowano sposób na rejestrację obrazu kolorowego, chciano przesyłać go tak, aby czarnobiałe odbiorniki wciąż mogły odbierać sygnał. Wymyślono wówczas, żeby do przesyłanego już kanału jasności (Y) wysyłać dwa dodatkowe kanały kodujące barwę (chrominancję).
+
+W europejskim standardzie PAL dodatkowe kanały nazwano U oraz V, gdzie U to przeskalowana różnica między barwą niebieską a jasnością; V to analogiczna różnica między czerwonym a jasnością. Analogiczne systemy powstały dla standardu NTSC używanego w USA (YIQ) oraz francuskiego SECAM (YDbDr). W późniejszych latach opracowano jeszcze popularny we wczesnych zastosowaniach HD YPbPr (w component video) oraz jego współczesny cyfrowy odpowiednik YCbCr. Z powodu zaniku telewizji analogowej dziś często pod nazwą YUV ukrywa się tak naprawdę YCbCr.
+
+Poniżej możesz zobaczyć, jak wygląda obraz wraz z jego składowymi w różnych odmianach tego modelu przestrzeni barw:
+
+<Grid minWidth={164}>
+  <Image
+    image={yuv}
+    alignCenter
+    fullSize
+    maxWidth="164px"
+    alt="Składowe obrazu w YUV"
+    caption={<>
+      YUV<br />
+      (<a href="https://commons.wikimedia.org/w/index.php?curid=2792866" target="_blank">źródło</a>)
+    </>}
+  />
+  <Image
+    image={yiq}
+    alignCenter
+    fullSize
+    maxWidth="164px"
+    alt="Składowe obrazu w YIQ"
+    caption={<>
+      YIQ<br />
+      (CC BY 2.5, <a href="https://commons.wikimedia.org/w/index.php?curid=12157407" target="_blank">źródło</a>)
+    </>}
+  />
+  <Image
+    image={ydbdr}
+    alignCenter
+    fullSize
+    maxWidth="164px"
+    alt="Składowe obrazu w YDbDr"
+    caption={<>
+      YDbDr<br />
+      (CC BY 2.5, <a href="https://en.wikipedia.org/w/index.php?curid=5747739" target="_blank">źródło</a>)
+    </>}
+  />
+  <Image
+    image={ycbcr}
+    alignCenter
+    fullSize
+    maxWidth="164px"
+    alt="Składowe obrazu w YCbCr"
+    caption={<>
+      YCbCr<br />
+      (<a href="https://commons.wikimedia.org/w/index.php?curid=1493370" target="_blank">źródło</a>)
+    </>}
+  />
+</Grid>
+
+W przypadku YPbPr i YCbCr składowe modelu możemy wyznaczyć następująco z modelu RGB:
+
+$$
+\begin{align*}
+Y &= Kr\cdot R + (1-Kr-Kb)\cdot G + Kb \cdot B \\
+Pb &= \frac{1}{2 \cdot (1 - Kb)} \cdot (B - Y)  \\
+Pr &= \frac{1}{2 \cdot (1 - Kr)} \cdot (R - Y) \text{,} \\
+&\text{gdzie:} \\
+R,G,B &\in [0; 1] \\
+Y &\in [0; 1] \\
+Pb, Pr &\in [-0,5; 0,5]
+\end{align*}
+$$
+
+Wartości współczynników Kr i Kb zależą od konkretnego standardu. W przypadku standardu ITU-R BT.709 (HDTV) wynoszą:
+
+$$
+\begin{align*}
+Kb &= 0,0722 \\
+Kr &= 0,2126
+\end{align*}
+$$
+
+Ten model przestrzeni barw jest nie tylko stosowany w telewizji, ale jest to też jeden ze sposobów transmisji obrazu po kablach HDMI. Jednak nas z perspektywy algorytmicznej powinien ciekawić najbardziej dlatego, że jest wykorzystywany w algorytmach kompresji stratnej obrazów i wideo, takich jak JPEG czy MPEG. Dlaczego? Otóż ludzki wzrok lepiej rozróżnia poziomy jasności od konkretnych barw. Stąd można nie określać składowych Cb i Cr dla każdego z pikseli, a jedynie co kilka i używać wcześniejszych wartości, tym samym oszczędzając zajęte miejsce.
+
+### HSL / HSV
+
+O ile powyższe modele są standardem w swoich zastosowaniach, to mają jedną poważną wadę — nie są intuicyjne dla człowieka. Patrząc na barwę, nie jesteśmy w stanie określić, w jakim stopniu składa się z każdego z kolorów podstawowych. Przykładowo zrobienie czegoś takiego jak „trochę mniej nasycony czerwony” nie jest w żadnym stopniu intuicyjne w modelu RGB. Problem ten rozwiązują modele takie jak HSL i HSV (znany też jako HSB), które operują na wartościach bardziej intuicyjnych dla ludzi.
+
+Modele te reprezentowane są graficznie jako stożek bądź walec. Składają się z następujących wartości reprezentujących współrzędne punktu na jednej z tych brył:
+
+- H (hue), czyli odcień światła. Wyrażany jest kątem na kole reprezentującym koło barw.
+- S (saturation), czyli nasycenie. Jest to promień podstawy bryły wyrażany w procentach.
+- W zależności od modelu mamy V (Value), czyli wartość (alternatywnie B od brightness, czyli jasność), albo L (Lightness) będące średnią ilością światła białego. Również są wyrażane w procentach i stanowią wysokość bryły.
+
+Poniższe rysunki najlepiej przedstawiają różnicę między tymi dwoma modelami:
+
+<Grid minWidth={307}>
+  <Image
+    image={hsl}
+    alignCenter
+    fullSize
+    maxWidth="307px"
+    alt="Reprezentacja modelu HSL"
+    caption={<>
+      Cylindryczna reprezentacja modelu HSL.<br />
+      (By HSL_color_solid_cylinder.png: SharkDderivative work: SharkD Talk - HSL_color_solid_cylinder.png, CC BY-SA 3.0, <a href="https://commons.wikimedia.org/w/index.php?curid=9801661" target="_blank">https://commons.wikimedia.org/w/index.php?curid=9801661</a>)
+    </>}
+  />
+  <Image
+    image={hsv}
+    alignCenter
+    fullSize
+    maxWidth="307px"
+    alt="Reprezentacja modelu HSV"
+    caption={<>
+      Cylindryczna reprezentacja modelu HSV.<br />
+      (By HSV_color_solid_cylinder.png: SharkDderivative work: SharkD Talk - HSV_color_solid_cylinder.png, CC BY-SA 3.0, <a href="https://commons.wikimedia.org/w/index.php?curid=9801673" target="_blank">https://commons.wikimedia.org/w/index.php?curid=9801673</a>)
+    </>}
+  />
+</Grid>
+
+### Inne modele przestrzeni barw
+
+Pokazane wyżej modele wybrałem jako te najbardziej znane. Warto jednak wiedzieć, że istnieje ich o wiele więcej. Jeśli ten temat Cię interesuje, warto zapoznać się z modelami opracowanymi przez Międzynarodową Komisję Oświetleniową (CIE), takimi jak CIEXYZ, CIELAB i CIELUV. Są to modele pokrywające całe spektrum światła widzialnego, a tym samym umożliwiają odwzorowanie dowolnej barwy.
+
+<Image
+  image={cie1931}
+  alignCenter
+  fullSize
+  maxWidth="402px"
+  alt="Diagram chromatyczności CIE1931"
+  caption={<>
+    Diagram chromatyczności modelu CIE z 1931 r. Modele CIE są trójwymiarowe, tutaj jednak widzimy tylko dwa wymiary dla uproszczenia schematu. Pokazane kolory są lekko zakłamane. Wyświetlacze w standardzie sRGB (większość dostępnych) nie są w stanie odwzorować wszystkich dostępnych barw. Wcześniej w artykule pokazałem, jaki wycinek tego diagramu reprezentuje sRGB.<br />
+    (źródło: By BenRG - File:CIExy1931.svg, Public Domain, <a href="https://commons.wikimedia.org/w/index.php?curid=7889658" target="_blank">https://commons.wikimedia.org/w/index.php?curid=7889658</a>)
+  </>}
+  forceWhiteBackground
+/>
+
+Dobrym przykładem zastosowania tych systemów jest ustawa z dnia 31 stycznia 1980 r. o godle, barwach i hymnie. Była to pierwsza próba standaryzacji naszych symboli państwowych, w tym kolorów. Do tej pory kolory flagi były określane słownie, a wraz z tą ustawą otrzymaliśmy konkretne wartości z przestrzeni barw CIELUV, które następnie można przeliczać na inne systemy, jak RGB (do wyświetlania) czy CMYK (do druku):
+
+- biały — $$x = 0,314;  y = 0,320; Y = 82; \Delta E = 4$$ (czyli w sRGB mniej więcej #E9E8E7 <Square color="#E9E8E7" />; obliczenie za polską Wikipedią)
+- czerwony — $$x = 0,57;  y = 0,305; Y = 16; \Delta E = 8$$ (czyli w sRGB mniej więcej #D4213D <Square color="#D4213D" />)
+
+Oprócz tego mamy też standardy nazywania kolorów, jak Międzynarodowy Indeks Barw (CI) czy Pantone Matching System. Nie sposób omówić i pokazać je wszystkie, zachowując przy tym zwięzłość i merytorykę tekstu.
+
+## Sposób zapisu barw
+
+Omówiliśmy teorię, teraz czas przełożyć ją na praktykę. Zobaczmy, jak to wszystko, co widzieliśmy wyżej, wykorzystuje się do przechowywania informacji o barwach.
+
+Zacznijmy jednak od tego, że barwy można przechowywać na wiele sposobów:
+
+- Stosować palety dostępnych barw z identyfikatorami kolorów, do których się następnie odnosimy.
+- Zapisywać wprost wartości liczbowe z modelu przestrzeni barw.
+- Zapisywać wartości z modelu przestrzeni barw w postaci złączonej w jedną dużą liczbę.
+
+Niezależnie od sposobu zapisu, jest on ograniczony rozmiarem bądź zakresem liczb, co wpływa na dostępną liczbę kolorów. Ogólna zasada jest taka, że im większy rozmiar zmiennych, tym większa rozdzielczość tonalna (czyli liczba możliwych do uzyskania kolorów).
+
+### Palety barw
+
+Pierwszy najstarszy, ale wciąż używany sposób to wykorzystanie palet barw. Sposób ten wywodzi się stąd, że pierwsze karty graficzne wyświetlały bardzo ograniczony zakres kolorów. W przypadku palet możemy wyróżnić dwa podstawowe rodzaje działania: indeksowany kolor (narzucone z góry barwy) i konfigurowalne palety (CLUT, z ang. color lookup table).
+
+Palety były szczególnie popularne w pierwszych latach komputerów. Możemy tutaj wyróżnić takie wczesne standardy (dla komputerów PC), jak:
+
+- MDA (Monochrome Display Adapter) wspierający tylko dwie barwy — czarną (brak koloru) i jasną (zależnie od monitora: biała, szara, zielona). Oryginalne MDA nie wspierały wyświetlania grafiki, tylko tekst, jednak w 1982 r. powstała karta Hercules, zgodna z MDA, jednak oferująca też tryb graficzny (czarno-biały, 720 × 348 pikseli). W przypadku systemu Hercules każdy piksel był opisany jednym bitem opisującym kolor.
+- CGA (Color Graphics Adapter) — standard opracowany przez IBM w 1981 r. W trybie tekstowym obsługiwał 16 kolorów (4 bity), natomiast w trybie graficznym cztery kolory. W przypadku trybu graficznego dostępne były trzy palety, każda w dwóch odmianach jasności: czerwono-zielono-brązowa, cyan-magenta, cyan-czerwony. Rozszerzeniem tego standardu było Tandy, które oferowało te same 16 barw zarówno w trybie tekstowym, jak i graficznym.
+- EGA (Enhanced Graphics Adapter) to standard na swój sposób rewolucyjny. Obsługujące go karty graficzne posiadały dużą jak na swoje czasy pamięć RAM (64 kB, późniejsze 256 kB) pozwalającą trzymać w pamięci kilka klatek obrazu jednocześnie, zwiększając jego płynność. My jednak nie o tym. Oferowała wyświetlanie jednocześnie do 16 kolorów, jednak można było skonfigurować paletę na własną rękę z dostępnych 64 barw. Można ją było definiować, stosując model RGB składający się z dwóch bitów na kolor czerwony, dwóch na zielony i dwóch na niebieski.
+- VGA (Video Graphics Array) — w tym standardzie można było zdefiniować paletę 256 kolorową, czyli 8-bitową. Co ciekawe, tutaj też można było ręcznie definiować barwy palety: również w modelu RGB po 6 bitów na kolor, czyli dostępne było de facto ponad 260 tysięcy kolorów.
+
+Poniżej możesz zobaczyć porównanie grafiki w grze *Grand Prix Circuit* (z 1988 r.). Z lewej widzimy grę uruchomioną w trybie CGA (4 kolory, paleta cyan-magenta), a z prawej w trybie EGA (16 kolorów). Jak widać, już 16 kolorów wystarczało, aby uzyskać przyjemnie wyglądającą grafikę.
+
+<Grid minWidth={300}>
+  <Image
+    image={cga}
+    alignCenter
+    fullSize
+    alt="Zrzut ekranu z gry Grand Prix Circuit w wersji CGA"
+    caption={<>
+      CGA
+    </>}
+  />
+  <Image
+    image={ega}
+    alignCenter
+    fullSize
+    alt="Zrzut ekranu z gry Grand Prix Circuit w wersji EGA"
+    caption={<>
+      EGA
+    </>}
+  />
+</Grid>
+
+Standardy te są dość wiekowe (ostatnie z nich, VGA, to rok 1987). Jednak, co ciekawe, palety wciąż są w użyciu. Świetnym tego przykładem jest popularny format GIF, w którym obraz jest dzielony na bloki, gdzie każdy blok korzysta z 256 kolorowej palety.
+
+Innym dzisiejszym użyciem odgórnie ustalonej palety są kolory w CSS. Oczywiście można korzystać tam z dowolnych barw, ale mamy też 140 zdefiniowanych z nazwy, jak `black`, `blue`, `green` itd.
+
+### Głębia koloru
+
+Mimo że, jak pisałem na końcu, palety wciąż mają swoje zastosowania, to jednak najczęściej barwy zapisuje się w postaci liczbowej, odnosząc się do konkretnego modelu przestrzeni barw; najczęściej do RGB (lub RGBA). Jednak muszą istnieć pewne ograniczenia, a dokładniej — jakim zakresem liczb możemy zapisać wielkości liczbowe w modelu. Nazywamy to głębią koloru, którą wyraża się w liczbie bitów na piksel albo bitów na pojedynczy kanał koloru. O ten temat zahaczyłem lekko przy okazji <Link href="/post/przetwarzanie-plikow-w-praktyce-obrazy-bmp">omawiania plików BMP</Link>, gdzie zachęcam zajrzeć później.
+
+Najczęściej spotykamy się z następującymi głębiami kolorów:
+
+- 16 bitów na piksel (high color) — zwykle jest to 5 bitów na kanały czerwony i niebieski, 6 bitów na zielony. Daje to $$2^{16} = 65536$$ kolorów. Format ten był stosowany dawniej, gdy karty graficzne jeszcze nie obsługiwały 24-bitowego koloru, ale mimo to wciąż jest w użyciu tam, gdzie nie potrzeba wiernego odwzorowania barw, a trzeba przyspieszyć operacje na obrazach — np. w szczególnych przypadkach przy renderowaniu grafiki trójwymiarowej.
+- 24 bity na piksel (true color) — trzy kanały po 8 bitów każdy. Jest to zdecydowanie najpopularniejszy dziś model zapisu plików graficznych bez przezroczystości. 24-bitowe przechowywanie kolorów kojarzy się zwykle z przestrzenią barw RGB, jednak w przypadku filmów DVD czy Blu-ray są one zapisane w przestrzeni YCbCr. Zapewnia $$2^{24} = 16777216$$ kolorów.
+- 32 bity na piksel — cztery kanały po 8 bitów każdy. Jest to model analogiczny do powyższego z tą różnicą, że obsługuje przezroczystość (czwarty kanał to kanał alfa). Jest też bardziej naturalny do obsługi w językach programowania, ponieważ typy całkowitoliczbowe mają wielkości wyznaczane przez kolejne potęgi liczby 2 (8, 16, 32, 64).
+- 30 bitów na piksel (deep color) — trzy kanały po 10 bitów. Standard ten jest wykorzystywany w UHDTV (4K), a także w standardzie HDR10 (Ultra HD Blu-Ray, konsole do gier z generacji Playstation 4/Xbox One). Znajdziemy także jego 40-bitową odmianę zawierającą kanał alfa. Mamy tutaj do czynienia z $$2^{30} = 1073741824$$ kolorami.
+
+### Problem zbyt niskiej rozdzielczości tonalnej
+
+24 bity są uważane za głębię całkowicie wystarczającą do codziennych zastosowań. Kolorów jest na tyle dużo, że ludzkie oko nie jest w stanie tak łatwo wychwycić braków w kolorach w większości przypadków. Braki te są jednak szczególnie widoczne przy mniejszych głębiach. Mamy wówczas do czynienia z tzw. bandingiem (pasmowaniem). Objawia się tym, że przy przejściach między odcieniami widzimy pasy kolorów.
+
+<Grid minWidth={300}>
+  <Image
+    image={bit24}
+    alignCenter
+    fullSize
+    alt="Gradient w 24 bitowej głębi kolorów"
+    unoptimized
+    caption={<>
+      24bpp
+    </>}
+  />
+  <Image
+    image={bit16}
+    alignCenter
+    fullSize
+    alt="Gradient w 16 bitowej głębi kolorów"
+    unoptimized
+    caption={<>
+      16bpp
+    </>}
+  />
+  <Image
+    image={bit8}
+    alignCenter
+    fullSize
+    alt="Gradient w 8 bitowej głębi kolorów"
+    unoptimized
+    caption={<>
+      8bpp
+    </>}
+  />
+  <Image
+    image={bit4}
+    alignCenter
+    fullSize
+    alt="Gradient w 4 bitowej głębi kolorów"
+    unoptimized
+    caption={<>
+      4bpp
+    </>}
+  />
+  <Image
+    image={bit2}
+    alignCenter
+    fullSize
+    alt="Gradient w 2 bitowej głębi kolorów"
+    unoptimized
+    caption={<>
+      2bpp
+    </>}
+  />
+  <Image
+    image={bit1}
+    alignCenter
+    fullSize
+    unoptimized
+    alt="Gradient w 1 bitowej głębi kolorów"
+    caption={<>
+      1bpp
+    </>}
+  />
+</Grid>
+
+Najprostszym sposobem zapobiegania bandingowi jest oczywiście zwiększenie głębi kolorów, jednak nie zawsze jest to możliwe. Alternatywnym, nieperfekcyjnym sposobem, ale dającym zadowalające rezultaty, jest dithering. Jest to technika polegająca na stawianiu naprzemiennie pikseli o różnych barwach, dzięki czemu uzyskujemy wrażenie uzyskania dodatkowych barw. Szczególnie dobrze wygląda to przy dużych rozdzielczościach, gdzie piksele są na tyle małe, że nie widać przejść na pierwszy rzut oka. Przykład użycia ditheringu mogliśmy zobaczyć nieco wcześniej w tym artykule, kiedy pokazałem zrzuty ekranu z gry *Grand Prix Circuit*.
+
+<Grid minWidth={300}>
+  <Image
+    image={dither8}
+    alignCenter
+    fullSize
+    alt="Gradient w 8 bitowej głębi kolorów z ditheringiem"
+    unoptimized
+    caption={<>
+      8bpp
+    </>}
+  />
+  <Image
+    image={dither4}
+    alignCenter
+    fullSize
+    unoptimized
+    alt="Gradient w 4 bitowej głębi kolorów z ditheringiem"
+    caption={<>
+      4bpp
+    </>}
+  />
+  <Image
+    image={dither2}
+    alignCenter
+    fullSize
+    unoptimized
+    alt="Gradient w 2 bitowej głębi kolorów z ditheringiem"
+    caption={<>
+      2bpp
+    </>}
+  />
+  <Image
+    image={dither1}
+    alignCenter
+    fullSize
+    unoptimized
+    alt="Gradient w 1 bitowej głębi kolorów z ditheringiem"
+    caption={<>
+      1bpp
+    </>}
+  />
+</Grid>
+
+Widzimy tutaj ten sam gradient co wcześniej, jednak przy zmniejszaniu głębii kolorów zastosowano dithering (algorytm Floyda-Steinberga).
+
+### Zapis w plikach
+
+Jeśli już dowiedzieliśmy się wszystkiego na temat zapisu barw, warto byłoby zobaczyć, jak faktycznie one trafiają do plików opisujących grafikę.
+
+Zacznijmy od najprostszych formatów plików, czyli takich, <Link href="/post/tekstowy-zapis-danych-cyfrowych">które są opisane tekstowo</Link>. Jako przykład możemy wyróżnić grafikę wektorową w formacie SVG, gdzie styl figur opisuje się CSS-em (czyli tym samym językiem co wygląd stron internetowych). Mamy do dyspozycji następujące sposoby opisania kolorów:
+
+- Pojedyncza liczba reprezentująca kolor w przestrzeni RGB, zapisana systemem szesnastkowym, poprzedzona #. Może być zapisana 24-bitowo w formacie #RRGGBB, 32-bitowo #RRGGBBAA albo 12-bitowo #RGB. Barwa czerwona może zostać zapisana następująco:
+  - `#FF0000`
+  - `#FF000000`
+  - `#F00`
+- Nazwa koloru z predefiniowanej palety. Kolor czerwony w tym zapisie to po prostu red.
+- Wykorzystanie notacji funkcyjnej odnoszącej się do wybranej przestrzeni barw. W przypadku SVG (tym samym też CSS) dostępne są:
+  - `rgb()` i `rgba()`; kolor czerwony to wówczas `rgb(1, 0, 0)` albo `rgb(100%, 0%, 0%)`. Uzyskane kolory są w przestrzeni sRGB.
+  - `hsl()` i `hsla()`; kolor czerwony to wówczas `hsl(0, 100%, 50%)`. Uzyskane kolory są w przestrzeni sRGB.
+  - Kolory zapisane w przestrzeniach barw LCH (`lch()`), CIELAB (`lab()`) lub dowolnej innej (`color()`). Można za ich pomocą uzyskać dowolny widzialny kolor. Niestety, na obecną chwilę wspiera to jedynie przeglądarka Safari.
+
+Jednak większość formatów graficznych jest binarna. Wówczas nie możemy tekstowo zapisać koloru. Zamiast tego poszczególne składowe przestrzeni barw zapisujemy wprost liczbowo. Aby jednak dane te poprawnie odczytać, musimy wiedzieć następujące rzeczy:
+
+- Jaka jest głębia kolorów? Definiuje nam ona, ile bitów zajmuje informacja o kolorze, więc wiemy, ile bitów musimy odczytać. Z perspektywy programisty najwygodniejsza jest głębia 24-bitowa, ponieważ każdy z kanałów barw zajmuje dokładnie 1 bajt (8 bitów), czyli tyle, ile odczytujemy na raz z pamięci komputera.
+- Jaka jest przestrzeń barw? Najczęściej mamy do czynienia z RGB, ale format może korzystać z palety (GIF) albo YCbCr (niektóre JPG). Formaty mogą też wspierać zupełnie inne modele przestrzeni barw, szczególnie te wykorzystywane w profesjonalnych zastosowaniach.
+- Jaka jest końcówkowość w formacie pliku? W przypadku plików binarnych liczby możemy czytać od lewej do prawej (big endian) lub na odwrót (little endian). Przykładowo, format BMP zapisuje barwy w postaci little endian, stąd są one de facto zapisane jako BBGGRR.
+
+Dochodzi też kwestia kompresji plików, jednak jest ona zupełnie odrębnym tematem. Jeśli chcesz zobaczyć, jak zapis wygląda w praktyce w przypadku plików BMP, to ponownie zapraszam do mojego starszego artykułu <Link href="/post/przetwarzanie-plikow-w-praktyce-obrazy-bmp">„Przetwarzanie plików w praktyce — obrazy BMP”</Link>.
+
+## Literatura
+
+- Foley J. D. i inni, „Światła achromatyczne i barwne” w *Wprowadzenie do grafiki komputerowej*. Warszawa: Wydawnictwa Naukowo-Techniczne, 1995, s. 489-522
+- Klawonn F., „Colour models” w *Introduction to Computer Graphics Using Java 2D and 3D*. Springer-Verlag London Limited, 2008, s. 101-106
+- Hughes J. F. i inni, „An Introduction to Human Visual Perception” w *Computer graphics: principles and practice (3rd ed.)*. Boston: Addison-Wesley Professional, 2013, s. 101-115
+- Teoria Younga-Helmholtza, [https://pl.wikipedia.org/w/index.php?title=Teoria_Younga-Helmholtza&oldid=64434909](https://pl.wikipedia.org/w/index.php?title=Teoria_Younga-Helmholtza&oldid=64434909) (ostatnie odwiedziny 13.11.2021).
+- YCbCr, [https://en.wikipedia.org/w/index.php?title=YCbCr&oldid=1048346572](https://en.wikipedia.org/w/index.php?title=YCbCr&oldid=1048346572) (ostatnie odwiedziny 13.11.2021).
+- Computer display standard, [https://en.wikipedia.org/w/index.php?title=Computer_display_standard&oldid=1031379155](https://en.wikipedia.org/w/index.php?title=Computer_display_standard&oldid=1031379155) (ostatnie odwiedziny 13.11.2021).
+- \<color\>, [https://developer.mozilla.org/en-US/docs/Web/CSS/color_value](https://developer.mozilla.org/en-US/docs/Web/CSS/color_value) (ostatnie odwiedziny 13.11.2021).
+- Ustawa z 31 stycznia 1980 o godle, barwach i hymnie Rzeczypospolitej Polskiej oraz o pieczęciach państwowych ([Dz.U. z 2019 r. poz. 1509](http://isap.sejm.gov.pl/isap.nsf/DocDetails.xsp?id=WDU20190001509))
+
+<small>(zdjęcie na okładce: [lienyuan lee](https://commons.wikimedia.org/wiki/File:%E5%A4%96%E4%BE%86%E5%90%89_Wailaiji_-_panoramio.jpg), [CC BY 3.0](https://creativecommons.org/licenses/by/3.0), via Wikimedia Commons)</small>

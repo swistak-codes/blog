@@ -1,0 +1,261 @@
+import Link from 'next/link';
+import {Image, Iframe} from '@swistak-codes/components';
+import cover from './wojskowy-pies.jpg';
+import przypadki from './saper-przypadki.png';
+import bledne1 from './bledne_miny1.png';
+import bledne2 from './bledne_miny2.png';
+
+export const meta = {
+  title: 'Algorytmika gier — saper',
+  abstract:
+    'W artykule tym napiszesz wraz ze mną prosty klon gry saper, aby zrozumieć algorytmikę jaka kryje się za nią.',
+  firstParagraph: (
+    <>
+      Gry komputerowe nie raz skrywają w sobie wiele ciekawej algorytmiki, która albo jest zaskakująca, albo nietypowa, albo na tyle ciekawa, że warto się z nią zapoznać. Są też takie, które mają pod sobą wręcz bardzo „szkolne” algorytmy, ale nie oznacza to, że nie są ciekawe. Jedną z takich gier jest klasyczny saper, którego wielu zapewne kojarzy z gier wbudowanych w system Windows. Stoją za nim bardzo proste, lecz ciekawe w implementacji algorytmy. Napiszmy razem prosty klon tej gry.
+    </>
+  ),
+  keyword: 'saper',
+  categories: ['Programowanie', 'Gry'],
+  tags: [
+    'rekurencja',
+    'saper',
+    'gry',
+    'javascript',
+    'react',
+    'flood fill',
+  ],
+  slug: 'algorytmika-gier-saper',
+  updateTime: '2021-08-17T16:38:46+00:00',
+  publishTime: '2021-04-14T09:00:11+00:00',
+  cover,
+};
+
+## Zasady gry
+
+Zanim rozpoczniemy programowanie jakiejkolwiek algorytmiki stojącą za grą w sapera, warto zrozumieć, na czym ta gra polega.
+
+Gra składa się tak naprawdę z siatki przycisków, które reprezentują pole minowe. Gramy klikając w pola. Nasze zadanie jest bardzo proste — odsłonić wszystkie pola, które nie zawierają min, lub oznaczyć prawidłowo te, gdzie miny się znajdują.
+
+Jak działa klikanie w pola? Jeżeli pod polem znajdowała się mina, przegrywamy — w końcu saper myli się tylko raz. Jednak jeśli miny nie było, dostaniemy bardzo przydatną informację: ile min znajduje się w sąsiedztwie naciśniętego pola. Zobaczmy to na przykładach:
+
+<Image
+  image={przypadki}
+  alignCenter
+  fullSize
+  alt="Przypadki rozmieszczenia min w grze w sapera. Trzy kombinacje ułożeń na planszach 3 na 3. Czytając wierszami od lewej do prawej, od góry do dołu, pierwszy przypadek: 1 1 0 M 1 0 1 1 0; drugi: 1 2 1 M 2 M 1 2 1; trzeci: 0 0 0 2 3 2 M M M"
+  caption={<>
+    Przykładowe trzy przypadki rozmieszczenia min na planszy 3x3.
+  </>}
+/>
+
+Widzimy powyżej trzy przypadki. Za każdym razem pole, które nie jest miną, wskazuje, ile z ośmiu sąsiadujących z nim pól nie jest miną. Warto zwrócić uwagę, że gdy odkryjemy pole, które nie sąsiaduje z żadną (oznaczone wyżej jako zero), to gra, aby ułatwić nam rozwiązanie, odkryje wszystkie sąsiadujące z nim pola. Jeżeli sąsiadowało z innym zerem, to zostaną pokazani też wszyscy sąsiedzi tamtego pola. Czyli przykładowo, w przypadku oznaczonym na grafice jako 3, klikając w dowolne 0, nie dość, że wszystkie 0 zostaną nam pokazane, to wraz z tym również pola sąsiadujące z minami (2, 3 i 2).
+
+Zasady są dość proste, jednak jestem zdania, że najlepiej jest zagrać w grę, by ją najlepiej zrozumieć. Niestety klasyczny saper zniknął wraz z premierą Windows 8, ale został zastąpiony nieco bardziej rozbudowanym Microsoft Minesweeper. Na Linuksie masz dostępne GNOME Mines lub KMines, zależnie jaką powłokę graficzną używasz. Na macOS za to nie ma żadnego dostarczonego z systemem, ale jest sporo różnych implementacji dostępnych w App Store.
+
+Ewentualnie możesz zagrać poniżej w implementację zrobioną przeze mnie, która jest podstawą tego artykułu. Jest to uproszczona wersja ze stałą wielkością planszy, stałą liczbą min, bez możliwości oznaczania pól z minami, jednak pozwala podejrzeć w dowolnym momencie, co skrywa się pod danym polem.
+
+<Iframe src="/iframe-content/minesweeper/index.html" minHeight={350} />
+
+## Własna implementacja
+
+Zachęcam Cię, abyś w ramach lektury tego artykułu spróbował samodzielnie zaimplementować grę w sapera. Do tego sprawdzi się dowolny język programowania, a podstawą, jaką będziesz musiał zrobić, to siatka przycisków o dowolnych wymiarach (np. 8 na 8 przycisków). Wszystkie dalsze, potrzebne szczegóły opiszę w artykule.
+
+Natomiast jeśli tylko chciałbyś napisać najważniejsze z algorytmów, a nie chcesz skupiać się na tworzeniu interfejsu, możesz skorzystać z szablonu, na podstawie którego napisałem powyższą implementację. Została napisana w JavaScript z wykorzystaniem Reacta, ale część algorytmiczna jest zupełnie oddzielona od wizualnej. Szablon znajdziesz na [CodeSandbox](https://codesandbox.io/s/minesweeper-template-swq3n), gdzie możesz edytować kod i na bieżąco obserwować zmiany. Jeśli jednak nie lubisz edytorów online, źródła znajdziesz także u mnie na [GitHubie](https://github.com/swistak-codes/minesweeper/tree/main/template).
+
+## Podstawy architektury gry
+
+Najważniejszą z punktu widzenia architektury gry jest tablica dwuwymiarowa reprezentująca pole minowe. Najlepiej jest posiadać dwie takie tablice:
+
+- Pierwsza przedstawiająca to, co zawiera każde z pól. Będą to równocześnie informacje, czy znajduje się na danym polu mina, jak i liczba sąsiadujących min dla reszty.
+- Druga przedstawiająca aktualny stan widocznej dla gracza planszy.
+
+Tak naprawdę to wszystko, co jest nam potrzebne z punktu widzenia stanu gry. Musimy też zaprogramować trzy główne zdarzenia (wszystkie opisane dalej w artykule):
+
+- Przy rozpoczęciu nowej gry powinniśmy wygenerować nową planszę i wyczyścić tablicę przedstawiającą widoczny stan planszy.
+- Po naciśnięciu dowolnego z przycisków powinniśmy odsłonić znajdujące się pod nim pole (lub wiele pól, jeśli było zerowe).
+- Po odsłonięciu pola powinniśmy sprawdzić, czy doszło już do wygranej bądź przegranej.
+
+Jeżeli korzystasz z szablonu, który przygotowałem, to część z tych rzeczy jest już gotowa. Tablice stanu znajdziesz w `src/components/MinesweeperContext.js`. Tam również znajdują się funkcje do obsługi zdarzeń wykorzystywane dalej przez komponenty interfejsu. Jedyne, czego brakuje, to implementacje algorytmów, które znajdą się w folderze `src/logic/`.
+
+## Generowanie planszy
+
+> W szablonie: `src/logic/generateFIeld.js`. Funkcja przyjmuje tablicę reprezentującą planszę oraz liczbę min do umieszczenia. Powinna zwrócić tablicę reprezentującą planszę. Co ważne, powinieneś operować na kopii tej tablicy (przygotowana pod zmienną result), aby uniknąć problemów z odświeżaniem komponentów.
+
+Pierwszą z rzeczy algorytmicznych, jakie przyjdzie nam zaprogramować w saperze, jest generowanie planszy. Składa się ono tak naprawdę z trzech etapów:
+
+- inicjalizacja tablicy dwuwymiarowej (już zrobione w szablonie)
+- umieszczenie min w losowych pozycjach (liczba min jest dowolna)
+- określenie sąsiedztw z minami dla pozostałych pól
+
+Etap pierwszy jest oczywisty i możemy go pominąć. Drugi, czyli rozmieszczenie min, też jest dość prosty. Losujemy dwie wartości, które będą służyć za współrzędne w tablicy. Sprawdzamy, czy dane pole jest puste, i jeśli tak, to umieszczamy tam minę. Powtarzamy to tak długo, aż umieścimy taką liczbę min, jaką chcemy.
+
+Ciekawsze jest określenie sąsiedztw. Tutaj zdecydowanie najprościej jest iterować po całej tablicy. Jeżeli pole nie zawiera miny, wtedy sprawdzamy jego ośmiu sąsiadów. Jeżeli dane pole istnieje w tablicy i ma minę, zwiększamy licznik. Po sprawdzeniu wszystkich sąsiadów zapisujemy wartość licznika w polu i przechodzimy do następnego.
+
+W tym miejscu, jeżeli chciałbyś implementować to na wzorze podanym przeze mnie, to założyłem, że tablica reprezentująca pole może zawierać następujące wartości:
+
+- "X" (typ `string`) — mina
+- 0..8 (typ liczbowy) — wartości sąsiedztw
+
+Kod w wersji zaproponowanej przeze mnie wygląda następująco (lekko skrócony dla uproszczenia):
+
+```javascript
+// ułożenie min
+while (mineCount > 0) {
+  const i = Math.floor(Math.random() * size);
+  const j = Math.floor(Math.random() * size);
+  if (result[i][j] === "X") {
+    continue;
+  }
+  result[i][j] = "X";
+  mineCount--;
+}
+
+// obliczenie sąsiedztw
+for (let i = 0; i < size; i++) {
+  for (let j = 0; j < size; j++) {
+    if (result[i][j] === "X") {
+      continue;
+    }
+    const left = i - 1;
+    const right = i + 1;
+    const top = j - 1;
+    const bottom = j + 1;
+    let count = 0;
+    // lewy górny
+    if (left >= 0 && top >= 0 && result[left][top] === "X") {
+      count++;
+    }
+    // środkowy górny
+    if (top >= 0 && result[i][top] === "X") {
+      count++;
+    }
+    // prawy górny
+    if (right < size && top >= 0 && result[right][top] === "X") {
+      count++;
+    }
+    // i tak dalej dla pozostałych pięciu pól
+    // ...
+    result[i][j] = count;
+  }
+}
+```
+
+Kompletny kod znajdziesz [tutaj](https://github.com/swistak-codes/minesweeper/blob/main/complete/src/logic/generateField.js).
+
+## Odsłanianie pól
+
+> W szablonie: `src/logic/computeClickResult.js`. Funkcja przyjmuje współrzędne klikniętego pola, tablicę reprezentującą planszę oraz tablicę widocznego stanu. Powinna zwrócić tablicę widocznego stanu. Tak samo jak poprzednio, kopia tablicy znajduje się w zmiennej `result` i na niej powinieneś operować.
+
+Odsłanianie pól to zdecydowanie najciekawszy element algorytmiczny w saperze. Dlaczego? Otóż samo pokazanie pola to nic trudnego, po prostu kopiujemy wartość. Ciekawie robi się w momencie, gdy pole, które użytkownik kliknął, zawiera wartość 0. Wówczas musimy pokazać wszystkich jego sąsiadów. Co więcej, jeśli któryś z sąsiadów był zerem, to także pokazujemy wszystkich jego sąsiadów.
+
+Jak to zrobić? Zauważ następującą zależność — odsłaniamy wszystkich sąsiadów zera, i  jeśli któryś z nich był zerem, to wszystkich jego sąsiadów, a jeśli któryś z sąsiadów sąsiada był zerem, to wyświetlamy wszystkich jego sąsiadów. Brzmi jak typowy przykład rekurencji. Tak też powinniśmy do tego podejść.
+
+Algorytm jest prosty — wyświetlamy aktualne pole. Jeżeli aktualne pole miało wartość 0, to dla każdego z sąsiadów uruchamiamy rekurencyjnie naszą funkcję. Oczywiście nie jest to jedyny warunek, gdy nie chcemy uruchomić <Link href="/post/rekurencja-co-to-jest">rekurencji</Link>. Tak samo nie chcemy w nią wchodzić, kiedy pole znajduje się poza planszą lub zostało już wcześniej odsłonięte.
+
+Jeżeli implementujesz w zaproponowanym przeze mnie szablonie, to oprócz podanych wcześniej możliwości tablica odsłoniętych pól może posiadać wartość `null`. Oznaczane nią są nieodsłonięte pola.
+
+Kod w wersji zaproponowanej przeze mnie wygląda następująco:
+
+```javascript
+function fill(x, y, field, visibleField) {
+  const size = field.length;
+  if (x < 0 || x >= size || y < 0 || y >= size || visibleField[x][y] !== null) {
+    return visibleField;
+  }
+
+  visibleField[x][y] = field[x][y];
+  if (field[x][y] === 0) {
+    visibleField = fill(x - 1, y - 1, field, visibleField);
+    visibleField = fill(x - 1, y, field, visibleField);
+    visibleField = fill(x - 1, y + 1, field, visibleField);
+    // i tak dalej...
+  }
+  return visibleField;
+}
+```
+
+Kompletny kod znajdziesz [tutaj](https://github.com/swistak-codes/minesweeper/blob/main/complete/src/logic/computeClickResult.js).
+
+## Sprawdzanie wygranej i przegranej
+
+> W szablonie: `src/logic/hasPlayerWon.js`. Funkcja przyjmuje tablicę reprezentującą planszę oraz tablicę widocznego stanu. Sprawdzanie przegranej zostało już zaimplementowane i znajduje się w `src/components/MinesweeperContext.js` w `useField` (funkcja `handleCellClick`).
+
+Na sam koniec pozostawiłem najprostszy z algorytmów, jakie trzeba napisać do obsługi gry w sapera. Możemy rozbić to na dwa przypadki.
+
+Sprawdzenie przegranej możemy zrobić w momencie kliknięcia (tak też jest to zaimplementowane u mnie). Jedyne, co musimy zrobić, to sprawdzić, czy pod wybranymi współrzędnymi na planszy gry znajduje się mina.
+
+Sprawdzenie wygranej wymaga już nieco więcej programowania, jednak nie jest niczym trudnym. Posiadając dwie tablice: planszę oraz odsłonięte pola, musimy określić, czy odsłonięte zostały wszystkie pola bez min. Ewentualnie, jeżeli w naszej implementacji przewidujemy oznaczanie pól z minami, to czy wszystkie pola z minami zostały tak oznaczone.
+
+Całość logiki sprowadza się do prostego przeiterowania po całej tablicy odsłoniętych elementów. Dla każdego pola sprawdzamy (w wersji bez oznaczania pól z minami):
+
+- jeśli nie jest odsłonięte, a zawiera minę, to kontynuujemy iterowanie,
+- jeśli jest odsłonięte i nie zawiera miny, to kontynuujemy iterowanie,
+- w innych przypadkach przerywamy iterację.
+
+Jeżeli przerwaliśmy iterowanie, to powinniśmy uznać, że nie doszło do wygranej. Natomiast jeśli ani razu nie przerwaliśmy iteracji, to oznacza to, że gracz zwyciężył.
+
+Kod w wersji zaproponowanej przeze mnie wygląda następująco:
+
+```javascript
+const size = field.length;
+for (let i = 0; i < size; i++) {
+  for (let j = 0; j < size; j++) {
+    if (
+      (visibleField[i][j] === null && field[i][j] === "X") ||
+      (visibleField[i][j] === field[i][j] && visibleField[i][j] !== "X")
+    ) {
+      continue;
+    }
+    return false;
+  }
+}
+return true;
+```
+
+Kompletny kod znajdziesz [tutaj](https://github.com/swistak-codes/minesweeper/blob/main/complete/src/logic/hasPlayerWon.js).
+
+Po zaprogramowaniu tych elementów w moim szablonie powinieneś otrzymać kompletną, działającą grę w sapera, taką samą, jak ta, która została pokazana na początku artykułu.
+
+## Szczególny przypadek przy generowaniu
+
+Jeżeli chcielibyśmy rozbudowywać grę, to warto wziąć pod uwagę kilka szczególnych przypadków przy generowaniu planszy.
+
+Problem pojawia się taki, że kiedy generujemy dużą liczbę min, możemy natrafić na sytuację, gdy te wylosują się w taki sposób, że nie mamy możliwości odgadnięcia, że mina znajduje się w danym miejscu. Najbardziej oczywisty przypadek wygląda następująco:
+
+<Image
+  image={bledne1}
+  alignCenter
+  fullSize
+  alt="Plansza do gry w sapera o rozmiarach 5 na 5. Czytana wierszami od lewej do prawej, od góry do dołu: 1 2 3 2 1 2 M M M 2 3 M M (oznaczone na pomarańczowo) M 3 2 M M M 2 1 2 3 2 1"
+  caption={<>
+    Przykład niemożliwej do odgadnięcia miny (oznaczona na pomarańczowo).
+  </>}
+/>
+
+Wszystkie z min oznaczone na czerwono jesteśmy w stanie zgadnąć na podstawie liczbowych podpowiedzi z sąsiadujących z nimi pól. Jednak tej znajdującej się wewnątrz, na pomarańczowo, nie jesteśmy w stanie odgadnąć. Jest to błędna sytuacja, ponieważ każda z min powinna być możliwa do odgadnięcia na podstawie podpowiedzi dawanych przez pola.
+
+Przypadek ten jednak można rozwinąć też na miny znajdujące się przy krawędziach planszy. Tym samym poniższe przypadki również są niemożliwe do zgadnięcia:
+
+<Image
+  image={bledne2}
+  alignCenter
+  fullSize
+  alt="Dwie plansze do gry w sapera. Ponownie czytane wierszami od lewej do prawej, od góry do dołu. Pierwsza, 3 kolumny i 5 wierszy: 2 2 1 M M 2 M (pomarańczowe) M 3 M M 2 2 2 1. Druga, 3 na 3: M (pomarańczowe) M 2 M M 2 2 2 1"
+  caption={<>
+    Kolejne przypadki niemożliwych do odgadnięcia min.
+  </>}
+/>
+
+Jak to naprawić? Najprościej — przy losowaniu położenia miny zrobić dodatkowy warunek sprawdzający nie tylko to, czy pole zawiera już minę, ale także, czy nie będzie przypadku, że wszystkie sąsiadujące pola też już mają miny.
+
+## Inne możliwe ulepszenia
+
+Kończąc już artykuł, warto wspomnieć, co jeszcze należałoby wziąć pod uwagę przy grze w sapera, co zazwyczaj znajduje się w jego implementacjach.
+
+Przede wszystkim warto pomyśleć nad generowaniem planszy dopiero po wykonaniu pierwszego kliknięcia w pole. W ten sposób mamy pewność, że ktoś nie trafi pechowo w minę przy pierwszym ruchu. Może kiepsko odzwierciedla to sytuację na prawdziwym polu minowym, jednak zdecydowanie czyni rozgrywkę przyjemniejszą.
+
+O kolejnym usprawnieniu już parę razy wspominałem — możliwość oznaczania min. Jest to bardzo przydatna rzecz, szczególnie przy większych planszach. W ten sposób dajemy graczowi możliwość nie tylko wcześniejszego ukończenia gry przez oznaczenie wszystkich min, ale także dajemy możliwość naszkicowania sobie podpowiedzi w postaci oznaczenia pól, co do których gracz ma podejrzenie, że znajduje się tam mina.
+
+Oczywiście możliwe usprawnienia na tym się nie kończą. Można też zliczać punkty na podstawie czasu, jaki został wykorzystany do odgadnięcia wszystkich min, albo dać możliwość wyboru wielkości planszy itd. Ogólnie można tutaj kombinować na wiele różnych sposobów, aby uczynić tę prostą grę przyjemniejszą w rozgrywce.
+
+<small>(zdjęcie na okładce: [janeb13](https://pixabay.com/users/janeb13-725943/?utm_source=link-attribution&utm_medium=referral&utm_campaign=image&utm_content=1174482) from [Pixabay](https://pixabay.com/users/janeb13-725943/?utm_source=link-attribution&utm_medium=referral&utm_campaign=image&utm_content=1174482))</small>

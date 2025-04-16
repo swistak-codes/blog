@@ -1,0 +1,475 @@
+import Link from 'next/link';
+import {Image} from '@swistak-codes/components';
+import cover from './swistak_grek.jpg';
+
+export const meta = {
+  title: 'Logika dla informatyków — podstawy',
+  abstract:
+    'W artykule pokazuję podstawowe zagadnienia z logiki napisane pod kątem ich zastosowań w informatyce.',
+  firstParagraph: (
+    <>
+      Dość często można spotkać się w Internecie z twierdzeniem, że aby programować, nie trzeba znać matematyki. Jednak jakkolwiek na to nie spojrzeć, komputer to przerośnięty kalkulator, maszyna obliczeniowa, stąd w wielu dziedzinach programowania natkniemy się na różne rzeczy wywodzące się z matematyki. Jest jeden dział matematyki, z którym do czynienia ma na co dzień każdy programista, a nawet ogólniej — każdy informatyk. Tym działem jest logika matematyczna. Poznajmy i uporządkujmy sobie jej absolutne podstawy w kontekście programowania.
+    </>
+  ),
+  keyword: 'logika',
+  categories: ['Logika'],
+  tags: [
+    'logika',
+    'matematyka',
+    'alternatywa',
+    'koniunkcja',
+    'negacja',
+    'nand',
+    'nor',
+    'xor',
+    'flagi',
+    'prawa de Morgana',
+    'javascript'
+  ],
+  slug: 'podstawy-logiki',
+  updateTime: '2023-06-14T07:00:00+00:00',
+  publishTime: '2023-06-14T07:00:00+00:00',
+  cover,
+};
+
+## Po co logika informatykowi?
+
+Zanim przejdę do wprowadzania pojęć, krótko przedstawię, po co w ogóle informatyków obchodzi ten dział matematyki. Z racji tego, że jest to materiał na cały oddzielny artykuł, wypiszę krótko w punktach, co uważam za najważniejsze, żeby wiedzieć.
+
+- Logika matematyczna służy do formalnego opisania matematyki. Jeśli interesuje Cię informatyka od strony teoretycznej albo myślisz o pójściu na studia informatyczne, będziesz musiał(a) ją poznać. Zresztą na większości uczelni wyższych logika jest jednym z tych przedmiotów, które eliminują ludzi już na pierwszym semestrze.
+- Rachunku zdań z logiki podczas programowania używasz dosłownie codziennie. Warunki w językach programowania to nic innego jak jego praktyczne zastosowanie.
+- Teorię zbiorów wykorzystuje się przy operowaniu na kolekcjach (np. nomen omen przy zbiorach), chociaż jej zdecydowanie bardziej znanym zastosowaniem jest konstruowanie zapytań do relacyjnych baz danych, w szczególności złączeń (joinów).
+- Mówiąc o kolekcjach, można by też poruszyć rachunek kwantyfikatorów. Funkcje sprawdzające, czy wszystkie elementy spełniają warunek albo przynajmniej jeden, to bezpośrednie jego zastosowanie.
+- Co opiszę dalej, klasycznie logika operuje na dwóch wartościach — prawdzie i fałszu. Ma to bezpośrednie przełożenie na system binarny (również tylko dwie wartości).
+- Co więcej, na tym zupełnie najniższym poziomie, gdzie już mamy układy elektroniczne, operacje, które są wykonywane, to operacje znane z rachunku zdań.
+- Nieklasycznym podejściem jest logika rozmyta operująca na nieskończonej liczbie wartości (w zakresie od 0 do 1). Jej zastosowania możemy znaleźć w systemach sterowania i sztucznej inteligencji.
+- Chcesz wejść głębiej w wiedzę o językach programowania? Tutaj czeka formalna semantyka języków programowania, teoria typów czy programowanie logiczne.
+
+Mam nadzieję, że tym wstępem jakkolwiek zachęciłem, żeby zgłębić przynajmniej podstawy logiki. Postaram się opisać je prosto, razem z kontekstem w programowaniu.
+
+## Podstawowe pojęcia
+
+Niestety, wprowadzając w tematy logiki, nie można pominąć wytłumaczenia kilku najbardziej podstawowych pojęć. Zacznijmy najpierw od dwóch, które są dość proste:
+
+- Pojęcie pierwotne — jest to na tyle podstawowe pojęcie, że go nie definiujemy.
+- Aksjomat — twierdzenie lub założenie, które uznaje się za prawdziwe, którego się nie udowadnia. Warto dodać, że aksjomaty nie mogą być ze sobą sprzeczne.
+
+A po co nam te dwie rzeczy? Ponieważ stanowią podstawę teorii matematycznych. Pisząc twierdzenia, udowadniamy je, wykorzystując aksjomaty (lub inne twierdzenia) i reguły wnioskowania (o nich kiedy indziej). Natomiast pojęcia pierwotne stanowią podstawę do opisu bardziej skomplikowanych pojęć.
+
+Warto zaznaczyć, że coś może być pojęciem pierwotnym i aksjomatem w ramach jednej teorii matematycznej, a nie być już w innej. Na przykład w geometrii euklidesowej *prosta* jest pojęciem pierwotnym, a w geometrii analitycznej ma formalną definicję jako zbiór punktów spełniających pewne równanie. Przy okazji, widzisz tutaj przykład zastosowania logiki w matematyce, o którym wspomniałem wcześniej — opisuje formalnie matematykę.
+
+Zdaję sobie sprawę, że może nie być to bardzo przydatne w programistycznej praktyce, ale pozwoli nam posługiwać się wspólnym językiem, a jeśli studiujesz, to na zajęciach z logiki będziesz te słowa słyszeć dość często.
+
+## Rachunek zdań
+
+W logice możemy wyróżnić dwa pojęcia pierwotne — zdanie i wartość logiczna zdania. Zdanie możemy rozumieć jako najbardziej elementarną część tego, czym operujemy w logice. Jego wartość logiczna to *prawda* albo *fałsz*.
+
+Operując językiem naturalnym, zdaniami byłyby stwierdzenia typu „jestem głodny”, „słucham muzyki”. Możemy dla nich określić, czy są prawdziwe lub fałszywe — w ten sposób określamy ich wartość logiczną.
+
+Rachunek zdań jest wtedy, kiedy zdania łączymy spójnikami. Otrzymujemy wówczas nowe zdania, które również mają wartość logiczną wynikającą z wartości składowych zdań (zwanych składnikami) i tego, jak działa spójnik (operator). Jeśli powiesz „jestem głodny i słucham muzyki”, słuchając muzyki (drugie zdanie prawdziwe) i będąc najedzonym (pierwsze fałszywe), to skłamiesz — czyli nowe zdanie jest fałszywe.
+
+Przejdźmy teraz na język logiki matematycznej. Tutaj zdania oznaczamy zwykle symbolami $$p,q,r,s$$, natomiast wartości: *prawda* to 1, *fałsz* to 0. Można by powiedzieć, że operujemy <Link href="/post/matematyka-zero-jedynkowa">systemem binarnym</Link>, co z punktu widzenia informatyki jest dość istotne.
+
+## Podstawowe spójniki logiczne
+
+Celowo pominąłem wyżej przeniesienie na język logiki matematycznej spójnika *i*, bo spójnikom warto poświęcić zdecydowanie więcej uwagi. Spójniki logiczne (inaczej: funktory zdaniotwórcze) to nic innego jak operatory, którymi wykonujemy operacje na zdaniach. Przedstawię pięć podstawowych używanych w logice oraz trzy dodatkowe, które zastosowanie znalazły szczególnie w informatyce i elektronice.
+
+Wszystkie działania pokażę w formie tabelki (fachowo nazywa się tablicą prawdy), co jest dość typowym sposobem przedstawiania w logice, jaki wynik otrzymujemy dla działania w zależności od wartości poszczególnych zdań. Poza tym przedstawię przykłady w języku programowania (JavaScript, chociaż są na tyle ogólne, że będą działać w wielu językach), stosując zarówno operatory logiczne, jak i bitowe. Różnią się one tym, że operator logiczny to dosłowne przeniesienie operatorów z logiki matematycznej na programowanie, tzn. traktuje wartości przekazane do niego jako zdania logiczne (innymi słowy traktuje je jako prawdę lub fałsz). Natomiast operator bitowy wykonuje operacje logiczne na poszczególnych bitach, czyli np. przekazując do niego liczby 9 i 6 (binarnie $$1001_2$$ i $$0110_2$$), wykonane zostaną 4 operacje logiczne zwrócone jako liczba.
+
+W kontekście programowania zdecydowanie ważniejsze jest znać operatory logiczne, ponieważ wykorzystywane są na co dzień przy pisaniu warunków (`if`, warunki końca pętli). Operatory bitowe są stosowane rzadziej, ale warto je znać — pod koniec artykułu podam ich przykładowe zastosowania.
+
+### Negacja
+
+Najbardziej podstawowy spójnik logiczny to negacja i jako jedyny jest jednoargumentowy, czyli przekazujemy do niego tylko jedną wartość, aby otrzymać wynik operacji.
+
+Negację (NOT) oznaczamy w logice symbolem $$\neg$$ (lub $$\sim$$) i $$\neg p$$ odczytujemy jako „nie $$p$$”. Sama operacja dosłownie zwraca wartość przeciwną — dla prawdy fałsz, dla fałszu prawdę, stąd tabelka wygląda następująco:
+
+| $$p$$ | $$\neg p$$ |
+|:-:|:-:|
+| 0 | 1 |
+| 1 | 0 |
+
+W programowaniu negację zwykle spotkamy:
+
+- jako operator logiczny: `!` (języki wywodzące się od C) lub `not` (np. Python, Pascal)
+- jako operator bitowy, najczęściej `~`
+
+Przykłady działania w języku programowania (wyniki zapisane jako komentarze):
+
+```javascript
+!true // false
+!false // true
+!1 // false
+!0 // true
+
+~0 // -1
+~2 // -3
+~200 // -201
+~-1 // 0
+~-3 // 2
+~-201 // 200
+```
+
+Jeśli jesteś ciekaw(a), dlaczego negacja w postaci operatora bitowego zamienia liczby na ujemne mniejsze o 1, to wynika to z tego, że w pokazanym tu języku liczby są zapisane ze znakiem, a dokładniej <Link href="/post/sposoby-zapisywania-liczb-przez-komputery/#liczby-ca%C5%82kowite">kodowaniem U2</Link>. Gdybyśmy korzystali z typów całkowitoliczbowych bez znaku, wyglądałoby to następująco (typ 8-bitowy, taki jak `unsigned char` z C):
+
+```javascript
+~0 // 255
+~2 // 253
+~200 // 55
+
+~255 // 0
+~253 // 2
+~55 // 200
+```
+
+### Koniunkcja
+
+Teraz przejdziemy już do operacji dwuargumentowych, a więc takich, gdzie po obu stronach operatora mamy zdania. Zacznijmy od koniunkcji, czyli tego, co przedstawiłem poprzednio jako spójnik „i”.
+
+W logice do zapisu koniunkcji (AND) stosujemy operator $$\land$$. Zdanie $$p \land q$$ odczytujemy jako „$$p$$ i $$q$$”. Operacja zwraca prawdę tylko i wyłącznie w przypadku, gdy oba zdania są prawdziwe, stąd tabela wartości jest następująca:
+
+| $$p$$ | $$q$$ | $$p \land q$$ |
+|:-:|:-:|:-:|
+| 0 | 0 | 0 |
+| 1 | 0 | 0 |
+| 0 | 1 | 0 |
+| 1 | 1 | 1 |
+
+W programowaniu koniunkcję znajdziemy jako:
+
+- operator logiczny: `&&` lub `and`
+- operator bitowy: `&`
+
+W języku programowania będziemy otrzymywać następujące wartości:
+
+```javascript
+false && false // false
+false && true // false
+true && true // true
+
+0 & 0 // 0
+10 & 2 // 2 -> 1010 & 0010 = 0010
+2 & 1 // 0 -> 10 & 01 = 00
+9 & 1 // 1 -> 1001 & 0001 = 0001
+```
+
+### Alternatywa
+
+Kolejnym z podstawowych działań logiki jest alternatywa (OR), zwana też sumą logiczną, oznaczana operatorem $$\lor$$. Zdanie $$p \lor q$$ odczytujemy wtedy jako „$$p$$ lub $$q$$”. Zdanie jest prawdziwe, kiedy dowolny z jego składników jest prawdziwy, więc tabelkę można przedstawić tak:
+
+| $$p$$ | $$q$$ | $$p \lor q$$ |
+|:-:|:-:|:-:|
+| 0 | 0 | 0 |
+| 1 | 0 | 1 |
+| 0 | 1 | 1 |
+| 1 | 1 | 1 |
+
+A jak to wygląda w programowaniu? Mamy tutaj:
+
+- operator logiczny: `||` lub `or`
+- operator bitowy: `|`
+
+Ponownie sprawdźmy wartości:
+
+```javascript
+false || false // false
+false || true // true
+true || true // true
+
+0 | 0 // 0
+10 | 2 // 10 -> 1010 | 0010 = 1010
+2 | 1 // 3 -> 10 | 01 = 11
+9 | 1 // 9 -> 1001 | 0001 = 1001
+```
+
+### Implikacja
+
+Tym razem rozpatrzmy spójnik, którego w informatyce bezpośrednio nie znajdziemy, ale z punktu widzenia logiki jest ważny, bo na nim opiera się wiele dowodów i tautologii (czym one są, opiszę później). Jest to implikacja, dokładniej implikacja materialna, którą oznaczamy operatorem $$\to$$. Zdanie $$p \to q$$ odczytamy jako „jeśli $$p$$, to $$q$$”. Implikacja materialna zawsze zwraca prawdę poza przypadkiem, kiedy $$p$$ jest prawdziwe, a $$q$$ jest fałszywe. Trochę się to myli z tym, jak potocznie rozumiemy zdanie „jeśli $$p$$, to $$q$$”, stąd warto zapamiętać tę regułę, którą przedstawiam poniżej w formie tabelki:
+
+| $$p$$ | $$q$$ | $$p \to q$$ |
+|:-:|:-:|:-:|
+| 0 | 0 | 1 |
+| 1 | 0 | 0 |
+| 0 | 1 | 1 |
+| 1 | 1 | 1 |
+
+Warto zaznaczyć, że bardzo często znajdziemy do oznaczenia implikacji symbol $$\Rightarrow$$. Można jednak dyskutować nad poprawnością tego, ponieważ symbol ten stosuje się do oznaczania implikacji logicznej. Różnica jest taka, że implikacja materialna to po prostu przypadek zdania, natomiast implikacja logiczna wskazuje, że coś jest absolutną prawdą, czyli tautologią. Innymi słowy, jeśli $$p \to q$$ będzie zawsze prawdziwe, zapiszemy je jako $$p \Rightarrow q$$. Żeby to podkreślić, zdanie tak zapisane możemy odczytać w bardziej dosadny sposób: „z $$p$$ wynika $$q$$”. Jeśli potrzebujesz się powołać w tym twierdzeniu na jakiś wiarygodny tekst, w literaturze (na końcu artykułu) znajdziesz książkę E. Blocha poświęconą logice, gdzie ta różnica jest pokazana na pierwszych stronach. Aczkolwiek nie zdziw się, jeśli nauczyciele, ucząc podstaw logiki, będą stosować ten drugi zapis, bo często się spotyka tą nieścisłość (nawet w skryptach dla studentów).
+
+Czy implikację znajdziemy w informatyce? Niestety, nie mamy tutaj bezpośredniego odpowiednika. Jeśli jednak byłby nam potrzebny, taki sam wynik otrzymamy, zapisując zdanie jako $$\neg p \lor q$$, co sam(a) zobacz poniżej, że daje takie same rezultaty:
+
+```javascript
+!false || false // true
+!true || false // false
+!false || true // true
+!true || true // true
+```
+
+Jeśli potrzebowalibyśmy operacji bitowej, analogicznie możemy zrobić `~p | q`.
+
+### Równoważność
+
+Ostatnim z grona podstawowych spójników logicznych jest równoważność (XNOR), która podobnie jak implikacja ma duże znaczenie przy dowodzeniu, ale ją akurat w informatyce znajdziemy. Zapisujemy ją spójnikiem $$\leftrightarrow$$ (w anglojęzycznych źródłach czasem stosuje się zwykły znak równości) i zdanie $$p \leftrightarrow q$$ przeczytamy jako „p wtedy i tylko wtedy, gdy q”. Równoważność najłatwiej zapamiętać jako logiczny odpowiednik znaku równości, ponieważ zwraca prawdę wtedy, gdy po obu stronach spójnika mamy tą samą wartość logiczną:
+
+| $$p$$ | $$q$$ | $$p \leftrightarrow q$$ |
+|:-:|:-:|:-:|
+| 0 | 0 | 1 |
+| 1 | 0 | 0 |
+| 0 | 1 | 0 |
+| 1 | 1 | 1 |
+
+Podobnie jak przy implikacji zdarza się, że równoważność jest zapisywana symbolem $$\iff$$. Tak samo jak wtedy, gdy zapisujemy spójnik równoważności w dowolnym zdaniu, powinniśmy użyć chudszej strzałki pokazanej wcześniej. $$\iff$$ jest zarezerwowane dla tautologii, gdzie chcemy wskazać, że coś jest prawdziwe dla dowolnych wartości zmiennych w zdaniach $$p$$ i $$q$$.
+
+A jak równoważność zapiszemy w informatyce? Oczywiście zrobimy to za pomocą `=` (np. Python), `==` (np. C) lub `===` (np. JavaScript). Myślę, że przykłady są zbędne, ale dla formalności je pokażę:
+
+```javascript
+true == true // true
+true == false // false
+false == false // true
+```
+
+Warto wspomnieć, że programistycznego operatora porównania nie traktuje się do końca jako operatora logicznego, ponieważ tradycyjnie w językach programowania dotychczas pokazane operatory mogliśmy wykonywać jedynie na typie danych `boolean` (czyli prawda lub fałsz), podczas gdy porównywać możemy dowolne dane. Jednak dla wartości logicznych tablica prawdy będzie taka sama.
+
+Aczkolwiek jeśli chcielibyśmy operować tylko na operatorach logicznych, to taką samą tablicę prawdy jak dla równoważności będziemy mieć dla następującego zdania:
+
+$$
+(p \land q) \lor (\neg p \land \neg q)
+$$
+
+### Alternatywa rozłączna (XOR)
+
+Omówiliśmy sobie podstawowe funktory, z którymi ma się do czynienia w logice matematycznej. Przejdźmy teraz do tych mniej podstawowych, ale jak wspomniałem, istotnych z punktu widzenia informatyki i elektroniki. Zacznijmy od alternatywy rozłącznej, którą już krótko omawiałem przy okazji <Link href="/post/sumy-kontrolne">sum kontrolnych</Link>.
+
+Alternatywę rozłączną (XOR) w polskiej literaturze zwykle oznaczamy symbolem $$\underline{\lor}$$ (spotyka się też $$\dot{\lor}$$ i $$\oplus$$; to drugie szczególnie w anglojęzycznym świecie). Zdanie $$p \underline{\lor} q$$ moglibyśmy przeczytać jako „albo $$p$$, albo $$q$$”. Jej wartość to zaprzeczenie równoważności, czyli otrzymujemy informację, czy składowe zdania są różne od siebie. Stąd skrótowa nazwa równoważności to XNOR, a więc zanegowane XOR.
+
+Tabela prawdy wygląda następująco:
+
+| $$p$$ | $$q$$ | $$p \underline{\lor} q$$ |
+|:-:|:-:|:-:|
+| 0 | 0 | 0 |
+| 1 | 0 | 1 |
+| 0 | 1 | 1 |
+| 1 | 1 | 0 |
+
+W niemal każdym języku programowania znajdziemy operator bitowy dla alternatywy rozłącznej, zwykle pod symbolem `^`, rzadziej `xor` (np. w Pascalu).
+
+```javascript
+2 ^ 4 // 6
+4 ^ 2 // 6
+6 ^ 2 // 4
+6 ^ 4 // 2
+```
+
+A co z operatorem logicznym? Tutaj niektóre języki programowania mają operator wskazujący różność (np. `<>` w Pascalu), chociaż zwykle po prostu neguje się równoważność (`!=`, `!==`). Jednak pamiętajmy, że po obu stronach operatora równoważności (czy różności) możemy mieć dowolne typy, stąd nie traktuje się tego jako operator logiczny, mimo że tabela prawdy jest taka sama.
+
+Natomiast stosując podstawowe operatory logiczne, XOR możemy zapisać następująco:
+
+$$
+(\neg p \land q) \lor (p \land \neg q)
+$$
+
+### Binegacja (NOR)
+
+Na koniec zostają nam dwa funktory zdaniowe, które najlepiej znane są tym, którzy mieli okazję zagłębić się w elektronikę. Nie spotkamy ich przy najbardziej typowym programowaniu, ale na tym najniższym poziomie już jak najbardziej.
+
+Zacznijmy od binegacji znanej szerzej jako NOR. W logice możemy ją spotkać pod symbolem $$\downarrow$$ (chociaż częściej pisze się po prostu `NOR`), a zdanie $$p \downarrow q$$ odczytamy jako „ani p, ani q”. Jest to dosłownie zanegowana (N) alternatywa (OR). Stąd jej tabela prawdy jest dosłownie odwrotna do tej, którą widzieliśmy dla alternatywy:
+
+| $$p$$ | $$q$$ | $$p \downarrow q$$ | $$p \lor q$$ |
+|:-:|:-:|:-:|:-:|
+| 0 | 0 | 1 | 0 |
+| 1 | 0 | 0 | 1 |
+| 0 | 1 | 0 | 1 |
+| 1 | 1 | 0 | 1 |
+
+Jak użyć binegacji, pominę przy programowaniu, bo jest to dosłownie zanegowanie alternatywy, co uważam za oczywiste. Jednak jest tu potrzebne wyjaśnienie, dlaczego NOR ma takie znaczenie w elektronice. Można na to spojrzeć z dwóch perspektyw — historycznej i wygody.
+
+Perspektywa historyczna jest taka, że bramka logiczna NOR (czyli element elektroniczny realizujący funkcję logiczną) była najprostsza do wykonania, stąd też szeroko wykorzystywana w dawnych latach. Dla konkretnego przykładu: komputer zbudowany na potrzeby misji Apollo miał procesor składający się z 4100 lub 5600 bramek NOR (w zależności od wersji).
+
+Druga perspektywa związana z wygodą jest taka, że binegacja jest funkcją uniwersalną, tzn. z jej użyciem możemy otrzymać dowolną inną funkcję logiczną. Mówiąc poprawnie, jest to jedyny spójnik, który wystarczy do utworzenia funkcjonalnie pełnego systemu funkcyjnego. Oznacza to, że jest to jedyna konstrukcja, jakiej potrzebujemy. Najważniejsze z poznanych dotychczas funktorów możemy zapisać następująco przy użyciu NOR:
+
+- Negacja: $$p \downarrow p$$
+- Koniunkcja: $$(p \downarrow p) \downarrow (q \downarrow q)$$
+- Alternatywa: $$(p \downarrow q) \downarrow (p \downarrow q)$$ (czyli dosłownie zanegowanie binegacji z użyciem binegacji)
+
+Zachęcam do rozpisania tabeli prawdy na własną rękę, aby przekonać się, że faktycznie wyniki są takie same.
+
+### Dysjunkcja (NAND)
+
+Przejdźmy teraz do dysjunkcji, czyli popularnego NAND. W logice jej symbolem jest najczęściej kreska Sheffera, czyli $$\uparrow$$ (spotyka się też $$\mathop{|}$$), a zdanie $$p \uparrow q$$ odczytamy jako „nieprawda, że p i q”. O ile sama pełna nazwa niewiele nam mówi, to sposób wypowiadania, jak i sam skrót wskazują rolę tego funktora — jest to zanegowana (N) koniunkcja (AND). Oznacza to dokładnie tyle, że jej tabela prawdy to dosłowna odwrotność tego, co mieliśmy w przypadku koniunkcji:
+
+| $$p$$ | $$q$$ | $$p \uparrow q$$ | $$p \land q$$ |
+|:-:|:-:|:-:|:-:|
+| 0 | 0 | 1 | 0 |
+| 1 | 0 | 1 | 0 |
+| 0 | 1 | 1 | 0 |
+| 1 | 1 | 0 | 1 |
+
+Analogicznie do NOR tutaj również nie będę pokazywać użycia w programowaniu. Natomiast po co elektronikom jeszcze NAND, skoro istnieje już uniwersalny NOR?
+
+Gdy z technologii lampowych przeniesiono się na tranzystorowe, okazało się, że tutaj NAND ma prostszą konstrukcję, dzięki czemu oferuje mniejsze opóźnienia, a także zajmuje mniej miejsca, co szczególnie jest istotne, biorąc pod uwagę postępującą miniaturyzację sprzętu. A jak się okazuje, dysjunkcja podobnie jak binegacja również jest uniwersalna i możemy z jej pomocą zapisać inne funkcje logiczne:
+
+- Negacja: $$p \uparrow p$$
+- Koniunkcja: $$(p \uparrow q) \uparrow (p \uparrow q)$$ (analogicznie jak wcześniej, negujemy dysjunkcję dysjunkcją)
+- Alternatywa: $$(p \uparrow p) \uparrow (q \uparrow q)$$
+
+## Aksjomaty i tautologie
+
+### Aksjomaty
+
+Poznaliśmy wcześniej pojęcie aksjomatu, jednak do tej pory go nie zastosowaliśmy. Przypomnę — aksjomat to twierdzenie lub założenie przyjmowane jako prawdziwe bez konieczności dowodzenia. W logice za coś, czego nie dowodzimy, uznajemy, które wartości logiczne przyjmują zdania. Przykładowo, bazując na tym, co pokazałem powyżej, moglibyśmy zdefiniować aksjomat:
+
+> Dla dowolnych zdań $$p$$ i $$q$$ istnieją zdania $$\neg p$$, $$p \land q$$, $$p \lor q$$, $$p \to q$$, $$p \leftrightarrow q$$, których wartość logiczna zależy jedynie od wartości logicznych $$p$$ i $$q$$ w następujący sposób:
+
+| $$p$$ | $$q$$ | $$\neg p$$ | $$p \land q$$ | $$p \lor q$$ | $$p \to q$$ | $$p \leftrightarrow q$$ |
+|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
+| 0 | 0 | 1 | 0 | 0 | 1 | 1 |
+| 1 | 0 | 0 | 0 | 1 | 0 | 0 |
+| 0 | 1 | 1 | 0 | 1 | 1 | 0 |
+| 1 | 1 | 0 | 1 | 1 | 1 | 1 |
+
+### Tautologie
+
+W takim razie czym jest to drugie pojęcie, które zawarłem w nagłówku, czyli tautologia? Tautologia to również coś, co jest zawsze prawdziwe, tylko tym razem są to zdania logiczne zawsze zwracające prawdę niezależnie od wartości występujących w nich zmiennych. W formie takiej najczęściej zapisuje się najbardziej podstawowe założenia rachunku zdań. Przykładowymi, najbardziej znanymi, które nawet doczekały się własnych nazw, są:
+
+- Prawo wyłączonego środka: $$p \lor \neg p$$ — mówi o tym, że wartość zdania $$p$$ może być tylko prawdą lub fałszem, nie ma innej możliwości.
+- Zasada niesprzeczności: $$\neg (p \land \neg p)$$ — analogicznie do powyższego, mówi nam, że coś nie może być jednocześnie prawdą i fałszem.
+- Prawo podwójnej negacji: $$(\neg (\neg p)) \iff p$$ — negacja negacji daje oryginalną wartość. Warto dodać, że o ile zasady logiki stosuje się nie tylko w matematyce i informatyce, ale też w języku, to tutaj niezbyt ma to zastosowanie, ponieważ w języku polskim podwójne zaprzeczenie rozumie się jak pojedynczą negację.
+- Prawa de Morgana:
+    - I prawo: $$(\neg (p \land q)) \iff (\neg p \lor \neg q)$$
+    - II prawo: $$(\neg (p \lor q)) \iff (\neg p \land \neg q)$$
+- Prawa rozdzielności:
+    - Alternatywy względem koniunkcji: $$(p \lor (q \land r)) \iff ((p \lor q) \land (p \lor r))$$
+    - Koniunkcji względem alternatywy: $$(p \land (q \lor r)) \iff ((p \land q) \lor (p \land r))$$
+- Prawa łączności:
+    - $$(p \lor (q \lor r)) \iff ((p \lor q) \lor r)$$
+    - $$(p \land (q \land r)) \iff ((p \land q) \land r)$$
+
+#### Udowadnianie tautologii
+
+Oczywiście tautologii jest o wiele więcej i możemy wyznaczać własne, oczywiście po udowodnieniu, że faktycznie nimi są. Jeśli nie mamy dużo zmiennych, najprościej jest udowadniać wprost, czyli z wykorzystaniem tabel prawdy. Spróbujmy więc udowodnić przykładową, a dokładniej sposób zapisu alternatywy rozłącznej za pomocą podstawowych spójników logicznych:
+
+$$
+(p \underline{\lor} q) \iff ((\neg p \land q) \lor (p \land \neg q))
+$$
+
+Rozpiszmy więc tabelę prawdy, gdzie dla wszystkich kombinacji wartości $$p$$ i $$q$$ wypiszemy wartości, które przyjmują różne „wycinki” zdań, a ostatecznie na tej podstawie, czy całe wyrażenie w każdym przypadku będzie mieć wartość 1. Jeśli tak, mamy do czynienia z tautologią. W takim razie sprawdźmy:
+
+Dla uproszczenia tabelki przyjmijmy, że $$\phi = ((p \underline{\lor} q) \iff ((\neg p \land q) \lor (p \land \neg q)))$$.
+
+| $$p$$ | $$q$$ | $$p \underline{\lor} q$$ | $$\neg p$$ | $$\neg q$$ | $$\neg p \land q$$ | $$p \land \neg q$$ | $$(\neg p \land q) \lor (p \land \neg q)$$ | $$\phi$$ |
+|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
+| 0 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | <strong>1</strong> |
+| 1 | 0 | 1 | 0 | 1 | 0 | 1 | 1 | <strong>1</strong> |
+| 0 | 1 | 1 | 1 | 0 | 1 | 0 | 1 | <strong>1</strong> |
+| 1 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | <strong>1</strong> |
+
+W ostatniej kolumnie otrzymaliśmy za każdym razem 1, więc zdanie jest tautologią.
+
+Pytanie brzmi, czy jest to do czegoś potrzebne w praktyce poza rozwiązywaniem zadań na zajęciach z logiki? Nie jest to jakiś częsty przypadek, ale możesz właśnie w taki sposób sprawdzać, czy np. prawidłowo uprościłeś(-aś) instrukcje warunkowe, czy dalej pokrywasz wszystkie możliwe przypadki. Chociaż w większości przypadków wystarczy znać prawa de Morgana, rozdzielności i łączności, aby tworzyć bardziej czytelne warunki logiczne.
+
+## Zastosowania poznanych operacji bitowych
+
+Na koniec oderwijmy się od logiki i przejdźmy do informatyki. W przykładach programistycznych, które wcześniej pokazałem, operatory logiczne zapewne wydają się dość zrozumiałe, ale możesz się zastanawiać, po co operatory bitowe.
+
+### Flagi
+
+Operatory negacji, koniunkcji i alternatywy najczęściej używa się przy tzw. flagach, czyli liczbach traktowanych jako zbiór wartości prawda-fałsz. Często stosuje się je wtedy, gdy chcemy za pomocą jednej wartości określić stan, na który składa się wiele wartości logicznych. Taki sposób zapisu oszczędza pamięć i też potrafi być czytelniejszy, szczególnie gdy stany są bardzo rozbudowane.
+
+Jak w takim razie korzystamy z flag? Każdej wartości logicznej odpowiadają kolejne potęgi liczby 2: 1, 2, 4, 8, aż do limitu stosowanego typu liczbowego (dziś zwykle $$2^{63}$$). Jest tak dlatego, że ustawiają one 1 na kolejnych bitach: 0001, 0010, 0100, 1000 itd.
+
+A jak operujemy na tych wartościach? Następująco:
+
+- wartości ustawiamy z użyciem alternatywy (`|`),
+- sprawdzamy je z użyciem koniunkcji (`&`),
+- usuwamy je z użyciem koniunkcji i negacji (`~`).
+
+W praktyce mogłoby to wyglądać tak (kod w JavaScript):
+
+```javascript
+const CLOUDY = 1;
+const HOT = 2;
+const WINDY = 4;
+
+// ustawiamy, że aktualnie jest ciepło, ale też wietrznie
+let weather = HOT | WINDY;
+// sprawdźmy, czy jest pochmurnie, i wypiszmy rezultat
+console.log('Czy jest pochmurnie?', (weather & CLOUDY) === CLOUDY);
+// Czy jest pochmurnie? false
+
+// ustawmy, że jednak jest pochmurnie
+weather = weather | CLOUDY;
+// ponownie sprawdźmy, czy jest pochmurnie
+console.log('Czy jest pochmurnie?', (weather & CLOUDY) === CLOUDY);
+// Czy jest pochmurnie? true
+
+// jednak stwierdzamy, że nie jest pochmurnie, więc resetujemy wartość
+weather = weather & ~CLOUDY;
+// sprawdźmy wartość jeszcze raz
+console.log('Czy jest pochmurnie?', (weather & CLOUDY) === CLOUDY);
+// Czy jest pochmurnie? false
+```
+
+Kod możesz przetestować na [Replit](https://replit.com/@tswistak/flags#index.js). Natomiast jeśli chcesz się dowiedzieć, dlaczego to działa, spróbuj rozpisać sobie te operacje przez wykonywanie koniunkcji, alternatywy czy też negacji na kolejnych bitach liczb. Zobaczysz wówczas, że alternatywa „łączy” liczby, a koniunkcja „wyciąga” liczbę z liczby.
+
+### Sprawdzenie parzystości
+
+Warto wspomnieć, że operację `[liczba] & 1` możemy wykorzystać do sprawdzenia parzystości liczby. Każda liczba nieparzysta zapisana binarnie ma ostatnią cyfrę 1, więc operacja ta zwróci 1 w takim przypadku. Analogicznie dla parzystych zawsze zwróci 0. Bierze się to stąd, że operacją koniunkcji możemy dosłownie sprawdzić wartość dowolnego z bitów liczby.
+
+Warto jednak pamiętać, że tak drobiazgowa optymalizacja nie zawsze jest potrzebna i w zupełności może wystarczyć tradycyjne sprawdzenie podzielności przez 2 (`[liczba] % 2`).
+
+Przykład, jak takie sprawdzenie parzystości wygląda w praktyce, pokazałem w artykule <Link href="/post/szybkie-potegowanie/#kod-według-definicji-binarnej">o szybkim potęgowaniu</Link>, gdzie zapraszam.
+
+### Kryptografia
+
+Przejdźmy teraz do XOR. O przykładowym jego zastosowaniu przy obliczaniu kodów CRC napisałem <Link href="/post/sumy-kontrolne">w artykule o sumach kontrolnych</Link>, ale zobaczmy jeszcze inne zastosowania. Szczególnie te związane z kryptografią, bo tutaj w niemal każdym bardziej zaawansowanym algorytmie, czy to szyfrowania, czy funkcji haszujących, znajdziemy tę operację, między innymi dlatego, że jest odwracalna, co pokazałem wcześniej na przykładzie w kodzie.
+
+Nawet opierając się na samym XOR, moglibyśmy napisać bardzo prosty algorytm szyfrujący (aczkolwiek nie stosujcie go nigdzie). Zobacz poniższy kod (JavaScript):
+
+```javascript
+// funkcja przyjmuje tekst do zaszyfrowania/odszyfrowania i klucz
+function xorCrypt(text, key) {
+  // zmienna przechowująca wynik
+  let result = '';
+  for (let i = 0; i < text.length; i++) {
+    // pobieramy kod ascii znaku na pozycji i
+    const code = text.charCodeAt(i);
+    // to samo dla klucza, przy czym może być krótszy, więc "zapętlamy go"
+    // przy użyciu reszty z dzielenia
+    const keyCode = key.charCodeAt(i % key.length);
+    // obliczamy wartość xor i zamieniamy ją na znak
+    const xor = String.fromCharCode(code ^ keyCode);
+    // dodajemy do wyniku
+    result += xor;
+  }
+  // zwracamy wynik
+  return result;
+}
+
+const encrypted = xorCrypt('Bardzo tajny tekst', 'kluczyk');
+console.log(encrypted); // nieczytelny wynik
+// funkcja działa symetrycznie, więc możemy odszyfrować tak samo
+const decrypted = xorCrypt(encrypted, 'kluczyk');
+console.log(decrypted); // Bardzo tajny tekst
+```
+
+Możesz go przetestować na [Replit](https://replit.com/@tswistak/xor-crypto#index.js).
+
+Oczywiście jest to jedynie szkolne zastosowanie, jednak jeśli zagłębisz się, w jaki sposób działają takie algorytmy jak DES, MD5, SHA itd., zawsze znajdziesz tam operację XOR. Tylko warto zwrócić uwagę, że może być nazywana *dodawanie modulo 2*, bo wynik operacji XOR jest taki sam, gdybyśmy dodali do siebie dwa bity, a następnie obliczyli resztę z dzielenia przez 2.
+
+## Podsumowanie
+
+W artykule postarałem się przedstawić najbardziej podstawowe zagadnienia z logiki i ich kontekst w informatyce. Myślę, że już ten mały fragment wiedzy z zakresu logiki pokazuje, jak duże zastosowanie ma ona w programowaniu i nie tylko, a był to tylko rachunek zdań i parę podstawowych pojęć.
+
+## Literatura
+
+- Logika, https://pl.wikipedia.org/w/index.php?title=Logika&oldid=69941927 (ostatni dostęp cze. 11, 2023).
+- Informatyka, https://pl.wikipedia.org/w/index.php?title=Informatyka&oldid=70501611 (ostatni dostęp cze. 11, 2023).
+- Zdanie logiczne, https://pl.wikipedia.org/w/index.php?title=Zdanie_logiczne&oldid=69589711 (ostatni dostęp cze. 11, 2023).
+- Newelski L. „1. Rachunek zdań”, http://www.math.uni.wroc.pl/~newelski/dydaktyka/wdm-A/skrypt2/skrypt/node2.html (ostatni dostęp cze. 11, 2023).
+- Bloch, E. D. (2011). Proofs and Fundamentals. Undergraduate Texts in Mathematics. [doi:10.1007/978-1-4419-7127-2](https://doi.org/10.1007/978-1-4419-7127-2)
+- nidhin (https://electronics.stackexchange.com/users/27943/nidhin), Why is NAND gate preferred over NOR gate in industry?, URL (version: 2014-05-18): https://electronics.stackexchange.com/q/110673
+- JIm Dearden (https://electronics.stackexchange.com/users/24182/jim-dearden), Preference of NAND & NOR gates, URL (version: 2013-06-15): https://electronics.stackexchange.com/q/72822
+- Ligęza A. „Logika — rachunek zdań” https://ai.ia.agh.edu.pl/_media/pl:dydaktyka:logic:logika-propositional-calculus-4-8.pdf (ostatni dostęp cze. 11, 2023).
+- Erz, Hendrik (2021). “Bitwise Flags are Beautiful, and Here’s Why”. hendrik-erz.de, 27 Jun 2021, https://www.hendrik-erz.de/post/bitwise-flags-are-beautiful-and-heres-why.
+- Hall, Eldon C. (1972). MIT's Role in Project Apollo: Final report on contracts NAS 9-163 and NAS 94065 (PDF). Cambridge, MA: MIT
+
+<small>Zdjęcie na okładce wygenerowane przez DALL-E.</small>

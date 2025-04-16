@@ -1,0 +1,953 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+    <channel>
+        <title>świstak.codes — Wpisy ze strony głównej</title>
+        <link>https://swistak.codes</link>
+        <description></description>
+        <lastBuildDate>Wed, 12 Mar 2025 07:00:00 GMT</lastBuildDate>
+        <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
+        <generator>https://github.com/jpmonette/feed</generator>
+        <image>
+            <title>świstak.codes — Wpisy ze strony głównej</title>
+            <url>https://swistak.codes/fav270.png</url>
+            <link>https://swistak.codes</link>
+        </image>
+        <copyright>Wszystkie prawa zastrzeżone 2020-2025, Tomasz Świstak</copyright>
+        <item>
+            <title><![CDATA[Losowość w informatyce]]></title>
+            <link>https://swistak.codes/post/losowosc</link>
+            <guid>https://swistak.codes/post/losowosc</guid>
+            <pubDate>Wed, 12 Mar 2025 07:00:00 GMT</pubDate>
+            <description><![CDATA[Artykuł omawia temat losowości w informatyce. Opisuje, dlaczego losowość jest ważna w informatyce i jak ją osiągamy.]]></description>
+            <content:encoded><![CDATA[W informatyce bardzo często spotykamy się z pojęciem losowości. Generujemy losowe liczby (w tym pierwsze), losowe dane. Wymieniając bardziej szczegółowo, mamy losowe identyfikatory, losowy stan gier, losowe przeszukiwanie przestrzeni rozwiązań. Przykładów można wymieniać wiele, tylko odpowiedzmy sobie na kluczowe pytanie — jak w ogóle komputer losuje? Czy komputer jest w stanie wygenerować coś, co jest naprawdę losowe?<br /><a href="https://swistak.codes/post/losowosc">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Korekcja perspektywy — algorytmiczne podejście]]></title>
+            <link>https://swistak.codes/post/korekcja-perspektywy</link>
+            <guid>https://swistak.codes/post/korekcja-perspektywy</guid>
+            <pubDate>Wed, 12 Feb 2025 07:00:00 GMT</pubDate>
+            <description><![CDATA[Artykuł przedstawia algorytmiczne podejście do korekcji perspektywy w grafice komputerowej. Rozpatrzymy problem z punktu widzenia matematyki i zaimplementujemy wszystko od zera.]]></description>
+            <content:encoded><![CDATA[W aplikacjach graficznych jedną z dostępnych funkcji jest możliwość skorygowania perspektywy wykonanego zdjęcia. Zwykle jest to w bardzo prostej formie, gdzie korygujemy perspektywę do „wyprostowania” zdjęcia. Możliwe, że spotkałeś(-aś) się z tym w aplikacjach mobilnych, gdzie po zrobieniu zdjęcia kartki z tekstem aplikacja sama wyprostuje zdjęcie. Robienie czegoś takiego (aczkolwiek bez wykrycia położenia kartki) jest przedmiotem tego artykułu. Zrozummy temat z punktu widzenia matematyki, a następnie zaimplementujmy wszystko od zera. Aczkolwiek po drodze wskażę też, gdzie można znaleźć gotowe rozwiązania.<br /><a href="https://swistak.codes/post/korekcja-perspektywy">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Chińskie twierdzenie o resztach]]></title>
+            <link>https://swistak.codes/post/chinskie-twierdzenie-o-resztach</link>
+            <guid>https://swistak.codes/post/chinskie-twierdzenie-o-resztach</guid>
+            <pubDate>Wed, 22 Jan 2025 07:00:00 GMT</pubDate>
+            <description><![CDATA[Chińskie twierdzenie o resztach to twierdzenie matematyczne, które pozwala na rozwiązywanie układów równań modularnych. Dowiedz się, jak działa chińskie twierdzenie o resztach i jakie ma zastosowania.]]></description>
+            <content:encoded><![CDATA[Piąty rok istnienia bloga świstak.codes trzeba zacząć z przytupem. Czas więc poeksplorować temat matematyczny, który jest na pewno bliski sercom programistów lubującym się w wyzwaniach algorytmicznych typu Advent of Code. A jest to chińskie twierdzenie o resztach. Dowiedzmy się, o co w nim chodzi, jak działa i jakie ma praktyczne zastosowania. Co najważniejsze dla programistów, pokażę także, jak je zaimplementować w kodzie.<br /><a href="https://swistak.codes/post/chinskie-twierdzenie-o-resztach">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Ustawianie kolejności elementów]]></title>
+            <link>https://swistak.codes/post/kolejnosc-elementow</link>
+            <guid>https://swistak.codes/post/kolejnosc-elementow</guid>
+            <pubDate>Wed, 18 Dec 2024 07:00:00 GMT</pubDate>
+            <description><![CDATA[Artykuł omawia, dlaczego ustawianie kolejności elementów może sprawiać problem oraz jak do tego tematu podejść.]]></description>
+            <content:encoded><![CDATA[Przez 8 artykułów na blogu omawiałem sortowanie i wówczas interesowało nas ułożenie elementów rosnąco bądź malejąco na podstawie ich cech — w tamtym przypadku po wartości numerycznej. Często też sortujemy po nazwie lub czasie utworzenia. Jednak w praktyce, przy pisaniu aplikacji, często spotykamy się z przypadkiem, gdy chcemy umożliwić użytkownikom ustawienie własnej kolejności elementów. Mimo że brzmi to prosto, implementacja wbrew pozorom niekoniecznie taka musi być. Zobaczmy, jak ten problem rozwiązać.<br /><a href="https://swistak.codes/post/kolejnosc-elementow">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Jak narysować gwiazdę?]]></title>
+            <link>https://swistak.codes/post/jak-narysowac-gwiazde</link>
+            <guid>https://swistak.codes/post/jak-narysowac-gwiazde</guid>
+            <pubDate>Wed, 04 Dec 2024 07:00:00 GMT</pubDate>
+            <description><![CDATA[W artykule opisuję, jak podejść algorytmicznie do rysowania gwiazd, czyli wielokątów gwiaździstych foremnych.]]></description>
+            <content:encoded><![CDATA[Już dawno niczego nie rysowaliśmy na blogu, czyż nie? Powróćmy więc do tej przyjemnej serii i zobaczmy, w jaki sposób algorytmicznie rysować kolejną rzecz. Tym razem częściowo w klimacie zbliżających się świąt — porysujmy gwiazdy. A to dlatego, że kryje się za tym prosta, ale ciekawa matematyka i algorytmika.<br /><a href="https://swistak.codes/post/jak-narysowac-gwiazde">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Unikalne identyfikatory]]></title>
+            <link>https://swistak.codes/post/unikalne-identyfikatory</link>
+            <guid>https://swistak.codes/post/unikalne-identyfikatory</guid>
+            <pubDate>Wed, 20 Nov 2024 07:00:00 GMT</pubDate>
+            <description><![CDATA[Artykuł omawia, czym są i dlaczego stosujemy unikalne identyfikatory, a także pokazuję popularne algorytmy do ich generowania.]]></description>
+            <content:encoded><![CDATA[W rzeczywistym świecie mamy nieraz potrzebę jasnego zidentyfikowania, że coś jest czymś w taki sposób, żeby było to określenie jak najbardziej unikalne jak się da. Stąd mimo że każdy z nas ma imię i nazwisko, to jednak mamy też nadane numery PESEL, bo same imię i nazwisko nie są wystarczająco unikalne. Z dokładnie taką samą potrzebą spotykamy się w informatyce. Musimy być w stanie jasno zidentyfikować dowolną encję: plik na dysku, wpis w bazie danych, wersję oprogramowania, podzespół w komputerze. Poznajmy przykładowe sposoby, jak takie identyfikatory się generuje.<br /><a href="https://swistak.codes/post/unikalne-identyfikatory">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Problem komiwojażera — przykładowe metaheurystyki]]></title>
+            <link>https://swistak.codes/post/problem-komiwojazera-metaheurystyki</link>
+            <guid>https://swistak.codes/post/problem-komiwojazera-metaheurystyki</guid>
+            <pubDate>Wed, 30 Oct 2024 07:00:00 GMT</pubDate>
+            <description><![CDATA[Artykuł przedstawia, jak możemy znaleźć satysfakcjonujące rozwiązania problemu komiwojażera, korzystając z hill climbing i symulowanego wyżarzania.]]></description>
+            <content:encoded><![CDATA[Opowiadając do tej pory o problemie komiwojażera (TSP), pokazałem, w jaki sposób możemy bardzo powoli znajdować optymalne rozwiązanie i jak zadowalające (nieco szybciej), korzystając z heurystyk. Wszystko to były sposoby stworzone typowo pod problem komiwojażera i nie da się ich przełożyć na inne problemy obliczeniowe. Mamy jednak całą klasę algorytmów metaheurystycznych, które możemy wykorzystać do dowolnych, trudnych obliczeniowo problemów. Poznajmy przykładowe, dalej zostając w uniwersum TSP.<br /><a href="https://swistak.codes/post/problem-komiwojazera-metaheurystyki">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Problem komiwojażera — podejścia heurystyczne]]></title>
+            <link>https://swistak.codes/post/problem-komiwojazera-heurystyki</link>
+            <guid>https://swistak.codes/post/problem-komiwojazera-heurystyki</guid>
+            <pubDate>Wed, 09 Oct 2024 07:00:00 GMT</pubDate>
+            <description><![CDATA[Artykuł przedstawia, jak możemy znaleźć satysfakcjonujące rozwiązania problemu komiwojażera, korzystając z metod heurystycznych.]]></description>
+            <content:encoded><![CDATA[Opisując ostatnio problem komiwojażera, pokazałem sposoby, jak możemy otrzymać optymalne rozwiązanie. Niestety, co było widać na przykładach załączonych w artykule, algorytmy te były bardzo wolne, więc i nie do użycia w praktycznych zastosowaniach. W praktyce zaś stosuje się heurystyki, które może nie zapewniają znalezienia najlepszego rozwiązania, ale w zależności od tego, jaką zastosujemy, możemy uzyskać wynik bliski optymalnego. Zobaczmy przykładowe podejścia tego typu.<br /><a href="https://swistak.codes/post/problem-komiwojazera-heurystyki">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Problem komiwojażera]]></title>
+            <link>https://swistak.codes/post/problem-komiwojazera</link>
+            <guid>https://swistak.codes/post/problem-komiwojazera</guid>
+            <pubDate>Wed, 25 Sep 2024 07:00:00 GMT</pubDate>
+            <description><![CDATA[Artykuł omawia, o co chodzi w problemie komiwojażera, i pokazuje przykładowe podejścia do jego rozwiązania.]]></description>
+            <content:encoded><![CDATA[Do tej pory na blogu miałem okazję pokazać dwa ciekawe problemy obliczeniowe: problem skoczka szachowego oraz zliczania unikalnych elementów. Omawiając je (i nie tylko), wspominałem o innym, może i najbardziej znanym — problemie komiwojażera. Czytaj dalej, aby dowiedzieć się, o co w nim chodzi, jak możemy go rozwiązać, dlaczego na okładce jest listonosz, a także co ma wspólnego z grafami. Tak, niemal równo po dwóch latach wracam na blogu do tematyki grafów.<br /><a href="https://swistak.codes/post/problem-komiwojazera">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Macierze rzadkie]]></title>
+            <link>https://swistak.codes/post/macierze-rzadkie</link>
+            <guid>https://swistak.codes/post/macierze-rzadkie</guid>
+            <pubDate>Wed, 11 Sep 2024 07:00:00 GMT</pubDate>
+            <description><![CDATA[Artykuł opisuje, czym są macierze rzadkie, jakie wyróżniamy ich rodzaje, a także jak je przechowujemy w pamięci komputera.]]></description>
+            <content:encoded><![CDATA[Do tej pory omawiając macierze, zwykle pokazywałem takie o niedużych wymiarach, ładnie wypełnione liczbami. W praktyce algorytmicznej jednak spotykamy się nie dość, że z dużo większymi macierzami, to jeszcze takimi, które mają bardzo dużo zer. Ta ostatnia cecha interesuje nas najbardziej w ramach tego artykułu, bo możemy wtedy mówić o macierzach rzadkich. Zobaczmy, jakie typowe macierze rzadkie możemy wyróżnić i jakie powstały podejścia do ich przechowywania w pamięci.<br /><a href="https://swistak.codes/post/macierze-rzadkie">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Macierze — obliczanie wyznacznika]]></title>
+            <link>https://swistak.codes/post/macierze-wyznacznik</link>
+            <guid>https://swistak.codes/post/macierze-wyznacznik</guid>
+            <pubDate>Wed, 28 Aug 2024 07:00:00 GMT</pubDate>
+            <description><![CDATA[Artykuł opisuje, w jaki sposób obliczać wyznacznik macierzy zarówno ręcznie, jak i algorytmicznie.]]></description>
+            <content:encoded><![CDATA[Po pokazaniu ostatnio, czym są macierze i jak wykonuje się na nich podstawowe operacje, przyszedł czas opowiedzieć o tych związanych z nimi nieco trudniejszych zagadnieniach. Teraz skupię się na obliczaniu wyznacznika macierzy, czyli operacji, która jest bardzo charakterystyczna, ale wbrew pozorom nie aż tak trudna, jak mogłoby się wydawać. Temat poruszę zarówno od strony obliczania na kartce, jak i programowania.<br /><a href="https://swistak.codes/post/macierze-wyznacznik">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Macierze — podstawowe operacje]]></title>
+            <link>https://swistak.codes/post/macierze-podstawy</link>
+            <guid>https://swistak.codes/post/macierze-podstawy</guid>
+            <pubDate>Wed, 07 Aug 2024 07:00:00 GMT</pubDate>
+            <description><![CDATA[Artykuł przedstawia podstawowe zagadnienia związane z macierzami wraz z umieszczeniem ich w kontekście informatyki i programowania.]]></description>
+            <content:encoded><![CDATA[Spośród mnogości zagadnień matematyki akademickiej na zagadnieniach z algebry liniowej znajdziemy jedno, które jest proste, a zarazem bardzo przydatne i szeroko stosowane w informatyce. Są to macierze. W tym artykule przybliżę, czym one są, co z nimi robimy i jakie mają zastosowania, szczególnie w informatyce. Z racji tego, że jest to blog głównie informatyczno-programistyczny, a nie matematyczny, to oprócz suchych opisów jak liczymy macierze ręcznie pokażę je też od strony algorytmicznej — zaprogramujemy je.<br /><a href="https://swistak.codes/post/macierze-podstawy">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Problem zliczania unikalnych elementów]]></title>
+            <link>https://swistak.codes/post/zliczanie-unikalnych-elementow</link>
+            <guid>https://swistak.codes/post/zliczanie-unikalnych-elementow</guid>
+            <pubDate>Wed, 17 Jul 2024 07:00:00 GMT</pubDate>
+            <description><![CDATA[Artykuł opisuje problem zliczania unikalnych elementów (count-distinct problem) i pokazuje przykładowe podejścia do jego rozwiązania.]]></description>
+            <content:encoded><![CDATA[W świecie informatyki mamy wiele znanych problemów obliczeniowych, takich jak problem komiwojażera, które z jednej strony mają praktyczne zastosowania, a z drugiej stanowią idealny przykład do nauki algorytmów heurystycznych. Dzisiaj chciałem pokazać mniej znany z problemów, który, nawet mogłoby się wydawać na pierwszy rzut oka, problemem nie jest — zliczanie unikalnych elementów. Opowiem, dlaczego jest to problem, gdzie ma zastosowania i pokażę do niego przykładowe podejście algorytmiczne.<br /><a href="https://swistak.codes/post/zliczanie-unikalnych-elementow">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[5 programistycznych dziwactw — wyjaśnione]]></title>
+            <link>https://swistak.codes/post/programistyczne-dziwy</link>
+            <guid>https://swistak.codes/post/programistyczne-dziwy</guid>
+            <pubDate>Wed, 03 Jul 2024 07:00:00 GMT</pubDate>
+            <description><![CDATA[5 subiektywnie wybranych przeze mnie rzeczy uznawanych za dziwne w różnych językach programowania z wyjaśnieniem.]]></description>
+            <content:encoded><![CDATA[Bardzo często w Internecie znajdziemy przykłady dziwnego kodu, najczęściej napisanego w JavaScripcie. Nie zabierając temu wartości humorystycznej, to nieraz takie wpisy pokazują brak zrozumienia mechanizmów języków programowania. Wybrałem 5 takich przykładowych dziwactw, które wyjaśnię, dlaczego tak jest. Oczywiście dalej będzie mogło to wszystko wydawać się dziwne, ale może już nieco mniej. Dodatkowo, żeby nie było tak dobrze, większość przykładów nie będzie javascriptowa.<br /><a href="https://swistak.codes/post/programistyczne-dziwy">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Kompresja wideo]]></title>
+            <link>https://swistak.codes/post/kompresja-wideo</link>
+            <guid>https://swistak.codes/post/kompresja-wideo</guid>
+            <pubDate>Wed, 19 Jun 2024 07:00:00 GMT</pubDate>
+            <description><![CDATA[Artykuł opisuje w uproszczeniu koncepcje i podejścia stosowane przy kompresji wideo.]]></description>
+            <content:encoded><![CDATA[Poprzednio miałem okazję omówić, jakie techniki stosujemy, aby kompresować obrazy — zarówno stratnie, jak i bezstratnie. Naturalną kontynuacją jest przejście z obrazów statycznych do ruchomych. Dlatego też, tym razem, omówmy, jakie techniki wykorzystuje się przy kompresji wideo, dzięki czemu zajmują one jeszcze mniej miejsca, niż gdybyśmy zapisali wszystkie klatki jako oddzielne pliki.<br /><a href="https://swistak.codes/post/kompresja-wideo">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Kompresja obrazów]]></title>
+            <link>https://swistak.codes/post/kompresja-obrazow</link>
+            <guid>https://swistak.codes/post/kompresja-obrazow</guid>
+            <pubDate>Wed, 22 May 2024 07:00:00 GMT</pubDate>
+            <description><![CDATA[Artykuł opisuje w uproszczeniu koncepcje, podejścia i algorytmy stosowane przy kompresji obrazów.]]></description>
+            <content:encoded><![CDATA[Robiąc zdjęcia, pobierając obrazy z Internetu, albo generalnie zapisując jakąś grafikę, korzystamy z takich formatów jak JPG, PNG czy nowocześniejszych jak WEBP bądź AVIF. Ich zaletą jest to, że dzięki kompresji nie zajmują dużo miejsca na dysku w przeciwieństwie do bardzo podstawowych formatów jak BMP. Tylko o co chodzi z tą kompresją? Czym, pod kątem algorytmicznym, różnią się kompresje stratne i bezstratne? Przejdźmy przez zagadnienia związane z tym tematem na dość ogólnym poziomie, bez wchodzenia w techniczne detale konkretnych implementacji. Aczkolwiek z jednym wyjątkiem: tam, gdzie matematyka jest najciekawsza.<br /><a href="https://swistak.codes/post/kompresja-obrazow">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Rozwiązujemy maturę próbną 2023 z informatyki]]></title>
+            <link>https://swistak.codes/post/matura-probna-2023</link>
+            <guid>https://swistak.codes/post/matura-probna-2023</guid>
+            <pubDate>Wed, 10 Apr 2024 07:00:00 GMT</pubDate>
+            <description><![CDATA[W artykule pokazuję przykładowe rozwiązania wybranych zadań z matury próbnej 2023 z informatyki.]]></description>
+            <content:encoded><![CDATA[Rok temu na łamach bloga pokazywałem przykładowe rozwiązania zadań z matury próbnej 2022 z informatyki. Postanowiłem też i w tym roku, z okazji nadchodzącego maja, rozwiązać próbną wersję z egzaminu z punktu widzenia osoby na co dzień pracującej jako programista.<br /><a href="https://swistak.codes/post/matura-probna-2023">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Programistyczna ezoteryka, czyli Brainfuck]]></title>
+            <link>https://swistak.codes/post/brainfxck</link>
+            <guid>https://swistak.codes/post/brainfxck</guid>
+            <pubDate>Wed, 20 Mar 2024 07:00:00 GMT</pubDate>
+            <description><![CDATA[Artykuł opowiada o ezoterycznych językach programowania i bliżej skupia się na jednym konkretnym — Brainfucku.]]></description>
+            <content:encoded><![CDATA[Programowanie jeszcze do niedawna mogło się niektórym wydawać wiedzą ezoteryczną, tajemną, przekazywaną jedynie wybranym. Dziś zwykłe programowanie raczej nikogo nie zadziwia, a też dostęp do wiedzy o nim jest powszechny. Jednak coś się ostało — mamy całą kategorię ezoterycznych języków programowania. A pośród nich, prawdopodobnie najbardziej rozpoznawalny z nich w dużej mierze dzięki swojej nazwie, Brainfuck. Dowiedzmy się, na czym polega ta programistyczna ezoteryka i spróbujmy napisać jakiś kod w ten sposób.<br /><a href="https://swistak.codes/post/brainfxck">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Symbol Newtona i trójkąt Pascala]]></title>
+            <link>https://swistak.codes/post/symbol-newtona</link>
+            <guid>https://swistak.codes/post/symbol-newtona</guid>
+            <pubDate>Wed, 28 Feb 2024 07:00:00 GMT</pubDate>
+            <description><![CDATA[Artykuł opisuje, w jaki sposób możemy implementować obliczanie symbolu Newtona i co z tym wspólnego ma trójkąt Pascala.]]></description>
+            <content:encoded><![CDATA[Każdy, kto na matematyce dotarł do kombinatoryki, trafił na dziwną operację matematyczną, gdzie w nawiasie zapisywało się dwie liczby jedna pod drugą bez kreski ułamkowej. Jest to symbol Newtona, znany też jako współczynnik dwumianowy Newtona. Tutaj jednak nie chcę się skupiać na jego zastosowaniu w matematyce, tylko na tym, jak go obliczać. Przejdziemy krok po kroku przez różne podejścia, tym samym eksplorując na konkretnym przykładzie, w jaki sposób można optymalizować algorytmy. A na dokładkę opowiemy sobie o powiązanym z symbolem Newtona trójkącie Pascala, którego tworzenie jest popularnym ćwiczeniem dla początkujących programistów.<br /><a href="https://swistak.codes/post/symbol-newtona">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Zegar binarny]]></title>
+            <link>https://swistak.codes/post/zegar-binarny</link>
+            <guid>https://swistak.codes/post/zegar-binarny</guid>
+            <pubDate>Wed, 14 Feb 2024 07:00:00 GMT</pubDate>
+            <description><![CDATA[Artykuł omawia, jak działa zegar binarny i jak zaprogramować jego wyświetlanie.]]></description>
+            <content:encoded><![CDATA[Na łamach bloga miałem już okazję pokazywać,  jak narysować zegar analogowy, wykorzystując do tego celu prostą matematykę. Dzisiaj przedstawię inny rodzaj zegara, który traktuje się raczej jako ciekawostkę — zegar binarny. Na początek jak odczytujemy na nim godzinę (w zależności od rodzaju), a następnie spróbujemy wspólnie zaprogramować wyświetlanie czasu w taki sposób.<br /><a href="https://swistak.codes/post/zegar-binarny">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Rysowanie gradientów]]></title>
+            <link>https://swistak.codes/post/gradienty</link>
+            <guid>https://swistak.codes/post/gradienty</guid>
+            <pubDate>Wed, 31 Jan 2024 07:00:00 GMT</pubDate>
+            <description><![CDATA[Artykuł opisuje, jak algorytmicznie podejść do tematu rysowania gradientów.]]></description>
+            <content:encoded><![CDATA[W grafice często stosuje się gradienty, żeby zapewnić płynne przejście między jednym kolorem a drugim, co daje ciekawe efekty, jak np. stworzenie pozoru trójwymiarowości. Jednak w jaki sposób programy graficzne wyliczają, w którym miejscu powinien się znaleźć który kolor? Zbadajmy ten temat i sami spróbujmy narysować gradienty całkowicie algorytmicznie.<br /><a href="https://swistak.codes/post/gradienty">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Mierzenie czasu wykonania]]></title>
+            <link>https://swistak.codes/post/mierzenie-czasu-wykonania</link>
+            <guid>https://swistak.codes/post/mierzenie-czasu-wykonania</guid>
+            <pubDate>Wed, 10 Jan 2024 07:00:00 GMT</pubDate>
+            <description><![CDATA[Artykuł poświęcony jest tematowi mierzenia czasu wykonywania aplikacji lub jej fragmentów.]]></description>
+            <content:encoded><![CDATA[W codziennej pracy programisty może się zdarzyć przypadek, że konieczne jest przyspieszenie działania aplikacji. Trzeba wówczas namierzyć spowalniające obszary, a najlepiej jest to zrobić, mierząc czas ich wykonywania. Z innej perspektywy, możemy musieć z jakiegoś powodu przedstawić czas wykonywania aplikacji — czy to dla celów marketingu, czy po prostu potrzebujemy tego do sprawozdania do szkoły albo na studia. Zderzmy się z tym tematem — w jaki sposób mierzy się czas wykonania, jakie są podejścia w zależności od potrzeb i jak to robić na konkretnych przykładach.<br /><a href="https://swistak.codes/post/mierzenie-czasu-wykonania">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Funkcja Ackermanna]]></title>
+            <link>https://swistak.codes/post/funkcja-ackermanna</link>
+            <guid>https://swistak.codes/post/funkcja-ackermanna</guid>
+            <pubDate>Wed, 20 Dec 2023 07:00:00 GMT</pubDate>
+            <description><![CDATA[Artykuł opisuje w prosty sposób, czym jest, dlaczego wymyślono i jakie ma zastosowania funkcja Ackermanna.]]></description>
+            <content:encoded><![CDATA[Świat matematyki bogaty jest w różne funkcje, definicje, odkrycia, które mogą wydawać się na pierwszy rzut oka całkowicie zbędne. I nie mam tutaj na myśli słynnych wzorów skróconego mnożenia, gdzie ludzie odmierzają sobie dni, kiedy ich nie użyli, tylko nieco bardziej zaawansowane koncepcje. W artykule chcę pochylić się nad jedną taką rzeczą — funkcją Ackermanna. Powstała, aby udowodnić, że można zrobić tak skomplikowaną i jednocześnie obliczalną funkcję. Zaś co może być ciekawe dla informatyków, w naszej niszy też znalazła pewne specyficzne zastosowanie. Poznajmy ją bliżej.<br /><a href="https://swistak.codes/post/funkcja-ackermanna">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Otoczka wypukła]]></title>
+            <link>https://swistak.codes/post/otoczka-wypukla</link>
+            <guid>https://swistak.codes/post/otoczka-wypukla</guid>
+            <pubDate>Wed, 06 Dec 2023 07:00:00 GMT</pubDate>
+            <description><![CDATA[Artykuł przedstawia jak znaleźć otoczkę wypukłą w zbiorze punktów za pomocą algorytmu Grahama.]]></description>
+            <content:encoded><![CDATA[W artykule o krzywych Béziera wspomniałem, że będą one zawsze zawierać się wewnątrz otoczki wypukłej wszystkich punktów kontrolnych je opisujących. Można zadać bardzo trafne pytanie — jak je wyznaczyć? Mimo że na pierwszy rzut oka nie brzmi to jakoś fascynująco, to znajdowanie otoczki wypukłej jest dość ciekawym zagadnieniem algorytmicznym. Pokażę jedno podejście, które wykorzystując bardzo proste założenia, przeprowadza nas przez kilka różnych zagadnień związanych z geometrią obliczeniową, rozwijając tym samym postrzeganie, jak można podchodzić do rozwiązywania problemów algorytmicznych.<br /><a href="https://swistak.codes/post/otoczka-wypukla">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Krzywe Béziera]]></title>
+            <link>https://swistak.codes/post/krzywe-beziera</link>
+            <guid>https://swistak.codes/post/krzywe-beziera</guid>
+            <pubDate>Wed, 22 Nov 2023 07:00:00 GMT</pubDate>
+            <description><![CDATA[Artykuł omawia matematykę stojącą za krzywymi Béziera, a także jak zaimplementować rysowanie ich w kodzie.]]></description>
+            <content:encoded><![CDATA[W świecie grafiki komputerowej, szczególnie tej wektorowej, chcemy móc opisać jak najwięcej rzeczy językiem matematyki. Dzięki temu możemy wykonywać różne przekształcenia bez utraty jakości. Tylko o ile oczywiste jest rysowanie odcinków, a co za tym idzie typowych figur geometrycznych, bardziej rozbudowane kształty wymagają już nieco bardziej zaawansowanych narzędzi matematycznych. O ile koła ktoś może jeszcze wyznaczyć szkolnymi wzorami, spirale niewiele trudniejszymi, to jak opisać dowolną krzywą? Poznajmy dziś najprostsze i zarazem najpopularniejsze z matematycznie zdefiniowanych krzywych — krzywe Béziera.<br /><a href="https://swistak.codes/post/krzywe-beziera">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Wzorzec obserwator w UI — Flux i Redux]]></title>
+            <link>https://swistak.codes/post/flux-redux</link>
+            <guid>https://swistak.codes/post/flux-redux</guid>
+            <pubDate>Wed, 08 Nov 2023 07:00:00 GMT</pubDate>
+            <description><![CDATA[Artykuł kontynuuje opowiadanie o wzorcu obserwator w kontekście UI. Tym razem przypominam o architekturze Flux i opowiadam o Reduksie.]]></description>
+            <content:encoded><![CDATA[Opowiadając na łamach bloga o reaktywności graficznych interfejsów użytkownika, wyjaśniłem, czym jest wzorzec obserwator i jak go implementujemy. Później do układanki dodałem, że implementacje obserwatora możemy centralizować i podobny mechanizm wykorzystuje się „pod maską” w programowaniu zdarzeniowym, na którym opiera się tworzenie UI. Żeby dokończyć tą fascynującą podróż po tworzeniu reaktywności, opowiedzmy sobie o nieco już przykurzonym koncepcie architektury Flux i bazującym na nim Reduksie, który (przynajmniej w obrębie aplikacji webowych) wciąż jest jednym z najważniejszych podejść w obrębie zarządzania danymi.<br /><a href="https://swistak.codes/post/flux-redux">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Wzorzec obserwator w UI — podejścia scentralizowane]]></title>
+            <link>https://swistak.codes/post/scentralizowany-obserwator</link>
+            <guid>https://swistak.codes/post/scentralizowany-obserwator</guid>
+            <pubDate>Wed, 18 Oct 2023 07:00:00 GMT</pubDate>
+            <description><![CDATA[W artykule pokazuję scentralizowane podejścia do implementacji wzorca obserwator.]]></description>
+            <content:encoded><![CDATA[W poprzednim artykule pokazałem, jak wygląda podstawowa implementacja wzorca obserwator, a także w jaki sposób z czasem modyfikowano podejście do niego. Jednak trzymaliśmy się schematu, że obserwowaliśmy zawsze jedną konkretną wartość. Popularne są także scentralizowane implementacje tego wzorca, gdzie mamy centralne miejsce zarządzające powiadomieniami o zmianach wartości różnych zmiennych. Poznajmy przykładowe i jak one działają.<br /><a href="https://swistak.codes/post/scentralizowany-obserwator">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Podstawy działania UI — wzorzec obserwator]]></title>
+            <link>https://swistak.codes/post/obserwator</link>
+            <guid>https://swistak.codes/post/obserwator</guid>
+            <pubDate>Wed, 04 Oct 2023 07:00:00 GMT</pubDate>
+            <description><![CDATA[Artykuł przedstawia podstawy działania UI, prezentując ideę wzorca obserwator.]]></description>
+            <content:encoded><![CDATA[Jedną z najważniejszych cech interfejsów użytkownika (UI) jest reagowanie na zdarzenia i odpowiednie na ich podstawie odświeżanie widocznych na nim danych. Wielu młodych adeptów, szczególnie popularnego wśród początkujących front-endu, powie: „używam useState w React i to się dzieje samo”. Tylko na tym blogu odpowiedź „się dzieje samo” nie satysfakcjonuje nas. Interesują nas implementacyjne detale jak i dlaczego coś działa. Dlatego w tym artykule zagłębimy się w jedną z koncepcji stojących za reaktywnością interfejsów — wzorzec obserwator.<br /><a href="https://swistak.codes/post/obserwator">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Mierzenie podobieństwa ciągów znaków]]></title>
+            <link>https://swistak.codes/post/podobienstwo-ciagow-znakow</link>
+            <guid>https://swistak.codes/post/podobienstwo-ciagow-znakow</guid>
+            <pubDate>Wed, 13 Sep 2023 07:00:00 GMT</pubDate>
+            <description><![CDATA[Artykuł jest poświęcony metryce odległości edycyjnej oraz jej implementacji jako odległości Hamminga i Levenshteina.]]></description>
+            <content:encoded><![CDATA[Patrząc na tekst, jesteśmy wzrokowo w stanie powiedzieć, czy dwa słowa są do siebie podobne: czy to znaczeniowo, czy pod kątem różnic w liczbie liter, czy jakkolwiek tylko przyjdzie nam do głowy. Tylko jak taką metrykę zdefiniować formalnie, a następnie w jaki sposób ją zapisać algorytmicznie? Idąc dalej tymi pytaniami — skąd wyszukiwarka internetowa wie, że jeśli wpisałeś(-aś) „dwistak”, to tak naprawdę miałeś(-aś) na myśli „świstak”? Poznajmy odpowiedzi na te pytania.<br /><a href="https://swistak.codes/post/podobienstwo-ciagow-znakow">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Teoria zbiorów a TypeScript]]></title>
+            <link>https://swistak.codes/post/teoria-zbiorow-typescript</link>
+            <guid>https://swistak.codes/post/teoria-zbiorow-typescript</guid>
+            <pubDate>Wed, 23 Aug 2023 07:00:00 GMT</pubDate>
+            <description><![CDATA[W artykule pokazuję, w jaki sposób zagadnienia z algebry zbiorów znajdują swoje zastosowanie w systemie typów TypeScripta.]]></description>
+            <content:encoded><![CDATA[Omawiając ostatnio algebrę zbiorów, przedstawiłem jej zastosowanie w najbardziej oczywisty dla programistów sposób — na strukturach danych zbiorów i tablic. Jak się jednak okazuje, zagadnienia z niej mają znacznie więcej zastosowań w informatyce. Tym razem pokażę, jakie przełożenie ma ten obszar logiki matematycznej na język programowania TypeScript, a dokładniej na jego system typów. Innymi słowy, nie zastosujemy logiki w wykonywalnym kodzie programu, ale w technicznym opisie tego, co my w ogóle programujemy. A patrząc z jeszcze innej strony — poznamy wycinek teorii typów w praktyce.<br /><a href="https://swistak.codes/post/teoria-zbiorow-typescript">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Logika dla informatyków — algebra zbiorów]]></title>
+            <link>https://swistak.codes/post/algebra-zbiorow</link>
+            <guid>https://swistak.codes/post/algebra-zbiorow</guid>
+            <pubDate>Wed, 19 Jul 2023 07:00:00 GMT</pubDate>
+            <description><![CDATA[W artykule pokazuję zagadnienia z algebry zbiorów napisane pod kątem ich zastosowań w informatyce.]]></description>
+            <content:encoded><![CDATA[Przedstawiając ostatnio podstawy logiki dla informatyków, ograniczyłem się tylko do podstaw rachunku zdań — bo to on jest najczęściej spotykany. Następnie opisałem kwantyfikatory, które rzadziej spotyka się w programowaniu, ale wciąż należy je znać. Moim zdaniem kolejnym często spotykanym zagadnieniem z logiki, aczkolwiek już mniej kojarzonym z programowaniem, jest algebra zbiorów. Zobaczmy, czym ona jest i jakie ma zastosowanie w informatyce.<br /><a href="https://swistak.codes/post/algebra-zbiorow">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Logika dla informatyków — kwantyfikatory]]></title>
+            <link>https://swistak.codes/post/kwantyfikatory</link>
+            <guid>https://swistak.codes/post/kwantyfikatory</guid>
+            <pubDate>Wed, 05 Jul 2023 07:00:00 GMT</pubDate>
+            <description><![CDATA[W artykule pokazuję zagadnienia rachunku kwantyfikatorów napisane pod kątem ich zastosowań w informatyce.]]></description>
+            <content:encoded><![CDATA[Przedstawiając ostatnio podstawy logiki dla informatyków, ograniczyłem się tylko do rachunku zdań, bo to on jest najczęściej spotykany. Jednak logika matematyczna jest dużo bardziej rozbudowana i inne jej elementy też znajdują zastosowanie praktyczne. Kolejnym zagadnieniem, które chcę przedstawić, jest rachunek kwantyfikatorów. Z naszego punktu widzenia będzie to krótkie i proste, ale warte opowiedzenia.<br /><a href="https://swistak.codes/post/kwantyfikatory">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Logika dla informatyków — podstawy]]></title>
+            <link>https://swistak.codes/post/podstawy-logiki</link>
+            <guid>https://swistak.codes/post/podstawy-logiki</guid>
+            <pubDate>Wed, 14 Jun 2023 07:00:00 GMT</pubDate>
+            <description><![CDATA[W artykule pokazuję podstawowe zagadnienia z logiki napisane pod kątem ich zastosowań w informatyce.]]></description>
+            <content:encoded><![CDATA[Dość często można spotkać się w Internecie z twierdzeniem, że aby programować, nie trzeba znać matematyki. Jednak jakkolwiek na to nie spojrzeć, komputer to przerośnięty kalkulator, maszyna obliczeniowa, stąd w wielu dziedzinach programowania natkniemy się na różne rzeczy wywodzące się z matematyki. Jest jeden dział matematyki, z którym do czynienia ma na co dzień każdy programista, a nawet ogólniej — każdy informatyk. Tym działem jest logika matematyczna. Poznajmy i uporządkujmy sobie jej absolutne podstawy w kontekście programowania.<br /><a href="https://swistak.codes/post/podstawy-logiki">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Obliczanie wyrażeń matematycznych]]></title>
+            <link>https://swistak.codes/post/obliczanie-wyrazen-matematycznych</link>
+            <guid>https://swistak.codes/post/obliczanie-wyrazen-matematycznych</guid>
+            <pubDate>Wed, 24 May 2023 07:00:00 GMT</pubDate>
+            <description><![CDATA[Z artykułu dowiesz się, jak algorytmicznie obliczać wyrażenia matematyczne. Wykorzystamy do tego odwrotną notację polską.]]></description>
+            <content:encoded><![CDATA[W ostatnim artykule przedstawiłem odwrotną notację polską (ONP) i jak obliczać wyrażenia matematyczne zapisane za jej pomocą. Jednak powiedzmy sobie szczerze — pisząc aplikację obliczającą wyrażenia, nie możemy zmuszać użytkowników do stosowania małopopularnej notacji tylko dlatego, że wygodnie się ją programuje. Dlatego też w tym artykule opiszę, w jaki sposób wiedzę na temat ONP zastosować do obliczania wyrażeń matematycznych zapisanych w tradycyjny, infiksowy sposób.<br /><a href="https://swistak.codes/post/obliczanie-wyrazen-matematycznych">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Odwrotna notacja polska]]></title>
+            <link>https://swistak.codes/post/odwrotna-notacja-polska</link>
+            <guid>https://swistak.codes/post/odwrotna-notacja-polska</guid>
+            <pubDate>Wed, 10 May 2023 07:00:00 GMT</pubDate>
+            <description><![CDATA[Artykuł przedstawia odwrotną notację polską oraz algorytm obliczania wartości wyrażeń nią zapisanych.]]></description>
+            <content:encoded><![CDATA[Kolejność wykonywania działań to, jak można zauważyć w Internecie, jeden z największych problemów, jakie przeciętne osoby mają z matematyką. Regularnie od wielu lat pojawia się w mediach społecznościowych jakiś wariant zagadki „oblicz 6/2(2+1)”, gdzie ludzie się kłócą, czyja odpowiedź jest prawidłowa. W idealnym świecie takich problemów nie powinno być. Dlatego powstały alternatywne sposoby zapisu działań matematycznych pozbywające się nawiasów, takie jak np. odwrotna notacja polska. Nasz świat idealnym jednak nie jest, więc męczymy się z nawiasami, ale poznajmy tę notację, bo akurat w świecie informatyki ma ona duże znaczenie.<br /><a href="https://swistak.codes/post/odwrotna-notacja-polska">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Rozwiązujemy maturę próbną 2022 z informatyki]]></title>
+            <link>https://swistak.codes/post/matura-probna-2022</link>
+            <guid>https://swistak.codes/post/matura-probna-2022</guid>
+            <pubDate>Wed, 19 Apr 2023 07:00:00 GMT</pubDate>
+            <description><![CDATA[W artykule pokazuję przykładowe rozwiązania wybranych zadań z matury próbnej 2022 z informatyki.]]></description>
+            <content:encoded><![CDATA[Tym razem coś dla młodszych czytelników bloga, chociaż pewnie nie tylko ich może to zainteresować. Zbliża się maj, a skoro maj, to matury, w tym ta z informatyki. Pomyślałem, że może Was zaciekawić, jak osoba pracująca od kilku lat w IT rozwiązałaby zadania, które pojawiły się na maturze próbnej w grudniu 2022 roku.<br /><a href="https://swistak.codes/post/matura-probna-2022">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Dziel i zwyciężaj a mnożenie]]></title>
+            <link>https://swistak.codes/post/dziel-i-zwyciezaj-a-mnozenie</link>
+            <guid>https://swistak.codes/post/dziel-i-zwyciezaj-a-mnozenie</guid>
+            <pubDate>Wed, 05 Apr 2023 07:00:00 GMT</pubDate>
+            <description><![CDATA[Artykuł przedstawia algorytm Karacuby, który wykorzystuje strategię „dziel i zwyciężaj” w celu przemnożenia dwóch liczb.]]></description>
+            <content:encoded><![CDATA[Podczas nauki programowania jedną z pierwszych koncepcji z zakresu projektowania algorytmów, którą poznajemy, jest „dziel i zwyciężaj”. Poznaje się ją w kontekście wyszukiwania binarnego, a niektórzy nauczyciele przypominają, że strategia ta jest też wykorzystywana w najszybszych algorytmach sortowania. Jednak wiesz, że to podejście ma jeszcze więcej zastosowań? W artykule chciałem pokazać moim zdaniem jedno z ciekawszych — algorytm Karacuby, czyli algorytm szybkiego mnożenia oparty na „dziel i zwyciężaj”.<br /><a href="https://swistak.codes/post/dziel-i-zwyciezaj-a-mnozenie">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Algorytmika gier — obrót do punktu]]></title>
+            <link>https://swistak.codes/post/algorytmika-gier-obrot-do-punktu</link>
+            <guid>https://swistak.codes/post/algorytmika-gier-obrot-do-punktu</guid>
+            <pubDate>Wed, 22 Mar 2023 07:00:00 GMT</pubDate>
+            <description><![CDATA[W artykule szybko przedstawiam, jak obracać cokolwiek względem punktu, a następnie, dlaczego to działa.]]></description>
+            <content:encoded><![CDATA[W grach dwuwymiarowych z widokiem z góry dość podstawowym elementem jest obracanie postaci gracza w kierunku kursora myszki. Ewentualnie możesz chcieć, żeby inne postacie w grze obracały się w kierunku gracza. Zastosowania są różne, ale stoi za tym jedna, bardzo prosta funkcja. Pokażę ją tutaj, a następnie wytłumaczę matematycznie, dlaczego to działa.<br /><a href="https://swistak.codes/post/algorytmika-gier-obrot-do-punktu">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Sumy kontrolne]]></title>
+            <link>https://swistak.codes/post/sumy-kontrolne</link>
+            <guid>https://swistak.codes/post/sumy-kontrolne</guid>
+            <pubDate>Wed, 08 Mar 2023 07:00:00 GMT</pubDate>
+            <description><![CDATA[Artykuł opisuje, czym są sumy kontrolne, jakie mamy ich rodzaje, a także które algorytmy stosuje się do ich sprawdzania.]]></description>
+            <content:encoded><![CDATA[W informatyce dużo mówimy o przechowywaniu danych i manipulacji nimi. Gdy wejdziemy w obszar teleinformatyki, poruszane są też tematy przesyłania danych. Jednak skąd wiadomo, czy dane są prawidłowe? Skąd wiemy, czy w trakcie przesyłania przez Internet plik dotarł do nas w całości? Do tego co to ma wspólnego z weryfikacją numerów kont bankowych, kart kredytowych czy PESEL-u? Zapoznajmy się z tematem sum kontrolnych i jakie mają zastosowania.<br /><a href="https://swistak.codes/post/sumy-kontrolne">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Jak narysować spiralę?]]></title>
+            <link>https://swistak.codes/post/jak-narysowac-spirale</link>
+            <guid>https://swistak.codes/post/jak-narysowac-spirale</guid>
+            <pubDate>Wed, 22 Feb 2023 07:00:00 GMT</pubDate>
+            <description><![CDATA[W artykule opisuję matematykę stojącą za spiralą Archimedesa i jak możemy jej użyć w praktyce, aby ją narysować.]]></description>
+            <content:encoded><![CDATA[Na moim blogu rysowaliśmy już wiele rzeczy. Linie, okręgi, rośliny, zegar. Porysujmy znowu! Tym razem na tapet weźmy kolejną rzecz powiązaną z kołami — spirale. Po raz kolejny zobaczysz, jak w praktyce wykorzystać matematykę, geometrię i trygonometrię, aby zmusić komputer (z użyciem JavaScriptu) do narysowania czegokolwiek.<br /><a href="https://swistak.codes/post/jak-narysowac-spirale">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Jak narysować zegar analogowy?]]></title>
+            <link>https://swistak.codes/post/jak-narysowac-zegar-analogowy</link>
+            <guid>https://swistak.codes/post/jak-narysowac-zegar-analogowy</guid>
+            <pubDate>Wed, 08 Feb 2023 07:00:00 GMT</pubDate>
+            <description><![CDATA[W artykule omawiam, w jaki sposób, stosując prostą matematykę, możemy stworzyć animację zegara analogowego.]]></description>
+            <content:encoded><![CDATA[Do tej pory na blogu przedstawiałem przede wszystkim gotowe i znane rozwiązania algorytmiczne, ale rzadko pokazywałem, jak od podstaw coś zrobić, czego nie znajdziemy w podręcznikach do algorytmiki. Za to możemy znaleźć w podręcznikach do informatyki. Pokażę w tym wpisie, w jaki sposób, wykorzystując prostą matematykę, zrobić coś, co działa i wyświetla więcej niż ciągi liczb. A dokładniej — stworzymy prosty, animowany zegar analogowy.<br /><a href="https://swistak.codes/post/jak-narysowac-zegar-analogowy">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Pierwiastkowanie]]></title>
+            <link>https://swistak.codes/post/pierwiastkowanie</link>
+            <guid>https://swistak.codes/post/pierwiastkowanie</guid>
+            <pubDate>Wed, 25 Jan 2023 07:00:00 GMT</pubDate>
+            <description><![CDATA[Algorytm opisuje, jak algorytmicznie możemy podejść do tematu pierwiastkowania, wykorzystując metodę Newtona-Raphsona.]]></description>
+            <content:encoded><![CDATA[Ostatnio zapoznaliśmy się ze względnie prostą operacją potęgowania. Prostą, bo w końcu to tylko powtarzanie jednego z najbardziej podstawowych działań aż do uzyskania wyniku. Zainteresujmy się teraz, jak algorytmicznie podejść do operacji odwrotnej do potęgowania, która już do tak prostych nie należy. Porozmawiajmy o pierwiastkowaniu.<br /><a href="https://swistak.codes/post/pierwiastkowanie">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Podstawy algorytmiki: szybkie potęgowanie]]></title>
+            <link>https://swistak.codes/post/szybkie-potegowanie</link>
+            <guid>https://swistak.codes/post/szybkie-potegowanie</guid>
+            <pubDate>Wed, 11 Jan 2023 07:00:00 GMT</pubDate>
+            <description><![CDATA[Artykuł omawia jeden z podstawowych algorytmów matematycznych w informatyce — szybkie potęgowanie.]]></description>
+            <content:encoded><![CDATA[Potęgowanie to dość podstawowa, a jednocześnie przydatna operacja w matematyce. Jednak wykonując je według definicji, możemy nie dać rady zrobić tego szybko, szczególnie gdy podnosimy liczby do wysokich potęg. Mimo to jest na to sposób, jak można potęgi obliczać szybko, i to na tyle prostym algorytmem, że jest zwykle jednym z pierwszych, które poznajemy przy nauce programowania. Opowiedzmy sobie o nim, przetestujmy, a także sprawdźmy, czy naprawdę jest taki szybki.<br /><a href="https://swistak.codes/post/szybkie-potegowanie">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Iteracja — co to jest?]]></title>
+            <link>https://swistak.codes/post/iteracja-co-to-jest</link>
+            <guid>https://swistak.codes/post/iteracja-co-to-jest</guid>
+            <pubDate>Wed, 21 Dec 2022 07:00:00 GMT</pubDate>
+            <description><![CDATA[Iteracja to jedna z najbardziej podstawowych technik sterowania wykonaniem programu. Każdy programista ją zna, ale mimo to wejdźmy w temat głębiej.]]></description>
+            <content:encoded><![CDATA[Iteracja to według słownika PWN-u metoda polegająca na wielokrotnym stosowaniu tej samej procedury. Nawet nieskończenie, niczym Syzyf wtaczający głaz na szczyt góry (jak na okładce). W zasadzie na tym mógłbym zamknąć ten artykuł, bo właśnie odpowiedziałem na pytanie z tytułu. Jednak mimo to wejdźmy w temat głębiej: jakie mamy rodzaje iteracji, do czego się ostatecznie sprowadzają, co mają wspólnego z rekurencją, a także czym są iteratory.<br /><a href="https://swistak.codes/post/iteracja-co-to-jest">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Podstawy algorytmiki: największy wspólny dzielnik]]></title>
+            <link>https://swistak.codes/post/najwiekszy-wspolny-dzielnik</link>
+            <guid>https://swistak.codes/post/najwiekszy-wspolny-dzielnik</guid>
+            <pubDate>Wed, 30 Nov 2022 07:00:00 GMT</pubDate>
+            <description><![CDATA[Artykuł przedstawia jeden z najprostszych i najbardziej znanych algorytmów, czyli sposób znalezienia największego wspólnego dzielnika dwóch liczb.]]></description>
+            <content:encoded><![CDATA[Obliczanie największego wspólnego dzielnika dwóch liczb to prawdopodobnie jeden z pierwszych algorytmów, które poznajemy podczas swojej edukacji. Zarazem jest to też bardzo proste do zapamiętania. Omówmy sobie to klasyczne podejście, a także różne inne podejścia.<br /><a href="https://swistak.codes/post/najwiekszy-wspolny-dzielnik">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Liczby rzymskie]]></title>
+            <link>https://swistak.codes/post/liczby-rzymskie</link>
+            <guid>https://swistak.codes/post/liczby-rzymskie</guid>
+            <pubDate>Wed, 16 Nov 2022 07:00:00 GMT</pubDate>
+            <description><![CDATA[W artykule opisuję, jak wygląda rzymski system zapisu liczb oraz jak możemy do niego podejść algorytmicznie.]]></description>
+            <content:encoded><![CDATA[W codziennym zastosowaniu oprócz wszechobecnego systemu dziesiętnego utrzymał się do naszych czasów również system rzymski. Zapisując wiele nazw czy imion, nie wyobrażamy sobie, żeby zapisać je z użyciem cyfr arabskich — w końcu „Benedykt XVI” wygląda znacznie poważniej niż „Benedykt 16.”. Nas jednak interesuje inna strona systemu rzymskiego, czyli jak zaprogramować jego obsługę. Stoją za tym proste algorytmy, które są zwykle zadaniami na kursach podstaw programowania, dlatego spróbujmy napisać je wspólnie.<br /><a href="https://swistak.codes/post/liczby-rzymskie">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Problem skoczka szachowego]]></title>
+            <link>https://swistak.codes/post/problem-skoczka-szachowego</link>
+            <guid>https://swistak.codes/post/problem-skoczka-szachowego</guid>
+            <pubDate>Wed, 26 Oct 2022 07:00:00 GMT</pubDate>
+            <description><![CDATA[Problem skoczka szachowego to jeden z popularniejszych problemów algorytmicznych. W artykule pokazuję, jak go rozwiązać.]]></description>
+            <content:encoded><![CDATA[Problem skoczka szachowego to jeden z popularniejszych problemów algorytmicznych. Często możemy go spotkać pośród zadań z algorytmiki dla adeptów programowania. Zobaczmy, na czym ten problem polega oraz jak go rozwiązać, i przede wszystkim... co ma to wspólnego z szeroko opisywanym przeze mnie ostatnio tematem grafów.<br /><a href="https://swistak.codes/post/problem-skoczka-szachowego">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Rysowanie grafów — algorytmy]]></title>
+            <link>https://swistak.codes/post/rysowanie-grafow-algorytmy</link>
+            <guid>https://swistak.codes/post/rysowanie-grafow-algorytmy</guid>
+            <pubDate>Wed, 12 Oct 2022 07:00:00 GMT</pubDate>
+            <description><![CDATA[Artykuł przedstawia zagadnienia algorytmiczne związane z rysowaniem grafów, przede wszystkim z rozmieszczaniem wierzchołków.]]></description>
+            <content:encoded><![CDATA[Mówiąc o grafach w kontekście algorytmiki, zwykle przywodzi na myśl rozwiązywanie za ich pomocą różnych problemów, np. poruszanego przeze mnie już w trzech artykułach szukania ścieżek. Rzadziej jednak porusza się temat tego, że jeśli chcemy graf narysować, należałoby rozmieścić jego wierzchołki w przestrzeni w pewien sensowny i uporządkowany sposób tak, aby jak najlepiej przedstawić jego charakterystykę. Znajomość przynajmniej rodzajów i właściwości algorytmów do tego służących to obowiązkowa wiedza dla osób zajmujących się wizualizacją danych. W artykule przedstawiam wszystko, co potrzebujesz wiedzieć na ten temat.<br /><a href="https://swistak.codes/post/rysowanie-grafow-algorytmy">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Szybkie wyszukiwanie ścieżek]]></title>
+            <link>https://swistak.codes/post/szybkie-wyszukiwanie-sciezek</link>
+            <guid>https://swistak.codes/post/szybkie-wyszukiwanie-sciezek</guid>
+            <pubDate>Wed, 28 Sep 2022 07:00:00 GMT</pubDate>
+            <description><![CDATA[Artykuł opisuje algorytm A* umożliwiający szybkie wyszukiwanie ścieżek w grafach.]]></description>
+            <content:encoded><![CDATA[Klasyką algorytmiki jest wykorzystywanie takich algorytmów, jak BFS, algorytm Dijkstry czy Bellmana-Forda do wyszukiwania najkrótszych ścieżek. Jednak algorytmy te wykonują bardzo dużo operacji i przy rozbudowanych przypadkach, takich jak znajdowanie tras na mapie albo nawet ścieżki, po której ma przejść postać w grze komputerowej, mogą być zbyt wolne czy też zająć zbyt dużo pamięci. Na szczęście są również inne podejścia do tego problemu, dużo wydajniejsze, jeśli posiadamy nieco więcej informacji o grafie. Czas najwyższy poznać jedno z nich — algorytm A*.<br /><a href="https://swistak.codes/post/szybkie-wyszukiwanie-sciezek">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Szukanie najkrótszych ścieżek w grafie]]></title>
+            <link>https://swistak.codes/post/szukanie-najkrotszych-sciezek-w-grafie</link>
+            <guid>https://swistak.codes/post/szukanie-najkrotszych-sciezek-w-grafie</guid>
+            <pubDate>Sat, 17 Sep 2022 11:00:00 GMT</pubDate>
+            <description><![CDATA[Artykuł opisuje, jak wyszukiwać najkrótsze ścieżki w grafach ważonych, stosując klasyczne algorytmy - Dijkstry oraz Bellmana-Forda]]></description>
+            <content:encoded><![CDATA[Gdy mówimy o grafach i rozwiązywaniu problemów za ich pomocą, w kontekście algorytmiki pierwszą rzeczą, która wielu przychodzi na myśl, jest wyszukiwanie najkrótszych ścieżek. Co prawda omówiliśmy już to dla grafów nieważonych, ale powiedzmy sobie szczerze — zwykle musimy to robić w ważonych. Opiszę tutaj trzy klasyczne algorytmy rozwiązujące ten problem.<br /><a href="https://swistak.codes/post/szukanie-najkrotszych-sciezek-w-grafie">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Praktyczne zastosowania przechodzenia po grafie]]></title>
+            <link>https://swistak.codes/post/praktyczne-zastosowania-przechodzenia-po-grafie</link>
+            <guid>https://swistak.codes/post/praktyczne-zastosowania-przechodzenia-po-grafie</guid>
+            <pubDate>Wed, 31 Aug 2022 07:00:00 GMT</pubDate>
+            <description><![CDATA[Algorytmy BFS i DFS brzmią bardzo sucho i wydaje się, że nie mają zastosowań praktycznych. Obalmy ten mit.]]></description>
+            <content:encoded><![CDATA[W artykule „Przechodzenie po grafie” przedstawiłem algorytmy służące do przechodzenia po węzłach grafu — DFS (przechodzenie w głąb) oraz BFS (przechodzenie wszerz). Jednak samo odwiedzanie węzłów może wydawać się na pierwszy rzut oka mało przydatne, dlatego przedstawię trzy sposoby, jak można wykorzystać te algorytmy do celów praktycznych. Użyjemy też wszystkie trzy pokazane tam sposoby przechodzenia grafu: rekurencyjny DFS, iteracyjny DFS oraz BFS.<br /><a href="https://swistak.codes/post/praktyczne-zastosowania-przechodzenia-po-grafie">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Przechodzenie po grafie]]></title>
+            <link>https://swistak.codes/post/przechodzenie-po-grafie</link>
+            <guid>https://swistak.codes/post/przechodzenie-po-grafie</guid>
+            <pubDate>Wed, 10 Aug 2022 07:00:00 GMT</pubDate>
+            <description><![CDATA[Najbardziej podstawowym zagadnieniem algorytmicznym w grafach jest ich przechodzenie. W artykule pokazuję, jak się to robi.]]></description>
+            <content:encoded><![CDATA[Wiemy, czym są grafy, a także jak zapisujemy je w pamięci komputera. Przejdźmy w takim razie do najbardziej podstawowych algorytmów grafowych — przechodzenie po ich wierzchołkach i krawędziach. Jest to zdecydowanie najprostszy i najbardziej podstawowy temat algorytmiczny związany z grafami, więc opiszę go dość zwięźle.<br /><a href="https://swistak.codes/post/przechodzenie-po-grafie">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Sposoby reprezentacji grafów]]></title>
+            <link>https://swistak.codes/post/sposoby-reprezentacji-grafow</link>
+            <guid>https://swistak.codes/post/sposoby-reprezentacji-grafow</guid>
+            <pubDate>Wed, 15 Jun 2022 07:00:00 GMT</pubDate>
+            <description><![CDATA[Grafy mają szerokie zastosowanie w informatyce, tylko jak je reprezentować w pamięci? Temu poświęcam niniejszy artykuł.]]></description>
+            <content:encoded><![CDATA[Ostatnio przedstawiłem, czym są grafy, jakie wyróżniamy i gdzie w informatyce znalazły praktyczne zastosowanie. Tylko skoro stosuje się je w informatyce, to w jaki sposób? Jak je zapisać? Jakie struktury danych używamy do tego celu? W niniejszym artykule odpowiadam na te pytania.<br /><a href="https://swistak.codes/post/sposoby-reprezentacji-grafow">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Grafy — wprowadzenie]]></title>
+            <link>https://swistak.codes/post/grafy-wprowadzenie</link>
+            <guid>https://swistak.codes/post/grafy-wprowadzenie</guid>
+            <pubDate>Wed, 01 Jun 2022 07:00:00 GMT</pubDate>
+            <description><![CDATA[Grafy to jedna z najważniejszych koncepcji matematycznych, które na stałe weszły do świata informatyki. Poznajmy je bliżej.]]></description>
+            <content:encoded><![CDATA[Grafy to jedna z najważniejszych koncepcji matematycznych, które na stałe weszły do świata informatyki. Wielu programistów może nie dostrzegać tego na pierwszy rzut oka, ale znajdziemy je niemal wszędzie. Warto wiedzieć, czym one są i jak działają, niezależnie od tego, czym w świecie IT się zajmujemy. Jest to też temat dość mi bliski, bo zawodowo mam do czynienia z praktycznym zastosowaniem grafów od dłuższego czasu. W tym wpisie opisuję je od strony teoretycznej, aby przedstawić, czym są, skąd się wzięły i przede wszystkim, jakie znalazły zastosowania. Na początku nie przedstawię całej teorii grafów, tylko moim zdaniem jej najważniejsze elementy.<br /><a href="https://swistak.codes/post/grafy-wprowadzenie">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Porównanie szybkich testów pierwszości]]></title>
+            <link>https://swistak.codes/post/porownanie-szybkich-testow-pierwszosci</link>
+            <guid>https://swistak.codes/post/porownanie-szybkich-testow-pierwszosci</guid>
+            <pubDate>Wed, 16 Mar 2022 07:00:36 GMT</pubDate>
+            <description><![CDATA[Porównajmy szybkie testy pierwszości i sprawdźmy, jak wypadają one w porównaniu do metody naiwnej.]]></description>
+            <content:encoded><![CDATA[W poprzednim artykule dość szczegółowo opisałem test Millera-Rabina służący do szybkiego sprawdzania pierwszości liczb. Tym razem porównajmy sobie jego działanie z innymi szybkimi, probabilistycznymi testami pierwszości i sprawdźmy, jak wypadają one w porównaniu do bezbłędnej metody naiwnej.<br /><a href="https://swistak.codes/post/porownanie-szybkich-testow-pierwszosci">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Szybkie szukanie dużych liczb pierwszych]]></title>
+            <link>https://swistak.codes/post/szybkie-szukanie-duzych-liczb-pierwszych</link>
+            <guid>https://swistak.codes/post/szybkie-szukanie-duzych-liczb-pierwszych</guid>
+            <pubDate>Wed, 02 Mar 2022 06:00:13 GMT</pubDate>
+            <description><![CDATA[Czas napisać algorytm, który w krótkim czasie pozwoli nam znaleźć bardzo duże liczby pierwsze.]]></description>
+            <content:encoded><![CDATA[Wiemy już: czym są liczby pierwsze, jak sprawdzać, czy liczba jest pierwsza, jak w najprostszy sposób znajdować je, a także poznaliśmy teorię stojącą za znajdowaniem dużych liczb pierwszych. Przejdźmy zatem do praktyki. Czas napisać algorytm, który w krótkim czasie pozwoli nam znaleźć bardzo duże liczby pierwsze, tak jak to się robi w codziennych zastosowaniach.<br /><a href="https://swistak.codes/post/szybkie-szukanie-duzych-liczb-pierwszych">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Duże liczby pierwsze]]></title>
+            <link>https://swistak.codes/post/duze-liczby-pierwsze</link>
+            <guid>https://swistak.codes/post/duze-liczby-pierwsze</guid>
+            <pubDate>Wed, 16 Feb 2022 09:00:11 GMT</pubDate>
+            <description><![CDATA[Skąd matematycy wiedzą jak szukać duże liczby pierwsze? W tym artykule pokazuję różne sposoby, jak to robią.]]></description>
+            <content:encoded><![CDATA[Do tej pory przedstawiłem, czym są liczby pierwsze, ich zastosowania, jak możemy sprawdzać pierwszość liczb oraz jak możemy prostymi sposobami znajdować je. Jednak wszystko to, co do tej pory opowiedzieliśmy sobie, jest w dużej mierze zabawą. Jak poruszyłem już na samym początku serii, w kryptografii wykorzystuje się liczby pierwsze 2048-bitowe, więc w systemie dziesiętnym mogą one mieć nawet 617 cyfr. Dowiedzmy się więcej, jak jesteśmy w stanie odkryć tak duże, a nawet i większe liczby pierwsze. Na razie tylko w teorii.<br /><a href="https://swistak.codes/post/duze-liczby-pierwsze">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Proste sposoby na znajdowanie liczb pierwszych]]></title>
+            <link>https://swistak.codes/post/proste-sposoby-na-znajdowanie-liczb-pierwszych</link>
+            <guid>https://swistak.codes/post/proste-sposoby-na-znajdowanie-liczb-pierwszych</guid>
+            <pubDate>Wed, 02 Feb 2022 06:00:13 GMT</pubDate>
+            <description><![CDATA[W artykule poznajemy najprostsze sposoby na znajdowanie liczb pierwszych, takie jak metoda naiwna i sito Eratostenesa.]]></description>
+            <content:encoded><![CDATA[Ostatnio opisałem, czym są liczby pierwsze, a także pokazałem prosty, niemal 800-letni algorytm do ich testowania. Jednak nie kończmy na tym tematu. O liczbach pierwszych można mówić dużo, dlatego kontynuujmy. Tym razem pokażę, jakie mamy najprostsze sposoby na znajdowanie liczb pierwszych.<br /><a href="https://swistak.codes/post/proste-sposoby-na-znajdowanie-liczb-pierwszych">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Liczby pierwsze i proste sposoby na ich sprawdzanie]]></title>
+            <link>https://swistak.codes/post/liczby-pierwsze-i-proste-sposoby-na-ich-sprawdzanie</link>
+            <guid>https://swistak.codes/post/liczby-pierwsze-i-proste-sposoby-na-ich-sprawdzanie</guid>
+            <pubDate>Wed, 19 Jan 2022 05:00:46 GMT</pubDate>
+            <description><![CDATA[Liczby pierwsze to jeden z ważniejszych terminów w matematyce, do tego mający dość istotne zastosowanie praktyczne w informatyce.]]></description>
+            <content:encoded><![CDATA[Liczby pierwsze to jeden z ważniejszych terminów w matematyce, do tego mający dość istotne zastosowanie praktyczne. Na samym początku przygody z tym tematem przedstawmy sobie teorię, a także najprostsze testy pierwszości.<br /><a href="https://swistak.codes/post/liczby-pierwsze-i-proste-sposoby-na-ich-sprawdzanie">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Algorytmiczne rysowanie roślin w 3D]]></title>
+            <link>https://swistak.codes/post/algorytmiczne-rysowanie-roslin-w-3d</link>
+            <guid>https://swistak.codes/post/algorytmiczne-rysowanie-roslin-w-3d</guid>
+            <pubDate>Wed, 05 Jan 2022 06:00:24 GMT</pubDate>
+            <description><![CDATA[W artykule pokazuję, jak wykorzystać L-systemy do tworzenia grafiki trójwymiarowej na przykładzie fraktali oraz roślin.]]></description>
+            <content:encoded><![CDATA[W poprzednim artykule udało nam się narysować, całkowicie algorytmicznie, różne fraktale oraz rośliny o różnych kształtach. Jednak wszystko to było tylko dwuwymiarowe, ale po co tak się ograniczać? Przenieśmy to, co do tej pory poznaliśmy w trzeci wymiar dla jeszcze lepszego efektu.<br /><a href="https://swistak.codes/post/algorytmiczne-rysowanie-roslin-w-3d">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Algorytmiczne rysowanie roślin]]></title>
+            <link>https://swistak.codes/post/algorytmiczne-rysowanie-roslin</link>
+            <guid>https://swistak.codes/post/algorytmiczne-rysowanie-roslin</guid>
+            <pubDate>Wed, 22 Dec 2021 06:00:57 GMT</pubDate>
+            <description><![CDATA[Artykuł opowiada o tym, jak za pomocą L-systemów i grafiki żółwiowej możemy rysować proste, dwuwymiarowe rośliny.]]></description>
+            <content:encoded><![CDATA[Przez półtora roku pisania bloga zazwyczaj pokazywałem algorytmy, które pozwalały nam na wykonywanie dość podstawowych czynności, często i tak już gdzieś głębiej schowanych w bibliotekach standardowych języków programowania. Tym razem jednak zabiorę Was w podróż w te piękniejsze i mniej standardowe rejony algorytmów. Mianowicie opowiemy sobie o rysowaniu algorytmicznie. A dokładniej — o algorytmicznym rysowaniu roślin.<br /><a href="https://swistak.codes/post/algorytmiczne-rysowanie-roslin">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Podstawowe operacje na barwach]]></title>
+            <link>https://swistak.codes/post/podstawowe-operacje-na-barwach</link>
+            <guid>https://swistak.codes/post/podstawowe-operacje-na-barwach</guid>
+            <pubDate>Wed, 08 Dec 2021 05:00:41 GMT</pubDate>
+            <description><![CDATA[Jak zmieniać jasność, kontrast? Jak robić korekcję gamma? Co to jest solaryzacja i negatyw? W tym artykule wszystko wyjaśniam.]]></description>
+            <content:encoded><![CDATA[W poprzednim artykule opisałem, czym są barwy oraz jak są reprezentowane liczbowo, aby następnie można było je bezproblemowo zapisać na komputerze. W takim razie przejdźmy do tego, co misie lubią najbardziej — algorytmiki. W tym artykule opiszę najbardziej podstawowe operacje, jakie możemy wykonywać na kolorach.<br /><a href="https://swistak.codes/post/podstawowe-operacje-na-barwach">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Jak komputer zapisuje kolory?]]></title>
+            <link>https://swistak.codes/post/jak-komputer-zapisuje-kolory</link>
+            <guid>https://swistak.codes/post/jak-komputer-zapisuje-kolory</guid>
+            <pubDate>Wed, 24 Nov 2021 06:00:22 GMT</pubDate>
+            <description><![CDATA[Opowiedzmy sobie o kolorach. Czym one są, jak możemy je reprezentować liczbowo oraz jak jest to wszystko zapisywane na komputerze?]]></description>
+            <content:encoded><![CDATA[Poruszając kilka tematów z zakresu grafiki komputerowej, do tej pory skupiałem się na algorytmach i matematyce odpowiedzialnych za rysowanie tego, co widzimy na ekranie. Przy okazji opowiadałem o sprzętowych podstawach działania, ale jeszcze nigdy nie poświęciłem czasu temu, co faktycznie obserwujemy na ekranie, czyli kolorom, barwom. A jest to ciekawy i jak zwykle złożony temat, który postaram się przedstawić w prosty sposób.<br /><a href="https://swistak.codes/post/jak-komputer-zapisuje-kolory">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Obliczanie całek oznaczonych]]></title>
+            <link>https://swistak.codes/post/obliczanie-calek-oznaczonych</link>
+            <guid>https://swistak.codes/post/obliczanie-calek-oznaczonych</guid>
+            <pubDate>Wed, 10 Nov 2021 06:00:34 GMT</pubDate>
+            <description><![CDATA[W artykule opowiadam, czym są całki oznaczone, a także jak można otrzymywać ich przybliżony wynik algorytmicznie.]]></description>
+            <content:encoded><![CDATA[Tytuł brzmi strasznie, wiem. W końcu całki to już ten rejon matematyki, w który wielu nie chciało nigdy wchodzić. A w tym artykule nie dość, że opowiem, czym są całki, do tego oznaczone, to jeszcze pokażę sposoby na ich obliczanie. Co więcej, sposoby programistyczne! Ale tak całkowicie serio, to wbrew pozorom jest to bardzo prosty temat, za którym może nie stoi najprostsza matematyka, ale na pewno bardzo proste algorytmy. Tym samym stanowi to świetny początek do rozeznania rejonu algorytmiki, jakim są metody numeryczne.<br /><a href="https://swistak.codes/post/obliczanie-calek-oznaczonych">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Sudoku]]></title>
+            <link>https://swistak.codes/post/sudoku</link>
+            <guid>https://swistak.codes/post/sudoku</guid>
+            <pubDate>Wed, 27 Oct 2021 06:00:40 GMT</pubDate>
+            <description><![CDATA[Rozwiążmy sudoku, przy okazji poznając algorytm, który może się przydać przy wyszukiwaniu rozwiązań wielu różnych problemów.]]></description>
+            <content:encoded><![CDATA[Na przestrzeni ostatnich kilku artykułów zdążyłem poruszyć dwie zagadki logiczne: wieże Hanoi oraz kryptarytmy. Dlaczego więc nie opowiedzieć o najpopularniejszej z liczbowych zagadek logicznych, dostępnej w każdym osiedlowym kiosku — sudoku? Przy okazji poznamy kolejny algorytm, który może się przydać przy wyszukiwaniu rozwiązań wielu różnych problemów, nie tylko sudoku.<br /><a href="https://swistak.codes/post/sudoku">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Kryptarytmy]]></title>
+            <link>https://swistak.codes/post/kryptarytmy</link>
+            <guid>https://swistak.codes/post/kryptarytmy</guid>
+            <pubDate>Wed, 13 Oct 2021 07:30:01 GMT</pubDate>
+            <description><![CDATA[Kryptarytmy to bardzo przyjemne łamigłówki. W tym artykule pokazuję, jak do ich rozwiązywania można podejść algorytmicznie.]]></description>
+            <content:encoded><![CDATA[Kryptarytmy to bardzo przyjemna kategoria łamigłówek matematycznych, gdzie mając działanie zapisane literami, musimy znaleźć cyfry odpowiadające każdej z nich. W tym artykule chcę pokazać, jak do rozwiązywania zagadek tego typu można podejść algorytmicznie. Przy okazji od strony algorytmicznej poznamy mały wycinek kombinatoryki.<br /><a href="https://swistak.codes/post/kryptarytmy">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Wieże Hanoi]]></title>
+            <link>https://swistak.codes/post/wieze-hanoi</link>
+            <guid>https://swistak.codes/post/wieze-hanoi</guid>
+            <pubDate>Wed, 29 Sep 2021 07:00:23 GMT</pubDate>
+            <description><![CDATA[Wieże Hanoi — prosta, drewniana zabawka dla dzieci. Natomiast dla studentów informatyki to nie raz koszmar. Jak to możliwe? Zobaczmy...]]></description>
+            <content:encoded><![CDATA[Wieże Hanoi to dla większości ludzi na świecie prosta, drewniana zabawka dla dzieci. Natomiast dla studentów informatyki to nie raz jedno z najgorszych wspomnień z pierwszych lat studiów i nauki programowania. Jak to możliwe? Co jest w nich takiego strasznego? Przekonajmy się na własną rękę.<br /><a href="https://swistak.codes/post/wieze-hanoi">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Algorytmika gier — kółko i krzyżyk]]></title>
+            <link>https://swistak.codes/post/algorytmika-gier-kolko-i-krzyzyk</link>
+            <guid>https://swistak.codes/post/algorytmika-gier-kolko-i-krzyzyk</guid>
+            <pubDate>Wed, 15 Sep 2021 07:30:02 GMT</pubDate>
+            <description><![CDATA[Pokazuję dwa sposoby na zrobienie sztucznej inteligencji dla gry w kółko i krzyżyk: wykorzystanie reguł decyzyjnych oraz algorytm Minimax.]]></description>
+            <content:encoded><![CDATA[Poprzednio w serii algorytmika gier pochyliłem się nad grą w sapera, gdzie przeanalizowaliśmy, jak generuje się planszę oraz prowadzi rozgrywkę. Teraz spróbujmy przenieść na komputer jedną z najpopularniejszych gier rozgrywanych na kartce — kółko i krzyżyk. Jednak tym razem nie skupimy się na zaprogramowaniu całej rozgrywki, a tylko na jednej rzeczy: sztucznej inteligencji komputerowego gracza.<br /><a href="https://swistak.codes/post/algorytmika-gier-kolko-i-krzyzyk">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Dziwny przypadek reszty z dzielenia]]></title>
+            <link>https://swistak.codes/post/dziwny-przypadek-reszty-z-dzielenia</link>
+            <guid>https://swistak.codes/post/dziwny-przypadek-reszty-z-dzielenia</guid>
+            <pubDate>Wed, 01 Sep 2021 07:30:19 GMT</pubDate>
+            <description><![CDATA[Obliczenie reszty z dzielenia — niby oczywista operacja, a różne języki programowania potrafią zwracać nam różne wyniki. Dlaczego tak jest?]]></description>
+            <content:encoded><![CDATA[Gdy we wczesnych latach podstawówki uczyliśmy się dzielenia (szczególnie „pod kreską”), w pewnym momencie dowiadywaliśmy się, że nie da się liczb idealnie podzielić. Czasami zostaje reszta. W końcu gdy dzielimy 6 na 4, to w szóstce zmieścimy tylko jedną czwórkę, ale to nie oznacza, że 6 dzielone przez 4 to po prostu 1. Mamy jeszcze 2 reszty, ewentualnie co dokładniejsi podaliby wynik 1,5. Jak się okazuje, obliczenie reszty z dzielenia, mimo że wydaje się czymś prostym i oczywistym... no cóż, zawsze coś musi się komplikować. Dlatego też przeanalizujmy tę operację: rozłóżmy ją na czynniki pierwsze i zobaczmy, co może tutaj pójść inaczej, i dlaczego, mimo różnych wyników, wciąż wszystko jest poprawnie.<br /><a href="https://swistak.codes/post/dziwny-przypadek-reszty-z-dzielenia">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Określanie dnia tygodnia dla dowolnej daty]]></title>
+            <link>https://swistak.codes/post/okreslanie-dnia-tygodnia-dla-dowolnej-daty</link>
+            <guid>https://swistak.codes/post/okreslanie-dnia-tygodnia-dla-dowolnej-daty</guid>
+            <pubDate>Wed, 18 Aug 2021 08:00:14 GMT</pubDate>
+            <description><![CDATA[W artykule opisuję kilka sposobów na określenie dnia tygodnia dla dowolnej daty: w kodzie, matematycznie oraz w formie zagadki logicznej.]]></description>
+            <content:encoded><![CDATA[Po wielokrotnym poruszaniu tematu na blogu, że wszelkie rzeczy związane z datami powinno się zostawić specjalistycznym bibliotekom i nie robić ich na własną rękę, nadszedł czas, aby coś w tym temacie jednak pokazać. Spośród wielu rzeczy, jakie możemy obliczać z dat, stwierdziłem, że najciekawsze jest określenie dnia tygodnia. Opiszę tutaj kilka sposobów, jak możemy to zrobić — nie tylko w kodzie, ale też matematycznie oraz w formie zagadki logicznej.<br /><a href="https://swistak.codes/post/okreslanie-dnia-tygodnia-dla-dowolnej-daty">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Dlaczego mierzenie i przetwarzanie czasu jest trudne? — część 2 z 2]]></title>
+            <link>https://swistak.codes/post/dlaczego-mierzenie-i-przetwarzanie-czasu-jest-trudne-czesc-2</link>
+            <guid>https://swistak.codes/post/dlaczego-mierzenie-i-przetwarzanie-czasu-jest-trudne-czesc-2</guid>
+            <pubDate>Wed, 04 Aug 2021 07:00:25 GMT</pubDate>
+            <description><![CDATA[Jak w temacie dat mieszają nam strefy czasowe, dlaczego nie możemy wierzyć w 100% źródłom czasu i co nas może czekać w przyszłości?]]></description>
+            <content:encoded><![CDATA[W poprzednim artykule, omawiając trudności, z jakimi trzeba się mierzyć podczas przetwarzania daty i czasu, poruszyłem takie zagadnienia, jak lata przestępne, różnorodność kalendarzy i sekundy przestępne. Jednak nie bez powodu rozbiłem artykuł na dwie części — nawet pisząc czysto ciekawostkami, poruszenie tylko trzech tematów to zdecydowanie za mało. Dlatego teraz kontynuujmy, patrząc na to, jak w temacie dat mieszają nam strefy czasowe, dlaczego nie możemy wierzyć w 100% źródłom czasu, a także, co nas może czekać w bliższej lub dalszej przyszłości w kontekście ewentualnych zmian.<br /><a href="https://swistak.codes/post/dlaczego-mierzenie-i-przetwarzanie-czasu-jest-trudne-czesc-2">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Dlaczego mierzenie i przetwarzanie czasu jest trudne? — część 1 z 2]]></title>
+            <link>https://swistak.codes/post/dlaczego-mierzenie-i-przetwarzanie-czasu-jest-trudne-czesc-1</link>
+            <guid>https://swistak.codes/post/dlaczego-mierzenie-i-przetwarzanie-czasu-jest-trudne-czesc-1</guid>
+            <pubDate>Wed, 21 Jul 2021 09:00:25 GMT</pubDate>
+            <description><![CDATA[Zagadnienie dat i czasu nie jest wcale tak trywialne, jak można sądzić. Poruszymy w tej części: lata i sekundy oraz różne kalendarze.]]></description>
+            <content:encoded><![CDATA[W artykułach poświęconych odmierzaniu czasu oraz przechowywaniu daty kilkukrotnie wspomniałem, że przy zagadnieniach tego typu powinniśmy polegać na gotowych implementacjach z systemu bądź języku programowania. Wbrew temu, jak oczywistym wydaje się zagadnienie dat i czasu, nie jest ono wcale tak trywialne. Przy codziennym postrzeganiu tego tematu nie bierzemy pod uwagę wielu niuansów, które mogą mieć wpływ na poprawną implementację. Dlatego też postanowiłem pokazać kilka przykładów, dlaczego ten temat jest, wbrew pozorom, trudny. W tej części poruszymy tematy lat przestępnych, różnych kalendarzy oraz sekund przestępnych.<br /><a href="https://swistak.codes/post/dlaczego-mierzenie-i-przetwarzanie-czasu-jest-trudne-czesc-1">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Jak komputer przechowuje datę i skąd zna aktualną?]]></title>
+            <link>https://swistak.codes/post/jak-komputer-przechowuje-date-i-skad-zna-aktualna</link>
+            <guid>https://swistak.codes/post/jak-komputer-przechowuje-date-i-skad-zna-aktualna</guid>
+            <pubDate>Wed, 07 Jul 2021 09:00:08 GMT</pubDate>
+            <description><![CDATA[W tym artykule dowiesz się, jak oprogramowanie przechowuje datę i skąd ją zna. Poznasz między innymi, czym jest czas uniksowy, co to NTP itd.]]></description>
+            <content:encoded><![CDATA[Po artykule o tym, w jaki sposób sprzęt komputerowy odmierza czas, mogłeś(-aś) zastanawiać się, co dalej się z tym dzieje? Parę razy podkreślałem, że na co dzień nie korzystamy bezpośrednio ze sprzętowych wskaźników, tylko wykorzystujemy te wbudowane w systemy operacyjne czy języki programowania. W tym artykule dowiesz się, jak oprogramowanie przechowuje datę i skąd ją zna. Poznasz między innymi, czym jest czas uniksowy, co to jest NTP, a także co się wydarzy w roku 2137.<br /><a href="https://swistak.codes/post/jak-komputer-przechowuje-date-i-skad-zna-aktualna">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Jak komputer mierzy czas?]]></title>
+            <link>https://swistak.codes/post/jak-komputer-mierzy-czas</link>
+            <guid>https://swistak.codes/post/jak-komputer-mierzy-czas</guid>
+            <pubDate>Wed, 23 Jun 2021 08:30:35 GMT</pubDate>
+            <description><![CDATA[Skąd komputer wie, która jest godzina, jak mierzy czas i jak to jest przechowywane? Tego dowiesz się w niniejszym artykule.]]></description>
+            <content:encoded><![CDATA[W dwóch ostatnich artykułach o grafice komputerowej poświęciłem sporo miejsca obliczeniom w przestrzeni trójwymiarowej i dwuwymiarowej. Trochę odchodząc od grafiki, ale pozostając w temacie przestrzeni… spójrzmy w czwarty wymiar czasoprzestrzeni, czyli czas. A dokładniej, skąd komputer wie, która jest godzina, jak mierzy czas i jak to jest przechowywane? Tego dowiesz się w niniejszym artykule.<br /><a href="https://swistak.codes/post/jak-komputer-mierzy-czas">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Przekształcenia grafiki 3D]]></title>
+            <link>https://swistak.codes/post/przeksztalcenia-grafiki-3d</link>
+            <guid>https://swistak.codes/post/przeksztalcenia-grafiki-3d</guid>
+            <pubDate>Wed, 09 Jun 2021 09:00:27 GMT</pubDate>
+            <description><![CDATA[W artykule przedstawiam jak możemy dokonywać transformacji grafiki 3D za pomocą macierzy przekształceń oraz kwaternionów.]]></description>
+            <content:encoded><![CDATA[W ostatnim artykule poruszałem temat przekształceń grafiki dwuwymiarowej, gdzie zaprezentowałem zarówno przekształcenia afiniczne, jak i perspektywiczne zapisywane w postaci macierzy przekształceń. Teraz pójdźmy o krok dalej i zobaczmy, jak to wygląda w przypadku grafiki trójwymiarowej.<br /><a href="https://swistak.codes/post/przeksztalcenia-grafiki-3d">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Przekształcenia grafiki 2D — matematyczny punkt widzenia]]></title>
+            <link>https://swistak.codes/post/przeksztalcenia-grafiki-2d</link>
+            <guid>https://swistak.codes/post/przeksztalcenia-grafiki-2d</guid>
+            <pubDate>Wed, 26 May 2021 09:00:10 GMT</pubDate>
+            <description><![CDATA[W artykule tym opisuję operacje matematyczne jakie stoją za transformacjami grafiki dwuwymiarowej, zarówno wektorowej jak i rastrowej.]]></description>
+            <content:encoded><![CDATA[Operując na grafice dwuwymiarowej, jesteśmy przyzwyczajeni, że możemy robić tak podstawowe operacje, jak jej obracanie, przesuwanie czy zmiana rozmiaru. Każdy program graficzny na to pozwala, a z punktu widzenia programisty są to operacje dostępne z poziomu CSS lub bibliotek graficznych. Ale, jak już nie raz na tym blogu, rozbiję to na czynniki pierwsze i pokażę, co tak naprawdę siedzi pod spodem tych funkcji, a dokładniej — matematyka za tym stojąca.<br /><a href="https://swistak.codes/post/przeksztalcenia-grafiki-2d">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Jak komputer zapisuje dźwięk?]]></title>
+            <link>https://swistak.codes/post/jak-komputer-zapisuje-dzwiek</link>
+            <guid>https://swistak.codes/post/jak-komputer-zapisuje-dzwiek</guid>
+            <pubDate>Tue, 11 May 2021 09:00:30 GMT</pubDate>
+            <description><![CDATA[W artykule opisuję jak zapisywane jest medium, którego zapis w cyfrowej postaci nie jest zbyt intuicyjny, czyli dźwięk.]]></description>
+            <content:encoded><![CDATA[Jakiś czas temu na blogu miałem okazję pisać o tym, że na komputerze wszystko jest przechowywane w postaci liczb. Pokazywałem to na przykładach zapisu tekstu, a także przedstawiłem, jak interpretować zapisane tak obrazy. Dlatego tym razem postanowiłem przejść do przedstawienia innego medium, którego zapis w postaci cyfrowej jest najmniej intuicyjny — dźwięk.<br /><a href="https://swistak.codes/post/jak-komputer-zapisuje-dzwiek">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Komputer w komputerze, czyli emulacja, wirtualizacja i konteneryzacja]]></title>
+            <link>https://swistak.codes/post/komputer-w-komputerze-czyli-emulacja-wirtualizacja-i-konteneryzacja</link>
+            <guid>https://swistak.codes/post/komputer-w-komputerze-czyli-emulacja-wirtualizacja-i-konteneryzacja</guid>
+            <pubDate>Wed, 28 Apr 2021 09:00:41 GMT</pubDate>
+            <description><![CDATA[Emulacja, wirtualizacja i konteneryzacja. Każda z nich służy uruchamianiu „komputera w komputerze". Czym się różnią i jak je wykorzystujemy?]]></description>
+            <content:encoded><![CDATA[Jedną ze wspaniałych rzeczy, jakie możemy robić na współczesnych komputerach, co jest bardzo szeroko stosowane, jest możliwość uruchamiana „komputera w komputerze” lub w zasadzie dowolnego sprzętu elektronicznego. Innymi słowy, możemy uruchomić Windowsa na Linuksie, gry z PlayStation na komputerze albo na jednym fizycznym serwerze uruchomić kilkanaście różnych aplikacji serwerowych, odseparowanych od siebie. Zawdzięczamy to trzem technikom, które omawiam w tym artykule — emulacji, wirtualizacji i konteneryzacji.<br /><a href="https://swistak.codes/post/komputer-w-komputerze-czyli-emulacja-wirtualizacja-i-konteneryzacja">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Algorytmika gier — saper]]></title>
+            <link>https://swistak.codes/post/algorytmika-gier-saper</link>
+            <guid>https://swistak.codes/post/algorytmika-gier-saper</guid>
+            <pubDate>Wed, 14 Apr 2021 09:00:11 GMT</pubDate>
+            <description><![CDATA[W artykule tym napiszesz wraz ze mną prosty klon gry saper, aby zrozumieć algorytmikę jaka kryje się za nią.]]></description>
+            <content:encoded><![CDATA[Gry komputerowe nie raz skrywają w sobie wiele ciekawej algorytmiki, która albo jest zaskakująca, albo nietypowa, albo na tyle ciekawa, że warto się z nią zapoznać. Są też takie, które mają pod sobą wręcz bardzo „szkolne” algorytmy, ale nie oznacza to, że nie są ciekawe. Jedną z takich gier jest klasyczny saper, którego wielu zapewne kojarzy z gier wbudowanych w system Windows. Stoją za nim bardzo proste, lecz ciekawe w implementacji algorytmy. Napiszmy razem prosty klon tej gry.<br /><a href="https://swistak.codes/post/algorytmika-gier-saper">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Algorytmy-żarty, czyli o sortowaniu cz. 9]]></title>
+            <link>https://swistak.codes/post/algorytmy-zarty-czyli-o-sortowaniu-cz-9</link>
+            <guid>https://swistak.codes/post/algorytmy-zarty-czyli-o-sortowaniu-cz-9</guid>
+            <pubDate>Wed, 31 Mar 2021 10:00:41 GMT</pubDate>
+            <description><![CDATA[W tej części opowiadam o algorytmach sortowania, które nie były tworzone z myślą o byciu użytecznymi, a jedynie jako specyficzny żart.]]></description>
+            <content:encoded><![CDATA[Świat algorytmów nie obraca się tylko wokół tworzenia i szukania optymalnych rozwiązań przydatnych problemów. Informatycy to wbrew pozorom też ludzie i lubią sobie czasem pożartować. Choćby w swoim stylu, tworząc zupełnie nikomu nieprzydatne algorytmy, które nie mają większego sensu, niekoniecznie działają tak, jak należy, czy rozwiązują totalnie nieistotne problemy. Dlatego tym razem zróbmy sobie przegląd takich algorytmicznych żartów, które mogłyby rozwiązać jeden z bardziej klasycznych problemów i jednocześnie szeroko omówiony na moim blogu — sortowanie.<br /><a href="https://swistak.codes/post/algorytmy-zarty-czyli-o-sortowaniu-cz-9">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Jak komputer rysuje okręgi?]]></title>
+            <link>https://swistak.codes/post/jak-komputer-rysuje-okregi</link>
+            <guid>https://swistak.codes/post/jak-komputer-rysuje-okregi</guid>
+            <pubDate>Wed, 17 Mar 2021 10:00:03 GMT</pubDate>
+            <description><![CDATA[W artykule opisuję, jaka algorytmika stoi za rysowaniem okręgów. Omawiam, jak zrobić to m.in. za pomocą algorytmu Bresenhama.]]></description>
+            <content:encoded><![CDATA[W poprzednim artykule pokazałem, jaka algorytmika stoi za rysowaniem linii na ekranie. Zaczęliśmy od znanego wszystkim wzoru na funkcję liniową, aby przejść do optymalnego algorytmu, który na pierwszy rzut oka nie ma z nim nic wspólnego. Tym razem chciałbym kontynuować tematykę grafiki komputerowej i pokazać, jaka algorytmika stoi tym razem za rysowaniem okręgów.<br /><a href="https://swistak.codes/post/jak-komputer-rysuje-okregi">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Jak komputer rysuje linie?]]></title>
+            <link>https://swistak.codes/post/jak-komputer-rysuje-linie</link>
+            <guid>https://swistak.codes/post/jak-komputer-rysuje-linie</guid>
+            <pubDate>Wed, 03 Mar 2021 10:00:11 GMT</pubDate>
+            <description><![CDATA[Dziś opowiedzmy sobie o tym, jak komputer rysuje na ekranie, a dokładniej — jakie algorytmy służą rysowaniu linii (odcinków).]]></description>
+            <content:encoded><![CDATA[Korzystając na co dzień z komputera, jeżeli zastanawiamy się, jak on działa, to myślimy albo o tym, jakie algorytmy wykorzystują jakieś skomplikowane aplikacje, albo jakie rozwiązania użyto do ich stworzenia, albo, tak z innej strony, jak to wszystko działa na poziomie sprzętu. Jednak rzadziej się zastanawiamy nad rzeczami, które po prostu się dzieją, otaczają nas bez przerwy i nie są spektakularne, a jednak proces, jak to się dzieje, sam w sobie może być całkiem ciekawy. Dlatego dziś opowiedzmy sobie o tym, jaka algorytmika stoi za rysowaniem na ekranie, a dokładniej — rysowaniem linii (odcinków).<br /><a href="https://swistak.codes/post/jak-komputer-rysuje-linie">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Derekursywacja]]></title>
+            <link>https://swistak.codes/post/derekursywacja</link>
+            <guid>https://swistak.codes/post/derekursywacja</guid>
+            <pubDate>Wed, 17 Feb 2021 10:00:48 GMT</pubDate>
+            <description><![CDATA[Opowiedzmy sobie o tym, jak rekurencji możemy się pozbyć. Proces ten nazywamy derekursywacją i opisuję tutaj kilka sposobów jak to zrobić.]]></description>
+            <content:encoded><![CDATA[Z mojego poprzedniego artykułu wiemy już czym jest rekurencja, rekursja ogonowa oraz jak je stosujemy. Jednak temat rekurencji jest dość rozległy i warto opowiedzieć sobie o tym, jak rekurencji możemy się najzwyczajniej w świecie… pozbyć. Proces ten nazywamy derekursywacją i możemy podejść do tego na różne sposoby, których część tutaj opiszę.<br /><a href="https://swistak.codes/post/derekursywacja">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Rekurencja — co to jest?]]></title>
+            <link>https://swistak.codes/post/rekurencja-co-to-jest</link>
+            <guid>https://swistak.codes/post/rekurencja-co-to-jest</guid>
+            <pubDate>Wed, 03 Feb 2021 10:00:31 GMT</pubDate>
+            <description><![CDATA[Rekurencja — co to jest?]]></description>
+            <content:encoded><![CDATA[Rekurencja — co to jest?<br /><a href="https://swistak.codes/post/rekurencja-co-to-jest">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Sortowanie, cz. 7 — inne podejścia]]></title>
+            <link>https://swistak.codes/post/sortowanie-cz-7-inne-podejscia</link>
+            <guid>https://swistak.codes/post/sortowanie-cz-7-inne-podejscia</guid>
+            <pubDate>Wed, 20 Jan 2021 10:00:38 GMT</pubDate>
+            <description><![CDATA[W tym artykule omawiam kilka innych, mniej popularnych podejść do sortowania, które nie zmieściły się w poprzednich artykułach o sortowaniu.]]></description>
+            <content:encoded><![CDATA[W ciągu sześciu ostatnich artykułów o sortowaniu opisałem najbardziej znane podejścia do sortowania oraz kilka wywodzących się od nich. Algorytmów sortowania jest jednak bardzo wiele i nie byłem w stanie omówić wszystkich tych, które planowałem. W tym artykule opisuję trzy algorytmy, które miały znaleźć się wcześniej na blogu, jednak z różnych powodów odłożyłem je na później — sortowanie odd-even, gnoma oraz drzewiaste.<br /><a href="https://swistak.codes/post/sortowanie-cz-7-inne-podejscia">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Sortowanie, cz. 6 — teraz bez porównywania!]]></title>
+            <link>https://swistak.codes/post/sortowanie-cz-6-teraz-bez-porownywania</link>
+            <guid>https://swistak.codes/post/sortowanie-cz-6-teraz-bez-porownywania</guid>
+            <pubDate>Wed, 13 Jan 2021 10:00:55 GMT</pubDate>
+            <description><![CDATA[Sortowanie bez wykonywania porównań. Brzmi jak coś niemożliwego? Przekonaj się, że można i tak. Omówimy tutaj radix sort oraz counting sort.]]></description>
+            <content:encoded><![CDATA[Przez ostatnie cztery artykuły poświęcone sortowaniu omawialiśmy sobie różne sposoby, w jaki sposób porównywać elementy, a następnie zamieniać, by odbyło się to z jak najmniejszą liczbą porównań, co też przekładać się miało na jak najszybszy czas wykonania algorytmu. Porównywanie elementów wydaje się być czymś całkowicie naturalnym, bo przecież jak możemy ustalić kolejność bez tego? Ano, można. I w tym artykule pokażę, jak to można zrobić.<br /><a href="https://swistak.codes/post/sortowanie-cz-6-teraz-bez-porownywania">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Sortowanie, cz. 5 — „dziel i zwyciężaj”]]></title>
+            <link>https://swistak.codes/post/sortowanie-cz-5-dziel-i-zwyciezaj</link>
+            <guid>https://swistak.codes/post/sortowanie-cz-5-dziel-i-zwyciezaj</guid>
+            <pubDate>Tue, 05 Jan 2021 10:00:11 GMT</pubDate>
+            <description><![CDATA[W tym artykule przejdziemy do omawiania podejść do sortowania, które okazują się być bardzo wydajne i bazują na metodzie „dziel i zwyciężaj”.]]></description>
+            <content:encoded><![CDATA[W poprzednich częściach serii opisywałem, w jaki sposób tworzyć algorytmy sortowania bazujące na tym, jak na co dzień sortujemy, oraz jak podejścia te można optymalizować. Jednak, jak mogłeś się przekonać, nie są to najszybsze rozwiązania, dlatego teraz przejdziemy do omawiania tych mniej oczywistych podejść do sortowania, które okazują się być wydajniejsze. Omówimy algorytmy, które bazują na metodzie „dziel i zwyciężaj”.<br /><a href="https://swistak.codes/post/sortowanie-cz-5-dziel-i-zwyciezaj">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Sortowanie, cz. 4 — sortowanie przez wybieranie]]></title>
+            <link>https://swistak.codes/post/sortowanie-cz-4-sortowanie-przez-wybieranie</link>
+            <guid>https://swistak.codes/post/sortowanie-cz-4-sortowanie-przez-wybieranie</guid>
+            <pubDate>Thu, 17 Dec 2020 10:00:31 GMT</pubDate>
+            <description><![CDATA[Po sortowaniu bąbelkowym i przez wstawianie nadszedł czas na omówienie ostatniego z prostych podejść. Tym razem będziemy wybierać.]]></description>
+            <content:encoded><![CDATA[Po sortowaniu bąbelkowym i sortowaniu przez wstawianie nadszedł czas na omówienie ostatniego z tak zwanych prostych podejść do sortowania. Tym razem elementów nie będziemy zamieniać czy wstawiać, tylko wybierać. A co to dokładnie oznacza? Więcej w artykule.<br /><a href="https://swistak.codes/post/sortowanie-cz-4-sortowanie-przez-wybieranie">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Sortowanie, cz. 3 — sortowanie przez wstawianie]]></title>
+            <link>https://swistak.codes/post/sortowanie-cz-3-sortowanie-przez-wstawianie</link>
+            <guid>https://swistak.codes/post/sortowanie-cz-3-sortowanie-przez-wstawianie</guid>
+            <pubDate>Tue, 08 Dec 2020 10:00:31 GMT</pubDate>
+            <description><![CDATA[W poprzednim artykule z serii o sortowaniu pokazałem algorytmy sortowania przez zamianę. Tym razem zamiast zamieniać, będziemy wstawiać.]]></description>
+            <content:encoded><![CDATA[W poprzednim artykule z serii o sortowaniu pokazałem, jak można odtworzyć krok po kroku podstawowy algorytm sortowania przez zamianę — sortowanie bąbelkowe, a także wywodzące się z niego sortowanie koktajlowe i sortowanie grzebieniowe. Tym razem zróbmy inaczej — zamiast zamieniać, będziemy wstawiać.<br /><a href="https://swistak.codes/post/sortowanie-cz-3-sortowanie-przez-wstawianie">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Sortowanie, cz. 2 — sortowanie bąbelkowe]]></title>
+            <link>https://swistak.codes/post/sortowanie-cz-2-sortowanie-babelkowe</link>
+            <guid>https://swistak.codes/post/sortowanie-cz-2-sortowanie-babelkowe</guid>
+            <pubDate>Wed, 02 Dec 2020 10:00:07 GMT</pubDate>
+            <description><![CDATA[W tym artykule opisuję sortowanie bąbelkowe oraz jego możliwe optymalizacje.]]></description>
+            <content:encoded><![CDATA[W poprzedniej, pierwszej części serii o sortowaniu opisałem teoretyczną część tego zagadnienia. Najwyższy czas przejść do praktyki. Nauczmy się najprostszego z algorytmów sortowania opartego o zamianę elementów — sortowania bąbelkowego, znanego też pod angielską nazwą bubble sort lub jako sortowanie przez zamianę. Jednak to nie wszystko. Będziemy go także krok po kroku optymalizować na tyle, na ile jest to w jego przypadku możliwe.<br /><a href="https://swistak.codes/post/sortowanie-cz-2-sortowanie-babelkowe">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Sortowanie, cz. 1 — wprowadzenie teoretyczne]]></title>
+            <link>https://swistak.codes/post/sortowanie-cz-1-wprowadzenie-teoretyczne</link>
+            <guid>https://swistak.codes/post/sortowanie-cz-1-wprowadzenie-teoretyczne</guid>
+            <pubDate>Wed, 25 Nov 2020 10:00:17 GMT</pubDate>
+            <description><![CDATA[Sortowanie — najpopularniejszy z podstawowych tematów informatyki i programowania. Na samym początku przybliżmy sobie jego teorię.]]></description>
+            <content:encoded><![CDATA[Sortowanie — najpopularniejszy z podstawowych tematów informatyki i programowania. Podstawa każdego kursu, książki, serii wykładów itd., poświęconych algorytmice. Tak więc i tutaj nie mogło tego zabraknąć. Jednak nie będę tutaj rozpisywać kodu i omawiać, co się dzieje krok po kroku. Zamiast patrzeć na surowe implementacje, spróbujemy zrozumieć mechanizmy i jaki kryje się za nimi sens. Na samym początku jednak przybliżmy sobie teorię.<br /><a href="https://swistak.codes/post/sortowanie-cz-1-wprowadzenie-teoretyczne">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Wyszukiwanie w listach]]></title>
+            <link>https://swistak.codes/post/wyszukiwanie-w-listach</link>
+            <guid>https://swistak.codes/post/wyszukiwanie-w-listach</guid>
+            <pubDate>Wed, 11 Nov 2020 09:00:28 GMT</pubDate>
+            <description><![CDATA[W artykule poruszam tematykę podstawowych algorytmów obsług list — algorytmów wyszukiwania. Omawiam: liniowe, binarne i interpolacyjne.]]></description>
+            <content:encoded><![CDATA[Ponad pół roku temu napisałem serię artykułów poświęconych listom. Przedstawiałem tam zarówno tablice, listy tablicowe, jak i listy wiązane. Teraz naturalnie chciałbym przejść dalej z tego tematu do podstawowych algorytmów wykorzystujących listy — algorytmów wyszukiwania w listach.<br /><a href="https://swistak.codes/post/wyszukiwanie-w-listach">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Tekstowy zapis danych cyfrowych]]></title>
+            <link>https://swistak.codes/post/tekstowy-zapis-danych-cyfrowych</link>
+            <guid>https://swistak.codes/post/tekstowy-zapis-danych-cyfrowych</guid>
+            <pubDate>Wed, 04 Nov 2020 10:00:18 GMT</pubDate>
+            <description><![CDATA[W artykule tym robię przegląd różnych podejść do przechowywania danych w formie tekstowej. Także sprawdzam różnice względem zapisu binarnego.]]></description>
+            <content:encoded><![CDATA[Ostatnio opisywałem, jak podejść do odczytu obrazów zapisanych w plikach BMP. Pliki tego typu to klasyczny przykład zapisu danych cyfrowych w postaci plików binarnych — wszystkie informacje są przechowywane jako liczby, będąc w ten sposób zakodowane. Takich formatów jest wiele więcej. Ale oprócz nich, mamy także formaty tekstowe. Pliki te można odczytać i edytować nawet bez specjalnego oprogramowania, a potrafią przechować równie dużo informacji. Przejrzyjmy najpopularniejsze sposoby przechowywania danych w taki sposób.<br /><a href="https://swistak.codes/post/tekstowy-zapis-danych-cyfrowych">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Przetwarzanie plików w praktyce — obrazy BMP]]></title>
+            <link>https://swistak.codes/post/przetwarzanie-plikow-w-praktyce-obrazy-bmp</link>
+            <guid>https://swistak.codes/post/przetwarzanie-plikow-w-praktyce-obrazy-bmp</guid>
+            <pubDate>Wed, 28 Oct 2020 10:00:57 GMT</pubDate>
+            <description><![CDATA[BMP to najprostszy format zapisu obrazów. W tym artykule nauczymy się przetwarzać pliki binarne na jego przykładzie.]]></description>
+            <content:encoded><![CDATA[W artykule o zapisie nie-liczb jako liczby wspomniałem o tym, jak różnego rodzaju media możemy zapisywać w postaci binarnej. Wspomniałem między innymi o zapisie obrazów jako BMP, czyli najprostszej formie, w jaki sposób można to robić. Dlatego też przejdźmy nieco do programowania i spróbujmy sami zaprogramować odczyt takich plików.<br /><a href="https://swistak.codes/post/przetwarzanie-plikow-w-praktyce-obrazy-bmp">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Systemy liczbowe — uzupełnienie]]></title>
+            <link>https://swistak.codes/post/systemy-liczbowe-uzupelnienie</link>
+            <guid>https://swistak.codes/post/systemy-liczbowe-uzupelnienie</guid>
+            <pubDate>Wed, 21 Oct 2020 10:00:44 GMT</pubDate>
+            <description><![CDATA[W artykule opisuję różne systemy liczbowe (poza binarnym): ich właściwości oraz zastosowania, nie tylko w informatyce.]]></description>
+            <content:encoded><![CDATA[W pierwszym artykule z serii o przechowywaniu danych w postaci cyfrowej pokazałem system binarny oraz bardzo dobrze nam znany system dziesiętny. Do tego w ostatnim z artykułów przemyciłem system szesnastkowy. Pomyślałem, że warto byłoby opowiedzieć nieco więcej o różnych systemach liczbowych, ich właściwościach i zastosowaniach (nie tylko w informatyce).<br /><a href="https://swistak.codes/post/systemy-liczbowe-uzupelnienie">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Nie-liczby jako liczby, czyli zapis danych cyfrowych]]></title>
+            <link>https://swistak.codes/post/nie-liczby-jako-liczby-czyli-zapis-danych-cyfrowych</link>
+            <guid>https://swistak.codes/post/nie-liczby-jako-liczby-czyli-zapis-danych-cyfrowych</guid>
+            <pubDate>Wed, 14 Oct 2020 10:00:06 GMT</pubDate>
+            <description><![CDATA[Jak liczbami zapisać śmieszny filmik z kotami? Jak każda litera może być liczbą? W tym artykule opowiemy sobie o sposobach kodowania danych.]]></description>
+            <content:encoded><![CDATA[W poprzednich artykułach z tej serii mówiliśmy o liczbach całkowitych, rzeczywistych, różnych ich kodowaniach, więc można stwierdzić — „Acha! To tak działają kalkulatory!” Tylko jakoś zgubiliśmy tutaj to, o czym pisałem na samym początku, że wszystko reprezentujemy jako liczby. Ale jak liczbami zapisać śmieszny filmik z kotami? Albo w tym artykule, jak każda litera może być liczbą? Otóż wszystko ponownie odnosi się do… kodowania.<br /><a href="https://swistak.codes/post/nie-liczby-jako-liczby-czyli-zapis-danych-cyfrowych">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Liczby wymierne i rzeczywiste w zero-jedynkowym świecie]]></title>
+            <link>https://swistak.codes/post/liczby-wymierne-i-rzeczywiste-w-zero-jedynkowym-swiecie</link>
+            <guid>https://swistak.codes/post/liczby-wymierne-i-rzeczywiste-w-zero-jedynkowym-swiecie</guid>
+            <pubDate>Wed, 07 Oct 2020 09:00:04 GMT</pubDate>
+            <description><![CDATA[Artykuł omawia jak komputery przechowują liczby wymierne i rzeczywiste, zarówno jako liczby stałoprzecinkowych oraz zmiennoprzecinkowe.]]></description>
+            <content:encoded><![CDATA[Poprzednio omawialiśmy system binarny oraz jak z jego wykorzystaniem komputery przechowują liczby naturalne i całkowite. Czas poszerzyć horyzonty. Przejdźmy do rzeczy mniej oczywistej, czyli do liczb wymiernych i rzeczywistych. W końcu co to za maszyna licząca, jeśli nie obsługuje ułamków, a przy dzieleniu zawsze zaokrągla lub zwraca resztę. Tutaj mamy dwa zupełnie różne podejścia do trzymania liczb — liczby stałoprzecinkowe oraz liczby zmiennoprzecinkowe.<br /><a href="https://swistak.codes/post/liczby-wymierne-i-rzeczywiste-w-zero-jedynkowym-swiecie">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Sposoby zapisywania liczb przez komputery]]></title>
+            <link>https://swistak.codes/post/sposoby-zapisywania-liczb-przez-komputery</link>
+            <guid>https://swistak.codes/post/sposoby-zapisywania-liczb-przez-komputery</guid>
+            <pubDate>Wed, 30 Sep 2020 09:00:07 GMT</pubDate>
+            <description><![CDATA[To jak komputery zapisują liczby możemy rozpatrzeć na dwa sposoby: fizyczny i logiczny. W tym wpisie opisuję krótko jak to wygląda.]]></description>
+            <content:encoded><![CDATA[W poprzednim wpisie napisałem nieco o liczbach binarnych, i że komputery w tej formie trzymają dosłownie wszystko. Jednak ktoś, kto nigdy komputera nie widział na oczy, mógłby pomyśleć, że w środku takiej maszyny coś trzyma jedynki i zera. A jak już wspomniałem o spojrzeniu w pamięć, gdzie liczby przelatują jak w Matriksie, to jeszcze ktoś, kto jeździł koleją w Polsce w czasach sprzed wszechobecnych elektronicznych tablic, mógłby oczyma wyobraźni zobaczyć taki mechanizm, który w każdej komórce pamięci obraca się i wyświetla albo 0, albo 1, albo pustkę, a może nawet i jakiś napis typu „WARSZAWA ZACH. przez KOLUSZKI, Opóźnienie 180 min”. Oczywiście tak nie jest, nikt nie chciałby mieć w komputerze takich opóźnień ani żeby jego dane były dostarczane przez Koluszki. Takiego sposobu zapisu danych też nie, bo może i by działał, ale zbyt efektywnym raczej by nie był. Ale wróćmy do rzeczy. To, jak komputery zapisują liczby, możemy rozpatrzeć na dwa sposoby. Fizyczny (czyli jak to w świecie fizycznym się dzieje) i logiczny (czyli jak to jest interpretowane).<br /><a href="https://swistak.codes/post/sposoby-zapisywania-liczb-przez-komputery">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[1 0 0 0? 0 1 0 1! 1 0 0 1 – czyli matematyka zero-jedynkowa]]></title>
+            <link>https://swistak.codes/post/matematyka-zero-jedynkowa</link>
+            <guid>https://swistak.codes/post/matematyka-zero-jedynkowa</guid>
+            <pubDate>Wed, 23 Sep 2020 10:00:45 GMT</pubDate>
+            <description><![CDATA[Komputery trzymają wszystkie informacje w postaci cyfr. Nie od 0 do 9 znanych nam na co dzień. Wszystko jest opisane zaledwie dwoma: 0 i 1.]]></description>
+            <content:encoded><![CDATA[Zapewne wiecie bądź jakoś domyśliliście się po tytule, że komputery trzymają wszystkie informacje w postaci cyfr. I to nie takich zwykłych od 0 do 9 dobrze znanych nam na co dzień. Wszystko to, co znajduje się w komputerach, jest opisane zaledwie dwoma cyframi: 0 i 1. Dokładnie tyle wystarczy, aby opisać dosłownie wszystko — liczby, zdjęcia, muzykę, filmy, programy, teksty… Gdybyśmy zajrzeli w pamięć komputera tak, żeby zobaczyć w niej surowy zapis danych, ujrzelibyśmy widok zbliżony do tego z filmu Matrix — deszcz zer i jedynek. Pochylmy się jednak nad tym, dlaczego tak jest? Po co? Skąd to się wzięło, jak to ogarnąć i jakie to ma niesamowite właściwości?<br /><a href="https://swistak.codes/post/matematyka-zero-jedynkowa">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Testowanie i wykrywanie sztucznej inteligencji]]></title>
+            <link>https://swistak.codes/post/testowanie-i-wykrywanie-sztucznej-inteligencji</link>
+            <guid>https://swistak.codes/post/testowanie-i-wykrywanie-sztucznej-inteligencji</guid>
+            <pubDate>Thu, 02 Jul 2020 09:00:05 GMT</pubDate>
+            <description><![CDATA[Artykuł przedstawia zarówno najbardziej klasyczne testy sztucznej inteligencji (jak test Turinga), a także może nieco praktyczniejsze, dzisiejsze metody.]]></description>
+            <content:encoded><![CDATA[W poprzednim wpisie wprowadziłem temat sztucznej inteligencji, przy okazji wspominając o teście Turinga. Jest to najpopularniejszy, ale zarazem dość specjalistyczny test pozwalający na sprawdzenie, czy sztuczna inteligencja osiągnęła poziom człowieka. Chciałbym tutaj temat kontynuować i przedstawić zarówno najbardziej klasyczne sposoby sprawdzania, czy mamy do czynienia z nie-człowiekiem, jak również może nieco praktyczniejsze, dzisiejsze metody.<br /><a href="https://swistak.codes/post/testowanie-i-wykrywanie-sztucznej-inteligencji">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Sztuczna inteligencja — a co to? a komu to potrzebne?]]></title>
+            <link>https://swistak.codes/post/sztuczna-inteligencja-a-co-to-a-komu-to-potrzebne</link>
+            <guid>https://swistak.codes/post/sztuczna-inteligencja-a-co-to-a-komu-to-potrzebne</guid>
+            <pubDate>Mon, 22 Jun 2020 09:55:14 GMT</pubDate>
+            <description><![CDATA[Sztuczna inteligencja — zewsząd atakujący nas buzzword. Do tego wszelkie pokrewne terminy odmieniane na różne sposoby. O co w tym wszystkim chodzi?]]></description>
+            <content:encoded><![CDATA[Sztuczna inteligencja — zewsząd atakujący nas buzzword. Telefony ze sztuczną inteligencją, aparaty fotograficzne napędzane sztuczną inteligencją, algorytmy sztucznej inteligencji. Do tego wszelkie pokrewne terminy odmieniane na różne sposoby i łączone ze wszelkimi możliwymi rzeczownikami — smart home, smart car, smart zegarki, smart odkurzacze, smart żarówki, uczenie maszynowe, uczące się algorytmy… Dołóżmy nagłówki z gazet — sztuczna inteligencja zastępuje dziennikarzy, czeka nas bunt sztucznej inteligencji, sztuczna inteligencja to bla bla bla. Do tego wszędzie słyszymy o zagrożeniach sztucznej inteligencji — utrata prywatności, inwigilacja, zabranie pracy, przejęcie władzy nad światem, zniszczenie ludzkości, i tak dalej. Czas to wszystko poukładać.<br /><a href="https://swistak.codes/post/sztuczna-inteligencja-a-co-to-a-komu-to-potrzebne">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Listy z dowiązaniami]]></title>
+            <link>https://swistak.codes/post/listy-z-dowiazaniami</link>
+            <guid>https://swistak.codes/post/listy-z-dowiazaniami</guid>
+            <pubDate>Fri, 22 May 2020 09:00:04 GMT</pubDate>
+            <description><![CDATA[Kontynuując temat list zostały nam jeszcze jedne — listy z dowiązaniami. Zobaczmy czym się charakteryzują oraz kiedy warto je używać.]]></description>
+            <content:encoded><![CDATA[W poprzednim wpisie opisałem tablice i listy dynamiczne. Kontynuując temat list, nie zostało nam już nic innego, jak spojrzeć na ostatni ich rodzaj — listy z dowiązaniami (wiązane). Mniej popularne, bardziej kojarzące się z funkcyjnymi językami programowania, ale zdecydowanie każdy programista powinien je znać. Zobaczmy, czym się charakteryzują oraz kiedy warto je używać.<br /><a href="https://swistak.codes/post/listy-z-dowiazaniami">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Tablice i listy tablicowe]]></title>
+            <link>https://swistak.codes/post/tablice-i-listy-tablicowe</link>
+            <guid>https://swistak.codes/post/tablice-i-listy-tablicowe</guid>
+            <pubDate>Fri, 08 May 2020 10:00:02 GMT</pubDate>
+            <description><![CDATA[Ostatnio dość ogólnie omówiłem listy. Tym razem powiedzmy sobie nieco więcej o tablicach oraz o bazujących na nich listach tablicowych.]]></description>
+            <content:encoded><![CDATA[W poprzednim artykule przedstawiłem ogólnie pojęcie list i przedstawiłem różne ich rodzaje. Nie wchodziłem wówczas mocno w szczegóły na temat każdej z przedstawionych struktur, dlatego tym razem powiemy sobie nieco więcej o tablicach, a także o bazujących na nich listach tablicowych.<br /><a href="https://swistak.codes/post/tablice-i-listy-tablicowe">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Listy — najpopularniejsze złożone typy danych]]></title>
+            <link>https://swistak.codes/post/listy-najpopularniejsze-zlozone-typy-danych</link>
+            <guid>https://swistak.codes/post/listy-najpopularniejsze-zlozone-typy-danych</guid>
+            <pubDate>Wed, 29 Apr 2020 10:00:00 GMT</pubDate>
+            <description><![CDATA[Przyjrzyjmy się bliżej listom i zobaczmy czym one dokładnie są. Jakie są ich rodzaje, jak je używać oraz jakie błędy są popełniane przy ich użyciu.]]></description>
+            <content:encoded><![CDATA[Wśród stosowanych w informatyce złożonych typów danych prawdopodobnie nie ma innych tak powszechnie używanych przez programistów jak listy. Są one najprostszym i często też najlepszym sposobem na przechowywanie wielu powiązanych ze sobą danych. Przyjrzyjmy się im bliżej i zobaczmy, czym one dokładnie są — jak powinno się ich używać, jakie błędy najczęściej są popełniane, a również, jakie są ich rodzaje.<br /><a href="https://swistak.codes/post/listy-najpopularniejsze-zlozone-typy-danych">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+    </channel>
+</rss>

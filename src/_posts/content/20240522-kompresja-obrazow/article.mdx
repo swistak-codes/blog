@@ -1,0 +1,540 @@
+import Link from 'next/link';
+import {Image, Grid} from '@swistak-codes/components';
+import {Presentation} from './presentation';
+import cover from './swistak_grafikmatematyk.webp';
+import bas from './basik.webp';
+import tgaComp from './tga_comp.png'
+import tgaNoComp from './tga_nocomp.png'
+import huffmanSwistak from './huffman_swistak.png';
+import huffmanCode from './HuffmanCodeAlg.png'
+import logoJpg from './logo-jpg.jpg';
+import logoOriginal from '../../../assets/logo-bg.png';
+import bit8 from '../20211124-jak-komputer-zapisuje-kolory/8bit.png';
+import bit24 from '../20211124-jak-komputer-zapisuje-kolory/24bit-1.png';
+import dither8 from '../20211124-jak-komputer-zapisuje-kolory/8bit_dithering.png';
+import gifKolory from './FullColour.gif'
+import bit24zoom from './24bit-1_zoom.png';
+import ditherzoom from './8bit_dithering_zoom.png';
+import chroma from './chroma.png';
+import c420 from './420.jpg';
+import c422 from './422.jpg';
+
+export const meta = {
+  title: 'Kompresja obrazów',
+  abstract:
+    'Artykuł opisuje w uproszczeniu koncepcje, podejścia i algorytmy stosowane przy kompresji obrazów.',
+  firstParagraph: (
+    <>
+      Robiąc zdjęcia, pobierając obrazy z Internetu, albo generalnie zapisując jakąś grafikę, korzystamy z takich formatów jak JPG, PNG czy nowocześniejszych jak WEBP bądź AVIF. Ich zaletą jest to, że dzięki kompresji nie zajmują dużo miejsca na dysku w przeciwieństwie do bardzo podstawowych formatów jak <Link href="/post/przetwarzanie-plikow-w-praktyce-obrazy-bmp">BMP</Link>. Tylko o co chodzi z tą kompresją? Czym, pod kątem algorytmicznym, różnią się kompresje stratne i bezstratne? Przejdźmy przez zagadnienia związane z tym tematem na dość ogólnym poziomie, bez wchodzenia w techniczne detale konkretnych implementacji. Aczkolwiek z jednym wyjątkiem: tam, gdzie matematyka jest najciekawsza.
+    </>
+  ),
+  keyword: 'kompresja',
+  categories: ['Teoria informatyki', 'Grafika komputerowa', 'Przetwarzanie danych'],
+  tags: [
+    'kompresja',
+    'bitmapa',
+    'kodowanie Huffmana',
+    'rle',
+    'lz77',
+    'lzw',
+    'deflate',
+    'dct',
+    'kodowanie transformatowe',
+    'podpróbkowanie chrominancji',
+    'kwantyzacja'
+  ],
+  slug: 'kompresja-obrazow',
+  updateTime: '2024-05-22T07:00:00+00:00',
+  publishTime: '2024-05-22T07:00:00+00:00',
+  cover,
+};
+
+## Podstawowe definicje
+
+Zanim przejdziemy do właściwej treści artykułu, chciałbym przytoczyć kilka podstawowych definicji, które będą się tu przewijać. Będą bardziej intuicyjne niż encyklopedyczne.
+
+### Kompresja
+
+Na początek definicje związane z samą kompresją:
+
+- **Kompresja danych** — proces kodowania danych tak, aby zajmowały mniej przestrzeni dyskowej niż oryginalne. Jej odwrotnością jest dekompresja, czyli przywrócenie danych do oryginalnej formy.
+- **Kompresja bezstratna** — jest to taki rodzaj kompresji, w wyniku której nie tracimy żadnej informacji. Dekompresja wówczas powinna przywrócić oryginalne dane dokładnie takie, jakie były przed kompresją.
+- **Kompresja stratna** — w przeciwieństwie do powyższego rodzaju tutaj dopuszczamy możliwość utraty części informacji, aby finalny plik zajmował jeszcze mniej miejsca. Jednak z powodu stratności już nigdy nie odzyskamy danych w oryginalnej postaci.
+- **Artefakt** — w informatyce, a dokładniej w przetwarzaniu multimediów, pod tym słowem rozumiemy zniekształcenia będące skutkiem działania kompresji stratnych.
+
+### Grafika
+
+Teraz przejdźmy do kilku definicji z dziedziny grafiki, które się nam przydadzą do zrozumienia artykułu:
+
+- **Grafika rastrowa** — jest to rodzaj grafiki zapisanej w postaci siatki pikseli, każdy o konkretnej barwie. Pliki tego typu nazywamy bitmapami. Grafika ta charakteryzuje się tym, że ma ograniczoną rozdzielczość (np. Full HD, czyli 1920×1080 pikseli). Tak zapisujemy zdjęcia, obrazy cyfrowe, zrzuty ekranu. W ten sposób obraz jest <Link href="/post/jak-komputer-rysuje-linie/#sk%C4%85d-bierze-si%C4%99-obraz-na-monitorze">trzymany na karcie graficznej</Link> do dalszego wyświetlenia na ekranie. Też tym właśnie rodzajem grafiki zajmiemy się w tym artykule.
+- **Grafika wektorowa** — tą akurat nie będziemy się tutaj zajmować, ale wspomnę z kronikarskiego obowiązku. Charakteryzuje się tym, że nie jest opisana pikselami, tylko za pomocą aparatu matematycznego (np. stosując <Link href="/post/krzywe-beziera/">krzywe Béziera</Link>), więc nie jesteśmy ograniczeni rozdzielczością, a co najwyżej wydajnością obliczeniową aplikacji rysującej. W tej postaci zwykle trzymamy różne cyfrowe rysunki: ikony, wykresy, diagramy, grafiki inżynierskie (CAD) czy niektóre grafiki użytkowe (np. clip arty).
+- **Przestrzeń barw** — sposób zapisu koloru. Najczęściej spotykamy się w grafice komputerowej z reprezentacją w postaci RGB, czyli ile światła czerwonego, zielonego i niebieskiego jest potrzebne, aby odtworzyć barwę. Temat szerzej opisałem w artykule *<Link href="/post/jak-komputer-zapisuje-kolory">Jak komputer zapisuje kolory?</Link>*, który polecam przeczytać, bo opisuje też inne przestrzenie barw przydatne w kontekście tego artykułu.
+
+### Przetwarzanie sygnałów
+
+Jeszcze kilka innych pojęć, tym razem z dziedziny przetwarzania sygnałów, bo i z tym będziemy mieli do czynienia:
+
+- **Kwantyzacja** — multimedia teoretycznie moglibyśmy zapisywać z (prawie) nieskończoną dokładnością. Opisując kolor w RGB, każdy z kanałów barwy moglibyśmy zapisać od 0 do 100%, stosując liczby rzeczywiste. W informatyce jednak nie możemy sobie pozwolić na nieskończoną dokładność, musimy zaokrąglać do wartości całkowitych. Proces ten nazywamy kwantyzacją, a dostępny zakres wartości nazywamy **rozdzielczością bitową**. Na przykład, najpopularniejszy jest zapis kolorów w rozdzielczości 24-bitowej, czyli 8 bitów na kanał, tym samym każdą ze składowych barwy opisujemy liczbą całkowitą w zakresie $$[0, 255]$$.
+- **Transformacja liniowa** — jest to matematyczna funkcja przekształcająca przestrzeń liniową na inną przestrzeń liniową. Najbardziej znana jest transformacja Fouriera, którą stosuje się do przechodzenia między sygnałami zapisanymi jako funkcja czasu/przestrzeni, do ich reprezentacji w dziedzinie częstotliwości. Możemy dzięki temu wykonać operacje na częstotliwościach (kompresja, zakodowanie sygnału w telekomunikacji, filtrowanie sygnału). Co istotne, transformacje te są odwracalne, więc możemy później wrócić do oryginalnej formy.
+- **Transformata** — wynik transformacji. Podkreślam to, bo często błędnie mówi się *transformata Fouriera*, mając na myśli *transformację*.
+
+<Image
+  image={bas}
+  alignCenter
+  maxWidth="500px"
+  alt="Dwa wykresy. Górny pokazuje sygnał, gdzie na osi Y jest amplituda, na X czas. Dolny pokazuje ten sam sygnał, jednak na osi X jest częstotliwość."
+  caption={<>Przykład mniej związany z artykułem, ale dobrze przedstawiający sens stosowania transformacji Fouriera. Na
+    wykresie u góry widzimy zapis sygnału z gitary basowej grającej dźwięk A1 (55 Hz) w dziedzinie czasu. Poniżej
+    transformata Fouriera, gdzie ten sam sygnał mamy w dziedzinie częstotliwości. Dzięki temu widzimy, że dźwięk
+    instrumentu nie jest jednorodny pod kątem częstotliwości, tylko składa się z wielu różnych... ale to zdecydowanie
+    jest już poza tematem aktualnego artykułu.<br/>
+    (źródło: <a
+      href="https://commons.wikimedia.org/wiki/File:Bass_Guitar_Time_Signal_of_open_string_A_note_(55_Hz).png">Fourier1789</a>, <a
+      href="https://creativecommons.org/licenses/by-sa/4.0">CC BY-SA 4.0</a>, via Wikimedia Commons; <a
+      href="https://commons.wikimedia.org/wiki/File:Fourier_Transform_of_bass_guitar_time_signal.png">Fourier1789</a>, <a
+      href="https://creativecommons.org/licenses/by-sa/4.0">CC BY-SA 4.0</a>, via Wikimedia Commons</>}
+/>
+
+Dodam, że podstawowe zagadnienia z zakresu przetwarzania sygnałów, ale w kontekście dźwięku, opisałem w artykule *<Link href="/post/jak-komputer-zapisuje-dzwiek">Jak komputer zapisuje dźwięk?</Link>*, który również polecam przeczytać w wolnej chwili.
+
+## Techniki kompresji bezstratnej
+
+W przypadku kompresji bezstratnej techniki, które tutaj opiszę, są uniwersalne i można je z powodzeniem stosować też przy kompresji czegokolwiek innego. Dlatego też, dla pewnego uproszczenia, przykłady będę wyjaśniać na danych tekstowych.
+
+### Kodowanie długości serii (RLE)
+
+Najprostszą i najbardziej oczywistą techniką kompresji jest kodowanie długości serii, które lepiej możesz znać pod angielską nazwą *Run-Length Encoding* (w skrócie *RLE*). Dlaczego najprostsza i najbardziej oczywista? Bo polega na opisaniu, ile razy z rzędu powtarzamy wskazaną barwę (lub znak w kontekście tekstu).
+
+Przykładowo, zakładając ciąg:
+
+```
+ssssswwwiiiiistakkkkkkkk
+```
+
+zakodowalibyśmy go w postaci RLE następująco (rozdzielone spacjami i przecinkami dla lepszej czytelności):
+
+```
+5,s 3,w 5,i 1,s 1,t 1,a 8,k
+```
+
+Od razu widzimy, że o ile faktycznie rozmiar zmalał, tak dość niebezpiecznie `sta` stało się `1,s 1,t 1,a`. Żeby temu zapobiec, zwykło stosować się oznaczenia wskazujące, czy używamy w danym fragmencie kodowania, czy też nie. Przykładowo, w formacie BMP (który zwykle jest nieskompresowany, ale wspiera też RLE), jeśli podamy liczbę `0`, to następna liczba będzie wskazywać, przez ile bajtów nie będzie kodowania RLE (są dwa wyjątki od tej reguły, ale zostawmy je tutaj). Powyższy przykład wyglądałby wówczas następująco:
+
+```
+5,s 3,w 5,i 0,3,sta 8,k
+```
+
+To kodowanie niestety sprawdza się tylko w obrazach, gdzie pojedyncze barwy często się powtarzają. Jest jednak na tyle proste, że często stosowano w dawnych czasach, kiedy nie było zbyt dużo mocy obliczeniowej. Wspominałem już, że kompresję tę wspiera format BMP, ale także m.in. TGA oraz PCX. Tylko czy w ostatnich latach w ogóle spotkaliście się z tymi formatami?
+
+Jeszcze żeby pokazać działanie w praktyce, poniżej możesz zobaczyć zawartość (w postaci <Link href="/post/systemy-liczbowe-uzupelnienie/#system-szesnastkowy-heksadecymalny">heksadecymalnej</Link>) dwóch plików TGA. Oba są obrazkiem o wymiarach 8×8 (64 piksele), 8-bitowym, zawierającym czarny kwadrat. U góry jest plik nieskompresowany, na dole zakodowany przez RLE. Na niebiesko zaznaczyłem fragment zawierający dane o obrazie.
+
+<Image
+  image={tgaNoComp}
+  alignCenter
+  fullSize
+  alt="Zapis heksadecymalny 82-bajtowego pliku. Od adresu 0x12 zaczyna się ciąg samych zer aż do końca pliku."
+  caption={<>Widzimy tutaj nieskompresowany plik TGA. O braku kompresji informuje nas trzeci bajt — 03 to według
+    specyfikacji formatu nieskompresowany czarnobiały obraz. Na niebiesko widzimy zaznaczone 64 bajty (wszystkie
+    zerowe), czyli nasze 64 czarne piksele.</>}
+/>
+
+<Image
+  image={tgaComp}
+  alignCenter
+  fullSize
+  alt="Zapis heksadecymalny 34-bajtowego pliku. Od adresu 0x12 zaczyna się ciąg na przemian bajtów 87 i 00 aż do końca pliku."
+  caption={<>Tym razem mamy do czynienia z plikiem TGA skompresowanym z użyciem RLE. Tutaj trzeci bajt został ustawiony na
+    0B (11) — według specyfikacji jest to skompresowany czarno-biały obraz. Na niebiesko zaznaczyłem 16 bajtów. Dlaczego
+    16? Ponieważ każda linia pliku jest kodowana oddzielnie (8*2 = 16). 87 oznacza jednocześnie, że są to dane
+    zakodowane w RLE i zostaną powtórzone 8 razy. Zapis ten bierze się stąd, że pierwszy bit mówi, czy zachodzi
+    kodowanie RLE (1 jeśli tak), a pozostałe to liczba powtórzeń minus 1. Binarnie bajt ten zapisalibyśmy jako 10000111
+    — sprawdź sam(a), czy wszystko się zgadza.</>}
+/>
+
+### Kodowanie Huffmana
+
+Teraz omówmy sobie krótko jeden z najbardziej podstawowych algorytmów kompresji, czyli kodowanie Huffmana. O ile nie ma (albo przynajmniej ja nie znam) żadnego formatu, który używa tylko tego algorytmu, to wiele technik kompresji wykorzystuje go jako jeden z etapów swojego działania.
+
+Kodowanie Huffmana to technika, w której każdemu znakowi ustalamy unikalny kod (zapisany binarnie) na podstawie częstotliwości występowania. Im częściej znak występuje, tym krótszy kod ma przypisany. Możesz to skojarzyć z kodem Morse'a, gdzie długość sygnału jest zależna od tego, jak często dany znak występuje w języku angielskim. Jednak tutaj, w przeciwieństwie do kodu Morse'a, nie mamy sygnalizacji stopu, więc kody są układane tak, aby jeden kod nie był początkiem innego.
+
+Ułożoną listę kodów nazywamy drzewem Huffmana i poniżej możesz zobaczyć przykładowe <Link href="/post/sortowanie-cz-4-sortowanie-przez-wybieranie/#drzewa--podstawy">drzewo</Link> dla rozpatrywanego wcześniej ciągu `ssssswwwiiiiistakkkkkkkk`:
+
+<Image
+  image={huffmanSwistak}
+  alignCenter
+  fullSize
+  alt="Drzewo binarne przedstawiające kody dla znaków po kodowaniu Huffmana. Kody są następujące: T - 0000, A - 0001, W - 001, I - 01, S - 10, K - 11."
+  caption={<>Patrząc na tego typu drzewo, możemy rozkodować tekst zakodowany algorytmem Huffmana. Mając dane zapisane
+    binarnie, zawsze przechodzimy kolejnymi bitami według drzewa, aż trafimy na znak.<br/>Drzewo zostało wygenerowane
+    na <a href="https://huffman.ooz.ie/?text=ssssswwwiiiiistakkkkkkkk" rel="noreferrer"
+          target="_blank">huffman.ooz.ie</a>.</>}
+/>
+
+Budowanie takiego drzewa odbywa się następująco:
+- Najpierw zliczamy, ile razy dany znak wystąpił, aby znać prawdopodobieństwo jego wystąpienia.
+- Wszystkie znaki umieszczamy na <Link href="/post/szukanie-najkrotszych-sciezek-w-grafie/#wybór-najbliższego-wierzchołka">kolejce priorytetowej</Link>.
+- Następnie ściągamy dwa znaki z najmniejszymi prawdopodobieństwami i *złączamy* je w drzewo (korzeń niereprezentujący żadnego znaku i dwoje dzieci, które są znakami), sumując ich prawdopodobieństwa, a następnie dodajemy do kolejki.
+- Ściąganie z kolejki i złączanie powtarzamy tak długo, aż w kolejce zostanie tylko jedno drzewo, które jest rezultatem wyszukania kodowania.
+
+Jak to mniej więcej wygląda, możesz zobaczyć na poniższym schemacie pokazującym, w jaki sposób zmienia się zawartość kolejki priorytetowej wraz z każdą iteracją algorytmu tworzenia drzewa:
+
+<Image
+  image={huffmanCode}
+  alignCenter
+  fullSize
+  alt="5 kroków przedstawiających, jak kolejka priorytetowa jest przekształcana w drzewo Huffmana."
+  caption={<>(źródło: <a href="https://commons.wikimedia.org/wiki/File:HuffmanCodeAlg.png">Andreas.Roever</a>, <a href="http://creativecommons.org/licenses/by-sa/3.0/">CC BY-SA 3.0</a>, via Wikimedia Commons)</>}
+/>
+
+O ile, jak wspomniałem, tego algorytmu nie stosuje się samodzielnie, warto zapoznać się z tematem, poczytać o nim i nawet zaprogramować. Programowanie tego jest też jednym z podstawowych zadań przy nauce algorytmiki (najczęściej przy nauce drzew).
+
+### Metody słownikowe (LZ77, LZW)
+
+Kolejne techniki kompresji bezstratnej to metody słownikowe. Polegają one na tym, że budujemy słownik zawierający dłuższe, powtarzające się frazy i następnie przy kodowaniu korzystamy z indeksów słownika, gdy tylko trafimy na znane frazy. Brzmi to prosto, jednak cały szkopuł do wydajnej implementacji polega na tym, jak tworzyć słownik, aby był to proces szybki, ale też żeby słownik sam z siebie nie obciążał za bardzo zakodowanego pliku.
+
+Klasyczną metodą słownikową, która jest bazą dla wielu współczesnych algorytmów kompresji, jest LZ77 (Lempel-Ziv 77). Jest o tyle specyficzny, że nie ma tu żadnego odgórnie ustalonego słownika. Algorytm działa w ten sposób, że przesuwa się po porcji danych (tworząc tzw. przesuwne okno, z ang. *sliding window*), które dzieli na słownik i bufor wejściowy. Jeśli w buforze wejściowym znajduje się taki sam ciąg jak w słowniku, algorytm zapisuje pozycję w słowniku oraz długość ciągu i przesuwa okno. Cały proces powtarzany jest tak długo, aż zakodowany zostanie cały ciąg.
+
+W kontekście grafiki warto też znać inną metodę słownikową — LZW (Lempel-Ziv-Welch). W tym przypadku zaczynamy ze słownikiem, ale niekompletnym, a więc takim, który zawiera wszystkie dostępne do zakodowania znaki. Następnie w trakcie kodowania słownik rozbudowujemy — zapisujemy każdy nowo odkryty ciąg znaków do słownika. Tym samym wszystkie dane wyjściowe są indeksami do słownika — albo do pojedynczych znaków, albo do ich ciągów. Algorytm ten warto znać przynajmniej z nazwy, bo jest to kodowanie używane w formacie GIF.
+
+Pominąłem przykłady obu powyższych kodowań, ponieważ nie znalazłem ciekawie wyglądających wizualizacji. Jeśli temat Cię interesuje, daj znać w komentarzu, może poświęcę tym algorytmom cały artykuł. Szczególnie że w swoich podstawowych wersjach są stosunkowo proste w implementacji.
+
+### Palety barw
+
+O ile powyższe metody są bardzo ogólne, to jednak w kontekście grafiki mamy jedną bardzo specyficzną metodę, którą moglibyśmy nazwać w pewnym sensie korzystaniem ze słownika — określanie palet barw.
+
+W przypadku grafiki, szczególnie prostej, komputerowej, nie potrzebujemy zwykle wszystkich kolorów dostępnych w 24-bitowym zapisie, czyli ponad 16 milionów barw. Jeśli tak jest, możemy z powodzeniem utworzyć paletę barw, które są na obrazie. Paleta przechowuje wówczas kolory w pełnym 24-bitowym zapisie, ale w bitmapie odnosimy się już do indeksów palety. Bardzo prawdopodobne jest, że barw może nie być ponad 256, więc wystarczą 8-bitowe indeksy, tym samym każdy piksel zamiast 3 bajtów zajmie tylko 1.
+
+Sposób ten wykorzystują formaty GIF i PNG. O ile GIF posiada odgórnie zdefiniowaną paletę, a PNG domyślnie zapisuje każdy kolor 24-bitowo, to możemy w obu formatach zdefiniować własne palety i z nich korzystać.
+
+Warto dodać, że palet nie musimy definiować na cały obraz, a np. na jego fragmenty. Jest to powszechne w formacie GIF, który domyślnie nie wspiera więcej niż 256 kolorów, jednak możemy to ograniczenie obejść dzięki definiowaniu oddzielnych palet na mniejsze podobrazy.
+
+<Image
+  image={gifKolory}
+  alignCenter
+  fullSize
+  alt="Animowany gif przedstawiający najpierw obraz w całości zakodowany w 255 kolorach, a następnie dzięki podziałowi na boki w 1880 kolorach."
+  unoptimized
+  noPlaceholder
+  caption={<>
+    Animowany gif, który pokazuje, jak dzięki sprytnemu podziałowi na bloki, każdy z własną paletą, można rozszerzyć rozdzielczość tonalną formatu.<br/>(źródło: <a href="https://commons.wikimedia.org/wiki/File:FullColour.gif">GDallimore</a>, <a href="https://creativecommons.org/licenses/by-sa/3.0">CC BY-SA 3.0</a>, via Wikimedia Commons)
+  </>}
+/>
+
+### DEFLATE
+
+Jeśli zadawałeś(-aś) sobie pytanie — po co omówiłem 4 różne kodowania, skoro używane są tylko 2, to teraz otrzymasz odpowiedź. Otóż poznajmy prawdopodobnie najpopularniejszy algorytm kompresji bezstratnej — DEFLATE. Powstał na potrzeby formatu ZIP, ale jego odmiany znajdziemy także w gzip, 7-Zip i, co najważniejsze dla tego artykułu, w formacie plików PNG (oraz w jego mniej popularnej animowanej wersji — MNG).
+
+Jak działa DEFLATE? Dzieli plik do skompresowania na bloki i niezależnie dla każdego z nich wykonuje dwa etapy:
+
+1. Eliminuje powtarzające się ciągi za pomocą algorytmu LZ77. Wykorzystuje się 32-kilobajtowy słownik (rozmiar może się różnić) i zakodowane informacje są zapisywane za pomocą 8 bitów określających długość powtórzenia (od 3 do 258 bajtów) oraz 15 bitów określających pozycję w słowniku (od 1 do 32768). Etap ten jest najbardziej kosztowny obliczeniowo i to właśnie tutaj wpływ ma parametr siły kompresji, który możesz kojarzyć przy zapisywaniu plików PNG. Określa on siłę wyszukiwania dopasowań w słowniku — im większa, tym więcej zasobów obliczeniowych jest wymaganych, aby wyszukać jak najefektywniejsze dopasowania.
+2. Następnie zachodzi redukcja bitów za pomocą kodowania Huffmana. Tworzone są dwa drzewa — jedno do kodowania najczęściej powtarzających się znaków (bajtów), a drugie do kodowania odległości, które zapisywane były przez algorytm LZ77. Co więcej, na tym etapie pomocniczo stosowane jest też kodowanie RLE, aby jeszcze efektywniej zmniejszyć rozmiar danych.
+
+Standardową, powszechnie używaną implementacją algorytmu DEFLATE jest biblioteka [zlib](http://zlib.net/). Powstała na potrzeby biblioteki [libpng](http://libpng.org/pub/png/libpng.html), która znowu jest wzorcową implementacją formatu PNG. Dziś jednak ma dużo szersze zastosowanie i zlib jest używany m.in. w systemie kontroli wersji GIT, serwerze Apache, systemie zarządzania bazami danych MySQL itd.
+
+## Techniki kompresji stratnej
+
+Przejdźmy teraz do technik kompresji stratnej. Główna idea tych technik polega na jak najskuteczniejszym oszukaniu naszego wzroku tak, aby nie odczuł, że obraz jest uboższy o pewne informacje. Najpierw omówimy dwie proste techniki całkowicie związane z ograniczaniem wielkości informacji o barwie. Następnie opowiem o najbardziej znanej i najtrudniejszej technice z powodzeniem wykorzystanej w większości znanych formatów.
+
+<Grid minWidth={300}>
+  <Image
+    image={logoOriginal}
+    alignCenter
+    radius="100%"
+    maxWidth="300px"
+    alt="Rysunek świstaka bez widocznych artefaktów kompresji."
+    caption={<>Logo bloga z lekką kompresją stratną w formacie WebP. Zajmuje 104 kB, gdy bezstratny oryginał w PNG aż 765 kB. Prawdę mówiąc, dla mnie ta wersja (którą używam wszędzie na stronie) jest niemal nierozróżnialna od wersji bezstratnej. Różnice są widoczne dopiero po powiększeniu.</>}
+  />
+  <Image
+    image={logoJpg}
+    alignCenter
+    unoptimized
+    radius="100%"
+    maxWidth="300px"
+    alt="Rysunek świstaka pełen artefaktów kompresji."
+    caption={<>Logo bloga przy maksymalnej kompresji formatu JPG. Dzięki temu zajmuje tylko 10 kB. Jednak nie można powiedzieć, że wygląda to dobrze.</>}
+  />
+</Grid>
+
+### Kwantyzacja barw
+
+Pierwszą techniką kompresji stratnej, którą omówimy, jest kwantyzacja barw. Jest to technika o tyle specyficzna, że choć jak najbardziej jest stratna, to bywa kojarzona z formatami bezstratnymi. Szczególnie dlatego, że jest łączona z opisaną wcześniej przeze mnie techniką definiowania palet barw.
+
+Kwantyzacja barw polega na niczym innym jak ograniczeniu liczby kolorów na całym obrazie lub jego fragmencie. Nie zawsze potrzebujemy wszystkich dostępnych kolorów w zapisie choćby 24-bitowym. Możemy zresztą z powodzeniem użyć wcześniej opisanych przeze mnie palet. Im mniej kolorów wykorzystywanych w obrazie, tym większa będzie oszczędność w zapisie bitowym.
+
+Stratność kwantyzacji polega na tym, że w procesie tym najczęściej zaokrąglamy niektóre barwy do ich najbliższych odpowiedników. Im mniejszym zakresem kolorów dysponujemy, tym zaokrąglenia robimy większe i widoczne zaczynają być straty i „twarde” przejścia między barwami. Efekt ten nazywamy posteryzacją, a owe „twarde” przejścia bandingiem (pasmowaniem).
+
+<Grid minWidth={300}>
+  <Image
+    image={bit24}
+    alignCenter
+    fullSize
+    alt="Gradient w 24-bitowej głębi kolorów."
+    unoptimized
+    caption={<>
+      Rozdzielczość tonalna 24-bitowa.
+    </>}
+  />
+  <Image
+    image={bit8}
+    alignCenter
+    fullSize
+    alt="Gradient w 8-bitowej głębi kolorów."
+    unoptimized
+    caption={<>
+      Rozdzielczość tonalna 8-bitowa dla całego obrazu, bez dzielenia na obszary.
+    </>}
+  />
+</Grid>
+
+Powyższy przykład jest oczywiście skrajny, bo rozdzielczość tonalna została zmniejszona dla całego obrazu. Jak wspomniałem wcześniej, obraz można podzielić na fragmenty, które zawierają różne barwy zapisane w tylu samu bitach.
+
+Przy okazji kwantyzacji barw warto wspomnieć, że w celu wizualnego zniwelowania różnic w barwach stosuje się technikę zwaną ditheringiem. Polega ona na wizualnym mieszaniu barw przez stawianie naprzemiennie różnobarwnych pikseli. Wówczas, w oddaleniu, różnice między kolorami nie są aż tak zauważalne.
+
+<Grid minWidth={300}>
+  <Image
+    image={bit24}
+    alignCenter
+    fullSize
+    alt="Gradient w 24-bitowej głębi kolorów."
+    unoptimized
+    caption={<>
+      Oryginalny gradient zapisany 24-bitowymi kolorami.
+    </>}
+  />
+  <Image
+    image={dither8}
+    alignCenter
+    fullSize
+    alt="Gradient w 8-bitowej głębi kolorów z ditheringiem."
+    unoptimized
+    caption={<>
+      Gradient z kolorami zapisanymi 8-bitowo, jednak z użytym ditheringiem.
+    </>}
+  />
+  <Image
+    image={bit24zoom}
+    alignCenter
+    fullSize
+    alt="Gradient w 24-bitowej głębi kolorów, zbliżenie na środek."
+    unoptimized
+    caption={<>
+      10-krotne zbliżenie na środek powyższego gradientu zapisanego 24-bitowo.
+    </>}
+  />
+  <Image
+    image={ditherzoom}
+    alignCenter
+    fullSize
+    alt="Gradient w 8-bitowej głębi kolorów z ditheringiem, zbliżenie na środek."
+    unoptimized
+    caption={<>
+      A tutaj zbliżenie w to samo miejsce, ale w wersji 8-bitowej z ditheringiem.
+    </>}
+  />
+</Grid>
+
+Teraz pozwól, że wyjaśnię, co miałem na myśli na początku. W wyniku kwantyzacji barw tracimy informację, więc jest to technika stratna. Jednak w praktyce technikę tę utożsamia się z formatem GIF, który należy do formatów bezstratnych. Cała rzecz polega na tym, że kwantyzacja barw nie jest częścią algorytmu kompresji formatu GIF, tylko jest wykonywana przez program graficzny przed właściwym zakodowaniem obrazu. I to od programu zależy, czy podzieli obraz na mniejsze i utworzy odpowiednie palety, czy może użyje jednej palety barw na cały obraz.
+
+Pamiętaj też, że kwantyzacja zachodzi zawsze — rozdzielczość tonalna 24-bitowa daje szerokie spektrum barw, jednak jest to tylko wycinek wszystkich barw, które możemy postrzegać. Nawet w niej, przypatrując się bardziej, możemy zauważyć zjawisko pasmowania. Stąd coraz popularniejsze są jeszcze szerze rozdzielczości tonalne, np. HDR10+, gdzie pojedyncza składowa tonalna jest zapisana na 10 lub 16 bitach, co oznacza, że cały piksel (przy braku podpróbkowania) zajmuje od 30 do 48 bitów.
+
+Bardziej szczegółowe omówienie tematu rozdzielczości tonalnych i sposobu zapisu barw w plikach znajdziesz w artykule *<Link href="/post/jak-komputer-zapisuje-kolory">Jak komputer zapisuje kolory?</Link>*.
+
+### Podpróbkowanie chrominancji
+
+Pisałem wyżej o tym, że możemy ograniczać rozdzielczość tonalną, aby zapisywać kolor na mniejszej liczbie bitów. Jest jeszcze jedna technika, gdzie też możemy ograniczyć rozmiar piksela, ale w nieco inny sposób, nie zmieniając rozdzielczości tonalnej. Omówmy podpróbkowanie chrominancji, które możesz lepiej kojarzyć z angielskiej nazwy *chroma subsampling*.
+
+Jak opisywałem w artykule *<Link href="/post/jak-komputer-zapisuje-kolory">Jak komputer zapisuje kolory?</Link>*, na potrzeby kolorowej telewizji powstał zapis barw w przestrzeni YCbCr (i innych podobnych). Y to kanał chrominancji, czyli jasności (obraz w skali szarości), a Cb i Cr to kanały różnicy barw. Po złączeniu tych kanałów w całość otrzymujemy pełen kolorowy obraz. Tylko co to ma do kompresji?
+
+Otóż ludzki mózg przetwarza w wyższej rozdzielczości jasność niż odcień i nasycenie. Postanowiono to wykorzystać i kompresować obraz w ten sposób, że o ile każdy piksel otrzymuje pełną informację na temat swojej jasności (kanał Y), to kanały Cb i Cr są uśrednione dla kilku sąsiadujących pikseli. Zapisuje się to zwykle jako trzyczęściową proporcję, oznaczaną jako J:a:b (np. 4:2:0). W zapisie tym:
+
+- `J` to szerokość kodowanego regionu. Najczęściej wynosi 4 piksele. Od razu dodam, że wysokość zakłada się 2.
+- `a` to liczba próbek Cr i Cb w pierwszym wierszu.
+- `b` najprościej zinterpretować jako liczbę próbek Cr i Cb w drugim wierszu.
+
+Oznacza to tyle, że np. 4:4:4 to obraz bez tego typu kompresji, natomiast popularne 4:2:2 czy 4:2:0 tracą część informacji o barwie. Poniżej możesz zobaczyć, jak to wygląda dla standardowych formatów podpróbkowania:
+
+<Image
+  image={chroma}
+  alignCenter
+  fullSize
+  alt=""
+  caption={<>(źródło: <a href="https://en.wikipedia.org/wiki/Chroma_subsampling#Sampling_systems_and_ratios">Wikipedia</a>)</>}
+/>
+
+Po powyższych przykładach możesz stwierdzić, że tracimy tu bardzo dużo danych i łatwo rozróżnić kolory w wersji nieskompresowanej i skompresowanej. Pamiętaj jednak, że jest to bardzo skrajny przypadek. Najczęściej koło siebie (i to bardzo blisko siebie, mówimy o prostokącie 4×2 piksele) są bardzo zbliżone do siebie barwy. Wówczas różnice te są często niezauważalne. W praktyce nawet rzadko spotykamy się z 4:4:4. Najpowszechniejsze są 4:2:2 i 4:2:0, które znalazły następujące zastosowania:
+
+- 4:2:2 — wykorzystywany w cyfrowych kamerach wideo. Jest to standard zapisu barw w Digital Betacam, DVCPRO50 czy Apple ProRes.
+- 4:2:0 — używany najczęściej w formatach plików graficznych JPG i WebP (można używać też innych podpróbkowań). W wideo natomiast jest standardem w cyfrowej telewizji PAL, w formatach z rodziny MPEG (więc zarazem też na płytach Blu-Ray i DVD) oraz AVCHD.
+
+<Grid minWidth={300}>
+  <Image
+    image={c422}
+    alignCenter
+    fullSize
+    alt="Gradient zapisany w JPG z podpróbkowaniem chrominancji 4:2:2."
+    unoptimized
+    caption={<>
+      Pokazywany wcześniej gradient zapisany w formacie JPG (jakość 100%) z wymuszonym podpróbkowaniem chrominancji 4:2:2. Zajmuje 118 kB. Dla porównania, plik JPG tak samo skompresowany, ale z podpróbkowaniem 4:4:4, zajmuje 154 kB.
+    </>}
+  />
+  <Image
+    image={c420}
+    alignCenter
+    fullSize
+    alt="Gradient zapisany w JPG z podpróbkowaniem chrominancji 4:2:0."
+    unoptimized
+    caption={<>
+      A tutaj ten sam gradient, ponownie w JPG (jakość 100%), ale tym razem z podpróbkowaniem chrominancji 4:2:0. Dzięki temu zajmuje już jedynie 94 kB. Całkowicie szczerze — czy widzisz różnice między tymi dwoma obrazami?
+    </>}
+  />
+</Grid>
+
+Dla jasności — to ten sam zapis, który widzisz przy kupowaniu telewizora, i oznacza dokładnie to samo. Dlatego na tanich telewizorach obraz z komputera może nie wyglądać najlepiej (szczególnie tekst jest rozmyty), bo już na poziomie przesyłania sygnału dochodzi do jego kompresji. Tłumaczy to też, dlaczego monitory o dużej przekątnej są droższe niż telewizory: monitory tworzy się z myślą o wyświetlaniu obrazu 4:4:4, telewizory nie.
+
+Tak swoją drogą, jeśli kiedyś spotkałeś(-aś) się z zapisem, gdzie o 24-bitowej rozdzielczości tonalnej mówiło się, że jest to zapis 8-bitowy, a standard HDR to kolory 10-bitowe, to właśnie bierze się to stąd, że przy podpróbkowaniu chrominancji nie możemy mówić o tym, że piksel zajmuje 24 bity. Bardziej zgodne z prawdą jest powiedzenie, że pojedyncze kanały mają po 8 (lub 10) bitów każdy. A jak często kanał zapisujemy, to już zupełnie inna sprawa.
+
+### Kodowanie transformatowe
+
+Przejdźmy teraz do metody, przy której jest najwięcej matematyki, ale zarazem jest metodą utożsamianą z metodami stratnymi. Jest to kodowanie transformatowe.
+
+W metodzie tej na blok obrazu (np. 8×8 w JPG) aplikujemy transformację liniową, aby przekształcić go do dziedziny częstotliwości. Po transformacji dochodzi do koncentracji większości sygnału w jednym miejscu, dzięki czemu możemy go odpowiednio obrobić. Podkreślam to, że po transformacji działamy dalej, ponieważ transformacja sama w sobie nie jest stratna i możemy wrócić z niej do oryginalnych danych. Co więcej, dane po transformacji zwykle zajmują więcej, są zapisane jako liczby rzeczywiste, stąd po niej stosuje się kwantyzację.
+
+Kwantyzacja w kodowaniu transformatowym polega na tym, że na transformatę aplikujemy odgórnie ustalone wartości pozwalające „obciąć” te najmniej istotne, a także zaokrąglić i zmniejszyć liczby, najczęściej do 8 bitów.
+
+Najbardziej znaną transformacją stosowaną do kodowania multimediów jest DCT, czyli dyskretna transformacja kosinusowa. Żeby wrócić do oryginalnej postaci danych, stosuje się IDCT, czyli odwrotną dyskretną transformację kosinusową. Warto jednak wspomnieć, że stosować można też inne transformacje. Format JPEG 2000 wykorzystuje transformację falkową, a JPEG XR i WebP transformację Hadamarda.
+
+### Kodowanie transformatowe w JPG
+
+Z racji tego, że JPG wciąż jest najpopularniejszym formatem stratnym, spójrzmy bliżej, jak w nim działa kodowanie transformatowe wykorzystujące DCT, aby zrozumieć lepiej tę skomplikowaną na pierwszy rzut oka ideę. Aby nie liczyć wszystkiego ręcznie, posłużę się przykładowymi wartościami pożyczonymi z angielskiej Wikipedii. Na koniec przygotowałem prezentację, gdzie możesz potestować tę kompresję w praktyce z możliwością podejrzenia wszystkich szczegółów.
+
+#### Przystosowanie danych
+
+Po podziale obrazu na bloki 8×8 możemy przystąpić do zakodowania każdego kanału barwy (oddzielnie) na tym obszarze. Dla przykładu rozpatrzmy następującą siatkę pikseli dla jednego kanału zapisywanego 8-bitowo:
+
+$$
+\left[{\begin{array}{rrrrrrrr}52&55&61&66&70&61&64&73\\63&59&55&90&109&85&69&72\\62&59&68&113&144&104&66&73\\63&58&71&122&154&106&70&69\\67&61&68&104&126&88&68&70\\79&65&60&70&77&68&58&75\\85&71&64&59&55&61&65&83\\87&79&69&68&65&76&78&94\end{array}}\right]
+$$
+
+Dodam, że jeśli w danym fragmencie obrazu nie bylibyśmy w stanie wyciąć bloku o tym rozmiarze, to brakujące piksele zwykle się uzupełnia, powtarzając ostatni wiersz lub kolumnę.
+
+Jako pierwsze wykonywane jest przesunięcie zakresu wartości, aby 0 było wartością środkową. W przypadku zapisu 8-bitowego jest to zakres $$[-128, 127]$$, więc wystarczy od każdego z pikseli odjąć 128. W ten sposób otrzymujemy macierz wejściową dla transformacji, którą oznaczymy jako $$g$$ (współrzędne będziemy określać jako $$x$$ i $$y$$):
+
+$$
+g= \left[{\begin{array}{rrrrrrrr}-76&-73&-67&-62&-58&-67&-64&-55\\-65&-69&-73&-38&-19&-43&-59&-56\\-66&-69&-60&-15&16&-24&-62&-55\\-65&-70&-57&-6&26&-22&-58&-59\\-61&-67&-60&-24&-2&-40&-60&-58\\-49&-63&-68&-58&-51&-60&-70&-53\\-43&-57&-64&-69&-73&-67&-63&-45\\-41&-49&-59&-60&-63&-52&-50&-34\end{array}}\right]
+$$
+
+#### Transformacja DCT
+
+Następnie tworzymy nową macierz $$G$$, która jest dyskretną transformatą kosinusową $$g$$. Wzór na pojedynczą komórkę (dla bloków 8×8) jest następujący (dla odróżnienia współrzędne oznaczamy jako $$u$$ i $$v$$):
+
+$$
+G_{u,v}={\frac {1}{4}}\alpha (u)\alpha (v)\sum _{x=0}^{7}\sum _{y=0}^{7}g_{x,y}\cos \left[{\frac {(2x+1)u\pi }{16}}\right]\cos \left[{\frac {(2y+1)v\pi }{16}}\right]
+$$
+
+$$\alpha(x)$$ w powyższym wzorze to współczynnik normalizujący. Są na niego różne wzory, akurat tutaj zastosujemy poniższy dla prostszych obliczeń:
+
+$$
+\alpha (x)={\begin{cases}{\frac {1}{\sqrt {2}}},&{\text{jeśli }}x=0\\1,&{\text{w przeciwnym razie}}\end{cases}}
+$$
+
+Dla wcześniej pokazywanej macierzy transformata wygląda następująco:
+
+$$
+G=\left[{\begin{array}{rrrrrrrr}-415.38&-30.19&-61.20&27.24&56.12&-20.10&-2.39&0.46\\4.47&-21.86&-60.76&10.25&13.15&-7.09&-8.54&4.88\\-46.83&7.37&77.13&-24.56&-28.91&9.93&5.42&-5.65\\-48.53&12.07&34.10&-14.76&-10.24&6.30&1.83&1.95\\12.12&-6.55&-13.20&-3.95&-1.87&1.75&-2.79&3.14\\-7.73&2.91&2.38&-5.94&-2.38&0.94&4.30&1.85\\-1.03&0.18&0.42&-2.42&-0.88&-3.02&4.12&-0.66\\-0.17&0.14&-1.07&-4.19&-1.17&-0.10&0.50&1.68\end{array}}\right]
+$$
+
+Zwróć uwagę na rozkład wartości. Największa (w sensie najbardziej oddalona od zera) jest w lewym górnym rogu, a dalej mamy wartości coraz bliżej zera. Wartość w narożniku to średnia wartość kanału wewnątrz bloku (DC), natomiast pozostałe to częstotliwości zmian (AC). Im dalej od rogu, tym „mniej istotna” wartość, mniejsze różnice.
+
+#### Kwantyzacja
+
+W procesie kwantyzacji będziemy chcieli jak najbardziej zniwelować wartości jak najdalej od lewego górnego rogu transformaty. Idea jest taka, że te mniej istotne zmiany częstotliwości nie są aż tak wyraźne dla ludzkiego oka, stąd nie są aż tak bardzo potrzebne. Do tego zauważ, że w transformacie mamy wartości nie dość, że rzeczywiste, to jeszcze wykraczające poza 8-bitowy zakres. Więc w trakcie kwantyzacji oprócz pozbycia się nieistotnych wartości musimy jeszcze pomniejszyć wszystkie pozostałe i zaokrąglić do wartości całkowitych.
+
+Wykonuje się to, korzystając z macierzy kwantyzacji. Przykładowa macierz dla kanału jasności, którą znajdziemy w dokumencie ITU T.81 (definicja kompresji w JPG), odpowiadająca jakości 50%, wygląda tak:
+
+$$
+Q={\begin{bmatrix}16&11&10&16&24&40&51&61\\12&12&14&19&26&58&60&55\\14&13&16&24&40&57&69&56\\14&17&22&29&51&87&80&62\\18&22&37&56&68&109&103&77\\24&35&55&64&81&104&113&92\\49&64&78&87&103&121&120&101\\72&92&95&98&112&100&103&99\end{bmatrix}}
+$$
+
+Tworzymy nową macierz $$B$$, która będzie wynikiem kompresji, za pomocą poniższego wzoru ($$\mathrm{round}$$ to zaokrąglenie do najbliższej liczby całkowitej):
+
+$$
+B_{u,v}=\mathrm {round} \left({\frac {G_{u,v}}{Q_{u,v}}}\right)
+$$
+
+Dla rozpatrywanego cały czas przykładu macierz po kwantyzacji będzie wyglądać następująco:
+
+$$
+B=\left[{\begin{array}{rrrrrrrr}-26&-3&-6&2&2&-1&0&0\\0&-2&-4&1&1&0&0&0\\-3&1&5&-1&-1&0&0&0\\-3&1&2&-1&0&0&0&0\\1&0&0&0&0&0&0&0\\0&0&0&0&0&0&0&0\\0&0&0&0&0&0&0&0\\0&0&0&0&0&0&0&0\end{array}}\right]
+$$
+
+Jak widzisz, wartości znacznie się zmieniły i wskoczyło dużo zer. Jednak zera wciąż zajmują 8 bitów. To, co następnie wykonywane jest w JPG, to kodowanie RLE i Huffmana (oddzielnie dla wartości AC i DC, ze wspólnymi drzewami dla całego pliku) w celu zmniejszenia zajmowanej przestrzeni. Aby RLE było efektywne, wartości odczytywane są zygzakiem od górnego lewego rogu do prawego dolnego.
+
+Dodatkowo też, jeszcze przed kodowaniem RLE, współczynnik DC zapisuje się jako różnicę względem współczynnika DC w poprzednim bloku. Jest to analogiczny zabieg, który stosuje się przy kodowaniu sygnałów techniką DPCM. O ile same wartości współczynników DC mogą być w każdym bloku różne, tak różnice mogą się powtarzać, dzięki czemu kodowanie Huffmana jest bardziej efektywne.
+
+#### Zdekodowanie
+
+W artykule cały czas poruszałem temat jak skompresować, zakodować dane, ale cały czas pomijałem temat dekompresji. Tutaj, z racji tego, że podaję konkretny przykład, pokażę też, jak odwrócić to, co tu zrobiliśmy, aby z powrotem uzyskać bitmapę.
+
+Pierwsze co robimy, to przywracamy transformatę przez pomnożenie macierzy B odpowiadającymi pozycjom wartościami z macierzy kwantyzacji. Dla omawianego do tej pory przykładu otrzymamy następującą macierz:
+
+$$
+G=\left[{\begin{array}{rrrrrrrr}-416&-33&-60&32&48&-40&0&0\\0&-24&-56&19&26&0&0&0\\-42&13&80&-24&-40&0&0&0\\-42&17&44&-29&0&0&0&0\\18&0&0&0&0&0&0&0\\0&0&0&0&0&0&0&0\\0&0&0&0&0&0&0&0\\0&0&0&0&0&0&0&0\end{array}}\right]
+$$
+
+Widać tutaj efekt kompresji — wartości blisko lewego górnego rogu zostały jedynie zaokrąglone, a odleglejsze zniwelowane do zera.
+
+Następnie musimy wykonać odwrotną dyskretną transformację kosinusową, dla której w tym przypadku wzór jest następujący (biorący od razu pod uwagę zaokrąglenie do wartości całkowitej):
+
+$$
+g_{x,y}=\mathrm {round}\left({\frac {1}{4}}\sum _{u=0}^{7}\sum _{v=0}^{7}\alpha (u)\alpha (v)G_{u,v}\cos \left[{\frac {(2x+1)u\pi }{16}}\right]\cos \left[{\frac {(2y+1)v\pi }{16}}\right]\right)
+$$
+
+Odzyskaliśmy tym samym bitmapę, tylko tyle, że ma jeszcze przesunięte wartości, więc musimy do każdej z nich dodać 128.
+
+$$
+\begin{align*}
+g=&\left[{\begin{array}{rrrrrrrr}-66&-63&-71&-68&-56&-65&-68&-46\\-71&-73&-72&-46&-20&-41&-66&-57\\-70&-78&-68&-17&20&-14&-61&-63\\-63&-73&-62&-8&27&-14&-60&-58\\-58&-65&-61&-27&-6&-40&-68&-50\\-57&-57&-64&-58&-48&-66&-72&-47\\-53&-46&-61&-74&-65&-63&-62&-45\\-47&-34&-53&-74&-60&-47&-47&-41\end{array}}\right]
+\\
+&\left[{\begin{array}{rrrrrrrr}62&65&57&60&72&63&60&82\\57&55&56&82&108&87&62&71\\58&50&60&111&148&114&67&65\\65&55&66&120&155&114&68&70\\70&63&67&101&122&88&60&78\\71&71&64&70&80&62&56&81\\75&82&67&54&63&65&66&83\\81&94&75&54&68&81&81&87\end{array}}\right]
+\end{align*}
+$$
+
+Jak możesz zobaczyć, wartości pikseli nieco się zmieniły. Poniżej widać, ile wynoszą różnice między oryginałem a skompresowanym obrazem:
+
+$$
+\left[{\begin{array}{rrrrrrrr}-10&-10&4&6&-2&-2&4&-9\\6&4&-1&8&1&-2&7&1\\4&9&8&2&-4&-10&-1&8\\-2&3&5&2&-1&-8&2&-1\\-3&-2&1&3&4&0&8&-8\\8&-6&-4&0&-3&6&2&-6\\10&-11&-3&5&-8&-4&-1&0\\6&-15&-6&14&-3&-5&-3&7\end{array}}\right]
+$$
+
+#### Prezentacja
+
+Poniżej możesz sprawdzić, jak wyglądają obliczenia w kodowaniu transformatowym wykorzystującym DCT. Wrzuć dowolny plik graficzny i zobacz, jak będzie podlegać kompresji tym sposobem oraz jakie obliczenia zostały wykonane po drodze. Aby lepiej wszystko zrozumieć, możesz podglądać poszczególne bloki, a także zmieniać wartości na macierzy kwantyzacji. Dla uproszczenia wszystko będzie obliczane jedynie na kanale Y (czyli obraz będzie w skali szarości) i nie będę stosował zapisu różnicowego dla wartości DC. Wszystkie obrazki większe niż 400×400 zostaną przeskalowane z zachowaniem proporcji.
+
+Uwaga! Całość obliczeń w prezentacji odbywa się wewnątrz Twojej przeglądarki i nic nie jest przesyłane na żadne serwery. Możesz bez obaw wrzucić tutaj dowolny obrazek.
+
+<Presentation />
+
+Kod prezentacji znajdziesz na [GitHubie świstak.codes](https://github.com/swistak-codes/dct).
+
+Oszczędność w bajtach starałem się dość starannie wyliczyć, stosując zarówno kodowanie różnicowe, kodowanie RLE, jak i kodowanie Huffmana. Jednak traktuję to jako szacunki, bo mimo czytania wielu źródeł, nie mam 100% pewności, czy mój algorytm jest na pewno dobry. Jednak uważam, że jako estymacja nawet delikatnie błędnie algorytm powinien dać dobry obraz.
+
+## Podsumowanie
+
+Zdaję sobie sprawę, że artykuł był nieco długi, ale w temacie kompresji grafiki wszystko od siebie zależy. Wiele technik łączy się ze sobą, aby uzyskać jeszcze lepsze rezultaty kompresji. Do tego nawet nie dałem rady opisać wszystkich dostępnych technik, ale postarałem się omówić te najważniejsze i najpopularniejsze. Mam nadzieję, że artykuł ten rozjaśnił Ci, na czym polega zmniejszanie rozmiaru pliku bez utraty danych, a następnie jak redukujemy informację przez wykorzystanie niedoskonałości ludzkiego wzroku.
+
+Jeśli interesowałoby Cię więcej artykułów na temat kompresji danych, z dokładniejszym opisem algorytmów, daj znać w komentarzu.
+
+## Literatura
+
+- Image compression, https://en.wikipedia.org/w/index.php?title=Image_compression&oldid=1215074125 (ostatnie odwiedziny 05.05.2024).
+- Dunn, Christopher (1987). "Smile! You're on RLE!". The Transactor. 7 (6). Transactor Publishing: 16–18.
+- Borke, Paul (1996). "Creating TGA Image files". http://www.paulbourke.net/dataformats/tga/ (ostatnie odwiedziny 05.05.2024).
+- Cormen, T. H.; Leiserson, C. E.; Rivest R. L.; Stein C. “Huffman codes” w *Introduction to algorithms, 3rd ed.*. MIT Press, Cambridge, MA, U.S.A., s. 428-437.
+- LZ77 and LZ78, https://en.wikipedia.org/w/index.php?title=LZ77_and_LZ78&oldid=1218134587 (ostatnie odwiedziny 05.05.2024).
+- Lempel–Ziv–Welch, https://en.wikipedia.org/w/index.php?title=Lempel%E2%80%93Ziv%E2%80%93Welch&oldid=1221875576 (ostatnie odwiedziny 05.05.2024).
+- Deflate, https://en.wikipedia.org/w/index.php?title=Deflate&oldid=1220395796 (ostatnie odwiedziny 05.05.2024).
+- Color quantization, https://en.wikipedia.org/w/index.php?title=Color_quantization&oldid=1221150995 (ostatnie odwiedziny 05.05.2024).
+- Chroma subsampling, https://en.wikipedia.org/w/index.php?title=Chroma_subsampling&oldid=1218767381 (ostatnie odwiedziny 05.05.2024).
+- JPEG, https://en.wikipedia.org/w/index.php?title=JPEG&oldid=1219274424 (ostatnie odwiedziny 05.05.2024).
+- Hudson, G., Leger, A., Niss, B., & Sebestyen, I. (2017). JPEG at 25: Still Going Strong. IEEE MultiMedia, 24(2), 96–103. [doi:10.1109/mmul.2017.38](https://doi.org/10.1109/mmul.2017.38)
+- “T.81: Information technology – Digital compression and coding of continuous-tone still images – Requirements and guidelines”. Itu.int.
+
+<small>Zdjęcie na okładce wygenerowane przez DALL-E.</small>

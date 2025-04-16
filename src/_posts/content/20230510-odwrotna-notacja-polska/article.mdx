@@ -1,0 +1,261 @@
+import Link from 'next/link';
+import {Image} from '@swistak-codes/components';
+import {Presentation} from './presentation';
+import cover from './swistak_polak.jpg';
+import lifo from './lifo.png';
+
+export const meta = {
+  title: 'Odwrotna notacja polska',
+  abstract:
+    'Artykuł przedstawia odwrotną notację polską oraz algorytm obliczania wartości wyrażeń nią zapisanych.',
+  firstParagraph: (
+    <>
+      Kolejność wykonywania działań to, jak można zauważyć w Internecie, jeden z największych problemów, jakie przeciętne osoby mają z matematyką. Regularnie od wielu lat pojawia się w mediach społecznościowych jakiś wariant zagadki „oblicz 6/2(2+1)”, gdzie ludzie się kłócą, czyja odpowiedź jest prawidłowa. W idealnym świecie takich problemów nie powinno być. Dlatego powstały alternatywne sposoby zapisu działań matematycznych pozbywające się nawiasów, takie jak np. odwrotna notacja polska. Nasz świat idealnym jednak nie jest, więc męczymy się z nawiasami, ale poznajmy tę notację, bo akurat w świecie informatyki ma ona duże znaczenie.
+    </>
+  ),
+  keyword: 'odwrotna notacja polska',
+  categories: ['Algorytmy', 'Matematyka'],
+  tags: [
+    'javascript',
+    'matematyka',
+    'rpn',
+    'onp',
+    'odwrotna notacja polska',
+    'reverse polish notation',
+    'stos'
+  ],
+  slug: 'odwrotna-notacja-polska',
+  updateTime: '2023-05-10T07:00:00+00:00',
+  publishTime: '2023-05-10T07:00:00+00:00',
+  cover,
+};
+
+## Sposoby zapisu wyrażeń matematycznych
+
+Zanim przejdziemy do sedna artykułu, czyli odwrotnej notacji polskiej, opowiem trochę o innych sposobach zapisu wyrażeń matematycznych, czyli notacji infiksowej oraz notacji polskiej.
+
+### Notacja infiksowa
+
+Ta słynna notacja z nawiasami, którą wszyscy się posługujemy, zapisując wyrażenia matematyczne, nazywa się fachowo *notacją infiksową* lub czasem w polskiej literaturze znajdziemy nazwę *zapis wrostkowy*.
+
+Schematycznie moglibyśmy tę notację przedstawić następująco:
+
+$$
+a \text{ <operator> } b
+$$
+
+Operacje wykonujemy w następującej kolejności:
+
+- Najpierw <Link href="/post/szybkie-potegowanie">potęgujemy</Link> i <Link href="/post/pierwiastkowanie">pierwiastkujemy</Link>.
+- Następnie <Link href="/post/dziel-i-zwyciezaj-a-mnozenie">mnożymy</Link> i dzielimy.
+- Na samym końcu wykonujemy dodawanie i odejmowanie.
+
+Jeśli mamy operacje tego samego typu, wykonujemy je od lewej do prawej. Natomiast jeśli chcielibyśmy tą kolejność zaburzyć, stosujemy nawiasy, których rozwiązanie ma wyższy priorytet niż wszystkie opisane wyżej operacje.
+
+Na przykład słynne działanie, które podałem we wstępie, rozwiążemy następująco:
+
+$$
+\begin{align*}
+6/2 \cdot (2+1) =  &\text{ | najpierw wykonujemy działanie w nawiasie}\\
+= 6/2 \cdot 3 &\text{ | potem z równoważnych pierwsze działanie z lewej strony}\\
+= 3 \cdot 3 &\text{ | zostaje już tylko jedna operacja}\\
+= 9
+\end{align*}
+$$
+
+### Notacja polska
+
+Inne podejście do zapisu wyrażeń przedstawił w 1920 r. Jan Łukasiewicz i jest dziś znane jako *notacja polska*, *notacja prefiksowa* lub *zapis przedrostkowy*. Eliminuje konieczność stosowania nawiasów i jest bardziej zbliżone do naturalnego opisywania wyrażeń językiem opisowym.
+
+Rozpatrzmy jako przykład wyrażenie pokazane wyżej, czyli $$6/2 \cdot (2+1)$$. Jeśli chcielibyśmy opisać je słownie, powiedzielibyśmy:
+
+`Pomnóż iloraz sześciu i dwa przez sumę dwu i jeden.`
+
+Przekłada się to bezpośrednio na następujący zapis w notacji polskiej:
+
+$$
+\cdot \text{ } / \text{ } 6 \text{ } 2 \text{ } + \text{ } 2 \text{ } 1
+$$
+
+Działania w notacji polskiej rozwiązujemy tak, że przechodzimy od lewej do prawej. Jeśli napotkamy na operator i dwa kolejne elementy są liczbami, to wykonujemy działanie. W przeciwnym wypadku przechodzimy dalej w prawo. Powyższy przypadek rozwiązalibyśmy następująco:
+
+$$
+\begin{align*}
+\cdot \text{ } / \text{ } 6 \text{ } 2 \text{ } + \text{ } 2 \text{ } 1 = &\text{ | pierwsze od lewej, co możemy wykonać, to dzielenie (/ 6 2)}\\
+= \cdot \text{ } 3 + \text{ } 2 \text{ } 1 &\text{ | kolejno możemy wykonać dopiero dodawanie (+ 2 1)}\\
+= \cdot \text{ } 3 \text{ } 3 &\text{ | zostaje już tylko jedna operacja (⋅ 3 3)}\\
+= 9
+\end{align*}
+$$
+
+Na tej notacji w artykule nie będziemy się skupiać, aczkolwiek warto wspomnieć, że o ile w matematyce się jej nie spotyka, to znalazła zastosowanie w informatyce. Osoby, które miały do czynienia z programowaniem funkcyjnym, mogą tutaj zauważyć podobieństwo do S-wyrażeń (S-expression) znanych z Lispa. Jest to skojarzenie poprawne, bo S-wyrażenia są zapisywane właśnie w notacji polskiej.
+
+Poniżej możesz zobaczyć różne proste rzeczy napisane w Common Lisp. Zwróć uwagę na ten charakterystyczny zapis, że zawsze z lewej strony zapisujemy operację, a po prawej jej argumenty.
+
+```lisp
+;;; wypisanie wartości 2+2
+(write-line (write-to-string (+ 2 2)))
+
+;;; funkcja podnosząca liczbę do kwadratu oraz jej użycie
+(defun square (x)
+  (* x x))
+(write-line (write-to-string (square 4)))
+
+;;; funkcja rekurencyjna licząca silnię oraz jej użycie
+(defun factorial (n)
+  (if (< n 2) 1
+    (* n (factorial (- n 1)))))
+(write-line (write-to-string (factorial 6)))
+```
+
+Obecne tutaj nawiasy nie mają takiej funkcji jak w matematyce w zapisie infiksowym. Nawiasy wyznaczają listy, ponieważ jest to podstawowa struktura danych w Lisp i wszystko w nim jest listą. Kod w praktyce możesz sprawdzić na [Replit](https://replit.com/@tswistak/lisp-example#main.lisp).
+
+Mimo że notacja polska jest istotna w informatyce, choćby właśnie ze względu na S-wyrażenia, to w tym artykule akurat nie chcę poświęcać jej więcej uwagi.
+
+### Odwrotna notacja polska
+
+Zdecydowanie większe znaczenie w informatyce, szczególnie w algorytmice, ma *odwrotna notacja polska* (inaczej: *notacja postfiksowa*; w skrócie: ONP). Niestety nie podam, kto był jej oryginalnym autorem — koncepcja została opracowana kilkakrotnie w niezależny sposób. Jej najstarsze użycie datuje się na 1941 r., ponieważ znalazła zastosowanie w niemieckim komputerze Z3.
+
+Nazwa wywodzi się stąd, że jest to odwrócenie notacji polskiej. Gdy w notacji polskiej najpierw pisaliśmy operator, a po nim liczby, tak tutaj jest na odwrót. Działania wykonujemy od lewej do prawej i jeśli trafimy na operator, to zbieramy dwie poprzedzające go liczby i wykonujemy operację.
+
+Kontynuując nasz ulubiony przykład $$6/2 \cdot (2+1)$$, w ONP zostanie ona zapisana następująco:
+
+$$
+6 \text{ } 2 \text{ } / \text{ } 2 \text{ } 1 \text{ } + \text{ } \cdot
+$$
+
+A jak wyglądałoby obliczenie tego na kartce, nie znając jeszcze konkretnych algorytmów? Znając regułę, którą opisałem powyżej, moglibyśmy zrobić to następująco:
+
+$$
+\begin{align*}
+6 \text{ } 2 \text{ } / \text{ } 2 \text{ } 1 \text{ } + \text{ } \cdot = &\text{ | idąc od lewej, trafiamy najpierw na dzielenie (6 2 /)} \\
+= 3 \text{ }  2 \text{ } 1 \text{ } + \text{ } \cdot &\text{ | kolejny operator to dodawanie (2 1 +)} \\
+= 3 \text{ }  3 \text{ } \cdot  &\text{ | zostaje już tylko jedna operacja (3 3 ⋅)} \\
+= 9
+\end{align*}
+$$
+
+Odwrotna notacja polska jest o tyle istotna, że wyrażenia nią zapisane są najprostsze do obliczenia algorytmicznie. Z tego też powodu od pierwszych lat komputerów i elektronicznych kalkulatorów możemy znaleźć ten rodzaj zapisu. W kwestii algorytmiki wygląda to tak, że wyrażenia zapisane tradycyjnie notacją infiksową najpierw przekształca się do ONP, a dopiero wtedy oblicza. Natomiast jeśli chodzi o kalkulatory, to szczególnie znane są te od firmy Hewlett-Packard, przede wszystkim HP-12C, który był chyba najbardziej znanym kalkulatorem finansowym, gdzie operacje wpisywano za pomocą ONP. Notacja ta wśród profesjonalistów jest o tyle popularna, że nawet dzisiejsze profesjonalne kalkulatory mają tryb wprowadzania w niej.
+
+## Obliczanie wyrażeń w ONP
+
+Napisałem, że odwrotna notacja polska umożliwia proste obliczanie wyrażeń algorytmicznie. W takim razie zobaczmy, jak napisać taki algorytm.
+
+### Stos
+
+Zanim jednak przejdziemy do właściwego algorytmu, muszę wprowadzić prostą strukturę danych, którą wykorzystamy w nim jako pamięć do przechowywania liczb i operacji — stos. Miałem już okazję opisać, czym on jest, w artykule o <Link href="/post/derekursywacja/#kolejki">derekursywacji</Link>, ale dla formalności opiszę krótko jeszcze raz.
+
+Stos to nic innego jak szczególny przypadek <Link href="/post/listy-najpopularniejsze-zlozone-typy-danych">listy</Link>. Charakteryzuje się tym, że elementy możemy dodawać jedynie na początek, a usuwać (i tym samym odczytywać) tylko z początku. Stąd inna, angielska nazwa *Last In, First Out* (LIFO, z ang. ostatni na wejściu, pierwszy na wyjściu). Struktura ta ma wiele zastosowań, bo bardzo często potrzebujemy przechować jakieś dane i odwołać się do ostatnio dodanych. Zresztą zastosowanie tego typu zaraz pokażę w tym artykule.
+
+<Image
+  image={lifo}
+  forceWhiteBackground={false}
+  alignCenter
+  fullSize
+  alt="Stos z trzema elementami, od dołu: 1, 2, 3. Strzałka podpisana 'dodawanie do kolejki' wskazuje na szczyt stosu, a strzałka podpisana 'ściąganie z kolejki' idzie od szczytu stosu."
+  caption={<>Schemat działania stosu.</>}
+/>
+
+Klasyczne implementacje stosu oferują trzy operacje:
+
+- `push` — położenie elementu na stos
+- `pop` — ściągnięcie elementu ze stosu
+- sprawdzenie, czy stos jest pusty
+
+Jeśli chodzi o gotowe implementacje, niektóre języki programowania posiadają wbudowane struktury stosów (np. [Stack w C#](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.stack-1?view=net-7.0), [Deque w Javie](https://docs.oracle.com/en/java/javase/18/docs/api/java.base/java/util/Deque.html)). Jeśli nie mamy, stos można bardzo łatwo zasymulować <Link href="/post/tablice-i-listy-tablicowe">listą tablicową</Link> albo <Link href="/post/listy-z-dowiazaniami">wiązaną</Link>. Wystarczy jedynie wykonywać operację dodania elementu na koniec/początek i usuwania z niego. W kwestii tego, czy wybrać koniec, czy początek, zależy to od struktury — w przypadku list tablicowych wydajniejsze jest dodawanie na koniec, natomiast w przypadku wiązanych zwykle na początek. Zresztą w przypadku tych pierwszych czasem się nawet zdarza, że operacje dodania i usunięcia elementu z końca nazywają się właśnie `push` i `pop` (np. w [JavaScript](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array#instance_methods)).
+
+### Opis algorytmu
+
+Przy ręcznym obliczaniu wyrażenia zapisanego w ONP szliśmy w prawo tak długo, aż napotkaliśmy operator, po czym ściągaliśmy do niego liczby, a wynik zapisywaliśmy w miejscu tych liczb i operatora. Podobne zachowanie możemy odwzorować przez odczytywanie wyrażenia symbol po symbolu. Liczby odkładamy na stos, a trafiając na coś, co nie jest liczbą (operator lub funkcja), odczytujemy ze stosu odpowiednią liczbę elementów. Po obliczeniu wyniku odkładamy go na stos. Mając dobrze zapisane wyrażenie, na samym końcu powinniśmy mieć na stosie tylko jedną liczbę, która jest rozwiązaniem wyrażenia.
+
+Sformalizujmy to w postać listy kroków, aby też później można było łatwiej przenieść to na język programowania.
+
+Algorytm na wejściu przyjmuje wyrażenie w ONP (dla uproszczenia załóżmy, że mamy je rozdzielone na tablicę poszczególnych symboli). Na wyjściu otrzymujemy liczbę, która jest wynikiem wyrażenia.
+
+1. Utwórz stos.
+2. Dla każdego symbolu w wyrażeniu:
+    1. Jeśli symbol jest liczbą, odłóż go na stos.
+    2. Jeśli symbol jest operatorem:
+        1. Zdejmij ze stosu element; nazwijmy go `a`.
+        2. Zdejmij ze stosu element; nazwijmy go `b`.
+        3. Wykonaj działanie `b <operator> a`.
+        4. Dodaj wynik powyższej operacji na stos.
+3. Zdejmij wartość ze stosu i ją zwróć.
+
+Powyżej dałem tylko najpopularniejszy przypadek, gdzie w wyrażeniu mamy jedynie operatory dwuargumentowe. W przypadku jeśli mielibyśmy też funkcje, albo operatory jednoargumentowe, to w punkcie 2.2.1. należy ściągać ze stosu odpowiednią liczbę elementów. Trzeba tylko pamiętać (w przypadku funkcji), że argumenty odczytujemy od tyłu, tzn. ostatnio odczytany ze stosu będzie pierwszym, przedostatni drugim itd.
+
+### Przykład rozwiązania
+
+Sprawdźmy teraz powyższy algorytm na kartce, rozwiązując nim $$6/2 \cdot (2+1)$$, czyli w odwrotnej notacji polskiej $$6 \text{ } 2 \text{ } / \text{ } 2 \text{ } 1 \text{ } + \text{ } \cdot$$.
+
+1. Najpierw odczytujemy symbol `6`. Jest to liczba, więc wrzucamy na stos. Zawartość stosu: `[6]`.
+2. Kolejny symbol to `2`. Również wrzucamy na stos. Zawartość stosu: `[2, 6]`.
+3. Następnie odczytujemy operator `/`. W takim razie wykonujemy następujące operacje:
+    1. Ściągamy ze stosu liczbę: `a = 2`. Zawartość stosu: `[6]`.
+    2. Ściągamy kolejną liczbę ze stosu: `b = 6`. Zawartość stosu: `[]`.
+    3. Wykonujemy działanie `b / a = 6 / 2 = 3`. Wynik dodajemy na stos. Zawartość stosu: `[3]`.
+4. Odczytujemy liczbę `2`, którą wrzucamy na stos. Zawartość stosu: `[2, 3]`.
+5. Odczytujemy liczbę `1`, którą również dodajemy na stos. Zawartość stosu: `[1, 2, 3]`.
+6. Następnie odczytujemy operator `+`. Wykonujemy więc:
+    1. Ściągamy ze stosu liczbę: `a = 1`. Zawartość stosu: `[2, 3]`.
+    2. Ściągamy ze stosu liczbę: `b = 2`. Zawartość stosu: `[3]`.
+    3. Wykonujemy działanie `b + a = 2 + 1 = 3`. Wynik dodajemy na stos. Zawartość stosu: `[3, 3]`.
+7. Odczytujemy operator `*`. Wykonujemy:
+    1. Ściągamy ze stosu liczbę: `a = 3`. Zawartość stosu: `[3]`.
+    2. Ściągamy ze stosu liczbę: `b = 3`. Zawartość stosu: `[]`.
+    3. Wykonujemy działanie `b * a = 3 * 3 = 9`. Wynik dodajemy na stos. Zawartość stosu: `[9]`.
+8. Ściągamy wartość ze stosu. Wynik obliczeń to: `9`.
+
+## Implementacja ONP w kodzie
+
+Pokazany wyżej algorytm możemy bardzo łatwo przenieść na kod. Najprostsza implementacja w JavaScript zakładająca jedynie cztery podstawowe operacje dwuargumentowe mogłaby wyglądać następująco:
+
+```javascript
+// zakładamy, że wyrażenie jest tablicą stringów
+function solve(expression) {
+  // inicjujemy stos jako listę tablicową
+  const stack = [];
+  // dla każdego symbolu w wyrażeniu...
+  for (const symbol of expression) {
+    // jeśli symbol jest operatorem
+    if (['+', '-', '*', '/'].includes(symbol)) {
+      // zdejmujemy wartości ze stosu
+      const a = stack.pop();
+      const b = stack.pop();
+      // wykonujemy odpowiednią operację
+      let result;
+      switch (symbol) {
+        case '+': result = b + a; break;
+        case '-': result = b - a; break;
+        case '*': result = b * a; break;
+        case '/': result = b / a; break;
+      }
+      // dodajemy wynik na stos
+      stack.push(result);
+    } else {
+      // w przypadku gdy jest liczbą, dodajemy go na stos
+      // od razu konwertujemy na typ liczbowy
+      stack.push(parseFloat(symbol));
+    }
+  }
+  // zwracamy wartość, która została odłożona na szczycie stosu
+  return stack.pop();
+}
+```
+
+Kod możesz przetestować na [Replit](https://replit.com/@tswistak/rnp-solver#index.js). Możesz go też przetestować poniżej. Wpisz działanie i zobacz, jak krok po kroku oblicza się jego wynik.
+
+<Presentation />
+
+## Podsumowanie
+
+Odwrotna notacja polska jest nieco mniej intuicyjnym zapisem niż powszechnie stosowany infiksowy, ale jak mogłeś(-aś) zobaczyć w tym artykule, bardzo prostym do obliczenia algorytmicznie. Sam algorytm obliczania można też bardzo łatwo rozbudować, więc jeśli byłaby potrzeba obsłużenia również funkcji (sinus, cosinus itd.) czy innych operacji znanych z kalkulatorów (np. pierwiastkowanie), to nie będzie z tym problemu.
+
+## Literatura
+
+- Polish notation, https://en.wikipedia.org/w/index.php?title=Polish_notation&oldid=1139119735 (ostatnia wizyta 11.04.2023).
+- S-expression, https://en.wikipedia.org/w/index.php?title=S-expression&oldid=1146125353 (ostatnia wizyta 11.04.2023).
+- RPN, https://www.hpmuseum.org/rpn.htm (ostatnia wizyta 11.04.2023).
+- McIlroy, Mark. "Reverse Polish Notation." From MathWorld--A Wolfram Web Resource, created by Eric W. Weisstein. https://mathworld.wolfram.com/ReversePolishNotation.html
+
+<small>Zdjęcie na okładce wygenerowane przez DALL-E.</small>

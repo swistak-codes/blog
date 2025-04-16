@@ -1,0 +1,249 @@
+import Link from 'next/link';
+import {Image, VideoPlayer} from '@swistak-codes/components';
+import cover from './swistak_videostar.webp';
+import przeplot from './przeplot.jpg';
+import gop1 from './2560px-I_P_and_B_frames.svg.png';
+import gop2 from './GOP_2.svg.png';
+import gopKolejnosc from './gop_kolejnosc1.png';
+import gopKolejnosc2 from './gop_kolejnosc2.png';
+
+export const meta = {
+  title: 'Kompresja wideo',
+  abstract:
+    'Artykuł opisuje w uproszczeniu koncepcje i podejścia stosowane przy kompresji wideo.',
+  firstParagraph: (
+    <>
+      Poprzednio miałem okazję omówić, jakie techniki stosujemy, aby kompresować obrazy — zarówno stratnie, jak i bezstratnie. Naturalną kontynuacją jest przejście z obrazów statycznych do ruchomych. Dlatego też, tym razem, omówmy, jakie techniki wykorzystuje się przy kompresji wideo, dzięki czemu zajmują one jeszcze mniej miejsca, niż gdybyśmy zapisali wszystkie klatki jako oddzielne pliki.
+    </>
+  ),
+  keyword: 'kompresja',
+  categories: ['Teoria informatyki', 'Grafika komputerowa', 'Przetwarzanie danych'],
+  tags: [
+    'kompresja',
+    'wideo',
+    'film',
+    'mpeg',
+    'h.264',
+    'h.265',
+    'h.261',
+    'przeplot',
+    'motion jpeg',
+    'kodowanie międzyklatkowe',
+    'kompensacja ruchu',
+    'estymacja ruchu',
+    'makrobloki',
+    'wektory ruchu'
+  ],
+  slug: 'kompresja-wideo',
+  updateTime: '2024-06-19T07:00:00+00:00',
+  publishTime: '2024-06-19T07:00:00+00:00',
+  cover,
+};
+
+## Uwagi wstępne
+
+Na samym początku chciałem wspomnieć, że temat ten jest bardzo powiązany z tematem kompresji obrazów, który poruszyłem w artykule (uwaga, nikt się nie spodziewa tego tytułu) *<Link href="/post/kompresja-obrazow">Kompresja obrazów</Link>*. Omówionych tam technik, algorytmów i zagadnień nie będę tutaj powtarzać.
+
+Druga kwestia jest taka, że wideo kojarzy się nie tylko z ruchomymi obrazami, ale też z dołączonym do nich dźwiękiem. W tym artykule nie będę się zajmować kompresją dźwięku, natomiast jeśli będzie zainteresowanie tematem, mogę napisać artykuł poświęcony temu, w jaki sposób działają kompresje bezstratne takie jak FLAC czy stratne jak MP3.
+
+I trzecia, ostatnia rzecz — tym razem skupiam się tylko na kompresji stratnej. Są bezstratne techniki kompresji wideo, np. oparte na RLE, takie jak QuickTime Animation, MSRLE, Intel RLE; lub na innych technikach, jak choćby ZMBV (wykorzystuje DEFLATE). Pomijam je jednak, ponieważ nie dodałbym tutaj wiele nowego względem tego, co opisałem w artykule o kompresji obrazów.
+
+## Nieco dodatkowej teorii
+
+Zanim przejdziemy do sedna artykułu, chciałbym dodać nieco dodatkowej teorii, która może nie jest jakoś bardzo potrzebna do zrozumienia tego artykułu, ale na pewno rozwieje ewentualne wątpliwości wynikające z różnorakiej interpretacji pojęć.
+
+Na sam początek pierwsze, najbardziej podstawowe pojęcie:
+
+- **Klatka** (zwana też ramką) — pojedynczy obraz w sekwencji ruchomych obrazów.
+
+### Film a wideo
+
+Tradycyjnie, w kontekście ruchomych obrazów, mieliśmy bardzo prosty podział na film i wideo, który można było podsumować następująco:
+
+- **Filmy** były zapisywane na taśmie filmowej (najczęściej o przekątnej klatki 35 mm), oferując bardzo wysoką rozdzielczość (stare filmy możemy bez problemu skanować do rozdzielczości 6K, a nawet wyższych). Nawet amatorskie taśmy, takie jak ośmiomilimetrowe Super8, pozwalają zeskanować obraz w bardzo wysokiej rozdzielczości. Kamery filmowe działały na analogicznej zasadzie jak aparaty fotograficzne, naświetlając przez określony, krótki czas pojedynczą klatkę taśmy filmowej.
+- **Wideo** można uprościć do tego, że był to sygnał elektryczny reprezentujący punkt na obrazie. Kamera rejestrowała obraz tzw. liniami skanowania, przechodząc od lewej do prawej, z góry na dół. Taki sygnał był zwykle zapisywany na jednym z wielu formatów taśm magnetycznych, które różniły się liczbą możliwych do zapisania linii obrazu składających się na klatkę. Czyli w porównaniu do tego, co mamy dziś, różniły się oferowaną rozdzielczością. Co więcej, ta rozdzielczość (a nawet liczba klatek na sekundę) różniła się zależnie od regionu świata i do dziś odczuwamy to w pewnym stopniu — możesz doczytać o standardach PAL, NTSC i SECAM.
+
+Dzisiaj jednak, przy cyfrowym nagrywaniu, podział ten przestał być tak wyraźny. Technicznie zarówno filmy, jak i wideo są zapisywane i przechowywane w podobny sposób — w postaci plików. W przypadku cyfrowych kamer wideo zwykle zapisują obraz w jakości takiej, w jakiej konsumujemy, czyli rozdzielczość między HD a 4K, głębia kolorów 8-10 bitów, do tego najczęściej skompresowane tymi technikami, które opiszę poniżej. Stąd też przez cały artykuł będę mówić o kompresji *wideo*. Filmy natomiast przez kamery zapisywane są różnie. Możemy mieć stratne kodeki, jednak zapisujące w bardzo wysokiej jakości, takie jak Apple ProRes. Są też bezstratne formaty kompresji jak CinemaDNG. Mimo to obraz z kamer filmowych, niezależnie jak kompresowany, jest zapisywany w wyższej rozdzielczości (6K, 8K) i z większą głębią bitową, przez co daje większe możliwości w zakresie postprodukcji.
+
+Dodatkowa ciekawostka: w przypadku filmów przez długi czas standardem była rozdzielczość 2K i w czasach, gdy już prowadzono cyfrowy montaż, ale dalej kręcono analogowo (lata 90., początek XXI wieku), właśnie do takiej rozdzielczości skanowano taśmy filmowe. Dlatego też wiele filmów z tego okresu (np. trylogia *Władcy Pierścieni*), mimo że są oferowane na Blu-Ray lub serwisach streamingowych w rozdzielczości 4K, to są do niej sztucznie przeskalowane z 2K. Za to starsze filmy jak np. *2001: Odyseja Kosmiczna* są dostępne w natywnym 4K, bo tak zostały zeskanowane przed ponownym wydaniem.
+
+### Kodek, format kodowania i kontener
+
+O ile w przypadku obrazów możemy zwykle postawić znak równości między algorytmem kodującym a formatem pliku, tak w przypadku wideo rozgraniczenie to jest wyraźne. Co więcej, rozróżnić możemy podział na trzy różne rzeczy: kodek, format kodowania i kontener. Podział ten nie jest wyraźny, pojęcia są często mieszane ze sobą, jednak pewne rozgraniczenie między tymi trzema rzeczami istnieje. Zacznijmy od końca:
+
+- **Kontener** to plik przechowujący wideo. Różne kontenery różnie definiują: jak przechowywany jest obraz, jak do tego przechowywany jest dźwięk (nawet jego wiele ścieżek), a nawet dodatkowe elementy typu metadane czy napisy. Można je przyrównać do kopert, wewnątrz których możemy zamknąć całe wideo. Najpopularniejszymi przykładami kontenerów są AVI, MP4 i MKV. Mogą one przechowywać obraz i dźwięk skompresowane na różne sposoby. W szczególności wart uwagi jest MKV (pełna nazwa — Matroska), który nie dość, że ma bardzo duże możliwości (może przechowywać wiele ścieżek wideo, audio i napisów), wspiera wiele różnych formatów kodowania, to jest też przystosowany pod strumieniowanie.
+  - W ramach kontenerów warto wspomnieć też o przypadku, że możemy mieć kontenery ograniczone do bardzo specyficznych formatów, zarówno wideo, jak i audio. Przykładem takiego kontenera jest WebM będący standardem dla wideo w Internecie. Bazuje na Matroska i obsługuje jedynie kodeki VP8, VP9 i AV1 dla wideo oraz Vorbis i Opus dla dźwięku.
+- **Format** jest specyfikacją, jak kodować. Tutaj znajdziemy takie nazwy jak np. H.263, H.264 czy H.265. Są to ogólnie przyjęte standardy, zwykle pokryte patentami przez największe korporacje technologiczne. Znajdziemy tam opisy, w jaki sposób należy kodować pliki, jakie algorytmy stosować, na co można pozwalać przy kodowaniu itd. Format mówi, jak mają wyglądać zakodowane dane, ale sam z siebie nie koduje.
+- **Kodek** (koder) to konkretna implementacja formatu, a właściwie algorytmów pozwalających zakodować wideo zgodnie ze wskazanym formatem. Stosując analogię do programowania, można powiedzieć, że odpowiednikiem formatu jest język programowania, a kodeka kompilator. Przykładami kodeków mogą być otwartoźródłowe x264 i OpenH264 kodujące w formacie H.264. Warto dodać, że format nie musi definiować konkretnych sposobów ograniczania liczby danych, zostawiając pole do popisu kodekom. Dzięki temu istnieje na rynku konkurencja między otwartymi rozwiązaniami (jak wspomniane x264) i zamkniętymi (np. QuickTime, CoreAVC).
+
+Na pewno nieco starsi użytkownicy komputerów pamiętają czasy, gdy do większości aplikacji multimedialnych były dołączane kodeki, które trzeba było wgrać, aby w ogóle był możliwy odczyt różnych formatów i kontenerów, np. Cinepak, QuickTime (dla Windowsa) czy RealMedia. W późniejszych czasach, gdy rozpowszechniły się programy P2P, słynne były kodeki DivX i Xvid. Powstawało też wiele gotowych paczek kodeków jak np. K-Lite Codec Pack, bo nawet gdy zaczęto korzystać z ustandaryzowanych, to systemy operacyjne nie wspierały ich natywnie. Dziś na szczęście zwykle nie trzeba nic dogrywać. Oprogramowanie wbudowane w systemy wspiera najpopularniejsze kontenery i formaty. A jeśli nie, to zamiast całych paczek kodeków wystarczy wgrać wielozadaniowe odtwarzacze, takie jak [VLC](https://www.videolan.org/) czy [mpv](https://mpv.io/).
+
+Jeśli ciekawi Cię bogactwo tego świata, polecam tę listę z angielskiej Wikipedii: https://en.wikipedia.org/wiki/List_of_codecs#Video_compression_formats.
+
+### Pojęcia związane z kompresją wideo
+
+W kwestii kompresji wideo warto wyróżnić, że możemy tu mówić o dwóch rodzajach kodowania:
+
+- **Kodowanie wewnątrzklatkowe** (intra-frame) — polega na zakodowaniu informacji o pojedynczej klatce bez brania pod uwagę innych. Ich działanie niewiele różni się od tego, jak kompresuje się obrazy, a nawet stosuje się te same techniki (np. zapisywanie klatki jako obraz JPG). Takie klatki nazywamy klatkami kluczowymi (keyframe), I-frame (nie mylić z HTML-owym `<iframe>`), *intra coded picture*.
+- **Kodowanie międzyklatkowe** (inter-frame) — przy kompresji bierze pod uwagę dane zapisane w sąsiadujących klatkach. W zależności od tego, z których klatek sąsiadujących korzystamy, możemy wyróżnić klatki P-frame i B-frame. O nich jednak więcej napiszę później.
+
+## Motion JPEG
+
+Zacznijmy od techniki, która jest najprostsza, ale też najmniej efektywna. W końcu skoro każda klatka wideo to pojedynczy obraz, to kompresujmy te pojedyncze obrazy. Stosując terminologię, którą przedstawiłem wyżej, kodowalibyśmy jedynie wewnątrzklatkowo.
+
+Przykładem takiego formatu kompresji, który jest stosowany i znajdziemy jego użycia, jest Motion JPEG, w skrócie MJPEG (nie mylić z MPEG). Z racji tego, że polega jedynie na *zlepieniu* wielu plików JPG w film zamkniętych w jednym kontenerze, nie ma co wchodzić w szczegóły techniczne. Warto jednak wiedzieć, że tak się da i tak też się robi.
+
+MJPEG wymaga mniejszej mocy obliczeniowej niż kodowania wykorzystujące zależności międzyklatkowe, aczkolwiek przekłada się to negatywnie na rozmiar — tak kompresowane wideo zwykle zajmują więcej (wciąż jednak zdecydowanie mniej niż nieskompresowane), więc także wymagana jest większa przepustowość do zapisu i odczytu. Zaletą jest to, że dzięki brakowi kodowania międzyklatkowego mamy wyższą jakość, co jest przydatne np. w kontekście edycji.
+
+Mówiąc o Motion JPEG, warto też wspomnieć o jego *następcy* — Motion JPEG 2000 znanym też jako MJ2 lub MJP2\*. Różne biblioteki na świecie stosują go jako jeden z preferowanych standardów do cyfrowej archiwizacji filmów (niestety nie znalazłem informacji w kontekście Polski). Podobna idea stoi za DCP (Digital Cinema Package), który opisuje strukturę plików na potrzeby cyfrowych projekcji kinowych. Klatki filmu są tam zakodowane z użyciem JPEG 2000.
+
+\* Dla jasności — w informatyce JP2 to skrót od JPEG 2000. Nie chodzi tu o papieża.
+
+## Przeplot
+
+Następna technika, którą przedstawię, nie do końca jest kojarzona jako technika kompresji, choć spełnia te same założenia. Głównie dlatego, że mimo iż potrafi aż o połowę zmniejszyć rozmiar klatki, to w praktyce wykorzystuje się ją po to, żeby przy jej zastosowaniu przesłać dwukrotnie więcej klatek. Co więcej, powstała na potrzeby telewizji analogowej. Technika ta to przeplot (skanowanie międzyliniowe, po ang. interlacing, interlaced scan).
+
+### Idea
+
+Idea przeplotu jest bardzo prosta. Wysyłając klatkę obrazu, dla jednej klatki przesyłamy tylko parzyste linie, a dla następnej tylko nieparzyste. W ten sposób redukujemy aż o połowę wielkość sygnału potrzebnego do przesłania, a klatki takie nazywamy wówczas półklatkami. Technika ta wykorzystuje niedoskonałość ludzkiego wzroku znaną jako **bezwładność wzroku**, czyli opóźnienie wzroku powodujące, że widzimy coś jeszcze chwilę po zniknięciu. Dodatkowo fakt, że wyświetlacze w technologii CRT nie rysowały momentalnie całego obrazu, ale linia po linii, sprawiał, że przeplot był naturalnie *niwelowany*, nie był aż tak bardzo zauważalny. Można go było za to zauważyć, pauzując obraz — może starsi czytelnicy pamiętają, jak przy zapauzowaniu kasety magnetowidowej obraz zaczynał skakać. To właśnie efekt tego, że podczas pauzy zatrzymaliśmy się na dwóch półklatkach, które były wyświetlane na przemian, jednak nie składały się w jedną pełną.
+
+<Image
+  image={przeplot}
+  alignCenter
+  fullSize
+  alt="Zdjęcie dwóch samochodów. Obraz u góry jest poszatkowany co drugą linię. Obraz na dole jest nieco rozmyty, ale nieposzatkowany."
+  caption={<>U góry klatka wideo z przeplotem, natomiast na dole ta sama bez przeplotu, czyli w tzw. skanie progresywnym. <br />(źródło: <a href="https://commons.wikimedia.org/wiki/File:Entrelac%C3%A9_Progressif.jpg">The original uploader was Zewan at French Wikipedia.</a>, <a href="https://creativecommons.org/licenses/by/1.0">CC BY 1.0</a>, via Wikimedia Commons)</>}
+/>
+
+Dlatego, że w przypadku przeplotu mówimy o półklatkach, przyjęło się dzielić na dwa częstotliwość odświeżania obrazu. Stąd w przypadku standardów PAL i SECAM, które powstały dla telewizorów odświeżających obraz z częstotliwością 50 Hz, mówimy, że przesyła się 25 klatek na sekundę. Trochę nowocześniej, w standardzie HD z przeplotem np. 1080i znajdziemy równoważne zapisy 1080i60 i 1080i/30 — pierwszy mówi, że częstotliwość odświeżania wynosi 60 Hz, a drugi, że otrzymujemy z tego 30 pełnych klatek na sekundę.
+
+### Usuwanie przeplotu
+
+O ile wyświetlacze bazujące na technologii CRT naturalnie *niwelowały* przeplot, tak nowoczesne muszą już go usuwać. Zarówno dekodery, telewizory, jak i same odtwarzacze wideo posiadają wbudowane różne algorytmy usuwające przeplot.
+
+Z technik, które są bardzo proste, ale przez widoczne artefakty utożsamia się je z brakiem usunięcia przeplotu, można wymienić:
+
+- **Weaving**, czyli złączenie sąsiadujących ze sobą półklatek. W efekcie obraz jest wyświetlany z o połowę mniejszą częstotliwością, a w przypadku ruchu widoczne jest *przerywanie* obrazu. Dokładnie ta technika jest widoczna na zdjęciu wyżej, jako przykład jak wygląda obraz z przeplotem.
+- **Line doubling**, czyli podwojenie linii, aby zrekompensować brakujące. Tutaj znowu zachowujemy oryginalną rozdzielczość, ale nieruchome obiekty sprawiają wrażenie skakania w pionie.
+
+Inną powszechną techniką jest **blending**, który uśrednia kilka sąsiadujących ze sobą półklatek. Tym razem pojawia się problem ghostingu, czyli zostawania śladów ruchomych obiektów.
+
+W przypadku bardziej zaawansowanych algorytmów stosuje się mieszanie tych technik tak, aby dla różnych fragmentów obrazu zastosować takie, które dają najlepsze wizualnie efekty. Jest to tak zwane usuwanie przeplotu z kompensacją ruchu.
+
+## Kodowanie międzyklatkowe
+
+Czas przejść do najważniejszej z technik kompresji wideo, czyli kodowania międzyklatkowego. To właśnie dzięki tej technice uzyskujemy największe oszczędności w zajmowanej przestrzeni, ale też dajemy pole do popisu kodekom. Pomysł ten został pierwszy raz opublikowany w 1988 r. w ramach standardu H.261 (na którym bazuje MPEG-1) i stanowi podstawę praktycznie większości współczesnych podejść, w tym najpopularniejszych jak H.264 i H.265.
+
+### W skrócie
+
+O co tu chodzi? Mówiąc najprościej jak się da, kodowanie to polega na wykorzystaniu zależności między sąsiadującymi klatkami. W normalnym zapisie wideo, czy to z kamery, czy też animacji, nie jest powszechne, aby każda klatka miała całkowicie inny obraz. Zmieniają się tylko wybrane obszary. Dlatego zamiast zapisywać całą klatkę, możemy zapisać jedynie różnice, które zapisane są w tzw. makroblokach (możesz to skojarzyć z blokami z formatu JPEG). W ten sposób tworzymy całe sekwencje, gdzie mamy całą klatkę (I-frame, klatka kluczowa), po której następuje wiele tych zapisujących różnice (P-frame lub B-frame). Taka sekwencja jest nazywana **GOP** (group of pictures, po pol. grupa obrazów).
+
+Praktyka jednak nie jest tak prosta. Różnice mogą być nieznaczne wizualnie, ale spowodować zapisanie całej klatki — szum tła, padający deszcz, przesunięcie kamery. Żeby kodowanie było efektywne nawet w tych przypadkach, wprowadzono jeszcze technikę kompensacji ruchu, dzięki której oprócz różnic zapisujemy też, jaki ruch zaszedł względem referencyjnej klatki. Wtedy do makrobloków dodajemy wektor ruchu opisujący tę zmianę.
+
+<VideoPlayer
+  url="/videos/wektory1.mp4"
+  muted
+  controls
+  width={480}
+  height={284}
+  caption={
+    <>Wizualizacja wektorów ruchu dla makrobloków na prostym wideo pokazującym nawigację po blogu.</>
+  }
+/>
+
+W ten sposób można w zasadzie streścić sens i działanie tej techniki. Jeśli interesuje Cię więcej szczegółów, zapraszam dalej. Z góry jednak zaznaczam, że będzie to tylko szersze wytłumaczenie tych pomysłów bazujące na opisach standardów z rodziny H.26x bez wchodzenia w detale implementacyjne.
+
+Tak na marginesie: jeśli chciałbyś/chciałabyś zrobić taką wizualizację dla dowolnego innego wideo, to wykonałem ją w `ffmpeg` za pomocą polecenia: `ffmpeg -flags2 +export_mvs -i PLIK_WEJSCIOWY.mp4 -vf codecview=mv=pf+bf+bb,qp PLIK_WYJSCIOWY.mp4`
+
+### Struktura GOP
+
+Zacznijmy od tego, że wewnątrz sekwencji GOP możemy wyróżnić trzy rodzaje klatek:
+
+- **I-frame** (Intra frame, klatka kluczowa) — zaczyna sekwencję. Jest to jedyna klatka zapisana w całości. Czasem określa się, że GOP to po prostu odległość między klatkami tego typu. Klatki te w zależności od formatu mogą być niekompresowane lub kompresowane tak, jak robi się to ze zwykłymi obrazami. Na przykład w MPEG-1 kodowanie I-frame jest niemal identyczne jak kodowanie plików JPEG (też stosuje się transformację DCT).
+- **P-frame** (Predicted frame, po pol. klatka przewidywana) — jest to klatka, która koduje ruch na podstawie klatki będącej wcześniej w sekwencji. W starszych formatach (m.in. H.261, H.263) musiała być to klatka znajdująca się bezpośrednio przed P-frame, jednak w nowszych standardach (m.in. H.264, H.265) może się odnosić do dowolnej wcześniejszej (a nawet wielu na raz). Warto dodać, że ruch może być kodowany na podstawie dowolnej klatki w sekwencji, niekoniecznie względem I-frame.
+- **B-frame** (Bidirectional/bipredictive frame, po pol. klatka dwukierunkowa/podwójnie przewidywana) — w przeciwieństwie do P-frame mogą korzystać z klatek, które są zarówno przed nimi, jak i po nich. Analogicznie jak wcześniej, w starszych standardach mogły wykorzystywać informacje jedynie z klatek bezpośrednio przed i bezpośrednio po, a obecnie jest większa swoboda. Ten rodzaj klatek jest najbardziej wymagający obliczeniowo, dlatego np. w czasach MPEG-1 rezygnowano z kodowania w ten sposób, stosując jedynie I-frame i P-frame. Dziś jednak nie stanowi już to problemu.
+- W standardzie MPEG-1, dla przyspieszenia obliczeń przy przewijaniu, stosowano też **D-frame**. Były to klatki zakodowane w bardzo niskiej jakości (z wyniku transformacji DCT zostawiano jedynie współczynnik DC), ale mające stanowić szybki, prosty do odkodowania podgląd. Późniejsze standardy jednak z tego zrezygnowały na rzecz odkodowywania I-frame przy przewijaniu.
+
+<Image
+  image={gop1}
+  alignCenter
+  fullSize
+  alt="Cztery klatki z przedstawieniem Pacmana jedzącego kulki. Pierwsza i czwarta to I-frame, druga to P-frame, a trzecia to B-frame."
+  caption={<>Przykład jak mniej więcej działa kodowanie różnic, stosując powyższe trzy rodzaje klatek. Najpierw mamy I-frame kodujący rysunek Pacmana z trzema kulkami. Następujący po nim P-frame koduje jedynie przesunięcie bloku z kulkami. Po nim następuje B-frame, który koduje dalsze przesunięcie w lewo bloku z kulkami z poprzedniej klatki, a także dodaje przesunięcie bloku z jedną kulką z następującego po nim I-frame. Dalej mamy ponownie klatkę kluczową.<br />(źródło: <a href="https://commons.wikimedia.org/wiki/File:I_P_and_B_frames.svg">Petteri Aimonen</a>, Public domain, via Wikimedia Commons)</>}
+/>
+
+Powyżej został pokazany prosty przykład GOP składającego się jedynie z trzech klatek, ale w praktyce są one znacznie dłuższe. Ich długość powinna być dobierana na podstawie wielu czynników. Jeśli niewiele ruchu dzieje się na ekranie, można zastosować dłuższy GOP, pozwalając tym samym na lepszą kompresję. Jednak przy zmianie sceny warto już dać klatkę kluczową. Z drugiej strony, jeśli wideo chcielibyśmy dalej edytować, to najlepiej mieć jak najczęściej I-frame (wtedy w ogóle najlepszy byłby Motion JPEG).
+
+<Image
+  image={gop2}
+  alignCenter
+  fullSize
+  alt="Diagram przedstawiający zależności między klatkami w dłuższym GOP."
+  caption={<>Pokazanie zależności w GOP o długości 12 klatek. Strzałki pokazują, która klatka oddziałuje na którą. Na przykład strzałka z I do P pokazuje, że P korzysta z informacji w I. Widać tutaj dobrze, że w nowszych standardach klatki P i B nie muszą korzystać ze swoich bezpośrednich sąsiadów.<br />(źródło: <a href="https://commons.wikimedia.org/wiki/File:GOP_2.svg">GOP_2.png: Benutzer:MuldeRderivative work: Dvaer</a>, Public domain, via Wikimedia Commons)</>}
+/>
+
+W kwestii długości GOP warto wiedzieć, że liczba klatek typu B wpływa na kolejność dekodowania. Im więcej B-frame, tym więcej klatek do przodu musimy znać i odkodować je wcześniej. Oznacza to, że nie możemy wyświetlać klatek po kolei, tak jak je odkodowujemy, co przekłada się też na to, że musimy je przechować w pamięci. Na komputerach nie ma to znaczenia, ale dla telewizorów czy odtwarzaczy wideo z płyt już tak (chociaż dzisiaj coraz mniejsze ze względu na niski koszt pamięci). Na poniższym rysunku możesz zobaczyć zobrazowanie tych różnic.
+
+<Image
+  image={gopKolejnosc}
+  alignCenter
+  fullSize
+  alt="Diagram pokazujący jedynie klatki I oraz P. Kolejność wyświetlania jest taka sama jak kolejność dekodowania."
+  caption={<>Kolejność dekodowania i wyświetlania klatek, jeśli mamy jedynie I-frame i P-frame. Strzałkami oznaczono, która klatka korzysta z informacji z której klatki.</>}
+/>
+
+<Image
+  image={gopKolejnosc2}
+  alignCenter
+  fullSize
+  alt="Diagram pokazujący klatki I, B oraz P. Pokazana została sekwencja I B B P B B P. Kolejność dekodowania w niej to 1, 3, 4, 2, 6, 7, 5."
+  caption={<>Kolejność dekodowania i wyświetlania klatek w przypadku, gdy mamy także B-frame. Strzałkami oznaczono, która klatka korzysta z informacji z której klatki. O kolejności dekodowania już całkowicie decyduje to, aby mieć w pamięci informację o każdej wykorzystywanej klatce, stąd najpierw dekodujemy I, potem P, a następnie B zależne od nich dwóch.</>}
+/>
+
+Na koniec warto dodać, że możemy rozróżnić dwa rodzaje GOP: zamknięte i otwarte. Zamknięte charakteryzują się tym, że klatki mogą korzystać z danych zapisanych jedynie w tym samym GOP. Dzięki temu błędy w przesyłaniu danych wpływają tylko na jeden GOP. Natomiast od H.264 wprowadzono otwarte GOP, gdzie klatki mogą korzystać też z danych zapisanych w innych GOP. W zasadzie pokazane wyżej przykłady (poza tym z kolejnością przy klatkach I oraz P) były otwartymi GOP, bo zawsze znajdowało się w nich wykorzystanie I-frame z następnego GOP.
+
+### Makrobloki
+
+Oczywiście, jak zdążyłem już wspomnieć, żeby zakodować różnice, nie potrzebujemy kodować całej klatki. Też jednak różnic nie zapisujemy z dokładnością do 1 piksela. W standardach wideo, począwszy od H.261, po dzisiejsze H.264 (aczkolwiek już nie w H.265), wykorzystuje się do tego makrobloki.
+
+Makrobloki są w zasadzie tym samym czym bloki w formacie JPEG (niektóre źródła je nawet utożsamiają). Jest to samodzielnie kodowany mały wycinek klatki, na którym wykonuje się między innymi transformację liniową (w przypadku H.264 stosuje się IDCT — całkowitoliczbową odmianę DCT) w celu jego dalszego optymalnego zakodowania. Jednak makrobloki w wideo nie są dokładnie takie same jak w obrazach.
+
+Szybko zauważalna różnica jest taka, że makrobloki w wideo są większe. Dość standardowym wymiarem jest 16×16. Jednak nie ten blok transformujemy za pomocą IDCT. Makrobloki są dzielone na bloki transformacji i bloki predykcji. Na blokach transformacji, jak sama nazwa wskazuje, wykonujemy wspomnianą chwilę temu transformację. W ramach jednego makrobloku mamy tyle bloków transformacji, ile: wynika z jego wymiarów, podpróbkowania chrominancji oraz wielkości próbki (bloku). W przypadku próbek 8×8 i podpróbkowania 4:2:0 otrzymamy 4 bloki transformacji dla kanału jasności (Y) i po jednym dla kanałów chrominancji (Cb i Cr). Warto dodać, że we współczesnych formatach (H.264) rozmiar próbek może być dowolny i nawet różny dla różnych makrobloków.
+
+Bloki predykcji zostały wprowadzone w H.264 i są jeszcze drobniejszym podziałem makrobloku, aby jeszcze bardziej efektywnie zakodować ruch. O ile o tej technice opowiem dalej, tak tutaj już wspomnę, że aby w starszych standardach opisać przemieszczenie bloku w P-frame i B-frame, przypisywano jeden wektor ruchu na cały makroblok. Dzięki blokom predykcji wektory są przypisywane na każdy z nich, a nie na cały makroblok.
+
+### Szacowanie ruchu i kompensacja ruchu
+
+Skoro zaczęliśmy temat wektorów ruchu, rozbudujmy go i opowiedzmy o technikach szacowania i kompensacji ruchu.
+
+Zacznijmy od tego, że stosowanie makrobloków, które zapisują jedynie różnice między poszczególnymi klatkami (nawet bez przesunięć), mogłoby wydawać się wystarczające. W końcu, jak wspomniałem wcześniej, zmiany zwykle nie zachodzą na całej klatce. Często też na tym kończy się opis działania kompresji wideo dla laików. Jednak w praktyce kodowanie samych różnic nie daje wystarczających efektów. Zauważono, że makrobloki są często te same, tylko uległy przesunięciu.
+
+Wektory ruchu opisują, o ile należy przesunąć blok i w którą stronę, aby odpowiednio odwzorować klatkę. Warto dodać, że przesunięcie nie musi być wykonane o całkowitą liczbę pikseli. Już w MPEG-1 wprowadzono możliwość przesuwania o pół piksela (w kontekście wektorów ruchu odległość w pikselach nazywa się pel), a H.264 wprowadził dokładność do ćwierć piksela (tzw. Qpel). Dzięki temu ruch można odwzorować dokładniej, jednak obliczanie niecałkowitych różnic jest bardziej kosztowne obliczeniowo. Wektory ruchu znajdujemy w procesie szacowania ruchu.
+
+Jak natomiast szacujemy ruch? Stosuje się tutaj algorytmy dopasowania bloków zaprojektowane tak, aby znaleźć jak najbardziej zbliżone do siebie bloki na bliskiej przestrzeni. Jeśli interesują Cię konkretne opisy, w jaki sposób działają, możesz poszukać informacji o: Three Step Search, Four Step Search, Adaptive Rood Pattern Search, Diamond Search.
+
+Po znalezieniu wektorów ruchu wykonujemy kompensację ruchu, która polega na użyciu tych wektorów do przesunięcia bloków pikseli w poprzednich klatkach w celu stworzenia prognozy bieżącej klatki. Prognoza ta jest następnie porównywana z rzeczywistą klatką, a różnica między nimi (tzw. residuum) jest kompresowana i zapisywana. Dzięki temu zamiast kompresować pełne klatki, zapisujemy jedynie niewielkie różnice oraz wektory ruchu, co znacząco redukuje ilość danych potrzebnych do przechowywania i transmisji wideo.
+
+Dodam jeszcze, że tak jak całe klatki I-frame są kompresowane podobnie jak obrazy (np. w MPEG za pomocą DCT), tak samo kompresujemy residuum. W opisywanym już MPEG stosuje się tzw. Motion-compensated DCT, co sprowadza się do wykonania tego samego procesu, ale na P-frame i B-frame.
+
+## Podsumowanie
+
+Kompresja wideo to złożony, ale ciekawy temat, który ewoluował przez lata, aby sprostać rosnącym wymaganiom dotyczącym jakości obrazu i efektywności kodowania. Dzięki specyficznym dla wideo technikom kodowania międzyklatkowego możliwe jest znaczne zredukowanie rozmiaru plików przy minimalnej utracie jakości.
+
+Dziś standardy kompresji takie jak H.264 i H.265 stanowią podstawę nowoczesnych aplikacji — zarówno serwisów typu YouTube, jak i telewizji cyfrowej (DVB-T2). O czym wcześniej nie wspomniałem, warto dodać, że wciąż powstają nowe standardy. Całkiem niedawno opracowano VVC (H.266), a też przebija się temat kodowania wspomaganego przez sztuczną inteligencję (np. AIVC), obiecując jeszcze lepszą efektywność kompresji i jakość obrazu.
+
+## Literatura
+
+- Video coding format, https://en.wikipedia.org/w/index.php?title=Video_coding_format&oldid=1223237990 (ostatnie odwiedziny 16.06.2024).
+- Motion JPEG, https://en.wikipedia.org/w/index.php?title=Motion_JPEG&oldid=1220777290 (ostatnie odwiedziny 16.06.2024).
+- Motion compensation, https://en.wikipedia.org/w/index.php?title=Motion_compensation&oldid=1226176135 (ostatnie odwiedziny 16.06.2024).
+- Interlaced video, https://en.wikipedia.org/w/index.php?title=Interlaced_video&oldid=1228251382 (ostatnie odwiedziny 16.06.2024).
+- MPEG-1, https://en.wikipedia.org/w/index.php?title=MPEG-1&oldid=1227769266 (ostatnie odwiedziny 16.06.2024).
+- Video Encoding - OTTVerse
+https://ottverse.com/video-encoding/ (ostatnie odwiedziny 16.06.2024).
+- D. Marshall, H. 261 Compression
+https://users.cs.cf.ac.uk/Dave.Marshall/Multimedia/node246.html (ostatnie odwiedziny 16.06.2024).
+- Aroh Barjatya (2024). Block Matching Algorithms for Motion Estimation (https://www.mathworks.com/matlabcentral/fileexchange/8761-block-matching-algorithms-for-motion-estimation), MATLAB Central File Exchange. Retrieved June 16, 2024.
+- Théo Ladune, & Pierrick Philippe. (2022). AIVC: Artificial Intelligence based Video Codec. [doi:10.48550/arXiv.2202.04365](https://doi.org/10.48550/arXiv.2202.04365)
+
+<small>Zdjęcie na okładce wygenerowane przez DALL-E.</small>

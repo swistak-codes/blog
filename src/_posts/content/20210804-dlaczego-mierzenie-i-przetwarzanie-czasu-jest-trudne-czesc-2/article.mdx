@@ -1,0 +1,360 @@
+import Link from 'next/link';
+import {Image, Iframe} from '@swistak-codes/components';
+import cover from './kosmiczny-kolaz.jpg';
+import arizona from './Arizona_Daylight_Savings_Time_map.svg.png';
+import mars from './mars24.png';
+import ping from './ping.png';
+import sekundy from './sekundy_przestepne.png';
+import sntp from './sntp.png';
+import norwegia from './strefy_norwegia.png';
+import wireshark1 from './wireshark.png';
+import wireshark2 from './wireshark2.png';
+import strefy from './World_time_zones.svg.png';
+
+export const meta = {
+  title: 'Dlaczego mierzenie i przetwarzanie czasu jest trudne? — część 2 z 2',
+  abstract:
+    'Jak w temacie dat mieszają nam strefy czasowe, dlaczego nie możemy wierzyć w 100% źródłom czasu i co nas może czekać w przyszłości?',
+  firstParagraph: (
+    <>
+      <Link href="/post/dlaczego-mierzenie-i-przetwarzanie-czasu-jest-trudne-czesc-1">W poprzednim artykule</Link>, omawiając trudności, z jakimi trzeba się mierzyć podczas przetwarzania daty i czasu, poruszyłem takie zagadnienia, jak lata przestępne, różnorodność kalendarzy i sekundy przestępne. Jednak nie bez powodu rozbiłem artykuł na dwie części — nawet pisząc czysto ciekawostkami, poruszenie tylko trzech tematów to zdecydowanie za mało. Dlatego teraz kontynuujmy, patrząc na to, jak w temacie dat mieszają nam strefy czasowe, dlaczego nie możemy wierzyć w 100% źródłom czasu, a także, co nas może czekać w bliższej lub dalszej przyszłości w kontekście ewentualnych zmian.
+    </>
+  ),
+  keyword: 'czas',
+  categories: ['Data i czas'],
+  tags: [
+    'czas',
+    'UTC',
+    'NTP',
+    'IANA',
+    'kosmos',
+    'strefy czasowe',
+    'czas letni',
+    'czas zimowy',
+    'round trip time',
+    'ping',
+    'kalendarz',
+    'czas marsjański',
+    'czas księżycowy',
+    'Greenwich',
+    'tz database',
+    'PTP',
+    'lag',
+    'latencja',
+    'ICMP',
+    'wireshark',
+    'algorytm Berkeley',
+    'algorytm Cristiana',
+    'world calendar',
+    'international fixed calendar',
+    'kalendarz holoceński',
+    'BP',
+  ],
+  slug: 'dlaczego-mierzenie-i-przetwarzanie-czasu-jest-trudne-czesc-2',
+  updateTime: '2021-08-17T16:42:00+00:00',
+  publishTime: '2021-08-04T07:00:25+00:00',
+  cover,
+};
+
+## Wstęp
+
+Na samym początku chciałem tylko przypomnieć, że jeśli nie czytałeś(-aś), to zapraszam do lektury <Link href="/post/dlaczego-mierzenie-i-przetwarzanie-czasu-jest-trudne-czesc-1">pierwszej części artykułu</Link>. A jeśli interesuje Cię zagadnienie czasu w kontekście informatyki, to polecam też swoje wcześniejsze artykuły o tym, <Link href="/post/jak-komputer-mierzy-czas">jak komputery odmierzają czas</Link> oraz <Link href="/post/jak-komputer-przechowuje-date-i-skad-zna-aktualna">jak przechowują datę</Link>.
+
+## Strefy czasowe
+
+Poprzedni artykuł skończyłem na omawianiu małopopularnego zagadnienia związanego z czasem, czyli sekund przestępnych. Będąc w temacie czasu, spotykamy się z najbardziej oczywistym problemem, czyli ze strefami czasowymi. Jest to problem, który jak najbardziej dotyka nas na co dzień, ale też trzeba brać go pod uwagę, tworząc oprogramowanie.
+
+### Skąd strefy czasowe?
+
+Zacznijmy jednak od tego, że po co one właściwie powstały. W zasadzie wydaje się to dość logiczne — powstały dlatego, że ze względu na ruch obrotowy Ziemi w każdym momencie inna część Ziemi jest oświetlona przez Słońce. Oryginalnie czas wyznaczano na podstawie obserwacji — gdy nasza najbliższa gwiazda znajdowała się w najwyższym punkcie na niebie, oznaczało to godzinę dwunastą w południe. Do odmierzania czasu w ten sposób pierwotnie służyły zegary słoneczne.
+
+Taki sposób pomiaru jest wręcz idealny, bo dostosowany pod aktualną pozycję na planecie. Jednak trzeba wziąć pod uwagę, że wówczas na każdym południku mielibyśmy inny czas. Każdy południk (wyznaczony stopniami) to 4 minuty różnicy. Dla przykładu, gdy w Londynie (południk $$0^{\circ}$$) mamy godzinę 12:00, to we Wrocławiu (około południka $$17^{\circ}$$) mamy 13:08. Tylko że wówczas w Warszawie ($$21^{\circ}$$) mamy 13:24.
+
+Problem ten zauważono w XIX wieku przy okazji układania rozkładów kolejowych. Wtedy powstał pomysł ujednolicenia czasu. Najpierw odbyło się to w Wielkiej Brytanii, gdzie zsynchronizowano wszystkie zegary do czasu w obserwatorium Greenwich. Jednak największy problem był w USA, które w swojej kontynentalnej części (bez Alaski) rozciągają się na prawie 60 południków, co daje różnicę czasu 240 minut (4 godziny). Stąd zaproponowano podział kraju na 4 strefy czasowe z godzinnymi różnicami czasu, a później pomysł rozprzestrzenił się na cały świat. W 1858 r. zaproponowano podział świata na 24 strefy czasowe z godzinnymi różnicami (południkowo, co ok. $$15^{\circ}$$) między sobą, co zostało przyjęte przez większość krajów do początku XX wieku. Do  roku 1986 wszystkie kraje przyjęły podział na strefy czasowe. Dziś posiadamy 38 stref czasowych. Do tego na równoleżniku $$180^{\circ}$$ umiejscowiono linię zmiany daty, dzięki czemu przechodząc (a raczej przepływając lub przelatując) przez nią, możemy „przenosić się w czasie”.
+
+### Nieregularność stref czasowych
+
+Czytając ostatnie zdanie poprzedniego akapitu, powinna zapalić Ci się czerwona lampka — jakie 38 stref czasowych, skoro dzielono z godzinnymi różnicami? Otóż niektóre kraje posiadają strefy czasowe, gdzie przesunięcia są także o minuty. Zwykle jest to 30 minut, np. Indie są w strefie UTC+05:30, co oznacza, że gdy w Polsce w czasie letnim (UTC+02:00) mamy 18:07, u nich jest 21:37. Takich stref czasowych z dołożonymi 30 minutami jest więcej i znajdziemy je też w niektórych obszarach Australii, Kanady czy w Mjanmie i Afganistanie.
+
+Jednak to wciąż byłoby zbyt proste. Pamiętasz, jak wspomniałem, że dopiero w 1986 r. wszystkie kraje przyjęły podział na strefy czasowe? Tym ostatnim krajem był Nepal, gdzie aby nie zmieniać za bardzo ustawień zegarów, postanowiono wprowadzić strefę UTC+05:45. To nie jedyny kraj, który ma taką strefę. Część Australii oraz Nowej Zelandii również mają strefę z dodanymi 45 minutami.
+
+Jeśli kiedykolwiek będziesz miał(a) okazję programować przeliczenia między strefami czasowymi, weź pod uwagę również minuty. Same godziny, wbrew powszechnemu przekonaniu, nie są wystarczające.
+
+<Image
+  image={strefy}
+  alignCenter
+  fullSize
+  alt="Mapa świata z zaznaczonymi strefami czasowymi"
+  caption={<>
+    Podział świata na strefy czasowe.<br/>
+    By Heitordp - Own work based on: BlankMap-Equirectangular.svg, CC0, <a href="https://commons.wikimedia.org/w/index.php?curid=102198150" target="_blank">https://commons.wikimedia.org/w/index.php?curid=102198150</a>
+  </>}
+/>
+
+### Wiele stref w jednym kraju
+
+Tworząc aplikację i internacjonalizując je, musimy brać pod uwagę, że w kontekście stref czasowych są kraje, które mają ich wiele. W zasadzie mówiłem o tym już cały czas — USA, Australia, Nowa Zelandia, Kanada. To oczywiście niejedyne takie państwa. Najbardziej rozbudowana w tym kontekście jest Rosja ze swoimi 11 strefami czasowymi. Innymi słowy, tworząc aplikację dla Rosjan, nie możesz zakładać, że wszyscy są w moskiewskiej strefie czasowej.
+
+Aby utrudnić, warto dodać, że są obszary na świecie, które zrezygnowały z podziału na strefy czasowe, choć miałyby one jak najbardziej sens. Najsłynniejsze w tym przypadku są Chiny, które w całym kraju stosują strefę UTC+08:00, mimo że geograficznie znajdują się w 5 strefach. Ułatwia to życie urzędnikom (i programistom), jednak zdecydowanie wpływa negatywnie na obywateli, którzy mają zegar znacznie niezsynchronizowany ze Słońcem. Doprowadziło to też do sytuacji, że przekraczając granicę chińsko-afgańską, trzeba przesunąć zegarki o 3 i pół godziny. Aczkolwiek zawsze jest jakieś odstępstwo od reguły. A jest nim region Sinciang na północnym zachodzie, gdzie ludzie posługują się równocześnie dwoma strefami czasowymi zależnie od grupy etnicznej — lokalną UTC+06:00 (Ujgurzy i inne mniejszości) oraz pekińską UTC+08:00 (Chińczycy Han).
+
+Podobnie, choć mniej odczuwalnie dla ludzi, jest w Unii Europejskiej, która co prawda stosuje trzy strefy czasowe, jednak zdecydowana większość krajów stosuje strefę środkowoeuropejską (UTC+01:00/UTC+02:00), w tym nawet Francja i Hiszpania, przez które przechodzi równoleżnik $$0^{\circ}$$.
+
+### Czas letni i zimowy
+
+Mówiąc o strefie środkowoeuropejskiej (CET/CEST), przy okazji poruszyłem kolejny temat związany z wieloma strefami w jednym kraju — podział na czas letni (DST) i zimowy (w praktyce jest to właściwy czas słoneczny). Jest to kolejna rzecz, jaką należy brać pod uwagę przy wszelkich przeliczeniach. Zostając przy przykładzie: czas zimowy to UTC+01:00 (CET), natomiast letni to UTC+02:00 (CEST). Systemy zwykle mają odgórnie zaprogramowane daty zmiany czasu na przypadek, jeśli nie byłoby dostępu do serwerów czasu. Jednak zaprogramowanie tego też nie jest takie proste, ponieważ wiąże się z tym nieco zawiłości:
+
+- Nie każdy kraj stosuje podział na czas letni i zimowy, więc nie jest to nic uniwersalnego.
+  - Czas letni wprowadza około 70 krajów na świecie. Przykładowo, w Europie nie wprowadzają go Islandia, Białoruś oraz Rosja.
+- W różnych krajach zmiana czasu następuje w różne dni.
+  - Przykład: USA wprowadza czas letni w druga sobotę marca, natomiast w Europie robimy to w ostatnią niedzielę tegoż miesiąca.
+  - Pamiętajmy też o półkuli południowej, gdzie owa zmiana czasu jest na czas ich lata, czyli naszej zimy. Na przykład w Australii wykonuje się ją w pierwszą niedzielę października.
+- Nie zawsze zmiana odbywa się w tym samym czasie.
+  - Jesteśmy przyzwyczajeni do zmiany z godziny 2:00 na 3:00, jednak w niektórych krajach zmiana jest z 0:00 na 1:00 (np. Jordania, Liban czy Palestyna).
+  - Zwykle wracamy na czas letni, przesuwając z 3:00 na 2:00. Natomiast są kraje, gdzie cofnięcie jest z 1:00 na 0:00 (np. Kuba, Jordania), a nawet o 0:00 (np. Syria, Liban).
+  - Do tego pamiętajmy o Unii Europejskiej jako całości, która zarządziła zmianę czasu na letni o 1:00 UTC i powrót na zimowy również o 1:00 UTC. Stąd w krajach poza środkowoeuropejską strefą czasowa zmiana odbywa się o innej godzinie niż w Polsce.
+- Przesunięcie czasu nie musi wynosić 1 godzinę.
+  - Na wyspie Lord Howe należącej do Australii czas letni to przesunięcie zegara do przodu o 30 minut.
+- W jednym kraju zmiany czasu potrafią odbywać się w różne dni lub w różnym czasie.
+  - Na wspomnianej już wyspie Lord Howe przywrócenie czasu letniego odbywa się o 2:00, podczas gdy w pozostałych częściach Australii o 3:00.
+  - Patrząc historycznie, w Polsce czas letni bywał wprowadzany w kwietniu, maju, a nawet w czerwcu. Za to potrafił być odwoływany we wrześniu (dziś robimy to w październiku). Obecne reguły obowiązują od 1996 r. Warto jednak wiedzieć, że data zmiany czasu w Polsce jest uchwalana rozporządzeniem, więc zawsze może się zdarzyć przypadek, że rządzącym zechce się wprowadzić go w innym terminie.
+  - Co ciekawe, reguły dość niedawno zmieniono w USA, gdzie to od 2007 r. zastąpiono datę wprowadzenia czasu letniego — z pierwszej niedzieli kwietnia na drugą niedzielę marca. Ustawa została wprowadzona w 2005 r., co dało 2 lata na dostosowanie pod to wszystkich systemów.
+  - Zmiana potrafi być jednorazowa. Na przykład w Fidżi czas letni zawsze wprowadzano w drugą niedzielę listopada, a w 2020 r. zrobiono to w trzecią niedzielę grudnia. O ile mi wiadomo (stan na 27.06.2021), była to sytuacja jednorazowa i w 2021 r. planowane jest wprowadzenie go tak, jak wcześniej.
+- W niektórych krajach są obszary stosujące czas letni i niestosujące go.
+  - Najlepszym na to przykładem jest stan Arizona w USA, gdzie większość stanu nie wprowadza czasu letniego. Większość, ponieważ już w obszarze rezerwatu Indian Nawaho wprowadza się czas letni. Żeby jeszcze bardziej skomplikować, otoczony nim ze wszystkich stron rezerwat Indian Hopi już nie stosuje czasu letniego.
+- Prawodawcy w danym kraju mogą w każdej chwili wprowadzić ustawę znoszącą podział na czas letni i zimowy.
+  - W 2011 r. Rosja i Białoruś porzuciły ten podział. Co ciekawe, oba te kraje przyjęły, że zostają przy czasie letnim, z czego w Rosji zrezygnowano w 2014 r., tym samym wprowadzając dodatkową, jednorazową zmianę czasu.
+  - W Unii Europejskiej planowano zniesienie podziału w 2021 r., jednak jak widać, do tego nie doszło.
+
+<Image
+  image={arizona}
+  alignCenter
+  fullSize
+  maxWidth="306px"
+  alt="Mapa stanu Arizona w USA z zaznaczonymi jego strefami czasowymi"
+  caption={<>
+    Mapa stanu Arizona. Na żółto zaznaczono miejsca, gdzie zmienia się czas na letni.<br />
+    (źródło: By GifTagger - <a href="https://commons.wikimedia.org/wiki/File:AZTZ.png" target="_blank">https://commons.wikimedia.org/wiki/File:AZTZ.png</a>, Public Domain, <a href="https://commons.wikimedia.org/w/index.php?curid=91797481" target="_blank">https://commons.wikimedia.org/w/index.php?curid=91797481</a>)
+  </>}
+/>
+
+Jeśli następnym razem będziesz narzekać na potrzebę zmiany czasu, podziękuj za to Benjaminowi Franklinowi, który postanowił sobie zażartować w jednym z listów, że zmiana czasu pozwoli oszczędzać świeczki. Ponad 100 lat później te słowa wzięto na poważnie, i cóż, mamy teraz to, co mamy.
+
+Swoją drogą, co warto wspomnieć w celu większego skomplikowania tematu, zmiany czasu nie zawsze są związane z czasem letnim i zimowym. Na przykład w Maroko robiona jest zmiana czasu na okres Ramadanu, aby „przyspieszyć” nadejście zmroku (w tym okresie muzułmanie poszczą aż do zachodu słońca).
+
+### Radzenie sobie ze strefami czasowymi
+
+W tym momencie, jak zdobyłeś(-aś) dużą dawkę wiedzy na temat stref czasowych, na pewno jesteś ciekaw(a), w jaki sposób jest to obsługiwane w systemach informatycznych.
+
+Do tego celu wykorzystuje się, najzwyczajniej w świecie, bazy danych o strefach czasowych i regułach ustalania czasu letniego. Najpopularniejszą bazą tego typu jest *tz database* (znana też jako *IANA time zone database*). Jest udostępniona w domenie publicznej i można ją pobrać [ze strony IANA](https://www.iana.org/time-zones). Jednak jeśli masz Linuksa lub macOS, to jest bardzo pewne, że bazę tę masz już na swoim dysku w folderze `/usr/share/zoneinfo`.
+
+Baza ta składa się z wielu plików tekstowych\*, gdzie znajdziemy nie tylko reguły zmiany czasu, strefy czasowe i jak się zmieniały w przeciągu lat, ale także daty przyjęcia kalendarza gregoriańskiego, sekundy przestępne, i to wszystko opatrzone komentarzami z przypisami bibliograficznymi. Prawdopodobnie jest to najlepsze, powszechnie dostępne źródło informacji w temacie czasu. Poniżej przedstawiam zrzuty ekranu z fragmentami tej bazy w wersji z czerwca 2021.
+
+<Image
+  image={norwegia}
+  alignCenter
+  fullSize
+  alt="Zrzut ekranu z bazy tz database pokazujący zmiany czasu w Norwegii"
+  caption={<>
+    Historyczne reguły zmiany czasu dla Norwegii oraz informacje o strefie czasowej.
+  </>}
+  forceWhiteBackground={false}
+/>
+
+<Image
+  image={sekundy}
+  alignCenter
+  fullSize
+  maxWidth="376px"
+  alt="Zrzut ekranu z bazy tz database pokazujący sekundy przestępne"
+  caption={<>
+    Informacje o sekundach przestępnych.
+  </>}
+  forceWhiteBackground={false}
+/>
+
+Dokładne instrukcje o tym, jak czytać dane zapisane w bazie, znajdziemy na specjalnie poświęconej temu stronie [*How to Read the tz Database Source Files*](https://data.iana.org/time-zones/tz-how-to.html).
+
+\* w wersji zapisanej w systemie operacyjnym może być w postaci binarnej; oryginalna postać ze strony internetowej jest jednak tekstowa
+
+## Korekcja źródeł czasu
+
+Teraz przejdźmy do rzeczy czysto związanej z przetwarzaniem czasu na komputerze, a dokładniej — z pozyskiwaniem go ze źródeł. Jak pamiętasz (<Link href="/post/jak-komputer-przechowuje-date-i-skad-zna-aktualna">lub możesz teraz nadrobić zaległość i przeczytać</Link>) z mojego wcześniejszego artykułu, komputery mogą pozyskiwać czas z różnych źródeł. Najczęściej są to serwery NTP, rzadziej PTP, ale też istnieje wiele innych sposobów. Należy jednak pamiętać, że samo odczytanie czasu ze źródła nie wystarczy. Pomijając zawiłości, o których do tej pory pisałem na łamach tego i poprzedniego artykułu, czas ten musi też zostać odpowiednio skorygowany, aby zniwelować wszelkie powstałe po drodze opóźnienia. Zagadnienie to fachowo nazywa się synchronizacją zegarów.
+
+### Round Trip Time
+
+Jak już wspomniałem, najczęściej do pozyskania aktualnego czasu wykorzystuje się serwery czasu operujące na protokole NTP. Podają one bardzo dokładny czas o teoretycznej rozdzielczości $$2^{-32}$$, czyli 233 pikosekundy. Jednak co z tego, skoro serwer ten znajduje się daleko od nas, i zanim pakiety z niego do nas dotrą, zajmie to kilkanaście do kilkuset milisekund. A do tego musimy wziąć pod uwagę, że serwer jeszcze musi otrzymać połączenie od nas, co też zajmuje podobną ilość czasu. Opóźnienie to nazywa się Round Trip Time, chociaż bardziej znane jest jako ping (od sposobu sprawdzania tych opóźnień) lub lag (bardziej fachowo: latencja).
+
+Takie opóźnienie możemy sprawdzić za pomocą komendy ping, którą znajdziemy zarówno na systemach uniksowych, uniksopodobnych, jak i na Windowsie. Działa ona na takiej zasadzie, że wysyła na wskazany serwer pakiet ICMP Echo Request, po czym mierzy czas do uzyskania odpowiedzi w postaci pakietu ICMP Echo Reply. Czas ten jest mierzony w milisekundach i, jak można się domyśleć, im mniejszy, tym lepiej. Oczywiście nie jest to tylko w kontekście serwerów czasu, bo opóźnienie ma znaczenie też przy wielu innych rzeczach, z czego najbardziej znane są gry multiplayerowe, gdzie wysoki ping może doprowadzać graczy do furii.
+
+<Image
+  image={ping}
+  alignCenter
+  fullSize
+  alt="Zrzut ekranu z terminala z uruchomionym poleceniem 'ping tempus1.gum.gov.pl'"
+  caption={<>
+    Opóźnienie, jakie mój komputer ma do serwera czasu Głównego Urzędu Miar, zbadane poleceniem ping. Jak widać, na 6 wysłanych pakietów opóźnienie minimalnie wynosiło 11ms, maksymalnie 19ms, a średnio 16ms.
+  </>}
+  forceWhiteBackground={false}
+/>
+
+### Algorytm synchronizacji czasu w NTP
+
+Skoro już wiemy, czym jest RTT, możemy przejść do sposobów korekcji czasu pochodzącego z serwerów czasu NTP.
+
+Pakiet NTP zawiera miejsce na 4 znaczniki czasu:
+
+- Reference Timestamp — czas ostatniego odczytu zegara,
+- Origin Timestamp — czas wysłania pakietu z klienta na serwer,
+- Receive Timestamp — czas odebrania pakietu na serwerze,
+- Transmit Timestamp — czas wysłania pakietu z serwera.
+
+Pierwszy z nich w tym momencie nas nie interesuje. Interesują nas trzy kolejne oraz jeszcze jeden, niezawarty w pakiecie, o czym później.
+
+Wysyłając żądanie NTP na serwer, przesyłamy czas, w jakim pakiet opuścił nasz komputer (A), czyli Origin Timestamp (będziemy go oznaczać dalej $$t_1$$). Serwer (B) otrzymuje żądanie i zapisuje sobie czas otrzymania jako Receive Timestamp (oznaczmy jako $$t_2$$), po czym w momencie tuż przed wysłaniem odpowiedzi zapisuje w pakiecie jeszcze Transmit Timestamp ($$t_3$$). Gdy odbierzemy odpowiedź od serwera, zapisujemy czas, który nazywa się Destination Timestamp ($$t_4$$).
+
+Mając powyższe wartości, możemy wyznaczyć różnicę czasu między naszym zegarem, a zegarem serwera:
+
+$$
+\theta = T(B) - T(A) = \frac{1}{2} \cdot  \vert (t_2 - t_1) + (t_3 - t_4)  \vert
+$$
+
+Natomiast opóźnienie (Round Trip Time) wyliczymy wzorem:
+
+$$
+\delta = T(ABA) = (t_4 - t_1 ) - (t_3 - t_2)
+$$
+
+Warto dodać, że w celu synchronizacji czasu zwykle wykonuje się kilka połączeń z serwerem, aby dokładnie określić czas. Na poniższych zrzutach ekranu możesz zobaczyć te przeliczenia wykonane przez macOSową komendę sntp oraz podgląd na pakiety (z wykorzystaniem programu Wireshark), które posłużyły do tych obliczeń.
+
+<Image
+  image={sntp}
+  alignCenter
+  fullSize
+  alt="Zrzut ekranu z terminala z uruchomionym poleceniem 'sntp -d tempus1.gum.gov.pl'"
+  caption={<>
+    Każdą wartość widzimy zapisaną w trzech postaciach — surowe bajty (32 bity sekundy i 32 bity części ułamkowej w postaci szesnastkowej), stałoprzecinkowej i zmiennoprzecinkowej. Według tego zegar na moim komputerze odbiegał o ok. 126 milisekund od serwera czasu, a opóźnienie transmisji wyniosło ok. 19ms.
+  </>}
+  forceWhiteBackground={false}
+/>
+
+<Image
+  image={wireshark1}
+  alignCenter
+  fullSize
+  alt="Zrzut ekranu z programu Wireshark pokazujący wysłany pakiet do serwera NTP"
+  caption={<>
+    Pakiet wysłany do serwera czasu. Zwróć uwagę, że czas wysłania (t1) jest tutaj przesłany jako Transmit Timestamp. Pozostałe czasy są wyzerowane, czyli ustawione na początek ery uniksowej. Na dole, w podglądzie bajtów pakietu, na niebiesko jest zaznaczona część pakietu z danymi NTP.
+  </>}
+  forceWhiteBackground={false}
+/>
+
+<Image
+  image={wireshark2}
+  alignCenter
+  fullSize
+  alt="Zrzut ekranu z programu Wireshark pokazujący odebrany pakiet z serwera NTP"
+  caption={<>
+    Pakiet otrzymany z serwera. Wartość Transmit Timestamp z wysłanego przeze mnie pakietu trafił do Origin Timestamp.
+  </>}
+  forceWhiteBackground={false}
+/>
+
+Jak wspomniałem na początku, ten sposób jest prawdziwy tylko dla NTP. W przypadku PTP do obliczenia czasu wykorzystuje się cztery połączenia do poznania czterech momentów czasu, co pozwala na jeszcze bardziej precyzyjne poznanie czasu i zniwelowanie opóźnień.
+
+### Sposoby synchronizacji zegarów w sieciach komputerowych
+
+Przypadki NTP i PTP są dość szczegółowo sprecyzowane. Jednak w celu synchronizacji zegarów między komputerami, biorąc pod uwagę korekcję błędów, można zastosować jeden z algorytmów bardziej ogólnego zastosowania. Wśród najpopularniejszych są to algorytm Berkeley i algorytm Cristiana.
+
+Algorytm Cristiana to bardzo proste i niezbyt precyzyjne podejście, jednak zupełnie wystarczające w sieciach z małymi opóźnieniami. Zakłada, że w sieci znajdują się serwer czasu S oraz proces P synchronizujący swój czas z serwerem.
+
+1. P wysyła żądanie czasu do S. W tym momencie zaczyna mierzyć czas $$RTT$$.
+2. Po otrzymaniu żądania S wysyła odpowiedź z czasem $$T$$ ze swojego zegara.
+3. P po otrzymaniu odpowiedzi kończy pomiar $$RTT$$ i ustawia swój czas jako $$T + RTT/2$$
+
+Jak widzimy, metoda ta dość nieprecyzyjnie zakłada, że opóźnienie w dostarczeniu pakietu do serwera jest takie samo, jak opóźnienie w otrzymaniu odpowiedzi (stąd dzielenie przez 2). Dlatego metoda ta sprawdza się tylko przy niskich opóźnieniach.
+
+Inne podejście to algorytm Berkeley. Tutaj założenie jest takie, że czas ustala się jako średni czas całej sieci. Działa następująco:
+
+1. Serwer-lider (master) odpytuje pozostałe serwery o ich czas, mierząc przy okazji RTT każdego z połączeń. Jeżeli lider nie istnieje, to przedtem powinien zostać wybrany np. algorytmem Changa i Robertsa.
+2. Lider oblicza nowy czas w sieci jako średnią wszystkich czasów. Dla zwięzłości pominę tutaj całą matematykę brania pod uwagę opóźnień, pomijania wartości ekstremalnych itd. Jeżeli jesteś tego ciekaw(a), to szczegóły znajdziesz w oryginalnej pracy naukowej ([doi:10.1109/32.29484](https://doi.org/10.1109/32.29484)).
+3. Lider przesyła do pozostałych serwerów, o ile muszą przesunąć swoje zegary, aby mieć zsynchronizowane z resztą komputerów.
+
+## Możliwe zmiany w przyszłości
+
+Odejdźmy już od algorytmów i wróćmy do dywagacji teoretycznych. Mianowicie, mówiąc dalej o problemach związanych z przetwarzaniem czasu, nie sposób nie wspomnieć o tym, że wszystko to, co znamy teraz, może ulec zmianie. Jest to mało prawdopodobne, bo jednak wprowadziłoby chaos, ale może i warto raz zrobić rewolucję, aby potem było prościej i nikt nie musiał pisać takiej serii artykułów jak te.
+
+### Dlaczego proponuje się reformę kalendarza?
+
+Zacznijmy jednak od tego, dlaczego sugeruje się reformę kalendarza. Myślę, że czytając ten oraz poprzedni artykuł, powinieneś/powinnaś mieć już pewne rozeznanie, ale dodajmy trochę rzeczy:
+
+- Idea miesięcy pochodzi z kalendarzy księżycowych (takich jak oryginalny rzymski czy muzułmański). Bierze się to stąd, że pojedynczy cykl księżyca trwa około 29,5 dnia (nazywa się to miesiącem synodycznym). Niestety, miesiące w kalendarzu gregoriańskim całkowicie straciły to powiązanie.
+- Kalendarz jest związany z konkretną religią — początek ery powiązany z narodzinami Chrystusa (do tego z najprawdopodobniej ich błędną datą).
+- Brak roku zerowego.
+- Kalendarz gregoriański nie jest stały. Każdy rok zaczyna się innym dniem, tym samym co roku trzeba wymieniać kalendarze. Taki sam rok zdarza się co 400 lat.
+- Powiązane z poprzednim problemem — nie da się określić, który dzień tygodnia wypadnie w danym dniu miesiąca bez dostępu do fizycznego kalendarza.
+- Miesiące są różnej długości i brak jest w tej kwestii regularności. Co prawda co roku (pomijając luty) układ jest ten sam, jednak nie zmienia to faktu jego nieregularności.
+- Kwartały są nierówne (90/91, 91, 92 i 92 dni).
+- Równonoce i przesilenia nie są ani na początku miesiąca, ani też w jego połowie.
+
+### Propozycje zmian
+
+Oczywiście nie jest możliwym rozwiązać wszystkich tych problemów pojedynczą reformą. Jednak na przestrzeni lat pojawiło się wiele nowych podejść do odmierzania czasu, które mogłyby poprawić kilka z wyżej wymienionych problemów:
+
+- World Calendar to propozycja uproszczenia kalendarza, gdzie każdy kwartał miałby stałą długość: 91 dni. Pierwszy miesiąc każdego kwartału zaczynałby się w niedzielę i miał 31 dni. Drugi miesiąc kwartału zaczynałby się we wtorek i miał 30 dni. Trzeci miesiąc zaczynałby się w piątek i również miał 30 dni. Kalendarz taki miałby 364 dni, stąd zaproponowano dodatkowy dzień zwany World Day po 30 grudnia (nienależący do żadnego miesiąca), a oprócz tego w latach przestępnych dodawano by dodatkowy dzień po 30 czerwca. Pomysł był bliski realizacji w latach 50., kiedy to dyskutowano o nim w ONZ. Było jeszcze wiele prób przekonania do tej zmiany i ostatnie dotyczyły wprowadzenia kalendarza w 2023 r.
+- International Fixed Calendar to idea bardzo podobna do powyższej, przy czym tutaj każdy miesiąc miał mieć 28 dni i zaczynać się w niedzielę. Aby zrekompensować brakujące dni, zostałby dodany dodatkowy, 13 miesiąc, oraz dodatkowy 29 dzień na koniec grudnia. W lata przestępne również pojawiłby się dodatkowy dzień na koniec czerwca. Idea była popularna w okresie międzywojennym, a najgłośniejszym jej propagatorem był George Eastman, założyciel firmy Kodak.
+- Innymi, mniej popularnymi propozycjami reform, aczkolwiek podobnymi do powyższych, są Pax Calendar (13 miesięcy po 28 dni, z dodatkowym tygodniem w lata przestępne), Symmetry454 (każdy miesiąc zaczyna się w poniedziałek; długości wynoszą 28 lub 35 dni), Hanke-Henry Permament Calendar (podział miesięcy zbliżony do World Calendar, z przewidzianym dodatkowym tygodniem po grudniu; kalendarz proponuje też zniesienie stref czasowych).
+- Ostatnią ciekawą reformą jest kalendarz holoceński, który ma na celu rozwiązanie problemu powiązania kalendarza z religią. Za początek ery przyjmuje on 10001 r. p.n.e. (wg kalendarza gregoriańskiego), co uważa się za orientacyjną datę początku holocenu, czyli naszej aktualnej epoki geologicznej.<br />
+Taka poboczna ciekawostka: w geologii i archeologii do określania dat stosuje się określenie BP (before present, z ang. przed teraźniejszością). Za rok graniczny uważa się 1950 r. n. e., gdyż z tego roku pochodzi wzorcowa próbka wykorzystywana przy datowaniu radiowęglowym.
+
+## Problemy rangi kosmicznej
+
+Mówiąc o przyszłości, musimy pamiętać, że wiele dzieł science-fiction zakładało bezproblemowe eksplorowanie kosmosu w dzisiejszych czasach. Co prawda wciąż to nie nastąpiło, jednak przy obecnym rozwoju nauki może to się stać prędzej niż później. A oczywiście na innych światach jak najbardziej pojawią się unikalne problemy związane... z datami. W końcu czy będąc na Marsie, mamy posługiwać się datami ziemskimi czy też opierać obliczenia czasu na jego zachowaniu w przestrzeni?
+
+### Czas marsjański
+
+Opowiedzmy o wspomnianym przeze mnie Marsie, ponieważ najprawdopodobniej to z nim będziemy mieć najszybciej do czynienia.
+
+W tym przypadku można powiedzieć, że wszystko jest już dość solidnie ustalone. Zgodnie z tym, co przyjęła NASA w 1976 r., dzień marsjański nazywamy sol. Jest on nieco dłuższy niż ziemski, ponieważ obrót planety wokół własnej osi wynosi 24 godziny 39 minut i 35 sekund ziemskich. Jednak dla prostych obliczeń i tak dzieli się go na 24 godziny po 60 minut, a te po 60 sekund. Po prostu sekunda marsjańska jest dłuższa od ziemskiej (SI). Jak możesz się domyślać, może to doprowadzić w przyszłości do problemów związanych z konwersją czasu marsjańskiego na ziemski, a także do czysto ludzkich problemów, np. że na Marsie 8-godzinny dzień pracy będzie dłuższy niż ten na Ziemi.
+
+Ciekawiej jest w kwestii roku. Obieg Marsa wokół Słońca jest znacznie dłuższy niż Ziemi. Wynosi on niemal 687 dni ziemskich (ok. 1,88 roku ziemskiego), a jest to 668,6 sol. Tym samym na Marsie trzeba będzie w zasadzie całkowicie na nowo podejść do tematu kalendarza, jak i dość prozaicznych rzeczy z nim związanych — urodziny będzie się obchodzić dwa razy rzadziej (więc wiek osiągnięcia pełnoletności czy wiek zgody się „obniżają”), a wiele świąt religijnych straci sens. Aczkolwiek odnośnie tej drugiej kwestii, to, co nie powinno nikogo zaskoczyć, zajęli się tym już polscy teologowie (doi:[10.21906/rbl.24](http://dx.doi.org/10.21906/rbl.24)).
+
+W kwestii roku, na Marsie wciąż nie istnieje ustalone pojęcie er, nie ma wydarzenia, które stanowiłoby rok zerowy. Aktualnie odmierzanie czasu wygląda tam tak, że po lądowaniu sondy uznaje się ten dzień za sol 0, po czym każdy z łazików utrzymuje własny „kalendarz”. NASA utrzymuje też datę w postaci Mars Sol Date (MSD), która odlicza liczbę dni od ziemskiej daty juliańskiej 2405522, czyli 29 grudnia 1873 roku, godzina 12:00 czasu Greenwich. Możemy dowiedzieć się na własną rękę, jaki aktualnie jest czas na Marsie z niewielkim marginesem błędu (ok. 3 sekund), dzięki aplikacji Mars24 udostępnionej przez NASA. Aplikację można ściągnąć tutaj: [https://www.giss.nasa.gov/tools/mars24/download/](https://www.giss.nasa.gov/tools/mars24/download/)
+
+<Image
+  image={mars}
+  alignCenter
+  fullSize
+  alt="Zrzut ekranu z aplikacji Mars24"
+  caption={<>
+    Zrzut ekranu z aplikacji Mars24 autorstwa NASA, dzięki której możemy sprawdzić aktualny czas na Marsie na marsjańskim równoleżniku zerowym, a także lokalny każdego z łazików. Możemy też zobaczyć, ile sol każdy z nich jest już na powierzchni.
+  </>}
+/>
+
+### Czas księżycowy
+
+Innym prawdopodobnym kierunkiem, który może nas interesować w niedalekiej przyszłości, jest Księżyc. Przyznam szczerze, że nie znalazłem w tym przypadku „oficjalnego” podejścia. Jednak istnieje grupa non-profit [LunarClock.org](http://lunarclock.org/), która optuje za systemem nazywanym przez nich Lunar Standard Time.
+
+Według tego systemu rok księżycowy dzieliłby się na 12 dni księżycowych. Owe dni należy rozumieć analogicznie do ziemskich miesięcy. Każdy z dni byłby podzielony na 30 cykli czasu (odpowiednik ziemskich dni), a te na 24 godziny księżycowe, każda z nich na 60 minut księżycowych, z których każda na 60 sekund księżycowych.
+
+System ten jest zbliżony do ziemskiego kalendarza księżycowego. Jeden dzień księżycowy to cały cykl księżyca, który trwa 29,5 ziemskiego dnia. Według tego należy oczywiście odpowiednio skrócić godziny, minuty i sekundy, aby utrzymać równy podział. Księżycowa sekunda wynosiłaby wówczas 0,98435 ziemskiej sekundy. Tym samym cykl (odpowiednik dnia) trwałby według naszego czasu 23 godziny i 37 minut. Jeżeli miałbyś/miałabyś wybierać przyszły cel podróży kosmicznej na podstawie długości czasu pracy, na Księżycu będzie lepiej niż na Marsie (i niż na Ziemi!)
+
+## Podsumowanie
+
+Przez 3 ostatnie artykuły pokazywałem, jak trudnym i rozbudowanym zagadnieniem jest przetwarzanie czasu. Mam nadzieję, że teraz, gdy kiedykolwiek będziesz musiał(a) programować cokolwiek związanego z datami, będziesz ostrożny(-na). Dlatego na sam koniec dość znana historia sprzed kilkunastu lat, powiązana akurat z tym, co omawiałem w artykule.
+
+W lutym 2007 r. komputery pokładowe myśliwców F-22 Raptor lecących z USA do Japonii po przekroczeniu południka $$180^{\circ}$$ zawiesiły się. Na szczęście nikomu nic się nie stało, a działanie zostało przywrócone po 48 godzinach. Oficjalnie podano, że był to błąd oprogramowania, a my możemy się jedynie domyślać, że programiści po prostu nie wzięli pod uwagę tego, że samoloty mogą przekraczać tę sztuczną granicę i tym samym podróżować w czasie.
+
+## Literatura
+
+- Time zone, [https://en.wikipedia.org/w/index.php?title=Time_zone&oldid=1031131588](https://en.wikipedia.org/w/index.php?title=Time_zone&oldid=1031131588) (ostatnio odwiedzone 14.07.2021).
+- Daylight saving time, [https://en.wikipedia.org/w/index.php?title=Daylight_saving_time&oldid=1032738803](https://en.wikipedia.org/w/index.php?title=Daylight_saving_time&oldid=1032738803) (ostatnio odwiedzone 14.07.2021).
+- Theory and pragmatics of the tz code and data, [https://data.iana.org/time-zones/theory.html](https://data.iana.org/time-zones/theory.html) (ostatnio odwiedzone 14.07.2021)
+- RFC 5905 *Network Time Protocol Version 4: Protocol and Algorithms Specification*, June 2010.
+- R. Gusella and S. Zatti, "The accuracy of the clock synchronization achieved by TEMPO in Berkeley UNIX 4.3BSD," in *IEEE Transactions on Software Engineering*, vol. 15, no. 7, pp. 847-853, July 1989, doi: 10.1109/32.29484.
+- Cristian, F. Probabilistic clock synchronization. *Distrib Comput* 3, 146–158 (1989). doi: 10.1007/BF01784024.
+- Calendar reform, [https://en.wikipedia.org/w/index.php?title=Calendar_reform&oldid=1031626541](https://en.wikipedia.org/w/index.php?title=Calendar_reform&oldid=1031626541) (ostatnio odwiedzone 14.07.2021).
+- ["Mars24 Sunclock – Time on Mars"](http://www.giss.nasa.gov/tools/mars24/). NASA Goddard Institute for Space Studies. 5 August 2008. (ostatnio odwiedzone 14.07.2021).
+- This is the Lunar Calendar and Standard Time (LST), [http://lunarclock.org/what-is-lunar-standard-time.php](http://lunarclock.org/what-is-lunar-standard-time.php) (ostatnio odwiedzone 14.07.2021).
+- Wastnage, Justin (14 February 2007). ["Navigational software glitch forces Lockheed Martin F-22 Raptors back to Hawaii, abandoning first foreign deployment to Japan"](http://www.flightglobal.com/news/articles/pictures-navigational-software-glitch-forces-lockheed-martin-f-22-raptors-back-to-hawaii-212102/). *Flightglobal*. (ostatnio odwiedzone 14.07.2021).
+
+<small>(zdjęcie na okładce pochodzi z serwisu [Pixabay](https://pixabay.com/illustrations/cat-fantasy-animal-space-pyramids-4292799/))</small>

@@ -1,0 +1,4 @@
+export const CONTROL_POINT = 'CONTROL_POINT';
+export const BEZIER_POINT = 'BEZIER_POINT';
+export const BEZIER_EDGE = 'BEZIER_EDGE';
+export const CONVEX_HULL_EDGE = 'CONVEX_HULL_EDGE';

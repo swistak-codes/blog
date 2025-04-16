@@ -1,0 +1,407 @@
+import Link from 'next/link';
+import {Image} from '@swistak-codes/components';
+import {Presentation} from './presentation';
+import cover from './swistak_szerpa.webp';
+import twoopt from './2opt.png';
+
+export const meta = {
+  title: 'Problem komiwojażera — przykładowe metaheurystyki',
+  abstract:
+    'Artykuł przedstawia, jak możemy znaleźć satysfakcjonujące rozwiązania problemu komiwojażera, korzystając z hill climbing i symulowanego wyżarzania.',
+  firstParagraph: (
+    <>
+      Opowiadając do tej pory o problemie komiwojażera (TSP), pokazałem, w jaki sposób możemy bardzo powoli <Link href="/post/problem-komiwojazera">znajdować optymalne rozwiązanie</Link> i jak zadowalające (nieco szybciej), <Link href="/post/problem-komiwojazera-heurystyki">korzystając z heurystyk</Link>. Wszystko to były sposoby stworzone typowo pod problem komiwojażera i nie da się ich przełożyć na inne problemy obliczeniowe. Mamy jednak całą klasę algorytmów metaheurystycznych, które możemy wykorzystać do dowolnych, trudnych obliczeniowo problemów. Poznajmy przykładowe, dalej zostając w uniwersum TSP.
+    </>
+  ),
+  keyword: 'problem komiwojażera',
+  categories: ['Problemy obliczeniowe', 'Grafy'],
+  tags: [
+    'problem komiwojażera',
+    'symetryczny problem komiwojażera',
+    'tsp',
+    'travelling salesman problem',
+    'javascript',
+    'cykl Hamiltona',
+    'ścieżka Hamiltona',
+    'hill climbing',
+    'simple hill climbing',
+    'steepest-ascent hill climbing',
+    'simulated annealing',
+    'symulowane wyżarzanie',
+    '2-opt'
+  ],
+  slug: 'problem-komiwojazera-metaheurystyki',
+  updateTime: '2024-10-30T07:00:00+00:00',
+  publishTime: '2024-10-30T07:00:00+00:00',
+  cover,
+};
+
+## Uwagi wstępne
+
+Tekst ten jest bezpośrednią kontynuacją artykułów *<Link href="/post/problem-komiwojazera">Problem komiwojażera</Link>* i *<Link href="/post/problem-komiwojazera-heurystyki">Problem komiwojażera — podejścia heurystyczne</Link>*. Przedstawiłem w nich temat od strony teoretycznej, pokazałem sposoby na znalezienie optymalnego rozwiązania i przykładowe podejścia heurystyczne. Nie będę tutaj powtarzać opisanych tam rzeczy, dlatego jeśli nie czytałeś(-aś) ich wcześniej, polecam tam zajrzeć.
+
+Jedynie przypomnę, że pokazując kod (wszystkie przykłady są w JavaScript), nie zakładam istnienia żadnego konkretnego sposobu zapisu grafu. Jedynie założę, że istnieje funkcja zwracająca odległość (wagę krawędzi): `distance(A: number, B: number): number`.
+
+## 2-opt
+
+Zanim przejdziemy do metaheurystyk, chciałem najpierw pokazać heurystykę, o której tylko wspomniałem w poprzednim artykule, ale nie implementowaliśmy jej — 2-opt. Jest to bardzo prosty algorytm przedstawiony w 1958 r. przez G.A. Croesa. A o tyle będzie dla nas przydatny, że ideę tego algorytmu wykorzystamy jako bazę dla rozwiązań opartych na metaheurystykach.
+
+### Idea algorytmu
+
+Pomysł stojący za algorytmem 2-opt jest bardzo prosty — bierzemy dwie krawędzie i „zamieniamy” je ze sobą. Istotne jest to, że zamianie podlegają krawędzie, a nie wierzchołki. Jeśli założymy, że bierzemy krawędź wychodzącą z wierzchołka $$v_1$$ i krawędź wchodzącą do wierzchołka $$v_2$$, to algorytmem 2-opt budujemy następującą trasę:
+
+1. Wszystkie wierzchołki od początkowego do $$v_1$$ (włącznie) przepisujemy w oryginalnej kolejności.
+2. Wierzchołki od $$v_1$$ do $$v_2$$ (włącznie) przepisujemy w odwróconej kolejności.
+3. Wierzchołki od $$v_2$$ do końca trasy (czyli wierzchołka początkowego) przepisujemy w oryginalnej kolejności.
+
+Wizualnie możemy to sobie wyobrazić tak, że łączymy ze sobą $$v_1$$ i $$v_2$$, ale nie przenosimy tego wierzchołka po prostu w inne miejsce w trasie, tylko przechodzimy całą trasę od $$v_2$$. Jeśli trafimy wtedy na wierzchołek, który oryginalnie był za $$v_1$$, to musimy z niego przejść do wierzchołka oryginalnie będącego za $$v_2$$.
+
+<Image
+  image={twoopt}
+  alignCenter
+  alt={"Graf przedstawia dwa etapy algorytmu 2-opt: pierwotną trasę (u góry) i poprawioną po zamianie krawędzi (na dole) w celu skrócenia ścieżki."}
+  caption={<>Na górze została pokazana oryginalna trasa, natomiast na dole wynik działania zamiany 2-opt dla wierzchołków 2 i 7. Zwróć uwagę na zmianę kolejności przechodzenia trasy (zaznaczona na zielono).</>}
+/>
+
+Pomysł ten zaproponowano, aby naprawiać wizualne przecięcia się tras, ale możemy tę procedurę z powodzeniem wykorzystać do eksploracji przestrzeni rozwiązań.
+
+### Implementacja zamiany 2-opt
+
+Zamiana 2-opt to tak naprawdę proste przepisanie tablicy z jednym małym wyjątkiem, gdy zamieniamy kolejność przechodzenia. Jednak powiedzmy sobie szczerze — dalej jest to poziom podstaw programowania. Mimo to przedstawię tutaj implementację w kodzie (JavaScript). Pokażę ją na dwa sposoby — edytującą tablicę (`swap2opt()`) i tworzącą nową (`toSwapped2opt()`).
+
+```javascript
+// funkcja wykonująca zamianę 2-opt w oryginalnej tablicy
+function swap2opt(nodes, v1, v2) {
+  // interesują nas wierzchołki od v1+1, więc od razu inkrementujemy
+  v1++;
+  // odwracamy segment między wierzchołkami v1 a v2
+  while (v1 < v2) {
+    // zamiana wierzchołków
+    let temp = nodes[v1];
+    nodes[v1] = nodes[v2];
+    nodes[v2] = temp;
+    // przesuwamy indeksy
+    v1++;
+    v2--;
+  }
+  return nodes;
+}
+
+// funkcja wykonująca zamianę 2-opt na nowej tablicy
+function toSwapped2opt(nodes, v1, v2) {
+  // tworzymy nową tablicę, która będzie mieć wynikową trasę
+  const result = new Array(nodes.length);
+  // kopiujemy pierwszą część trasy od początku do wierzchołka v1
+  for (let i = 0; i <= v1; i++) {
+    result[i] = nodes[i];
+  }
+  // odwracamy segment między wierzchołkami v1+1 a v2
+  for (let i = v2, j = v1 + 1; i > v1; i--, j++) {
+    result[j] = nodes[i];
+  }
+  // kopiujemy resztę trasy od v2+1 do końca
+  for (let i = v2 + 1; i < nodes.length; i++) {
+    result[i] = nodes[i];
+  }
+  return result;
+}
+```
+
+Kod możesz przetestować na [Replit](https://replit.com/@tswistak/tsp-2opt-swap#index.js).
+
+## Metaheurystyki
+
+Przejdźmy teraz do meritum artykułu, czyli do metaheurystyk. W tym momencie warto zadać pytanie — co to są metaheurystyki i czym różnią się od zwykłych heurystyk?
+
+Mówiąc heurystyka, mamy na myśli ogólnie algorytmy, które przybliżają nas do rozwiązania problemu w akceptowalnym czasie. Mogą to być zarówno algorytmy stworzone do rozwiązania konkretnego problemu (np. dla TSP algorytm Christofidesa), jak i ogólnego zastosowania. W przypadku metaheurystyk mówimy o tym ogólnym zastosowaniu. Są to algorytmy (albo wręcz wzory jak zrobić algorytm), które możemy zastosować dla dowolnego problemu obliczeniowego.
+
+Pośród metaheurystyk najbardziej rozpoznawalne są algorytm genetyczny (lub szerzej algorytmy ewolucyjne), algorytm mrówkowy czy symulowane wyżarzanie. Jednak, jak wspomniałem wyżej, mimo nazwy „algorytmy” znajdziemy w opisach bardziej wzór, w jaki sposób podejść do rozwiązania problemu, a nie konkretny algorytm. Opisy metaheurystyk to tak naprawdę przepisy na eksplorację przestrzeni rozwiązań i nic więcej. W taki też sposób przedstawię je poniżej, jednak dodatkowo przeniosę je w kontekst problemu komiwojażera.
+
+## Hill climbing
+
+Zacznijmy od moim zdaniem najprostszej z metaheurystyk, czyli *hill climbing* (po polsku mogłoby to brzmieć *wspinaczka górska*, jednak nie spotkałem się z tłumaczeniem tej nazwy). Jest to metaheurystyka specjalizująca się w przeszukiwaniu lokalnym przestrzeni rozwiązań.
+
+### Opis metaheurystyki
+
+Podstawowy opis tej metody brzmi następująco:
+
+1. Skonstruuj dowolne rozwiązanie, które spełnia założenia problemu.
+2. Spróbuj ulepszyć to rozwiązanie. Jeśli jest lepsze, zapamiętaj.
+3. Powtarzaj punkt 2 tak długo, aż nie da się już poprawić rozwiązania lub nie trzeba znajdować lepszego.
+
+O sposobie tym mówi się, że jest to *simple hill climbing*, czyli prosta odmiana tej metaheurystyki. Co ciekawe, jej implementację mogłeś(-aś) już widzieć na moim blogu — algorytm Newtona-Raphsona do znajdowania <Link href="/post/pierwiastkowanie">pierwiastka liczby</Link>. Przykład ten pokazuje też, że warunek końcowy nie musi oznaczać braku lepszego rozwiązania. Zakończeniem algorytmu może być znalezienie wystarczająco dobrego rozwiązania (przy pierwiastkowaniu: wynik poniżej pewnego marginesu błędu) albo nawet ograniczenie liczby powtórzeń.
+
+Często jednak nazwa *hill climbing* kojarzy się z nieco bardziej rozbudowaną wersją, którą fachowo nazywa się *steepest-ascent hill climbing* (po pol. wspinaczka po najbardziej stromym wzgórzu). Tutaj mamy następujące kroki do wykonania:
+
+1. Skonstruuj dowolne rozwiązanie, które spełnia założenia problemu.
+2. Wygeneruj wszystkie „sąsiadujące” rozwiązania do aktualnego. Zapamiętaj najlepsze z nich.
+3. Powtarzaj punkt 2 tak długo, aż nie da się już poprawić rozwiązania lub nie trzeba znajdować lepszego.
+
+Ta druga wersja lepiej sprawdza się w przypadku problemów, gdzie rozwiązanie możemy próbować poprawiać na wiele sposobów. Dlatego dokładnie ten sposób wykorzystamy do znalezienia rozwiązania problemu komiwojażera.
+
+### Przeszukiwanie lokalne
+
+Zanim jednak przejdziemy do implementacji hill climbing w kontekście problemu komiwojażera, chciałbym rozwinąć myśl ze wstępu, że jest to metaheurystyka specjalizująca się w przeszukiwaniu lokalnym.
+
+Przeszukiwanie lokalne polega na szukaniu potencjalnych rozwiązań problemu w najbliższym otoczeniu aktualnie znanego najlepszego rozwiązania. Dokładnie widzimy to w hill climbing — poprawiamy stopniowo aktualne rozwiązanie, ale nie uciekamy z niego w celu próby znalezienia czegoś jeszcze lepszego.
+
+W tym miejscu możemy mówić o minimum/maksimum lokalnym i globalnym funkcji oceny rozwiązania. Dla uproszczenia będę się dalej posługiwać tylko pojęciem maksimum — dla minimum jest po prostu na odwrót. Maksimum lokalne funkcji to punkt, w którym funkcja zmienia się z rosnącej na malejącą, natomiast maksimum globalne to maksimum lokalne, gdzie funkcja przyjmuje najwyższą wartość.
+
+Żeby przenieść to na niematematyczny kontekst — pomówmy o wspinaczce górskiej, w końcu od niej rozpatrywana przez nas heurystyka wzięła nazwę. Załóżmy, że naszym problemem jest znalezienie najwyższego szczytu górskiego i w wyniku losowania początkowej pozycji lądujemy koło Morskiego Oka. Wspinając się do góry, prędzej czy później osiągniemy maksimum lokalne — Rysy (dla uproszczenia pomińmy, który wierzchołek). Z racji tego, że próba przejścia dalej spowodowałaby pogorszenie rozwiązania (znalezienie się niżej), to algorytm kończy działanie. I to mimo tego, że niewiele dalej istnieje lokalne maksimum dające lepszy rezultat (Gerlach) oraz że jest znacznie wyższe globalne maksimum (Everest).
+
+Dlatego też warto pamiętać, że *hill climbing* utknie nam w lokalnym minimum/maksimum, gdy je tylko znajdzie. Nie oznacza to jednak, że jest to złe. Są choćby problemy, gdzie takiego nigdy nie znajdziemy, np. pierwiastkowanie. W przypadku problemu komiwojażera może być to jednak problematyczne, aczkolwiek mimo tego metaheurystykę tę stosuje się tutaj.
+
+### Implementacja w TSP
+
+Mieliśmy małą powtórkę z geografii, więc teraz możemy wrócić do informatyki. Zaimplementujmy hill climbing do rozwiązywania problemu komiwojażera. Zróbmy to od razu w wersji steepest-ascent, żeby przeszukać całą przestrzeń sąsiadujących rozwiązań, a nie jedynie jedno losowe. Implementacja w JavaScript mogłaby wyglądać następująco:
+
+```javascript
+// funkcja zwracająca sąsiednie rozwiązania
+function getNeighbors(nodes) {
+  // inicjalizujemy pustą tablicę sąsiadów
+  const neighbors = [];
+  const n = nodes.length;
+  // przeglądamy wszystkie możliwe pary (v1, v2), gdzie v2 > v1
+  for (let v1 = 0; v1 < n - 1; v1++) {
+    for (let v2 = v1 + 1; v2 < n; v2++) {
+      // tworzymy nową trasę przez zamianę 2-opt
+      neighbors.push(toSwapped2opt(nodes, v1, v2));
+    }
+  }
+  return neighbors;
+}
+
+// funkcja obliczająca całkowitą długość trasy
+function calculateLength(nodes) {
+  let result = 0;
+  // sumujemy dystanse między kolejnymi wierzchołkami
+  for (let i = 0; i < nodes.length - 1; i++) {
+    result += distance(nodes[i], nodes[i + 1]);
+  }
+  // dodajemy powrót na początek trasy
+  result += distance(nodes.at(-1), nodes[0]);
+  // zwracamy wynik
+  return result;
+}
+
+// funkcja znajdująca prawie najlepszą ścieżkę w grafie przy pomocy steepest-ascent hill-climbing i 2-opt
+// nodes jest typu number[] i zakładamy, że jest to początkowy stan, od którego zaczynamy
+function tsp(nodes) {
+  // naszą aktualnie najlepszą trasą jest trasa początkowa
+  let currentPath = nodes;
+  // obliczamy jej długość do porównań
+  let currentLength = calculateLength(currentPath);
+  // zmienna, która będzie warunkiem skończenia "wspinaczki"
+  let hasImproved = true;
+  // wykonujemy "wspinaczkę"
+  while (hasImproved) {
+    // na początek zakładamy z góry, że nie było poprawy
+    hasImproved = false;
+    // pobieramy wszystkich "sąsiadów" aktualnej trasy
+    const neighbors = getNeighbors(currentPath);
+    // iterujemy po nich po kolei
+    for (const neighbor of neighbors) {
+      // sprawdzamy długość trasy aktualnego sąsiada
+      const newDistance = calculateLength(neighbor);
+      // jeśli trasa była lepsza...
+      if (newDistance < currentLength) {
+        // zapamiętujemy ją
+        currentPath = neighbor;
+        currentLength = newDistance;
+        // i zaznaczamy, że było lepsze rozwiązanie, więc będziemy kontynuować wspinaczkę
+        hasImproved = true;
+        // jeśli w tym momencie zrobilibyśmy `break`, uzyskalibyśmy simple hill climbing
+      }
+    }
+  }
+  // dodajemy punkt początkowy do trasy
+  currentPath.push(currentPath[0]);
+  // zwracamy najlepszą znalezioną trasę
+  return {
+    path: currentPath,
+    length: currentLength,
+  };
+}
+```
+
+Kod do przetestowania znajdziesz na [Replit](https://replit.com/@tswistak/tsp-hill-climbing#index.js). Użyłem tego samego zbioru danych z [TSPLIB](http://comopt.ifi.uni-heidelberg.de/software/TSPLIB95/) (`att48`, czyli 48 stolic stanów USA) co w poprzednich artykułach. Jednak żebyś nie musiał(-a) skakać po Replitach, tym razem spisałem optymalne rozwiązanie, aczkolwiek odpuściłem sprawdzanie krótkich tras — zamiast tego sprawdzam 12 pierwszych wierzchołków (najdłuższa trasa sprawdzana w poprzednich artykułach) i cały zbiór danych. Prawdę mówiąc, nie wiem, dlaczego też tak nie zrobiłem w artykule o heurystykach.
+
+Warto zwrócić uwagę na pętlę sprawdzającą sąsiadów aktualnego rozwiązania. Tak jak pisałem, do naszych testów zaimplementowaliśmy steepest-ascent hill-climbing, jednak w przypadku komiwojażera osiągniecie simple hill-climbing to dosłownie dodanie przerwania pętli po znalezieniu pierwszego lepszego sąsiada — interesuje nas pierwsze lepsze rozwiązanie. Zachęcam do sprawdzenia na własną rękę, jak wyniki się wtedy różnią.
+
+Jeszcze drobna uwaga co do rozwiązań na Replit. Jeśli sprawdzałeś(-aś) je w poprzednich artykułach (kiedy były one wydane, nie teraz), to możesz zauważyć, że pomiary odległości są nieco inne. Jest tak dlatego, że postanowiłem przerobić funkcję mierzącą dystans na taką, jaką rekomendują twórcy zbioru danych TSPLIB. Zmianę wprowadziłem także w poprzednich artykułach, więc możesz tam na nowo przetestować kod.
+
+### Interpretacja wyników
+
+Jeśli sprawdzisz wykonanie na zalinkowanym wyżej Replit, to możesz wyciągnąć pewne wnioski na temat działania. Ja wyciągam takie:
+
+- Wspominałem, że literatura wskazuje, że podejścia metaheurystyczne warto rozpoczynać od trasy znalezionej algorytmem najbliższego sąsiada niż od losowej. Z moich prób wyszło, że dla hill-climbing nie do końca jest to prawda. Na 100 powtórzeń losowych rozpoczęć znaleziona trasa zawsze była lepsza.
+- Można też zauważyć znaczną różnicę w liczbie iteracji dla przypadku, gdy zaczynaliśmy od RNN, a gdy zaczynaliśmy od losowej trasy. Przy największym rozmiarze problemu (każdorazowo sprawdzanych 1128 sąsiadów), w przypadku RNN było to 11280 iteracji, a dla losowych w okolicach 50 tysięcy. Oznacza to tyle, że RNN bardzo nas zbliża do jednego konkretnego lokalnego minimum, które niekoniecznie jest optymalne i nie jesteśmy w stanie się z niego wydostać.
+- Mimo wszystko różnica między rezultatem z losowania a z RNN nie jest duża. Jeśli zależy nam na szybkości, to można spokojnie postawić na takie rozpoczęcie algorytmu.
+- Przy małym zbiorze danych jesteśmy w stanie za każdym razem znaleźć optymalną trasę. Jednak nie traktowałbym tego jako regułę, która się zawsze sprawdzi.
+
+### Prezentacja
+
+W poprzednich artykułach były prezentacje, to nie mogło ich zabraknąć także tutaj. Tym razem jednak możesz nieco bardziej wpłynąć na wykonanie algorytmu. Przede wszystkim masz wybór między wersją pokazaną wyżej, czyli steepest-ascent a simple hill climbing. Do tego możesz wybrać, od jakiej trasy zacząć poszukiwania — według kolejności tworzenia wierzchołków, losowej czy wyznaczonej przez RNN. Oprócz tego instrukcja jest ta sama co zawsze, więc ją tylko zacytuję:
+
+> Rozstaw w przestrzeni *miasta* (możesz też usunąć aktualne, naciskając *delete* lub *backspace* bądź dodać nowe przyciskiem pod diagramem) i uruchom wyszukanie trasy. Możesz zarówno uruchomić wyszukiwanie w formie animowanej, gdzie zobaczysz każdą iterację algorytmu (dokładniej aktualne minimum na szaro i aktualnie sprawdzaną trasę na niebiesko), albo od razu przejść do końca.
+
+<Presentation algorithms={["steepest-ascent-hc", "simple-hc"]} />
+
+Prezentacja została napisana z użyciem [ReactFlow](https://reactflow.dev/) i jej kod źródłowy znajdziesz na [GitHubie świstak.codes](https://github.com/swistak-codes/tsp-visualizer).
+
+Polecam dodać na start dużo wierzchołków i zwrócić uwagę na różnice w końcowych trasach zależnie od trasy początkowej. Różnice wizualnie są nieznaczne, jednak są. Tak samo różnice między rodzajem wykonywanego hill climbing. Natomiast przy odtwarzaniu algorytmu (szczególnie przy starcie od RNN) bardzo dobrze widać, że hill climbing polega na stopniowym poprawianiu aktualnej trasy.
+
+## Symulowane wyżarzanie
+
+Jak widzieliśmy wyżej, hill climbing dawał całkiem zadowalające rezultaty, jednak jego utykanie w lokalnym minimum jest problemem. Dlatego teraz poznajmy metaheurystykę, która przeszukuje szerzej przestrzeń rozwiązań, a zarazem wciąż jest prosta i nawet przypomina przed chwilą przez nas poznaną. Czas tym razem poznać *symulowane wyżarzanie* (po ang. *simulated annealing*, *SA*).
+
+Wiele metaheurystyk bazuje na procesach, które możemy obserwować w nieinformatycznym świecie, co dobrze oddają ich nazwy. Symulowane wyżarzanie opiera się dokładnie na tym, co wskazuje nazwa — na odwzorowaniu procesu wyżarzania znanego z metalurgii. Proces ten polega\* na podgrzaniu metalu do określonej temperatury, utrzymywaniu go w tej temperaturze przez pewien czas, a następnie powolnym chłodzeniu. W jego wyniku struktura krystaliczna metalu staje się bardziej zorganizowana i stabilna, co przybliża go do stanu równowagi termodynamicznej. A jak to wygląda w informatyce? Symulowane wyżarzanie też ma ideę „podgrzania”, a następnie „schładzania” aż do osiągnięcia stanu „równowagi”. Tutaj rozumiemy to jednak nieco inaczej.
+
+<small style={{textAlign: 'left'}}>* Jak ktoś się zna na metalurgii, to będę bardzo wdzięczny za poprawienie mnie, jeśli źle zrozumiałem, na czym ten proces polega.</small>
+
+### Opis metaheurystyki
+
+W hill climbing akceptowaliśmy tylko rozwiązania ulepszające aktualne, co ostatecznie prowadziło do utknięcia w lokalnym maksimum. Żeby temu zapobiec, symulowane wyżarzanie akceptuje również gorsze rozwiązania w celu szerszej eksploracji przestrzeni rozwiązań. Właśnie tutaj pojawia się idea temperatury — im wyższa, tym większa szansa na przyjęcie gorszego rozwiązania (co jest analogiczne do tego, że w wysokiej temperaturze jest większa chaotyczność układu). Z każdą iteracją ochładzamy „układ”, żeby akceptować coraz mniej tych gorszych rozwiązań, w nadziei, że zbliżymy się jak najbliżej globalnego maksimum.
+
+#### Lista kroków
+
+Opiszmy to teraz w formie listy kroków, abyśmy sobie sformalizowali, czego potrzebujemy do napisania algorytmu.
+
+Algorytm oprócz początkowego rozwiązania $$S$$ powinien mieć zdefiniowane również temperaturę początkową $$T$$ oraz współczynnik chłodzenia $$\alpha$$ (mniejszy od 1, większy od 0). Niektóre implementacje natomiast przyjmują limit liczby iteracji. Różnicę przedstawię później.
+
+1. Na początku musimy ocenić rozwiązanie $$S$$. Określamy to jako $$E$$.
+2. Generujemy nowe rozwiązanie $$S'$$ z bieżącego rozwiązania $$S$$ i je oceniamy ($$E'$$).
+3. W tym momencie decydujemy, czy przyjmujemy rozwiązanie.
+    1. Jeśli jest lepsze od aktualnego, to przyjmujemy je jako aktualne rozwiązanie.
+    2. Jeśli jest gorsze, to musimy określić, czy je akceptujemy. Do tego celu, aby trzymać się termodynamiki, wykorzystamy rozkład Boltzmanna.
+        1. Prawdopodobieństwo liczymy ze wzoru: $$P = e^{(-{\Delta E}/{T})}$$. We wzorze tym $$\Delta E = E' - E$$, czyli różnica między nowym a aktualnym rozwiązaniem. $$e$$ to oczywiście podstawa logarytmu naturalnego (inaczej: liczba Eulera).
+        2. Z rozkładu jednostajnego losujemy wartość między 0 a 1. Jeśli jest mniejsza bądź równa $$P$$, to przyjmujemy rozwiązanie jako aktualne.
+4. Obniżamy temperaturę układu: $$T = \alpha \cdot T$$.
+5. Jeśli temperatura osiągnie minimalną wartość, którą ustala się na 0 albo bliską zeru, to kończymy wykonanie. Jeśli jeszcze nie osiągnęła tej wartości, wracamy do punktu 2.
+
+Warto w tym momencie zauważyć, że w symulowanym wyżarzaniu mamy wyraźną niedeterministyczność algorytmu. W hill climbing losowość była tylko na etapie początkowego rozwiązania, a tutaj determinuje, czy ryzykujemy przejście w inny obszar przeszukiwania.
+
+Także polecam zapamiętać najlepszy znaleziony rezultat, a aktualne rozwiązanie traktować jedynie jako robocze. Dzięki temu nie stracimy prawdopodobnego globalnego minimum/maksimum w trakcie przeszukiwania szerzej przestrzeni rozwiązań. Nie znajdziesz tego w opisach symulowanego wyżarzania, ale zdecydowanie jest to przydatne, jeśli zależy nam na sensownym wyniku.
+
+#### Maksymalna liczba iteracji
+
+Jeśli postanowilibyśmy skorzystać z limitu liczby iteracji, to zastosowalibyśmy następujące zmiany (pokazuję je, ponieważ dokładnie ten sposób zaimplementuję dla problemu komiwojażera):
+
+1. Punkty 2 i 3 zamykamy w pętli z licznikiem odliczającej od 0 do limitu liczby iteracji $$k_{max}$$.
+2. W każdej iteracji określamy temperaturę na podstawie wybranej przez nas funkcji temperatury. Funkcja temperatury jako argument przyjmuje postęp algorytmu, czyli $$d = \frac{k+1}{k_{max}}$$. Zwraca wartość (zwykle) od 0 do 1, więc musimy ją pomnożyć przez temperaturę początkową, aby algorytm poprawnie działał. Funkcje możemy definiować na różne sposoby:
+    1. Liniowo: $$1 - d$$.
+    2. Logarytmicznie: $$\frac{1}{\log(1+d \cdot \alpha)}$$, gdzie $$\alpha$$ to współczynnik skalujący. Im mniejszy, tym szybsze, mocniejsze chłodzenie. Ogólne działanie jest takie, że na początku jest wolniejsze tempo schładzania, dzięki czemu mamy więcej iteracji z wyższą temperaturą. Warto zauważyć, że w tym przypadku, temperatura nigdy nie spadnie do zera, np. dla $$\alpha = 9$$ przy ostatniej iteracji uzyskamy $$T = \frac{1}{\log(10)} \approx 0,4$$.
+    3. Wykładniczo: $$\alpha^d$$. W tym przypadku $$\alpha$$ definiuje szybkość schładzania, będąc podstawą potęgi, i musi być w zakresie od 0 do 1. Im wyższa wartość, tym wolniejsze schładzanie, aczkolwiek warto też wiedzieć, że im wyższa wartość, tym mniejsza szansa na całkowite schłodzenie. Osobiście polecałbym użycie $$\alpha = 0,01$$. Natomiast jak się ta funkcja zachowuje? Temperatura szybko maleje na początku, a potem powoli zbliża się do zera.
+    4. Potęgowo: $$(1-d)^\alpha$$. Tutaj $$\alpha$$ powinna być większa od 1 i zwykle stosuje się 2. Na początku wartość spada powoli, a potem coraz szybciej.
+3. Rezygnujemy z punktów 4 i 5, ponieważ obsługę temperatury przenosimy na początek pętli i mamy stałą liczbę iteracji.
+
+W kwestii wyboru funkcji temperatury warto eksperymentalnie stwierdzić, która najlepiej się sprawdza. Liniowa wystarczy do najprostszych problemów, ale inne mogą lepiej sprawdzić się np. w problemie komiwojażera. Szczególnie że zarówno funkcja potęgowa, jak i logarytmiczna pozwalają na szerszą eksplorację przestrzeni rozwiązań dzięki wolniejszym spadkom temperatury.
+
+### Implementacja w TSP
+
+Zaimplementujmy teraz symulowane wyżarzanie do rozwiązania problemu komiwojażera. Implementacja w JavaScript wersji z limitem iteracji wygląda następująco:
+
+```javascript
+// funkcja zwracająca losowego sąsiada aktualnej trasy
+// nodes to tablica wierzchołków
+function getRandomNeighbor(nodes) {
+  // dla ułatwienia pobieramy liczbę wierzchołków
+  const n = nodes.length;
+  // wybieramy losowe krawędzie v1 i v2 do zamiany 2-opt
+  // obie wartości mają znajdować się w przedziale od 0 do n-2
+  let v1 = Math.floor(Math.random() * (n - 1));
+  let v2 = Math.floor(Math.random() * (n - 1));
+  // jeśli obie liczby wylosowały się takie same, powtarzamy losowanie
+  while (v1 === v2) {
+    v2 = Math.floor(Math.random() * (n - 1));
+  }
+  // jeśli v1 jest większe od v2, zamieniamy je miejscami
+  if (v1 > v2) {
+    let temp = v1;
+    v1 = v2;
+    v2 = temp;
+  }
+  // zwracamy nową trasę z wykonaną zamianą 2-opt
+  return toSwapped2opt(nodes, v1, v2);
+}
+
+// funkcja znajdująca prawie najlepszą ścieżkę w grafie przy pomocy symulowanego wyżarzania i 2-opt
+// nodes jest typu number[] i zakładamy, że jest to początkowy stan, od którego zaczynamy
+// initialT to początkowa wartość temperatury typu number
+// kmax to limit liczby iteracji, również typu number
+function tsp(nodes, initialT, kmax) {
+  // naszą aktualnie najlepszą trasą jest trasa początkowa
+  let currentPath = nodes;
+  // obliczamy jej długość do porównań
+  let currentLength = calculateLength(currentPath);
+  // najlepsza napotkana trasa
+  let globalBestPath = currentPath;
+  let globalBestLength = currentLength;
+  // pętla, w której wykonujemy symulowane wyżarzanie
+  for (let i = 0; i < kmax; i++) {
+    // obliczamy aktualną temperaturę układu
+    const t = initialT * temperature((i + 1) / kmax);
+    // pobieramy losowego sąsiada aktualnej trasy
+    const neighbor = getRandomNeighbor(currentPath);
+    // obliczamy jego długość
+    const neighborLength = calculateLength(neighbor);
+    // liczymy różnicę między długościami
+    const delta = neighborLength - currentLength;
+    // ustawiamy sąsiada jako nową najlepszą trasę, jeśli:
+    // - trasa jest krótsza (ujemna delta)
+    // - wylosowana liczba jest mniejsza od obliczonego prawdopodobieństwa
+    if (delta < 0 || Math.exp(-delta / t) >= Math.random()) {
+      currentPath = neighbor;
+      currentLength = neighborLength;
+      if (currentLength < globalBestLength) {
+        globalBestPath = currentPath;
+        globalBestLength = currentLength;
+      }
+    }
+  }
+  // dodajemy startowy wierzchołek do końca trasy
+  globalBestPath.push(globalBestPath[0]);
+  // zwracamy najlepszą znalezioną trasę
+  return {
+    path: globalBestPath,
+    length: globalBestLength,
+  };
+}
+```
+
+Wersję do przetestowania znajdziesz na [Replit](https://replit.com/@tswistak/tsp-sa#index.js). Wykorzystuje te same dane co zawsze, a do obliczania temperatury użyłem funkcji logarytmicznej.
+
+Warto zauważyć, że gdy w hill climbing eksplorowaliśmy wszystkie sąsiednie rozwiązania, tak tutaj bierzemy całkowicie losowego sąsiada. Jest to dość standardowe podejście przy implementacji metaheurystyk. Natomiast zachęcam do sprawdzenia na własną rękę (np. w prezentacji za chwilę), w jaki sposób algorytm zachowałby się, jeśli robilibyśmy coś na zasadzie hill-climbing, czyli ze zbioru wszystkich sąsiadów wybieramy lepszego lub tego, przy którym zostaje spełniony warunek.
+
+### Prezentacja
+
+Żeby tradycji stało się zadość, również i symulowane wyżarzanie możesz przetestować graficznie. Do prezentacji, ponownie jak wyżej, zaimplementowałem wersję z limitem liczby iteracji, ale za to dałem duże możliwości konfiguracji algorytmu. Pokombinuj z różnymi ustawieniami i zobacz, jakie rezultaty wychodzą oraz jak algorytm się zachowuje. Warto zwrócić uwagę na to, jak co jakiś czas akceptowane są gorsze rozwiązania, czyli dochodzi do eksploracji szerszej przestrzeni.
+
+W kwestii kolorów podczas wyżarzania:
+
+- niebieski — aktualnie sprawdzana trasa
+- czarny — aktualna trasa, do której porównywane są rezultaty
+- szary — najlepsza napotkana trasa
+
+<Presentation algorithms={["sa"]} />
+
+Jeśli wybrałeś(-aś) inną strategię przeszukiwania niż losowa, to nie zdziw się, że iteracji jest więcej niż maksymalna liczba. Maksymalna liczba iteracji wyznacza jedynie, ile tur chłodzenia się odbędzie, a w przypadku innych strategii niż losowa sprawdzamy wiele różnych rozwiązań.
+
+## Podsumowanie
+
+W taki oto sposób poznaliśmy dwie proste metaheurystyki. Mimo że tutaj użyłem ich w kontekście problemu komiwojażera, można je zastosować też do rozwiązania innych problemów obliczeniowych, w których przeszukujemy przestrzeń rozwiązań. Polecam spróbować zaimplementować na własną rękę inne metaheurystyki do rozwiązania problemu komiwojażera, np. algorytm genetyczny albo przeszukiwanie tabu. Również warto spróbować przenieść poznane tutaj podejścia na inne problemy obliczeniowe, takie jak problem n-królowych, problem kolorowania mapy i inne.
+
+A tradycyjnie na koniec zamieszczam jeszcze raz wizualizację działania algorytmów do rozwiązywania problemu komiwojażera. Tym razem kompletną, ze wszystkimi algorytmami, które poznaliśmy na łamach tej serii artykułów.
+
+<Presentation algorithms={["brute-force", "held-karp", "nn", "rnn", "christofides", "simple-hc", "steepest-ascent-hc", "sa"]} />
+
+## Literatura
+
+- Johnson, D. S., & McGeoch, L. A. (1997). The traveling salesman problem: A case study in local optimization. W E. H. L. Aarts & J. K. Lenstra (Eds.), *Local search in combinatorial optimization* (pp. 215–310). John Wiley and Sons.
+- Ziółkowski, J., Miziołek, A., & Ćwik, D. (2018). Travelling salesman problem – Case study. *Military Logistics Systems*, 49(2), 236–245. [doi:10.5604/01.3001.0012.7149](https://doi.org/10.5604/01.3001.0012.7149)
+- Lasry, G. (2017). **Hill climbing for classical ciphers** i **Simulated annealing for classical ciphers**. W *A methodology for the cryptanalysis of classical ciphers with search metaheuristics* (s. 38–41). Kassel University Press.
+- Algorithms/Hill Climbing, https://en.wikibooks.org/w/index.php?title=Algorithms/Hill_Climbing&oldid=4386323 (ostatnie odwiedziny 20.10.2024).
+- Metaheuristic, https://en.wikipedia.org/w/index.php?title=Metaheuristic&oldid=1244797749 (ostatnie odwiedziny 20.10.2024).
+- Reinelt, G. "TSPLIB--A Traveling Salesman Problem Library." ORSA Journal on Computing, Vol. 3, No. 4, pp. 376-384. Fall 1991.
+
+<small>Zdjęcie na okładce wygenerowane przez DALL-E.</small>

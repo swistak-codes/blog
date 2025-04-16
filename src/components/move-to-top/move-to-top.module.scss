@@ -1,0 +1,30 @@
+.button {
+  position: fixed;
+  bottom: 1rem;
+  right: 1rem;
+  cursor: pointer;
+  display: none;
+
+  width: 3rem;
+  height: 3rem;
+  border-radius: 100%;
+  border: 4px outset var(--sc__moveToTop--background);
+  background: var(--sc__moveToTop--background);
+
+  i {
+    color: var(--sc__moveToTop--icon);
+    font-size: 2em;
+  }
+
+  &:hover {
+    background: var(--sc__moveToTop--hoveredBackground);
+
+    i {
+      transform: scale(1.2);
+    }
+  }
+
+  &.visible {
+    display: block;
+  }
+}

@@ -1,0 +1,267 @@
+import Link from 'next/link';
+import {Image, Grid} from '@swistak-codes/components';
+import cover from './Goats_in_an_argan_tree_Morocco.jpg';
+import graf from './graf.png';
+import krawedzie from './grafy-krawedzie.png';
+import pelny from './pelny.png';
+import cykliczny from './cykliczny.png';
+import mosty from './2560px-7_bridges.svg.png';
+import mostyGraf from './mosty-graf.png';
+import rodzina from './rodzina.png';
+import struktura from './struktura.png';
+import bpmn from './BPMN-AProcessWithNormalFlow.svg.png';
+import wsiascDoPociagu from './wsiasc.jpeg';
+
+export const meta = {
+  title: 'Grafy — wprowadzenie',
+  abstract:
+    'Grafy to jedna z najważniejszych koncepcji matematycznych, które na stałe weszły do świata informatyki. Poznajmy je bliżej.',
+  firstParagraph: (
+    <>
+      Grafy to jedna z najważniejszych koncepcji matematycznych, które na stałe weszły do świata informatyki. Wielu programistów może nie dostrzegać tego na pierwszy rzut oka, ale znajdziemy je niemal wszędzie. Warto wiedzieć, czym one są i jak działają, niezależnie od tego, czym w świecie IT się zajmujemy. Jest to też temat dość mi bliski, bo zawodowo mam do czynienia z praktycznym zastosowaniem grafów od dłuższego czasu. W tym wpisie opisuję je od strony teoretycznej, aby przedstawić, czym są, skąd się wzięły i przede wszystkim, jakie znalazły zastosowania. Na początku nie przedstawię całej teorii grafów, tylko moim zdaniem jej najważniejsze elementy.
+    </>
+  ),
+  keyword: 'grafy',
+  categories: ['Grafy', 'Struktury danych'],
+  tags: [
+    'grafy',
+    'drzewa',
+    'wierzchołki',
+    'krawędzie',
+    'pętle',
+    'grafy skierowane',
+    'digrafy',
+    'grafy mieszane',
+    'grafy ważone',
+    'grafy pełne',
+    'grafy spójne',
+    'grafy acykliczne',
+    'grafy cykliczne',
+    'problem mostów królewieckich',
+    'cykl Eulera',
+    'hierarchia',
+    'relacje',
+    'bpmn',
+  ],
+  slug: 'grafy-wprowadzenie',
+  updateTime: '2022-06-01T07:00:00+00:00',
+  publishTime: '2022-06-01T07:00:00+00:00',
+  cover,
+};
+
+## Czym są grafy?
+
+### Definicja
+
+Z matematycznego punktu widzenia graf ($$G$$) jest zbiorem wierzchołków ($$V$$ od ang. *vertex*) i krawędzi pomiędzy nimi ($$E$$ od ang. *edge*, aczkolwiek w zastosowaniach praktycznych możemy też spotkać się z angielską nazwą *link*, co po polsku znaczy *połączenie*). Zapiszemy to jako $$G = (V,E)$$. Na pewno tak intuicyjnie możesz kojarzyć je z graficznej reprezentacji, czyli kółek połączonych ze sobą kreskami. Przejdźmy jednak bardziej szczegółowo do tych składowych grafu.
+
+<Image
+  image={graf}
+  alignCenter
+  fullSize
+  alt="Graf"
+  caption={<>
+    Przykładowy graf, a dokładniej mówiąc, jego graficzna reprezentacja. Na żółto zaznaczone są wierzchołki, czarne linie to krawędzie.
+  </>}
+/>
+
+Grafy stosujemy w matematyce do przedstawiania i badania relacji (w tym hierarchii) między obiektami. Obiekty są reprezentowane przez wierzchołki, natomiast relacje przez krawędzie. Można wręcz w mocnym uproszczeniu powiedzieć, że wszystko, co obrazuje relacje między obiektami, niezależnie czym one są, możemy formalnie zapisać za pomocą grafów. Bez względu na to, czy mówimy o połączeniach między punktami na mapie, relacjach w rodzinie, czy nawet kategoriach produktów kupionych w sklepie, powinniśmy być w stanie zapisać to za pomocą grafu. Myślę, że już to pokazuje ich zastosowania w informatyce, ale zanim do nich przejdziemy, przebrnijmy dalej przez definicję.
+
+#### Wierzchołki
+
+Wierzchołki, zwane też węzłami (po ang. *nodes*), to dowolny obiekt będący podstawową jednostką tego, co graf reprezentuje. Zgodnie z teorią grafów powinien być bezcechowy i niepodzielny, chociaż w praktyce bywa różnie. Wierzchołki mogą mieć przypisane etykiety, które jeśli zawierają wartość numeryczną, nazywamy wagami.
+
+Z praktycznego punktu widzenia warto zwrócić uwagę, że wierzchołki wewnątrz jednego grafu mogą reprezentować różne byty fizyczne bądź logiczne. Wracając do przykładu sklepu z poprzedniego punktu, jedne węzły mogą reprezentować klientów, a drugie produkty. Nie stanowi to żadnego problemu z formalnego punktu widzenia.
+
+#### Krawędzie
+
+W teorii grafów krawędziami nazywamy parę wierzchołków, które są ze sobą połączone. Mówimy wówczas, że sąsiadują ze sobą. Możemy wyróżnić trzy podstawowe typy krawędzi:
+
+- Pętle — są to krawędzie łączące ze sobą ten sam wierzchołek.
+- Krawędzie skierowane — (zwane też łukami, po ang. *arc*) to uporządkowane pary wierzchołków, więc możemy wyznaczyć, skąd i dokąd prowadzi krawędź (graficznie reprezentowana jako strzałka).
+- Krawędzie nieskierowane — przeciwieństwo poprzednich, czyli nieuporządkowana para wierzchołków (graficznie reprezentowana jako odcinek między węzłami).
+
+<Image
+  image={krawedzie}
+  alignCenter
+  fullSize
+  alt="Trzy grafy prezentujące różne rodzaje krawędzi"
+  caption={<>
+    Powyżej widzimy trzy rodzaje krawędzi. Wierzchołek oznaczony cyfrą 1 jest połączony pętlą. Wierzchołki 2 i 3 mają między sobą łuk, natomiast 4 i 5 pokazują krawędź nieskierowaną.
+  </>}
+/>
+
+W kontekście krawędzi istotne jest też to, że mogą mieć przypisane wartości liczbowe, które nazywamy wagami. Mogą one reprezentować własności połączenia, np. jeśli wierzchołki na naszym grafie reprezentują miasta, a krawędzie połączenia między miastami, to waga krawędzi może reprezentować długość danej drogi.
+
+Jeszcze wracając do matematyki, warto wspomnieć, że o ile mówimy o zbiorze wierzchołków, to krawędzie nie są zbiorem, ale „zbiorem zbiorów” (każda krawędź jest dwuelementowym zbiorem), co fachowo nazywamy rodziną. Sama formalna definicja rodziny krawędzi wygląda następująco:
+
+$$
+E \subseteq \{ \{ u,v \}: u,v \in V \}
+$$
+
+Warto też dodać, że w przypadku krawędzi skierowanych rodzinę taką oznacza się czasem literą $$A$$ (od *arc*) zamiast $$E$$.
+
+### Typy i klasy grafów
+
+Definicja, którą podałem na początku, jest najbardziej ogólną, jaką znajdziemy. W zależności od zastosowania stosujemy różne grafy. Możemy wyróżnić typy grafów zależnie od tego, jak je definiujemy, oraz klasy grafów ze względu na ich właściwości.
+
+Wśród typów najważniejsze są:
+
+- Grafy skierowane (digrafy) — wszystkie krawędzie tego grafu są skierowane. Przeciwieństwem są grafy nieskierowane.
+- Grafy mieszane — krawędzie mogą być zarówno skierowane, jak i nieskierowane. Wówczas formalnie taki graf zapiszemy jako trójkę $$G=(V,E,A)$$, ponieważ rodziny krawędzi skierowanych i nieskierowanych nie są jednym bytem.
+- Grafy ważone — są to dowolne grafy, w których mamy dodatkowo określone etykiety dla krawędzi lub wierzchołków, najczęściej w postaci numerycznej, czyli wag. W praktyce zwykle wyróżniamy to wtedy, gdy owe etykiety mają znaczenie przy algorytmach wykonywanych na grafach. Jeśli etykiety służą nam tylko do wizualnej reprezentacji, to raczej nie nazywamy takiego grafu ważonym.
+
+Natomiast pośród klas znajdziemy między innymi:
+
+- Grafy pełne — są to grafy nieskierowane, gdzie dla każdej pary węzłów znajdziemy krawędź je łączącą. Matematycznie graf pełny o $$n$$ wierzchołkach oznaczamy jako $$K_n$$.
+
+<Image
+  image={pelny}
+  alignCenter
+  fullSize
+  alt="Trzy grafy pełne"
+  caption={<>
+    Trzy grafy pełne. Cyfrą 1 oznaczony jest graf pełny K<sub>2</sub>, cyfrą 2 — K<sub>3</sub>, a cyfrą 3 — K<sub>5</sub>. Tak, widzisz dobrze, że rysując pentagram, tworzymy graf pełny — i jak tu zaprzeczyć temu, że matematyka jest magiczna?
+  </>}
+/>
+
+- Grafy spójne — to grafy (skierowane lub nieskierowane), gdzie dla każdej pary węzłów znajdziemy ścieżkę między nimi (nie musi być to krawędź). Ich przeciwieństwem są grafy niespójne. Możemy też się spotkać z grafami k-spójnymi, czyli takimi, gdzie po usunięciu $$k$$ dowolnych wierzchołków graf wciąż zachowuje spójność.
+- Grafy acykliczne — grafy nieposiadające cykli. Ich przeciwieństwem są grafy cykliczne, czyli posiadające cykle. Tylko czym są cykle? Cykl w grafie to ścieżka, którą możemy dojść z jednego wierzchołka do niego samego. Jak sama nazwa „acykliczne” wskazuje, że są to grafy pozbawione takich ścieżek.
+
+<Image
+  image={cykliczny}
+  alignCenter
+  fullSize
+  alt="Graf acykliczny oraz graf z cyklem"
+  caption={<>
+    Na rysunku widzimy dwa grafy skierowane. Pod numerem 1 jest graf acykliczny, natomiast pod numerem 2 graf z cyklami.
+  </>}
+/>
+
+- Drzewa — są to grafy, które jednocześnie są nieskierowane, acykliczne i spójne. Można sobie to wyobrazić w taki sposób, że z każdego wierzchołka można dotrzeć do dowolnego innego (spójność), ale tylko na jeden sposób, bez możliwości chodzenia w kółko (acykliczność). Tutaj dochodzimy do dość ciekawej rzeczy, bo w informatyce drzewa są zwykle reprezentowane jako grafy skierowane (głównie chodzi tu o wskazanie hierarchii jako dodatkowej informacji) i są na tyle specyficzne, że traktuje się je jako oddzielną strukturę danych, pod którą opracowano zbiór zupełnie odrębnych algorytmów.
+
+## Skąd w ogóle wzięły się grafy?
+
+Jeśli czytałeś(-aś) wcześniej mojego bloga, to na pewno kojarzysz, że zwykle piszę małą notkę historyczną. Tutaj również nie może jej zabraknąć, jednak najpierw wolałem napisać, czym są grafy.
+
+Za pierwszego matematyka, który użył grafów, uważa się Leonarda Eulera. Wykorzystał (a w zasadzie wymyślił) je w celu rozwiązania w 1741 r. problemu mostów królewieckich. Nazwa ta odnosi się do mostów w Królewcu (dzisiejszy Kaliningrad) nad rzeką Pregoła łączących dwa brzegi rzeki oraz dwie wyspy znajdujące się na niej. W czasach Eulera było tych mostów siedem. Problem polegał na tym, czy można przejść po kolei przez wszystkie mosty, ale w taki sposób, że przez każdy przechodzimy tylko raz.
+
+<Grid minWidth={239}>
+  <Image
+    image={mosty}
+    alignCenter
+    fullSize
+    alt="Uproszczona mapa pokazująca mosty w Królewcu nad rzeką Pregoła"
+    caption={<>„Mapa” Królewca z czasów Eulera przedstawiająca mosty nad rzeką Pregoła.
+      <br />(<a href="http://creativecommons.org/licenses/by-sa/3.0/" title="Creative Commons Attribution-Share Alike 3.0">CC BY-SA 3.0</a>, <a href="https://commons.wikimedia.org/w/index.php?curid=990540">Link</a>)
+    </>}
+    forceWhiteBackground={false}
+  />
+  <Image
+    image={mostyGraf}
+    alignCenter
+    fullSize
+    alt="Graf obrazujący zagadnienie mostów królewieckich"
+    caption={<>
+      Reprezentacja powyższego problemu w formie grafu. Wierzchołki reprezentują ląd, a krawędzie mosty. Węzły na górze i dole reprezentują lądy po obu brzegach rzeki, natomiast te po środku wyspy.
+    </>}
+  />
+</Grid>
+
+Euler za pomocą grafów udowodnił, że nie jest to możliwe, ponieważ przy każdym wierzchołku mamy nieparzystą liczbę krawędzi. Uogólniając problem, Euler wskazał (chociaż bez dowodu), że aby w grafie spójnym mógł zajść cykl tego typu (zwany dziś cyklem Eulera), graf nie może zawierać wierzchołków z nieparzystą liczbą krawędzi (mówiąc bardziej matematycznie: nie może zawierać wierzchołków o nieparzystych stopniach). Grafy, które zawierają taki cykl, nazywamy obecnie grafami eulerowskimi.
+
+Dlaczego jednak podkreślam, że **obecnie**? Otóż najprawdopodobniej pierwszy raz określenie *graf* w dzisiejszym jego znaczeniu zostało zapisane ponad 100 lat później przez Jamesa Josepha Sylvestra. W lutym 1878 r. w czasopiśmie Nature opublikowano jego tekst *Chemistry and Algebra*, gdzie opisał powiązania chemii z algebrą i przyrównał chemiczne diagramy do matematycznych grafów.
+
+Tak na marginesie, J. J. Sylvestrowi zawdzięczamy nazwanie nie tylko grafów, ale też wielu innych pojęć matematycznych, takich jak m.in. macierz, jakobian, kowariancja, kombinacja liniowa. Sam zresztą, również na łamach Nature, napisał (w tłumaczeniu):
+
+> Być może mogę bez nieskromności pretendować do miana matematycznego Adama, ponieważ uważam, że nadałem więcej nazw (które weszły do powszechnego obiegu) wytworom matematycznego rozumowania niż wszyscy inni matematycy razem wzięci.
+
+## Zastosowania grafów
+
+Wiemy już, czym są grafy i jaka stoi za nimi historia. Przy okazji wspomniałem o paru praktycznych użyciach, jednak uważam, że warto ten temat rozszerzyć. Grafy, jak wspomniałem na samym początku, są bardzo ważne i znajdziemy je niemal wszędzie, więc przedstawię przykładowe zastosowania, które wybrałem całkowicie subiektywnie, układając je niekoniecznie w zależności od ważności.
+
+### Znajdowanie tras
+
+Przy rozwiązywaniu problemów to, co najczęściej kojarzymy z grafami, to problemy znajdowania najkrótszej ścieżki. Przykładowo, może to być trasa na mapie z naszej aktualnej lokalizacji do dowolnej innej. Wówczas graf reprezentuje miejsca i drogi między nimi (jak w problemie mostów królewieckich). Jednak nie musi to być droga koniecznie na mapie, ale plansza w grze komputerowej. Zresztą jeden z najbardziej klasycznych problemów, czyli problem komiwojażera, wymaga od nas posiadania grafu pełnego, w którym znajdujemy najkrótszą trasę między wszystkimi punktami.
+
+W kontekście znajdowania tras i grafów nie sposób nie wspomnieć o zastosowaniu, z którym nieświadomie mamy do czynienia niemal bez przerwy (np. w momencie czytania tego artykułu). Otóż jako grafy traktuje się sieci komputerowe (w tym Internet), aby móc znajdować najkrótszą trasę między dwoma komputerami, które chcą nawiązać ze sobą połączenie. Zagadnienie to w teleinformatyce nazywa się trasowaniem (ang. *routing*) i za wyznaczanie najkrótszych ścieżek odpowiadają routery.
+
+### Reprezentacja wiedzy
+
+Grafy znalazły zastosowanie w reprezentacji wiedzy dzięki temu, że są strukturą umożliwiającą wskazywanie relacji między obiektami. Bazy wiedzy tego typu w teorii informatyki zaliczamy do ontologii. Przykładem ogólnodostępnej bazy wiedzy zapisanej w postaci grafu jest [WordNet](https://wordnet.princeton.edu/). Znajdując tam dowolne angielskie słowo, możemy znaleźć od razu jego powiązania z innymi słowami. Analogiczną bazą (również graf) jest [Słowosieć](http://plwordnet.pwr.wroc.pl/wordnet/) będąca polską wersją WordNetu rozwijaną przez naukowców z Politechniki Wrocławskiej.
+
+W kontekście reprezentacji wiedzy w postaci grafów często możemy spotkać się z pojęciem grafowych baz danych (GDB od ang. *graph database*). Są to gotowe systemy umożliwiające przechowywanie oraz odczytywanie danych zapisanych jako grafy, najczęściej właśnie baz wiedzy. Jest to jednak szeroki temat praktyczny z pogranicza teorii grafów i baz danych, o którym nie chcę się teraz rozpisywać.
+
+### Reprezentacja hierarchii
+
+Klasycznym zastosowaniem grafów w informatyce jest reprezentacja hierarchii. Hierarchia może być tutaj dowolna — uporządkowanie elementów, następowanie po sobie, struktura organizacyjna. W zasadzie wszystko to, na czym  chcemy pokazać, że coś następuje po sobie, możemy zapisać w formie grafu. Klasycznym przykładem hierarchii są drzewa genealogiczne. Z jednej strony prezentują nam one hierarchię następowania po sobie pokoleń rodziny w czasie, a z drugiej pokazują relacje między członkami rodu. Hierarchiczne zazwyczaj są też struktury organizacyjne w firmach, co również możemy przechowywać w postaci grafu.
+
+<Grid minWidth={239}>
+  <Image
+    image={rodzina}
+    alignCenter
+    fullSize
+    alt={"Graf przedstawiający kobietę, mężczyznę i dziecko. Między kobietą a mężczyzną są zapisane relacje \"mąż\" i \"żona\"; między dzieckiem a mężczyzną \"ojciec\"; między dzieckiem a kobietą \"matka\""}
+    caption={<>
+      Relacje rodzinne zapisane w postaci grafu. Wierzchołkami są osoby, a krawędzie opisują, kim są dla siebie wzajemnie.
+    </>}
+  />
+  <Image
+    image={struktura}
+    alignCenter
+    fullSize
+    alt="Graf przedstawiający strukturę organizacyjną firmy. Na szczycie jest CEO, a bezpośrednio pod nim Manager1 i Manager2. Manager1 ma pod sobą P1 i P2, natomiast Manager2 ma pod sobą P3"
+    caption={<>
+      Przykładowa struktura organizacyjna firmy. Również jest to graf, gdzie wierzchołkami są pracownicy, a krawędzie wyznaczają hierarchię podwładności.
+    </>}
+  />
+</Grid>
+
+Hierarchię zapisują także wywodzące się z grafów drzewiaste struktury danych. Miałem już okazję pokazać na blogu ich zastosowanie w sortowaniu (<Link href="/post/sortowanie-cz-4-sortowanie-przez-wybieranie/#kopce">sortowanie przez kopcowanie</Link> oraz <Link href="/post/sortowanie-cz-7-inne-podejscia/#sortowanie-drzewiaste">sortowanie drzewiaste</Link>), gdzie graf wyznacza kolejność następowania po sobie elementów. Przedstawiłem też pojęcie <Link href="/post/algorytmika-gier-kolko-i-krzyzyk/#algorytm-minimax">drzewa stanu gry, omawiając algorytm minimax</Link> — tutaj również w pamięci trzymaliśmy drzewo.
+
+### Zapis diagramów
+
+Do tej pory za każdym razem, gdy pokazywałem przykładowe grafy, rysowałem je. Te rysunki są niczym innym jak diagramami. Diagramy to, ogólnie mówiąc, uproszczona reprezentacja graficzna wiedzy. W przypadku diagramów logicznych i konceptualnych możemy zauważyć, że zazwyczaj składają się one z jakichś obiektów połączonych ze sobą strzałkami. Można by tu wymienić takie przykłady jak diagramy BPMN, schematy blokowe algorytmów, diagramy ERD czy cała rodzina diagramów UML.
+
+<Image
+  image={bpmn}
+  alignCenter
+  fullSize
+  alt={"Diagram w notacji BPMN"}
+  caption={<>
+    Przykładowy diagram BPMN. Czy nie przypomina Ci to wizualnie czegoś?<br />
+    (źródło: <a href="https://commons.wikimedia.org/wiki/File:BPMN-AProcessWithNormalFlow.svg">Mikelo Skarabo</a>, <a href="https://creativecommons.org/licenses/by-sa/4.0">CC BY-SA 4.0</a>, via Wikimedia Commons)
+  </>}
+/>
+
+Skoro każdy z nich składa się z jakichś obiektów połączonych ze sobą strzałkami zwykle określającymi jakąś relację lub hierarchię, to zauważmy, że możemy uznać je za graf. Jeśli chcemy na takich diagramach wykonywać bardziej zaawansowane operacje niż tylko ich rysowanie, to warto trzymać je w pamięci komputera jako grafy. Nawet może być to przydatne przy rysowaniu, bo mamy całą klasę algorytmów grafowych odpowiadających za odpowiednie układanie wierzchołków i krawędzi w przestrzeni.
+
+### Gry
+
+Ostatnie praktyczne zastosowanie grafów chciałem pokazać od nieco innej strony, gdzie może nie do końca się je widzi na pierwszy rzut oka. Mianowicie — w grach komputerowych. Patrząc na to, co do tej pory omawiałem, to wytrawnym graczom mogą najpierw przyjść do głowy drzewka rozwoju technologii w grach strategicznych. Oczywiście jest możliwe, że są reprezentowane jako grafy, jednak zdecydowanie najbardziej znane zastosowanie to wspomniane już wcześniej drzewa stanu gry wykorzystywane przy pisaniu sztucznej inteligencji.
+
+Mniej oczywistym zastosowaniem jest reprezentacja w postaci grafu planszy do gry. W przypadku wielu gier najczęściej kojarzy się ona z tablicą dwuwymiarową, ale są zastosowania, w których warto przejść na postać grafu. Takim zastosowaniem jest wyszukiwanie ścieżek. Jeśli w grze potrzebujesz zrobić sterowanie, gdzie klikasz, a postać idzie w to miejsce, omijając po drodze przeszkody, to najwygodniej będzie przekształcić planszę gry do postaci grafu i zastosować jeden z algorytmów wyszukiwania najkrótszej trasy (np. często używa się tutaj algorytmu A*). Zresztą niektóre plansze do gier są naturalnie grafem. Zdarza się tak w przypadku gier planszowych, gdzie np. przechodzimy lub zajmujemy jakieś ścieżki.
+
+<Image
+  image={wsiascDoPociagu}
+  alignCenter
+  fullSize
+  alt={"Fragment planszy do gry „Wsiąść do Pociągu”"}
+  caption={<>
+    Fragment planszy gry „Wsiąść do Pociągu” (oryg. <i>Ticket To Ride</i>, autorstwa Alana R. Moon, wydane przez Days of Wonder). Chyba nie muszę mówić, jaka struktura matematyczna przychodzi tutaj jako pierwsza na myśl, jeśli chcielibyśmy tę grę przenieść na komputer.
+  </>}
+/>
+
+## Podsumowanie
+
+Jak mogłeś(-aś) zobaczyć w artykule, grafy są interesującą i przydatną koncepcją matematyczną, która z powodzeniem została wcielona do świata informatyki. Na razie poznaliśmy tylko podstawowe pojęcia i przykładowe zastosowania, ale w dalszych artykułach przejdę bardziej szczegółowo do tego, w jaki sposób grafy reprezentujemy w językach programowania, a także podam przykładowe algorytmy używane do ich obsługi.
+
+## Literatura
+
+- Graf (matematyka), [//pl.wikipedia.org/w/index.php?title=Graf_(matematyka)&oldid=67058172](https://pl.wikipedia.org/w/index.php?title=Graf_(matematyka)&oldid=67058172) (ostatni dostęp maj. 18, 2022).
+- [Weisstein, Eric W.](https://mathworld.wolfram.com/about/author.html) "Eulerian Cycle." From [*MathWorld*](https://mathworld.wolfram.com/)--A Wolfram Web Resource. [https://mathworld.wolfram.com/EulerianCycle.html](https://mathworld.wolfram.com/EulerianCycle.html)
+- [Weisstein, Eric W.](https://mathworld.wolfram.com/about/author.html) "Königsberg Bridge Problem." [*MathWorld*](https://mathworld.wolfram.com/)--A Wolfram Web Resource. [https://mathworld.wolfram.com/KoenigsbergBridgeProblem.html](https://mathworld.wolfram.com/KoenigsbergBridgeProblem.html)
+- Earliest Known Uses of Some of the Words of Mathematics, [https://mathshistory.st-andrews.ac.uk/Miller/mathword/](https://mathshistory.st-andrews.ac.uk/Miller/mathword/) (ostatni dostęp maj. 18, 2022).
+- Diagram, [https://en.wikipedia.org/w/index.php?title=Diagram&oldid=1072254217](https://en.wikipedia.org/w/index.php?title=Diagram&oldid=1072254217) (ostatni dostęp maj. 18, 2022).
+
+<small>(grafika na okładce: <a href="https://commons.wikimedia.org/wiki/File:Goats_in_an_argan_tree_Morocco.jpg">Elena Tatiana Chis</a>, <a href="https://creativecommons.org/licenses/by-sa/4.0">CC BY-SA 4.0</a>, via Wikimedia Commons)</small>

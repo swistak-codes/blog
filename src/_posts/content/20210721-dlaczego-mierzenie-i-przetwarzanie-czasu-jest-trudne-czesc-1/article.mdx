@@ -1,0 +1,210 @@
+import Link from 'next/link';
+import {Image, Iframe} from '@swistak-codes/components';
+import cover from './zegar.jpg';
+import gregorian from './Gregoriancalendarleap_solstice.svg.png'
+
+export const meta = {
+  title: 'Dlaczego mierzenie i przetwarzanie czasu jest trudne? — część 1 z 2',
+  abstract:
+    'Zagadnienie dat i czasu nie jest wcale tak trywialne, jak można sądzić. Poruszymy w tej części: lata i sekundy oraz różne kalendarze.',
+  firstParagraph: (
+    <>
+      W artykułach poświęconych <Link href="/post/jak-komputer-mierzy-czas">odmierzaniu czasu</Link> oraz <Link href="/post/jak-komputer-przechowuje-date-i-skad-zna-aktualna">przechowywaniu daty</Link> kilkukrotnie wspomniałem, że
+      przy zagadnieniach tego typu powinniśmy polegać na gotowych implementacjach z systemu bądź języku programowania.
+      Wbrew temu, jak oczywistym wydaje się zagadnienie dat i czasu, nie jest ono wcale tak trywialne. Przy codziennym
+      postrzeganiu tego tematu nie bierzemy pod uwagę wielu niuansów, które mogą mieć wpływ na poprawną implementację.
+      Dlatego też postanowiłem pokazać kilka przykładów, dlaczego ten temat jest, wbrew pozorom, trudny. W tej części
+      poruszymy tematy lat przestępnych, różnych kalendarzy oraz sekund przestępnych.
+    </>
+  ),
+  keyword: 'czas',
+  categories: ['Data i czas'],
+  tags: [
+    'czas',
+    'UTC',
+    'lata przestępne',
+    'kalendarz juliański',
+    'kalendarz gregoriański',
+    'data juliańska',
+    'sekundy przestępne',
+    'TAI',
+    'TT',
+    'dzień juliański',
+    'zmodyfikowana data juliańska',
+    'kalendarz proleptyczny',
+    'kalendarz muzułmański',
+    'NTP',
+    'leap smear'
+  ],
+  slug: 'dlaczego-mierzenie-i-przetwarzanie-czasu-jest-trudne-czesc-1',
+  updateTime: '2021-08-17T16:42:07+00:00',
+  publishTime: '2021-07-21T09:00:25+00:00',
+  cover,
+};
+
+## Wstęp
+
+Na wstępie chciałbym zaznaczyć, że przedstawiony tutaj temat nie jest stricte informatyczny, jednak chcąc nie chcąc ma bardzo duży wpływ na systemy informatyczne. Informatyka to bardzo rozbudowana dyscyplina nauki i często w zależności od zastosowań mamy w niej do czynienia z tematami z fizyki, chemii, biologii, geografii czy innych dziedzin. W tym przypadku spotkamy się z mieszanką historii, geografii, metrologii i astronomii. Abyś jednak nie stwierdził(a), że nagle zmieniam tematykę bloga, podam oczywiście rozwiązania algorytmiczne i matematyczne dla niektórych zagadnień.
+
+## Lata przestępne
+
+Zacznijmy od najbardziej znanej nieregularności kalendarza, czyli lat przestępnych. Zostały one wprowadzone w celu korekcji kalendarza względem ruchu Ziemi wokół Słońca. Jest to spowodowane faktem, że obrót nie trwa równe 365 dni, a raczej około 365 dni i 5 godzin (tzw. rok słoneczny lub zwrotnikowy). W 2000 r. trwał 365,2421897 dnia, tj. 365 dni, 5 godzin, 48 minut i 45,19 sekund.
+
+Dzięki zastosowaniu lat przestępnych rok trwa średnio 365,2425 dni, co w zaokrągleniu daje wartość zbliżoną do rzeczywistej. Rok przestępny charakteryzuje się tym, że jest dłuższy o 1 dzień — luty ma wówczas 29 zamiast 28 dni. Od 1582 r. lata przestępne wyznaczane są wg schematu:
+
+- Rok jest podzielny przez 4 i niepodzielny przez 100
+- lub jest podzielny przez 400.
+
+Innymi słowy:
+
+```javascript
+function isLeapYear(year) {
+    return (year % 4 == 0) && (year % 100 != 0) || (year % 400 == 0);
+}
+```
+
+Błąd kalendarza wynosi około 26 sekund na rok, co w przeciągu 3322 lat spowoduje 1 dzień błędu, zakładając, że rok słoneczny będzie trwać cały czas tyle samo (a ten wydłuża się co roku, stąd błąd narasta szybciej).
+
+Na wykresie poniżej możesz zobaczyć, jak na przestrzeni lat przesuwa się data przesilenia letniego ze względu na lata przestępne.
+
+<Image
+  image={gregorian}
+  alignCenter
+  fullSize
+  alt="Przesuwanie się daty przesilenia letniego w kalendarzu gregoriańskim"
+  caption={<>
+    <a href="https://commons.wikimedia.org/wiki/File:Gregoriancalendarleap_solstice.svg" target="_blank" rel="noreferrer noopener nofollow">BasZoetekouw; spelling corrections and revision of subtitle by User:Gerry Ashton on 14 September 2008.</a>, <a href="https://creativecommons.org/licenses/by/3.0" target="_blank" rel="noreferrer noopener nofollow">CC BY 3.0</a>, via Wikimedia Commons
+  </>}
+/>
+
+## Różne kalendarze
+
+W przeciągu historii ludzie posługiwali się różnymi kalendarzami. Nawet dziś nie wszędzie stosuje się taki sam kalendarz. Dla nas naturalnym jest kalendarz gregoriański i z niego korzystamy w Polsce, ale czy tak jest wszędzie i czy tak było zawsze?
+
+### Kalendarze juliański i gregoriański
+
+Odpowiedź na oba pytania brzmi — nie. Zacznijmy jednak od drugiego pytania. Znany nam kalendarz gregoriański został wprowadzony dopiero w 1582 r. Wcześniej obowiązujący (w naszym obszarze kulturowym) był kalendarz juliański, którego wprowadził w życie Juliusz Cezar w 45 r. p.n.e.
+
+Kalendarz juliański, podobnie jak nasz, dzielił rok na 12 miesięcy i miał rok przestępny co 4 lata polegający na dodaniu jednego dnia. Jednak w pierwotnej wersji (do 8 r. n.e.) w wyniku błędu lata przestępne liczono co 3 lata. Stąd latami przestępnymi były 45 p.n.e., 42 p.n.e., 39 p.n.e. itd. Natomiast aby skorygować ten błąd, przez 12 lat nie dodawano żadnego dnia podczas lat przestępnych. Co warto też dodać, w pierwotnej wersji był inny układ miesięcy. Późniejsza wersja ma już jednak taki sam układ jak znany nam obecnie.
+
+W tym momencie można się jednak zastanawiać — 1582 rok, raczej niezbyt powinien interesować programistę. Problem leży w tym, że nie wszyscy przyjęli wówczas kalendarz gregoriański. Najbardziej znanymi rekordzistami są Rosja (przyjęto go dopiero w 1918 r.) i Grecja (1923 r.), choć równie późno wprowadzono go w Rumunii czy Jugosławii. Te daty są już nam znacznie bliższe. Jeżeli kiedyś na lekcjach historii zastanawiałeś się, dlaczego rewolucja październikowa odbyła się w listopadzie (7.11.1917 r.), to właśnie jest to wina różnych kalendarzy (wg juliańskiego był to 25 października). Przez pewien czas w wielu miejscach stosowano podwójny zapis dat (tzw. nowy i stary styl), np. w Polsce pod zaborem rosyjskim.
+
+### Różnica między kalendarzem juliańskim i gregoriańskim
+
+Aby obliczyć różnicę w liczbie dni pomiędzy oboma kalendarzami, możemy skorzystać z następującego wzoru:
+
+$$
+D = \bigg\lfloor \frac{Y}{100} \bigg\rfloor - \bigg\lfloor \frac{Y}{400} \bigg\rfloor - 2
+$$
+
+$$D$$ to liczba dni — ujemna oznacza, o ile dni kalendarz juliański wyprzedza gregoriański, dodatnia na odwrót. $$Y$$ to rok wyrażony w numeracji astronomicznej, gdzie 1 rok p.n.e. jest oznaczany jako 0, a wcześniejsze liczbami ujemnymi. Z tego obliczenia wynika, że obecnie różnica wynosi 13 dni, natomiast po 2100 r. będzie wynosić już 14 dni.
+
+### Współczesne zastosowania kalendarza juliańskiego
+
+Kalendarz juliański w pewnym stopniu wciąż jest w użyciu. Przede wszystkim nadal jest wykorzystywany w prawosławiu, stąd świętuje się tam Boże Narodzenie 7 stycznia. Jednak oprócz tego wciąż stosuje się go w... nauce.
+
+W astronomii korzystamy z tak zwanej daty juliańskiej (JD), która jest liczbą dni, jakie upłynęły od 1 stycznia 4713 r. p.n.e., godziny 12:00 (zerowa strefa czasowa). Zawiera także część ułamkową wyznaczającą konkretny czas w ciągu dnia. Istnieje też wersja całkowitoliczbowa nazywana dniem juliańskim (JDN). Zapis ten pozwala na wykonywanie obliczeń bez potrzeby przejmowania się zawiłościami związanymi z różnymi systemami kalendarzy.
+
+Aby zamienić datę z kalendarza gregoriańskiego na datę juliańską, stosujemy poniższy wzór:
+
+$$
+\begin{align*}
+\text{JDN} &=\bigg (1461 \cdot \Big(Y + 4800 + (M − 14 ) /12\Big)\bigg)/4 + \\ &+ \Bigg(367 \cdot \bigg(M − 2 − 12 \cdot \Big((M − 14)/12\Big)\bigg)\Bigg)/12 − \\ &-  \Bigg(3 \cdot \bigg(\Big(Y + 4900 + (M - 14)/12\Big)/100\bigg)\Bigg)/4 + D − 32075
+\\ \text{} \\
+\text{JD} &= \text{JDN} + \frac{h-12}{24} + \frac{m}{1440} + \frac{s}{86400}
+\end{align*}
+$$
+
+Dodatkowo jest też w użyciu zmodyfikowana data juliańska (MJD), która definiuje się następująco:
+
+$$
+\text{MJD} = \text{JD} - 2400000,5
+$$
+
+Pominę temat konwersji w drugą stronę, bo jest to dość rozbudowane obliczenie (tak, jeszcze bardziej niż to powyższe), ale można ją znaleźć bez problemu w dowolnym źródle internetowym. Warto również wspomnieć, że data juliańska w astronomii jest definiowana na podstawie tzw. czasu ziemskiego (TT), a nie według powszechnie stosowanego czasu uniwersalnego (UTC).
+
+### Niezgodność w długości miesięcy spowodowana zmianą kalendarza
+
+Wracając do problemów historycznych, warto zwrócić uwagę na to, że zmiana kalendarza nie wygląda tak, że 31 grudnia to był jeszcze kalendarz juliański, a 1 stycznia to już gregoriański. Aby zmiana miała sens, należało pominąć odpowiednią liczbę dni. Wracając do przykładu wspomnianej wcześniej Rosji: w 1918 r. różnica wynosiła 13 dni. Dlatego też, gdy ustalono, że zmiana nastąpi po 31 stycznia, pierwszą datą kalendarza gregoriańskiego był 14 lutego. Tym samym luty nie miał 28 dni, tylko 15. Taka sytuacja była na świecie wszędzie tam, gdzie zmieniano kalendarz. W tym także, jeśli zmieniano z dowolnego innego na gregoriański lub z gregoriańskiego na inny (tak, były takie przypadki).
+
+Jak rozwiązuje się ten problem? Otóż jeżeli nie musimy przetwarzać konkretnych dat historycznych, zakłada się, że kalendarz gregoriański po prostu był wcześniej. Nazywamy to proleptycznym kalendarzem gregoriańskim. W taki sposób bardzo często przechowuje się daty w systemach komputerowych, m.in. w systemach baz danych PostgreSQL czy MySQL. Jest to także część standardu ISO 8601:2004, o którym pisałem w poprzednim artykule.
+
+W formie ciekawostki mogę dodać, że analogicznie istnieje także proleptyczny kalendarz juliański, który był wykorzystywany do zapisu dat kalendarzem juliańskim sprzed wprowadzenia go.
+
+### Inne kalendarze
+
+Kalendarz juliański był jednak przez wiele lat domeną kultur europejskich, jak i analogicznie kalendarz gregoriański przez wiele lat był używany tylko przez kraje katolickie. Natomiast warto wiedzieć, że historycznie istniało znacznie więcej kalendarzy i niektóre inne są używane do dziś. Krótka lista wartych wspomnienia:
+
+- Kalendarz rzymski był stosowany w Rzymie przed wprowadzeniem kalendarza juliańskiego. Jego pierwotna wersja posiadała 10 miesięcy, a rok trwał 304 dni. W późniejszej wersji zawierał już 12 miesięcy i trwał 355 dni. Co 4 lata wstawiano dodatkowy miesiąc (Mercedonius), który miał 22 dni i pełnił analogiczną rolę do znanych nam dni przestępnych. Datą początku ery w tym kalendarzu (od założenia miasta Rzym — AUC) był 753 r. p.n.e.
+- Kalendarz chiński działa na bardzo podobnej zasadzie. Dzieli rok na 12 miesięcy po 29 i 30 dni i 7 razy w ciągu 19-letniego cyklu dodawany jest 13 miesiąc. Mimo że w Chinach został przyjęty kalendarz gregoriański (w 1912 r.), to jednak wciąż podtrzymywany jest tradycyjny kalendarz (aktualny standard: GB/T 33661-2017), na podstawie którego obliczane są daty świąt.
+- Na Tajwanie oficjalnie stosuje się kalendarz Republiki Chińskiej. Dni i miesiące numerowane są zgodnie z kalendarzem gregoriańskim, jednak podział na ery jest zgodny z tradycyjnym chińskim wyznaczanym przez aktualnego cesarza. Aktualna era rozpoczęła się w 1912 r. (początek republiki), stąd 2021 rok to na Tajwanie rok 110.
+- Podobnie jest w Korei Północnej, gdzie za początek ery uznaje się narodziny Kim Ir Sena, czyli także 1912 rok. Kalendarz tam stosowany nazywamy kalendarzem dżucze.
+- Analogiczny system jest obecnie stosowany w Japonii (kalendarz japoński). Do 1873 r. opierano się na kalendarzu chińskim z podziałem na ery (bez konkretnego schematu, każdy cesarz dzielił na różne sposoby). Obecnie stoi za nim kalendarz gregoriański dzielony na ery wg schematu: jeden cesarz-jedna era. W 2021 r. mamy 3 rok ery Reiwa (令和).
+- W kulturze arabskiej stosuje się kalendarz muzułmański. Również zawiera on 12 miesięcy po 29 lub 30 dni, a pierwszym w nim rokiem jest rok 622 kalendarza gregoriańskiego (rok emigracji Mahometa z Mekki do Medyny). Co ciekawe, tradycyjnie (do celów religijnych) kalendarz oparty był na obserwacjach księżyca, stąd nie posiadał stałej liczby dni w miesiącu. Te są ustalone w jego urzędowej wersji wykorzystywanej np. w Arabii Saudyjskiej (kalendarz gregoriański mają w użytku urzędowym dopiero od 2016 r.).
+  - Konwersja dat między kalendarzem arabskim a gregoriańskim jest dość skomplikowanym tematem ze względu na jego obserwacyjną naturę. Tradycyjnie wykorzystuje się do tego specjalne tablice, a bardziej nowoczesne podejście to np. algorytm Kuwaiti opracowany przez Microsoft. Jednak dla prostego przeliczenia roku możemy zastosować poniższe wzory ($$S$$ to data gregoriańska, a $$H$$ muzułmańska):
+
+$$
+\begin{align*}
+S&= H - \frac{3\cdot H}{100} + 622 \\ \text{}\\
+\text{lub:\,\,} S&= \frac{32\cdot H}{33} + 622 \\ \text{}\\
+H &=\frac{33\cdot(S - 622)}{32}
+\end{align*}
+$$
+
+## Sekundy przestępne
+
+Jak się okazuje, nie tylko ruch Ziemi wokół Słońca nie jest dokładnie taki, jak byśmy tego chcieli. To samo jest z ruchem wokół własnej osi, który nie trwa idealnie 24 godziny. Prędkość obrotu stale spowalnia, a do tego różne zdarzenia geologiczne potrafią przyspieszyć obrót planety. Na przykład w 2011 r. trzęsienie Ziemi w Japonii skróciło dzień o 1,8 mikrosekundy. Dlatego też wprowadzono pojęcie sekundy przestępnej.
+
+### Co to jest i kiedy występuje?
+
+Sekunda przestępna to dodatkowa sekunda (zakłada się też odjęcie sekundy, co nigdy nie nastąpiło) występująca albo 30 czerwca, albo 31 grudnia. O tym, czy należy wprowadzić taką sekundę i kiedy, decyduje IERS (International Earth Rotation and Reference Systems Service), który robi to od 1988 r. (wcześniej zajmowało się tym Międzynarodowe Biuro Czasu). Taka decyzja jest publikowana co pół roku.
+
+Skoro IERS publikuje informację, czy ma być sekunda przestępna, czy też nie, to niestety, oznacza to, że nie ma tutaj regularności. W przeciwieństwie do lat przestępnych nie jesteśmy w stanie określić matematycznie, kiedy taka sytuacja nastąpi. Jednak samo IERS nie bierze tego znikąd, tylko na podstawie obserwacji słońca. Jeżeli różnica między czasem UT1 (czas słoneczny na południku $$0^{\circ}$$), a UTC zbliża się do 0,6 sekundy, wówczas ogłaszana jest sekunda przestępna. Zasada jest taka, że nie można doprowadzić do tego, aby różnica między tymi czasami przekroczyła 0,9 sekundy.
+
+W chwili pisania artykułu (czerwiec 2021 rok) mieliśmy dopisanych 27 sekund przestępnych, z czego ostatnia była w grudniu 2016 r. Co ciekawe, możliwe, że doświadczymy ujemnych sekund przestępnych, ponieważ wg pomiarów mieliśmy w 2020 r. 28 najkrótszych dni od 1960 r.
+
+### UTC, TAI i TT
+
+Jak wspomniałem wyżej, sekundy przestępne są dodawane do czasu uniwersalnego, czyli UTC. Jest to ogólnie przyjęty standard czasu, którym posługujemy się wszędzie na co dzień (stąd także jest to czas, który widzimy w komputerze). Warto wiedzieć, że są też inne  standardy czasu.
+
+Najważniejszym z ziemskiego punktu widzenia jest międzynarodowy czas atomowy (TAI). Jest to czas odmierzany przez zegary atomowe, bez brania pod uwagę sekund przestępnych. W 1958 r. był skoordynowany z czasem uniwersalnym, jednak obecnie (czerwiec 2021 rok) wyprzedza go już o 37 sekund.
+
+W tym momencie prawidłowym byłoby zadać pytanie — skąd 37 sekund, skoro do czasu UTC dopisano 27 sekund? Otóż sekunda nie zawsze była definiowana tak samo. Dopiero od 1972 r. czas uniwersalny stosuje taką samą długość sekundy, co zegary atomowe (nazywa się to sekundą SI), ale do tego momentu zdążyła się pojawić różnica wynosząca 10 sekund.
+
+Wspomniałem też wcześniej przy okazji daty juliańskiej o standardzie zwanym czasem ziemskim (TT). Jest on zdefiniowany przez Międzynarodową Unię Astronomiczną i wykorzystywany w astronomii. Powszechnie definiuje się go na bazie czasu TAI i wynosi wówczas:
+
+$$
+TT = TAI + 32,184 \text{ s}
+$$
+
+### Komputery a sekundy przestępne
+
+Dość ciekawym zagadnieniem jest uznawanie sekund przestępnych przez komputery. Z racji ich nieregularności wprowadzono różne sposoby radzenia sobie z problemem:
+
+- Serwery czasu (NTP) mogą powiadomić, że danego dnia wystąpi sekunda przestępna. W ten sposób system dostaje informację, że musi taką zmianę obsłużyć.
+- Na Linuksie jednym ze sposobów obsłużenia sekundy przestępnej jest powtórzenie 59 sekundy zamiast obsłużenie 60 sekundy. Jednak sposób ten może spowodować problemy z aplikacjami, które są zależne od czasu. Z tego powodu jądro Linuksa wspiera też inne sposoby obsługi sekundy przestępnej.
+- Windows ignoruje sekundę przestępną i po prostu przy kolejnej synchronizacji czasu z serwerem koryguje swój czas.
+- Dostawcy usług chmurowych wykorzystują technikę znaną jako Leap Smear (rozmazanie przeskoku), która polega na odpowiednim spowolnieniu zegarów sprzętowych tak, aby zsynchronizować swoje zegary z czasem UTC w przeciągu kilkunastu godzin. Na przykład Amazon spowalnia zegary o 1/86400 sekundy, dzięki czemu po 24 godzinach synchronizują się z nowym czasem UTC. Analogicznie robi Google, przy czym oni stosowali inne spowolnienie, dzięki któremu synchronizacja następowała po 20 godzinach.
+
+Co warto dodać, czas uniksowy nie uznaje sekund przestępnych — dzień zawsze trwa tutaj 86400 sekund. Dlatego trzeba pamiętać, że konwersja czasu uniksowego na UTC nie opiera się na zwykłym podzieleniu wartości.
+
+## Podsumowanie
+
+Artykułu nie traktuj jako analizy biznesowej zagadnienia czasu, a bardziej jako zbiór wiedzy teleturniejowej z podanymi rozwiązaniami matematycznymi. Jest to jedynie wycinek problemów związanych z mierzeniem i przetwarzaniem czasu, do tego zagadnienia zostały potraktowane bardzo powierzchownie. Jeśli musisz programować logikę zorientowaną na ten temat, najpierw zobacz, co oferują Ci standardowe biblioteki Twojego języka programowania, a w następnej kolejności najpopularniejsze od innych dostawców. Dopiero kiedy nie znajdziesz rozwiązań swoich problemów w gotowcach, wtedy zabierz się za programowanie na własną rękę.
+
+A jeśli lubisz takie ciekawostki, <Link href="/post/dlaczego-mierzenie-i-przetwarzanie-czasu-jest-trudne-czesc-2">to zapraszam do części drugiej</Link>.
+
+## Literatura
+
+- Leap year, [https://en.wikipedia.org/w/index.php?title=Leap_year&oldid=1028845668](https://en.wikipedia.org/w/index.php?title=Leap_year&oldid=1028845668) (data ostatniego dostępu: 27.06.2021)
+- *B.6. History of Units* w „Appendix B. Date/Time Support” — PostgreSQL 13 Documentation: [https://www.postgresql.org/docs/current/datetime-units-history.html](https://www.postgresql.org/docs/current/datetime-units-history.html) (data ostatniego dostępu: 27.06.2021)
+- Julian day, [https://en.wikipedia.org/w/index.php?title=Julian_day&oldid=1029978337](https://en.wikipedia.org/w/index.php?title=Julian_day&oldid=1029978337) (data ostatniego dostępu: 27.06.2021)
+- Adoption of the Gregorian calendar, [https://en.wikipedia.org/w/index.php?title=Adoption_of_the_Gregorian_calendar&oldid=1028898890](https://en.wikipedia.org/w/index.php?title=Adoption_of_the_Gregorian_calendar&oldid=1028898890) (data ostatniego dostępu: 27.06.2021)
+- *Calendar Converter*, John Walker, 2015: [http://www.fourmilab.ch/documents/calendar/](http://www.fourmilab.ch/documents/calendar/) (data ostatniego dostępu: 27.06.2021)
+- *Kalendarz muzułmański — zasady*, Selim Chazbijewicz: [http://mzr.pl/kalendarz-muzulmanski-zasady/](http://mzr.pl/kalendarz-muzulmanski-zasady/) (data ostatniego dostępu: 27.06.2021)
+- Nelson, Robert Arnold, et al. "The leap second: its history and possible future." Metrologia 38.6 (2001): 509.
+- Terrestrial Time, [https://en.wikipedia.org/w/index.php?title=Terrestrial_Time&oldid=1007409598](https://en.wikipedia.org/w/index.php?title=Terrestrial_Time&oldid=1007409598) (data ostatniego dostępu: 27.06.2021)
+- *Look Before You Leap – The Coming Leap Second and AWS (Updated)*, Jeff Barr, 18.05.2015, [https://aws.amazon.com/blogs/aws/look-before-you-leap-the-coming-leap-second-and-aws/](https://aws.amazon.com/blogs/aws/look-before-you-leap-the-coming-leap-second-and-aws/) (data ostatniego dostępu: 27.06.2021)
+- *Resolve Leap Second Issues in Red Hat Enterprise Linux* — Red Hat Customer Portal Knowledgebase, 17.02.2017, [https://access.redhat.com/articles/15145](https://access.redhat.com/articles/15145) (data ostatniego dostępu: 27.06.2021)
+
+<small>(zdjęcie na okładce pochodzi z serwisu [Pixabay](https://pixabay.com/pt/photos/rel%C3%B3gio-decora%C3%A7%C3%A3o-escultura-3572705/))</small>

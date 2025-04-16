@@ -1,0 +1,395 @@
+import Link from 'next/link';
+import {Image, Iframe, Grid} from '@swistak-codes/components';
+import cover from './Museum-Skeleton-Dinosaur-Dinosaur-Skeleton-367732.jpg';
+import primeTheoremWykres from './Prime_number_theorem_ratio_convergence.svg.png';
+import primePi from './PrimePi.svg.png';
+import ulam1 from './Ulam_1.png';
+import ulam2 from './Ulam_2.png';
+import ulamAll from './Ulam_spiral_howto_all_numbers.svg.png';
+import ulamPrime from './Ulam_spiral_howto_primes_only.svg.png';
+
+export const meta = {
+  title: 'Duże liczby pierwsze',
+  abstract:
+    'Skąd matematycy wiedzą jak szukać duże liczby pierwsze? W tym artykule pokazuję różne sposoby, jak to robią.',
+  firstParagraph: (
+    <>
+      Do tej pory przedstawiłem, <Link href="/post/liczby-pierwsze-i-proste-sposoby-na-ich-sprawdzanie">czym są liczby pierwsze, ich zastosowania, jak możemy sprawdzać pierwszość liczb</Link> oraz jak możemy <Link href="/post/proste-sposoby-na-znajdowanie-liczb-pierwszych">prostymi sposobami znajdować je</Link>. Jednak wszystko to, co do tej pory opowiedzieliśmy sobie, jest w dużej mierze zabawą. Jak poruszyłem już <Link href="/category/matematyka/liczby-pierwsze">na samym początku serii</Link>, w kryptografii wykorzystuje się liczby pierwsze 2048-bitowe, więc w systemie dziesiętnym mogą one mieć nawet 617 cyfr. Dowiedzmy się więcej, jak jesteśmy w stanie odkryć tak duże, a nawet i większe liczby pierwsze. Na razie tylko w teorii.
+    </>
+  ),
+  keyword: 'liczby pierwsze',
+  categories: ['Liczby pierwsze'],
+  tags: [
+    'matematyka',
+    'liczby pierwsze',
+    'wielomian Eulera',
+    'spirala Ulama',
+    'funkcja pi',
+    'twierdzenie o liczbach pierwszych',
+    'liczby Mersenne\'a',
+    'małe twierdzenie Fermata',
+    'liczby pseudopierwsze',
+    'testy pseudopierwszości',
+    'test Fermata',
+    'test Millera-Rabina',
+    'test n-1',
+    'test n+1',
+    'asymptotyczne tempo wzrostu',
+    'liczby Fermata',
+    'liczby Protha',
+    'factorial prime',
+    'primorial prime',
+    'primorial',
+    'twierdzenie Protha',
+  ],
+  slug: 'duze-liczby-pierwsze',
+  updateTime: '2022-02-16T11:39:40+00:00',
+  publishTime: '2022-02-16T09:00:11+00:00',
+  cover,
+};
+
+## Matematyka liczb pierwszych
+
+Matematycy od dawnych lat próbowali dojść do tego, jak otrzymywać liczby pierwsze prościej niż iteracyjnymi sposobami takimi jak sito Eratostenesa. Z jednej strony w ramach ich zainteresowania był temat, jak szybciej sprawdzać pierwszość zamiast dzielenia po kolei aż do pierwiastka z liczby. Z drugiej strony chcieli odkryć, czy istnieje coś w stylu wzoru na liczbę pierwszą. Nawet niekoniecznie wzór dający zawsze liczbę pierwszą, co jakakolwiek zależność pozwalająca łatwiej namierzyć liczby pierwsze w nieskończonym zbiorze liczb naturalnych; czy nawet jakakolwiek własność wspólna dla wszystkich liczb pierwszych, która ułatwi ich znalezienie.
+
+Szczególnie stało się to istotne dziś, gdy uzależniamy działanie wielu ważnych algorytmów (np. RSA) od wygenerowania dużych liczb pierwszych. Przykładowo, jeśli chcielibyśmy wygenerować liczbę pierwszą zajmującą 2048 bitów, to mamy do sprawdzenia $$2^{2046} \approx 8 \cdot 10^{615}$$ liczb (pierwszy bit musi być 1, żeby liczba była tej długości, a ostatni również 1, aby była nieparzysta). Każda z nich będzie miała w okolicach 616 cyfr, więc sprawdzenie metodą naiwną będzie długotrwałe. Sita również niekoniecznie się sprawdzą, bo każda z liczb będzie zajmować 256 bajtów w pamięci, więc sprawdzenie wszystkich zajęłoby mniej więcej $$10^{606}$$ terabajtów.
+
+Dziedzina ta jest bardzo szeroka, bo i przez wiele lat udało się matematykom odkryć wiele ciekawych zależności, choć nie zawsze zostały do końca udowodnione. W artykule pokażę moim zdaniem najważniejsze i najciekawsze z nich.
+
+## Wielomian Eulera generujący liczby pierwsze
+
+Naszą matematyczną przygodę zaczniemy od odkrycia Eulera z 1772 r., który zauważył, że wielomian:
+
+$$
+P(n) = n^2 + n + 41
+$$
+
+generuje liczby pierwsze dla $$0 \leqslant n \leqslant 39$$. Nie uzyskamy w ten sposób dużych liczb, bo największą jest 1601. Do tego nie są to też wszystkie po kolei. Jednak co warto tutaj zobaczyć, to dalsze odkrycia. Mianowicie zauważono, że nie tylko 41 tak się zachowuje. Jeśli wzór zgeneralizujemy do:
+
+$$
+P(n) = n^2+n+p
+$$
+
+to okazuje się, że liczby pierwsze będziemy w stanie generować dla $$p \in \{1, 2, 3, 5, 11, 17, 41\}$$. Są to tak zwane szczęśliwe liczby Eulera.
+
+Co więcej, wzory te również potrafią dalej generować liczby pierwsze, tylko pojawią się co jakiś czas liczby złożone. Liczby złożone otrzymamy zawsze, jeśli $$n$$ jest podzielne przez $$p$$ oraz $$(n+1)$$ jest podzielne przez $$p$$.
+
+## Spirala Ulama
+
+W 1963 r. polski matematyk Stanisław Ulam zaproponował nowy sposób wizualizacji liczb pierwszych, który ujawnił ich wciąż niewyjaśnione właściwości. Polega ona na rozpisaniu po kolei wszystkich liczb naturalnych od 1 wzwyż na spirali, a następnie zaznaczeniu liczb pierwszych tak jak na rysunku poniżej.
+
+<Grid minWidth={266}>
+  <Image
+    image={ulamAll}
+    alignCenter
+    fullSize
+    alt="Spirala z rozpisanymi wszystkimi liczbami od 1 do 49"
+    caption={<>
+      Spirala z rozpisanymi wszystkimi liczbami od 1 do 49.<br />
+      (źródło: By Onmywaybackhome - Own work, Public Domain, <a href="https://commons.wikimedia.org/w/index.php?curid=8327264" target="_blank">https://commons.wikimedia.org/w/index.php?curid=8327264</a>)
+    </>}
+    forceWhiteBackground
+  />
+  <Image
+    image={ulamPrime}
+    alignCenter
+    fullSize
+    alt="Spirala z rozpisanymi liczbami pierwszymi od 1 do 49"
+    caption={<>
+      Spirala z zaznaczonymi liczbami pierwszymi.<br />
+      (źródło: By Onmywaybackhome - Own work, Public Domain, <a href="https://commons.wikimedia.org/w/index.php?curid=8327308" target="_blank">https://commons.wikimedia.org/w/index.php?curid=8327308</a>)
+    </>}
+    forceWhiteBackground
+  />
+</Grid>
+
+Na takiej małej ilości liczb nie widać jeszcze żadnych zależności, mimo że sam kształt już zaczyna być ciekawy. Zobaczmy spiralę Ulama dla większej ilości liczb:
+
+<Image
+  image={ulam1}
+  alignCenter
+  fullSize
+  alt="Spirala Ulama dla 40 tysięcy liczb"
+  caption={<>
+    Spirala Ulama dla 40 tysięcy liczb.<br />
+    (źródło: By Grontesca at the English Wikipedia, CC BY-SA 3.0, <a href="https://commons.wikimedia.org/w/index.php?curid=1924394" target="_blank">https://commons.wikimedia.org/w/index.php?curid=1924394</a>)
+  </>}
+/>
+
+To, co zainteresowało matematyków, to linie, w jakie układają się niektóre z liczb pierwszych. Patrząc na ten rysunek, możemy zauważyć, że ewidentnie jest jakaś zależność ukrywająca się za rozmieszczeniem liczb pierwszych, tylko wciąż nie wiemy, jaka dokładnie. Jednak jesteśmy w stanie uzyskać wzory na niektóre z tych linii. Na przykład na poniższym rysunku zaznaczono liczby pierwsze generowane przez wzór $$4x^2-2x+41$$ (podobny do wzoru Eulera, czyż nie?):
+
+<Image
+  image={ulam2}
+  alignCenter
+  fullSize
+  alt="Spirala Ulama dla 40 tysięcy liczb z zaznaczonymi liczbami spełniającymi wzór 4x^2-2x+41"
+  caption={<>
+    Na granatowo zaznaczono liczby spełniające ten wzór dla x ze zbioru liczb naturalnych. Wyróżniająca się, równoległa linia na dole rysunku jest możliwa do uzyskania tym samym wzorem, ale z ujemnymi wartościami x.<br />
+    (źródło: By Will Orrick - Own work, Public Domain, <a href="https://commons.wikimedia.org/w/index.php?curid=10720576" >https://commons.wikimedia.org/w/index.php?curid=10720576</a>)
+  </>}
+/>
+
+## Funkcja zliczająca liczby pierwsze
+
+Poza odnalezieniem wzoru, który dawałby nam liczby pierwsze, matematycy skupiają się też na znalezieniu funkcji zliczającej liczby pierwsze. Możesz teraz zadać pytanie: tylko po co? Odpowiadam: choćby dzięki temu bylibyśmy w stanie określić prawdopodobieństwo znalezienia liczby pierwszej w pewnym skończonym zbiorze liczb naturalnych. Funkcję taką tradycyjnie zapisuje się jako $$\pi(x)$$.
+
+<Image
+  image={primePi}
+  alignCenter
+  fullSize
+  alt="Wykres wartości funkcji pi(n) w zależności od wartości n"
+  caption={<>
+    Wartości funkcji zliczającej liczby pierwsze dla 60 pierwszych liczb naturalnych.<br />
+    (źródło: By Bender2k14 - Mathematica source code, CC BY-SA 3.0, <a href="https://commons.wikimedia.org/w/index.php?curid=17040316" target="_blank">https://commons.wikimedia.org/w/index.php?curid=17040316</a>)
+  </>}
+  forceWhiteBackground
+/>
+
+Prawdopodobnie nie zaskoczę nikogo faktem, że nie znamy dokładnego wzoru. Jednak z racji tego, że znamy ilość liczb pierwszych aż do $$10^{28}$$ (Baugh D., Walisch K., 2020), jesteśmy w stanie oszacować wzór na różne sposoby, a także określić jego błąd.
+
+Najczęściej spotykanym przybliżeniem tej funkcji jest wzór zaproponowany pod koniec XVIII w. przez Gaussa i Legendre, wskazujący jej asymptotyczne tempo wzrostu\*:
+
+$$
+\pi(x) \sim \frac{x}{\log(x)}
+$$
+
+Błąd względny tego wzoru dla $$x=100$$ wynosi 13,2 %, jednak wraz ze wzrostem $$x$$ błąd spada. Dla $$x=10^{28}$$ (najwyższe, dla którego znamy dokładną wartość) błąd wynosi już zaledwie 1,58 %. Swoją drogą, jeśli chcemy wyliczać z tego wzoru przybliżone wartości $$\pi(x)$$, to należy uznać, że jest to logarytm naturalny (mimo zapisu sugerującego podstawę 10).
+
+Innym znanym przybliżeniem jest wartość logarytmu całkowego z $$x$$:
+
+$$
+\begin{align*}
+\pi(x) &\sim \operatorname{Li}(x), \\ &\text{gdzie: } \\
+\operatorname{Li}(x) &= \int_2^x \frac{1}{\ln t}dt
+\end{align*}
+$$
+
+\* Asymptotyczne tempo wzrostu określa zachowanie wartości funkcji wraz ze wzrostem argumentów. Innymi słowy, wskazuje „mniej więcej” kształt wykresu funkcji, jednak nie jej dokładne wartości. Na pewno znasz to z informatyki, ale pod inną nazwą — notacja dużego $$\Omicron$$ (ciekawostka: wbrew powszechnemu przekonaniu nie jest to litera O, tylko duża grecka litera omikron).
+
+## Twierdzenie o liczbach pierwszych
+
+Na bazie funkcji zliczającej liczby pierwsze możliwe było sformalizowanie spostrzeżenia, że liczby pierwsze są coraz rzadsze, im dalej od zera się znajdujemy. Właśnie twierdzenie o liczbach pierwszych stwierdza, że $$\frac{x}{\log{x}}$$ jest dobrym przybliżeniem $$\pi(x)$$. Wiemy to, ponieważ wraz ze wzrostem wartości x, stosunek właściwej wartości funkcji oraz jej przybliżenia zbiega do 1, co matematycznie wyrazimy jako:
+
+$$
+\lim_{x\to\infty}\frac{\pi(x)}{\frac{x}{\log(x)}} = 1
+$$
+
+Dokładnie tak samo zachowuje się drugie przybliżenie, czyli logarytm całkowy.
+
+<Image
+  image={primeTheoremWykres}
+  alignCenter
+  fullSize
+  alt="Wykres wskazujący błąd przybliżeń funkcji pi(x) względem jej prawdziwych wartości"
+  caption={<>
+    Wykres pokazuje, jak zachowują się wartości obu ilorazów wraz ze wzrostem x (oś pozioma, skala logarytmiczna). Widzimy z tego, że pierwszy wzór (niebieska linia) przybliża wartość z niedomiarem i powoli zbiega do 1. Drugi wzór (czerwona linia) natomiast przybliża z nadmiarem, jednak wartość szybciej zbiega do 1.<br />
+    (źródło: By Dcoetzee - Own work, CC0, <a href="https://commons.wikimedia.org/w/index.php?curid=25216710" target="_blank">https://commons.wikimedia.org/w/index.php?curid=25216710</a>)
+  </>}
+  forceWhiteBackground
+/>
+
+Co nam to daje w praktyce w kontekście szukania liczb pierwszych? Dwie rzeczy. Po pierwsze, możemy określić, że n-ta liczba pierwsza ($$p_n$$) spełnia następującą zależność:
+
+$$
+p_n \sim n \log{n}
+$$
+
+Przykładowo, $$2\cdot 10^{17}$$ liczba pierwsza to 8 512 677 386 048 191 063, gdy z powyższego wzoru otrzymamy 7 967 418 752 291 744 388. Błąd względny wynosi w tym przypadku około 6,4 %.
+
+Druga interesująca rzecz — z twierdzenia tego wynika, że dla dużych $$n$$ prawdopodobieństwo, że trafimy na liczbę pierwszą nie większą od $$n$$, wynosi około $$\frac{1}{\ln{n}}$$. Idąc dalej tym tropem, szansa, że losowa liczba naturalna mająca co najmniej $$2n$$ cyfr jest pierwsza, jest o połowę mniejsza niż dla liczby mającej $$n$$ cyfr. Wynika to z twierdzenia, że średni odstęp między liczbami pierwszymi wynosi około $$\log{n}$$.
+
+Aby przełożyć te prawdopodobieństwa na konkretny przykład, wyobraźmy sobie, że chcemy wylosować liczbę pierwszą, która ma 1024 bity, czyli największa wynosi $$2^{1024}$$. Oznacza to, że powinniśmy się spodziewać, że aby znaleźć liczbę pierwszą, wystarczy wylosować około 710 1024-bitowych liczb. Co więcej, z racji tego, że możemy z góry odrzucić liczby parzyste, to możemy tę wartość obniżyć o połowę. Sprawdzenie 355 liczb zamiast $$2^{1024} \approx 1,8 \cdot 10^{308}$$ brzmi jak coś o wiele bardziej osiągalnego.
+
+## Liczby pierwsze Mersenne'a
+
+Jednym z najbardziej znanych i rozpoznawalnych wzorów dających liczby pierwsze jest wzór na liczby Mersenne'a, które są tak nazwane po XVII-wiecznym francuskim matematyku Marinie Mersenne zajmującym się ich badaniem. Mimo że wzór ten nie daje wszystkich liczb pierwszych, nawet nie daje ich często, to jednak na pewno się kiedykolwiek z nim spotkałeś(-aś). Ten wzór to:
+
+$$
+M_n = 2^n - 1
+$$
+
+Innymi słowy, są to liczby pierwsze o jeden mniejsze od potęgi dwójki. Dodatkowo zauważono, że wzór ten produkuje liczby pierwsze tylko wtedy, gdy 2 zostało podniesione do potęgi liczby pierwszej, w przeciwnym razie otrzymujemy liczby złożone.
+
+Pierwsze z liczb Mersenne'a to:
+
+$$
+\begin{align*}
+M_2 &= 2^2 - 1 = 4 - 1 =3 \\
+M_3 &= 2^3 - 1 = 8 - 1 = 7\\
+M_5 &= 2^5 - 1 = 32 - 1 =31\\
+M_7 &= 2^7 - 1 = 128 - 1 = 127 \\
+M_{13} &= 2^{13} - 1 = 8192 - 1 = 8191
+\end{align*}
+$$
+
+Obecnie (luty 2022) znamy tylko 51 wartości $$n$$, które dają nam liczby pierwsze. Pytaniem jest jednak, czy takich liczb jest nieskończenie wiele? Jest to jeden z nierozwiązanych problemów matematycznych.
+
+Jednak jednocześnie to właśnie liczby Mersenne'a są największymi z liczb pierwszych, jakie znamy. Również są stosowane w informatyce (patrz np. algorytm Mersenne Twister). Dlaczego tak jest? Otóż są one najprostsze do przedstawienia <Link href="/post/matematyka-zero-jedynkowa">w formie binarnej</Link>. Każda liczba $$2^n-1$$ to w zapisie binarnym $$n$$ jedynek. Sprawia to też, że obliczenia na nich są stosunkowo proste.
+
+Obecnie wciąż trwają poszukiwania coraz większych liczb pierwszych spełniających właśnie wzór Mersenne'a. Od 1996 r. działa program [GIMPS](https://www.mersenne.org/) (Great Internet Mersenne Prime Search), który skupia się na znajdowaniu jak największych liczb pierwszych Mersenne'a przez rozproszenie obliczeń na wiele komputerów. Każdy może udostępnić swój komputer i wspomóc znajdowanie kolejnych dużych liczb pierwszych.
+
+## Inne warte uwagi rodzaje liczb pierwszych
+
+Liczby pierwsze Mersenne'a są najbardziej znane, ale mamy też inne rodzaje liczb pierwszych, o których warto wspomnieć głównie ze względu na to, że znamy sztuczki na ich w miarę proste testowanie:
+
+- Liczby pierwsze Fermata — jest to podzbiór liczb Fermata zawierający tylko liczby pierwsze. Wzór na liczbę Fermata to: $$F_n = 2^{2^n}+1$$. Liczby pierwsze znajdziemy dla $$n \in \{0,1,2,3,4\}$$ i najprawdopodobniej nie ma ich więcej.
+- Liczby pierwsze Protha — liczba musi pochodzić ze wzoru $$n = h \cdot 2^k + 1$$, gdzie zarówno $$h$$, jak i $$k$$ są liczbami naturalnymi, $$h$$ jest nieparzyste oraz $$2^k > h$$. Największą znaną liczbą pierwszą Protha (luty 2022) jest $$11\cdot2^{9381365}+1$$.
+- Factorial prime (nie znam polskiej nazwy; factorial to silnia po angielsku) — są to liczby pierwsze o 1 większe lub mniejsze od silnii z dowolnej liczby ($$n! \pm 1$$). Silnia (oznaczana symbolem $$!$$) to iloczyn kolejnych liczb naturalnych. Aktualnie znamy 27 takich liczb po odjęciu 1 oraz 23 po dodaniu 1. Największa znana to $$308084! + 1$$.
+- Primorial prime (analogicznie jak wyżej, nie znam dobrego tłumaczenia) — są to liczby pierwsze o 1 większe lub o 1 mniejsze od primorial z $$p_n$$ ($$p_n\# \pm 1$$). Primorial (oznaczany symbolem $$\#$$) to iloczyn kolejnych liczb pierwszych. Największa znana to $$3267113\# - 1$$ (dla $$n=234725$$).
+
+Zauważ ich wspólną cechę (oraz liczb Mersenne'a): zawsze są o 1 większe lub mniejsze od innej znanej nam liczby uzyskiwanej z prostego wzoru.
+
+Wyżej wymienione liczby pierwsze, a także inne rodzaje, aktualnie wyszukuje inny projekt rozproszonych obliczeń: [PrimeGrid](https://www.primegrid.com/). Analogicznie jak w GIMPS, każdy może wspomóc wyszukiwanie kolejnych dużych liczb pierwszych mocą swojego komputera.
+
+## Małe twierdzenie Fermata
+
+Nazwisko Pierre'a de Fermata, XVII-wiecznego francuskiego matematyka-samouka, na pewno już nie raz słyszałeś(-aś), nawet pomijając wyżej opisane liczby Fermata. Mamy m.in. spiralę Fermata, punkt Fermata, zasadę Fermata, twierdzenie Fermata o sumie dwóch kwadratów czy wielkie twierdzenie Fermata. Nas jednak, z punktu widzenia liczb pierwszych, interesują dwa zagadnienia: małe twierdzenie Fermata oraz test pierwszości Fermata. Skupmy się na tym pierwszym. Twierdzenie brzmi następująco:
+
+Jeśli $$p$$ jest liczbą pierwszą, to dla dowolnej liczby całkowitej $$a$$ liczba $$a^p-a$$ jest podzielna przez $$p$$.
+
+Możemy to zapisać w arytmetyce modularnej (czyli z zawijaniem się liczb po osiągnięciu liczby zwanej modułem; tak jak przy dodawaniu czasu) następująco:
+
+$$
+\displaystyle a^{p}-a\equiv 0{\pmod {p}}
+$$
+
+Idąc dalej, jeśli $$a$$ nie jest podzielne przez $$p$$, małe twierdzenie Fermata jest równoważne stwierdzeniu, że $$a^{p-1}-1$$ jest wielokrotnością $$p$$:
+
+$$
+\begin{align*}
+a^{p-1}-1&\equiv 0{\pmod {p}} \\
+a^{p-1}&\equiv 1{\pmod {p}}
+\end{align*}
+$$
+
+W standardowym zapisie jest to:
+
+$$
+a^{p-1} \mod{p} = 1
+$$
+
+## Liczby pseudopierwsze
+
+Do tej pory cały czas pisałem o liczbach pierwszych, ale ani razu o pokrewnych im liczbach pseudopierwszych. Liczby pseudopierwsze to liczby naturalne, które nie są liczbami pierwszymi (mają więcej niż 2 dzielniki), ale spełniają niektóre właściwości charakterystyczne dla nich.
+
+Najczęściej spotkać się możemy z liczbami pseudopierwszymi Fermata. Są to liczby, które spełniają warunki małego twierdzenia Fermata, jednak nie są liczbami pierwszymi. Na przykład najmniejsza liczba pseudopierwsza Fermata przy podstawie 2 ($$a = 2$$, fachowo oznacza się takie liczby jako 2-PRP) to 341. Nie jest to liczba pierwsza, bo jest podzielna przez 11 i 31, jednak możemy zauważyć zgodnie z małym twierdzeniem Fermata, że $$2^{340}\equiv 1{\pmod {p}}$$.
+
+Liczb pseudopierwszych jest nieskończenie wiele, ale w zależności od ich kategorii i podstawy nie musi być ich dużo w porównaniu do liczb pierwszych. Przykładowo, poniżej $$2,5 \cdot 10^{10}$$ znajdziemy około miliard liczb pierwszych, podczas gdy zaledwie 21 853 liczby pseudopierwsze Fermata o podstawie 2.
+
+## Testowanie dużych liczb pierwszych
+
+W przypadku dużych liczb pierwszych testowanie metodą naiwną, którą pokazałem w pierwszym artykule, może być bardzo czasochłonne. Tymczasem, jak już wspomniałem na samym początku, dużo algorytmów polega na tym, że jesteśmy w stanie znaleźć liczby pierwsze szybko, a skoro znaleźć, to też przetestować je.
+
+W tym kontekście możemy mówić o kilku rodzajach testów pierwszości:
+
+- (Silne) testy pseudopierwszości
+- Klasyczne testy
+- Testy ogólnego przeznaczenia
+
+W ramach tego artykułu krótko opowiem o tych rodzajach testów, a także o tym, jakie testy możemy tutaj wyróżnić i na czym mniej więcej polegają. Bardziej szczegółowy opis działania jednego z najpowszechniej stosowanych sposobów przedstawię w następnym artykule.
+
+### (Silne) testy pseudopierwszości
+
+Testy pseudopierwszości nie wskażą nam, że liczba jest na pewno pierwsza, ponieważ w najgorszym wypadku może być to liczba pseudopierwsza. Jednak testy takie są bardzo szybkie, stąd też często wykorzystuje się je w praktyce (np. w algorytmie RSA).
+
+#### Test pierwszości Fermata
+
+Najbardziej znanym jest tutaj test pierwszości Fermata. Polega na sprawdzaniu losowych liczb (sami określamy, ile razy sprawdzamy, za pomocą wartości $$k$$) i naszej prawdopodobnej liczby pierwszej według małego twierdzenia Fermata. Robimy to następująco:
+
+- Wybierz losowe $$a$$ w zakresie $$2 \leqslant a \leqslant n-2$$.
+- Jeśli $$a^{n-1} \mod{n} \neq 1$$, to $$n$$ jest liczbą złożoną i przerwij sprawdzanie.
+- Powtórz powyższe kroki $$k$$ razy. Jeśli warunek nie został nigdy spełniony, $$n$$ jest prawdopodobnie pierwsze.
+
+#### Test Millera-Rabina
+
+Niestety, mimo że jak wcześniej pisałem, liczb pseudopierwszych Fermata nie jest bardzo dużo, to jednak do praktycznych zastosowań jest ich zbyt wiele, aby test był wystarczająco wiarygodny. Dlatego też powstały tzw. silne testy pseudopierwszości, gdzie prawdopodobieństwo uznania liczby złożonej za pierwszą jest jeszcze rzadsze. Szeroko stosowanymi standardami w praktycznych zastosowaniach są testy Baillie-PSW oraz Millera-Rabina. Ten drugi jest szczególnie często spotykany ze względu na jego prostotę oraz szybkość.
+
+Test Millera-Rabina opiszę bardziej szczegółowo w następnym artykule, jednak bardzo pobieżnie mówiąc, jego idea opiera się na rozbiciu sprawdzanej liczby $$n$$ na $$2^s \cdot d + 1$$, a następnie sprawdzeniu dwóch warunków:
+
+$$
+\begin{align*}
+a^{d} &\equiv 1 \pmod{n} \\
+a^{2^r \cdot d} &\equiv -1 \pmod{n}  \text{ dla pewnych } 0 \leqslant r < s
+\end{align*}
+$$
+
+Jeśli jeden z nich jest spełniony w każdej z $$k$$ prób, liczba jest prawdopodobnie pierwsza.
+
+### Klasyczne testy
+
+W przypadku gdy chcemy wiedzieć, czy liczba jest na pewno pierwsza, potrzebujemy deterministycznych testów, które nie posiadają marginesu błędu. Jeśli chcielibyśmy opublikować odkrycie nowej bardzo dużej liczby pierwszej, nie wystarczy przeprowadzić testów pseudopierwszości. Z drugiej strony, metoda naiwna też się nie sprawdzi, bo wymagałaby zbyt dużo obliczeń. Tutaj pojawia się zagadnienie klasycznych testów pierwszości.
+
+Idea tych testów opiera się na tym, że nie sprawdzimy nimi każdej możliwej liczby, czy jest pierwsza. Stosuje się je tylko na wybrane przypadki. Dlatego teraz przypomnij sobie, kiedy wymieniałem rodzaje liczb pierwszych, albo też zobacz w Internecie dowolną tabelę największych znanych liczb pierwszych. Zwykle mamy tam zapis $$\pm 1$$ inna liczba. W takich przypadkach okazuje się, że liczba o 1 mniejsza/większa od liczby pierwszej jest bardzo prosta do rozbicia na dzielniki. Na tej podstawie, jesteśmy potem w stanie określić pierwszość kolejnej/poprzedniej liczby.
+
+Testy klasyczne możemy podzielić na testy $$n-1$$, czyli te, gdzie sprawdzamy liczbę o 1 mniejszą (a więc liczbę zapisaną jako $$p = \text{coś} + 1$$), oraz przeciwne $$n+1$$ ($$p = \text{coś} - 1$$). Duży udział w opracowaniu obu rodzajów tych testów miał jeszcze inny francuski matematyk — Édouard Lucas, którego możesz kojarzyć z wymyślenia zagadki <Link href="/post/wieze-hanoi">wieży Hanoi</Link>.
+
+#### n - 1
+
+W przypadku $$n-1$$ testy te bazują często na zmodyfikowanym przez Lucasa małym twierdzeniu Fermata, gdzie zakładamy, że liczba $$n$$ jest pierwsza, jeśli dla każdego dzielnika (będącego liczbą pierwszą) $$n-1$$ istnieje taka liczba całkowita a, która spełnia jednocześnie dwa warunki:
+
+$$
+\begin{align*}
+a^{n-1} \mod{n} &= 1 \\
+a^{(n-1)/q} \mod{n} &\neq 1
+\end{align*}
+$$
+
+Innym testem tego typu, bardziej pod konkretny przypadek, jest test Pepina. Według niego n-ta liczba Fermata ($$F_n$$) jest liczbą pierwszą tylko wtedy, gdy:
+
+$$
+3^{(F_n-1)/2} \equiv -1 \pmod {F_n}
+$$
+
+Mamy też twierdzenie Protha, które mówi, że liczba $$n = h \cdot 2^k + 1$$ jest pierwsza, jeśli istnieje taka liczba całkowita $$a$$, dla której prawdą jest:
+
+$$
+a^{(n-1)/2} \equiv -1 \pmod{n}
+$$
+
+#### n + 1
+
+Ten przypadek jest najciekawszy, bo pod niego pasują najbardziej znane liczby pierwsze — liczby pierwsze Mersenne'a. Tutaj najbardziej znanym sposobem jest test Lucasa-Lehmera. Pomijając całą zawiłą matematykę będącą podstawą tego testu, można go sprowadzić do kilku prostych obliczeń.
+
+Zacznijmy od definicji ciągu liczb naturalnych $$S_k$$:
+
+$$
+S_{k}={\begin{cases}4&{\text{, gdy }}k=0\\S_{k-1}^{2}-2&{\text{, gdy }}k\neq 0\end{cases}}
+$$
+
+Test Lucasa-Lehmera mówi, że liczba $$M_p$$ jest pierwsza wtedy, gdy:
+
+$$
+S_{p-2} \equiv 0 \pmod{M_p}
+$$
+
+Jest to bardzo prosty test do obliczenia, a także zaprogramowania. W przypadku komputerów warto zaznaczyć, że nie wymaga dzielenia. Jako ciekawostkę podam, że jest o tyle prosty do napisania, że w 1978 r. rekordową liczbę pierwszą Mersenne'a ($$2^{21701}-1$$) znalazła dwójka licealistów (Landon Curt Noll i Laura Nickel).
+
+### Testy ogólnego przeznaczenia
+
+W tej kategorii znajdziemy testy pierwszości, zwykle dość nowoczesne, które albo stanowią usprawnione wersje wcześniej opisanych, albo stosują zupełnie inne podejście do sprawdzania pierwszości z pominięciem dzielenia. W przypadku tych sposobów mamy często do czynienia z dość zaawansowaną matematyką, dlatego wymienię je tylko z nazwy:
+
+- APR oraz APR-CL — są dalszymi rozwinięciami idei testów klasycznych, stąd często nazywa się je testami neoklasycznymi.
+- ECPP — do sprawdzenia pierwszości wykorzystuje krzywe eliptyczne.
+- AKS — podobnie jak test Rabina-Millera wykorzystuje zmodyfikowaną wersję małego twierdzenia Fermata, jednak tutaj mamy do czynienia z testem deterministycznym. Jego zaletami są szybkość działania oraz to, że można go w miarę łatwo zaprogramować.
+
+## Podsumowanie
+
+Jak mogłeś(-aś) zobaczyć w tym artykule, w wątku liczb pierwszych mamy bardzo wiele ciekawych odkryć. Nie tylko coraz to większe liczby, ale także własności, jakie liczby pierwsze posiadają. Mimo że wciąż nie znamy wzoru na liczbę pierwszą, odkrycia sprawiły, że szukanie coraz to większych liczb jest prostsze i szybsze.
+
+A po co w ogóle szukać tak dużych liczb pierwszych, pomijając zastosowanie w kryptografii, o którym wspominałem wiele razy? Cóż, jest to już matematyczna tradycja, którą zajmowało się wielu znanych matematyków wspominanych przeze mnie nie raz w tym artykule. Jednak nie tylko: w historii szukanie dużych liczb pierwszych miało skutki uboczne w postaci nowych twierdzeń czy algorytmów. A jak to do Ciebie nie przemawia, to dla znalazców rekordowych liczb pierwszych są przewidziane nagrody pieniężne — 100 000 $ za pierwszą odkrytą liczbę z dziesięcioma milionami cyfr, 150 000 $ za pierwszą z miliardem cyfr, 250 000 $ za pierwszą z bilionem cyfr.
+
+## Literatura
+
+- Mollin, R. A. (2002). *A Brief History of Factoring and Primality Testing B. C. (Before Computers)*. Mathematics Magazine, 75(1), 18. [doi:10.2307/3219180](https://doi.org/10.2307%2F3219180)
+- Granville, A.; Martin, G. (2006). “Prime Number Races”. *American Mathematical Monthly*. 113 (1): 1–33. [doi:10.2307/27641834](https://doi.org/10.2307%2F27641834).
+- Knuth, D. E. “Factoring into Primes” w *The art of computer programming: Volume 2.*. Addison-Wesley, 2011, s. 380-418
+- Cormen, T. H.; Leiserson, C. E.; Rivest R. L.; Stein C. “Primality Testing” w *Introduction to algorithms, 3rd ed.*. MIT Press, Cambridge, MA, U.S.A., s. 965-975.
+- Weisstein, Eric W. “Prime Counting Function.” From *MathWorld--*A Wolfram Web Resource. [https://mathworld.wolfram.com/PrimeCountingFunction.html](https://mathworld.wolfram.com/PrimeCountingFunction.html)
+- Caldwell C., *Finding primes & proving primality — How to Prove Primality*, [https://primes.utm.edu/prove/merged.html](https://primes.utm.edu/prove/merged.html) (ostatnie odwiedziny 12.02.2022).
+- Mersenne Primes: History, Theorems and Lists, [https://primes.utm.edu/mersenne/index.html](https://primes.utm.edu/mersenne/index.html) (ostatnie odwiedziny 12.02.2022).
+- Mathematics and Research Strategy, [https://www.mersenne.org/various/math.php](https://www.mersenne.org/various/math.php) (ostatnie odwiedziny 12.02.2022).
+- Ulam spiral, [https://en.wikipedia.org/w/index.php?title=Ulam_spiral&oldid=1038024272](https://en.wikipedia.org/w/index.php?title=Ulam_spiral&oldid=1038024272) (ostatnie odwiedziny 12.02.2022).
+- Fermat's little theorem, [https://en.wikipedia.org/w/index.php?title=Fermat%27s_little_theorem&oldid=1054384646](https://en.wikipedia.org/w/index.php?title=Fermat%27s_little_theorem&oldid=1054384646) (ostatnie odwiedziny 12.02.2022).
+- Miller–Rabin primality test, [https://en.wikipedia.org/w/index.php?title=Miller%E2%80%93Rabin_primality_test&oldid=1058489090](https://en.wikipedia.org/w/index.php?title=Miller%E2%80%93Rabin_primality_test&oldid=1058489090) (ostatnie odwiedziny 12.02.2022).
+
+<small>(zdjęcie na okładce pochodzi z serwisu [Max Pixel](https://www.maxpixel.net/Museum-Skeleton-Dinosaur-Dinosaur-Skeleton-367732))</small>

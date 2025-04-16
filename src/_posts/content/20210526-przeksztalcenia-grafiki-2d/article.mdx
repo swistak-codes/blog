@@ -1,0 +1,331 @@
+import Link from 'next/link';
+import {Image, Iframe} from '@swistak-codes/components';
+import cover from './malpy.jpg';
+import gimp from './gimp.png';
+import powiekszenia from './powiekszenia_v2.png';
+import bilinear from './Bilinear_interpolation.png';
+
+export const meta = {
+  title: 'Przekształcenia grafiki 2D — matematyczny punkt widzenia',
+  abstract:
+    'W artykule tym opisuję operacje matematyczne jakie stoją za transformacjami grafiki dwuwymiarowej, zarówno wektorowej jak i rastrowej.',
+  firstParagraph: (
+    <>
+      Operując na grafice dwuwymiarowej, jesteśmy przyzwyczajeni, że możemy robić tak podstawowe operacje, jak jej
+      obracanie, przesuwanie czy zmiana rozmiaru. Każdy program graficzny na to pozwala, a z punktu widzenia programisty
+      są to operacje dostępne z poziomu CSS lub bibliotek graficznych. Ale, jak już nie raz na tym blogu, rozbiję to na
+      czynniki pierwsze i pokażę, co tak naprawdę siedzi pod spodem tych funkcji, a dokładniej — matematyka za tym
+      stojąca.
+    </>
+  ),
+  keyword: 'przekształcenia grafiki',
+  categories: ['Grafika komputerowa', 'Matematyka'],
+  tags: [
+    'grafika',
+    'macierze',
+    'transformacje afiniczne',
+    'geometria',
+    'matematyka',
+    'przekształcenia geometryczne',
+    'translacja',
+    'skalowanie',
+    'obrót',
+    'współrzędne jednorodne',
+    'przesunięcie',
+    'przekształcenie perspektywiczne',
+    'składanie przekształceń',
+    'grafika rastrowa',
+    'grafika wektorowa',
+    'interpolacja dwuliniowa',
+    'algorytm najbliższego sąsiada',
+    'css',
+    'javascript',
+    'java',
+    'c#',
+    'canvas',
+    '2d',
+  ],
+  slug: 'przeksztalcenia-grafiki-2d',
+  updateTime: '2021-08-17T16:39:08+00:00',
+  publishTime: '2021-05-26T09:00:10+00:00',
+  cover,
+};
+
+## Uwaga wstępna
+
+W artykule będę operować matematycznym pojęciem macierzy. Z tego, co się orientuję, jest to pojęcie wprowadzane dopiero na studiach, jednak mimo to bardzo łatwe. Jeżeli chcesz podążać za obliczeniami matematycznymi, które tu pokażę, warto zapoznać się, czym są macierze oraz jak wykonuje się podstawowe operacje na nich (dodawanie, mnożenie, transpozycja oraz wyznaczenie macierzy odwrotnej). Chcę jednak zaznaczyć, że **artykuł nie ogranicza się jedynie do obliczeń**, więc można skorzystać z wiedzy w nim zawartej bez rozumienia wszystkich pokazanych równań.
+
+## Przekształcenia geometryczne
+
+Przede wszystkim zdefiniujmy sobie, o czym będziemy mówić w artykule. Przekształcenia geometryczne polegają na przyporządkowaniu punktom figury geometrycznej (czy ogólnie mówiąc — obrazu) nowe położenia. Najczęściej mówimy o przekształceniach elementarnych, do których zaliczamy skalowanie (zmiana rozmiaru), obrót, translację (przesunięcie), odbicie i pochylenie.
+
+Bardziej ogólnym pojęciem są przekształcenia afiniczne. Są to przekształcenia geometryczne, które odwzorowują odcinki na odcinki, zachowują równoległość linii, jednak nie zachowują kątów ani odległości między punktami (aczkolwiek zachowują stosunki odległości). Do transformacji afinicznych zaliczamy wszystkie wymienione wcześniej przekształcenia elementarne, a także dowolne ich połączenie ze sobą.
+
+## Przekształcenia elementarne w 2D
+
+Zacznijmy od tego, jak można matematycznie obliczyć część z elementarnych przekształceń w przestrzeni dwuwymiarowej. Przekształcenia te można zapisać w sposób macierzowy oraz bez macierzy, stąd przedstawię oba sposoby zapisu. Zaznaczę tylko, że w wersji macierzowej punkty zapiszę w postaci wektorów kolumnowych (wg „Wprowadzenie do grafiki komputerowej” J. Foleya), jednak spotykane są też wersje w postaci zwykłych („poziomych”) wektorów. Punkt w takim zapisie wygląda następująco:
+
+$$
+P = \begin{bmatrix}
+x\\y
+\end{bmatrix}
+$$
+
+Jako $$P(x,y)$$ będziemy oznaczać punkt przed przekształceniem, natomiast jako $$P'(x',y')$$ punkt po przekształceniu.
+
+### Translacja
+
+Najprostszym przekształceniem jest przesunięcie, czyli translacja, którą wykonujemy poprzez dodanie do każdego punktu przesunięcia o $$T = (d_x, d_y)$$ jednostek. Tym samym możemy ją zapisać następująco:
+
+$$
+\begin{align*}
+\begin{bmatrix}x'\\y'\end{bmatrix} &= \begin{bmatrix}x\\y\end{bmatrix} + \begin{bmatrix}d_x\\d_y\end{bmatrix} = \begin{bmatrix}x + d_x\\y+d_y\end{bmatrix} \\ \text{}\\
+x'&=x+d_x\\y' &= y + d_y
+\end{align*}
+$$
+
+### Skalowanie
+
+Zmianę rozmiaru, czyli skalowanie, obliczamy z wykorzystaniem współczynnika skalowania $$S = (s_x, s_y)$$. Wygląda to następująco:
+
+$$
+\begin{align*}
+\begin{bmatrix}x'\\y'\end{bmatrix} &= \begin{bmatrix}s_x & 0\\0 & s_y\end{bmatrix} \cdot\begin{bmatrix}x\\y\end{bmatrix} = \begin{bmatrix}s_x \cdot x\\s_y \cdot y\end{bmatrix} \\ \text{}\\
+x'&=s_x \cdot x\\y' &= s_y \cdot y
+\end{align*}
+$$
+
+Warto omówić dwie ważne właściwości współczynnika skalowania. Po pierwsze, jeśli $$s_x=s_y$$, to skalowanie utrzyma nam proporcje oryginalnego obrazu. Po drugie, współczynnik mniejszy od 1 będzie zmniejszać obraz, natomiast większy powiększać.
+
+Bardzo istotne jest to, że przekształcenie to odbywa się względem początku układu współrzędnych, dlatego w jego wyniku dojdzie do przesunięcia obiektu.
+
+### Obrót
+
+Jeżeli chcemy obrócić punkty o kąt $$\theta$$ wokół początku układu współrzędnych, wykonujemy następujące operacje:
+
+$$
+\begin{align*}
+\begin{bmatrix}x'\\y'\end{bmatrix} &= \begin{bmatrix}\cos\theta & -\sin\theta\\\sin\theta & \cos\theta\end{bmatrix} \cdot\begin{bmatrix}x\\y\end{bmatrix} = \begin{bmatrix}x \cdot \cos\theta - y \cdot \sin\theta\\x \cdot \sin\theta + y \cdot \cos\theta\end{bmatrix} \\ \text{}\\
+x'&= x \cdot \cos\theta - y \cdot \sin\theta\\
+y' &= x \cdot \sin\theta + y \cdot \cos\theta
+\end{align*}
+$$
+
+### Przekształcenia afiniczne
+
+Zauważyliśmy powyżej, że trzy najprostsze przekształcenia możemy obliczyć z następujących wzorów:
+
+$$
+\begin{align*}
+P' &= T + P \\
+P' &= S \cdot P \\
+P' &= R \cdot P
+\end{align*}
+$$
+
+Stąd składając to w całość, dowolne przekształcenie afiniczne możemy zapisać w postaci:
+
+$$
+\begin{bmatrix}x'\\y'\end{bmatrix} = \begin{bmatrix}a & b\\c & d\end{bmatrix} \cdot\begin{bmatrix}x\\y\end{bmatrix} + \begin{bmatrix}e\\f\end{bmatrix}
+$$
+
+Zapis zrobił się nam niepotrzebnie skomplikowany. Wszystko psuje potrzeba dodawania w celu dokonania translacji. W idealnym świecie wszystkie transformacje powinno się dać zapisać za pomocą jednej macierzy, co zdecydowanie uprościłoby obliczenia.
+
+## Współrzędne jednorodne
+
+Potrzebna jest jedna macierz do opisania wszystkich możliwych przekształceń? Żaden problem, matematyka potrafi takie rzeczy. Jednak aby tego dokonać, musimy nieco powiększyć nasze macierze. Tym razem punkt będzie posiadać jedną dodatkową współrzędną, i to mimo tego, że dalej operujemy na przestrzeni dwuwymiarowej. Będzie to współrzędna $$w$$, czyli czynnik normalizujący. Co bardzo ważne, musi być on różny od 0.
+
+Tak więc we współrzędnych jednorodnych punkt wygląda następująco:
+
+$$
+P = \begin{bmatrix}x\\y\\w\end{bmatrix}
+$$
+
+Jednak jak go przeliczyć na współrzędne kartezjańskie? Bardzo prosto — wystarczy podzielić współrzędne przez czynnik normalizujący:
+
+$$
+P = \begin{bmatrix}\frac{x}{w}\\\frac{y}{w}\end{bmatrix}
+$$
+
+Oznacza to, że w zapisie jednorodnym takie punkty, jak $$(2, 3, 1)$$, $$(6, 9, 3)$$ czy $$(-1, -1.5, -0.5)$$, to ten sam punkt we współrzędnych kartezjańskich.
+
+### Ogólny zapis przekształceń we współrzędnych jednorodnych
+
+Najogólniej przekształcenia w takim zapisie możemy przedstawić następująco:
+
+$$
+\begin{align*}
+\begin{bmatrix}x'\\y'\\w'\end{bmatrix} &= \begin{bmatrix}a & b & c\\d & e & f\\g & h & i\end{bmatrix} \cdot \begin{bmatrix}x\\y\\w\end{bmatrix}
+\\ \text{} \\
+x'&=ax+by+cw \\
+y'&=dx+ey+fw \\
+w' &= gx+hy+iw
+\end{align*}
+$$
+
+Jeżeli natomiast stosowalibyśmy drugi sposób zapisu (wektor współrzędnych), to powyższy zapis jest równoważny następującemu:
+
+$$
+\begin{bmatrix}x' & y' & w'\end{bmatrix} = \begin{bmatrix}x & y & w\end{bmatrix} \cdot \begin{bmatrix}a & d & g\\b & e & h\\c & f & i\end{bmatrix}
+$$
+
+Należy zwrócić uwagę na to, że zmienia się kolejność mnożenia (ma znaczenie w przypadku macierzy!), a także doszło do transpozycji (zamiany wierszy z kolumnami) macierzy przekształceń. W dalszej części artykułu nadal będę stosować konwencję wektorów kolumnowych.
+
+### Przekształcenia elementarne
+
+Skoro znamy ogólny sposób zapisu, zobaczmy teraz, w jaki sposób możemy przedstawić opisane wcześniej przekształcenia w takiej postaci.
+
+Najogólniej, wszystkie przekształcenia afiniczne możemy zapisać w postaci:
+
+$$
+\begin{bmatrix}x'\\y'\\w'\end{bmatrix} = \begin{bmatrix}a & b & c\\d & e & f\\0 & 0 & 1\end{bmatrix} \cdot \begin{bmatrix}x\\y\\w\end{bmatrix}
+$$
+
+Elementy $$(a, b, d, e)$$ odpowiadają za skalowania i obroty, natomiast $$(c, f)$$ za przesunięcie. Tym samym widzimy, że dwie macierze, jakie mieliśmy we wcześniejszym zapisie, byliśmy w stanie połączyć w jedno. W takim razie zobaczmy te przekształcenia.
+
+#### Przesunięcie
+
+$$
+\begin{bmatrix}x'\\y'\\w'\end{bmatrix} = \begin{bmatrix}1 & 0 & d_x\\0 & 1& d_y\\0 & 0 & 1\end{bmatrix} \cdot \begin{bmatrix}x\\y\\w\end{bmatrix}
+$$
+
+#### Skalowanie
+
+$$
+\begin{bmatrix}x'\\y'\\w'\end{bmatrix} = \begin{bmatrix}s_x & 0 & 0\\0 & s_y & 0\\0 & 0 & 1\end{bmatrix} \cdot \begin{bmatrix}x\\y\\w\end{bmatrix}
+$$
+
+#### Obrót
+
+$$
+\begin{bmatrix}x'\\y'\\w'\end{bmatrix} = \begin{bmatrix}\cos\theta & -\sin\theta & 0\\ \sin\theta & \cos\theta & 0\\0 & 0 & 1\end{bmatrix} \cdot \begin{bmatrix}x\\y\\w\end{bmatrix}
+$$
+
+### Inne przekształcenia
+
+Jak zobaczyliśmy wyżej, do wszystkich przekształceń elementarnych wykorzystaliśmy jedynie dwa pierwsze wiersze macierzy. Wciąż jednak pozostaje ten ostatni, trzeci wiersz. Do czego można go wykorzystać? Można tak tworzyć przekształcenia perspektywiczne (homograficzne). W przeciwieństwie do przekształceń afinicznych nie zachowują one równoległości linii. Warto jednak wiedzieć, że w wielu implementacjach przekształceń macierzowych w językach programowania możemy robić jedynie transformacje afiniczne.
+
+### Sprawdź sam!
+
+Jeżeli chcesz sprawdzić, w jaki sposób działają przekształcenia w układzie jednorodnym, poniżej możesz przetestować, jak zmienia się obrazek w zależności od różnych wartości elementów macierzy.
+
+<Iframe src="/iframe-content/matrix-transform2d/index.html" minHeight={360} />
+
+Kod pokazanej wyżej prezentacji został napisany w Svelte i znajdziesz go na moim [GitHubie](https://github.com/swistak-codes/matrix-transformations-2d). Warto wspomnieć, że w tym przypadku środek układu współrzędnych znajduje się pośrodku pola z obrazkiem, stąd obroty wyglądają naturalnie.
+
+## Składanie przekształceń
+
+Jak wspomniałem wcześniej, jednym z powodów, dlaczego wprowadzamy współrzędne jednorodne, jest to, że możemy w ten sposób prościej wykonywać wiele przekształceń równocześnie przez sprowadzenie ich do jednej macierzy. A jak to robimy? Mnożąc macierze transformacji.
+
+**Tutaj dość ważna uwaga**. Jak wiemy, mnożenie macierzy nie jest przemienne, więc kolejność jest istotna. Jeżeli stosujemy wektory kolumnowe (tak jak tutaj w artykule), to składamy od prawej do lewej. Natomiast przy wektorze wierszowym kolejne przekształcenia mnożymy od lewej do prawej.
+
+### Przykład — obrót w miejscu
+
+Jako przykład pokażę przekształcenie, w wyniku którego wykonamy obrót „w miejscu”, ponieważ, jak pamiętamy, przekształcenie afiniczne wykonuje je względem punktu zerowego układu współrzędnych. Przykład został zaczerpnięty ze wspominanej już przeze mnie wcześniej książki J. Foleya.
+
+Aby wykonać obrót „w miejscu”, a dokładniej względem punktu $$P_1(x_1,y_1)$$ znajdującego się na figurze, musimy najpierw przesunąć figurę na początek układu współrzędnych i dopiero wtedy obrócić oraz przesunąć z powrotem. Czyli najpierw wykonujemy translację $$T(-x_1,-y_1)$$, potem obrót $$R(\theta)$$ i translację do oryginalnego położenia $$T(x_1,y_1)$$. Sprowadzenie tego do jednej macierzy będzie wyglądać następująco:
+
+$$
+\begin{align*}
+T(x_1,y_1) &\cdot R(\theta) \cdot T(-x_1, -y_1) =\\
+&= \begin{bmatrix}1 & 0 & x_1 \\ 0 & 1 & y_1 \\ 0 & 0 & 1 \end{bmatrix} \cdot \begin{bmatrix}\cos\theta & -\sin\theta & 0\\ \sin\theta & \cos\theta & 0\\0 & 0 & 1\end{bmatrix} \cdot \begin{bmatrix}1 & 0 & -x_1 \\ 0 & 1 & -y_1 \\ 0 & 0 & 1 \end{bmatrix} = \\
+&= \begin{bmatrix}\cos\theta & -\sin\theta & x_1(1-\cos\theta)+y_1\sin\theta\\ \sin\theta & \cos\theta & y_1(1-\cos\theta)-x_1\sin\theta\\0 & 0 & 1\end{bmatrix}
+\\ \text{} \\
+\begin{bmatrix}x' \\ y' \\ w'\end{bmatrix} &= \begin{bmatrix}\cos\theta & -\sin\theta & x_1(1-\cos\theta)+y_1\sin\theta\\ \sin\theta & \cos\theta & y_1(1-\cos\theta)-x_1\sin\theta\\0 & 0 & 1\end{bmatrix} \cdot \begin{bmatrix} x \\ y \\ w \end{bmatrix} \\ \text{}
+\\ \begin{bmatrix}x' \\ y' \\ w'\end{bmatrix} &= \begin{bmatrix}
+\cos\theta \cdot x - \sin\theta \cdot y + (x_1(1-\cos\theta)+y_1\sin\theta)\cdot w \\
+\sin\theta \cdot x + \cos\theta \cdot y + (y_1(1-\cos\theta)-x_1\sin\theta)\cdot w \\
+w
+\end{bmatrix}
+\end{align*}
+$$
+
+## Problemy w przypadku grafiki rastrowej
+
+### Określanie punktów na oryginalnym obrazie
+
+Opisany powyżej sposób sprawdza się idealnie w przypadku grafiki wektorowej, w której wyznacza się tylko najważniejsze punkty do wyrysowania figury. Niestety w przypadku grafiki rastrowej musimy wyznaczyć nowe położenie dla każdego piksela. Dokładniej, należy zrobić odwrotnie — dla każdego piksela obrazu wynikowego musimy odnaleźć piksel na oryginalnym obrazie. Aby to zrobić, musimy znaleźć macierz odwrotną do macierzy transformacji i za jej pomocą znajdować położenia oryginalnych punktów.
+
+### Określanie barwy nowego piksela
+
+Jednak może pojawić się taki problem, że nie uzyskamy idealnych, całkowitych wartości oryginalnych pikseli, lecz ułamkowe. Wówczas należy skorzystać z algorytmu, który odpowiednio wyliczy wartość koloru, bazując na sąsiadujących pikselach. Proces ten nazywamy interpolacją.
+
+Najprostszym podejściem jest algorytm najbliższego sąsiada, który sprowadza się do zaokrąglenia wartości. Jednak podejście to daje najgorsze rezultaty wizualne i grafika wygląda nienaturalnie. Pośród lepszych sposobów znajdziemy (w kolejności od najgorszego do najlepszego): interpolację dwuliniową, dwusześcienną oraz Lanczosa.
+
+<Image
+  image={powiekszenia}
+  alignCenter
+  fullSize
+  alt="Logo bloga w wersji oryginalnej, po zastosowaniu algorytmu najbliższego sąsiada, oraz po zastosowaniu interpolacji Lanczosa"
+  caption={<>
+    Porównanie różnych rodzajów interpolacji. Pierwszy z lewej to oryginalny obrazek. Pośrodku pomniejszony czterokrotnie (z wykorzystaniem interpolacji Lanczosa), a następnie powiększony do oryginalnego rozmiaru z wykorzystaniem algorytmu najbliższego sąsiada. Z prawej widzimy obrazek również pomniejszony, a następnie powiększony, tylko w tym przypadku za każdym razem z wykorzystaniem interpolacji Lanczosa. Warto pamiętać, że przy operacjach tego typu zawsze tracimy informacje o obrazie i różne podejścia do interpolacji służą jedynie złagodzeniu powstałych artefaktów tak, aby jak najmniej przeszkadzały.
+  </>}
+/>
+
+### Interpolacja dwuliniowa
+
+Ze względu na to, że interpolacja dwuliniowa jest najprostszą z dających dobre rezultaty, opiszę ją krótko. Wykorzystujemy tutaj wartości czterech pikseli, pomiędzy którymi znajduje się wyliczony przez nas punkt. Najpierw obliczamy kolory znajdujące się między dwoma sąsiadującymi ze sobą pikselami w poziomie, a potem obliczamy kolor znajdujący się pomiędzy wyliczonymi przed chwilą. Oczywiście nie bierzemy średniej arytmetycznej, a ważoną, gdzie wagami są odległości zarówno w poziomie, jak i pionie między pikselem a jego wyliczoną wartością punktu. Zobaczmy to na poniższym przykładzie:
+
+<Image
+  image={bilinear}
+  alignCenter
+  fullSize
+  alt="Logo bloga w wersji oryginalnej, po zastosowaniu algorytmu najbliższego sąsiada, oraz po zastosowaniu interpolacji Lanczosa"
+  caption={<>
+    Autorstwa Jitse Niesen z angielskiej Wikipedii - Na Commons przeniesiono z en.wikipedia., Domena publiczna, <a href="https://commons.wikimedia.org/w/index.php?curid=1899952" target="_blank">https://commons.wikimedia.org/w/index.php?curid=1899952</a>
+  </>}
+/>
+
+W powyższym przypadku punkty Q to znane nam piksele, natomiast P to punkt, którego współrzędne wyliczyliśmy z odwróconej macierzy transformacji. Najpierw obliczamy współczynnik interpolacji $$\alpha$$:
+
+$$
+\alpha = x - \lfloor x \rfloor
+$$
+
+Wówczas możemy obliczyć wartość koloru w punktach $$R_1$$ i $$R_2$$. Należy jednak pamiętać, że wartość koloru składa się z trzech składowych i dla każdej z nich musimy ten proces wykonać oddzielnie. Obliczenie to wygląda następująco:
+
+$$
+\begin{align*}
+f(x, y_1) &= (1-\alpha)\cdot f(Q_{11}) + \alpha \cdot f(Q_{21}) \\
+f(x, y_2) &= (1-\alpha)\cdot f(Q_{12}) + \alpha \cdot f(Q_{22})
+\end{align*}
+$$
+
+Następnie znowu obliczamy współczynnik interpolacji, tym razem w pionie, i obliczamy ostateczną wartość koloru:
+
+$$
+\begin{align*}
+\beta &= y - \lfloor y \rfloor \\
+f(x,y) &= (1 - \beta) \cdot f(x,y_1) + \beta \cdot f(x,y_2)
+\end{align*}
+$$
+
+## Implementacje w językach programowania i nie tylko
+
+Macierze transformacji, w szczególności transformacji afinicznych, są bardzo powszechne i łatwo znaleźć ich implementacje. Przykładowe znajdziesz poniżej:
+
+- W arkuszach styli CSS znajdziemy funkcję [`matrix(a, b, c, d, tx, ty)`](https://developer.mozilla.org/en-US/docs/Web/CSS/transform-function/matrix()), która odpowiada poniższej macierzy przekształceń:
+$$
+\begin{bmatrix} a & c & tx \\ b & d & ty \\ 0 & 0 & 1 \end{bmatrix}
+$$
+- Trzymając się dalej technologii Webowych, w JavaScript na Canvasie możemy wykorzystać funkcję [`CanvasRenderingContext2D.transform()`](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/transform). Kolejność argumentów jest taka sama jak w CSS.
+- W innych popularnych językach programowania znajdziemy na przykład klasy [`AffineTransform`](https://docs.oracle.com/javase/8/docs/api/java/awt/geom/AffineTransform.html) (Java, AWT) czy [`MatrixTransform`](https://docs.microsoft.com/pl-pl/dotnet/api/system.windows.media.matrixtransform?view=net-5.0) (.NET, WPF). Oprócz tego wiele bibliotek graficznych posiada analogiczne klasy czy funkcje, np. [`cairo_set_matrix()`](https://www.cairographics.org/manual/cairo-Transformations.html#cairo-set-matrix) (Cairo), [`Matrix`](https://docs.monogame.net/api/Microsoft.Xna.Framework.Matrix.html) (XNA, MonoGame) czy [`al_use_transform()`](https://liballeg.org/a5docs/trunk/transformations.html#al_use_transform) (Allegro).
+- Nie tylko programując możemy korzystać z macierzy transformacji. Występują także w oprogramowaniu graficznym. Na przykład w GIMP znajdziemy je w Narzędzia->Narzędzia przekształcania->Uniwersalne przekształcenie. Co prawda macierzy nie możemy ręcznie edytować, jednak widzimy, w jaki sposób zmieniają się wartości wraz z ręczną manipulacją obrazem. Innym przykładem może być narzędzie ImageMagick służące do manipulowania obrazami z poziomu linii poleceń, które posiada argument [`-affine`](https://imagemagick.org/script/command-line-options.php#affine).
+
+<Image
+  image={gimp}
+  alignCenter
+  fullSize
+  alt="Zrzut ekranu z aplikacji GIMP"
+  caption={<>
+    Macierz transformacji w programie GIMP.
+  </>}
+  forceWhiteBackground={false}
+/>
+
+## Literatura
+
+- Foley J. D. i inni, „Przekształcenia geometryczne” w *Wprowadzenie do grafiki komputerowej*. Warszawa: Wydawnictwa Naukowo-Techniczne, 1995, s. 215-252
+- Klawonn F., „Basic principles of two-dimensional graphics” w *Introduction to Computer Graphics Using Java 2D and 3D*. Springer-Verlag London Limited, 2008, s. 7-48
+
+<small>(zdjęcie na okładce: [Photo](https://stocksnap.io/photo/monkey-portrait-EVJRUBMBJZ) by [Joe deSousa](https://stocksnap.io/author/mustangjoe) on [StockSnap](https://stocksnap.io))</small>

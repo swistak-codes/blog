@@ -1,0 +1,357 @@
+import Link from 'next/link';
+import {Image, VideoPlayer} from '@swistak-codes/components';
+import {Presentation} from './presentation';
+import cover from './swistak_otoczka.jpg';
+import zbioryWypukle from './zbiory_wypuklle.png';
+import opencvSwistak from './opencv_swistak.png';
+
+export const meta = {
+  title: 'Otoczka wypukła',
+  abstract:
+    'Artykuł przedstawia jak znaleźć otoczkę wypukłą w zbiorze punktów za pomocą algorytmu Grahama.',
+  firstParagraph: (
+    <>
+      W artykule o <Link href="/post/krzywe-beziera">krzywych Béziera</Link> wspomniałem, że będą one zawsze zawierać się wewnątrz otoczki wypukłej wszystkich punktów kontrolnych je opisujących. Można zadać bardzo trafne pytanie — jak je wyznaczyć? Mimo że na pierwszy rzut oka nie brzmi to jakoś fascynująco, to znajdowanie otoczki wypukłej jest dość ciekawym zagadnieniem algorytmicznym. Pokażę jedno podejście, które wykorzystując bardzo proste założenia, przeprowadza nas przez kilka różnych zagadnień związanych z geometrią obliczeniową, rozwijając tym samym postrzeganie, jak można podchodzić do rozwiązywania problemów algorytmicznych.
+    </>
+  ),
+  keyword: 'otoczka wypukła',
+  categories: ['Algorytmy', 'Matematyka'],
+  tags: [
+    'geometria',
+    'algorytm Grahama',
+    'ccw',
+    'określanie kąta',
+    'trygonometria',
+    'matematyka',
+    'javascript',
+    'convex hull'
+  ],
+  slug: 'otoczka-wypukla',
+  updateTime: '2023-12-06T07:00:00+00:00',
+  publishTime: '2023-12-06T07:00:00+00:00',
+  cover,
+};
+
+## Otoczka wypukła
+
+Zanim opowiem, w jaki sposób wyznaczać otoczkę wypukłą, wypadałoby, chociaż w skrócie, powiedzieć, co to jest. Nie będę jednak wchodzić tu głęboko w definicje matematyczne, a raczej podam intuicyjne, żeby po prostu zrozumieć, o co chodzi w najbardziej typowym przypadku.
+
+Najpierw poznajmy pojęcie *zbioru wypukłego* (po ang. convex set). Jest to podzbiór jakiejś przestrzeni, w którym jeśli połączymy ze sobą odcinkiem dwa punkty, to odcinek również będzie należeć do tego zbioru. W przestrzeni euklidesowej zbiorami wypukłymi są np. kwadrat, trójkąt, wielokąty foremne, czyli tzw. figury wypukłe. Jakichkolwiek punktów w ich środku nie znajdziemy, zawsze odcinek je łączący znajdzie się w środku figury.
+
+<Image
+  image={zbioryWypukle}
+  forceWhiteBackground={false}
+  alignCenter
+  fullSize
+  alt="Rysunek przedstawia cztery figury z zaznaczonymi na nim punktami połączonymi odcinkami. Koło jest podpisane jako zbiór wypukły. Sześciokąt foremny również jest tak podpisany. Pięcioramienna gwiazda jest podpisana, że nie jest zbiorem wypukłym (odcinek wychodzi poza figurę). Jest jeszcze figura przypominająca kształtem strzałkę, również podpisana, że nie jest zbiorem wypukłym."
+  caption={<>Przykładowe figury (zbiory) wypukłe w przestrzeni euklidesowej.</>}
+/>
+
+Otoczka wypukła (po ang. convex hull) to natomiast najmniejszy (składający się z najmniejszej liczby punktów) zbiór wypukły zawierający jakiś wskazany podzbiór przestrzeni. Możemy to sobie wyobrazić, że ze zbioru punktów wybieramy takie punkty, które po połączeniu wyznaczą granicę, w której mieszczą się wszystkie inne punkty. Tym samym uzyskany wielokąt będzie figurą wypukłą.
+
+## Algorytm Grahama
+
+Podejście, którym rozwiążemy problem znajdowania otoczki wypukłej, jest algorytm Grahama (po ang. Graham's scan). Został opublikowany w 1972 r. przez amerykańskiego matematyka Ronalda Grahama. My jednak skupimy się nie tyle na jego oryginalnej wersji, co na lekko zmodyfikowanej, zaprezentowanej we *Wprowadzeniu do algorytmów* T. Cormena.
+
+### Opis algorytmu
+
+Pomysł algorytmu opiera się na przechodzeniu przez posortowaną listę punktów i odkładaniu takich, aby droga od punktu do punktu zawsze odbywała się przez wykonywanie skrętów w lewo. Zapewni nam to utworzenie listy zawierającej kolejne punkty otoczki wypukłej. Tylko jak to dokładnie działa?
+
+Zaczynamy od wyznaczenia pierwszego punktu otoczki. Będziemy szli przeciwnie do ruchu wskazówek zegara (stąd skręty w lewo), więc punkt, od którego zaczniemy, musi być najbardziej wysuniętym na dół (o najniższej współrzędnej $$y$$). Jeśli wiele punktów spełnia ten warunek, bierzemy taki z nich, który jest najbardziej wysunięty w lewo (o najniższej współrzędnej $$x$$). Punkt ten nazwiemy $$P_0$$. Warto w tym miejscu dodać, że mimo iż na ekranach komputera mamy odwróconą oś $$OY$$, to obliczenia będą wciąż prawidłowe.
+
+Znamy punkt startowy, ale co z posortowaniem reszty? Otóż sortujemy punkty rosnąco według kąta między $$P_0$$ a sprawdzanym punktem (nazwijmy go $$P_i$$). Taki kąt możemy wyznaczyć matematycznie przez przesunięcie wszystkich punktów tak, aby $$P_0 = (0,0)$$, i wówczas sortujemy punkty według tego, jaki kąt jest między odcinkiem poprowadzonym od $$P_0$$ do $$P_i$$ a osią $$OX$$. Jeśli trafi nam się przypadek, gdzie dwa punkty dają ten sam kąt, zostawiamy tylko ten punkt, który jest najdalej od $$P_0$$. Te, co są bliżej, na pewno nie będą częścią otoczki.
+
+Teraz będziemy przechodzić po kolei po punktach. Do rezultatu z góry możemy dodać $$P_0$$ oraz $$P_1$$ i zaczynamy iterowanie od $$P_2$$. Będę określać, że kolejne punkty wyciągane podczas iteracji to $$P_i$$. Sprawdzamy, czy idąc od przedostatniego zapamiętanego punktu, przez ostatnio zapamiętany, do $$P_i$$, zawsze wykonujemy skręt w lewo. Jeśli nie, odrzucamy ostatnio zapamiętany punkt i sprawdzamy dalej. Jeśli wykonaliśmy tylko skręty w lewo, zapamiętujemy punkt $$P_i$$ i iterujemy dalej, aż skończą nam się punkty.
+
+Na sam koniec zostajemy z listą punktów, które stanowią otoczkę wypukłą. Co wygodne w kontekście rysowania, punkty te mamy zapisane po kolei. Warto dodać, że są zapisane w kolejności przeciwnej do wskazówek zegara.
+
+Na poniższej animacji możesz zobaczyć przebieg tego algorytmu.
+
+<VideoPlayer
+  url="/videos/GrahamScanDemo.mp4"
+  muted
+  controls
+  width={344}
+  height={353}
+  caption={
+    <>(źródło: <a href="https://commons.wikimedia.org/wiki/File:GrahamScanDemo.gif">Shiyu Ji</a>, <a href="https://creativecommons.org/licenses/by-sa/4.0">CC BY-SA 4.0</a>, via Wikimedia Commons)</>
+  }
+/>
+
+### Lista kroków
+
+Przełóżmy więc powyższy opis algorytmu na listę kroków. Zrobimy tak, ponieważ w ten sposób namierzymy elementy, które mogą nie być tak oczywiste do zaprogramowania.
+
+Algorytm na wejściu przyjmuje zbiór punktów zawierający więcej niż 2 punkty. Na wyjściu otrzymujemy podzbiór tego zbioru, który stanowi otoczkę wypukłą.
+
+1. Zainicjalizuj pusty stos.
+2. Znajdź punkt, który ma najmniejszą współrzędną $$y$$. W przypadku gdy wiele punktów ma taką samą, wybierz spośród nich ten o najmniejszej współrzędnej $$x$$. Znaleziony punkt oznacz jako $$P_0$$.
+3. Posortuj rosnąco pozostałe punkty ($$P_1...P_n$$) według kąta, który tworzą z punktem $$P_0$$. W przypadku gdy kilka punktów ma ten sam kąt, zostaw jedynie ten znajdujący się najdalej od $$P_0$$.
+4. Dodaj $$P_0$$ i $$P_1$$ na stos.
+5. Dla każdego punktu ($$P_i$$) z listy posortowanych punktów (od $$P_2$$):
+    1. Tak długo, jak na stosie jest więcej niż 1 punkt oraz przedostatni punkt ze stosu, ostatni punkt ze stosu i $$P_i$$ nie dają lewoskrętu:
+        1. Odrzuć punkt z góry stosu.
+    2. Dodaj $$P_i$$ na stos.
+6. Zwróć zawartość stosu.
+
+Algorytm ma złożoność czasową $$\Omicron(n \log n)$$ przy założeniu, że algorytm sortujący ma taką samą złożoność. Dzieje się tak, ponieważ sortowanie jest tu dominującą operacją. Samo przejście po punktach zajmuje $$\Omicron(n)$$, nawet biorąc pod uwagę, że operujemy na stosie, gdyż zwykle te same punkty są rozpatrywane maksymalnie dwa razy.
+
+Jeśli będziemy chcieli zaprogramować ten algorytm, możemy mieć wątpliwości, w jaki sposób odpowiednio wykonać sortowanie po kącie (krok 3) i jak wykrywać lewoskręty (krok 5.1). Pominę dodatkowe rozpisanie znajdowania punktu $$P_0$$ (krok 2), bo ogranicza się to do napisania prostej funkcji znajdującej minimum. Jeśli nie wiesz, jak to zrobić, możesz sprawdzić dalej w gotowej implementacji.
+
+Dodam też, że o ile kroki napisałem na podstawie pseudokodu z książki Cormena, to spokojnie można je jeszcze uprościć. W kroku 3 możemy posortować punkty razem z $$P_0$$, a skoro ten i tak wyląduje jako pierwszy w posortowanej tablicy (kąt wyniesie $$0^{\circ}$$), możemy pominąć krok 4. Trzeba tylko pamiętać, żeby nie odrzucić punktu $$P_0$$, jeśli inne będą mieć ten sam kąt (przy czym odrzucamy wszystkie między $$P_0$$ a najodleglejszym od niego).
+
+### Sortowanie po kącie
+
+W przypadku sortowania nie powiem, który algorytm najlepiej użyć. Sortowaniu poświęciłem <Link href="/category/algorytmy/sortowanie">8 artykułów</Link> opisujących (o ile dobrze policzyłem) 21 różnych algorytmów (+ ich warianty). Polecanym przeze mnie podejściem będzie po prostu zastosowanie tego, który oferuje Twój język programowania, bo zwykle są to optymalne implementacje <Link href="/post/sortowanie-cz-5-dziel-i-zwyciezaj">sortowania przez scalanie lub sortowania szybkiego</Link>.
+
+W tym momencie jednak warto zadać sobie pytanie — jak posortować po kącie? Otóż najprościej wykorzystać do tego celu funkcję `atan2` (dwuargumentowy arcus tangens), która jest wbudowana w wiele języków programowania i zwraca dokładnie to, co chcemy — kąt między dwoma punktami wyrażony w radianach (chociaż jednostka nie ma tu znaczenia). Jeśli jesteś ciekaw(a) matematyki stojącej za `atan2`, opisałem ją w artykule *<Link href="/post/algorytmika-gier-obrot-do-punktu">Algorytmika gier — obrót do punktu</Link>*.
+
+Jeśli chcemy sortować rosnąco, to komparator, który musimy podać funkcji sortującej, będzie wyglądać następująco (zakładając, że punkty są obiektami z polami `x` i `y` określającymi położenie oraz że mamy zmienną `p0` z punktem $$P_0$$):
+
+```javascript
+function compare(a, b) {
+  const angleA = Math.atan2(a.y - p0.y, a.x - p0.x);
+  const angleB = Math.atan2(b.y - p0.y, b.x - p0.x);
+  return angleA - angleB;
+}
+```
+
+Zostaje jeszcze przypadek wielu punktów z tym samym kątem. Jeśli nie piszemy własnej funkcji sortującej, zdecydowanie najlepszym podejściem będzie najpierw posortować, a potem przeiterować po tablicy, i w razie tych samych kątów usuwać po kolei te punkty, które są bliżej $$P_0$$.
+
+Warto tutaj dodać dwie rzeczy:
+
+- Operujemy na liczbach zmiennoprzecinkowych, więc warto nie porównywać, czy dwie liczby są sobie równe, tylko czy różnica między nimi mieści się w granicy błędu. W przypadku JavaScriptu zapiszemy to tak: `Math.abs(a - b) < Number.EPSILON`. Jeśli chcesz wiedzieć więcej dlaczego, zobacz te trzy artykuły:
+    - *<Link href="/offtopic/codzienny-wtret-programisty/#3-01--02--03">Codzienny wtręt programisty (akapit „#3 0,1 + 0,2 ≠ 0,3”)</Link>*
+    - *<Link href="/post/liczby-wymierne-i-rzeczywiste-w-zero-jedynkowym-swiecie">Liczby wymierne i rzeczywiste w zero-jedynkowym świecie</Link>*
+    - *[Popularne matematyczne błędy w JS (akapit „Błędy zaokrągleń przy obliczeniach”)](https://github.com/tswistak/tech-articles-copy/blob/main/popularne-matematyczne-bledy-w-js-i-nie-tylko/article.md#b%C5%82%C4%99dy-zaokr%C4%85gle%C5%84-przy-obliczeniach)*
+- Odległość między dwoma punktami w przestrzeni euklidesowej tradycyjnie obliczamy z twierdzenia Pitagorasa wzorem $$d = \sqrt{(x_2-x_1)^2 + (y_2 - y_1)^2}$$. Jednak tutaj możemy spokojnie wykorzystać prostsze obliczenia odległości znane z przestrzeni Manhattan lub Czebyszewa. Wzory wraz z wytłumaczeniem podałem w artykule *<Link href="/post/szybkie-wyszukiwanie-sciezek/#przykładowe-heurystyki-odległości">Szybkie wyszukiwanie ścieżek (akapit „Przykładowe heurystyki odległości”)</Link>*.
+
+### Wykrywanie lewoskrętów
+
+To, co nazywam wykrywaniem lewoskrętów, to tak naprawdę sprawdzenie, czy dla punktów $$A$$, $$B$$, $$C$$ kąt $$\measuredangle ABC$$ jest wypukły (lewoskręt), wklęsły (prawoskręt) czy półpełny (brak skrętu). W angielskiej literaturze znajdziemy obliczanie tego pod hasłem *counterclockwise turns* (skręty w kierunku przeciwnym do ruchu wskazówek zegara) lub pod skrótem *ccw*. Ja skorzystam ze sposobu opisanego przez R. Sedgewicka.
+
+Z racji tego, że nie interesuje nas tutaj konkretna wartość kąta, a jedynie jego rodzaj, możemy to sprawdzić, obliczając iloczyn wektorów $$\overrightarrow{AB}$$ i $$\overrightarrow{AC}$$. W ten sposób obliczymy dwukrotność pola trójkąta opisanego tymi trzema punktami. Sprowadza się to ostatecznie do prostego równania:
+
+$$
+\begin{align*}
+\overrightarrow{AB} \times \overrightarrow{AC} &= \\
+&= \begin{vmatrix}
+A_x & A_y & 1 \\
+B_x & B_y & 1 \\
+C_x & C_y & 1
+\end{vmatrix} \\
+&= A_x B_y - A_y B_x + A_y C_x - A_x C_y + B_x C_y - C_x B_y \\
+&= (B_x - A_x)(C_y - A_y) - (B_y-A_y)(C_x-A_x)
+\end{align*}
+$$
+
+Jeśli wynik jest dodatni, mamy do czynienia z trójkątem, czyli kąt $$\measuredangle ABC$$ był wypukły (lewoskręt). Jeśli jest ujemny — kąt jest wklęsły. Wynik jest równy 0, jeśli punkty są w jednej linii (kąt półpełny).
+
+Przełożenie na kod jest bardzo proste:
+
+```javascript
+function ccw(a, b, c) {
+  return (b.x - a.x) * (c.y - a.y) - (c.x - a.x) * (b.y - a.y);
+}
+```
+
+Warto dodać, że znajdziemy również inną wersję tego algorytmu (zresztą też pokazaną przez Sedgewicka), gdzie zamiast dwukrotności pola zwracamy po prostu wartości 1, -1 lub 0. Wygląda następująco (kod w JavaScript):
+
+```javascript
+function ccw(a, b, c) {
+  const dx1 = b.x - a.x;
+  const dy1 = b.y - a.y;
+  const dx2 = c.x - a.x;
+  const dy2 = c.y - a.y;
+
+  if (dx1 * dy2 > dy1 * dx2) return 1;
+  if (dx1 * dy2 < dy1 * dx2) return -1;
+  if (dx1 * dx2 < 0 || dy1 * dy2 < 0) return -1;
+  if (dx1 * dx1 + dy1 * dy1 < dx2 * dx2 + dy2 * dy2) return 1;
+
+  return 0;
+}
+```
+
+Zaletą tej wersji jest to, że możemy łatwo obsłużyć operacje na dużych liczbach w językach silnie typowanych, zachowując zwracanie typu `int` bądź nawet logicznego. Wówczas zmienne `dx1`, `dy1`, `dx2` i `dy2` byłyby typu `long` (w ekstremalnych przypadkach może nawet jakiś `BigInt`); mnożylibyśmy, nie martwiąc się o przekroczenie zakresu, a funkcja zwróciłaby prostszy typ. Wadą natomiast jest niepotrzebne powielanie mnożeń, które są kosztowne obliczeniowo (chociaż pytanie, czy musimy się tym martwić przy dzisiejszym sprzęcie). Dlatego też musisz zdecydować, która wersja lepiej nada się w Twoim przypadku. Ja będę w kodzie kontynuować używanie podstawowej wersji.
+
+### Implementacja w kodzie
+
+Połączmy teraz to wszystko w kod JavaScriptowy. Zanim jednak przejdę do kodu, kilka szczegółów implementacyjnych:
+
+- Użyjemy wbudowanej w JavaScriptowe tablice funkcji `sort()`. W silniku V8 (interpreter wbudowany w Node.js i przeglądarkę Chrome) jest ona implementacją algorytmu Timsort ([źródło](https://v8.dev/blog/array-sort#timsort)), który jest odmianą sortowania przez scalanie.
+- JavaScript nie posiada struktury stosu, ale zasymulujemy ją, korzystając z tablic. Co wygodne, tablice w JS posiadają funkcje przypominające obsługę stosu: `pop()` (ściągnięcie ostatniego elementu) i `push()` (dodanie elementu na koniec). Dodatkowo zaimplementujemy funkcję do podglądania ostatniego (`top()`) i przedostatniego elementu (`nextToTop()`).
+- Tak jak wcześniej — zakładam, że punkty będą obiektami zawierającymi pola `x` i `y`.
+
+Kod mógłby wyglądać następująco:
+
+```javascript
+// funkcja znajdująca punkt P0
+function findStartingPoint(points) {
+  // załóżmy, że na razie najmniejszym punktem będzie pierwszy punkt w tablicy
+  let currentMinPoint = points[0];
+  // iterujemy po wszystkich punktach
+  for (const point of points) {
+    if (point.y < currentMinPoint.y) {
+      // zapamiętujemy punkt o mniejszej współrzędnej Y
+      currentMinPoint = point;
+    } else if (point.y === currentMinPoint.y) {
+      // jeśli Y są równe, bierzemy pod uwagę ten, który ma mniejsze X
+      if (point.x < currentMinPoint.x) {
+        currentMinPoint = point;
+      }
+    }
+  }
+  // zwracamy znaleziony punkt P0
+  return currentMinPoint;
+}
+
+// funkcja zwracająca posortowane punkty z odrzuceniem duplikatów
+function sortPoints(points, p0) {
+  // sortujemy punkty według kąta do P0
+  // z racji tego, że sort() modyfikuje oryginalną tablicę, będziemy działać na kopii
+  const sortedPoints = [...points].sort((a, b) => {
+    // funkcja komparatora
+    const angleA = Math.atan2(a.y - p0.y, a.x - p0.x);
+    const angleB = Math.atan2(b.y - p0.y, b.x - p0.x);
+    return angleA - angleB;
+  });
+  // uwaga na boku: od NodeJS 20 możemy użyć funkcji toSorted(), aby nie kopiować tablicy
+  // tablica, w której zachowamy punkty po odfiltrowaniu
+  const result = [];
+  // iterujemy po punktach
+  for (const point of sortedPoints) {
+    if (result.length < 2) {
+      // jeśli wynik nie ma co najmniej dwóch punktów, od razu dodajemy
+      result.push(point);
+    } else {
+      // w przeciwnym razie sprawdzamy, czy ostatnio dodany punkt ma taki sam kąt
+      // pobieramy ostatni punkt
+      const lastPoint = result[result.length - 1];
+      // wyliczamy jego kąt
+      const lastAngle = Math.atan2(lastPoint.y - p0.y, lastPoint.x - p0.x);
+      // wyliczamy kąt aktualnego punktu
+      const currentAngle = Math.atan2(point.y - p0.y, point.x - p0.x);
+      // propozycja optymalizacji:
+      // zapamiętywanie kąta dla każdego z punktów już na poziomie sortowania
+
+      // jeśli kąty są takie same, sprawdzamy odległość
+      // porównujemy z zachowaniem marginesu błędu
+      if (Math.abs(lastAngle - currentAngle) < Number.EPSILON) {
+        // obliczamy odległość ostatniego punktu metryką Manhattan
+        const lastDistance = Math.abs(lastPoint.x - p0.x) + Math.abs(lastPoint.y - p0.y);
+        // obliczamy odległość aktualnego punktu
+        const currentDistance = Math.abs(point.x - p0.x) + Math.abs(point.y - p0.y);
+        if (currentDistance > lastDistance) {
+          // jeśli aktualny punkt jest dalej, podmieniamy punkty
+          result[result.length - 1] = point;
+        }
+      } else {
+        // jeśli kąty są różne, po prostu dodajemy punkt
+        result.push(point);
+      }
+    }
+  }
+  // zwracamy tablicę punktów
+  return result;
+}
+
+// funkcja sprawdzająca rodzaj kąta ułożonego z punktów A, B, C
+function ccw(a, b, c) {
+  return (b.x - a.x) * (c.y - a.y) - (c.x - a.x) * (b.y - a.y);
+}
+
+// funkcja zwracająca przedostatni element stosu, bez ściągania
+function nextToTop(stack) {
+  return stack[stack.length - 2];
+  // ewentualnie: stack.at(-2)
+}
+
+// funkcja zwracająca ostatni element stosu, bez ściągania
+function top(stack) {
+  return stack[stack.length - 1];
+  // ewentualnie: stack.at(-1)
+}
+
+// funkcja wykonująca algorytm Grahama
+function grahamScan(points) {
+  // jeśli nie mamy przynajmniej 2 punktów, nie znajdziemy otoczki
+  if (points.length < 2) {
+    return [];
+  }
+  // znajdujemy punkt P0
+  const p0 = findStartingPoint(points);
+  // sortujemy punkty
+  const sortedPoints = sortPoints(points, p0);
+  // tworzymy stos
+  const stack = [];
+  // iterujemy po kolejnych punktach
+  for (const point of sortedPoints) {
+    // tak długo, jak stos zawiera więcej niż 1 punkt i nie ma lewoskrętności
+    // odrzucamy ostatni punkt ze stosu
+    while (stack.length > 1 && ccw(nextToTop(stack), top(stack), point) <= 0) {
+      stack.pop();
+    }
+    // dodajemy aktualny punkt na stos
+    stack.push(point);
+  }
+  // zwracamy stos, który zawiera otoczkę wypukłą
+  return stack;
+}
+```
+
+Powyższy kod możesz przetestować na [Replit](https://replit.com/@tswistak/graham-scan#index.js).
+
+## Prezentacja
+
+Poniżej znajduje się prezentacja algorytmu Grahama w akcji. Możesz dodawać nowe punkty lub przesuwać i usuwać istniejące (po zaznaczeniu pojawia się przycisk albo możesz użyć klawisza Backspace) i na bieżąco będzie się obliczać nowa otoczka wypukła zbioru. Natomiast jeśli chcesz, możesz też zobaczyć, jak krok po kroku wygląda jej obliczanie. W tym celu użyj kontrolek na samym dole prezentacji, gdzie możesz sterować animacją pokazującą, jakie są pośrednie kroki w trakcie wykonywania algorytmu. Aby łatwiej było zauważyć stan, na niebiesko została zaznaczona ostatnio obliczona krawędź, a na zielono punkty będące częścią aktualnie wyliczonej otoczki.
+
+<Presentation />
+
+Prezentacja została napisana z użyciem biblioteki [React Flow](https://reactflow.dev/) i jej kod źródłowy znajdziesz [na moim GitHubie](https://github.com/swistak-codes/convex-hull).
+
+## Inne podejścia
+
+Algorytm Grahama to tylko jedno z wielu podejść do znajdowania otoczki wypukłej wybrane przeze mnie do pokazania ze względu na to, że jest proste i wydajne. Możemy jeszcze wymienić między innymi takie algorytmy, które również rozwiążą ten problem algorytmiczny:
+
+- Algorytm Jarvisa (po ang. Jarvis march) — inne bardzo proste podejście. Znajdujemy punkty położone najniżej i najwyżej, a następnie wyszukujemy od nich kolejne punkty, do których kąt jest najmniejszy. Złożoność czasowa to $$\Omicron(nh)$$, gdzie $$h$$ jest liczbą punktów z ilu się składa otoczka. Oznacza to, że w prostych przypadkach jest wydajniejszy od algorytmu Grahama (gdy $$h < \log(n)$$).
+- Quickhull — analogicznie jak w <Link href="/post/sortowanie-cz-5-dziel-i-zwyciezaj/">sortowaniu szybkim</Link> (do którego nazwa nawiązuje), algorytm ten wykorzystuje metodę *<Link href="/post/wyszukiwanie-w-listach">dziel i zwyciężaj</Link>*. Najpierw znajdujemy punkty wysunięte skrajnie w lewo i w prawo, po czym rysujemy wirtualnie odcinek między nimi. Następnie szukamy punktów znajdujących się najdalej od obu linii, formując tym samym trójkąty. Potem powtarzamy rekurencyjnie wyszukiwanie dla każdego nowo narysowanego boku trójkąta, aż nie będzie już punktów poza otoczką. Złożoność czasowa to $$\Omicron(n \log{n})$$.
+- Łańcuch monotoniczny Andrew (po ang. Andrew's monotone chain) — bardzo zbliżony do algorytmu Grahama, tylko tutaj sortujemy punkty po współrzędnej $$x$$, a następnie przechodzimy dwukrotnie po punktach — najpierw żeby złożyć dolną część otoczki, potem górną. Podobnie jak w przypadku algorytmu Grahama, złożoność zależy tylko od podejścia do sortowania, więc można założyć, że jest to $$\Omicron(n \log{n})$$.
+
+Podejść jest oczywiście więcej. Chętnych zachęcam do poczytania, które podejścia możemy stosować do wyznaczania otoczki wypukłej, mając więcej niż 2 wymiary (np. w przestrzeni trójwymiarowej).
+
+## Zastosowania
+
+Dobrze, poobliczaliśmy sobie, porysowaliśmy, ale warto zadać pytanie — po co? Możliwość znalezienia wielokąta wypukłego, w którym zawarte będą wszystkie punkty danego zbioru, nie brzmi jak coś fascynującego czy potrzebnego. Nic bardziej mylnego. Oto kilka przykładowych informatycznych zastosowań znajdowania otoczki wypukłej:
+
+- Przy wizualizacji danych statystycznych możemy mieć do czynienia z tzw. wykresami torbowymi (po ang. bagplot). Nie wchodząc w szczegóły, o co w nich chodzi — aby odpowiednio zaznaczyć w nim dane, obliczamy otoczki wypukłe dla wybranych podzbiorów punktów.
+- Innym zastosowaniem w wizualizacji danych jest wskazywanie granic obszarów na mapach, np. obszarów występowania zwierząt na bazie danych wskazujących konkretne punkty, gdzie dokonano obserwacji.
+- W grafice komputerowej i przy programowaniu gier możemy wykorzystać otoczki wypukłe do upraszczania obiektów, aby łatwiej wykonywać detekcję kolizji czy inne symulacje fizyczne.
+- Otoczki wypukłe stosuje się też w dziedzinie rozpoznawania obrazów do wyznaczania obszaru zajmowanego przez obiekty.
+
+Zresztą ostatnie dwa punkty możemy streścić jednym zdaniem: otoczką wypukłą wyznaczamy przybliżenie skomplikowanej figury geometrycznej. Samo to może pomóc Ci znaleźć kolejne praktyczne zastosowania.
+
+<Image
+  image={opencvSwistak}
+  alignCenter
+  fullSize
+  alt="Zrzut ekranu czterech okien. Lewe górne pokazuje zdjęcie świstaka, lewe dolne rysunek świstaka, a okna po prawej wyliczone otoczki wypukłe konturów znalezionych przez OpenCV."
+  caption={<>Przykład zastosowania wyznaczania otoczek wypukłych przy detekcji kształtów. Na pokazanym przykładzie, za pomocą biblioteki <a href="https://opencv.org/" target="_blank" rel="nofollow">OpenCV</a>, wyznaczyłem kontury wykrytych kształtów, po czym zamiast wyświetlać kontury, wyznaczyłem ich otoczki wypukłe, aby otrzymać zajmowane przez nie obszary. Szczególnie dobrze widać to na rysunkowym przykładzie, gdzie mamy otoczkę zawierającą cały rysunek (żółty kolor).<br/>Kod aplikacji znajdziesz na <a href="https://replit.com/@tswistak/opencv-convexhull#main.py" target="_blank" rel="nofollow">Replit</a>, aczkolwiek musisz ją ściągnąć i uruchomić lokalnie.</>}
+/>
+
+Oprócz tego otoczki wypukłe mają swoje zastosowanie w matematyce, fizyce kwantowej, termodynamice, a nawet w ekonomii.
+
+## Podsumowanie
+
+Jak widać po tym artykule, temat otoczki wypukłej nie jest tak nudny i niepotrzebny, jak mogłoby się wydawać. Samo jej znalezienie nie jest skomplikowanym zadaniem algorytmicznym. Z pokazanej wyżej prezentacji widać, że opisany przeze mnie algorytm Grahama jest wydajny i bardzo dobrze sprawdza się w praktycznych zastosowaniach przy rysowaniu otoczki. Polecam rozszerzyć na własną rękę przedstawione tu informacje — zarówno jak wyglądają alternatywne algorytmy, jak i doczytać o innych zastosowaniach.
+
+## Literatura
+
+- Weisstein, Eric W. "Convex." From *MathWorld*--A Wolfram Web Resource. https://mathworld.wolfram.com/Convex.html
+- Weisstein, Eric W. "Convex Hull." From *MathWorld*--A Wolfram Web Resource. https://mathworld.wolfram.com/ConvexHull.html
+- R.L. Graham, *An efficient algorith for determining the convex hull of a finite planar set*, Information Processing Letters, Volume 1, Issue 4, 1972, Pages 132-133, ISSN 0020-0190, [doi:10.1016/0020-0190(72)90045-2](https://doi.org/10.1016/0020-0190(72)90045-2).
+- Cormen, T. H.; Leiserson, C. E.; Rivest R. L.; Stein C. “Finding the convex hull” w *Introduction to algorithms, 3rd ed.*. MIT Press, Cambridge, MA, U.S.A., s. 1029-1039.
+- R. Sedgewick, 6.1. Geometric Primitives, https://algs4.cs.princeton.edu/91primitives/ (ostatni dostęp: 28.11.2023).
+- Convex hull algorithms, https://en.wikipedia.org/w/index.php?title=Convex_hull_algorithms&oldid=1181885542 (ostatni dostęp: 28.11.2023).
+
+<small>Zdjęcie na okładce wygenerowane przez DALL-E.</small>

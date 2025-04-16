@@ -1,0 +1,491 @@
+import Link from 'next/link';
+import {Image} from '@swistak-codes/components';
+import cover from './swistak_mag.webp';
+import piet from './piet_code_file.png';
+import turing from './1280px-Turing_Machine_Model_Davey_2012.jpg';
+
+export const meta = {
+  title: 'Programistyczna ezoteryka, czyli Brainfuck',
+  abstract:
+    'Artykuł opowiada o ezoterycznych językach programowania i bliżej skupia się na jednym konkretnym — Brainfucku.',
+  firstParagraph: (
+    <>
+      Programowanie jeszcze do niedawna mogło się niektórym wydawać wiedzą ezoteryczną, tajemną, przekazywaną jedynie wybranym. Dziś zwykłe programowanie raczej nikogo nie zadziwia, a też dostęp do wiedzy o nim jest powszechny. Jednak coś się ostało — mamy całą kategorię ezoterycznych języków programowania. A pośród nich, prawdopodobnie najbardziej rozpoznawalny z nich w dużej mierze dzięki swojej nazwie, Brainfuck. Dowiedzmy się, na czym polega ta programistyczna ezoteryka i spróbujmy napisać jakiś kod w ten sposób.
+    </>
+  ),
+  keyword: 'brainfuck',
+  categories: ['Programowanie'],
+  tags: [
+    'brainfuck',
+    'ezoteryczny język programowania',
+    'piet',
+    'maszyna Turinga',
+    'kompletność Turinga',
+    'Turing tarpit',
+    'javascript'
+  ],
+  slug: 'brainfxck',
+  updateTime: '2024-03-20T07:00:00+00:00',
+  publishTime: '2024-03-20T07:00:00+00:00',
+  cover,
+};
+
+## Ezoteryczne języki programowania
+
+### Czym są?
+
+Zanim przejdziemy do głównego bohatera artykułu, zacznijmy od tego, czym są ezoteryczne języki programowania. Wbrew temu, z czym mogłaby się kojarzyć nazwa, nie są to języki do np. stawiania horoskopów. Powstały jako języki nie do normalnego użycia, a raczej jako ciekawostka, swego rodzaju sztuka, czy po prostu żart. Słowo *ezoteryczny* jest tu użyte przede wszystkim po to, aby odróżnić te języki od zwykłych do normalnego użytku.
+
+Najbardziej charakterystyczną cechą ezoterycznych języków programowania jest nietypowa składnia i zarazem nietypowy zestaw instrukcji. Z jednej strony będą tu języki, gdzie programujemy jedynie za pomocą kilku znaków (jak dzisiejszy bohater), ale też takie, gdzie piszemy wiele nadmiarowych rzeczy, np. żeby program wyglądał jak książka kucharska (Chef). Zresztą niekoniecznie musimy pisać, bo są też języki, gdzie programujemy, rysując (Piet).
+
+<Image
+  image={piet}
+  alignCenter
+  unoptimized={true}
+  alt="Sekwencja kolorów układająca się w kod napisany w języku programowania Piet"
+  caption={<>Ten niepozorny obrazek to program „napisany” w języku Piet, wypisujący na ekranie tekst „świstak.codes”. Jeśli mi nie wierzysz, skorzystaj z jakiegoś interpretera, np. <a href="https://www.bertnase.de/npiet/npiet-execute.php" target="_blank" rel="noreferrer">npiet online</a>.</>}
+/>
+
+### Co sprawia, że coś jest językiem programowania?
+
+Widząc powyższy obrazek, można zadać celne pytanie — co sprawia, że język programowania jest językiem programowania? Dlaczego Piet, w którym rysujemy obrazki, jest językiem programowania (co prawda ezoterycznym), a taki HTML już nie? Odpowiedź często sprowadza się do jednego terminu z teorii obliczeń: kompletności Turinga.
+
+Zanim przejdziemy do definicji, od razu dodam, że kompletność Turinga nie jest jedynym wyznacznikiem, czy coś jest językiem programowania. Istnieją języki programowania, które tego kryterium nie spełniają, np. Charity czy LOOP. Aczkolwiek są to bardzo rzadkie i małopopularne przypadki.
+
+#### Kompletność Turinga
+
+Kompletność Turinga, w dużym uproszczeniu mówiąc, to cecha modelu obliczeniowego polegająca na tym, że da się zasymulować na nim uniwersalną maszynę Turinga. Ujmując to w inny sposób, można rozwiązać tę samą klasę problemów obliczeniowych co maszyna Turinga.
+
+Tylko czym jest maszyna Turinga? Jest to abstrakcyjny model urządzenia służącego do wykonywania algorytmów. W założeniu składa się ona z bloku sterowania, nieskończonej taśmy (podzielonej na pola) i głowicy, która zapisuje i odczytuje symbole. Głowica zawsze jest ustawiona na jakimś polu i znajduje się w jednym z odgórnie zdefiniowanych stanów. Całe zachowanie definiowane jest matematycznie. Nie wchodząc w szczegóły, jak to wygląda matematycznie, moglibyśmy na tym modelu zaimplementować dowolny algorytm.
+
+Oczywiście z racji tego, że maszyna Turinga ma nieskończoną pamięć (taśmę), nigdy żaden język programowania nie będzie w stanie jej w pełni zasymulować. Jednak o kompletności Turinga mówimy wtedy, gdy jeśli byłby dostęp do nieskończonej pamięci, to czy moglibyśmy w pełni odwzorować maszynę Turinga.
+
+<Image
+  image={turing}
+  alignCenter
+  alt="Urządzenie składające się z taśmy, głowicy i bloku sterowania."
+  caption={<>Mniej więcej tak mogłaby wyglądać fizyczna wersja maszyny Turinga. Musisz sobie tylko dopowiedzieć, że na rolkach po obu stronach głowicy jest nieskończona ilość taśmy.<br /> (źródło: <a href="https://commons.wikimedia.org/wiki/File:Turing_Machine_Model_Davey_2012.jpg">Rocky Acosta</a>, <a href="https://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>, via Wikimedia Commons)</>}
+/>
+
+Uprośćmy to jednak do jeszcze prostszej definicji, bardzo intuicyjnej — język programowania jest kompletny (zupełny) w sensie Turinga, jeśli możemy w nim zaprogramować dowolny algorytm.
+
+#### Turing tarpit
+
+W 1982 r. Alan Perlis opublikował żartobliwy artykuł w czasopiśmie ACM SIGPLAN o tytule *Epigrams on Programming*. Szczególnie zasłynął on z 54. punktu, który w tłumaczeniu na polski brzmi następująco:
+
+> Strzeż się grzęzawiska Turinga, w którym wszystko jest możliwe, ale nic co warte uwagi nie jest łatwe.
+
+Stąd wzięło się pojęcie *Turing tarpit* (po polsku *grzęzawisko Turinga*). Nazywamy tak modele, które są kompletne w sensie Turinga, czyli moglibyśmy za ich pomocą przedstawić dowolny algorytm, jednak są bardzo niepraktyczne. Charakteryzują się bardzo uproszczonym podejściem do tematu rozwiązywania obliczeń, w zasadzie minimalnym, przez co są trudne w użyciu. Do tej kategorii zaliczamy część ezoterycznych języków programowania — w szczególności te, które charakteryzują się bardzo małą liczbą instrukcji, np. Brainfuck, w którego się zaraz mocniej zagłębimy.
+
+#### Nieprogramistyczne i nietypowe przykłady kompletności Turinga
+
+Zanim przejdziemy do Brainfucka, jeszcze chciałem dodać, że o ile kompletność Turinga kojarzy się (informatykom) przede wszystkim z językami programowania, to celowo wcześniej używałem słowa model obliczeniowy. Przykładowo, o kompletności Turinga możemy mówić w przypadku architektury von Neumanna (na której bazują komputery), bo możemy na niej zasymulować maszynę Turinga. Tak samo kompletny w sensie Turinga jest najbardziej znany automat komórkowy, czyli gra w życie.
+
+Większym zainteresowaniem łowców ciekawostek cieszą się jednak nietypowe przykłady kompletności Turinga, bo jak się okazuje, może być na przykład całkowicie niezamierzona. Moje ulubione przykłady:
+
+- W 2017 r. pojawił się artykuł *On the Turing Completeness of MS PowerPoint*, gdzie pokazano, że w PowerPoincie można zasymulować maszynę Turinga. [Tutaj znajdziesz prezentację na ten temat](https://www.youtube.com/watch?v=uNjxe8ShM-8).
+- Zostając przy pakiecie Office, Excel jest również kompletny w sensie Turinga. A stało się tak, odkąd wprowadzono do Excela formułę [LAMBDA](https://support.microsoft.com/pl-pl/office/funkcja-lambda-bd212d27-1cd1-4321-a34a-ccbf254b8b67), która dosłownie pozwala tworzyć własne funkcje w formie rachunku lambda. Zresztą [ktoś nawet stworzył 16-bitowy procesor w Excelu](https://www.youtube.com/watch?v=5rg7xvTJ8SU). Gwoli ścisłości — nie mówimy tu w ogóle o używaniu makr, bo za nimi stoi prawdziwy język programowania (Visual Basic).
+- Minecraft również ma tę cechę. [Tutaj znajdziesz filmik z procesorem stworzonym w Minecrafcie](https://www.youtube.com/watch?v=FDiapbD0Xfg).
+- Jeszcze zupełnie inną kategorią są elementy języków programowania, które z zamysłu nie miały służyć do obliczeń, ale spełniają założenia kompletności Turinga. Najbardziej znane przykłady to szablony w C++, instrukcja `MOV` z asemblera x86 czy system typów <Link href="/post/teoria-zbiorow-typescript">TypeScripta</Link>.
+
+W przypadku tego ostatniego polecam zainteresować się grudniową zabawą *Advent of TypeScript* organizowaną przez [TypeHero](https://typehero.dev/). Poniżej przykład mojego rozwiązania (niekoniecznie idealnego) jednej z prostszych zagadek z zeszłego roku — wyszukiwanie liniowe (szukane było emoji z Mikołajem) całkowicie zrobione w systemie typów:
+
+```typescript
+type Increment<N extends number> = [1,2,3,4,5,6,7,8,9,10][N]
+type FindSanta<T1, T2 extends number = 0> = T1 extends [infer First, ...infer Rest]
+  ? First extends '🎅🏼'
+    ? T2
+    : FindSanta<Rest, Increment<T2>>
+  : never;
+
+// test rozwiązania:
+type Forest2 = ['🎄', '🎄', '🎅🏼', '🎄'];
+type test_2_actual = FindSanta<Forest2>; // 2
+```
+
+## Brainfuck
+
+Przejdźmy w końcu do głównego bohatera artykułu, czyli ezoterycznego języka programowania Brainfuck. Jego nazwę moglibyśmy luźno przetłumaczyć na polski jako mózgoj\*b, więc to już powinno nam wiele mówić. Składnia tego języka składa się jedynie z ośmiu instrukcji, każda jednoznakowa.
+
+### Historia
+
+Język jest już dość wiekowy. Stworzył go w 1993 r. Urban Müller i opublikował jego kompilator pod Amigę na Aminecie. Pierwsza wersja ważyła 296 bajtów, natomiast druga już tylko 240. Zresztą samą publikację na Aminet o drugiej wersji języka możecie znaleźć tutaj: https://aminet.net/package/dev/lang/brainfuck-2. Można tam też ściągnąć oryginalny kompilator — może ktoś jest chętny spróbować <Link href="/post/komputer-w-komputerze-czyli-emulacja-wirtualizacja-i-konteneryzacja">zemulować</Link>?
+
+### Składnia
+
+Idea języka Brainfuck jest taka — rozpoczynając aplikację, mamy zainicjowaną tablicę bajtów (co najmniej 30 000 elementów) wypełnioną zerami i wskaźnik elementu w tablicy (zainicjowany na jej zerowym elemencie). Następnie całością wykonania operujemy, stosując instrukcje:
+
+- `>` — zwiększenie wskaźnika elementu tablicy o 1
+- `<` — zmniejszenie wskaźnika o 1
+- `+` — zwiększenie o 1 wartości w tablicy wskazywanej przez wskaźnik
+- `-` — zmniejszenie o 1 wartości wskazywanej przez wskaźnik
+- `.` — wyświetlenie wartości w tablicy jako znak w kodowaniu ASCII
+- `,` — pobranie znaku od użytkownika i wstawienie jego wartości (ASCII) w aktualnie wskazywanej pozycji w tablicy
+- `[` — rozpoczęcie pętli; jeśli na aktualnej pozycji w tablicy znajduje się 0, przeskakujemy za znak zakończenia pętli
+- `]` — zakończenie pętli; w przypadku napotkania na ten znak przeskakujemy do odpowiadającego mu rozpoczęcia pętli
+
+Wszystkie inne znaki są traktowane jako komentarze.
+
+Warto dodać, że bardzo podobny zestaw instrukcji ma język $$\textstyle{\mathcal{P}}^{\prime\prime}$$ z 1964 r. Jednak tamten język był teoretyczny, eksperymentalny, mający dowodzić, że nawet najprostszy zestaw instrukcji może być wystarczający do stworzenia maszyny Turinga.
+
+### Przykładowe programy
+
+Czy da się tak pisać kod? Tak, jest to pełnoprawny język programowania. Czy warto? Dla zabawy, czemu nie. W Internecie znajdziemy bardzo ciekawe przykłady kodu napisanego w Brainfucku, np. na angielskiej Wikipedii znajdziemy implementację algorytmu szyfrowania [ROT13](https://en.wikipedia.org/wiki/Brainfuck#ROT13). My jednak ograniczmy się teraz w przykładzie do najprostszego programu, jaki możemy napisać — Hello World:
+
+```brainfuck
+H: ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++.
+e: +++++++++++++++++++++++++++++.
+l: +++++++.
+l: .
+o: +++.
+spacja: -------------------------------------------------------------------------------.
+W: +++++++++++++++++++++++++++++++++++++++++++++++++++++++.
+o: ++++++++++++++++++++++++.
+r: +++.
+l: ------.
+d: --------.
+```
+
+Napisałem go w bardzo naiwny sposób, bo jedynie zwiększając i pomniejszając wartość. `H` to w ASCII 72, więc mamy 72 plusy zakończone kropką. `e` to 101, więc dodajemy 29 itd. Kod można zdecydowanie skrócić, wykorzystując pętle i przesuwanie wskaźnika. Na angielskiej Wikipedii znajdziemy następującą implementację Hello World:
+
+```brainfuck
++[-->-[>>+>-----<<]<--<---]>-.>>>+.>>..+++[.>]<<<<.+++.------.<<-.>>>>+.
+```
+
+Jednak tutaj krótszy zdecydowanie nie oznacza prostszy.
+
+## Generowanie kodu
+
+Pobawmy się nieco Brainfuckiem, ale może niekoniecznie w robienie w nim aplikacji. Zacznijmy od najprostszej rzeczy, którą możemy zrobić wokół tematu tego języka, czyli zróbmy aplikację generującą kod. Jako że najprostsze jest wypisywanie tekstu, a w Brainfucku nie odbywa się to przez podanie w kodzie tekstu do wyświetlenia, to zróbmy taki generator.
+
+Jak pisałem wcześniej, Brainfuck operuje na ustawianiu kodów ASCII. Możemy za ich pomocą przedstawić 95 znaków — alfabet łaciński, cyfry, spację i podstawowe symbole. Jeśli potrzebujesz na ten temat nieco więcej informacji, ASCII opisałem pokrótce w artykule *<Link href="/post/nie-liczby-jako-liczby-czyli-zapis-danych-cyfrowych">Nie-liczby jako liczby, czyli zapis danych cyfrowych</Link>*. Dodam tylko, że ASCII ma tę zaletę, że jest to najbardziej podstawowe kodowanie znaków, które istnieje. O tyle podstawowe, że wszystkie inne, które zachowały się do dziś, są jego rozszerzeniami. Oznacza to tyle, że dla tego podstawowego zestawu znaków powinniśmy bez problemu pobrać kod znaku w dowolnym języku programowania. Nawet nie znam „normalnego” języka, który by tego nie umożliwiał.
+
+A jak taki generator najprościej zrobić? Z podanego tekstu pobieramy pierwszy znak i dajemy w rezultacie tyle plusów, ile wynosi wartość ASCII, co kończymy kropką. Dla kolejnych znaków obliczamy już różnicę między kodami i używamy odpowiedniej liczby plusów bądź minusów, zawsze kończąc ciąg kropką. W JavaScript wyglądałoby to następująco:
+
+```javascript
+// funkcja generująca kod brainfuckowy
+// zakładam, że text jest typu znakowego
+// i zawiera jedynie znaki zawarte w kodowaniu ASCII
+function generateBf(text) {
+  // zmienna, która przechowa docelowy kod
+  let code = "";
+  // zmienna przechowująca aktualny stan pamięci
+  let currentCellValue = 0;
+
+  // iterujemy po każdym znaku w tekście
+  for (let i = 0; i < text.length; i++) {
+    // wyciągamy znak z tekstu
+    let char = text[i];
+    // pobieramy jego kod ASCII
+    let targetValue = char.charCodeAt(0);
+    // obliczamy różnicę z aktualnym stanem pamięci
+    let difference = targetValue - currentCellValue;
+    if (difference > 0) {
+      // jeśli różnica jest większa od 0, zwiększamy stan plusami
+      code += "+".repeat(difference);
+    } else if (difference < 0) {
+      // jeśli nie, zmniejszamy minusami
+      // -difference, ponieważ wartość jest ujemna, a chcemy mieć dodatnią liczbę
+      code += "-".repeat(-difference);
+    }
+    // kończymy kropką, czyli wypisaniem znaku
+    code += ".";
+    // zapamiętujemy aktualny stan pamięci
+    currentCellValue = targetValue;
+  }
+  // zwracamy wygenerowany kod
+  return code;
+}
+```
+
+Kod znajdziesz w wersji interaktywnej na [Replit](https://replit.com/@tswistak/bf-generator#index.js).
+
+## Konwerter Brainfuck -> JavaScript
+
+Kolejne, co możemy zrobić w ramach naszej zabawy Brainfuckiem, to „tłumacz” tego języka na bardziej zrozumiały. Mimo że widząc słowo *wskaźnik*, do głowy szybciej może przyjść np. C, to jednak postawiłem na JavaScript. Zrobiłem tak, żeby już nie wprowadzać dodatkowego języka programowania do tego artykułu.
+
+### Interpretacja składni
+
+Główną pracą, którą mamy do wykonania, jest napisanie słownika tłumaczącego symbole brainfuckowe na czytelny kod JavaScriptowy.
+
+#### Inicjalizacja
+
+Zacznijmy od inicjalizacji, kiedy tworzona jest tablica bajtów (w silnie typowanych językach byłoby to `char[]` lub `byte[]`) wypełniona zerami i wskaźnik na jej pierwszy element. Będzie to po prostu:
+
+```javascript
+const memory = new Array(30000).fill(0);
+let pointer = 0;
+```
+
+#### Podstawowe symbole
+
+Przejdźmy więc po kolei do symboli:
+
+- `>` — `pointer++`
+- `<` — `pointer--`
+- `+` — `memory[pointer]++`
+- `-` — `memory[pointer]--`
+- `[` — `while(memory[pointer] > 0) {`
+- `]` — `}`
+
+Pozostały nam tylko dwa problematyczne związane z obsługą wejścia i wyjścia.
+
+#### Wyjście
+
+Prostszym przypadkiem jest wyjście, czyli wypisanie tekstu w konsoli (symbol `.`). W języku C wystarczyłoby zrobić `putchar(*pointer)`, co od razu też zinterpretuje kod ASCII. Jednak jak to zrobić w JavaScript?
+
+Najbardziej ogólny sposób, który zadziała i w przeglądarce, i w NodeJS, to utworzenie podczas inicjalizacji pustego ciągu znaków i przy każdym `.` dodajemy do niego znak. Następnie na samym końcu wypisujemy całość. Coś w takim stylu:
+
+```javascript
+// inicjalizacja pustego ciągu
+let output = '';
+
+// ...
+
+// dodanie znaku z kodu ASCII zapisanego w tablicy memory
+output += String.fromCharCode(memory[pointer]);
+
+// ...
+
+// wypisanie zmiennej na koniec wykonania aplikacji
+console.log(output);
+```
+
+Kod ten ma jednak taki problem, że można wprowadzać znaki (o tym za chwilę), co może namieszać w kontekście wypisywania tekstu, odbierając częściowo interaktywność. Dlatego też tutaj tego sposobu nie użyjemy.
+
+Co mniej znane, w NodeJS jesteśmy w stanie wypisać pojedynczy znak w konsoli analogicznie jak działa `putchar`. Wykorzystamy do tego bezpośredni dostęp do wyjścia standardowego. Możemy to zrobić następująco:
+
+```javascript
+process.stdout.write(String.fromCharCode(memory[pointer]));
+```
+
+Ten sposób wykorzystamy w naszym interpreterze jako działający dokładnie tak, jak jest to w założeniach języka Brainfuck.
+
+#### Wejście
+
+Pobranie wejścia (symbol `,`) jest jednak trudniejsze, szczególnie gdy mówimy o NodeJS. O ile w C wykorzystalibyśmy funkcję\* `getchar()`, to niestety nie mamy w JavaScript jej bezpośredniego odpowiednika. Jednak możemy jej działanie odwzorować, wykorzystując bezpośredni dostęp do wejścia standardowego.
+
+W tym celu napiszemy funkcję, którą będziemy dalej do tego wykorzystywać. Wyglądać będzie następująco:
+
+```javascript
+// importujemy moduł readline do odczytu linii ze strumieni
+const readline = require('readline');
+
+// asynchroniczna funkcja odczytująca znak
+function getChar() {
+  return new Promise((resolve) => {
+    // dodajemy do wejścia standardowego zdarzenie naciśnięcia klawisza
+    readline.emitKeypressEvents(process.stdin);
+    // przywracamy odczyt strumienia, jeśli był wstrzymany
+    process.stdin.resume();
+    // uzyskujemy bezpośredni dostęp do wejścia standardowego
+    // tylko w ten sposób możemy odczytywać pojedyncze znaki
+    process.stdin.setRawMode(true);
+    // definiujemy zdarzenie na naciśnięcie przycisku, wykona się tylko raz
+    process.stdin.once('keypress', (string, key) => {
+      // musimy ręcznie dodać obsługę wyłączania aplikacji
+      // przez naciśnięcie CTRL + C
+      if (key.ctrl && key.name === 'c') {
+        process.exit();
+      }
+      // wstrzymujemy odczyt strumienia
+      process.stdin.pause();
+      // wyłączamy bezpośredni dostęp
+      process.stdin.setRawMode(false);
+      // zwracamy jako rezultat funkcji asynchronicznej kod ASCII
+      resolve(string.charCodeAt(0));
+    });
+  });
+}
+```
+
+Będziemy ją wykonywać następująco:
+
+```javascript
+memory[pointer] = await getChar();
+```
+
+Funkcję można by poprawić o sprawdzanie, czy wprowadzony znak mieści się w zakresie kodowania ASCII (0-127). Jeśli nie, trzeba by czekać, aż użytkownik wprowadzi prawidłowy.
+
+\* Drobna uwaga na boku odnoście użycia `getchar()` z języka C. Może się okazać po wywołaniu funkcji, że nie jest pobierany pojedynczy znak, tylko wiele, aż nie naciśniemy Enter. Dzieje się tak, gdy terminal działa w trybie kanonicznym, co oznacza, że przekazuje wejście ze strumienia linia po linii, a nie znak po znaku. Możemy to wyłączyć, używając [`tcsetattr`](https://linux.die.net/man/3/tcsetattr).
+
+#### Napisanie konwertera
+
+Mamy w tym momencie wszystko, czego potrzebujemy do napisania konwertera. To, co musimy zrobić, to stworzyć ciąg znaków zapoczątkowany kodem inicjującym (razem z funkcją do odczytu znaków, jeśli będzie potrzebna), a potem iterować znak po znaku kod Brainfuckowy i wstawiać odpowiednie instrukcje zamiast symboli. Możemy dodatkowo albo formatować kod wcięciami podczas wstawiania instrukcji, albo na sam koniec wywołać gotowe narzędzie do tego celu (np. [Prettier](https://prettier.io/) dla JavaScriptu).
+
+Funkcja konwertująca mogłaby wyglądać następująco:
+
+```javascript
+const prettier = require("prettier");
+
+// kod pobierania znaku
+const getChar = `
+  const readline = require('readline');
+
+  function getChar() {
+    // ...
+  }
+`;
+
+// kod inicjujący
+const init = `
+  const memory = new Array(30000).fill(0);
+  let pointer = 0;
+
+  (async () => {
+`;
+
+// kod kończący aplikację
+const end = `
+  })();
+`;
+
+// mapa symbol BF -> instrukcja JS
+const symbolToJs = {
+  ">": "pointer++;",
+  "<": "pointer--;",
+  "+": "memory[pointer]++;",
+  "-": "memory[pointer]--;",
+  ".": "process.stdout.write(String.fromCharCode(memory[pointer]));",
+  ",": "memory[pointer] = await getChar();",
+  "[": "while (memory[pointer] !== 0) {",
+  "]": "}",
+};
+
+async function bfToJs(bfCode) {
+  // zmienna przechowująca kod w JavaScript
+  let result = "";
+  if (bfCode.includes(",")) {
+    // kod pobierania znaku dodajemy tylko wtedy, gdy jest potrzebny
+    result += getChar;
+  }
+  // dodajemy kod inicjujący aplikację
+  result += init;
+  // iterujemy po kolejnych znakach, aby je przekonwertować
+  for (let i = 0; i < bfCode.length; i++) {
+    // pobieramy instrukcję dla aktualnego znaku
+    const instruction = symbolToJs[bfCode[i]];
+    // jeśli symbol był prawidłowy, dodajemy instrukcję kodu
+    if (instruction) {
+      result += instruction;
+    }
+  }
+  // dodajemy kod zakańczający aplikację
+  result += end;
+  // formatujemy kod Prettierem
+  result = await prettier.format(result, { parser: "babel" });
+  // zwracamy kod
+  return result;
+}
+```
+
+Pełen kod wraz z zapisem wynikowego kodu do pliku znajdziesz na [Replit](https://replit.com/@tswistak/bf-converter#index.js).
+
+Sam kod można by poprawić. Na przykład, jeśli nie pobieramy znaku, nie musimy tworzyć [IIFE z funkcją asynchroniczną](https://developer.mozilla.org/en-US/docs/Glossary/IIFE). Teoretycznie w ogóle nie potrzeba by go robić, jeśli kod byłby pisany w formacie [ECMAScript Modules](https://nodejs.org/api/esm.html#modules-ecmascript-modules), ale że wciąż domyślnym trybem w NodeJS jest [CommonJS](https://nodejs.org/api/modules.html#modules-commonjs-modules), to nie robiłem w taki sposób.
+
+Alternatywny konwerter, generujący kod w C, znajdziesz [na tym Replit](https://replit.com/@tswistak/bf-converter-c#index.js). Kod jest napisany z myślą o Linuksach, więc może nie działać prawidłowo na innych systemach. Możesz tam też zobaczyć, jak wyłączyć w C tryb kanoniczny terminala, o którym wspominałem wcześniej.
+
+## Interpreter kodu
+
+Skoro wiemy już jak tłumaczyć Brainfucka na inny język, to dlaczego nie zabrać się od razu za wykonywanie kodu? Teoretycznie mamy już wszystko, co potrzebne.
+
+### Obsługa pętli
+
+Teoretycznie, bo nie wszystko przełożymy jeden do jednego. Problematyczne będą symbole `[` i `]`, czyli pętla. Jest to jedyna rzecz, której nie możemy ot tak sobie wywołać, interpretując kod. Jak więc do tego podejść?
+
+Co opisałem w swoim starszym artykule *<Link href="/post/iteracja-co-to-jest">Iteracja — co to jest?</Link>*, pętle (w uproszczeniu) polegają na przeskakiwaniu między wskazanymi punktami w kodzie aplikacji. W asemblerach, gdzie pętle opierają się tylko na skokach, wskazujemy konkretną linię kodu, do której przechodzimy. W Brainfucku mamy do czynienia z blokiem wyznaczanym przez `[` i `]`. Jak więc zrobić pętlę? Należy zapamiętać pozycję, na której było `[`, i przy napotkaniu `]` przeskoczyć w kodzie do tamtego miejsca.
+
+Problem jednak pojawia się, gdy mamy zagnieżdżone pętle. W takim przypadku musimy pamiętać więcej pozycji, tylko jak? Najlepiej sprawdzi się do tego <Link href="/post/odwrotna-notacja-polska/#stos">stos</Link>. Wówczas co wejście w pętle dodajemy adres początku pętli na szczyt stosu, i napotykając `]`, ściągamy go. Zapewni nam to, że zawsze na górze stosu będzie najświeższe otwarcie pętli, więc trafiając na jej zakończenie, wiemy, gdzie wrócić. Problemem jest jednak to, że będziemy musieli znaleźć `]`, do którego należy przeskoczyć, gdy nie wykonamy znowu pętli, ale tutaj możemy posiłkować się wyszukiwaniem liniowym.
+
+### Implementacja
+
+Cały kod interpretera w JavaScript będzie wyglądać jak poniżej. Zwróć szczególną uwagę na kod obsługi `[` i `]`, gdyż jak napisałem chwilę temu, jest tutaj najbardziej podchwytliwy.
+
+```javascript
+async function bfInterpreter(bfCode) {
+  // pamięć Brainfucka
+  const memory = new Array(30000).fill(0);
+  // stos przechowujący początki pętli
+  const loopStack = [];
+  // aktualna pozycja wskaźnika
+  let pointer = 0;
+  for (let i = 0; i < bfCode.length; i++) {
+    const symbol = bfCode[i];
+    switch (symbol) {
+      case ">":
+        pointer++;
+        break;
+      case "<":
+        pointer--;
+        break;
+      case "+":
+        memory[pointer]++;
+        break;
+      case "-":
+        memory[pointer]--;
+        break;
+      case ".":
+        process.stdout.write(String.fromCharCode(memory[pointer]));
+        break;
+      case ",":
+        memory[pointer] = await getChar();
+        break;
+      case "[":
+        // jeśli nie chcemy wykonać pętli, musimy znaleźć jej zakończenie
+        if (memory[pointer] === 0) {
+          // tą zmienną będziemy odmierzać, ile początków pętli napotkaliśmy,
+          // żeby wiedzieć, ile razy musimy zignorować symbol `]`
+          let loop = 1;
+          // będziemy iterować tak długo, aż trafimy na zakończenie aktualnej pętli
+          while (loop > 0) {
+            // zwiększamy indeks o 1, aby przejść do następnego symbolu
+            i++;
+            if (bfCode[i] === "[") {
+              // jeśli napotkaliśmy początek pętli, zwiększamy licznik pętli
+              loop++;
+            } else if (bfCode[i] === "]") {
+              // w przeciwnym wypadku zmniejszamy
+              // gdy osiągnęliśmy 0, oznacza to, że trafiliśmy na szukany `]`
+              loop--;
+            }
+          }
+        } else {
+          // wykonujemy pętlę, dlatego zapisujemy adres jej początku na stosie
+          loopStack.push(i);
+        }
+        break;
+      case "]":
+        if (memory[pointer] !== 0) {
+          // cofamy się do początku pętli
+          // odejmujemy 1, bo pętla for zawsze zwiększa licznik na końcu
+          i = loopStack.pop() - 1;
+        } else {
+          // jeśli w pamięci aktualna komórka jest równa 0,
+          // to nie ma sensu się cofać, usuwamy zapamiętany adres
+          loopStack.pop();
+        }
+        break;
+    }
+  }
+}
+```
+
+Całość w interaktywnej formie znajdziesz na [Replit](https://replit.com/@tswistak/bf-interpreter#index.js).
+
+Przy okazji powyższego interpretera dodam ciekawostkę, że dowolną aplikację można w JavaScript zapisać jedynie za pomocą sześciu symboli: `[`, `]`, `(`, `)`, `!` i `+`. Nazwano to *JSFuck* (kto by się spodziewał) i na stronie [jsfuck.com](https://jsfuck.com/) znajdziesz konwerter dowolnego kodu JavaScriptowego na jego sześcioznakowy podzbiór. Oczywiście skrypty takie będą działać o wiele wolniej, ale będą działać.
+
+## Podsumowanie
+
+Chyba nie muszę mówić, że Brainfuck sam z siebie szczególnych zastosowań nie ma. Należy traktować go bardziej jako ciekawostkę, że kompletny język programowania może być tak minimalistyczny, a także możemy pokombinować z pisaniem w nim prostych programów. Warto jednak zauważyć, że obsługa nawet tak prostego języka w celu jego konwersji na inny, czy w ogóle interpretacji, jest ciekawym zagadnieniem algorytmicznym i liczę, że dzięki temu mogłeś(-aś) odkryć coś nowego. Oczywiście zwykłych języków programowania nie odczytywalibyśmy tak jak tu linijka po linijce, tylko transformowalibyśmy je do struktur takich jak AST, ale to opowieść na zupełnie inny artykuł.
+
+## Literatura
+
+- Esoteric programming language, https://esolangs.org/w/index.php?title=Esoteric_programming_language&oldid=122980 (ostatni dostęp 7.03.2024)
+- Piet, https://esolangs.org/w/index.php?title=Piet&oldid=116788 (ostatni dostęp 7.03.2024)
+- Turing machine, https://en.wikipedia.org/w/index.php?title=Turing_machine&oldid=1210672492 (ostatni dostęp 7.03.2024)
+- Perlis, A. J. (September 1982). "Epigrams on programming". ACM SIGPLAN Notices. New York, NY, USA: Association for Computing Machinery. 17 (9): 7–13. [doi:10.1145/947955.1083808](https://doi.org/10.1145/947955.1083808).
+- Aminet - `dev/lang/brainfuck-2.lha`, https://aminet.net/package/dev/lang/brainfuck-2 (ostatni dostęp 7.03.2024)
+- B. Raiter, *Brainfuck, An Eight-Instruction Turing-Complete Programming Language*, https://muppetlabs.com/~breadbox/bf/ (ostatni dostęp 7.03.2024)
+- tcsetattr(3) - Linux man page, https://linux.die.net/man/3/tcsetattr (ostatni dostęp 7.03.2024)
+
+<small>Zdjęcie na okładce wygenerowane przez DALL-E.</small>

@@ -1,0 +1,70 @@
+.shareContainer {
+  text-align: center;
+}
+
+.shareButton {
+  border-radius: 100%;
+  padding: 0.5em 0.6em;
+  margin: 0;
+  vertical-align: middle;
+  display: flex;
+
+  i {
+    font-size: 1.5em;
+  }
+
+  &.twitter {
+    background-color: #000000;
+
+    &:hover {
+      background-color: #222222;
+    }
+  }
+
+  &.facebook {
+    background-color: #3b5998;
+
+    &:hover {
+      background-color: #2d4373;
+    }
+  }
+
+  &.linkedin {
+    background-color: #0077b5;
+
+    &:hover {
+      background-color: #046293;
+    }
+  }
+
+  &.bluesky {
+    background-color: rgb(18, 133, 254);
+
+    &:hover {
+      background-color: rgb(17, 114, 214);
+    }
+  }
+
+  &.mail {
+    background-color: #777;
+
+    &:hover {
+      background-color: #5e5e5e;
+    }
+  }
+
+  &.native-share {
+    background-color: #17b169;
+
+    &:hover {
+      background-color: #018749;
+    }
+  }
+}
+
+.shareLink {
+  text-decoration: none;
+  color: #fff;
+  margin: 0.5em;
+  display: inline-block;
+}

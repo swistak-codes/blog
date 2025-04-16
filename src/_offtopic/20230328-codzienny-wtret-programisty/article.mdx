@@ -1,0 +1,599 @@
+import { Image } from '@swistak-codes/components';
+import Link from 'next/link';
+import cover from './codzienny_wtret_swistak.jpg';
+import wtret8_1 from './wtret_08_3.jpg';
+import wtret8_2 from './wtret_08_4.jpg';
+import wtret8_3 from './wtret_08_5.jpg';
+
+export const meta = {
+  title: 'Codzienny wtręt programisty (1-30)',
+  abstract:
+    'Teksty publikowane przeze mnie na social mediach w ramach serii „Codzienny wtręt programisty”. Części 1-30.',
+  firstParagraph: (
+    <>
+      Codzienny wtręt programistyczny to seria codziennych, krótkich wpisów na moich social mediach, gdzie dzieliłem się krótkimi radami i przemyśleniami na temat programowania. Na razie przez 30 dni, ale możliwe, że będę go kontynuować. W tym artykule znajdziesz spisane treści wszystkich tych wpisów.
+    </>
+  ),
+  keyword: 'codzienny wtręt programisty',
+  categories: [],
+  tags: [],
+  slug: 'codzienny-wtret-programisty',
+  updateTime: '2023-03-28T07:00:00+00:00',
+  publishTime: '2023-03-28T07:00:00+00:00',
+  isOfftopic: true,
+  cover,
+};
+
+## Wstęp
+
+Treści, które tutaj zobaczysz, oryginalnie były publikowane na moich social mediach. Są nieco inne niż tematyka tego bloga: porady dla osób zaczynających pracę w IT oraz rzeczy związane typowo z front-endem i JavaScriptem. Blog z założenia miał być zawsze bardziej ogólny, skupiający się na uniwersalnej wiedzy z zakresu informatyki niezależnie od technologii, wykształcenia i zawodu.
+
+Jeśli chciałbyś/chciałabyś być na bieżąco z podobnymi treściami, zapraszam do obserwowania moich social mediów:
+
+- [Instagram (@swistak.codes)](https://www.instagram.com/swistak.codes/)
+- [LinkedIn (Tomasz Świstak)](https://www.linkedin.com/in/tomasz-swistak/)
+- [Facebook (świstak.codes)](https://www.facebook.com/swistak.codes/)
+
+## #1 Tablica to nie jedyna struktura danych
+
+Jednym z głównych błędów junior developerów, który dostrzegam, jest stosowanie tablic do przechowywania każdego rodzaju danych niezależnie od ich dalszego użycia. Pamiętaj, że jeśli Twoje dane mają unikalny identyfikator i zwykle to po nim się do nich odwołujesz, możesz użyć słownika (mapy). Struktura ta jest zoptymalizowana pod kątem szybkiego odwoływania się do danych w ten sposób. Zobacz przykład w JavaScript, jak możesz uprościć i przyspieszyć swój kod.
+
+```javascript
+// ❌ ŹLE
+const users = [
+  { id: '1-1-1', name: 'Jan' },
+  { id: '4-1-2', name: 'Anna' },
+  { id: '1-5-1', name: 'Paweł' }
+];
+const anna = users.find(x => x.id === '4-1-2');
+
+// ✅ DOBRZE
+const users = {
+  '1-1-1': { id: '1-1-1', name: 'Jan' },
+  '4-1-2': { id: '4-1-2', name: 'Anna' },
+  '1-5-1': { id: '1-5-1', name: 'Paweł' }
+};
+const anna = users['4-1-2'];
+```
+
+Więcej o tym, jak działają tablice, przeczytasz tutaj: <Link href="/post/tablice-i-listy-tablicowe">{'https://swistak.codes/post/tablice-i-listy-tablicowe/'}</Link>
+
+## #2 Ucz się programowania, nie technologii
+
+Na początku programistycznej przygody chcemy jak najszybciej poznać konkretne technologie, które pozwolą szybko zdobyć pracę. Pamiętaj jednak, że języki czy frameworki to tylko narzędzia. Jeśli zostaniesz programistą Reacta i nigdy się nie rozwiniesz w innym kierunku, Twoja kariera skończy się wraz ze śmiercią Reacta. Odkrywaj inne obszary programowania, nie ograniczaj się tylko do tego, co jest obecnie modne lub w czym pracujesz. IT to branża, gdzie trzeba się nieustannie uczyć, i im szybciej otworzysz się na różnorodność tego świata, tym lepiej.
+
+Jeśli chcesz się rozwinąć w różnych obszarach informatyki i programowania, zapraszam na mojego bloga, gdzie dowiesz się o różnych bardziej i mniej praktycznych rzeczach: <Link href="/">{'https://swistak.codes/'}</Link>
+
+## #3 0,1 + 0,2 ≠ 0,3
+
+Wiele osób dziwi się, dlaczego coś tak oczywistego jak "0.1 + 0.2 === 0.3" zwraca fałsz. Przecież na pierwszy rzut oka widać, że 0,1 + 0,2 jest równe 0,3. Winne temu jest to, że ułamki na komputerze są zapisywane w postaci przybliżeń, które nazywamy liczbami zmiennoprzecinkowymi.
+
+Z tego powodu nie powinniśmy takich liczb porównywać ze sobą za pomocą operatora równości, tylko sprawdzać różnicę względem marginesu błędu. Przykład w JavaScript poniżej.
+
+```javascript
+// ❌ ŹLE
+const isEqual1 = 0.1 + 0.2 === 0.3;
+console.log(isEqual1); // false
+
+// ✅ DOBRZE
+const isEqual2 = Math.abs(0.1 + 0.2 - 0.3) < Number.EPSILON;
+console.log(isEqual2); // true
+```
+
+Więcej o tym, jak komputer zapisuje ułamki, przeczytasz tutaj: <Link href="/post/liczby-wymierne-i-rzeczywiste-w-zero-jedynkowym-swiecie">{'https://swistak.codes/post/liczby-wymierne-i-rzeczywiste-w-zero-jedynkowym-swiecie/'}</Link>
+
+## #4 Studia informatyczne nie są złe
+
+W Internecie można przeczytać wiele na temat tego, że po co iść na studia, skoro programowania można się nauczyć z Udemy. Szczerze? To prawda, programować nauczysz się z Internetu. W zasadzie dużo osób idzie na studia, umiejąc już w jakimś stopniu programować.
+
+To, co studia dają, to przede wszystkim pokazanie różnorodności informatyki.
+
+Informatyka to nie tylko programowanie — programowanie to zaledwie jedno z narzędzi. Studia nie zrobią z Ciebie eksperta od programowania. Za to pokażą różne drogi i dadzą podstawy teoretyczne, dzięki którym będziesz mógł/mogła rozwijać się jeszcze lepiej w wymarzonym kierunku.
+
+Jeśli chcesz poznać zajawkę różnych tematów związanych z IT, w tym takich poruszanych na studiach, zapraszam na mojego bloga, gdzie staram się przedstawić je prostym językiem: <Link href="/">{'https://swistak.codes/'}</Link>
+
+## #5 Poznaj Dockera
+
+Docker to jedno z narzędzi DevOpsowych, ale nie jest ograniczone tylko do tych zastosowań. Dziś, nawet będąc zwykłym programistą, warto go znać, przynajmniej podstawy.
+
+- ➡️ Chcesz mieć możliwość postawienia bazy danych bez zaśmiecania swojego systemu?
+- ➡️ A może uruchomić środowisko programistyczne odseparowane od reszty systemu?
+- ➡️ Albo po prostu potrzebujesz odpalić jakieś narzędzia Linuksowe?
+
+To wszystko daje Docker. Do tego odkąd VS Code wprowadziło Dev Containers, znajomość Dockera wydaje się jeszcze bardziej przydatna zwykłym programistom.
+
+Poznaj go, a może przy okazji zainteresujesz się innymi narzędziami DevOpsowymi i zmienisz swoją ścieżkę kariery?
+
+Więcej o tym, jak działa m.in. Docker, przeczytasz tutaj: <Link href="/post/komputer-w-komputerze-czyli-emulacja-wirtualizacja-i-konteneryzacja">{'https://swistak.codes/post/komputer-w-komputerze-czyli-emulacja-wirtualizacja-i-konteneryzacja/'}</Link>
+
+## #6 Korzystaj ze sprawdzonych gotowców
+
+Szczególnie będąc początkującymi programistami, mamy pokusę, żeby pokazać, jak dużo umiemy, a tym samym piszemy dużo rzeczy od podstaw. Jednak nieraz lepiej jest skorzystać z gotowych rozwiązań.
+
+Dlaczego?
+
+- ✅ Zwykle są już sprawdzone i dokładnie przetestowane.
+- ✅ Jeśli są dokładnie sprawdzone i przetestowane, to obsługują też skrajne przypadki.
+- ✅ Oszczędzasz czas, czyli w komercyjnych projektach pieniądze.
+
+Są oczywiście również wady, takie jak poleganie na programistach z zewnątrz, jeśli gotowiec ma błąd, ale raczej mało kto się tym przejmuje w obliczu tylu zalet.
+
+Jeśli chcesz zobaczyć na przykładzie obsługi czasu, jak skomplikowany jest to temat, więc wart użycia gotowca, przeczytaj dwa poniższe artykuły:
+
+- ➡️ <Link href="/post/dlaczego-mierzenie-i-przetwarzanie-czasu-jest-trudne-czesc-1">{'https://swistak.codes/post/dlaczego-mierzenie-i-przetwarzanie-czasu-jest-trudne-czesc-1/'}</Link>
+- ➡️ <Link href="/post/dlaczego-mierzenie-i-przetwarzanie-czasu-jest-trudne-czesc-2">{'https://swistak.codes/post/dlaczego-mierzenie-i-przetwarzanie-czasu-jest-trudne-czesc-2/'}</Link>
+
+## #7 Pamiętaj o liczbie mnogiej
+
+Popularnym błędem przy internacjonalizacji aplikacji jest zapominanie o tym, że wiele języków (w tym polski!) ma kilka form liczby mnogiej. Skuszeni językiem angielskim, w którym zwykle tworzy się aplikacje, programiści dają jedynie jedną formę.
+
+Skutkuje to tym, że tłumacząc na polski np. „items”, musielibyśmy przetłumaczyć je jako „elementy(-ów)”. A są języki, takie jak arabski, gdzie tych form jest jeszcze więcej.
+
+Na szczęście większość popularnych rozwiązań do internacjonalizacji aplikacji obsługuje wiele form liczby mnogiej i wie, w którym języku którą stosować, a także w jakim przypadku. Poniżej możesz zobaczyć przykład w JavaScriptowym i18next, ale inne biblioteki i frameworki mają zbliżone podejścia. Jedynie trzeba pamiętać o ich stosowaniu.
+
+```javascript
+// ❌ ŹLE
+const pl = {
+  item: 'Element',
+  items: 'Elementy/ów'
+};
+
+// ✅ DOBRZE
+const pl_correct = {
+  item_one: 'Element',
+  item_few: 'Elementy',
+  item_many: 'Elementów'
+};
+
+t('item', { count: 1 }); // element
+t('item', { count: 2 }); // elementy
+t('item', { count: 5 }); // elementów
+```
+
+Nie jest to stricte o internacjonalizacji, ale jak możesz wiedzieć, pliki tłumaczeń przechowujemy m.in. w postaci plików XML lub JSON. Jeśli chcesz dowiedzieć się o nich nieco więcej, zapraszam do artykułu: <Link href="/post/tekstowy-zapis-danych-cyfrowych">{'https://swistak.codes/post/tekstowy-zapis-danych-cyfrowych/'}</Link>
+
+## #8 Sposób na lepszą czerń i biel
+
+Jeśli szukasz sposobu na ręczne przerobienie kolorowego obrazu na czarno-biały, na pewno trafisz na źródła w Internecie, że robi się to, obliczając średnią arytmetyczną składowych koloru i przypisując ją pod każdą z nich. Stąd kolor rgb(0, 255, 0) (zielony) stanie się rgb(85, 85, 85).
+
+Oczywiście jest to prawidłowy sposób, ale dla lepszego efektu wizualnego lepiej użyć średniej ważonej:
+
+- 🟥 kolorowi czerwonemu nadaj wagę 0,299,
+- 🟩 zielonemu 0,587,
+- 🟦 niebieskiemu 0,114.
+
+```javascript
+// ✔️ DOBRZE
+const gray = (r + g + b) / 3;
+r = gray;
+g = gray;
+b = gray;
+
+// ✅ LEPIEJ
+const gray2 = r * 0.299 + g * 0.587 + b * 0.114;
+r = gray2;
+g = gray2;
+b = gray2;
+```
+
+Wtedy kolor z naszego przykładu stanie się jaśniejszym szarym: rgb(150, 150, 150). Drobna zmiana, ale zapewni lepszy kontrast barw. Zobacz sam(a) przykładowe obrazki, które zamieściłem, i oceń, co Twoim zdaniem wygląda lepiej.
+
+<Image
+  image={wtret8_1}
+  forceWhiteBackground={false}
+  alignCenter
+  fullSize
+  maxWidth="400px"
+  alt=""
+  caption={<></>}
+/>
+
+<Image
+  image={wtret8_2}
+  forceWhiteBackground={false}
+  alignCenter
+  fullSize
+  maxWidth="400px"
+  alt=""
+  caption={<></>}
+/>
+
+<Image
+  image={wtret8_3}
+  forceWhiteBackground={false}
+  alignCenter
+  fullSize
+  maxWidth="400px"
+  alt=""
+  caption={<></>}
+/>
+
+Jeśli chcesz przetestować to w praktyce i poznać inne operacje na barwach, zapraszam do artykułu: <Link href="/post/podstawowe-operacje-na-barwach">{'https://swistak.codes/post/podstawowe-operacje-na-barwach/'}</Link>
+
+## #9 Ucz się myślenia algorytmicznego, nie implementacji
+
+Będąc na studiach bądź czytając materiały dla początkujących, możesz się zastanawiać:
+
+- 🤔 Po co mi wiedzieć, jak rozwiązywać wieże Hanoi?
+- 🤔 Dlaczego uczę się sortowania bąbelkowego, skoro jest niewydajne?
+- 🤔 Czy naprawdę muszę implementować od zera listę tablicową, skoro w języku programowania mam już ją gotową?
+
+Otóż tutaj nie chodzi o to, żebyś znał(a) implementacje. Główny powód, po co się tego uczysz, jest taki, żeby nauczyć Cię trzech rzeczy:
+
+- 💡 Jak rozwiązywać problemy.
+- 💡 Jak myśleć algorytmicznie.
+- 💡 Jak działają struktury i algorytmy, które są wbudowane w języki programowania. Głównie po to, żeby wiedzieć, kiedy je używać.
+
+A co oczywiste, przy okazji uczysz się języka programowania, pisząc kolejny kawałek kodu.
+
+A jeśli chcesz poznać różne tematy tego typu wraz z wyjaśnieniami krok po kroku, zapraszam do lektury artykułów na moim blogu: <Link href="/">{'https://swistak.codes/'}</Link>
+
+## #10 Grafy to nie tylko teoria
+
+Wśród rzeczy, o których słyszałem przeciwko nauce algorytmów, to co mnie najbardziej zadziwia, to traktowanie grafów jako wymysłu akademików nieprzydatnego w praktyce. Nic bardziej mylnego.
+
+Jednak zamiast wyświechtanych, wszędzie powtarzanych przykładów podam zastosowania w konkretnych specjalizacjach:
+
+- 🔬 Data science: analiza danych za pomocą grafowych baz danych.
+- 🌐 Frontend: wizualizacja danych w postaci diagramów.
+- 🎮 Gamedev: reprezentacja planszy jako grafu i wyszukiwanie ścieżek.
+
+Jak widzisz, praktyczne zastosowania istnieją, tylko są nieco inne od tego, co dostajesz w ramach ćwiczeń z algorytmiki.
+
+Jeśli chcesz się zapoznać bliżej z tematem, w tym z jego praktyczną stroną, zapraszam do specjalnej kategorii na moim blogu, gdzie znajdziesz artykuły poświęcone tylko grafom: <Link href="/category/grafy">{'https://swistak.codes/category/grafy/'}</Link>
+
+## #11 „Nie potrzebuję matematyki, zostanę programistą”
+
+Nie dajcie sobie wmówić, że programowanie nie ma nic wspólnego z matematyką. Wiele obszarów programowania opiera się na znajomości matematyki, np. machine learning czy gamedev.
+
+Jednak zawsze ktoś znajdzie kontrprzykład, choćby: nie potrzebuję znać matematyki, żeby zapisywać dane w bazie. Faktycznie, nie trzeba. Ale matematyka to nie tylko obliczenia i liczby, to także umiejętność rozwiązywania problemów.
+
+Kojarzysz ze szkoły zadania z matematyki, gdzie była historyjka z życia i trzeba było wiedzieć, który wzór użyć, żeby znaleźć rozwiązanie? W zasadzie na tym polega programowanie. Tylko:
+
+- ➡️ zamiast historyjek są wymagania biznesowe,
+- ➡️ zamiast kartki i długopisu masz język programowania,
+- ➡️ kartę wzorów zastępuje dokumentacja.
+
+Jeśli interesuje Cię praktyczne zastosowanie matematyki w programowaniu, to królowej nauk poświęciłem całą kategorię artykułów na swoim blogu. Zapraszam do lektury, bo te artykuły to w większości nie tylko teoria, ale też praktyka: <Link href="/category/matematyka">{'https://swistak.codes/category/matematyka/'}</Link>
+
+## #12 AI nie jest Twoim wrogiem
+
+Jako programista nie powinieneś/powinnaś się bać sztucznej inteligencji. To, że narzędzia takie jak ChatGPT potrafią rozwiązać zadania programistyczne, nie oznacza, że programiści nie będą potrzebni. Dalej będziemy potrzebni, tylko najprawdopodobniej zmienią się nasze narzędzia. Może na przykład zamiast pisać od zera kod, będziemy musieli stać się ekspertami od tego, jak pisać prompty do AI, które być może stanie się podstawą narzędzi typu no-code/low-code.
+
+Weź pod uwagę, że nawet do tej pory narzędzia programistów stale się zmieniają. Wkroczenie tutaj sztucznej inteligencji to naturalny rozwój, do którego trzeba się przystosować. Nie oznacza to jednak, że programowanie takie, jakie znamy dziś, zupełnie zniknie. W końcu nawet obecnie utrzymywane są systemy pisane dziesiątki lat temu w ówczesnych technologiach.
+
+Chcesz dowiedzieć się nieco od podstaw i nietechnicznie, czym jest sztuczna inteligencja? Jeśli tak, zapraszam do lektury: <Link href="/post/sztuczna-inteligencja-a-co-to-a-komu-to-potrzebne">{'https://swistak.codes/post/sztuczna-inteligencja-a-co-to-a-komu-to-potrzebne/'}</Link>
+
+## #13 Cokolwiek może być grafem
+
+Dobra, może trochę przesadziłem z tytułem, ale graf nie zawsze musi być reprezentowany tak, jak się tego uczyłeś(-aś). Oczywiście lista bądź macierz sąsiedztwa mają swoje zastosowania, ale nie zawsze trzeba z nich korzystać.
+
+Większość algorytmów i tak polega na funkcjach, które zwracają listy wierzchołków czy też ich sąsiadów. Oznacza to, że dane możesz trzymać w jakiejkolwiek strukturze tak długo, jak jesteś w stanie określić, co jest czym.
+
+Na przykład przy określaniu ścieżek w grach nie musisz tworzyć kopii planszy — wystarczy, że wskażesz, na które pola można przejść z aktualnego.
+
+Jeśli jesteś ciekaw(a) przykładu, napisałem artykuł poświęcony problemowi skoczka szachowego, gdzie planszę trzymałem w postaci tablicy, a nie w żadnej strukturze grafowej: <Link href="/post/problem-skoczka-szachowego">{'https://swistak.codes/post/problem-skoczka-szachowego/'}</Link>
+
+## #14 Nie rób klikalnych `<div>`
+
+W HTML-u elementy `<div>` i `<span>` są nie tylko pozbawione wyglądu, ale również semantyki i funkcji. Dlatego też powinny być stosowane głównie przy sferze wizualnej, a nie tam, gdzie jest treść i elementy interaktywne.
+
+W szczególności elementy klikalne — one powinny być tworzone za pomocą dedykowanych `<button>` oraz `<a>`. Mimo że domyślnie mają brzydkie ostylowanie, są idealnie dostosowane do swoich zastosowań, szczególnie pod kątem dostępności.
+
+W przypadku `<button>` nie musisz się martwić o to, żeby obsłużyć przechodzenie po stronie klawiaturą, a linki tworzone przez `<a>` można kopiować i otwierać w nowej karcie. Oba zresztą można naciskać za pomocą Entera.
+
+Prawie nikt o tym nie pamięta, tworząc klikalne `<div>`, a są to istotne rzeczy. Szczególnie dla tych, którzy nie mogą korzystać z komputera za pomocą myszki, klawiatury i ekranu równocześnie.
+
+```jsx
+import { useState } from "react";
+
+export function Counter() {
+  const [count, setCount] = useState(0);
+
+  return (
+    <>
+      {count}
+      {/* ❌ ŹLE */}
+      <div onClick={() => setCount((x) => x + 1)}>Zwiększ</div>
+      {/* ✅ DOBRZE */}
+      <button onClick={() => setCount((x) => x + 1)}>Zwiększ</button>
+
+      {/* ❌ ŹLE */}
+      <span onClick={() => (window.location = "https://swistak.codes")}>
+        Blog
+      </span>
+      {/* ✅ DOBRZE */}
+      <a href="http://swistak.codes">Blog</a>
+    </>
+  );
+}
+```
+
+Na moim blogu raczej nie poruszam tematów związanych z front-endem, ale w przeszłości nie raz pisałem o takiej tematyce. Jeśli chcesz się zapoznać z moimi starszymi tekstami, ich spis znajdziesz tutaj: <Link href="/publikacje">{'https://swistak.codes/publikacje/'}</Link>
+
+## #15 Poznaj bibliotekę standardową swojego języka
+
+We wtręcie #6 napisałem, żeby korzystać ze sprawdzonych gotowców, kiedy jest to możliwe. Wtedy o tym nie wspomniałem, ale pamiętaj, że każdy język programowania posiada wbudowany zestaw funkcji zwany biblioteką standardową. Zwykle znajdziesz tam takie rzeczy, jak struktury danych, obsługa dat, funkcje matematyczne, obsługa sieci itd.
+
+Nawet jeśli wiesz, jak napisać te rzeczy, często lepiej użyć gotowca. Pomijając zalety, które opisałem ostatnio, tutaj pojawia się jeszcze jedna — optymalizacja. Szczególnie w przypadku języków interpretowanych takich jak JavaScript, funkcje z biblioteki standardowej są zwykle znacznie szybsze niż własne implementacje.
+
+Poniżej pokazałem, w jaki sposób moglibyśmy zaimplementować potęgowanie za pomocą algorytmu szybkiego potęgowania, a niżej, jak potęgować w JavaScript bez pisania w tym celu specjalnego kodu. Jeśli ciekawi Cię, dlaczego ten algorytm właśnie tak wygląda, a także, czy wbudowany sposób faktycznie jest szybszy, poświęciłem temu cały artykuł na blogu: <Link href="/post/szybkie-potegowanie">{'https://swistak.codes/post/szybkie-potegowanie/'}</Link>
+
+```javascript
+// ❌ ŹLE
+function power(a, n) {
+  if (n === 0) {
+    return 1;
+  } else if (n % 2 === 0) {
+    return power(a * a, n / 2);
+  } else {
+    return a * power(a, n - 1);
+  }
+}
+console.log(power(3, 6))
+
+// ✅ DOBRZE
+console.log(Math.pow(3, 6))
+// lub
+console.log(3 ** 6)
+```
+
+## #16 Nie musisz wiedzieć wszystkiego
+
+Na początku nauki programowania możemy odnieść wrażenie, że dobry programista wie wszystko. To nieprawda. Osoby na stanowiskach seniorskich nie są w tym miejscu dlatego, że są chodzącą dokumentacją.
+
+Mogą być, ale w tym przypadku bardziej się ceni doświadczenie takiej osoby, zarówno w pracy zespołowej, jak i w pracy z biznesem. Również liczy się czas spędzony przy kodzie w komercyjnym środowisku.
+
+„Doświadczyłem tego na własnej skórze i wyciągnąłem z tego wnioski” to dużo lepsza wiedza niż znajomość funkcji, której użyłeś(-aś) raz czy dwa razy w swojej karierze. Tak samo równie ważna jest wiedza, w czym nie czujesz się mocno i od kogo możesz uzyskać pomoc albo do kogo przekierować inną osobę.
+
+Pamiętaj: to, że musisz zajrzeć do dokumentacji czy wyszukać coś na Stack Overflow, nie świadczy o tym, że jesteś złym lub za mało doświadczonym programistą. Tak samo w drugą stronę — to, że się nauczyłeś(-aś) na pamięć całej dokumentacji swojego narzędzia, nie oznacza, że jesteś dobrym developerem. Chociaż w tym przypadku naprawdę szanuję za poświęcenie i zdolność zapamiętywania.
+
+Mówiąc o znajomości wszystkiego — wiesz, że tak podstawowe zagadnienie, jakim jest iteracja, jest na tyle rozbudowane, że byłem w stanie napisać o nim najdłuższy artykuł na swoim blogu? Do tego twierdząc, że nie poruszyłem wszystkiego, co się da? Jeśli mi nie wierzysz, zobacz go na własne oczy: <Link href="/post/iteracja-co-to-jest">{'https://swistak.codes/post/iteracja-co-to-jest/'}</Link>
+
+## #17 Poznaj wyrażenia regularne
+
+W kontekście przetwarzania ciągów tekstowych nie ma chyba potężniejszego narzędzia wbudowanego w niemal każdy język programowania niż wyrażenia regularne. Mogą wydawać się dziwne i skomplikowane, ale możemy dzięki nim rozwiązać w stosunkowo prosty sposób problemy, które byłoby ciężko zalgorytmizować.
+
+A co można za ich pomocą robić?
+
+- ➡️ Weryfikować poprawność ciągów tekstowych względem wzorca.
+- ➡️ Wyszukiwać fragmenty tekstu spełniające wybrane warunki.
+- ➡️ Skoro wyszukiwać, to także je wyciągać, zastępować czy usuwać.
+
+Zwykle jednak głównym problemem jest — jak zacząć z pisaniem wyrażeń regularnych? Osobiście polecam stronę https://regexr.com/, gdzie znajdziesz jednocześnie: dokumentację, ściągę jak pisać, a także wgląd w to, w jaki sposób wyrażenia działają na Twoich przypadkach.
+
+Na swoim blogu miałem okazję poruszyć temat wyrażeń regularnych — wykorzystałem je do sprawdzania poprawności liczb rzymskich. Jeśli ciekawi Cię, jak to zrobiłem, przeczytaj artykuł: <Link href="/post/liczby-rzymskie">{'https://swistak.codes/post/liczby-rzymskie/'}</Link>
+
+## #18 Język programowania to tylko narzędzie
+
+Podczas nauki programowania, co jest jak najbardziej sensowne, skupiasz się na jednym wybranym języku. Musisz jednak pamiętać, żeby traktować język jako narzędzie służące do realizacji celu. Dlatego nie wkuwaj na blachę konkretnych rozwiązań i konstrukcji, tylko naucz się rozwiązywania problemów.
+
+To, że dziś uczysz się JavaScriptu, nie oznacza, że z powodu potrzeby czy zmiany zainteresowań nie będziesz za jakiś czas pisać w C++. Sam uczyłem się programowania w Turbo Pascalu (ktoś dziś jeszcze go pamięta?), żeby na studiach poznać Javę i C++, a w pierwszej pracy używać C#. Dziś zaś jestem JavaScript developerem, ale coraz częściej zdarza mi się też pisać w Pythonie. I uwierz mi, takie zmiany nie są czymś nietypowym.
+
+Dwa „wtręty” temu dałem link do artykułu z mojego bloga poświęconego iteracji i teraz również muszę to zrobić. Dlaczego? Ponieważ są tam przykłady w aż 9-ciu różnych językach programowania. Równocześnie można tam zobaczyć, że niezależnie od języka problemy rozwiązujemy podobnie, ale też każdy z nich ma coś własnego, nietypowego. Artykuł znajdziesz tutaj: <Link href="/post/iteracja-co-to-jest">{'https://swistak.codes/post/iteracja-co-to-jest/'}</Link>
+
+## #19 Dzień Liczby π
+
+Dziś, z uwagi na 14. dzień marca, świętujemy Dzień Liczby Pi. W końcu jej najbardziej znane przybliżenie to 3,14, stąd data idealnie pasuje. Tym razem może mniej w formie porady, a bardziej do przemyślenia — czy kiedykolwiek zdarzyło Ci się użyć podczas programowania liczby pi? Tylko nie „314” jako losowej wartości w testach, a faktycznie stałej Math.PI (czy jakkolwiek to jest w Twoim języku).
+
+W moim przypadku ostatnio się to zdarzyło, gdy pisałem na blogu artykuł o zegarze analogowym, bo żeby narysować okrąg w JavaScripcie, trzeba wywołać rysowanie łuku w zakresie od 0 do 2π.
+
+Wartość liczby π moglibyśmy próbować przybliżyć, np. przez obliczenie całki oznaczonej równania okręgu. Jeśli jesteś ciekaw(a) jak to zrobić algorytmicznie, zachęcam do lektury: <Link href="/post/obliczanie-calek-oznaczonych">{'https://swistak.codes/post/obliczanie-calek-oznaczonych/'}</Link>
+
+Zaś wspomniany artykuł o zegarze znajduje się tutaj: <Link href="/post/jak-narysowac-zegar-analogowy">{'https://swistak.codes/post/jak-narysowac-zegar-analogowy/'}</Link>
+
+## #20 Biblioteki do rysowania grafów w JS
+
+Parę razy w serii „codzienny wtręt programisty”, a także wielokrotnie na swoim blogu, pisałem już o grafach. Jednak czego nie podawałem, to konkretne rozwiązania, które pozwolą Ci je narysować w JavaScripcie.
+
+Od siebie mogę polecić:
+
+- 🖍️ [Cytoscape](https://js.cytoscape.org/) — używam go na swoim blogu; znajdziemy do niego ogrom algorytmów
+- 🖍️ [sigma.js](https://www.sigmajs.org/) — stawia przede wszystkim na wydajność
+- 🖍️ [React Flow](https://reactflow.dev/) — idealny dla Reactowców; stawia na dużą dowolność tego, co rysujemy
+- 🖍️ [GoJS](https://gojs.net) — płatny, bardzo rozbudowany, używam go na co dzień w pracy
+
+A jeśli interesuje Cię, jakie algorytmy stoją za rysowaniem grafów, i chcesz temat poznać bardziej od strony teoretycznej, to zapraszam do lektury: <Link href="/post/rysowanie-grafow-algorytmy">{'https://swistak.codes/post/rysowanie-grafow-algorytmy/'}</Link>
+
+## #21 „Umiem frontend!” — na pewno?
+
+Frontend development jest nieraz wyśmiewany jako ten najprostszy, gdzie nie ma nic trudnego i który ma najniższy próg wejścia. Faktycznie, łatwo jest wejść we frontend. Tylko coś, co jest łatwe do poznania na starcie, nie oznacza, że potem nie będzie trudne do opanowania.
+
+Poniżej znajdziesz listę 20 losowych zagadnień, których znajomości spodziewałbym się po kimś, kto uważa się za eksperta od frontendu. Ile z nich znasz i stosujesz, a na temat których możesz się coś wypowiedzieć?
+
+- ➡️ Accessibility (WCAG, WAI-ARIA)
+- ➡️ Preprocessory CSS
+- ➡️ TDD — unit testy, testy E2E
+- ➡️ Statyczna analiza kodu (ESLint)
+- ➡️ Monorepo
+- ➡️ REST, GraphQL
+- ➡️ Zarządzanie stanem globalnym (Redux, MobX, NgRx…)
+- ➡️ Storybook
+- ➡️ Websockety
+- ➡️ Web Components
+- ➡️ Semantyczne tagi HTML
+- ➡️ RWD
+- ➡️ Flexbox
+- ➡️ TypeScript
+- ➡️ DOM
+- ➡️ ES Modules
+- ➡️ Web Assembly
+- ➡️ HTTP/1.1, HTTP/2, HTTPS
+- ➡️ Web Workers
+- ➡️ Canvas
+
+Oczywiście pamiętaj, że znajomość tych zagadnień nie świadczy o Twoim seniority, ale to już temat na inny czas.
+
+Jak już pisałem, mój blog nie jest poświęcony frontendowi (mimo że temat jest mi bardzo bliski), ale nieraz udzielałem się w tej tematyce. Teksty i wideo z moim udziałem, w tej tematyce, znajdziesz na tej liście: <Link href="/publikacje">{'https://swistak.codes/publikacje/'}</Link>
+
+## #22 „Umiem React!” — na pewno?
+
+Kontynuując wpis z wczoraj, dziś odejdźmy od ogólnie pojętego frontendu, a skupmy się na Reakcie. Ponownie pokazuję listę, tym razem 15 losowych zagadnień — takich, których znajomości spodziewałbym się od kogoś, kto uznaje się za eksperta od Reacta. Ile z nich znasz i stosujesz, a na temat których możesz się coś wypowiedzieć?
+
+- ➡️ Routing
+- ➡️ SSR i SSG (Next.js, Remix, Gatsby…)
+- ➡️ Memoizacja (memo, useMemo, useCallback)
+- ➡️ Render props
+- ➡️ HOC
+- ➡️ Biblioteki komponentów (MUI, Ant Design, Reactstrap…)
+- ➡️ Architektura dużych projektów
+- ➡️ Komponenty klasowe i funkcyjne
+- ➡️ useReducer vs useState
+- ➡️ useContext a rerenderowanie
+- ➡️ useRef — zastosowania
+- ➡️ Korzystanie z nie-reactowych bibliotek w Reakcie
+- ➡️ TypeScript w Reakcie
+- ➡️ Stylowanie (CSS Modules, Styled Components, Emotion…)
+- ➡️ Zarządzanie stanem globalnym (Redux, MobX, Zustand…)
+
+Jeszcze raz zaznaczę, że znajomość tych zagadnień nie świadczy o Twoim seniority. Jako junior developer możesz wiedzieć o tym wszystkim, a jako senior nie znać części z nich.
+
+## #23 Jak generować unikalne ID w JavaScript?
+
+Potrzebujesz wygenerować unikalne ID dla dowolnych danych w JS? Masz do wyboru trzy dobre opcje:
+
+- ➡️ crypto.randomUUID() — wbudowane w Node i przeglądarki, niestety nie zawsze jest dostępne.
+- ➡️ Biblioteka uuid — rozbudowana, daje różne opcje przy tworzeniu unikalnych ID.
+- ➡️ Biblioteka nanoid — jeśli potrzebujesz krótkich ID.
+
+Podejścia te są kryptograficznie bezpieczne i możesz być pewny(-a), że nikt nie wygeneruje w tym samym czasie gdziekolwiek indziej takiego samego ID.
+
+Natomiast jakie są jeszcze podejścia, ale niekoniecznie dobre?
+
+- ➡️ Math.random() — nie ma żadnej pewności, czy nie wygenerujesz dwa razy tej samej wartości.
+- ➡️ Odliczanie po kolei — jeśli ID nigdy nie wyjdą poza środowisko, w którym jesteś (np. przeglądarka), w zupełności to wystarczy. Niestety w innych przypadkach (nawet przy server side renderingu) już nie.
+- ➡️ Timestampy — unikatowość mamy tylko co 1 milisekundę. Niestety, w trakcie milisekundy może zostać wykonanych wiele operacji i takie ID nie będzie już unikalne, nawet w obrębie jednego środowiska.
+
+Jeśli ciekawi Cię, na jakiej zasadzie działają timestampy i co reprezentują, polecam swój artykuł na temat przechowywania dat przez komputer: <Link href="/post/jak-komputer-przechowuje-date-i-skad-zna-aktualna">{'https://swistak.codes/post/jak-komputer-przechowuje-date-i-skad-zna-aktualna/'}</Link>
+
+## #24 Nie bój się podejmować decyzji
+
+Będąc w pierwszej pracy, jako początkujący programista na pewno wiele razy pytasz się osób z dłuższym stażem o różne rzeczy. To typowe.
+
+Jednak jeśli chcesz się rozwinąć, zacznij przejmować inicjatywę. Sam(a) zastanów się nad rozwiązaniem i przyjdź do drugiego deva z propozycją rozwiązania, a nie pytaniem jak to zrobić. Przygotuj argumenty „za”, zastanów się nad przeciw i porozmawiaj. Samo to, że zamiast się pytać o konkrety, zastanowisz się chwilę czy poszukasz jakichś rozwiązań i argumentów, będzie bardzo rozwojowe. Nawet jeśli Twój pomysł się nie spodoba, to kto wie, może następny już będzie trafny?
+
+Nie chcę się wypowiadać za każdego programistę, ale osobiście bardziej wolę, gdy ktoś do mnie przychodzi z pomysłem i nad nim dyskutujemy. Jest to rozwojowe nie tylko dla tej osoby, ale też dla mnie — warto znać inny punkt widzenia, a do tego nie jestem nieomylny. Dodatkowo mogę coś wymyśleć na bazie doświadczenia, ale może ktoś z zupełnie świeżym spojrzeniem ma dużo lepszy pomysł?
+
+Dlatego nie bój się wymyślać rozwiązań i podejmować decyzji. Skonfrontuj swoje pomysły z innymi — połącz świeże podejście do problemu z doświadczeniem, które mają inni. Napędzi to rozwój nie tylko Twój, ale może także produktu, jak i innych programistów.
+
+## #25 Zadanie rekrutacyjne z Reacta
+
+Dziś pokażę Ci małe zadanie rekrutacyjne z Reacta, którym kilka lat temu sprawdzałem znajomość Reactowych hooków.
+
+Znajdziesz je poniżej.
+
+```jsx
+import React, { useState, useCallback } from "react";
+import "./styles.css";
+
+export default function App() {
+  const [count, setCount] = useState(0);
+
+  const add = useCallback(() => setCount(count + 1), [setCount]);
+  const subtract = useCallback(() => setCount(count - 1), [setCount]);
+
+  return (
+    <div className="App">
+      <h1>{count}</h1>
+      <button onClick={add}>+</button>
+      <button onClick={subtract}>-</button>
+    </div>
+  );
+}
+```
+
+Kontekst: pokazany tutaj komponent to prosty licznik — wyświetlamy zawartość licznika, a poniżej mamy przyciski do dodawania i odejmowania wartości. Niestety, co naciśniemy „+”, wartość zamiast się zwiększać o 1, po prostu zmienia się na 1. Analogicznie, co naciśnięcie „-” wartość zamiast się zmniejszać, po prostu zmienia się na -1.
+
+Czy jesteś w stanie powiedzieć:
+
+- ❔ Dlaczego kod ten nie działa poprawnie?
+- ❔ Jak go przerobić, aby przyciski miały prawidłowe zachowanie?
+- ❔ Z racji tego, że jest kilka podejść do naprawy: czy Twój pomysł jest najlepszym rozwiązaniem, a jeśli tak, to dlaczego?
+
+## #26 Nie łap dwóch srok za ogon
+
+Gdy jesteś w swojej pierwszej pracy, możesz mieć pokusę, żeby pokazać się z jak najlepszej strony. A jak to zrobić? Robiąc dużo.
+
+Niestety, u wielu początkujących robienie dużo sprowadza się do brania wielu zadań jednocześnie. Jednak nie powinieneś/powinnaś tak robić.
+
+Dlaczego?
+
+- ➡️ Zmiana kontekstu zajmuje zbyt dużo czasu.
+- ➡️ Zabierasz innym pracę.
+- ➡️ Możesz nie skończyć wszystkiego na czas (np. do końca sprintu).
+- ➡️ Jeśli robisz wiele zadań na jednym branchu, to potem założysz bardzo nieczytelnego pull requesta.
+- ➡️ Natomiast jeśli pracujesz na wielu branchach, jest bardzo prawdopodobne, że będziesz mieć konflikty przy mergowaniu, bo zwykle i tak się bierze naraz podobne zadania. Nawet może brakować Ci pracy, którą już zrobiłeś(-aś) na innym branchu.
+
+A jak temu przeciwdziałać?
+
+- ➡️ Jeśli utknąłeś/utknęłaś w zadaniu, poproś o pomoc. Jest to całkowicie normalne w pracy zespołowej i nikt nie uzna Cię przez to za słabego programistę.
+- ➡️ Jeśli po prostu potrzebujesz przerwy, zmiany tematu, to nie zmieniaj zadania, tylko zrób przerwę od pracy. Może w trakcie chwili niepatrzenia w ekran nagle doznasz olśnienia i będziesz wiedzieć, co robić dalej?
+- ➡️ A jeśli chcesz spróbować różnych rzeczy, to po prostu bądź cierpliwy(-a). Powiedz zespołowi, że chcesz zająć się tą rzeczą, gdy tylko ukończysz to, co już masz. Prawdopodobnie spotkasz się ze zrozumieniem i inni będą pamiętać, żeby nie brać danego zadania, jeśli są jeszcze inne do zrobienia.
+
+## #27 Pamiętaj o przerwach
+
+Dość oczywista rada, ale zawsze warto powtarzać.
+
+Jeśli pracujesz przy komputerze, rób sobie regularne przerwy! Na przykład co godzinę na 5 minut, jak to określa jedno z rozporządzeń Ministerstwa Pracy.
+
+A po co przerwy?
+
+- ➡️ Twoje oczy potrzebują odpoczynku od patrzenia się w jeden świecący punkt (więc nie rób przerw na smartfona).
+- ➡️ Twoje ciało potrzebuje odpoczynku od pozycji siedzącej.
+- ➡️ Twoje uszy potrzebują przerwy od noszenia słuchawek.
+- ➡️ Twój mózg potrzebuje przestać ciężko pracować.
+
+A co warto robić w trakcie przerwy? To już zależy od Ciebie. Możesz zrobić np. krótką gimnastykę całego ciała, proste ćwiczenia oczu, pograć na instrumencie, posprzątać. Cokolwiek, co nie jest patrzeniem się w ekran, siedzeniem i pracą umysłową, będzie dobre.
+
+## #28 Zaprogramuj sobie muzykę!
+
+Jeśli programujesz i interesujesz się muzyką, koniecznie zapoznaj się z [Sonic Pi](https://sonic-pi.net/). Jest to narzędzie, w którym za pomocą prostego języka programowania przypominającego Basica możesz tworzyć przeróżne brzmienia.
+
+Poniżej znajdziesz kod, dzięki któremu można wygenerować prostą, cyberpunkowo brzmiącą improwizację po pentatonicznej skali C-moll. Jeśli nic Ci to nie mówi, nie martw się! Żeby pobawić się z syntezą dźwięku i muzyki w Sonic Pi, nie musisz znać teorii muzyki, a może nawet dzięki niemu poznasz ją w podstawowym zakresie.
+
+```
+notes = (scale :c, :minor_pentatonic, num_octaves: 2)
+
+use_synth :blade
+live_loop :main do
+  play notes[0]
+  sleep 0.5
+  3.times do
+    play choose(notes)
+    sleep 0.25
+  end
+end
+```
+
+Ściągnij aplikację i zacznij kombinować! Dostępna jest na Windows, macOS oraz Raspberry Pi.
+
+A jeśli interesuje Cię, w jaki sposób komputer zapisuje dźwięk, poświęciłem temu cały artykuł na blogu: <Link href="/post/jak-komputer-zapisuje-dzwiek">{'https://swistak.codes/post/jak-komputer-zapisuje-dzwiek/'}</Link>
+
+## #29 Nie pracuj za dużo
+
+Będąc początkującym programistą, możesz mieć pokusę, żeby pracować w swoim projekcie więcej, niż jest to od Ciebie wymagane. Nie jest to dobre rozwiązanie, szczególnie jeśli robisz to nieodpłatnie.
+
+Dlaczego?
+
+- ➡️ W projekcie każdy jest zakontraktowany na konkretną liczbę godzin. Robiąc nieplanowane nadgodziny, zaburzysz pracę managerom.
+- ➡️ Jeśli pracujesz po godzinach za darmo, możesz zepsuć relacje biznesowe firmy.
+- ➡️ Po kilku godzinach pracy naturalnie traci się wydajność.
+
+A jeśli czujesz, że programowałeś(-aś) za mało, i masz potrzebę robić więcej, to po prostu zacznij na boku robić projekt dla siebie. W taki sposób najłatwiej jest przetestować nowe technologie i rozwiązania. A przy odrobinie samozaparcia może dzięki temu stworzysz produkt, na którym oprzesz własny biznes?
+
+## #30 Czytaj rekomendacje z rezerwą
+
+Jako twórca treści w Internecie, w pewnym sensie strzelam sobie tą poradą w kolano, ale mimo to podzielę się tym.
+
+Pamiętaj, żeby podchodzić z rezerwą do wszelkich rekomendacji czy rad, które znajdziesz w tekstach technicznych.
+
+Dlaczego?
+
+- ➡️ Dużo tekstów, które znajdziesz w Google, jest pisanych pod SEO, do tego nieraz tworzonych pod tezę. Gdy firma specjalizuje się np. w Angularze, to wiadomo, że ich porównanie Angulara z Reactem będzie korzystniejsze dla tego pierwszego. Zresztą często jakość tych tekstów jest też bardzo wątpliwa, i jeśli wyciągać z nich wnioski, to po przeczytaniu wielu, a nie jednego.
+- ➡️ Nie zawsze wiadomo, jakie doświadczenie ma osoba po drugiej stronie. Ze świata Reactowego idealnie pokazuje to liczba artykułów w stylu „Nie potrzebujesz Reduksa”, gdzie większość argumentów zwykle ma znaczenie tylko w małych projektach, a często też ignorują spojrzenie od strony architektury kodu.
+- ➡️ Również nie wiadomo, czy osoba pisząca artykuł nie ma w tym interesu. Jeśli ktoś wymyślił „świetne nowe podejście” i pisze o nim artykuł, najczęściej jest to tylko reklama szkolenia, a sam tekst może niewiele dać. Nie oznacza to oczywiście nic złego, ale wówczas warto zadać pytanie — czy ta osoba miała okazję sprawdzić to w prawdziwym projekcie? Czy to tylko „świetny”, nowy pomysł niesprawdzony w praktyce?
+- ➡️ To Ty znasz swój projekt i wiesz, co jest dla niego najlepsze, a nie losowa osoba z Internetu czy ChatGPT. Przeanalizuj argumenty, ale nie bierz rozwiązań w ciemno. Na przykład, u kogoś sprawdził się React, ale może u Ciebie lepszy będzie jednak Angular?
+
+Nie oznacza to, że artykuły w Internecie są złe. Po prostu musisz korzystać z wielu źródeł, porównywać je i dopiero wtedy wywnioskować, co jest dla Ciebie najlepsze.
+
+<small>Zdjęcie na okładce wygenerowane z użyciem DALL-E.</small>

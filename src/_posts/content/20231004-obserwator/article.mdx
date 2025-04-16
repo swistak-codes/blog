@@ -1,0 +1,432 @@
+import Link from 'next/link';
+import {Image} from '@swistak-codes/components';
+import cover from './kupilem_se_lornetke.jpg';
+import obsClass from './observer_class_uml.png';
+import obsSeq from './observer_sequence_uml.png';
+
+export const meta = {
+  title: 'Podstawy działania UI — wzorzec obserwator',
+  abstract:
+    'Artykuł przedstawia podstawy działania UI, prezentując ideę wzorca obserwator.',
+  firstParagraph: (
+    <>
+      Jedną z najważniejszych cech interfejsów użytkownika (UI) jest reagowanie na zdarzenia i odpowiednie na ich
+      podstawie odświeżanie widocznych na nim danych. Wielu młodych adeptów, szczególnie popularnego wśród
+      początkujących front-endu, powie: „używam useState w React i to się dzieje samo”. Tylko na tym blogu odpowiedź
+      „się dzieje samo” nie satysfakcjonuje nas. Interesują nas implementacyjne detale jak i dlaczego coś działa.
+      Dlatego w tym artykule zagłębimy się w jedną z koncepcji stojących za reaktywnością interfejsów — wzorzec
+      obserwator.
+    </>
+  ),
+  keyword: 'wzorzec observer',
+  categories: ['Programowanie'],
+  tags: [
+    'typescript',
+    'javascript',
+    'kotlin',
+    'wzorce projektowe',
+    'banda czterech',
+    'obserwator',
+    'observer',
+    'reactivex',
+    'rxjs',
+    'rxjava',
+    'signals',
+    'angular'
+  ],
+  slug: 'obserwator',
+  updateTime: '2023-10-04T07:00:00+00:00',
+  publishTime: '2023-10-04T07:00:00+00:00',
+  cover,
+  moveCoverToTop: true,
+};
+
+## Wzorzec projektowy
+
+Zanim omówimy, czym jest wzorzec obserwator, krótko o tym, czym są wzorce, a dokładniej wzorce projektowe (ang. *design pattern*). Najprościej mówiąc, są to uniwersalne rozwiązania najpopularniejszych problemów w programowaniu, zwykle obiektowym. Służą rozwiązywaniu problemów projektowych — związanych z architekturą kodu, powiązaniami między poszczególnymi elementami. Dlatego też wzorcami nie są algorytmy, bo rozwiązują problemy obliczeniowe.
+
+Najbardziej popularne wzorce, których często wręcz wymaga się od programistów, żeby je znali, to wzorce projektowe zdefiniowane przez tzw. Bandę Czterech (ang. *Gang of Four*), czyli E. Gamma, R. Helma, R. Johnsona i J. Vilssidesa, którzy poświęcili tematowi książkę „*Design Patterns: Elements of Reusable Object-Oriented Software*”. Wzorzec obserwator, który tutaj poznamy, również został przez nich zdefiniowany.
+
+O temacie wzorców projektowych można by mówić dużo, więc w tym miejscu utnę to wprowadzenie. Dodam jedynie tyle, że w artykule pominę formalne definicje (takie jak zaprezentowane w książce Bandy Czterech), a raczej skupię się na praktycznym aspekcie i prostym opisie. Jeśli interesują Cię szczegóły, zapraszam do literatury.
+
+## Wzorzec obserwator
+
+W „*Design Patterns: Elements of Reusable Object-Oriented Software*” pośród wzorców behawioralnych (opisujących współpracę obiektów) znajdziemy wzorzec obserwator z opisanym bardzo krótko celem:
+
+> Zdefiniuj zależność jeden-do-wielu między obiektami taką, że gdy jeden obiekt zmieni stan, wszystkie jego obiekty zależne zostaną o tym automatycznie powiadomione i zaktualizowane.
+
+Dokładnie jest to zachowanie, które tak często widzimy, korzystając z jakichkolwiek interfejsów użytkownika. Aktualizujemy jakąś zmienną, np. na podstawie tego, co wprowadził użytkownik, i automatycznie aktualizuje się interfejs w innym miejscu. Przykładowo w Excelu, gdy wypełnimy arkusz danymi i utworzymy wykresy, to po edycji danych wykresy automatycznie zaaplikują swoje zmiany.
+
+### Po co?
+
+Zanim jednak przejdę do omówienia tego wzorca, odpowiem na kwestię, którą mogłeś(-aś) już wyłapać. Mianowicie, czy trzeba tu w ogóle stosować jakiś wzorzec?
+
+Myśląc bardzo prosto (co nie znaczy źle), można dostrzec, że przecież zamiast stosować jakiś wzorzec komunikacji między obiektami, żeby w jednym miejscu interfejsu wyświetlić lub zaktualizować cokolwiek na podstawie danych, możemy po prostu tę aktualizację wykonać. Spójrzmy na to z dwóch stron — architektonicznej oraz języka programowania (lub dokładniej: frameworka).
+
+#### Architektura kodu
+
+Z architektonicznego punktu widzenia spójrzmy na to tak, że możemy pracować przy aplikacjach o różnym stopniu zaawansowania UI pod kątem powiązań logicznych. Zamiast tworzyć logikę, która będzie aktualizować poszczególne komponenty interfejsu w miejscu zmiany danych, oddelegowujemy tą odpowiedzialność. Zmiana danych tylko wywoła powiadomienie, a poszczególne komponenty same muszą na podstawie tej informacji odpowiednio się zaktualizować.
+
+Fachowo nazywa się to *decoupling* (rozdzielenie). Z punktu widzenia architektonicznej czystości kodu jest bardzo pożądane, ponieważ kod, gdzie jednostki nie są sztywno ze sobą powiązane (w najgorszym wypadku każda z każdą), a jedynie korzystają z wydzielonych punktów styku (takich jak implementacje wzorca obserwator), ma następujące zalety:
+
+- Jest prostszy w utrzymaniu, szczególnie gdy mowa o dużych aplikacjach i dużych zespołach programistów.
+  - Można wówczas równolegle pracować na *w miarę* niezależnych od siebie jednostkach bez potrzeby nadmiernych ingerencji w inne.
+  - Prościej jest wdrożyć nowych programistów w klarownie rozdzielony kod. Szczególnie że podział, o którym tutaj konkretnie jest mowa, czyli rozdzielenie modelu (danych) od widoku (rysowanie interfejsu), stanowi podstawę jednego z najpopularniejszych wzorców architektonicznych, czyli MVC (*Model-View-Controller*, z ang. Model-Widok-Kontroler), a tym samym jego pochodnych jak np. MVP (*Model-View-Presenter*) czy MVVM (*Model-View-ViewModel*).
+- Łatwiej jest pisać testy jednostkowe, ponieważ nie musimy brać pod uwagę wszystkich powiązań różnych komponentów ze sobą, a jedynie *punkt styku*.
+
+#### Framework
+
+Myśląc, jak wykonać na interfejsie aktualizację na podstawie danych wprowadzonych przez użytkownika, mogły przychodzić Ci do głowy takie rzeczy jak:
+
+- zaktualizuję po naciśnięciu przycisku,
+- może po naciśnięciu Enter,
+- albo co wprowadzenie litery w polu tekstowym.
+
+Tylko skąd będziesz wiedzieć, że te akcje zostały wykonane? Stosowane przez Ciebie frameworki na pewno udostępniają zdarzenia, na które możesz nasłuchiwać, żeby móc zareagować i wykonać co trzeba. Tylko teraz zastanów się nad tym. Użytkownik naciska przycisk i framework reaguje na to, wysyłając zdarzenie, na które Ty jako programista reagujesz. Jest to nic innego jak właśnie zastosowanie wzorca obserwator, tylko nieco inne niż tutaj poznamy.
+
+Po prostu to, że czegoś nie implementujesz wprost, nie znaczy, że to nie istnieje. Frameworki, biblioteki czy też same języki programowania skrywają pod maską wiele mechanizmów, dzięki którym możesz łatwo tworzyć aplikacje. Warto jednak wiedzieć, na jakiej zasadzie te rzeczy działają.
+
+### Definicja
+
+Skoro już wiemy, po co i kiedy używamy wzorca obserwator, zdefiniujmy go, aby wiedzieć, jak go zaimplementować. Omówię podstawową wersję opisaną przez Bandę Czterech, aczkolwiek warto dodać, że podali kilka wariantów i modyfikacji, które w wybranych zastosowaniach mogą się lepiej sprawdzić. Oczekuję, że znasz podstawowe pojęcia z programowania obiektowego (klasa, obiekt, interfejs, klasa abstrakcyjna, dziedziczenie), bo potrzebne będą do tego opisu.
+
+We wzorcu obserwator możemy wyróżnić cztery podstawowe składowe (będę się posługiwać angielskimi nazwami zgodnie z oryginałem):
+
+- Subject (z ang. *temat*; czasami spotyka się nazwę *Observable*, czyli *dostrzegalny*) — klasa, najczęściej abstrakcyjna, która posiada mechanizm subskrybowania (i odsubskrybowania) się obserwatorów na zmiany. Oznacza to także, że posiada mechanizm powiadamiania obserwatorów o zmianach. Zakładamy tutaj, że obserwatorów może być dowolna liczba.
+- Observer (z ang. *obserwator*) — (zwykle) interfejs udostępniający metodę, która jest wywoływana przez temat, gdy zachodzi zmiana w obserwowanym obiekcie.
+- ConcreteSubject (z ang. *konkretny temat*) — klasa dziedzicząca po temacie, będąca owym obiektem, który można obserwować. Powinna posiadać metody ustawiające i pobierające aktualny stan obiektu, o którym chcemy powiadamiać obserwatorów. Odpowiada za wysłanie powiadomienia o zmianie.
+- ConcreteObserver (z ang. *konkretny obserwator*) — klasa implementująca obserwatora. W założeniach Bandy Czterech posiada referencję na obserwowany przez nią temat, aby w razie otrzymania powiadomienia o zmianie móc zsynchronizować swój stan ze stanem obserwowanego obiektu.
+
+Można to przedstawić takim diagramem klas:
+
+<Image
+  image={obsClass}
+  alignCenter
+  fullSize
+  alt="Diagram klas UML przedstawiający powiązania między czterema klasami: Subject, Observer, ConcreteSubject, ConcreteObserver."
+  caption={<>UML-owy diagram klas wzorca obserwator na podstawie książki <i>Design Patterns</i>.</>}
+/>
+
+Natomiast samą komunikację między obiektami tych klas możemy przedstawić następującym diagramem sekwencji:
+
+<Image
+  image={obsSeq}
+  alignCenter
+  fullSize
+  alt="Diagram sekwencji UML przedstawiający, jak zachodzi komunikacja między tematem i jego obserwatorami we wzorcu obserwator."
+  caption={<>UML-owy diagram sekwencji wzorca obserwator na podstawie książki <i>Design Patterns</i>.</>}
+/>
+
+Jeśli powyższa notacja UML niewiele Ci mówi, zapraszam dalej, gdzie przenoszę to na kod.
+
+### Implementacja
+
+Poniżej możesz zobaczyć przykładową implementację wzorca obserwator w TypeScripcie. Zastosowałem ten język, ponieważ miałem okazję <Link href="/post/teoria-zbiorow-typescript">omówić go ostatnio na blogu</Link>, a także łatwo go będzie przenieść na „żywy” przykład. Dodatkowo poniżej zamieszczę ten sam kod przełożony na Kotlina, aby pokazać, że w innych językach wygląda to dokładnie tak samo (różnice wynikają jedynie ze składni i działania systemu typów).
+
+```typescript
+interface Observer {
+  update(subject: Subject): void;
+}
+
+abstract class Subject {
+  // tablica przechowująca obserwatorów
+  private observers: Observer[] = [];
+  // metoda dołączająca obserwatora
+  attach(observer: Observer) {
+    // dodajemy obserwatora na koniec tablicy
+    this.observers.push(observer);
+  }
+  // metoda usuwająca obserwatora
+  detach(observer: Observer) {
+    // odfiltrowujemy obserwatora z tablicy
+    this.observers = this.observers.filter(x => x !== observer);
+  }
+  // metoda powiadamiająca obserwatorów o zmianie
+  protected notify() {
+    // iterujemy po wszystkich obserwatorach i wywołujemy w nich update z instancją tematu
+    this.observers.forEach(observer => observer.update(this));
+  }
+}
+
+// konkretny temat, którym będzie prosty licznik
+class CounterSubject extends Subject {
+  // aktualna wartość licznika
+  private counterState: number;
+  // w konstruktorze przekazujemy początkową wartość licznika
+  constructor(initialState: number) {
+    super();
+    this.counterState = initialState;
+  }
+  // metoda zwracająca aktualną wartość licznika
+  getState() {
+    return this.counterState;
+  }
+  // metoda ustawiająca nową wartość licznika
+  setState(newValue: number) {
+    this.counterState = newValue;
+    // powiadamiamy o zmianie
+    this.notify();
+  }
+}
+
+// konkretny obserwator, który będzie wypisywać wartość licznika w konsoli
+class ConsoleObserver implements Observer {
+  // metoda uruchamiana na powiadomieniu o zmianie
+  update(subject: CounterSubject) {
+    // wypisujemy zmianę z licznika w konsoli
+    console.log(subject.getState());
+  }
+}
+
+// przykład użycia - zwiększanie w pętli wartości licznika
+// tworzymy licznik
+const counter = new CounterSubject(0);
+// tworzymy obserwatora
+const observer = new ConsoleObserver();
+// przypisujemy obserwatora do licznika
+counter.attach(observer);
+// pętla zwiększająca wartość licznika
+for (let i = 0; i < 10; i++) {
+  counter.setState(i);
+}
+// po uruchomieniu w konsoli zostaną wypisane kolejne liczby od 0 do 9
+```
+
+Kod możesz przetestować na [Replit](https://replit.com/@tswistak/observer-ts#index.ts). Dodatkowo na [tym Replit](https://replit.com/@tswistak/observer-kotlin#main.kt) udostępniam obiecaną wcześniej wersję w Kotlinie.
+
+A żeby pokazać, że faktycznie to działa na interfejsach użytkownika, zobacz jeszcze [ten StackBlitz](https://stackblitz.com/edit/observer-basic?file=src%2Fmain.ts), gdzie zastosowałem powyższą implementację obserwatora w TypeScripcie, aby stworzyć bardzo prostą interakcję na stronie internetowej.
+
+<small>PS. Jeśli wiesz, jak lepiej można by było zdefiniować typy generyczne w przykładzie kotlinowym, daj mi znać na moich social mediach (linki w nagłówku i stopce). Nie piszę w tym języku na co dzień i przyznam, że nie wiedziałem, jak dobrze zrobić generyki, aby nie trzeba było robić rzutowania.</small>
+
+### Uproszczona wersja
+
+Powyżej zobaczyliśmy bardzo wzorcową implementację, ale w praktyce często się ją znacznie upraszcza. Po kolei:
+
+- Nie jest nam potrzebna klasa dziedzicząca po temacie. Wystarczy, że w ramach klasy tematu stworzymy możliwość ustawiania i pobierania wartości.
+- Tak samo nie jest potrzebny obserwator jako klasa czy też konkretny obiekt. Języki programowania umożliwiają przekazywanie jako argument funkcji innej funkcji (tzw. *callback*, funkcja odpowiedzi), co zupełnie wystarczy do wysłania powiadomienia.
+  - Oczywiście jeśli mówimy o programowaniu obiektowym i któraś klasa będzie się subskrybować na jakiś temat, to teoretycznie wciąż będzie obserwatorem. Tylko wówczas nie musi się trzymać konkretnego schematu budowy ani też temat nie musi być go świadomy, a jedynie funkcji, która będzie użyta do przekazania powiadomienia.
+- Również domyślna interpretacja zakłada, że temat wysyła tylko powiadomienie o wystąpieniu zmiany, a obserwatorzy muszą już sobie pobrać konkretną wartość. W implementacjach, które widziałem czy też sam pisałem, wartość była przesyłana już w powiadomieniu.
+  - Dodam, że wersję, gdzie sami musimy pobrać wartość stanu, nazywamy *modelem pull* (z ang. *pociągnąć*). Odwrotną, gdzie wraz z powiadomieniem otrzymujemy zawartość stanu, nazywamy *modelem push* (z ang. *wypchnąć*).
+
+#### Implementacja
+
+Moglibyśmy wcześniejszy TypeScriptowy kod skrócić do następującego:
+
+```typescript
+// typ funkcji obserwatora
+// otrzymuje od tematu wartość i nie musi nic zwrócić
+type Observer<T> = (value: T) => void;
+
+// klasa tematu to jedyna, którą tworzymy
+// <T> to typ generyczny, nie definiujemy, który dokładnie ma być
+class Subject<T> {
+  // tablica przechowująca obserwatorów
+  private observers: Observer<T>[] = [];
+  // aktualny stan obiektu
+  private currentState: T;
+  // w konstruktorze przekażemy początkową wartość stanu
+  constructor(initialState: T) {
+    this.currentState = initialState;
+  }
+  // metoda dołączająca obserwatora
+  attach(observer: Observer<T>) {
+    // dodajemy obserwatora na koniec tablicy
+    this.observers.push(observer);
+  }
+  // metoda usuwająca obserwatora
+  detach(observer: Observer<T>) {
+    // odfiltrowujemy obserwatora z tablicy
+    this.observers = this.observers.filter(x => x !== observer);
+  }
+  // metoda zwracająca aktualną wartość tematu
+  getState() {
+    return this.currentState;
+  }
+  // metoda ustawiająca nową wartość tematu
+  setState(newValue: T) {
+    this.currentState = newValue;
+    // powiadamiamy o zmianie
+    this.notify();
+  }
+  // metoda powiadamiająca obserwatorów o zmianie
+  private notify() {
+    // iterujemy po wszystkich obserwatorach i wywołujemy w nich update z instancją tematu
+    this.observers.forEach(observer => observer(this.getState()));
+  }
+}
+
+// przykład użycia - zwiększanie w pętli wartości licznika
+// tworzymy licznik
+const counter = new Subject(0);
+// tworzymy obserwatora wypisującego wartość w konsoli
+const observer: Observer<number> = (value) => console.log(value)
+// przypisujemy obserwatora do licznika
+counter.attach(observer);
+// zadziałałoby też prościej:
+// counter.attach(console.log);
+// pętla zwiększająca wartość licznika
+for (let i = 0; i < 10; i++) {
+  counter.setState(i);
+}
+// po uruchomieniu w konsoli zostaną wypisane kolejne liczby od 0 do 9
+```
+
+Kod możesz przetestować na [Replit](https://replit.com/@tswistak/simplified-observer-ts#index.ts). Oczywiście ten także przełożyłem na Kotlina, co znajdziesz na [tym Replit](https://replit.com/@tswistak/simplified-observer-kotlin#main.kt). Również zamieszczam zmodyfikowany wcześniejszy [StackBlitz](https://stackblitz.com/edit/observer-simplified?file=src%2Fmain.ts), aby pokazać implementację w praktyce.
+
+## ReactiveX
+
+W tym momencie warto jednak zadać pytanie — czy są dobre gotowce? Czy trzeba to wszystko zawsze robić od zera? Na szczęście są gotowe rozwiązania. Mimo że na tym blogu raczej zwykle ograniczam się do samej teorii, a pomijam konkretne implementacje, to tym razem zrobię wyjątek.
+
+Współczesnymi, prostymi, ale zarazem z ogromem możliwości i, co istotne, powszechnie używanymi implementacjami wzorca obserwator są biblioteki od [ReactiveX](https://reactivex.io). Udostępniają one implementacje dla wielu języków, w tym dla opisywanych przeze mnie wcześniej TypeScriptu ([RxJS](https://github.com/ReactiveX/rxjs)) czy Kotlina ([RxJava](https://github.com/ReactiveX/RxJava), [RxKotlin](https://github.com/ReactiveX/RxKotlin), [RxAndroid](https://github.com/ReactiveX/RxAndroid)).
+
+Poniżej znajdziesz wcześniejszy przykład TypeScriptowy przepisany na RxJS:
+
+```typescript
+import { Subject } from 'rxjs';
+
+// przykład użycia - zwiększanie w pętli wartości licznika
+// tworzymy licznik
+const counter = new Subject<number>();
+// tworzymy obserwatora wypisującego wartość w konsoli
+const observer = (value: number) => console.log(value)
+// przypisujemy obserwatora do licznika
+counter.subscribe(observer);
+// pętla zwiększająca wartość licznika
+for (let i = 0; i < 10; i++) {
+  counter.next(i);
+}
+// po uruchomieniu w konsoli zostaną wypisane kolejne liczby od 0 do 9
+```
+
+Kod możesz przetestować na [Replit](https://replit.com/@tswistak/rxjs#index.ts). Tak jak poprzednio, ten także przełożyłem na Kotlina z użyciem RxJava, co znajdziesz na [tym Replit](https://replit.com/@tswistak/rxjava#src/main/kotlin/Main.kt). Również przerobiłem przykład na [StackBlitz](https://stackblitz.com/edit/observer-rxjs?file=src%2Fmain.ts), aby pokazać RxJS w swoim *naturalnym* środowisku.
+
+## Signals
+
+Po przeczytaniu tego artykułu programiści, np. front-endowi szczególnie obracający się wokół wszystkiego, co nowe i popularne, mogą mieć wrażenie „chwila, przecież ja skądś to znam i na pewno nie z RxJS”. Tak, implementacją wzorca obserwator znacznie prostszą niż RxJS są *signals* (teoretycznie polska nazwa to *sygnały*, ale w świecie komercyjnego IT lubi się korzystać z angielskich nazw). Dokładnie te signals, które są gorącym tematem na front-endzie odkąd wprowadziły je m.in. [Preact](https://preactjs.com/guide/v10/signals/), [Solid](https://www.solidjs.com/tutorial/introduction_signals), a nawet taki wielki framework, jakim jest [Angular](https://angular.io/guide/signals) (kojarzony głównie z RxJS). Chociaż warto dodać, że w świecie programowania idea ta jest znana już od dłuższego czasu (np. w C++owym frameworku [Qt](https://doc.qt.io/qt-6/signalsandslots.html)).
+
+Różnica, jaką wprowadzają signals względem tradycyjnych implementacji obserwatora, jest taka, że są bardziej zintegrowane z frameworkiem, w którym działają. Nie mamy tutaj typowego mechanizmu subskrypcji (i odsubskrybowania), tylko jest schowany w funkcjach renderujących czy w efektach (definiowanych przez nas reakcjach na zmiany w sygnałach). Dzięki temu mamy wrażenie, jakbyśmy korzystali ze zwykłych funkcji zwracających wartość, gdy tak naprawdę nasłuchujemy na zmiany.
+
+### Czysta implementacja
+
+Przerobienie wcześniej napisanej przez nas implementacji wzorca obserwator na bardzo prosty mechanizm sygnałów (bazujący tylko na efektach) mógłby wyglądać następująco:
+
+```typescript
+// typ funkcji dla uproszczenia kodu
+type Fn = () => void;
+// obserwator do zarejestrowania
+let toRegister: Fn | undefined = undefined;
+// funkcja tworząca signal, czyli odpowiednik tematu
+const createSignal = <T>(initialValue: T) => {
+  // aktualny stan obiektu
+  let currentState = initialValue;
+  // tablica przechowująca obserwatorów
+  const observers: Fn[] = [];
+  // funkcja powiadamiająca obserwatorów o zmianie
+  const notify = () => {
+    // iterujemy po wszystkich obserwatorach, powiadamiając o zmianie
+    observers.forEach(observer => observer());
+  }
+  // funkcja zwracająca aktualną wartość sygnału
+  const getState = () => {
+    // przy pierwszym uruchomieniu dodajmy obserwatora
+    if (toRegister) {
+      observers.push(toRegister);
+    }
+    return currentState;
+  }
+  // funkcja ustawiająca nową wartość sygnału
+  const setState = (newValue: T) => {
+    // warto dodać, że niektóre implementacje pozwalają też przekazać
+    // funkcję do aktualizacji aktualnej wartości
+    currentState = newValue;
+    // powiadamiamy o nowej wartości
+    notify();
+  }
+  // zwracamy funkcję do pobierania i ustawiania stanu
+  return [getState, setState];
+}
+// funkcja tworząca efekt, czyli odpowiednik obserwatora
+const effect = (callback: Fn) => {
+  // przy pierwszym wywołaniu efektu rejestrujemy go
+  toRegister = callback;
+  // wywołujemy
+  callback();
+  // możemy już usunąć z kolejki do rejestracji
+  toRegister = undefined;
+}
+
+// przykład użycia - zwiększanie w pętli wartości licznika
+// tworzymy sygnał przechowujący stan licznika
+const [count, setCount] = createSignal(0);
+// tworzymy efekt wypisujący w konsoli wartość licznika
+effect(() => console.log(count()));
+// pętla zwiększająca wartość licznika
+for (let i = 0; i < 10; i++) {
+  setCount(i)
+}
+// po uruchomieniu w konsoli zostaną wypisane kolejne liczby od 0 do 9
+// ze względu na działanie, że efekt jest wywoływany od razu, 0 zostanie powtórzone
+```
+
+Tradycyjnie kod możesz przetestować na [Replit](https://replit.com/@tswistak/signals#index.ts), a także jego webową wersję na [StackBlitz](https://stackblitz.com/edit/observer-signal?file=src%2Fmain.ts).
+
+### Angular Signals
+
+Z racji tego, że w praktyce raczej korzystałbyś/korzystałabyś z sygnałów wbudowanych w jakiś framework, zobacz poniżej przepisany nasz dotychczasowy przykład aplikacji (pokazywanej na StackBlitz) na Angular z jego sygnałami:
+
+```typescript
+import { Component, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+
+@Component({
+  selector: 'my-app',
+  standalone: true,
+  imports: [CommonModule],
+  // zamiast tworzyć ręcznie efekt, framework sam go utworzy przez użycie sygnału w widoku
+  template: `
+    <div id="app">
+      <div>Przycisk kliknięty: {{count()}} raz(y)</div>
+      <div>
+        <button (click)="handleClick()">Zwiększ licznik</button>
+      </div>
+    </div>
+  `,
+})
+export class App {
+  // definiujemy signal z licznikiem
+  count = signal(0);
+
+  // metoda wywoływana na kliknięciu przycisku
+  handleClick() {
+    // ustawiamy nową wartość w sygnale
+    this.count.set(this.count() + 1);
+    // alternatywnie możemy przekazać funkcję aktualizującą wartość
+    // this.count.update((count) => count + 1);
+  }
+}
+```
+
+Oczywiście taki kod warto przetestować, dlatego sprawdź go na [StackBlitz](https://stackblitz.com/edit/angular-signals-2137?file=src%2Fmain.ts).
+
+### Krótkie słowo na koniec
+
+Zanim przejdziemy do podsumowania całego artykułu, chciałem wtrącić jeszcze trzy zdania na temat signals.
+
+Wadą i jednocześnie zaletą signals jest całkowite ukrywanie przed nami tego, że coś obserwujemy, nasłuchujemy na zmiany. Szczególnie w angularowym przykładzie można zobaczyć, że tam tylko zmieniamy wartości i wszystko dzieje się samo. Dlatego warto wiedzieć, co się tak naprawdę skrywa pod maską i na jakiej zasadzie to działa, bo nigdy nie wiadomo, kiedy takie detale mogą się przydać w praktyce.
+
+## Podsumowanie
+
+Jak pokazałem w tym artykule, za całą magią frameworków UI, nieważne czy webowych, desktopowych, czy mobilnych, stoi bardzo prosta idea, jaką jest wzorzec obserwator. Jest implementowany na różne sposoby, także znany pod różnymi nazwami, czasem modyfikowany, ale podstawowa idea pozostaje cały czas ta sama.
+
+Pokazuje to również, że warto poznać wzorce projektowe, bo powstały właśnie po to, żeby rozwiązywać najpopularniejsze problemy przy projektowaniu kodu aplikacji. A do takich zaliczamy reagowanie jednych obiektów na zmiany w innych.
+
+## Literatura
+
+- Gamma E., Helm R., Johnson R., Vlissides J., „Observer” w *Design Patterns: Elements of Reusable Object-Oriented Software*. Addison Wesley, 1995, s. 293-303.
+- Osmani A. *The Observer Pattern*, https://www.oreilly.com/library/view/learning-javascript-design/9781449334840/ch09s05.html (ostatni dostęp: 21.09.2023)
+- ReactiveX, https://reactivex.io/ (ostatni dostęp: 21.09.2023)
+- *Signals & Slots*, Qt Core 6.5.2, https://doc.qt.io/qt-6/signalsandslots.html  (ostatni dostęp: 21.09.2023)
+- Lohr A. *Concepts behind modern frameworks*, https://dev.to/lexlohr/concepts-behind-modern-frameworks-4m1g (ostatni dostęp: 21.09.2023)
+- *Angular Signals*, https://angular.io/guide/signals (ostatni dostęp: 21.09.2023)
+
+<small>Zdjęcie na okładce wygenerowane przez Stable Diffusion.</small>

@@ -1,0 +1,1486 @@
+import Link from 'next/link';
+import {Image} from '@swistak-codes/components';
+import cover from './syzyf.jpg';
+import petla from './petla.png';
+import bpmn from './bpmn.png';
+import doWhile from './do-while.png';
+
+export const meta = {
+  title: 'Iteracja — co to jest?',
+  abstract:
+    'Iteracja to jedna z najbardziej podstawowych technik sterowania wykonaniem programu. Każdy programista ją zna, ale mimo to wejdźmy w temat głębiej.',
+  firstParagraph: (
+    <>
+      Iteracja to według słownika PWN-u metoda polegająca na wielokrotnym stosowaniu tej samej procedury. Nawet nieskończenie, niczym Syzyf wtaczający głaz na szczyt góry (jak na okładce). W zasadzie na tym mógłbym zamknąć ten artykuł, bo właśnie odpowiedziałem na pytanie z tytułu. Jednak mimo to wejdźmy w temat głębiej: jakie mamy rodzaje iteracji, do czego się ostatecznie sprowadzają, co mają wspólnego z <Link href="/post/rekurencja-co-to-jest">rekurencją</Link>, a także czym są iteratory.
+    </>
+  ),
+  keyword: 'iteracja',
+  categories: ['Programowanie'],
+  tags: [
+    'iteracja',
+    'rekurencja',
+    'c',
+    'c++',
+    'c#',
+    'java',
+    'javascript',
+    'pascal',
+    'python',
+    'struktury danych',
+    'LINQ',
+    'SQL',
+    'język zapytań',
+    'for',
+    'for each',
+    'while',
+    'do while',
+    'skok',
+    'rozgałęzienie',
+    'schemat blokowy',
+    'bpmn',
+    'goto',
+    'iterator',
+    'generator',
+    'break',
+    'continue'
+  ],
+  slug: 'iteracja-co-to-jest',
+  updateTime: '2022-12-21T07:00:00+00:00',
+  publishTime: '2022-12-21T07:00:00+00:00',
+  cover,
+  comment: 'Dzisiaj przychodzę do Was z artykułem poświęconym iteracji. Zagadnienie bardzo podstawowe, wręcz leżące u podstaw nauki każdego języka programowania, jednak jak sam się przekonałem, pisząc ten artykuł, można o nim powiedzieć bardzo wiele. Zdaję sobie sprawę, że tekst jest długi i niektórzy wydają krótsze książki, ale wielu rzeczy po prostu nie mogłem pominąć. Gorąco zachęcam do lektury zarówno początkujących, jak i bardziej zaawansowanych programistów — myślę, że każdy znajdzie tutaj coś dla siebie.'
+};
+
+## O co chodzi?
+
+Mimo że we wstępie podałem słownikową definicję iteracji, spróbujmy rozłożyć to na prostsze czynniki. Aby uprościć formę, wypunktujmy:
+
+- Iteracja polega na powtarzaniu pewnej czynności.
+- Kolejne powtórzenia nazywamy pierwszą iteracją, drugą iteracją itd.
+- Liczba powtórzeń może być określona bądź nie. Nieskończoność to także poprawna liczba powtórzeń.
+    - Oczywiście nieskończona pętla spowoduje, że program się nigdy nie zakończy. Jest to wiec błąd, aczkolwiek zwykle nic nie powstrzyma nas przed nim.
+- Liczba powtórzeń jest ustalana warunkiem. Innymi słowy, czy wskazaną procedurę powtarzamy po raz kolejny, decydujemy przez sprawdzenie jakiejś wartości. Może być to odgórnie określona liczba powtórzeń, osiągnięcie jakiegoś stanu systemu czy sygnał z zewnątrz.
+    - Warto dodać, że zwykle warunek jest ściśle częścią definicji pętli. Możemy jednak napisać pętlę nieskończoną i z wnętrza procedury wymusić jej przerwanie. Jest to dozwolone, języki programowania na to pozwalają, aczkolwiek w kwestii, czy powinniśmy tak robić, napiszę więcej w dalszej części artykułu.
+    - Ponadto warunek pętli może być ukryty. Nieraz iterując, przechodzimy np. przez wszystkie elementy jakiejś struktury danych. Wtedy mówiąc o takiej pętli, nie podajemy wprost warunku, a same języki programowania ukrywają go przed nami, o czym też wspomnę dalej.
+- Warunek, czy pętlę kontynuujemy, czy kończymy, możemy sprawdzić zarówno po pierwszej iteracji (czyli przejściu procedury), jak i przed jej rozpoczęciem.
+
+### Pętle w zapisie algorytmów w postaci listy kroków
+
+Gdy zapoznajemy się z algorytmami zapisanymi w tekście, nie w żadnym języku programowania, to możemy zwykle spotkać się z jednym z trzech sposobów zapisu:
+
+- pseudokod
+- lista kroków
+- schemat blokowy
+
+Czasami programiści mają do czynienia z zapisem procesów biznesowych w języku BPMN. Ten jednak jest bardzo zbliżony do tradycyjnych schematów blokowych.
+
+Pseudokod wygląda jak język programowania, dlatego go pomińmy. Zobaczmy więc, w jaki sposób iteracje zapisujemy w liście kroków. Jest to najczęściej spotykana forma zapisu w tekstach naukowych i też ja ją stosuję na blogu, więc od niej zacznijmy. Oczywiście to tylko pewien schemat, użyte w praktyce słowa mogą być inne.
+
+1. Powtórz [liczba] razy:
+    1. Procedura...
+2. Tak długo, jak [warunek]:
+    1. Procedura...
+3. Dla każdego elementu [struktura danych]:
+    1. Procedura...
+
+Wygląda to tak, że pokazane punkty 1, 2 i 3 są definicjami pętli, natomiast podpunkty w nich to procedura, którą powtarzamy. W praktyce przechodzenie przez taką listę kroków wyglądałoby następująco:
+
+1. Wchodzimy w punkt 1. W tym momencie powtórzyliśmy procedurę 0 razy, więc wchodzimy wgłąb.
+2. Wykonujemy wszystkie podpunkty, w naszym przypadku tylko punkt 1.1.
+3. Wracamy do punktu 1 i sprawdzamy, czy powtórzyliśmy już wskazaną liczbę razy. Jeśli tak, znowu wykonujemy wszystkie podpunkty. Jeśli nie, przechodzimy do punktu 2.
+
+### Pętle w schematach blokowych algorytmów
+
+Innym sposobem zapisu algorytmów są schematy blokowe, które częściej znajdziemy w szkolnych podręcznikach do informatyki. Pętle wyglądają w nich zwykle jak na diagramie poniżej:
+
+<Image
+  image={petla}
+  alignCenter
+  fullSize
+  alt="Schemat blokowy zawierający blok o kształcie rombu z napisem warunek. Wychodzi z niego strzałka w dół z podpisem TAK i strzałka w prawo z podpisem NIE. Pod strzałką opisaną TAK znajduje się blok o kształcie prostokąta z napisem Procedura. Wychodzi z niego strzałka prowadząca nad romb do lewej strony."
+  caption={<>
+  </>}
+/>
+
+Często można też się spotkać z odwróceniem kolejności, czyli warunek sprawdzamy po wykonaniu procedur i potem przeskakujemy do jakiegoś miejsca wcześniej w algorytmie. Na ogół strzałka zataczająca pętlę oznacza zawsze iterację. Też czasem jest różnica w zapisie, że strzałka nie trafia w inną strzałkę, tylko od razu do bloku — nie ma tutaj konkretnej reguły.
+
+Wspomniałem wcześniej o języku BPMN. Raczej w zapisie procesów biznesowych nie stosuje się warunków tworzących pętle jak w schematach blokowych algorytmów, ale zapętlenia też są. Zwykle zapisywane są tak jak na obrazku poniżej. Z lewej znajduje się iteracja po elementach kolekcji, po prawej iteracja oparta na warunku.
+
+<Image
+  image={bpmn}
+  alignCenter
+  fullSize
+  alt="Po lewej stronie rysunku znajduje się prostokąt z napisem `Sprawdź cenę`, gdzie pod tekstem znajduje się ikona z trzema pionowymi kreskami. Od prostokąta odchodzi w dół przerywana linia do notatki o treści `Dla każdego produktu w koszyku`. Po prawej stronie znajduje się prostokąt z napisem `Pobierz wpłatę`, gdzie pod tekstem znajduje się ikonka ze strzałką zakręconą w pętlę. Od prostokąta odchodzi w dół przerywana linia do notatki o treści `Powtarzaj, aż się uda, maks. 3 razy`."
+  caption={<>
+  </>}
+/>
+
+## Skoki (rozgałęzienia)
+
+Zacznijmy od tego, co jest podstawą wszelkich iteracji i do czego tak naprawdę każda z nich się sprowadza. Kod, który piszemy (nieważne, czy piszesz w C i Twój kod jest kompilowany do pliku wykonywalnego, czy też piszesz interpretowane skrypty np. w Pythonie), prędzej czy później zostaje sprowadzony do postaci rozkazów procesora. Możesz je kojarzyć pod nazwą *język asemblera*. Tak, ten najmniej rozbudowany, ale zarazem teoretycznie najtrudniejszy z języków programowania (w zasadzie języki, bo jest ich tyle, ile rodzajów procesorów) to nic innego jak rozkazy, które procesor odczytuje z pamięci i wykonuje po kolei.
+
+### Co to jest?
+
+Jeśli masz jakieś doświadczenie z programowaniem, to na pewno kojarzysz takie instrukcje, jak `while`, `for` czy w niektórych językach `repeat`. Możesz też znać pojęcie rekurencji. Tych rzeczy w asemblerach nie ma. Kompilatory wszystkie te konstrukcje sprowadzają do skoków nazywanych także rozgałęzieniami. Czym one są?
+
+W zasadzie można powiedzieć, że nazwa mówi wszystko. Najprostsza instrukcja skoku (np. w architekturze x86 `JMP`) wskazuje na miejsce, gdzie znajduje się rozkaz, do którego chcemy przeskoczyć. Oprócz tego są też bardziej rozbudowane skoki warunkowe, gdzie najpierw porównujemy wartości, a potem w wybranym przypadku wykonujemy przejście do innego rozkazu. Nie będę przywoływać konkretnych instrukcji, ale są to rzeczy typu: „przeskocz, jeśli równe zero”, „przeskocz, jeśli różne od zera”, „przeskocz, jeśli większe” itd.
+
+Poniżej możesz zobaczyć prosty kod napisany w języku asemblera procesorów x86 (NASM) pod Linuksa. To, co robi, to wypisanie 10 razy tekstu `Cześć`.
+
+```nasm
+; kod aplikacji
+section	.text
+  global _start   ; określenie etykiety, od której zaczynamy
+_start:
+  ; inicjalizacja aplikacji
+  mov ecx, 0      ; ustawiamy licznik iteracji na 0
+loop_start:       ; etykieta określająca początek pętli
+  ; sprawdzenie warunku pętli
+  cmp ecx, 10     ; sprawdzamy, czy licznik osiągnął wartość 10
+  je loop_end     ; jeśli tak, przeskakujemy do loop_end
+  push ecx        ; wrzucamy z powrotem na stos wartość licznika
+  ; wypisanie tekstu
+  mov edx, len    ; ustawiamy w EDX długość tekstu
+  mov ecx, msg    ; w ECX tekst
+  mov ebx, 1      ; w EBX ustawiamy, że interesuje nas wyjście standardowe (1)
+  mov eax, 4      ; w EAX ustawiamy komendę SYS_WRITE
+  int 0x80        ; przerwanie wołąjące jądro systemu, aby wykonało polecenie
+  ; dalsza obsługa pętli
+  pop ecx         ; ponownie ściągamy licznik ze stosu
+  add ecx, 1      ; zwiększamy wartość licznika o 1
+  jmp loop_start  ; przeskakujemy do początku pętli
+loop_end:
+  ; zakończenie aplikacji
+  mov eax, 1      ; w EAX ustawiamy komendę SYS_EXIT
+  int 0x80        ; ponownie wołamy jądro systemu za pomocą przerwania
+
+; dane zapisane w pamięci
+section	.data
+  msg	db	'Cześć',0xa  ; tekst do wypisania
+  len	equ	$ - msg      ; długość tekstu
+```
+
+Kod możesz przetestować na platformie [repl.it](https://replit.com/@tswistak/goto-asm#main.s). Jeśli tam nie działa, możesz również sprawdzić działanie na [Compiler Explorer](https://godbolt.org/z/84j3T38vx).
+
+Przeskoki wykonują tutaj dwie instrukcje:
+
+- `je [nazwa etykiety]` — jeśli poprzednia instrukcja porównania zwróciła, że liczby są równe, przeskakujemy do wskazanej etykiety.
+- `jmp [nazwa etykiety]` — przeskok bez żadnego warunku.
+
+Etykiety definiowane jako nazwa zakończona dwukropkiem są wygodnym uproszczeniem, dzięki któremu łatwiej jest nawigować po kodzie przy definiowaniu przeskoków. Po skompilowaniu (tak, programy napisane w asemblerze również kompilujemy) etykiety znikają, a przy instrukcjach skoku zostają zastąpione adresami w pamięci.
+
+### Skoki poza asemblerami
+
+Skoki to główny sposób tworzenia iteracji w asemblerach, ale spotkamy je również w językach wyższego poziomu. Znajdziemy je najczęściej (w językach, które znam) pod instrukcją `goto` i tak się je potocznie nazywa.
+
+Wbrew pozorom instrukcję `goto` znajdziemy nie tylko w językach kompilowanych do kodu maszynowego jak C, ale również w interpretowanych (np. w skryptach BAT). Dla przykładu ten sam program, który napisałem wyżej w asemblerze, w C będzie wyglądać następująco:
+
+```c
+#include <stdio.h>
+
+int main(void) {
+  // ustawiamy licznik iteracji na 0
+  int counter = 0;
+loop_start:
+  // sprawdzenie warunku pętli
+  if (counter == 10) {
+    // jeśli licznik osiągnął 10, przeskakujemy do loop_end
+    goto loop_end;
+  }
+  // wypisujemy tekst na wyjściu standardowym
+  printf("Cześć\n");
+  // zwiększamy wartość licznika o 1
+  counter++;
+  // przeskakujemy do początku pętli
+  goto loop_start;
+loop_end:
+  // zakończenie aplikacji
+  return 0;
+}
+```
+
+Kod możesz przetestować na [repl.it](https://replit.com/@tswistak/goto-c#main.c).
+
+Warto jednak zauważyć, że jeśli język programowania pozwala na inne sposoby sterowania przepływem programu (w tym iteracje), instrukcji skoku **nie powinniśmy** używać. Najbardziej znanym z pierwszych przeciwników stosowania `goto` był Edsger W. Dijsktra (znany przede wszystkim z <Link href="/post/szukanie-najkrotszych-sciezek-w-grafie">algorytmu Dijkstry</Link>). Napisał bardzo popularny w środowisku informatycznym list *Go To Statement Considered Harmful* (instrukcja goto uznawana za szkodliwą) i jego treść możecie znaleźć w [doi:10.1145/362929.362947](https://doi.org/10.1145/362929.362947). Opisując w skrócie, jego argumenty przeciwko to:
+
+- `goto` sprawia, że śledzenie postępu iteracji jest utrudnione.
+- Jest zbyt prymitywne.
+
+Mimo to `goto` w niektórych językach programowania znalazło inne zastosowania i o jednym z nich napiszę w dalszej części artykułu.
+
+## while
+
+Przejdźmy teraz do najbardziej podstawowego sposobu iteracji — pętli `while`. Jest to dokładnie to, co opisałem wcześniej we wstępie teoretycznym, czyli jest to pętla, która wykonuje się tak długo, jak spełniony jest warunek, i też zaczyna się od warunku. Używam tutaj określenia *pętla while*, bo w większości języków programowania spotkamy się z zapisem w stylu:
+
+```javascript
+while (warunek) {
+  akcja();
+}
+```
+
+W pseudokodzie po polsku moglibyśmy zapisać to dosłownie jako:
+
+```
+tak długo, jak (warunek jest prawdziwy), wykonuj {
+  akcja();
+}
+```
+
+Możemy też się spotkać z zapisami typu `do while [warunek]` (np. Visual Basic), `while [warunek] do` (np. Pascal). Oczywiście nie każdy język musi taką pętlę posiadać, czego świetnymi przykładami są tak powszechnie znane języki, jak Haskell czy Go. Zresztą mówiąc o Haskellu, warto wspomnieć, że języki programowania takie jak on, czyli wykorzystujące paradygmat funkcyjny, z definicji nie powinny mieć iteracji innych niż rekurencja.
+
+Powróćmy jednak do pętli `while`. Żeby już trzymać się naszego przykładu z wypisywaniem tekstu, zobaczmy, jak będzie wyglądać w języku C z tym rodzajem iteracji:
+
+```c
+#include <stdio.h>
+
+int main(void) {
+  // ustawiamy licznik iteracji na 0
+  int counter = 0;
+  // ustawiamy, że pętla wykonuje się, dopóki licznik nie dobił do 10
+  while (counter < 10) {
+    // wypisujemy tekst na wyjściu standardowym
+    printf("Cześć\n");
+    // zwiększamy wartość licznika o 1
+    counter++;
+  }
+  // zakończenie aplikacji
+  return 0;
+}
+```
+
+Kod możesz edytować i uruchomić na [repl.it](https://replit.com/@tswistak/while-c#main.c).
+
+Jak widać, nasza prosta aplikacja, dzięki zastosowaniu pętli `while`, skróciła się i jednocześnie pozbycie się etykiet sprawiło, że jest nieco czytelniejsza.
+
+### Sytuacja po kompilacji
+
+Jeśli jesteś dociekliwy(-a), pewnie może Cię zaciekawić, czy czasem użycie `goto` nie jest wydajniejsze od użycia `while`. Ja jednak nie będę specjalnie pisać benchmarków, a zamiast tego po prostu pokażę, jaki kod asemblera powstał po skompilowaniu obu aplikacji z użyciem kompilatora gcc.
+
+Najpierw kod, który powstał po zastosowaniu `goto` w C:
+
+```nasm
+.LC0:
+        .string "Cze\305\233\304\207"
+main:
+        push    rbp
+        mov     rbp, rsp
+        sub     rsp, 16
+        mov     DWORD PTR [rbp-4], 0
+.L2:
+        cmp     DWORD PTR [rbp-4], 10
+        je      .L7
+        mov     edi, OFFSET FLAT:.LC0
+        call    puts
+        add     DWORD PTR [rbp-4], 1
+        jmp     .L2
+.L7:
+        nop
+        mov     eax, 0
+        leave
+        ret
+```
+
+Oraz kod, który otrzymaliśmy dzięki pętli `while`:
+
+```nasm
+.LC0:
+        .string "Cze\305\233\304\207"
+main:
+        push    rbp
+        mov     rbp, rsp
+        sub     rsp, 16
+        mov     DWORD PTR [rbp-4], 0
+        jmp     .L2
+.L3:
+        mov     edi, OFFSET FLAT:.LC0
+        call    puts
+        add     DWORD PTR [rbp-4], 1
+.L2:
+        cmp     DWORD PTR [rbp-4], 9
+        jle     .L3
+        mov     eax, 0
+        leave
+        ret
+```
+
+Jak możesz zauważyć, wersja skompilowana z `while` jest nawet krótsza o jedną linię kodu (aczkolwiek nieistotną, bo instrukcja `nop` nic nie robi). W praktyce jednak dzieje się podobnie, tylko jest nieco odwrócona kolejność wykonywania rozkazów. W pierwszym przypadku w asemblerze otrzymaliśmy dokładnie to samo, co napisaliśmy w C. W drugim przypadku w kodzie najpierw mamy zapisane ciało pętli, ale zanim w nie wejdziemy, przeskakujemy do warunku, który jest dosyć zmodyfikowany (zamiast `counter < 10` sprawdzamy `counter <= 9` — w zasadzie to samo), i z niego wracamy do ciała pętli. Rozkazy są niemal te same, jest tylko inna instrukcja skoku warunkowego, ale to wynika z inaczej zdefiniowanego warunku. Innymi słowy, różnicy w działaniu nie będzie, a jeśli już, to niezauważalna.
+
+Jeśli chcesz to zobaczyć na własną rękę, możesz to sprawdzić np. przy użyciu online'owego narzędzia Compiler Explorer [pod tym linkiem](https://godbolt.org/z/Y5bqdc464).
+
+## do while
+
+Pętla `while` to podstawowy sposób iteracji w wielu językach programowania. Jednak czasami chcemy wykonać przynajmniej jedną iterację, a dopiero potem sprawdzić warunek. Taką sytuację moglibyśmy zapisać poniższym schematem blokowym:
+
+<Image
+  image={doWhile}
+  alignCenter
+  fullSize
+  alt="Schemat blokowy zawierający blok o kształcie prostokąta z napisem Procedura. Wychodzi z niego strzałka w dół. Pod strzałką znajduje się blok o kształcie rombu z napisem warunek. Wychodzi z niego strzałka w lewo z podpisem TAK prowadząca nad prostokąt do lewej strony. Oprócz tego z rombu wychodzi też strzałka w prawo z podpisem NIE."
+  caption={<>
+  </>}
+/>
+
+Oczywiście bylibyśmy w stanie zaprogramować taki przypadek pętlą `while`, ale mamy do tego w wielu językach odpowiednią konstrukcję — `do ... while`. Zwykle wygląda ona tak:
+
+```javascript
+do {
+  akcja();
+} while (warunek)
+```
+
+W pseudokodzie po polsku będzie to brzmieć następująco:
+
+```
+powtarzaj {
+  akcja();
+} kiedy (warunek jest prawdziwy);
+```
+
+Możemy też spotkać ją pod nazwami `repeat ... while` (np. Swift) czy `do ... loop while` (np. Visual Basic). Wcześniej pokazywany przeze mnie przypadek jako pętla tego typu, zapisany w C, będzie wyglądać następująco:
+
+```c
+#include <stdio.h>
+
+int main(void) {
+  // ustawiamy licznik iteracji na 0
+  int counter = 0;
+  do {
+    // wypisujemy tekst na wyjściu standardowym
+    printf("Cześć\n");
+    // zwiększamy wartość licznika o 1
+    counter++;
+    // ustawiamy, że pętla wykonuje się, dopóki licznik nie dobił do 10
+  } while (counter < 10);
+  // zakończenie aplikacji
+  return 0;
+}
+```
+
+Kod możesz sprawdzić na [repl.it](https://replit.com/@tswistak/do-while-c#main.c). Dodatkowo na tym [kodzie w repl.it](https://replit.com/@tswistak/while-do-while-c#main.c) pokazałem też porównanie działania pętli `do ... while` oraz `while` pod kątem kolejności wykonywania.
+
+### Odwrócenie warunku
+
+Warto w tym miejscu nadmienić, że w niektórych językach programowania, np. w Ada i Pascalu, warunek w pętli jest odwrócony — mówi, kiedy kończymy pętlę, a nie jak długo ma trwać. Innymi słowy, pętla w pseudokodzie zapisana byłaby następująco:
+
+```
+powtarzaj {
+  akcja();
+} dopóki (warunek jest prawdziwy);
+```
+
+Pokazywany dotychczas przykład, ale tym razem w języku Pascal (zamiast `do ... while` jest `repeat ... until`), zapiszemy następująco:
+
+```pascal
+program DoWhilePascal;
+// w Pascalu zmienne deklarujemy przed właściwym kodem aplikacji
+var
+  counter: Integer;
+begin
+  // ustawiamy licznik iteracji na 0
+  counter := 0;
+  repeat
+    // wypisujemy tekst na wyjściu standardowym
+    writeln('Cześć');
+    // zwiększaym wartość licznika o 1
+    inc(counter);
+    // ustawiamy, że pętla przestanie się wykonywać,
+    // gdy licznik osiągnie wartość 10
+  until counter = 10;
+  // zakończenie aplikacji
+end.
+```
+
+Ten kod również możesz przetestować na [repl.it](https://replit.com/@tswistak/do-while-pascal#main.p).
+
+Jak widać na tym przykładzie, jeśli zmieniamy języki programowania, warto sprawdzić, czy podstawowe konstrukcje, takie jak właśnie pętle, nie mają różnic w stosowaniu. Chociaż różnic między językami z popularną C-podobną składnią a Pascalem widać tu znacznie więcej, np. przypisanie wartości z użyciem `:=`, deklaracja zmiennych przed właściwym kodem, sprawdzenie równości pojedynczym znakiem równości itd.
+
+### Po kompilacji
+
+Oczywiście konstrukcji `do while` nie mamy w asemblerach, ale analogicznie jak to zrobiliśmy z `while`, tutaj też możemy zobaczyć, w jaki sposób kompilator języka C zapisuje tę pętlę. A nasz dotychczasowy przykład wygląda następująco:
+
+```nasm
+.LC0:
+        .string "Cze\305\233\304\207"
+main:
+        push    rbp
+        mov     rbp, rsp
+        sub     rsp, 16
+        mov     DWORD PTR [rbp-4], 0
+.L2:
+        mov     edi, OFFSET FLAT:.LC0
+        call    puts
+        add     DWORD PTR [rbp-4], 1
+        cmp     DWORD PTR [rbp-4], 9
+        jle     .L2
+        mov     eax, 0
+        leave
+        ret
+```
+
+W tym przypadku kod jest jeszcze prostszy, bo mamy jedynie jeden przeskok warunkowy na końcu pętli. Jednak różnica jednego skoku (bo dosłownie tym się różni ten kod) nie jest powodem, abyśmy stosowali wszędzie `do while` zamiast `while`. Obie wersje możesz porównać w serwisie [Compiler Explorer](https://godbolt.org/z/e7h6TG39M).
+
+## for
+
+Kolejną z podstawowych konstrukcji oferujących iterację są pętle `for`. Najczęściej stosuje się je w przypadkach, gdy znamy odgórnie liczbę powtórzeń, jak w powyżej pokazywanych przykładach, gdzie odliczaliśmy liczbę iteracji. Jednak w tym przypadku muszę pokusić się o nieco szersze rozpisanie niż wcześniej, bo `for` ma kilka różnych twarzy. Od razu powiem, że teraz opiszę tylko jedną część, a o dalszej wspomnę dalej w artykule.
+
+### for jako pętla z licznikiem
+
+Główna twarz pętli `for`, którą zna każdy programista, to pętla z licznikiem. Znamy odgórnie, ile razy wykona się iteracja, i po prostu tyle razy wykonujemy. Są to przypadki typu:
+
+- Powtórz \[liczba\] razy.
+- Dla liczb od \[liczba\] do \[liczba\].
+- Dla każdego elementu z \[nazwa kolekcji\] — można to rozumieć na kilka sposobów, o czym powiemy sobie w późniejszej części artykułu.
+
+W zależności od języka programowania składnia będzie wyglądać inaczej. Jedne języki oferują po prostu odliczanie liczby iteracji, co jest klasycznym podejściem do tego typu pętli. Taką składnię znajdziemy np. w Pascalu:
+
+```pascal
+program ForPascal;
+var
+  // deklarujemy licznik iteracji
+  // przyjęło się nazywać go "i"
+  i: Integer;
+begin
+    // definiujemy, że iterujemy od 1 do 10 włącznie (!)
+    for i := 1 to 10 do begin
+      // wypisujemy tekst wraz z wartością licznika
+      writeln('Cześć. Iteracja nr ', i);
+    end;
+    // teraz iterujemy od tyłu
+    for i := 10 downto 1 do begin
+      // wypisujemy tekst wraz z wartością licznika
+      writeln('Jeszcze raz. Iteracja nr ', i);
+    end;
+end.
+```
+
+Kod do samodzielnego przetestowania znajdziesz na [repl.it](https://replit.com/@tswistak/for-pascal#main.p).
+
+Składnia pętli `for` jest bardzo prosta i składa się z trzech elementów:
+
+- Początkowej wartości licznika. Zwykło się nazywać go literą `i`, a przy kolejnych zagnieżdżeniach pętli: `j`, `k` itd.
+    - Drobna uwaga na boku: w większości języków zwykle iteruje się od zera, aczkolwiek Pascal jest jednym z niewielu języków programowania, gdzie przyjęło się numerowanie wszystkiego od 1.
+- Kierunku iteracji. Albo inkrementujemy o 1 (`to`), albo dekrementujemy o 1 (`downto`).
+- Końcowej wartości. Warto zwrócić uwagę, jak język programowania określa warunek końcowy. W przypadku Pascala iterujemy do podanej wartości włącznie.
+
+Natomiast w językach bazujących na składni C (czyli większość obecnie popularnych) znajdziemy zupełnie inną konstrukcję, która wygląda następująco (przykład w C):
+
+```c
+#include <stdio.h>
+
+int main(void) {
+  // definiujemy kolejno:
+  // - licznik iteracji jako zmienną typu int o wartości 0
+  // - iterujemy tak długo, jak i jest mniejsze od 10
+  // - na końcu każdej iteracji zwiększamy wartość i o 1
+  for (int i = 0; i < 10; i++) {
+    // wypisujemy tekst wraz z wartością licznika
+    printf("Cześć. Iteracja nr %d\n", i);
+  }
+  // teraz iterujemy od tyłu
+  for (int i = 10; i > 0; i--) {
+    // wypisujemy tekst wraz z wartością licznika
+    printf("Jeszcze raz. Iteracja nr %d\n", i);
+  }
+  return 0;
+}
+```
+
+Ponownie, kod znajdziesz też na [repl.it](https://replit.com/@tswistak/for-c#main.c).
+
+Skąd jednak taka różnica?
+
+### for jako pętla while
+
+Pętla `for` w C i językach C-podobnych nie jest typową pętlą z licznikiem. Tak naprawdę jest to pętla while, tylko z możliwością zdefiniowania, co zrobić przed iteracjami i co robić po każdym przebiegu pętli. Dokładniej wygląda to tak:
+
+```javascript
+for (przedPetla(); warunek(); poKazdymPrzebiegu()) {
+    akcja()
+}
+```
+
+Tak samo\* będzie działać poniższy `while`:
+
+```javascript
+przedPetla();
+while (warunek()) {
+    akcja();
+    poKazdymPrzebiegu();
+}
+```
+
+\* Jest drobna różnica, przez którą nie jest dokładnie tak samo, ale o tym później.
+
+Co więcej, każdy z tych trzech elementów jest opcjonalny i może zawierać dowolny kod, np. tak wygląda pętla nieskończona:
+
+```javascript
+for (;;) { }
+// odpowiednik jako while
+while (true) { }
+```
+
+Innymi słowy, całkowicie dozwolone jest zrobienie takich rzeczy:
+
+```c
+#include <stdio.h>
+#include <string.h>
+#include <time.h>
+#include <stdlib.h>
+
+int main(void) {
+  // --- 1 ---
+  // ustawiamy dwa liczniki z różnymi wartościami: 0 i 1
+  // pętlę wykonujemy tak długo, jak iloraz obu liczników jest podzielny przez 3
+  // i zwiększamy o 3, j o wartość i
+  for (int i = 0, j = 1; i * j % 3 == 0; i += 3, j += i) {
+    // wypisujemy obie wartości
+    printf("%d, %d\n", i, j);
+  }
+  // --- 2 ---
+  // tym razem zmienne zadeklarujemy na zewnątrz
+  int i;
+  char* j;
+  // pętlę wykonujemy tak długo, jak rozmiar stringa j jest mniejszy od 20
+  for (i = 0, j = ""; strlen(j) < 20; i++) {
+    // wykonujemy kod tylko wtedy, gdy licznik jest podzielny przez 4
+    if (i % 4 == 0) {
+      // deklarujemy tymczasową zmienną na przechowanie nowego ciągu
+      char tmp[100];
+      // tworzymy nowy ciąg
+      sprintf(tmp, "%d%s", i, j);
+      // przepisujemy go do zmiennej j
+      j = tmp;
+      // wypisujemy zawartość j na ekranie
+      printf("%s\n", j);
+    }
+  }
+  // --- 3 ---
+  // zmienna będzie deklarowana ponownie na zewnątrz
+  int isEven = 1;
+  // inicjujemy generator liczb pseudolosowych
+  srand(time(NULL));
+  // pętla zawiera jedynie warunek, że ma się wykonywać, gdy isEven jest prawdziwe
+  for (; isEven;) {
+    // losujemy liczbę
+    int number = rand();
+    // wypisujemy ją
+    printf("%d\n", number);
+    // zapisujemy w isEven, czy liczba jest parzysta
+    isEven = number % 2 == 0;
+  }
+  return 0;
+}
+```
+
+Kod możesz przetestować na [repl.it](https://replit.com/@tswistak/for-different-c#main.c). Chciałbym jednak dodać, że o ile pierwszy przypadek jest jeszcze w miarę *normalny*, drugi kwestionowalny, o tyle w trzeciej pętli można byłoby użyć zwykłego `while`.
+
+Co ciekawe, w przypadku języka Go nie ma pętli `while` i jest ona zastąpiona właśnie przez `for` z podaniem samego warunku, co można zobaczyć [np. tutaj, w oficjalnym kursie języka](https://go.dev/tour/flowcontrol/3).
+
+### for w asemblerach
+
+#### Kompilacja kodu języka C
+
+Ponownie sprawdźmy, jak pętla `for` kompiluje się do asemblera. Oczywiście wrócimy do najprostszego użycia, czyli wypisywania tekstu „Cześć” 10 razy, jak to robiliśmy dotychczas. Wygląda to następująco:
+
+```c
+#include <stdio.h>
+
+int main(void) {
+  for (int i = 0; i < 10; i++) {
+    printf("Cześć\n");
+  }
+  return 0;
+}
+```
+
+Po skompilowaniu kod asemblera wygląda tak:
+
+```nasm
+.LC0:
+        .string "Cze\305\233\304\207"
+main:
+        push    rbp
+        mov     rbp, rsp
+        sub     rsp, 16
+        mov     DWORD PTR [rbp-4], 0
+        jmp     .L2
+.L3:
+        mov     edi, OFFSET FLAT:.LC0
+        call    puts
+        add     DWORD PTR [rbp-4], 1
+.L2:
+        cmp     DWORD PTR [rbp-4], 9
+        jle     .L3
+        mov     eax, 0
+        leave
+        ret
+```
+
+Na stronie [Compiler Explorer](https://godbolt.org/z/enG74fsdE) możesz porównać ten kod do kodu analogicznej pętli `while`, którą zaprogramowaliśmy na początku artykułu. Jednak jeśli nie chce Ci się tam wchodzić, to już zdradzam tajemnicę, co tam zobaczysz — kod asemblera jest identyczny w obu przypadkach.
+
+#### Pętle z licznikiem w asemblerach
+
+Pamiętasz jeszcze pierwszy kod z tego artykułu, gdzie pokazałem, jak robić pętle w asemblerze z wykorzystaniem przeskoków? Sprawdzaliśmy tam wartość zapisaną w rejestrze `ECX` i jeśli była równa 10, to przeskakiwaliśmy na koniec pętli. Nie bez powodu użyłem właśnie tego rejestru procesora, bo to właśnie jego przyjęło się wykorzystywać do przechowywania liczników iteracji. A dlaczego?
+
+W asemblerze procesorów x86 znajduje się rozkaz `LOOP`. Jego składnia to: `loop [etykieta z początkiem pętli]`. To, co ten rozkaz robi, znacznie upraszcza to, co robiliśmy do tej pory. Mianowicie pobiera wartość z rejestru `ECX`. Jeśli wynosi zero, rozkaz nic nie robi. W przeciwnym wypadku dekrementuje ją o 1 i przeskakuje do wskazanej etykiety. Możemy w takim przypadku uprościć kod do następującego:
+
+```nasm
+; kod aplikacji
+section	.text
+  global _start   ; określenie etykiety, od której zaczynamy
+_start:
+  ; inicjalizacja aplikacji
+  mov ecx, 10     ; ustawiamy licznik iteracji na 0
+loop_start:       ; etykieta określająca początek pętli
+  push ecx        ; wrzucamy z powrotem wartość licznika na stos
+  ; wypisanie tekstu
+  mov edx, len    ; ustawiamy w EDX długość tekstu
+  mov ecx, msg    ; w ECX tekst
+  mov ebx, 1      ; w EBX ustawiamy, że interesuje nas wyjście standardowe (1)
+  mov eax, 4      ; w EAX ustawiamy komendę SYS_WRITE
+  int 0x80        ; przerwanie wołąjące jądro systemu, aby wykonało polecenie
+  ; dalsza obsługa pętli
+  pop ecx         ; ponownie ściągamy licznik ze stosu
+  loop loop_start ; przeskakujemy do początku pętli
+  ; zakończenie aplikacji
+  mov eax, 1      ; w EAX ustawiamy komendę SYS_EXIT
+  int 0x80        ; ponownie wołamy jądro systemu za pomocą przerwania
+
+; dane zapisane w pamięci
+section	.data
+  msg	db	'Cześć',0xa  ; tekst do wypisania
+  len	equ	$ - msg      ; długość tekstu
+```
+
+Oczywiście nie jest to, dokładnie rzecz ujmując, pętla `for`, ale konstrukcja jest dosyć podobna. Możesz ją przetestować na [repl.it](https://replit.com/@tswistak/for-asm#main.s). Jeśli tam nie działa, możesz również sprawdzić działanie na [Compiler Explorer](https://godbolt.org/z/zWe6qPrT6).
+
+Warto dodać, że nie każdy asembler udostępnia takie rzeczy. W przypadku x86 jest to architektura typu CISC (Complex Instruction Set Computing, z ang. obliczanie rozbudowanego zestawu instrukcji), co oznacza, że procesory wspierają bardzo dużą liczbę rozkazów, w tym wykonujących wiele czynności jak opisany tutaj `loop`. Po drugiej stronie barykady mamy architektury typu RISC (Reduced Instruction Set Computing, z ang. obliczanie zredukowanego zestawu instrukcji), które charakteryzują się niedużym zestawem instrukcji wykonujących pojedyncze operacje. Są coraz popularniejsze, np. zaliczają się do nich mobilne procesory typu ARM. Przyznam, że szukałem, czy asembler ARM-a posiada odpowiednik `loop` (nie powinien, ponieważ łamie to reguły RISC), bo nigdy w nim nie pisałem kodu, ale nic nie znalazłem. W każdym przykładzie, na który trafiłem, pętle z licznikiem są robione przez porównywanie i przeskoki.
+
+## Sterowanie przebiegiem pętli
+
+Do tej pory przedstawiłem wszystkie podstawowe konstrukcje umożliwiające tworzenie iteracji w różnych językach programowania. To jednak oczywiście nie wszystko. Zanim przejdziemy do kolejnych rodzajów iteracji, poświęćmy chwilę na instrukcje sterujące przebiegiem pętli.
+
+Mówimy tutaj przede wszystkim o dwóch instrukcjach:
+
+- `continue` — zatrzymanie wykonania aktualnej iteracji i przejście do kolejnej,
+- `break` — przerwanie pętli.
+
+### continue
+
+W przypadku `continue` sprawa wydaje się dość oczywista. Kod, który znajduje się za nim, nie wykona się i przechodzimy do kolejnego wykonania pętli. Przykład użycia możesz zobaczyć poniżej:
+
+```c
+#include <stdio.h>
+
+int main(void) {
+  // ustawiamy początek licznika na 0
+  int number = 0;
+  // wykonujemy pętlę, aż osiągniemy liczbę 10
+  while (number < 10) {
+    // inkrementujemy liczbę na samym początku
+    // gdybyśmy robili to na końcu, wpadlibyśmy w nieskończoną pętlę
+    number++;
+    // sprawdzamy, czy liczba jest parzysta
+    if (number % 2 == 0) {
+      // wypisujemy tekst
+      printf("Liczba %d jest parzysta!\n", number);
+      // przerywamy aktualny przebieg pętli
+      continue;
+    }
+    // wypisujemy tekst dla liczby nieparzystej
+    printf("Liczba %d jest nieparzysta!\n", number);
+  }
+  return 0;
+}
+```
+
+Działanie możesz sprawdzić na platformie [repl.it](https://replit.com/@tswistak/continue-c#main.c).
+
+Oczywiście pisanie kodu w taki sposób nie ma większego sensu (lepiej byłoby zrobić `if else`), ale pokazuje działanie `continue` w praktyce. Zresztą `continue` może być zwykle zastąpione właśnie przez `if else` i tak też często się robi. Jak już stosuje się `continue`, to po to, żeby zmniejszyć liczbę zagnieżdżeń lub uczynić kod czytelniejszym.
+
+#### continue a pętla for
+
+Jeśli chodzi o `continue`, ciekawa rzecz dzieje się w przypadku pętli `for`, szczególnie biorąc pod uwagę języki takie jak C, gdzie jest to rozbudowana wersja konstrukcji `while`. Dlaczego? Zobaczmy poniższy przykład:
+
+```c
+#include <stdio.h>
+
+int main(void) {
+  // poniższa pętla się wykona
+  for (int i = 1; i <= 10; i++) {
+    if (i % 2 == 0) {
+      printf("Liczba %d jest parzysta!\n", i);
+      continue;
+    }
+    printf("Liczba %d jest nieparzysta!\n", i);
+  }
+  // poniższa pętla będzie wykonywać się nieskończenie dla i == 2
+  int i = 1;
+  while (i <= 10) {
+    if (i % 2 == 0) {
+      printf("Liczba %d jest parzysta!\n", i);
+      continue;
+    }
+    printf("Liczba %d jest nieparzysta!\n", i);
+    i++;
+  }
+  return 0;
+}
+```
+
+Kod można przetestować na [repl.it](https://replit.com/@tswistak/continue-for-c#main.c). Pętla `while` jest tam zakomentowana, aby móc bez problemu zobaczyć działanie `for`.
+
+Teoretycznie pętla `for` u góry i `while` na dole powinny wykonywać się tak samo. Jednak pętla `while` będzie nieskończona, a `for` wykona się w całości. Dlaczego tak jest? Otóż kompilator nie zamienia bezpośrednio pętli `for` na `while` tak, jak pokazałem to wcześniej w artykule. Nawet jeśli zrobimy `continue`, „trzeci człon” pętli wykona się, aby nie zaburzyć odliczania. To jest właśnie ta drobna różnica, o której wspomniałem.
+
+### break
+
+`break` w przeciwieństwie do `continue` nie przenosi nas do kolejnego przebiegu pętli, tylko całkowicie przerywa iterację. Po przerobieniu przykładu z poprzedniego akapitu, zmieniając instrukcję, kod wykona się tylko dwa razy:
+
+```c
+#include <stdio.h>
+
+int main(void) {
+  // ustawiamy początek licznika na 0
+  int number = 0;
+  // wykonujemy pętlę, aż osiągniemy liczbę 10
+  while (number < 10) {
+    // inkrementujemy liczbę na samym początku
+    // gdybyśmy robili to na końcu, wpadlibyśmy w nieskończoną pętlę
+    number++;
+    // sprawdzamy, czy liczba jest parzysta
+    if (number % 2 == 0) {
+      // wypisujemy tekst
+      printf("Liczba %d jest parzysta!\n", number);
+      // przerywamy pętlę
+      break;
+    }
+    // wypisujemy tekst dla liczby nieparzystej
+    printf("Liczba %d jest nieparzysta!\n", number);
+  }
+  /*
+    Rezultat po uruchomieniu:
+      Liczba 1 jest nieparzysta!
+      Liczba 2 jest parzysta!
+  */
+  return 0;
+}
+```
+
+Jak zawsze możesz to sprawdzić na platformie [repl.it](https://replit.com/@tswistak/break-c#main.c).
+
+Jeśli nie wykonujemy dalej po pętli żadnego kodu, np. jesteśmy w funkcji i chcemy zwrócić rezultat, zamiast `break` możemy użyć instrukcji zwrócenia wartości `return`. Pętla również zostanie przerwana jak w poniższym przykładzie.
+
+```c
+#include <stdio.h>
+
+// funkcja zwróci pierwszą liczbę parzystą
+// kod ten nie ma totalnie żadnego sensu, ale pokaże działanie przerywania pętli
+int getFirstEvenNumber() {
+  // licznik zaczynamy od zera, bez warunku przerwania, i inkrementujemy o 1
+  for (int i = 1;; i++) {
+    // sprawdzamy, czy liczba jest parzysta
+    if (i % 2 == 0) {
+      // zwracamy licznik, jeśli jest parzysty
+      return i;
+    }
+  }
+}
+
+int main(void) {
+  // wypisujemy na ekranie wynik funkcji
+  printf("Pierwsza liczba parzysta to: %d\n", getFirstEvenNumber());
+  return 0;
+}
+```
+
+Ten kod również znajdziesz na [repl.it](https://replit.com/@tswistak/break-return-c#main.c).
+
+#### goto jako break
+
+Opisując podstawowe pętle z użyciem `goto`, wspomniałem, że znalazło ono w językach programowania inne zastosowanie niż tworzenie pętli. Jednym z nich jest użycie skoku w celu zrobienia wielopoziomowego `break`. O co w tym chodzi?
+
+Zacznijmy od tego, że pętle możemy zagnieżdżać. Jest to podstawowy sposób iteracji po tablicach wielowymiarowych, ale też działa tak sporo algorytmów (np. <Link href="/post/sortowanie-cz-2-sortowanie-babelkowe">sortowanie bąbelkowe</Link>). Jednak zarówno `break`, jak i `continue` działają tylko na jeden poziom pętli. Nie wpłyniemy nimi na całe wyrażenie, aczkolwiek aby ominąć to ograniczenie, możemy z powodzeniem użyć etykiety i `goto`. Jak to wygląda oraz porównanie działania możesz zobaczyć, testując poniższy kod:
+
+```c
+#include <stdio.h>
+
+int main(void) {
+  // w pierwszej pętli odliczamy od 1 do 10
+  for (int i = 1; i < 10; i++) {
+    // w drugiej również
+    for (int j = 1; j < 10; j++) {
+      // wypisujemy obie liczby
+      printf("Break: %d %d\n", i, j);
+      // jeśli ich iloraz jest parzysty, przerywamy
+      if (i * j % 2 == 0) {
+        break;
+      }
+    }
+  }
+  // powyższy kod wykona się 14 razy (przerywamy tylko wewnętrzną pętlę),
+  // a poniższy tylko 2 razy (przerywamy całość)
+  for (int i = 1; i < 10; i++) {
+    for (int j = 1; j < 10; j++) {
+      printf("Goto: %d %d\n", i, j);
+      if (i * j % 2 == 0) {
+        goto outside;
+      }
+    }
+  }
+  outside:
+  return 0;
+}
+```
+
+Możesz sprawdzić działanie na własną rękę na [repl.it](https://replit.com/@tswistak/break-goto-c#main.c).
+
+Dodam od razu, że przerwanie wykonania pętli z użyciem `return` zadziała dokładnie tak samo jak `goto`, czyli przerwie wszystkie poziomy zagnieżdżenia.
+
+Niestety (albo stety), współczesne języki nie zawsze posiadają `goto`. Jak wtedy możemy zrobić takie wielopoziomowe wyjście z pętli? Odpowiedź brzmi: to zależy od języka. Warto to sprawdzić w dokumentacji składni. Dla przykładu, w Javie możemy etykietami nazwać pętle i zarówno przy `break`, jak i przy `continue` podać nazwę pętli, którą chcemy przerwać lub kontynuować. Wygląda to tak jak w poniższym przykładzie (dla lepszego zobrazowania różnic liczby będziemy wypisywać dopiero po warunku):
+
+```java
+class Main {
+  public static void main(String[] args) {
+    firstLoop: for (int i = 1; i < 10; i++) {
+      for (int j = 1; j < 10; j++) {
+        if (i * j % 2 == 0) {
+          // przerywamy obie pętle
+          break firstLoop;
+        }
+        System.out.println("Break " + i + " " + j);
+      }
+    }
+    // wypisane zostanie tylko 1 1
+
+    secondLoop: for (int i = 1; i < 10; i++) {
+      for (int j = 1; j < 10; j++) {
+        if (i * j % 2 == 0) {
+          // wywołujemy continue na pętli poziom wyżej
+          continue secondLoop;
+        }
+        System.out.println("Continue " + i + " " + j);
+      }
+    }
+    // wypisane zostaną 1 1, 3 1, 5 1, 7 1 i 9 1
+  }
+}
+```
+
+Ponownie, kod można przetestować samodzielnie na [repl.it](https://replit.com/@tswistak/break-goto-java#Main.java).
+
+### Czy powinniśmy je używać?
+
+Bardzo popularnym pytaniem jest, czy używanie `break` i `continue` jest dobrą praktyką. Możemy znaleźć w Internecie bardzo wiele wpisów na ten temat, a ja sam też pamiętam ze swojej nauki, że mówiono mi, aby ich nie używać. Jednak praktyka jest nieco bardziej złożona.
+
+Moje zdanie jest takie, że w czasie nauki powinniśmy nauczyć się tworzyć pętle tak, aby stosować poprawnie inne konstrukcje oferowane przez język programowania. Właśnie szczególnie na początku nauki jesteśmy zbyt podatni na „ułatwienia” typu zrobienie nieskończonej pętli i przerywanie jej z `break` gdzieś w środku kodu. Oczywiście w praktyce czasem zdarza się taka potrzeba, ale są to rzadkie przypadki.
+
+Natomiast jak już się nauczymy pisać ładne warunki, to następnie w praktyce programistycznej powinniśmy zwracać uwagę na czystość kodu. Wtedy, w pewnych przypadkach, może się okazać, że używanie `break` i `continue` będzie w porządku. Dla przykładu, w poniższym kodzie dużo bardziej wolałbym pętlę używającą `continue` niż zagnieżdżone warunki. Chociaż gdyby to był prawdziwy kod, można by się pewnie zastanawiać, czy nie dałoby się go jakkolwiek uprościć.
+
+```javascript
+while (warunek1()) {
+    if (warunek2()) {
+        wykonajAkcje1();
+        if (warunek3()) {
+            wykonajAkcje2();
+            if (warunek4()) {
+                wykonajAkcje3();
+            }
+        }
+    }
+}
+// poniższy kod zadziała identycznie:
+while (warunek1()) {
+    if (!warunek2()) continue;
+    wykonajAkcje1();
+    if (!warunek3()) continue;
+    wykonajAkcje2();
+    if (!warunek4()) continue;
+    wykonajAkcje3();
+}
+```
+
+## Rekurencja
+
+Mówiąc o iteracjach, nie sposób nie wspomnieć o rekurencjach. Właśnie to ta technika jest najbardziej podstawowym sposobem tworzenia pętli w matematyce czy funkcyjnych językach programowania (takich jak wspomniany wcześniej Haskell). W przytoczonym wcześniej liście E. Dijkstry oprócz sprzeciwiania się `goto` pisał też, że `while` jest zbędne, gdy mamy rekurencję.
+
+Jednak tematu rekurencji nie zamierzam poruszać w tym artykule, ponieważ napisałem już o niej dwa teksty:
+
+- *<Link href="/post/rekurencja-co-to-jest">Rekurencja — co to jest?</Link>* — wprowadza w temat, tłumacząc, na czym polega rekurencja, i pokazując ją na prostych, rzeczywistych przykładach. Do tego też omawia temat rekurencji ogonowej.
+- *<Link href="/post/derekursywacja">Derekursywacja</Link>* — artykuł omawiający, jak możemy pozbywać się rekurencji. Oprócz konkretnych technik wspomina także, dlaczego warto tak robić, pokazując różnice w wydajności między tymi samymi algorytmami w wersjach rekurencyjnych i nierekurencyjnych.
+
+Zapraszam do ich lektury w późniejszym czasie 🙂.
+
+## Iteratory
+
+Kolejną rzeczą, którą warto poruszyć, mówiąc o iteracjach, są konstrukcje zwane iteratorami (czasami też enumeratorami). Do tej pory wszystkie robione przez nas iteracje wykonywały się określoną liczbę razy (`for`) albo tak długo, jak pewien warunek jest spełniony (`while`). Jednak w większości przypadków iterujemy po elementach jakichś struktur danych (kolekcji).
+
+Oczywiście możemy korzystać z powyżej pokazanych pętli do iteracji po strukturach danych. W przypadku najprostszych, jak tablice czy wektory, każdy element ma określoną pozycję od 0 wzwyż, stąd tablice często przechodzi się w następujący sposób (kod tym razem w JavaScript):
+
+```javascript
+// definiujemy tablicę z elementami
+const array = ['element 0', 'abc', '1', 'test'];
+// tworzymy pętlę iterującą od 0 do długości tablicy
+// pierwszy element ma indeks 0, stąd taki zapis
+for (let i = 0; i < array.length; i++) {
+  // wypisujemy w konsoli i-ty elment tablicy
+  console.log(`${i}: ${array[i]}`);
+}
+```
+
+Kod jak zawsze możesz sprawdzić na [repl.it](https://replit.com/@tswistak/for-array-js#index.js).
+
+Jest to jak najbardziej poprawny sposób iteracji i całkiem prawdopodobne, że ucząc się programowania od podstaw, niezależnie od języka (może z wyjątkiem Pythona lub funkcyjnych), właśnie z nim jesteś zapoznany(-a). Tylko jak mamy iterować po innych strukturach: słownikach, grafach, listach wiązanych? Oczywiście w tym celu bylibyśmy w stanie napisać odpowiednie pętle, jednak wówczas musimy mieć wiedzę, z jakim dokładnie typem danych mamy do czynienia. Niestety, to nie zawsze jest takie oczywiste. Dlatego też powstał uniwersalny sposób iteracji po dowolnych strukturach danych, niezależny od ich implementacji — iteratory.
+
+### Konstrukcja iteratora
+
+Iteratory w zależności od języka programowania są różnie implementowane, ale podstawowe idee są takie same. Najczęściej są to obiekty będące częścią struktury danych i mające możliwość:
+
+- Przejścia do następnego elementu (przesunięcie wskaźnika) bądź sprawdzenie, czy taki istnieje.
+- Pobrania elementu z kolekcji.
+
+Mimo że w trakcie nauki programowania możesz mieć pokazywane implementowanie takich konstrukcji od zera (np. tak uczy książka *Od Podstaw Algorytmy* S. Harrisa i J. Rossa), to w praktyce nigdy tego nie robimy. Każdy język programowania posiada własny standardowy sposób pisania iteratorów i jako przykładowe można by wymienić:
+
+- W JavaScript iterator to obiekt, który zawiera jedynie funkcję `next()`. Zwraca ona obiekt z dwoma polami: `done` (czy dotarliśmy do końca sekwencji) i `value` (aktualna wartość). Jest zapisany w obiekcie reprezentującym strukturę danych pod polem `[Symbol.iterator]`.
+- W C# iteratory muszą implementować interfejs `IEnumerator<T>`. Posiadają wówczas: `MoveNext()` (przesuwa wskaźnik na następny element), `Reset()` (cofa iterator na początek), `Current` (aktualna wartość). Natomiast sama struktura danych musi implementować interfejs `IEnumerable<T>`, który wymusza istnienie metody `GetEnumerator()` zwracającej iterator.
+- W Java iteratory implementują interfejs `Iterator<E>`. Wymusza to posiadanie dwóch metod: `hasNext()` (sprawdza, czy istnieje kolejny element) i `next()` (pobiera następny element i przesuwa wskaźnik iteracji na niego). Tutaj struktury danych muszą implementować interfejs `Iterable<T>`, który wymaga napisania metody `iterator()` zwracającej iterator.
+
+Wymieniłem te trzy przykłady, bo iteratory są zwykle implementowane analogicznie:
+- Mamy jedną funkcję obsługującą całość, np. JavaScript, Python,
+- Mamy przesuwanie wskaźnika i pobieranie aktualnej wartości, np. C#, C++ (biblioteka standardowa),
+- Albo sprawdzenie, czy następny element istnieje, i pobieranie wartości następnego elementu wraz z przesunięciem wskaźnika, np. Java, Go.
+
+### Korzystanie z iteratorów
+
+W zasadzie z powyższych opisów można wywnioskować, jak iteratorów się używa. Mimo to zobaczmy w kodzie, w jaki sposób iteruje się za ich pomocą w trzech opisanych wyżej językach.
+
+JavaScript (kod na [repl.it](https://replit.com/@tswistak/iterator-js#index.js)):
+
+```javascript
+// deklarujemy listę tablicową z trzema elementami
+const list = ['1', '2-gi element', '3-ci'];
+// wyciągamy iterator
+const it = list[Symbol.iterator]();
+// zmienna przechowująca aktualną wartość
+let current = it.next();
+// iterujemy tak długo, dopóki nie doszliśmy do końca
+while (!current.done) {
+  // wypisujemy wartość
+  console.log(current.value);
+  // pobieramy kolejną wartość
+  current = it.next();
+}
+```
+
+C# (pełen kod na [repl.it](https://replit.com/@tswistak/iterator-csharp#main.cs)):
+
+```csharp
+// deklarujemy listę tablicową z trzema elementami
+var list = new List<string>() { "1", "2-gi element", "3-ci" };
+// wyciągamy iterator
+var it = list.GetEnumerator();
+// iterujemy tak długo, jak możemy przesunąć następny element
+while (it.MoveNext())
+{
+    // wypisujemy aktualną wartość
+    Console.WriteLine(it.Current);
+}
+```
+
+Java (pełen kod na [repl.it](https://replit.com/@tswistak/iterator-java#Main.java)):
+
+```java
+// deklarujemy listę tablicową z trzema elementami
+var list = new ArrayList<String>(List.of("1", "2-gi element", "3-ci"));
+// wyciągamy iterator
+var it = list.iterator();
+// iterujemy tak długo, jak istnieje następny element
+while (it.hasNext()) {
+  // wypisujemy wartość następnego elementu
+  System.out.println(it.next());
+}
+```
+
+Dodatkowo zobacz, jak wygląda korzystanie z iteratorów, które znajdziemy w bibliotece standardowej C++. Zasada działania jest analogiczna do tego, co znajdziemy w C#, ale samo użycie jest zupełnie inne (pełen kod na [repl.it](https://replit.com/@tswistak/iterator-cpp#main.cpp)):
+
+```cpp
+// deklarujemy listę tablicową z trzema elementami
+auto list = vector<string>{"1", "2-gi element", "3-ci"};
+// iterujemy od początku do końca, przeskakując co jeden element
+// begin() pobiera iterator
+// end() zawiera końcową pozycję
+// it++ przesuwa na następny element
+for (auto it = list.begin(); it < list.end(); it++) {
+  // wypisujemy aktualną wartość
+  cout << *it << "\n";
+}
+```
+
+### for each
+
+Jeśli kiedykolwiek pisałeś(-aś) w tych językach, to możesz się zastanawiać, od kiedy w ten sposób korzysta się z iteratorów? To znaczy, tak, można w ten sposób, tylko w praktyce robi się to rzadko. Dużo popularniejsze są pętle `for each` wykorzystujące pod spodem iteratory. W zależności od języka nazwane są inaczej. Dla przykładu: `for...of` (np. JavaScript, Ada), `foreach` (np. C#, PHP), `for` z dwukropkiem (np. Java, C++), `for...in` (np. Python, Pascal). Skoro wymieniłem cztery rodzaje składni, to zobaczmy dla czterech różnych języków, jak iterowalibyśmy w każdym z nich po <Link href="/post/tablice-i-listy-tablicowe">liście tablicowej</Link>.
+
+JavaScript (kod na [repl.it](https://replit.com/@tswistak/foreach-js#index.js)):
+
+```javascript
+// deklarujemy listę tablicową z trzema elementami
+const list = ['1', '2-gi element', '3-ci'];
+// iterujemy po elementach listy
+for (const element of list) {
+  // wypisujemy aktualny element
+  console.log(element);
+}
+```
+
+C# (pełen kod na [repl.it](https://replit.com/@tswistak/foreach-csharp#main.cs)):
+
+```csharp
+// deklarujemy listę tablicową z trzema elementami
+var list = new List<string>() { "1", "2-gi element", "3-ci" };
+// iterujemy po elementach listy
+foreach (var element in list)
+{
+    // wypisujemy aktualny element
+    Console.WriteLine(element);
+}
+```
+
+Java (pełen kod na [repl.it](https://replit.com/@tswistak/foreach-java#Main.java)):
+
+```java
+// deklarujemy listę tablicową z trzema elementami
+var list = new ArrayList<String>(List.of("1", "2-gi element", "3-ci"));
+// iterujemy po elementach listy
+for (var element : list) {
+  // wypisujemy aktualny element
+  System.out.println(element);
+}
+```
+
+Python (kod na [repl.it](https://replit.com/@tswistak/foreach-python#main.py)):
+
+```python
+# deklarujemy listę tablicową z trzema elementami
+list = ["1", "2-gi element", "3-ci"]
+# iterujemy po elementach listy
+for element in list:
+  # wypisujemy aktualny element
+  print(element)
+```
+
+W przypadku Pythona warto dodać, że nie ma w nim tradycyjnej pętli `for`, a jedynie `for each`.
+
+Jak widać na powyższych przykładach, sprowadzają się one do bardzo prostego stwierdzenia w pseudokodzie:
+
+```
+dla [element] z [kolekcja] {
+  wykonajAkcję();
+}
+```
+
+Jest bardzo prawdopodobne, że właśnie z tym sposobem spotkasz się w projektach częściej niż z `while` czy zwykłym `for`. Najczęściej iterujemy właśnie po kolekcjach, a stosowanie `for each` jest zwykle najwygodniejsze. Chyba że stosujemy jeszcze inne sposoby iteracji, ale o nich później...
+
+### Generatory
+
+Najpierw warto jeszcze wspomnieć o tym, jak w przypadku własnych kolekcji tworzymy iteratory. Oczywiście możemy po prostu zaimplementować odpowiednie interfejsy i tyle, jednak często w tym celu korzysta się z generatorów.
+
+Generatory to funkcje tworzące ciąg wartości i zwracające iterator iterujący po nich. Ciąg może być skończony, nieskończony, bazować na jakiejś strukturze danych lub generować wartości na bieżąco. Nie ma tu żadnych ograniczeń.
+
+W kodzie generatory najłatwiej rozpoznać po bardzo charakterystycznym słowie kluczowym `yield` (z ang. przynosić), które w większości języków oferujących generatory służy do zwrócenia wartości (zamiast tradycyjnego `return`). Działanie zwykle wygląda tak, że funkcja generator działa jak zwykła funkcja zwracacająca iterator. Gdy wywołamy przeniesienie na następny element, funkcja wykonuje się aż do napotkania `yield`, które daje wartość zwracaną przez iterator. W tym też momencie dalsze wykonanie funkcji jest wstrzymane. Gdy znowu wywołamy w iteratorze pobranie następnego elementu, funkcja jest dalej wykonywana, aż do napotkania `yield` i tak dalej, dopóki funkcja się nie skończy.
+
+Aby nie rozbudowywać niepotrzebnie artykułu, nie będę pokazywać, jak generatory wyglądają w różnych językach, bo wyglądają zwykle tak samo. Dlatego zaprezentuję je jedynie w JavaScript. Zacznijmy od generatora, który zwraca dokładnie te same trzy ciągi tekstowe, co wcześniej pokazane listy tablicowe:
+
+```javascript
+// tworzymy generator zwracający trzy ciągi znaków
+function* generator() {
+  yield '1';
+  yield '2-gi element';
+  yield '3-ci';
+}
+
+// iterujemy po elementach zwracanych przez generator
+for (const element of generator()) {
+  // wypisujemy aktualny element
+  console.log(element);
+}
+```
+
+Kod, jak zawsze, jest dostępny na [repl.it](https://replit.com/@tswistak/generator-simple-js#index.js). Dla porównania [tutaj znajdziesz ten sam generator, ale napisany w C#](https://replit.com/@tswistak/generator-simple-csharp#main.cs).
+
+Żeby pokazać, że za ich pomocą możemy też robić nieskończone iteracje, zamieszczam iterator zwracający kolejne elementy ciągu Fibonacciego:
+
+```javascript
+function* fibonacci() {
+  // "n" oznacza BigInt, czyli liczby całkowite bez ograniczenia zakresu
+  let a = 0n;
+  yield a;
+  let b = 1n;
+  yield b;
+  // iterujemy nieskończenie, ale dzięki "yield" nie zawiesimy programu
+  while (true) {
+    let tmp = a;
+    a = b;
+    b = tmp + b;
+    yield b;
+  }
+}
+```
+
+Kod wraz z wyciągnięciem z generatora stu pierwszych wartości znajdziesz na [repl.it](https://replit.com/@tswistak/generator-fibo-js#index.js). Dla ciekawych wrzucam też [pod tym linkiem wersję w C#](https://replit.com/@tswistak/generator-fibo-csharp#main.cs).
+
+Swoją drogą, na blogu często wykorzystywałem generatory do stworzenia wizualizacji algorytmów — dzięki ich mechanizmowi wstrzymywania egzekucji funkcji mogłem tworzyć wizualizacje, które mogliśmy wykonywać krok po kroku, animować lub od razu obejrzeć końcowy rezultat. Opisałem to kiedyś we wpisie na [OhMyDev dostępnym pod tym linkiem](https://github.com/tswistak/tech-articles-copy/blob/main/wizualizacja-algorytmow/article.md).
+
+## Inne sposoby iteracji
+
+Poznaliśmy już sporo konstrukcji składniowych języków programowania, dzięki którym możemy iterować. Jednak to oczywiście nie wyczerpuje tematu. Są jeszcze inne sposoby na wykonywanie iteracji i teraz opiszę krótko dwa, które są często spotykane i ściśle powiązane z przechodzeniem po strukturach danych.
+
+### Funkcje iterujące
+
+Pierwszym sposobem jest iteracja po kolekcjach za pomocą wyspecjalizowanych do tego funkcji zwracających wynik przejścia po kolekcji. Często są to funkcje wyższego rzędu (funkcjonały) w językach funkcyjnych, ale znajdziemy je także poza nimi. Zwykle są częścią struktur danych i znajdziemy pośród nich takie operacje, jak:
+
+- Aplikacja zbiorowa — jest to transformacja danych zawartych w strukturze z wykorzystaniem zadanej funkcji. W C# znajdziemy ją pod funkcją `Select()`, a w JavaScript pod `map()`. Wynikiem jest kolekcja zawierająca tyle samo elementów, ale wszystkie są przekształcone.
+- Filtrowanie — zwraca jedynie te dane z kolekcji, które spełniają zadany predykat. W C# znajdziemy je pod funkcją `Where()`, a w JavaScript pod `filter()`. Wynikiem jest kolekcja z elementami spełniającymi warunek (bez przekształcenia).
+- Sprawdzenie, czy elementy kolekcji spełniają warunek:
+    - Czy wszystkie spełniają predykat (odpowiednik matematycznego $$\forall$$). W C# znajdziemy je pod funkcją `All()`, a w JavaScript pod `every()`. Wynikiem jest wartość logiczna.
+    - Czy przynajmniej jeden spełnia predykat (odpowiednik matematycznego $$\exists$$). W C# znajdziemy je pod funkcją `Any()`, a w JavaScript pod `some()`. Wynikiem również jest wartość logiczna
+- Fold (redukcja, agregacja) — tutaj także aplikujemy funkcje na dane, przy czym zwrócona zostaje pojedyncza wartość. Funkcja zawsze otrzymuje aktualnie obliczoną wartość (akumulator) oraz element kolekcji. W C# znajdziemy go pod funkcją `Aggregate()`, a w JavaScript pod `reduce()`.
+- Można też spotkać operację iteracji, która nic nie zwraca, będąca funkcyjnym odpowiednikiem `for each`. W C# znajdziemy ją pod funkcją `ForEach()`, a w JavaScript pod `forEach()`. W przypadku C# warto zaznaczyć, że o ile wszystkie wcześniej wymienione były częścią interfejsu Enumerable rozszerzonego przez `System.Linq`, o tyle `ForEach` jest metodą listy tablicowej.
+
+Prosty kod w JavaScript, który wykorzystuje do iteracji powyżej pokazane funkcje, wygląda następująco:
+
+```javascript
+const list = [1, 2, 3, 4, 5];
+
+// aplikacja zbiorowa podnosząca liczby do kwadratu
+const squares = list.map(value => value * value);
+console.log(squares); // [1, 4, 9, 16, 25]
+
+// filtrowanie - zostawiamy tylko liczby parzyste
+// zwróć uwagę, że list nie zostało zmienione!
+const even = list.filter(value => value % 2 === 0);
+console.log(even); // [ 2, 4 ]
+
+// sprawdzenie, czy wszystkie spełniają predykat
+// ponownie sprawdzimy parzystość
+const allEven = list.every(value => value % 2 === 0);
+console.log(allEven); // false
+
+// sprawdzenie, czy cokolwiek spełnia predykat
+const anyEven = list.some(value => value % 2 === 0);
+console.log(anyEven); // true
+
+// fold zwracający iloczyn elementów listy
+// początkową wartość akumulatora ustawiamy na 1
+const product = list.reduce((accumulator, value) => accumulator * value, 1);
+console.log(product); // 120
+
+// iteracja, w ramach której wypiszemy wszystkie elementy
+const all = list.forEach(value => console.log(value));
+// sprawdzamy, czy faktycznie nic nie zostało zwrócone
+console.log(all); // undefined
+```
+
+Znajdziesz go także na [repl.it](https://replit.com/@tswistak/functional-js#index.js). Odpowiednik w C# również znajdziesz na [repl.it](https://replit.com/@tswistak/functional-csharp#main.cs).
+
+Jeśli powyższy przykład nie pokazał najlepiej, jakie są definicje funkcji iterujących i co one wykonują, zobacz, jak moglibyśmy je zdefiniować, wykorzystując pętle typu `for each`. Tym razem jedynie zaprezentuję pseudokod i implementację w JavaScript.
+
+#### Aplikacja zbiorowa
+
+Aplikacja zbiorowa odpowiada poniższej operacji zaprezentowanej w pseudokodzie:
+
+```
+wynik = « pusta lista tablicowa »
+dla każdego elementu z kolekcji:
+  wynik.dodaj(akcja(element))
+zwróć wynik
+```
+
+W JavaScript wygląda to następująco:
+
+```javascript
+function map(list, action) {
+  // tworzymy pustą listę tablicową
+  const result = [];
+  // iterujemy po kolejnych elementach listy
+  for (const element of list) {
+    // dodajemy do wyniku rezultat akcji
+    result.push(action(element));
+  }
+  // zwracamy przetworzone elementy
+  return result;
+}
+```
+
+Kod wraz z porównaniem do oryginalnej funkcji znajdziesz na [repl.it](https://replit.com/@tswistak/map-js#index.js).
+
+#### Filtrowanie
+
+Filtrowanie moglibyśmy opisać w pseudokodzie następująco:
+
+```
+wynik = « pusta lista tablicowa »
+dla każdego elementu z kolekcji:
+  jeśli predykat(element) jest prawdą:
+    wynik.dodaj(element)
+zwróć wynik
+```
+
+W JavaScript zapisalibyśmy to tak:
+
+```javascript
+function filter(list, predicate) {
+  // tworzymy pustą listę tablicową
+  const result = [];
+  // iterujemy po kolejnych elementach listy
+  for (const element of list) {
+    // sprawdzamy, czy predykat zwraca prawdę
+    if (predicate(element)) {
+      // jeśli tak, dodajemy element do wyniku
+      result.push(element)
+    }
+  }
+  // zwracamy elementy spełniające predykat
+  return result;
+}
+```
+
+Kod wraz z porównaniem do oryginalnej funkcji znajdziesz na [repl.it](https://replit.com/@tswistak/filter-js#index.js).
+
+#### Sprawdzenie, czy elementy spełniają warunek
+
+W tym przypadku implementacja bardzo przypomina filtrowanie, tylko zamiast zwracać listę, zwracamy prawdę lub fałsz. Oba warianty funkcji różnią się tak naprawdę jedynie tym, kiedy zwracamy prawdę, a kiedy fałsz.
+
+Pseudokod dla wszystkich spełniających warunek:
+
+```
+dla każdego elementu z kolekcji:
+  jeśli predykat(element) jest fałszem:
+    zwróć fałsz
+zwróć prawda
+```
+
+A dla któregokolwiek spełniającego warunek:
+
+```
+dla każdego elementu z kolekcji:
+  jeśli predykat(element) jest prawdą:
+    zwróć prawda
+zwróć fałsz
+```
+
+Obie funkcje w JavaScript można by zaimplementować następująco:
+
+```javascript
+function every(list, predicate) {
+  // iterujemy po kolejnych elementach listy
+  for (const element of list) {
+    // sprawdzamy, czy predykat zwraca fałsz
+    if (!predicate(element)) {
+      // jeśli tak, zwracamy fałsz
+      return false;
+    }
+  }
+  // wszystkie elementy spełniają predykat
+  return true;
+}
+
+function some(list, predicate) {
+  // iterujemy po kolejnych elementach listy
+  for (const element of list) {
+    // sprawdzamy, czy predykat zwraca prawdę
+    if (predicate(element)) {
+      // jeśli tak, zwracamy prawdę
+      return true;
+    }
+  }
+  // żaden element nie spełnia predykatu
+  return false;
+}
+```
+
+Kod wraz z porównaniem obu do oryginalnych wersji znajdziesz na [repl.it](https://replit.com/@tswistak/every-some-js#index.js).
+
+#### Fold
+
+Na koniec zobaczmy, jak w pseudokodzie zdefiniowalibyśmy operację fold. Dla utrzymania konwencji nazewnictwa, zamiast zmiennej `wynik` używam `akumulator`, aczkolwiek znaczenie jest dokładnie takie samo.
+
+```
+akumulator = « początkowa wartość akumulatora »
+dla każdego elementu z kolekcji:
+  akumulator = akcja(akumulator, element)
+zwróć akumulator
+```
+
+W JavaScript zapisalibyśmy to następująco:
+
+```javascript
+function reduce(list, initialValue, action) {
+  // inicjujemy akumulator odgórnie zadaną wartością
+  let acc = initialValue;
+  // iterujemy po kolejnych elementach listy
+  for (const element of list) {
+    // akumulatorowi przypisujemy wartość zwróconą przez akcję
+    acc = action(acc, element)
+  }
+  // zwracamy wartość akumulatora
+  return acc;
+}
+```
+
+Kod wraz z porównaniem do oryginalnej implementacji `reduce` znajdziesz na [repl.it](https://replit.com/@tswistak/reduce-js#index.js).
+
+### Języki zapytań
+
+Omówiliśmy wiele funkcji iterujących, ale iterowanie po kolekcjach możemy wykonać na jeszcze zupełnie inny sposób, który nawet nie każdy może kojarzyć z iteracją — za pomocą języków zapytań.
+
+Za pomocą języków zapytań jesteśmy w stanie określić, które elementy ze struktury danych chcemy wyciągnąć (filtrowanie), w jakiej formie mają zostać one zwrócone (aplikacja zbiorowa, chociaż tutaj raczej mówimy o projekcji) i ewentualnie jak mają zostać zagregowane. Najczęściej są kojarzone z bazami danych, stąd możesz się zastanawiać, o czym ja w ogóle piszę. Po pierwsze, bazę danych możemy traktować jako rozbudowaną kolekcję przechowującą dane (najczęściej) na dysku. Po drugie, języki zapytań są spotykane nie tylko w bazach danych.
+
+Języków zapytań mamy bardzo wiele, każdy do innych zastosowań. Wymieniając przykładowe, z którymi sam miałem kiedykolwiek do czynienia w swojej karierze programistycznej:
+
+- SQL — dla wielu jest tożsamy z pojęciem *język zapytań*. Stanowi standardowy sposób obsługi relacyjnych baz danych.
+- Cypher, Gremlin — odpowiedniki SQL dla grafowych baz danych. Są też inne, aczkolwiek z tymi spotkałem się najczęściej.
+- GraphQL — język o strukturze zbliżonej do JSON-a umożliwiający pobieranie danych z serwisów webowych wspierających go. Mocno promowany przez Facebooka (przez nich zresztą został stworzony) i od kilku lat jest czymś, co *każdy chce mieć* w kontekście wytwarzania aplikacji Webowych.
+- XPath, XQuery — umożliwiają nawigację po dokumentach zapisanych w XML. Pierwszy z nich opisałem krótko w artykule *<Link href="/post/tekstowy-zapis-danych-cyfrowych">Tekstowy zapis danych cyfrowych</Link>*.
+- LINQ — język zapytań wbudowany w platformę .NET umożliwiający wykonywanie zapytań na wbudowanych kolekcjach. Bardzo przypomina SQL.
+
+Warto dodać, że tekst wpisywany do wyszukiwarek internetowych też jest językiem zapytań i nawet [posiada specjalne operatory](https://support.google.com/websearch/answer/2466433?hl=pl&ref_topic=3081620). Ostatecznie tu również dochodzi do iteracji — na podstawie tego, co piszemy, są wyciągane elementy z gigantycznej kolekcji i prezentowane jako wyniki wyszukiwania. W zasadzie to pokazuje, na czym polega język zapytań:
+
+- Opisujemy, co chcemy otrzymać z kolekcji, w bardziej lub mniej ustrukturyzowany sposób (zależnie od języka).
+- Serwer, język programowania czy cokolwiek innego przetwarza zapytanie do ustrukturyzowanej postaci, np. do postaci drzewa AST (abstract syntax tree, z ang. abstrakcyjne drzewo składniowe).
+- Na tej podstawie jest opracowywany plan, jakie operacje należy wykonać podczas iteracji i w jakiej kolejności.
+- Zaplanowane operacje są wykonywane i użytkownikowi jest zwracany rezultat.
+
+#### LINQ
+
+Żeby nie zostawić Cię bez przykładu, jak takie języki wyglądają, poniżej możesz zobaczyć przykładowe użycie LINQ (w C#) wraz z odpowiednikiem w postaci funkcji iterujących:
+
+```csharp
+var evenSquared = from value in list // wyciągamy wartości z listy
+                  where value % 2 == 0 // interesują nas tylko parzyste
+                  select value * value; // zwracamy podniesione do kwadratu
+
+// ta sama operacja, ale zapisana funkcjami iterującymi
+var evenSquared2 = list
+  .Where(value => value % 2 == 0)
+  .Select(value => value * value);
+```
+
+Całość kodu znajdziesz na [repl.it](https://replit.com/@tswistak/linq#main.cs).
+
+Warto nadmienić, że w przypadku przedstawionego wyżej LINQ w C# kompilator przekształca powyższą formę na funkcje (pokazane niżej). Wynika to z tego, że C# nie jest kompilowany do kodu maszynowego, tylko pośredniego języka CIL (Common Intermediate Language, z ang. wspólny język pośredni). Jest to .NET-owy odpowiednik asemblera interpretowany następnie przez CLR (Common Language Runtime) będącego częścią .NET Framework.
+
+Poniżej możesz zobaczyć wynik dekompilacji (przywrócenia oryginalnego kodu ze skompilowanego) powyżej pokazanego kodu:
+
+```csharp
+IEnumerable<int> values = Enumerable.Select(Enumerable.Where(source, <>c.<>9__0_0 ?? (<>c.<>9__0_0 = new Func<int, bool>(<>c.<>9.<Main>b__0_0))), <>c.<>9__0_1 ?? (<>c.<>9__0_1 = new Func<int, int>(<>c.<>9.<Main>b__0_1)));
+
+IEnumerable<int> values2 = Enumerable.Select(Enumerable.Where(source, <>c.<>9__0_2 ?? (<>c.<>9__0_2 = new Func<int, bool>(<>c.<>9.<Main>b__0_2))), <>c.<>9__0_3 ?? (<>c.<>9__0_3 = new Func<int, int>(<>c.<>9.<Main>b__0_3)));
+```
+
+Jak widać, przewijając kod w prawo (zachowałem oryginalne formatowanie), jest on identyczny. Całość zdekompilowanego kodu w C# oraz w CIL znajdziesz [tutaj](https://gist.github.com/tswistak/10b013803ea4b0a86f185d766b12c090).
+
+#### SQL
+
+Jeszcze pokażę przykład w języku SQL. Żeby nie robić szybkiej lekcji o tym, jak się tworzy i projektuje bazy danych, zakładam, że mamy tam tabelę Liczby zawierającą jedną kolumnę Liczba. Wiersze są kolejnymi liczbami od 1 do 10. To, co zrobimy w języku SQL, to dokładnie ta sama operacja, którą pokazałem wyżej w C# w LINQ.
+
+Używany przeze mnie na potrzeby przykładu system bazodanowy to SQLite. Poniżej możesz zobaczyć zapytanie SQL, które wyciągnie z kolumny jedynie parzyste wartości i zwróci je podniesione do kwadratu:
+
+```sql
+SELECT Liczba*Liczba -- zwracamy liczbę podniesioną do kwadratu
+FROM Liczby -- pobieramy z tabeli Liczby
+WHERE (Liczba % 2) = 0; -- wybieramy jedynie parzyste
+```
+
+Zapytanie na bazie danych możesz sprawdzić na [repl.it](https://replit.com/@tswistak/SQL#main.sql), gdzie zamieściłem też polecenia SQL tworzące potrzebną tabelę i wypełniającą ją danymi.
+
+Pisałem wcześniej, że LINQ bardzo przypomina SQL. Po tym przykładzie można stwierdzić, że jest to prawda — w zasadzie jedyna różnica, jaka tu jest, to zmieniona kolejność wybranych elementów składni (w SQL zaczynamy od `select`, w LINQ od `from`).
+
+W serwerach bazodanowych również mamy możliwość podejrzenia, jak „kompiluje się” nasze zapytanie, do jakiej iteracji po tabeli. W SQLite możemy to sprawdzić za pomocą polecenia `EXPLAIN [zapytanie]`. Dla powyżej pokazanego zapytania wygląda to następująco:
+
+```
+addr  opcode         p1    p2    p3    p4             p5  comment
+----  -------------  ----  ----  ----  -------------  --  -------------
+0     Init           0     13    0                    0   Start at 13
+1     OpenRead       0     2     0     1              0   root=2 iDb=0; Liczby
+2     Explain        2     0     0     SCAN TABLE Liczby  0
+3     Rewind         0     12    0                    0
+4       Column         0     0     2                    0   r[2]=Liczby.Liczba
+5       Remainder      3     2     1                    0   r[1]=r[2]%r[3]
+6       Ne             4     11    1                    80  if r[1]!=r[4] goto 11
+7       Column         0     0     1                    0   r[1]=Liczby.Liczba
+8       Column         0     0     2                    0   r[2]=Liczby.Liczba
+9       Multiply       2     1     5                    0   r[5]=r[2]*r[1]
+10      ResultRow      5     1     0                    0   output=r[5]
+11    Next           0     4     0                    1
+12    Halt           0     0     0                    0
+13    Transaction    0     0     1     0              1   usesStmtJournal=0
+14    Integer        2     3     0                    0   r[3]=2
+15    Integer        0     4     0                    0   r[4]=0
+16    Goto           0     1     0                    0
+```
+
+To, co nas interesuje pod kątem działania iteracji:
+
+- `Explain` zawiera informację, który typ iteracji jest wykonywany. `SCAN TABLE Liczby` oznacza przejście po całej tabeli Liczby.
+- To, co wykonuje się w jednym przebiegu iteracji, znajduje się w liniach od 4 do 10.
+- Warto wyróżnić linię 6., gdzie wykonywany jest warunek z klauzuli `WHERE`. Możemy zobaczyć analogię do asemblera, że jeśli warunek nie jest spełniony, to przeskakujemy poza ciało pętli, do linii 11. W niej znajduje się pobranie następnego wiersza tabeli, który jeśli istnieje, wywołuje przeskok do linii 4 (wartość `p2`).
+
+Innymi słowy, nawet w przypadku baz danych wydających się być taką czarną skrzynką, gdzie dzieje się jakaś magia, nasze zapytania SQL-owe sprowadzają się do instrukcji skoku, od których zaczęliśmy artykuł.
+
+Jeśli chciałbyś/chciałabyś wejść głębiej w temat, wyjaśnienie, co wykonują rozkazy zapisane w kolumnie `opcode`, znajdziesz w [dokumentacji SQLite](https://www.sqlite.org/opcode.html). Pamiętaj, że w innych silnikach bazodanowych będzie to wyglądać inaczej, jednak koniec końców sprowadzi się do tego samego.
+
+## Podsumowanie
+
+Myślę, że w artykule przedstawiłem temat iteracji dość obszernie. Mimo że było tego tak dużo, nie byłem w stanie poruszyć całości tematu. Jeśli chciałbyś/chciałabyś jeszcze głębiej sprawdzić, tak wydawałoby się, podstawowy temat, to pominąłem tutaj:
+
+- Iteracje w logice matematycznej, a dokładniej, jak wykonuje się je w rachunku lambda (podpowiedź: rekurencja), co całkowicie wykracza poza obszar, na którym chciałem się tutaj skupić.
+- Iteracje w logice Hoeare'a. Jest to formalizm matematyczny stosowany w dowodzeniu poprawności algorytmów, więc nie mogło w nim zabraknąć sposobu na zapis pętli. Myślę, że jednak opowiedzenie jeszcze o tym niepotrzebnie skomplikowałoby i tak już mocno rozbudowany artykuł. Wolałem się skupić na części obliczeniowej (czyli na tym, co mamy w językach programowania i jak to jest przetwarzane) niż na dowodach matematycznych.
+- Mówiąc o teorii, matematyce i dowodach, pominąłem również takie pojęcia, jak *zmiennik* i *niezmiennik* pętli. Są one już bardziej związane z częścią obliczeniową, aczkolwiek nie chciałem dokładać jeszcze dodatkowej teorii.
+- Optymalizacja iteracji. Temat jest bardzo szeroki i można do niego podejść od wielu stron, więc zdecydowanie zasługuje na oddzielny tekst.
+
+Dobór języków programowania w przykładach wynika tylko i wyłącznie z tego, w czym sam programowałem przez lata nauki i pracy. Myślę jednak, że przykłady w asemblerze x86 (NASM), C, C++, C#, Javie, JavaScripcie, Pascalu, Pythonie i SQL-u były wystarczające, żeby pokazać różnorodność składniową w świecie programowania. Pamiętaj, że język programowania to tylko narzędzie, które wielokrotnie będziesz zmieniać, a wiedza jak programować i co dzieje się pod spodem jest uniwersalna.
+
+Skoro dotarłeś(-aś) do tego miejsca, to bardzo dziękuję za poświęcony czas na przeczytanie. Napisanie tego tekstu zajęło niemal miesiąc (zacząłem go pisać 24 listopada 2022) i będę bardzo wdzięczny, jeśli podzielisz się nim ze znajomymi. Poniżej pod sekcją literatury znajdziesz przyciski umożliwiające udostępnienie linka na różnych mediach społecznościowych. Blog nie posiada żadnych reklam i nie otrzymuję z niego żadnych innych przychodów, stąd będę bardzo wdzięczny za każde udostępnienie. Z&nbsp;góry dziękuję 😊.
+
+## Literatura
+
+Pisząc artykuł, korzystałem z bardzo wielu źródeł, dlatego wyjątkowo podzieliłem je na kategorie. Od razu nadmienię, że oczywiście dokumentacje też są źródłami internetowymi, jednak ze względu na zdecydowaną różnicę w ich specyfice względem np. Wikipedii, postanowiłem je oddzielić.
+
+- Pozycje książkowe i prace naukowe
+    - Edsger W. Dijkstra. 1968. Letters to the editor: go to statement considered harmful. Commun. ACM 11, 3 (March 1968), 147–148. [doi:10.1145/362929.362947](https://doi.org/10.1145/362929.362947)
+    - Nystrom R., „Jumping Back and Forth” w *Crafting Interpreters*. Genever Benning, 2021, s. 413-431
+    - Eckel B., „Sterowanie wykonaniem programu” w *Thinking in C++*. Gliwice: Helion, 2002, s. 99-107
+    - Eckel B., „Sterowanie przebiegiem wykonania” w *Thinking in Java*. Gliwice: Helion, 2006, s. 127-142
+    - Harris S., Ross J., „Iteracja i rekurencja” w *Od podstaw Algorytmy*. Gliwice: Helion, 2006, s. 41–70
+    - Griffiths I., Adams M., Liberty J., „Instrukcje iteracji” w *C# Programowanie*. Gliwice: Helion, 2012, s. 64-71
+    - Griffiths I., Adams M., Liberty J., „LINQ” w *C# Programowanie*. Gliwice: Helion, 2012, s. 275-306
+    - van Roy P., Haridi S., „Loop abstractions” w Concepts, Techniques and Models of Computer Programming. The MIT Press, 2004, s. 186-190
+    - Garcia-Molina H., Ullman J.D., Widom J., „Wykonywanie zapytań” w *Systemy baz danych. Kompletny podręcznik*. Gliwice: Helion, 2011, s. 627-675
+- Pozycje internetowe
+    - iteracja, *Słownik języka polskiego PWN*, https://sjp.pwn.pl/sjp/iteracja;2562037.html (ostatnio&nbsp;odwiedzone&nbsp;17.12.2022)
+    - Silver B., Repeating Activities in BPMN` (2 marca 2021), *Method & Style* https://methodandstyle.com/repeating-activities-in-bpmn/ (ostatnio&nbsp;odwiedzone&nbsp;17.12.2022)
+    - Kapela T., Programowanie niskopoziomowe, https://ww2.ii.uj.edu.pl/~kapela/pn/print-lecture.php (ostatnio&nbsp;odwiedzone&nbsp;17.12.2022)
+    - Jacky J., Loops Invariants, Correctness, and Program Derivation, https://archives.evergreen.edu/webpages/curricular/2001-2002/dsa01/loops.html (ostatnio&nbsp;odwiedzone&nbsp;17.12.2022)
+    - Iteration, https://en.wikipedia.org/w/index.php?title=Iteration&oldid=1124950003 (ostatnio&nbsp;odwiedzone&nbsp;17.12.2022)
+    - Goto, https://en.wikipedia.org/w/index.php?title=Goto&oldid=1116451794 (ostatnio&nbsp;odwiedzone&nbsp;17.12.2022)
+    - While loop, https://en.wikipedia.org/w/index.php?title=While_loop&oldid=1123191830 (ostatnio&nbsp;odwiedzone&nbsp;17.12.2022)
+    - Do while loop, https://en.wikipedia.org/w/index.php?title=Do_while_loop&oldid=1116361029 (ostatnio&nbsp;odwiedzone&nbsp;17.12.2022)
+    - For loop, https://en.wikipedia.org/w/index.php?title=For_loop&oldid=1116356713 (ostatnio&nbsp;odwiedzone&nbsp;17.12.2022)
+    - Complex instruction set computer, https://en.wikipedia.org/w/index.php?title=Complex_instruction_set_computer&oldid=1111865839 (ostatnio&nbsp;odwiedzone&nbsp;17.12.2022)
+    - Reduced instruction set computer, https://en.wikipedia.org/w/index.php?title=Reduced_instruction_set_computer&oldid=1125522408 (ostatnio&nbsp;odwiedzone&nbsp;17.12.2022)
+    - Generator (computer programming), https://en.wikipedia.org/w/index.php?title=Generator_(computer_programming)&oldid=1123250001 (ostatnio&nbsp;odwiedzone&nbsp;17.12.2022)
+    - Query language, https://en.wikipedia.org/w/index.php?title=Query_language&oldid=1127333236 (ostatnio&nbsp;odwiedzone&nbsp;17.12.2022)
+    - Funkcja wyższego rzędu, https://pl.wikipedia.org/w/index.php?title=Funkcja_wy%C5%BCszego_rz%C4%99du&oldid=64513837 (ostatnio&nbsp;odwiedzone&nbsp;17.12.2022)
+    - Fold, https://pl.wikipedia.org/w/index.php?title=Fold&oldid=68135087 (ostatnio&nbsp;odwiedzone&nbsp;17.12.2022)
+- Dokumentacje
+    - Iteration protocols, *JavaScript | MDN*, https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols
+    - IEnumerator\<T\> Interface (System.Collections.Generic), *Microsoft Learn*, https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.ienumerator-1?view=net-7.0 (ostatnio&nbsp;odwiedzone&nbsp;17.12.2022)
+    - IEnumerable\<T\> Interface (System.Collections.Generic), *Microsoft Learn*, https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.ienumerable-1?view=net-7.0 (ostatnio&nbsp;odwiedzone&nbsp;17.12.2022)
+    - Enumerable Class (System.Linq), *Microsoft Learn*, https://learn.microsoft.com/en-us/dotnet/api/system.linq.enumerable?view=net-7.0 (ostatnio&nbsp;odwiedzone&nbsp;17.12.2022)
+    - List\<T\>.ForEach(Action\<T\>) Method (System.Collections.Generic), *Microsoft Learn*, https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1.foreach?view=net-7.0 (ostatnio&nbsp;odwiedzone&nbsp;17.12.2022)
+    - Iterator, *Java SE 19 & JDK 19*, https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/Iterator.html (ostatnio&nbsp;odwiedzone&nbsp;17.12.2022)
+    - Iterable, *Java SE 19 & JDK 19*, https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/lang/Iterable.html (ostatnio&nbsp;odwiedzone&nbsp;17.12.2022)
+    - std::iterator, *cppreference.com*, https://en.cppreference.com/w/cpp/iterator/iterator (ostatnio&nbsp;odwiedzone&nbsp;17.12.2022)
+    - EXPLAIN QUERY PLAN, *SQLite*, https://www.sqlite.org/eqp.html (ostatnio&nbsp;odwiedzone&nbsp;17.12.2022)
+    - The SQLite Bytecode Engine, https://www.sqlite.org/opcode.html (ostatnio&nbsp;odwiedzone&nbsp;17.12.2022)
+
+<small>Zdjęcie na okładce wygenerowane przez DALL-E. Oryginał znajduje się [tutaj](https://labs.openai.com/s/RaydqbUW53QdlczNSf6fkp5e).</small>

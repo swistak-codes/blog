@@ -1,0 +1,398 @@
+import Link from 'next/link';
+import {Image} from '@swistak-codes/components';
+import cover from './swistak_niewiemcorobi.webp';
+
+export const meta = {
+  title: '5 programistycznych dziwactw — wyjaśnione',
+  abstract:
+    '5 subiektywnie wybranych przeze mnie rzeczy uznawanych za dziwne w różnych językach programowania z wyjaśnieniem.',
+  firstParagraph: (
+    <>
+      Bardzo często w Internecie znajdziemy przykłady dziwnego kodu, najczęściej napisanego w JavaScripcie. Nie zabierając temu wartości humorystycznej, to nieraz takie wpisy pokazują brak zrozumienia mechanizmów języków programowania. Wybrałem 5 takich przykładowych dziwactw, które wyjaśnię, dlaczego tak jest. Oczywiście dalej będzie mogło to wszystko wydawać się dziwne, ale może już nieco mniej. Dodatkowo, żeby nie było tak dobrze, większość przykładów nie będzie javascriptowa.
+    </>
+  ),
+  keyword: 'programowanie',
+  categories: ['Programowanie'],
+  tags: [
+    'c',
+    'javascript',
+    'string',
+    'boolean',
+    'liczby zmiennoprzecinkowe',
+    'typ znakowy',
+    'char',
+    'tablice'
+  ],
+  slug: 'programistyczne-dziwy',
+  updateTime: '2024-07-03T07:00:00+00:00',
+  publishTime: '2024-07-03T07:00:00+00:00',
+  cover,
+};
+
+## Uwaga wstępna
+
+Drobna uwaga wstępna — potraktuj poniższy tekst z dystansem. Nawet jeśli wiesz, dlaczego tak się dzieje, to niekoniecznie inni też wiedzą. Będzie tutaj dużo podstaw programowania, ale warto je powtarzać nawet na takich abstrakcyjnych, dziwnych przykładach.
+
+## Operator -->
+
+### Opis
+
+Nie wiem, czy wiesz, ale w C i wielu językach z niego się wywodzących istnieje *tajny operator* `-->`, żeby odliczać w dół. Taki kod jest całkowicie prawidłowy w C:
+
+```c
+int i = 10;
+while (i --> 0) {
+  printf("W prawo %d\n", i);
+}
+```
+
+W konsoli zobaczymy wówczas:
+
+```
+W prawo 9
+W prawo 8
+W prawo 7
+W prawo 6
+W prawo 5
+W prawo 4
+W prawo 3
+W prawo 2
+W prawo 1
+W prawo 0
+```
+
+O czym mniej osób wie, strzałkę możemy obrócić i zastosować w `do..while`, aby odliczać od wskazanej liczby do 1:
+
+```c
+int i = 10;
+do {
+  printf("W lewo %d\n", i);
+} while (0 <-- i);
+```
+
+Wtedy otrzymamy w konsoli:
+
+```
+W lewo 10
+W lewo 9
+W lewo 8
+W lewo 7
+W lewo 6
+W lewo 5
+W lewo 4
+W lewo 3
+W lewo 2
+W lewo 1
+```
+
+### Wyjaśnienie
+
+Nie wiem, jak stary jest ten żart, ale znalazłem [wątek o tym na StackOverflow](https://stackoverflow.com/questions/1642028/what-is-the-operator-in-c-c) z 2009 r. Wyjaśnienie jest proste — nie istnieje taki operator jak `-->`. Jest to po prostu połączenie dwóch operatorów: `--` i `>`. W warunku pętli dosłownie zmniejszamy o 1 wartość `i`, a następnie porównujemy, czy jest większe od 0. Jako że białe znaki (np. spacje, przejścia do nowej linii) są przez C ignorowane, możemy zapisać to w taki sposób.
+
+Poniższy kod robi dosłownie to samo co wyżej pokazane:
+
+```c
+int i = 10;
+while ((i--) > 0) {
+  printf("W prawo %d\n", i);
+}
+i = 10;
+do {
+  printf("W lewo %d\n", i);
+} while (0 < (--i));
+```
+
+Kontynuując zapis strzałki: przez to, że C ignoruje białe znaki, to w połączeniu ze slashem (który jest znakiem kontynuacji linii po przejściu do nowej) możemy zrobić takiego potworka:
+
+```c
+int i = 10;
+while (i \
+          \
+           \
+            \
+             --> 0) {
+  printf("W dol %d\n", i);
+}
+```
+
+Ten kod wciąż działa. Możesz całość przetestować na [Replit](https://replit.com/@tswistak/goesto#main.c). Co więcej, przykłady (po lekkim przerobieniu) powinny działać też w innych językach z podobną składnią, np. w JavaScripcie. Nie muszę chyba jednak mówić, że lepiej nie pisać tak kodu.
+
+## Iterowanie kolejnych znaków
+
+### Opis
+
+Wiesz, że możemy w C iterować po alfabecie? Poniższy kod jest całkowicie prawidłowy:
+
+```c
+for (char i = 'a'; i <= 'z'; i++) {
+  printf("%c", i);
+}
+```
+
+W konsoli zobaczymy wówczas:
+
+```
+abcdefghijklmnopqrstuvwxyz
+```
+
+Czy to oznacza, że C zna po kolei alfabet i `++` przenosi nas na kolejny znak?
+
+### Wyjaśnienie
+
+Oczywiście nie ma tu żadnej większej magii. Wszystko w komputerze jest zapisywane w postaci liczb i znaki nie są od tego wyjątkiem. Podstawowe znaki zostały opisane 1-bajtowym kodem <Link href="/post/nie-liczby-jako-liczby-czyli-zapis-danych-cyfrowych/#cyfrowa-reprezentacja-znaków">ASCII</Link>, stąd np. `'a' == 97`. Wszystkie podstawowe litery alfabetu łacińskiego zostały zapisane w kolejności alfabetycznej, stąd zwiększanie wartości o 1 da następny znak. Co więcej, gdy potrzebujemy w C typu liczbowego zajmującego tylko 1 bajt, stosuje się do tego celu właśnie typ znakowy `char`.
+
+Jeśli chcesz wiedzieć, czy na pewno C tak działa, możesz przetestować poniższy kod:
+
+```c
+for (char i = 'a'; i <= 'z'; i++) {
+  printf("%d ", i);
+}
+```
+
+Podmieniłem tutaj wyświetlanie `i` ze znaku (`%c`) na liczbę (`%d`). W konsoli dostałem:
+
+```
+97 98 99 100 101 102 103 104 105 106 107 108 109 110 111 112 113 114 115 116 117 118 119 120 121 122
+```
+
+Czyli kolejne liczby od 97 (`a` w ASCII) do 122 (`z` w ASCII).
+
+Jeśli mi nie wierzysz, możesz przetestować to na [Replit](https://replit.com/@tswistak/chars#main.c).
+
+## 0.1 + 0.2 != 0.3
+
+### Opis
+
+Pośród wielu mniej lub bardziej zasłużonych prześmiewczych obrazków na temat JavaScriptu dość często znajdziemy następujący dowód na jego głupotę:
+
+```javascript
+> 0.1 + 0.2 === 0.3
+false
+```
+
+Czy naprawdę JS jest tak głupi i nie umie zrobić tak oczywistego dodawania?
+
+### Wyjaśnienie
+
+Nie, JS nie jest tutaj głupszy niż inne języki. W innych jest to samo zachowanie. Wynika ono z tego, że liczby zmiennoprzecinkowe (po nieinformatycznemu możemy rozumieć to jako liczby wymierne) są zapisywane w przybliżeniu. Jest dość podobne do znanej z matematyki notacji naukowej liczby i opisałem je w artykule *<Link href="/post/liczby-wymierne-i-rzeczywiste-w-zero-jedynkowym-swiecie/#liczby-zmiennoprzecinkowe">Liczby wymierne i rzeczywiste w zero-jedynkowym świecie</Link>*.
+
+W przypadku pokazanego wyżej JavaScriptu jest to 64-bitowy typ, znany (m.in. w C) jako `double`. W formacie tym 52 bity zajmuje mantysa, wykładnik 11 i dodatkowo jest jeszcze 1 bit określający znak. O ile same liczby możemy bezpiecznie przechowywać z precyzją do ok. 15 cyfr, tak przy operacjach potrafi się to już popsuć. Tak się składa, że operacja `0.1 + 0.2` jest tego najprostszym przykładem. Zobaczmy, jaki jest wynik takiej operacji:
+
+```javascript
+> 0.1 + 0.2
+0.30000000000000004
+```
+
+A jeśli nie wierzysz, że w innych językach jest tak samo, to zobacz poniższy kod z C:
+
+```c
+printf("%d\n", 0.1 + 0.2 == 0.3);
+```
+
+W konsoli zostanie wypisane `0`, co w C oznacza fałsz. Jeśli chcesz, możesz to przetestować, sprawdzając też inne typy zmiennoprzecinkowe na przygotowanym przeze mnie [Replit](https://replit.com/@tswistak/floats#main.c). Użyłem tam trzech różnych typów dostępnych w C i dla tej operacji błąd pojawia się tylko przy `double`.
+
+A jak temu przeciwdziałać? W przypadku porównań warto porównywać różnice względem marginesu błędu, co pokazałem kiedyś w *<Link href="/offtopic/codzienny-wtret-programisty/#3-01--02--03">codziennym wtręcie programisty</Link>*. A w przypadku samych operacji, jeśli zależy nam na precyzji (szczególnie gdy mowa o operacjach finansowych), warto pomyśleć nad innymi typami danych. Na przykład, jeśli mamy stałą liczbę miejsc po przecinku, można zapisywać liczbę w typie całkowitoliczbowym i pamiętać w oddzielnej zmiennej pozycję przecinka.
+
+A wracając do JavaScriptu, jedyne, czego można się w nim przyczepić, to fakt, że główny typ liczbowy jest typem zmiennoprzecinkowym.
+
+## Indeksowanie liczby tablicą
+
+### Opis
+
+Ostatni raz w tym artykule wróćmy do C. Całkiem normalne jest, że możemy do tablicy odwołać się w następujący sposób:
+
+```c
+int array[] = {21, 22, 23, 24, 25};
+printf("array[3]: %d\n", array[3]); // 24
+```
+
+Tak się jednak składa, że dokładnie tak samo zadziała poniższy kod:
+
+```c
+int array[] = {21, 22, 23, 24, 25};
+printf("3 [array]: %d\n", 3 [array]); // 24
+```
+
+Co tu się dzieje? Dlaczego możemy indeksować liczbę i zwraca ona wartość z tablicy?
+
+### Wyjaśnienie
+
+Zacznijmy od początku. W C tablica nie jest obiektem ani żadną złożoną strukturą danych jak w wielu nowszych językach programowania. Deklarując tablicę w C, tak naprawdę rezerwujemy jedynie miejsce w pamięci (i ewentualnie dodajemy od razu wartości w te miejsca). Po typie i długości tablicy kompilator wie, ile podczas wykonania należy zarezerwować pamięci na daną tablicę. Co pokazałem już w artykule *<Link href="/post/tablice-i-listy-tablicowe">Tablice i listy tablicowe</Link>*, w C możemy odwoływać się do elementów tablicy przez dodawanie wskaźnika. Przerabiając powyższy przykład, wyglądałoby to następująco:
+
+```c
+int array[] = {21, 22, 23, 24, 25};
+printf("*(array + 3): %d\n", *(array + 3)); // 24
+```
+
+Jak to się ma do operatora indeksowania? Otóż tak, że kompilator zamienia w tym przypadku `[]` na dodawanie wskaźników (patrz punkt 6.5.3.2 w [szkicu najnowszego standardu C](https://www.open-std.org/jtc1/sc22/wg14/www/docs/n3220.pdf)). A dodawanie jest przemienne, więc wygląda to następująco:
+
+```c
+array[3] == *(array + 3)
+3 [array] == *(3 + array)
+```
+
+Dlatego też nie ma znaczenia, w którą stronę zapiszemy indeksowanie. Warto jednak trzymać się tradycyjnego zapisu, gdzie wewnątrz `[]` zapisujemy indeks elementu.
+
+Dodam, że działa to też z wartościami z innych zmiennych lub tablic, więc teoretycznie moglibyśmy tę cechę wykorzystać w taki sposób:
+
+```c
+int indexes[] = {4, 3, 2, 1, 0};
+printf("indexes[1][array]: %d\n", indexes[1][array]); // 24
+// tradycyjny zapis:
+printf("array[indexes[1]]: %d\n", array[indexes[1]]); // 24
+```
+
+Moim zdaniem zapis ten jest jednak nieczytelny. Ktoś czytający to pomyśli, że przypadkowo odwołujecie się do jednowymiarowej tablicy jak do dwuwymiarowej.
+
+Wszystkie powyższe przykłady możesz przetestować [na tym Replit](https://replit.com/@tswistak/array-index#main.c).
+
+## Koercja typów w JavaScript
+
+Jako programista mający głównie do czynienia zawodowo z JavaScriptem chciałem uniknąć wypisywania z niego *dziwactw*, bo za dobrze je znam i też są zbyt powszechne w Internecie. Nie chcę jednak robić z tego artykułu powtórki z podstaw programowania w C, więc poświęcę akapit na cechę JavaScriptu, przez którą powstaje najwięcej *potworków*. A jest to koercja typów.
+
+### Co to jest i po co jest?
+
+Bardzo krótko mówiąc: koercja typów to automatyczna (niejawna) konwersja wartości z jednego typu na inny, np. z liczby na `string`.
+
+Żeby zrozumieć sens, po co takie coś jest, należy zauważyć, że w JavaScript typowanie jest słabe i dynamiczne. Tworząc zmienną, nie musimy określić jej typu i w każdej chwili może przyjąć wartość o dowolnym typie. Dlatego też wprowadzono koercję jako swego rodzaju uproszczenie — nie musisz sprawdzać typu zmiennej, aby korzystać z niej w jakimś kontekście. Co więcej, JavaScript wykonuje koercję typów nawet przy korzystaniu z operatora porównania (`==`). Jeśli chcemy tego uniknąć, trzeba korzystać z operatora ścisłej równości (`===`), który nie wykonuje konwersji.
+
+Zanim ktoś powie, że co to są za głupoty w tym JavaScripcie, to od razu dodam, że koercja typów występuje w wielu językach, tylko niekoniecznie na tak dużą skalę jak w JS. Dość powszechne jest konwertowanie typów liczbowych z mniejszych na większe (np. z całkowitoliczbowego na zmiennoprzecinkowy) lub dowolnych obiektów na `string` (zwykle przez wywoływanie pod spodem metody typu `toString()`).
+
+### Sensowne zastosowania
+
+Żeby pokazać, że takie coś ma sens, zacznijmy od sensownych zastosowań, pośmiejemy się później.
+
+Najczęściej spotykane zastosowanie to koercja do typów logicznych. O ile to, co JavaScript określa jako prawda lub fałsz, jest często też określane jako *dziwne*, to korzystając z tego rozsądnie, można uprościć kod. Na przykład, nie musimy wprost sprawdzać, czy jakaś zmienna ma przypisaną wartość (albo ma wartość `null`, bo to w JS dwie różne rzeczy):
+
+```javascript
+// bez koercji
+if (funkcja !== null && typeof funkcja !== 'undefined') funkcja();
+
+// z koercją na poziomie porównania
+// null i undefined są zrównane do tego samego
+if (funkcja != null) funkcja();
+
+// z koercją bez porównania;
+// zarówno null, jak i undefined po konwersji na wartość logiczną otrzymują false
+// w tym przypadku należy uważać, bo false są też m.in. 0, pusty string
+if (funkcja) funkcja();
+
+// możemy nawet pozbyć się instrukcji warunkowej
+funkcja && funkcja();
+```
+
+Inne sensowne zastosowanie to wspomniana już wcześniej konwersja dowolnych typów na `string`.
+
+Trochę kontrowersyjnym przykładem jest stosowanie wbudowanych mechanizmów koercji do jawnej konwersji typów. O tyle jest to *kontrowersyjne*, że koercja z założenia jest niejawna. Wspomnę jednak o tym, bo niektórzy uważają to za *dziwne*, ale korzystając na co dzień z języka, ma to sens. W poniższym przykładzie po lewej znajdziecie zapis typowej jawnej konwersji, a po prawej korzystający z koercji:
+
+```javascript
+// konwersja na typ logiczny przez podwójną negację
+// pierwsza negacja wykonuje koercję na typ logiczny, drugą przywracamy prawidłową wartość
+Boolean('cos') === !!'cos';
+
+// zamiana dowolnego typu na string przez dodanie pustego
+// dodając dowolny typ do ciągu znaków, JS od razu wykonuje konkatenację
+(1).toString() === ''+1;
+String(1) === ''+1;
+```
+
+### Dziwne rzeczy
+
+Przejdźmy jednak do tych dziwniejszych rzeczy związanych z koercją. Będą to dosłownie dwa ciekawe-dziwne przykłady, które szczególnie lubię. Od razu ostrzegam osoby nieznające JS-a — tu się robi bardzo dziwnie. Ograniczę się tylko do dwóch — *dziwactwom* JavaScriptu warto poświęcić cały artykuł.
+
+#### Puste tablice
+
+W JS przekształcając pustą tablicę na typ logiczny, otrzymujemy prawdę:
+
+```javascript
+> !![]
+true
+> Boolean([])
+true
+```
+
+Jednak jeśli porównamy pustą tablicę z prawdą (za pomocą `==`, więc zachodzi koercja), otrzymujemy fałsz:
+
+```javascript
+> [] == true
+false
+```
+
+Ciężko powiedzieć, jaki sens miałoby przekształcanie tablicy na typ logiczny, ale na pewno zupełnie nie widać sensu w tym, że raz otrzymujemy prawdę, a raz nie.
+
+Wyjaśnienie tego dziwnego zachowania znajdziemy jednak w definicji standardu ECMAScript (którego implementacją jest JavaScript). Opierać się będę na [ECMA-262 w edycji 14](https://262.ecma-international.org/14.0/), czyli w chwili publikacji artykułu aktualny standard.
+
+Zacznijmy od konwersji tablicy na typ logiczny. Tą znajdziemy w punkcie [`7.1.2 ToBoolean ( argument )`](https://262.ecma-international.org/14.0/#sec-toboolean). Nie wchodząc w szczegóły, dowolny obiekt powinien być konwertowany na `true`. A skoro tablica, niezależnie czy pusta, czy nie, jest obiektem, to tak też robimy.
+
+Natomiast `==` ma nieco inaczej zdefiniowane konwersje typów. Te zaś są opisane w [`7.2.14 IsLooselyEqual ( x, y )`](https://262.ecma-international.org/14.0/#sec-islooselyequal). Tutaj musimy nieco bardziej szczegółowo podejść do tematu:
+
+1. Zajmijmy się najpierw typem logicznym, czyli `true`:
+    1. Z kroków podanych w standardzie aplikujemy tutaj nr 10. Mówi on, że typy logiczne konwertujemy na liczby.
+    2. Według [definicji ToNumber](https://262.ecma-international.org/14.0/#sec-tonumber) (krok 5) dla prawdy zwracamy `1`.
+2. Dla tablicy po lewej stronie operatora aplikujemy krok 12, czyli konwersję obiektu na typ prosty:
+   1. W tym celu odnosimy się do definicji [`ToPrimitive`](https://262.ecma-international.org/14.0/#sec-toprimitive). Z racji tego, że tablica nie ma zdefiniowanego `@@toPrimitive`, to odnosimy się do [`ToOrdinaryPrimitive`](https://262.ecma-international.org/14.0/#sec-ordinarytoprimitive) z preferowanym typem `number` (kroki 1c i 1d).
+   2. Jako że number jest preferowany, w `ToOrdinaryPrimitive` wykonujemy krok 2, czyli wywołujemy w obiekcie `valueOf`, a jeśli nie zwróci liczby, to `toString`.
+   3. `[].valueOf()` zwraca tablicę, więc wykonujemy `[].toString()`. Ta operacja zwróci nam pusty ciąg.
+3. Nasze `[] == true` zostało sprowadzone powyższymi operacjami do `'' == 1`. Oznacza to, że teraz dotyczy nas krok 6 z definicji `IsLooselyEqual`.
+    1. Według niego musimy znowu wykonać `ToNumber`, tym razem na ciągu znaków.
+    2. Interesuje nas krok 6, czyli wywołanie [`StringToNumber`](https://262.ecma-international.org/14.0/#sec-stringtonumber).
+    3. Mamy do czynienia z pustym stringiem, więc kroki 1 i 2 zwrócą puste wartości, kroku 3 nie zastosujemy i zostaje tylko 4, czyli zwrócenie [`StringNumericValue`](https://262.ecma-international.org/14.0/#sec-runtime-semantics-stringnumericvalue).
+    4. Stąd już dochodzimy do tego, że pusty ciąg powinien zwrócić `0`.
+4. Z `[] == true` otrzymaliśmy `'' == 1`, z którego znowu powstało `0 == 1`.
+
+Oczywiście interpreter dalej wykonuje kolejne kroki, ale my już w tym momencie widzimy, że pusta tablica stała się zerem, gdy prawda jedynką, a te nie są równe. Wszystko jest zgodne ze standardem języka, jednak ciężko powiedzieć, że został tutaj zachowany sens logiczny. Myślałoby się, że w porównaniach typy inne niż logiczne są konwertowane na logiczne, a tymczasem gdy porównujemy różne typy, akurat w tym przypadku są one sprowadzane do liczb.
+
+#### Zwiększanie licznika odejmowaniem
+
+To jest chyba moje ulubione dziwactwo javascriptowe związane z koercją typów. Pojawiło się w 2019 r. na [Twitterze (dziś X)](https://x.com/chordbug/status/1092824183124488192) i brzmi w tłumaczeniu tak:
+
+> aby zwiększyć licznik na stronie,
+>
+> `node.innerText += 1`
+>
+> nie działa (0 → 01 → 011 → ⋯), ale
+>
+> `node.innerText -= -1`
+>
+> działa idealnie (0 → 1 → 2 → ⋯)
+
+Możesz działanie tego sprawdzić w praktyce na [przygotowanym przeze mnie CodePenie](https://codepen.io/tswistak/pen/GRaLLmm?editors=1010).
+
+Aby jednak *wyjść* z przeglądarki do prostego JS-a, zapiszmy w zasadzie to samo w nieco czytelniejszy sposób. `innerText` na elemencie HTML-owym ma typ `string`, dodatkowo operację przypisania z dodawaniem możemy uprościć do dodawania, dzięki czemu otrzymamy:
+
+```javascript
+> '0' + 1
+'01'
+> '0' - -1
+1
+```
+
+Teraz po kolei co tutaj się dzieje dla dodawania:
+
+1. Gdy trafiamy na dwuargumentową operację, odwołujemy się w specyfikacji do punktu [`13.15.3 ApplyStringOrNumericBinaryOperator ( lval, opText, rval )`](https://262.ecma-international.org/14.0/#sec-applystringornumericbinaryoperator), gdzie mamy zdefiniowane działanie koercji dla wszystkich dostępnych w języku operatorów.
+2. Według kroku 1, jeśli mamy dodawanie, zamieniamy obie wartości na typy proste. Następnie, według 1.c, jeśli choć jedna z wartości jest typu `string`, druga też musi zostać przekonwertowana na `string`.
+3. Krok 1.c.III mówi, że operator `+` dla dwóch stringów zwraca ich konkatenację (czyli połączenie dwóch tekstów).
+
+Stąd `'0' + 1` staje się `'0' + '1'`, co daje `'01'`.
+
+Co natomiast dzieje się przy odejmowaniu?
+
+1. Według tego samego punktu w specyfikacji, jeśli nie mamy do czynienia z dodawaniem, konwertujemy obie wartości na typ liczbowy. Nas dotyczy dokładniej krok 3.
+2. W tym miejscu zachodzi opisywany już wcześniej przeze mnie `StringToNumber`. Nie wchodząc dokładnie w szczegóły — `'0'` zostanie przekonwertowane na `0`.
+3. Mając po obu stronach wartości numeryczne, wykonujemy już normalnie operację arytmetyczną.
+
+Stąd `'0' - -1` staje się `0 - -1`, które dla nas czytelniej jest odczytać jako `0 + 1`, co daje `1`.
+
+## Podsumowanie
+
+Liczę, że ta podróż przez różne mniej lub bardziej dziwne fragmenty kodu dała Ci lepsze zrozumienie tego, jak działają języki programowania i co dzieje się pod spodem. Oczywiście, powtórzę znowu, w dużej mierze są to podstawy programowania i część tych rzeczy mogła być dla Ciebie oczywista. Jednak nieraz widziałem zdziwienie pokazanymi wyżej rzeczami i uznawanie ich za nietypowe. Takich rzeczy jest oczywiście więcej, ale myślę, że na początek to wystarczy.
+
+## Literatura
+
+- What is the '-->' operator in C/C++? - Stack Overflow, https://stackoverflow.com/q/1642028 (ostatnie odwiedziny 22.06.2024)
+- C data types, https://en.wikipedia.org/w/index.php?title=C_data_types&oldid=1229284967 (ostatnie odwiedziny 22.06.2024).
+- Floating-point arithmetic, https://en.wikipedia.org/w/index.php?title=Floating-point_arithmetic&oldid=1221736642 (ostatnie odwiedziny 22.06.2024).
+- ISO/IEC 9899:2024 (en) — N3220 working draft, [PDF](https://www.open-std.org/jtc1/sc22/wg14/www/docs/n3220.pdf)
+- ECMA-262, 14th edition, June 2023; ECMAScript® 2023 Language Specification, https://262.ecma-international.org/14.0/
+
+<small>Zdjęcie na okładce wygenerowane przez DALL-E.</small>

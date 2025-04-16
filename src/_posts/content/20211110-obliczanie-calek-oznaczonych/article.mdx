@@ -1,0 +1,388 @@
+import Link from 'next/link';
+import {Image, Iframe} from '@swistak-codes/components';
+import cover from './calki.jpg';
+import calkaLiniowa from './calka-liniowa.png';
+import calkaOkrag from './calka-okrag.png';
+import calkaSinus from './calka-sinus.png';
+import prostokaty from './prostokaty.png';
+import trapezy from './trapezy.png';
+
+export const meta = {
+  title: 'Obliczanie całek oznaczonych',
+  abstract:
+    'W artykule opowiadam, czym są całki oznaczone, a także jak można otrzymywać ich przybliżony wynik algorytmicznie.',
+  firstParagraph: (
+    <>
+      Tytuł brzmi strasznie, wiem. W końcu całki to już ten rejon matematyki, w który wielu nie chciało nigdy wchodzić. A w tym artykule nie dość, że opowiem, czym są całki, do tego oznaczone, to jeszcze pokażę sposoby na ich obliczanie. Co więcej, sposoby programistyczne! Ale tak całkowicie serio, to wbrew pozorom jest to bardzo prosty temat, za którym może nie stoi najprostsza matematyka, ale na pewno bardzo proste algorytmy. Tym samym stanowi to świetny początek do rozeznania rejonu algorytmiki, jakim są metody numeryczne.
+    </>
+  ),
+  keyword: 'całki',
+  categories: ['Matematyka', 'Algorytmy'],
+  tags: [
+    'całki',
+    'metody numeryczne',
+    'monte carlo',
+    'całki oznaczone',
+    'metoda prostokątów',
+    'metoda trapezów',
+    'obliczenia symboliczne',
+    'javascript',
+    'matematyka'
+  ],
+  slug: 'obliczanie-calek-oznaczonych',
+  updateTime: '2021-11-08T19:41:12+00:00',
+  publishTime: '2021-11-10T06:00:34+00:00',
+  cover,
+};
+
+## Co to jest całka?
+
+Zacznijmy jednak od podstaw, czyli od przedstawienia matematycznej strony. Pod pojęciem całki kryje się wiele różnych, aczkolwiek powiązanych ze sobą pojęć matematycznych, w tym najbardziej znane: całki oznaczone i nieoznaczone. Zajmiemy się dziś tymi pierwszymi, mimo że to te drugie są bardziej podstawowym pojęciem. Od razu ostrzegam osoby znające matematykę — będą tu stosowane znaczne uproszczenia, jednak postaram się nie zakłamać niczego.
+
+### Całka oznaczona
+
+Całka oznaczona, znana też jako całka Riemanna, jest, mówiąc w uproszczeniu, polem powierzchni między wykresem funkcji $$f(x)$$ w pewnym przedziale $$[a,b]$$, a osią X układu współrzędnych. Matematycznie zapisujemy taką całkę następująco:
+
+$$
+\int\limits_a^b{f(x)dx}
+$$
+
+W tym zapisie możemy wyróżnić cztery elementy:
+
+- „Zawijas”, który jest symbolem całki. Jeśli widzimy go gdziekolwiek, to znaczy, że mamy do czynienia z jakąkolwiek całką. Znak ten to tak naprawdę przedłużona litera „ſ” (nie mylić z „f”), czyli dawny zapis małego „s”. Litera ta wzięła się od łacińskiego słowa summa. Dlaczego akurat od tego słowa, powiem później.
+- Na dole symbolu całki widzimy początek przedziału całkowania, a na górze jego koniec. Jest to zapis charakterystyczny dla całek oznaczonych. Warto dodać, że jeśli przedział obejmuje nieskończoność lub funkcja w podanym przedziale jest nieograniczona, to wtedy mówimy o całce niewłaściwej.
+- $$f(x)$$ to oczywiście funkcja, którą całkujemy.
+- $$dx$$ wskazuje nam, że całkujemy po zmiennej $$x$$. Jest to szczególnie ważne w przypadku, gdy mielibyśmy do czynienia z funkcjami z wieloma zmiennymi. Przy takich prostych całkach, jakimi się zajmiemy, nie ma on większego znaczenia, ale dla formalności warto go zapisać.
+
+### Całki oznaczone a sumowanie
+
+Jak wspomniałem, znak całki wziął się od łacińskiego słowa summa, które oznacza sumę. Czy znaczy to, że całkowanie to sumowanie? Można powiedzieć, że w pewnym sensie tak, gdy mówimy o całkach oznaczonych.
+
+Zgodnie z definicją Riemanna możemy mówić o sumie całkowej, która definiowana jest następująco:
+
+$$
+R_{f, P(q_1,..,q_n)} = \sum_{i=1}^n{f(q_i)\cdot\Delta p_i}
+$$
+
+O co tu chodzi? Przedział $$[a,b]$$ dzielimy na $$n$$ części i owe podziały są określone jako $$P(q_1,..,q_n)$$. $$\Delta p_i$$ to natomiast długość owego przedziału. Całka jest taką sumą przy założeniu, że podziałów mamy nieskończenie wiele o nieskończenie małej długości (przy czym oczywiście nie jest to 0). Formalnie zapisalibyśmy to w postaci granicy, za pomocą której pokazalibyśmy, że niezależnie od wybranych przedziałów cały czas dążylibyśmy do jednej i tej samej liczby. Granica ta byłaby naszą całką.
+
+Tak jak wspominałem, nie chcę tu wchodzić nadmiernie w formalizmy matematyczne, stąd nie pokazuję, jak ta granica wygląda. Można ją znaleźć w dowolnym miejscu w sieci po wpisaniu w wyszukiwarce „całka Riemanna”. My jednak zapamiętajmy tę własność, że całkowanie (w uproszczeniu) sprowadza się do sumowania.
+
+### Ręczne rozwiązywanie całek
+
+Kto w toku swojej nauki miał przyjemność uczyć się analizy matematycznej, na pewno miał okazję ręcznie rozwiązać niejedną całkę. Ich ręczne rozwiązywanie sprowadza się zwykle do zapamiętania kilku wzorów, a następnie przekształcaniu całek i funkcji tak, aby doprowadzić do jednego z tych znanych wzorów. My algorytmicznie tak bawić się nie będziemy, ale pokażę przykładowe ręczne rozwiązania trzech prostych całek oznaczonych, aby potem móc sprawdzać wyniki algorytmów. Nie będę przytaczać wzorów, tylko od razu z nich skorzystam.
+
+#### f(x) = x w przedziale [0, 5]
+
+Na początek rozpatrzmy funkcję liniową w jej najprostszej postaci, czyli $$f(x)=x$$. Jej całkę możemy obliczyć następująco:
+
+$$
+\int\limits_0^{5}{xdx} = \left[ \frac{1}{2}\cdot x^2 \right]^{5}_{0} = \frac{1}{2}\cdot 5^2 - \frac{1}{2}\cdot 0^2 = \frac{1}{2}\cdot 5^2 = \frac{1}{2}\cdot 25 = 12,5
+$$
+
+<Image
+  image={calkaLiniowa}
+  alignCenter
+  maxWidth="382px"
+  fullSize
+  alt="Wykres funkcji liniowej z zaznaczonym polem pod wykresem funkcji na obszarze od x = 0 do x = 5"
+  caption={<>
+    Wykres funkcji liniowej z zaznaczonym obszarem całkowania.<br />
+    (wygenerowano z użyciem desmos.com)
+  </>}
+/>
+
+Patrząc na rysunek, prawdziwość możemy potwierdzić czysto geometrycznie. Jak widzimy, na przedziale $$[0,5]$$ między wykresem funkcji $$f(x) = x$$ a osią X otrzymaliśmy trójkąt prostokątny. Zarówno długość podstawy jak i wysokość wynoszą 5. Obliczmy w takim razie:
+
+$$
+\begin{align*}
+P &= \frac{1}{2}\cdot a\cdot h \\
+P &= \frac{1}{2} \cdot 5 \cdot 5 = \frac{1}{2} \cdot 25 = 12,5
+\end{align*}
+$$
+
+Otrzymaliśmy dokładnie ten sam wynik, nawet ten sam wzór.
+
+#### f(x) = sin(x) w przedziale [0, pi]
+
+Bardzo często spotykanym przypadkiem w praktyce jest obliczanie całek funkcji trygonometrycznych. Jest to kolejny bardzo prosty przypadek, więc obliczmy go:
+
+$$
+\begin{align*}
+\int\limits_0^{\pi}{\sin{x} \text{ }dx} &= \left[ -\cos{x} \right]^{\pi}_0 = -\cos{\pi} - (-\cos{0}) \\
+&= - (-1) - (-1) = 1 + 1 = 2
+\end{align*}
+$$
+
+<Image
+  image={calkaSinus}
+  alignCenter
+  maxWidth="382px"
+  fullSize
+  alt="Wykres funkcji sinus z zaznaczonym polem pod wykresem funkcji na obszarze od x = 0 do x = pi"
+  caption={<>
+    Wykres funkcji sinus z zaznaczonym obszarem całkowania.<br />
+    (wygenerowano z użyciem desmos.com)
+  </>}
+/>
+
+W tym przypadku nie jesteśmy w stanie powołać się na wzór ze zwykłej geometrii, stąd musicie uwierzyć, że pole zostało dobrze obliczone przy użyciu całki. To swoją drogą pokazuje, jak potężnym narzędziem są całki oznaczone — możemy obliczyć pole dowolnej figury, jeśli tylko znamy wzór na wykres funkcji pozwalający tę figurę narysować w układzie współrzędnych.
+
+#### f(x) = √(r<sup>2</sup>-x<sup>2</sup>) w przedziale [0, r]
+
+Ostatni przykład to obliczenie pola ćwiartki koła. Jest on o tyle wart uwagi, że całkę tę można wykorzystać do obliczenia wartości liczby $$\pi$$. Nie znajdziemy tego na kartach wzorów, jest bardziej skomplikowane od poprzednich przykładów, ale również przejdźmy przez to. Pominę wszystkie przekształcenia dla uproszczenia zapisu.
+
+$$
+\begin{align*}
+\int\limits_0^r{\sqrt{r^2-x^2}dx} &=
+\left[\frac{r^2}{2}\arcsin \frac{x}{|r|}+\frac{x}{2}\sqrt{r^2-x^2}\right]_0^r \\ &=
+\frac{r^2}{2}\arcsin \frac{r}{|r|}+\frac{r}{2}\sqrt{r^2-r^2} - 0  \\ &= \frac{r^2}{2}\arcsin 1+0 - 0 = \frac{r^2}{2} \cdot \frac{\pi}{2} =\frac{\pi r^2}{4}
+\end{align*}
+$$
+
+W tym przypadku dodam, że w funkcji arcus sinus uproszczenie, dzięki któremu mogliśmy wprost uzyskać wartość, bierze się stąd, że promień jest zawsze dodatni.
+
+<Image
+  image={calkaOkrag}
+  alignCenter
+  maxWidth="382px"
+  fullSize
+  alt="Wykres funkcji okręgu z zaznaczonym polem pod wykresem funkcji na obszarze od x = 0 do x = 1"
+  caption={<>
+    Wykres funkcji okręgu (dla r = 1) z zaznaczonym obszarem całkowania.<br />
+    (wygenerowano z użyciem desmos.com)
+  </>}
+/>
+
+Znów możemy potwierdzić ten wzór tradycyjną geometrią. Wzór na pole koła to: $$P = \pi r^2$$, czyli chyba nie muszę pisać, że mnożąc przez $$\frac{1}{4}$$, otrzymamy wyżej pokazany wzór. Swoją drogą, w tym miejscu widać też zastosowanie $$dx$$ w zapisie całki. Dzięki temu wiemy, że całkujemy po $$x$$, a nie po $$r$$.
+
+## Metody numeryczne
+
+Całkowania na kartce możemy nauczyć się dość łatwo. Opiera się na znajomości kilkunastu wzorów (albo umiejętności patrzenia w kartę wzorów) i umiejętności przekształcania wyrażeń na inne za pomocą różnych zależności matematycznych. Robiąc to, przez długi czas operujemy tylko i wyłącznie na symbolach, żeby potem podstawić pod to wszystko liczby i dostać właściwy wynik.
+
+Jednak w przypadku programowania zależy nam na jak najszybszym otrzymaniu wyniku. Oczywiście możemy zaprogramować algorytm, który wyznaczy wzór na całkę, a dopiero potem ją obliczy. W taki sposób działają aplikacje typu CAS (z ang. Computer Algebra System — systemy algebry komputerowej), wśród których można wymienić Mathematica, Maple czy Wolfram|Alpha. Mówimy wówczas o algorytmach obliczeń symbolicznych. Są one jednak dość skomplikowane i nie będziemy się nimi zajmować.
+
+Jeśli chcemy szybko otrzymać wynik, możemy wykorzystać tak zwane metody numeryczne. Jest to, dokładniej mówiąc, rozwiązywanie problemów matematycznych za pomocą operacji na liczbach. Szukamy algorytmów pozwalających rozwiązać konkretne zadania matematyczne, zwykle w przybliżeniu. Właśnie to rozpoznamy na łamach tego artykułu. Warto je znać choćby dlatego, że najpopularniejsze oprogramowania do obliczeń inżynierskich wykorzystują właśnie metody numeryczne. Możemy wśród nich wymienić np. MATLAB czy Octave.
+
+## Metoda prostokątów
+
+Po pierwszą metodę rozwiązywania całek zajrzyjmy do definicji całki oznaczonej Riemanna. Mieliśmy tam określoną sumę całkową, która wyglądała następująco:
+
+$$
+R_{f, P(q_1,..,q_n)} = \sum_{i=1}^n{f(q_i)\cdot\Delta p_i}
+$$
+
+Czy wzór w sumie przypomina Ci coś z naprawdę podstawowej geometrii? Obliczamy wartość funkcji w pewnym miejscu, a następnie mnożymy ją przez długość przedziału. Wartość funkcji możemy traktować jako wysokość. Czy nie brzmi to jak wzór na pole prostokąta?
+
+<Image
+  image={prostokaty}
+  alignCenter
+  maxWidth="382px"
+  fullSize
+  alt="Wykres funkcji sinus z przybliżeniem pola za pomocą 6 prostokątów"
+  caption={<>
+    Przybliżenie obszaru całkowania funkcji sinus przy użyciu metody prostokątów.<br />
+    (wygenerowano z użyciem desmos.com)
+  </>}
+/>
+
+Dokładnie na tym polega metoda prostokątów. Wykres funkcji dzielimy na $$n$$ prostokątów, liczymy pole każdego z nich, a następnie sumujemy je.
+
+Co warto dodać, nikt nie mówi, że podziały muszą być regularne. Jedne mogą być szersze, inne węższe, jednak dla uproszczenia algorytmu nie zakładamy tego przypadku.
+
+### Wybór punktu do obliczenia wartości funkcji
+
+Pierwszym problemem, jaki możemy zauważyć przy nawet samym skorzystaniu ze wzoru, jest to, w jakim miejscu wyznaczymy wartość funkcji. Czy powinno się to zrobić na początku przedziału, czy na jego końcu? Nie ma na to pytanie konkretnej odpowiedzi i warto doświadczalnie wybrać to, co lepsze.
+
+Początek przedziału da nam niedobory w przypadku funkcji rosnących, a da za duże wartości w przypadku funkcji malejących. Koniec przedziału znowu na odwrót. Wydaje się, że z tego powodu najlepszy jest kompromis będący wartością w środku przedziału. Wtedy jednocześnie minimalizujemy błędy wynikające z nadmiaru, jak i niedoboru.
+
+Są jednak jeszcze inne podejścia. Możemy również wybierać wartość minimalną z początku i końca, bądź maksymalną. Jakiegokolwiek podejścia nie wybierzemy, warto pamiętać, że im bardziej podzielimy na mniejsze przedziały, to wynik będzie coraz bardziej zbliżać się do prawdziwego, niezależnie czy wybieramy wersję z nadmiarami, czy niedoborami.
+
+### Przykładowa implementacja
+
+Opisany powyżej sposób możemy zapisać poniższym kodem JavaScript (wersja z punktem na początku przedziału):
+
+```javascript
+function integral(func, divisions, startX, endX) {
+  // zmienna, w której przechowamy wyliczone i pole
+  let area = 0;
+  // liczymy tyle razy, ile mamy punktów podziału
+  for (let i = 0; i < divisions; i++) {
+    // obliczamy początek i koniec przedziału
+    const x1 = startX + (i / divisions) * (endX - startX);
+    const x2 = startX + ((i + 1) / divisions) * (endX - startX);
+    // obliczamy wartość funkcji we wskazanym punkcie
+    const y = func(x1);
+    // dodajemy pole do sumy dotychczasowych pól
+    area += (x2 - x1) * y;
+  }
+  return area;
+}
+```
+
+Natomiast poniżej możesz przetestować tę metodę w praktyce. U góry wybierz funkcję, jak obliczać wartość funkcji oraz jak duże przedziały chcesz zrobić. Poniżej zobaczysz wyrysowany wykres funkcji wraz z zaznaczonymi prostokątami, które posłużyły do obliczeń, a także obliczone w ten sposób pole powierzchni.
+
+<Iframe src="/iframe-content/integrals/index.html?mode=Rectangles" minHeight={800} />
+
+Prezentacja została napisana w języku TypeScript z wykorzystaniem frameworka Svelte i jej kod źródłowy znajdziesz na moim [GitHubie](https://github.com/swistak-codes/integrals-presentation).
+
+## Metoda trapezów
+
+Metoda prostokątów, jak zobaczyliśmy powyżej, nie jest idealna. Przede wszystkim problemem są nadmiary bądź niedobory. Co prawda im bardziej podzielimy przedział, tym bardziej nasza wartość przybliżona zbiega do prawdziwej, to jednak wciąż musimy wybierać.
+
+Rozwiązaniem jest dalej dzielić na mniejsze przedziały, tylko że zamiast prostokątów użyć innej figury geometrycznej. Przykładowo, możemy użyć innego czworokąta, czyli trapezu. Od razu zaznaczę, że oczywiście prostokąt jest szczególnym przypadkiem trapezu, jednak ten temat pomińmy.
+
+W przypadku tej metody pobieramy wartości na początku i na końcu przedziału, po czym stosujemy wzór na pole trapezu. Dla przypomnienia, wygląda on następująco:
+
+$$
+P = \frac{1}{2}\cdot (a + b)\cdot h
+$$
+
+Przekładając to na wzór sumy całkowej, wygląda to tak:
+
+$$
+R_{f, P(q_1,..,q_n)} = \sum_{i=1}^{n-1}{ \frac{1}{2} \cdot \left(f(q_i) + f(q_{i+1}) \right) \cdot\Delta p_i }
+$$
+
+<Image
+  image={trapezy}
+  alignCenter
+  maxWidth="382px"
+  fullSize
+  alt="Wykres funkcji sinus z przybliżeniem pola za pomocą 6 trapezów"
+  caption={<>
+    Przybliżenie obszaru całkowania funkcji sinus przy użyciu metody trapezów.<br />
+    (wygenerowano z użyciem desmos.com)
+  </>}
+/>
+
+### Przykładowa implementacja
+
+Opisany powyżej sposób możemy zapisać poniższym kodem w języku JavaScript:
+
+```javascript
+function integral(func, divisions, startX, endX) {
+  // zmienna, w której przechowamy wyliczone pole
+  let area = 0;
+  // liczymy tyle razy, ile mamy punktów podziału
+  for (let i = 0; i < divisions; i++) {
+    // obliczamy początek i koniec przedziału
+    const x1 = startX + (i / divisions) * (endX - startX);
+    const x2 = startX + ((i + 1) / divisions) * (endX - startX);
+    // obliczamy wartość funkcji w obu punktach
+    const y1 = func(x1);
+    const y2 = func(x2);
+    // dodajemy pole do sumy dotychczasowych pól
+    area += ((y1 + y2) * (x2 - x1)) / 2;
+  }
+  return area;
+}
+```
+
+Natomiast poniżej możesz przetestować tę metodę w praktyce. Obsługa jest taka sama jak wcześniej, tylko tym razem nie wybieramy sposobu obliczania funkcji.
+
+<Iframe src="/iframe-content/integrals/index.html?mode=Trapezoids" minHeight={800} />
+
+### Podejście alternatywne
+
+O ile trapez wydaje się być najbardziej naturalnym wyborem z figur, to nie jest to jedyne rozwiązanie, jakie zostało wymyślone.
+
+Bardzo ciekawym podejściem jest całkowanie metodą Simpsona. Tutaj wciąż dzielimy przedział na mniejsze i przybliżamy wartość całki figurami, jednak tym razem nie stosujemy czworokątów. Zamiast tego stosujemy parabole, stąd wyznaczamy aż trzy punkty: początek przedziału, koniec przedziału oraz jego środek, który będzie wierzchołkiem paraboli. Potem problemem dla nas pozostaje wyznaczenie pola pod ową parabolą, jednak wzór na to możemy sobie wyznaczyć ... całką oznaczoną.
+
+Zachęcam do doczytania na własną rękę jak to obliczać. Cała idea wciąż jest ta sama, zmienia się jedynie wzór na pole figury.
+
+## Metoda Monte Carlo
+
+Na sam koniec zostawiłem metodę, która w żaden sposób nie przypomina powyższych. W tym przypadku nie będzie nas nawet interesować definicja całki. Mianowicie zastosujemy metodę Monte Carlo opracowaną przez polskiego matematyka Stanisława Ulama.
+
+### Idea metody Monte Carlo
+
+Warto wiedzieć, że metoda Monte Carlo to nie tylko i wyłącznie sposób na obliczanie całek. Stosuje się ją do modelowania matematycznego złożonych procesów. Jest na tyle ogólna i ma tak szerokie zastosowania, że możemy znaleźć jej użycie w fizyce, zarządzaniu, statystyce, sztucznej inteligencji (<Link href="/post/algorytmika-gier-kolko-i-krzyzyk">w artykule o grze w kółko i krzyżyk</Link> wspominałem o przeszukiwaniu drzew tą metodą), inżynierii i wielu innych. Zresztą sama metoda swoje pierwsze istotne użycie miała podczas projektowania bomby termojądrowej (nad czym Ulam pracował razem z innym znanym matematykiem — Johnem von Neumannem).
+
+Na czym jednak ona polega? Najbardziej ogólnie:
+
+1. Określamy dziedzinę, na której pracujemy (zakres możliwych wartości).
+2. Generujemy losowe wartości z tej dziedziny.
+3. Na każdej z wygenerowanych wartości wykonujemy obliczenia (np. sprawdzenie, czy wartość mieści się w innym, mniejszym przedziale).
+4. Podsumowujemy rezultaty.
+
+### Zastosowanie w całkowaniu
+
+Skoro o metodzie tej mówimy w artykule o całkowaniu, to oczywiste jest, że za jej pomocą da się obliczać całki. Możemy to zrobić w następujący sposób:
+
+1. Wyznaczamy prostokąt o długości podstawy obejmującej cały przedział całki i o wysokości na tyle dużej, aby objąć całą funkcję.
+2. Losujemy $$n$$ punktów, które mieszczą się wewnątrz prostokąta.
+3. Liczymy, ile punktów trafiło pod wykres funkcji. Następnie dzielimy to przez liczbę wszystkich wylosowanych punktów, otrzymując w ten sposób prawdopodobieństwo trafienia pod wykres całkowanej funkcji.
+4. Mnożymy pole prostokąta przez obliczone prawdopodobieństwo. Bazujemy na idei, że, przykładowo, jeśli mamy 60% szans na trafienie w pole wykresu funkcji, to oznacza, że zajmuje on 60% prostokąta.
+
+Jak widzimy, algorytm mocno polega na generowaniu liczb losowych. Z tego powodu warto wiedzieć kilka rzeczy:
+
+- W przypadku komputerów nie generujemy liczb prawdziwie losowych. Mówimy tutaj o generatorach liczb pseudolosowych. Jednak dzisiejsze metody są bardzo solidne i nie musimy się przejmować zbyt małą losowością. Warto dodać, że jedną z pierwszych metod generowania liczb pseudolosowych (algorytm kwadratowy, middle-square method) wymyślił von Neumann, w czasie gdy pracował z Ulamem nad bronią termojądrową.
+- Generowane liczby powinny być w rozkładzie jednostajnym, tj. jest taka sama szansa na wylosowanie każdej z liczb.
+- Szczególnie w przypadku niedużych przedziałów musimy pamiętać, żeby losować liczby rzeczywiste, a nie całkowite. Tylko wtedy wyniki będą wiarygodne.
+
+### Przykładowa implementacja
+
+Metodę Monte Carlo dla obliczania całek możemy opisać w następujący sposób w języku JavaScript:
+
+```javascript
+function integral(func, startX, endX, rectY, tries) {
+  // obliczamy pole prostokąta, w którym strzelamy
+  const rectArea = (endX - startX) * rectY;
+  // zmienna, w której przechowamy ile razy trafiliśmy
+  let onTarget = 0;
+  // wykonujemy zadaną liczbę strzałów
+  for (let i = 1; i <= tries; i++) {
+    // losujemy punkt
+    const x = startX + Math.random() * (endX - startX);
+    const y = Math.random() * rectY;
+    // sprawdzamy czy trafiliśmy pod wykres funkcji
+    if (y <= func(x)) {
+      // jeśli tak, to zwiększamy licznik trafień
+      onTarget++;
+    }
+  }
+  // obliczamy prawdopodobieństwo trafienia pod figurę
+  const probability = onTarget / tries;
+  // obliczamy pole na podstawie prawdopobieństwa
+  return rectArea * probability;
+}
+```
+
+Natomiast poniżej możesz przetestować tę metodę w praktyce. Tym razem jednak nie zobaczymy natychmiastowo wyniku, a prezentacja pozwala sprawdzić, jak liczba wykonanych prób wpływa na wynik. Pod wykresem możesz albo animować działanie algorytmu, albo ręcznie przechodzić co kilka strzałów. Warto obserwować, jak zmienia się wartość pola wraz z liczbą wykonanych prób.
+
+<Iframe src="/iframe-content/integrals/index.html?mode=MonteCarlo" minHeight={850} />
+
+## Zastosowania w informatyce
+
+Jedno z najczęstszych pytań, jakie zadają sobie studenci informatyki na pierwszych latach, gdy dochodzi do nauki matematyki, to: na co mi to w ogóle potrzebne? Nawet szukając informacji do tego artykułu, trafiłem na wątek na pewnym forum, gdzie zostało zadane pytanie, czy jak ktoś chce zaprogramować odtwarzacz muzyki, to czy potrzebuje do tego znać całki. Dlatego przyjrzyjmy się zastosowaniom nie tylko wyżej wymienionych algorytmów, ale generalnie całek.
+
+### Zastosowania powyżej pokazanych algorytmów
+
+- Zacznijmy od zastosowań tych algorytmów, które pokazaliśmy powyżej. Oczywiście najbardziej podstawowym jest, co nie powinno zaskoczyć, obliczanie całek. Tak, są aplikacje, gdzie takie obliczenia są potrzebne. Zazwyczaj jest to konieczne przy tworzeniu aplikacji wspomagających obliczenia czy symulacje inżynieryjne. Wspomniałem zresztą już wcześniej o takich narzędziach, jak MATLAB czy Octave.
+- Metoda Monte Carlo ma na tyle szerokie zastosowania, że można by jej poświęcić oddzielny artykuł. Z najciekawszych związanych z programowaniem:
+  - Słynny projekt Alpha Zero od Google'a, który ma na celu stworzenie sztucznej inteligencji wygrywającej we wszelkie gry, łączy w sobie głęboko uczące się sieci neuronowe z przeszukiwaniem drzew metodą Monte Carlo.
+  - Path tracing to technika, dzięki której możemy w bardzo realistyczny sposób odwzorować sceny trójwymiarowe. Wykorzystuje się w niej metodę Monte Carlo do losowego wybierania ścieżek promieni światła do analizy.
+
+### Zastosowania całek
+
+- Przechodząc do całek, to pierwszym z jej zastosowań w informatyce, jakie przychodzi mi do głowy, są regulatory PID (proporcjonalno-całkująco-różniczkujące). Stosuje się je w sterowaniu, czyli tam, gdzie komputery oddziałują ze światem rzeczywistym.  Ich celem jest takie regulowanie sygnałów, aby sterowany obiekt utrzymywał pewną zadaną wartość, np. tempomat — prędkość jazdy na stałym poziomie. Ciekawostka: podobno regulatory PID to 90% wszystkich regulatorów działających w przemyśle.
+- Całki wykorzystuje się w wielu obliczeniach związanych z fizyką, stąd używa się ich tam, gdzie symulujemy fizykę, np. pisząc od podstaw fizykę obiektów w grach komputerowych.
+- Kolejne wykorzystanie to cyfrowe przetwarzanie sygnałów (DSP), a także powiązane z nim kompresja dźwięku i obrazów. Podstawą tutaj są wszelkie transformacje. Transformacja Fouriera czy transformacja falkowa — obie są zdefiniowane całkami. Warto dodać, że gdy przechodzimy z funkcji ciągłej (sygnał analogowy) na dyskretną (sygnał cyfrowy), to zamiast całkowania stosujemy sumowanie — czyli kolejny raz widzimy związek całkowania z sumowaniem.
+
+## Podsumowanie
+
+To, co pokazałem w poprzednim akapicie, to tylko pewien wycinek zastosowań, które uznałem za warte uwagi. Na pewno warto wiedzieć, że nie można z góry przekreślać matematyki akademickiej jako niepotrzebnej w informatyce. Może nie jest potrzebna do pisania prostych aplikacji, ale w ciekawszych zastosowaniach znać matematykę już trzeba.
+
+Do tego, wracając do metod numerycznych, o których pisałem na początku, a do których zaliczają się pokazane tu algorytmy, to zaledwie draśnięcie tematu. Możemy wyróżnić wiele innych technik, do których pewnie jeszcze wrócę na blogu.
+
+## Literatura
+
+- Całka Riemanna, [https://pl.wikipedia.org/w/index.php?title=Ca%C5%82ka_Riemanna&oldid=61651442](https://pl.wikipedia.org/w/index.php?title=Ca%C5%82ka_Riemanna&oldid=61651442) (ostatni dostęp 18.10.2021).
+- Wprowadzenie do metod numerycznych, [https://wazniak.mimuw.edu.pl/index.php?title=MN01](https://wazniak.mimuw.edu.pl/index.php?title=MN01) (ostatni dostęp 18.10.2021).
+- Całkowanie, [https://wazniak.mimuw.edu.pl/index.php?title=MN14](https://wazniak.mimuw.edu.pl/index.php?title=MN14) (ostatni dostęp 18.10.2021).
+- Monte Carlo method, [https://en.wikipedia.org/w/index.php?title=Monte_Carlo_method&oldid=1048671744](https://en.wikipedia.org/w/index.php?title=Monte_Carlo_method&oldid=1048671744) (ostatni dostęp 18.10.2021).
+- Metropolis, N. (1987). „The beginning of the Monte Carlo method”. *Los Alamos Science (Special Issue 1987)*: s. 125–130.
+- Mitrenga, D. (2014). „Metodyczne podstawy symulacji stochastycznej Monte Carlo”. *Studia Ekonomiczne / Uniwersytet Ekonomiczny w Katowicach (nr 204 Inwestycje i nieruchomości: wybrane zagadnienia)*: s. 164-180.
+
+<small>(wąż na okładce pochodzi ze strony [publicdomainvectors](https://publicdomainvectors.org/en/free-clipart/Green-and-brown-color-snake-line-art-vector-illustration/24570.html))</small>

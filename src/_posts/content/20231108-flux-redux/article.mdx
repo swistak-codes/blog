@@ -1,0 +1,323 @@
+import Link from 'next/link';
+import {Image} from '@swistak-codes/components';
+import cover from './kosmiczny_swistak.jpg';
+import flux from './flux.png';
+import redux from './redux.png';
+
+export const meta = {
+  title: 'Wzorzec obserwator w UI — Flux i Redux',
+  abstract:
+    'Artykuł kontynuuje opowiadanie o wzorcu obserwator w kontekście UI. Tym razem przypominam o architekturze Flux i opowiadam o Reduksie.',
+  firstParagraph: (
+    <>
+      Opowiadając na łamach bloga o reaktywności graficznych interfejsów użytkownika, wyjaśniłem, czym jest <Link href="/post/obserwator">wzorzec obserwator i jak go implementujemy</Link>. Później do układanki dodałem, że implementacje obserwatora możemy <Link href="/post/scentralizowany-obserwator">centralizować i podobny mechanizm wykorzystuje się „pod maską” w programowaniu zdarzeniowym</Link>, na którym opiera się tworzenie UI. Żeby dokończyć tą fascynującą podróż po tworzeniu reaktywności, opowiedzmy sobie o nieco już przykurzonym koncepcie architektury Flux i bazującym na nim Reduksie, który (przynajmniej w obrębie aplikacji webowych) wciąż jest jednym z najważniejszych podejść w obrębie zarządzania danymi.
+    </>
+  ),
+  keyword: 'redux',
+  categories: ['Programowanie'],
+  tags: [
+    "typescript",
+    "javascript",
+    "rxjs",
+    "flux",
+    "stan globalny"
+  ],
+  slug: 'flux-redux',
+  updateTime: '2023-11-08T07:00:00+00:00',
+  publishTime: '2023-11-08T07:00:00+00:00',
+  cover,
+};
+
+## Uwaga wstępna
+
+Tekst jest kontynuacją serii, w której opowiadam o wzorcu obserwator i jego zastosowaniach w tworzeniu reaktywnych interfejsów. Jeśli nie miałeś(-aś) okazji czytać żadnego z moich artykułów na ten temat, znajdziesz je poniżej wraz z listą tematów w nich poruszonych, które mogą się przydać do lektury tego tekstu:
+
+- *<Link href="/post/obserwator">Podstawy działania UI — wzorzec obserwator</Link>*
+  - poruszane tematy: wzorzec obserwator, ReactiveX (RxJS), signals
+- *<Link href="/post/scentralizowany-obserwator">Wzorzec obserwator w UI — podejścia scentralizowane</Link>*
+  - poruszane tematy: Pub-Sub, programowanie zdarzeniowe
+
+## Stan aplikacji
+
+W dotychczasowych tekstach z serii była mowa o obserwowaniu wartości zmiennych, powiadamianiu o zmianach, przekazywaniu wiadomości czy wywoływaniu zdarzeń. Z dużą zawziętością jednak pomijałem jeden ważny termin, w zasadzie kluczowy, bo stanowi ważne zastosowanie tych wszystkich technik — *stan aplikacji*.
+
+W kontekście programowania interfejsów graficznych przez stan rozumie się zmienną określającą w jakiś sposób dany obiekt. Zwykle wyróżniamy dwa rodzaje stanów aplikacji:
+
+- Stan lokalny — stan pojedynczego elementu/komponentu, np. dla pola tekstowego stanem może być jego aktualna wartość.
+- Stan globalny — stan całej aplikacji. Zwykle rozumiemy przez to dane współdzielone przez wiele komponentów w obrębie całej aplikacji, takie jak dane pobrane z zewnętrznego źródła. Przykładowo, jeśli nasza aplikacja wyświetla dane analityczne, to takie dane byłyby częścią globalnego stanu, który jest ściągany przez poszczególne komponenty (np. wykresy, tabele) i wyświetlany w określonej formie.
+
+Stan lokalny najczęściej jest implementowany prostymi technikami — jako po prostu zmienna przypisana do danego obiektu lub (jeśli potrzebujemy reaktywności) proste wariacje na temat wzorca obserwator jak signalsy (patrz [przykład angularowy](https://stackblitz.com/edit/angular-signals-2137?file=src%2Fmain.ts) z pierwszego artykułu — stanem lokalnym była tam wartość licznika). Stan globalny jest jednak zwykle o wiele bardziej złożony i stosuje się do niego nieco większe działa, o których opowiemy sobie dalej.
+
+## Flux
+
+Artykuł rozpocznę od nieco już zapomnianego tematu, aczkolwiek moim zdaniem wartego wspomnienia. Jest nim architektura [Flux](https://facebookarchive.github.io/flux/) zaproponowana przez Facebooka w 2014 r. jako sposób trzymania stanu globalnego w aplikacjach webowych pisanych w ich bibliotece do tworzenia widoków [React](https://react.dev/). Przy okazji stworzyli też [bibliotekę JavaScriptową](https://www.npmjs.com/package/flux) realizującą te założenia (o tej samej nazwie), ale skupimy się tutaj na samych założeniach, ponieważ projekt jest od wielu lat nierozwijany, ale odcisnął wyraźny ślad w późniejszych podejściach i sporo koncepcji jest wciąż aktualnych.
+
+### Elementy architektury i przepływ danych
+
+W ramach Fluksa możemy wyróżnić trzy elementy, na które składa się ta architektura:
+
+- Store (po pol. magazyn) — przechowuje wartości zmiennych składających się na stan aplikacji i odpowiada za wysyłanie informacji o tym, że wartość się zmieniła. Istotną różnicą w porównaniu do klasycznego wzorca obserwator jest to, że store nie udostępnia funkcji pozwalających zmienić stan. Też, co istotne dla dalszej części artykułu, aplikacja może składać się z wielu różnych store'ów i są one dzielone najczęściej według domeny biznesowej, którą się opiekują.
+- Dispatcher (po pol. dyspozytor) — do niego przekazywane są akcje, czyli informacje o tym, w jaki sposób jakiś komponent aplikacji chce zmodyfikować globalny stan. Jest tylko jeden na całą aplikację i, aby działać poprawnie, store'y muszą zostać w nim zarejestrowane w celu nasłuchiwania na akcje. Co istotne, w podejściu Fluksa dispatcher nie filtruje w żaden sposób akcji, tak jak to robią dyspozytory zdarzeń. Store rejestrując się w celu nasłuchiwania na akcje, zawsze dostaje wszystkie, nawet te, które go nie interesują.
+  - Tutaj warto wyjaśnić sobie, czym jest akcja (po ang. action). Akcja to obiekt składający się najczęściej z dwóch elementów: nazwy wykonywanej akcji (nazwa oczywiście powinna być znana store'om zainteresowanych akcją) i *ładunku* (po ang. payload), czyli danych, które mogą być potrzebne do wykonania odpowiedniej aktualizacji. Co istotne, akcja nie musi przesyłać, jaką dokładnie wartość ma przyjąć zmienna w stanie aplikacji. To ma być tylko opis, na podstawie którego store wykona odpowiednią aktualizację.
+  - Natomiast w kontekście rejestracji store rejestruje się, podając funkcję wykonującą się po nadejściu akcji do dyspozytora, czyli dokładnie tak, jak omawialiśmy to w poprzednim artykule. Wspomnę tylko, że funkcję, która aktualizuje stan store'a na podstawie akcji, powszechnie nazywa się *reducer* (po pol. reduktor). Co prawda podawane tutaj funkcje nie są typowymi reduktorami (definicja później), tylko stosowało się taki (nieco błędny) skrót myślowy. Zresztą sam Flux jest tylko koncepcją architektury i niektóre implementacje używały już reduktorów.
+- View (po pol. widok) — w tym kontekście widok jest rozumiany jako komponent aplikacji, który ulega aktualizacji na bazie zmian w storze. Co jest ważne, widok nie tylko reaguje na zmiany stanu, ale może też na niego wpływać przez wysyłanie akcji do dyspozytora. Warto też dodać, że często tworzyło się tzw. widoki-kontrolery (po ang. controller-views), których celem było uproszczenie przepływu danych: to one rejestrowały się w celu nasłuchiwania na zmiany stanu globalnego, po czym przekazywały go niżej do ich *dzieci*, aby zredukować liczbę punktów styku ze storem.
+
+Przepływ danych wygląda w tej architekturze następująco:
+
+<Image
+  image={flux}
+  alignCenter
+  fullSize
+  alt="Diagram z następującymi połączeniami. Węzeł Action jest podłączony do węzła Dispatcher. Węzeł Dispatcher jest podłączony do węzła Store. Węzeł Store jest podłączony do węzła View. Węzeł View natomiast jest podłączony do innego węzła Action, który też jest podłączony do węzła Dispatcher."
+  caption={<>Przepływ danych w architekturze Flux. Zwróć uwagę, że cała komunikacja jest jednostronna. Jakikolwiek element systemu może utworzyć akcję, ta trafia do dyspozytora, który to rozsyła informację do magazynów. Te natomiast wysyłają powiadomienie o zmianie do widoków.</>}
+/>
+
+### Przykład użycia
+
+Zobaczmy, jak implementacja takiej architektury mogłaby wyglądać w praktyce. Zasymulujemy ją w czystym JavaScripcie z użyciem [RxJS](https://rxjs.dev/), ponieważ nie chcę, żebyśmy w ramach tego bloga bawili się w archeologię i wykorzystywali nierozwijaną od lat bibliotekę Flux, do tego wymagającą Reacta. Jeśli nie wiesz, w jaki sposób korzystać z RxJS, zobacz przykłady kodu z moich dwóch poprzednich artykułów, gdzie używaliśmy tej biblioteki do implementacji wzorca obserwator oraz Pub-Sub.
+
+Przykład jest bardzo abstrakcyjny, ale w miarę pokaże, jak taka architektura wygląda. Strona na starcie wczyta z [PokeApi](https://pokeapi.co/) dane o pokemonie Pikachu. Po pobraniu dane te zostaną rozdzielone na trzy store'y: z podstawowymi danymi, z rysunkami oraz ze statystykami. Na widoku będą znajdować się komponenty prezentujące te dane oraz umożliwiające manipulację nimi.
+
+Poniżej możesz zobaczyć najważniejsze fragmenty kodu pokazujące główne elementy architektury Flux:
+
+```javascript
+// tworzymy centralny dyspozytor jako RxJSowy subject (temat)
+const dispatcher = new Subject();
+
+// definiujemy store przechowujący podstawowe dane
+class BaseDataStore {
+  // ogólna uwaga: # oznacza pole/metodę prywatną w JavaScript
+  // dane przechowujmy wewnętrznie jako RxJS-owe BehaviorSubject
+  #state = new BehaviorSubject({
+    name: '',
+    height: 0,
+    weight: 0,
+  });
+
+  // aby konstruktor nie był zależny od konkretnej instancji dyspozytora, przekażemy go do konstruktora
+  // wykorzystujemy ideę odwrócenia i wstrzyknięcia zależności
+  constructor(dispatcher) {
+    // w konstruktorze rejestrujemy się do nasłuchiwania dyspozytora
+    dispatcher.subscribe((action) => {
+      // ustawiamy następny stan jako wynik funkcji reduktora
+      this.#state.next(this.#reduce(action));
+    });
+  }
+
+  // reduktor, czyli funkcja zwracająca nowy stan po wykonaniu akcji
+  #reduce(action) {
+    switch (action.type) {
+      // w zależności od typu zwracamy różne dane
+      case SET_DATA:
+        // w przypadku ustawienia wszystkich danych zmieniamy całość stanu
+        return {
+          name: action.payload.name,
+          height: action.payload.height,
+          weight: action.payload.weight,
+        };
+      case CHANGE_NAME:
+        // w przypadku zmiany nazwy skopiujemy aktualny stan i tylko zmienimy nazwę
+        return {
+          ...this.#state.getValue(),
+          name: action.payload,
+        };
+      default:
+        // w przypadku innych akcji nie zmieniamy stanu
+        return this.#state.getValue();
+    }
+  }
+
+  // metoda zwracająca obserwatora RxJS-owego, do którego widok będzie mógł się zasubskrybować
+  observable() {
+    // asObservable() zwróci nam obserwatora niemającego możliwości zmiany stanu
+    return this.#state.asObservable();
+  }
+}
+
+// tworzymy instancję BaseDataStore
+const baseDataStore = new BaseDataStore(dispatcher);
+
+// ... pomijam kod pobierania z API...
+
+// przekazujemy dane z API w akcji do dyspozytora
+dispatcher.next({
+  type: SET_DATA, // stała przechowująca nazwę akcji
+  payload: apiData, // dane pobrane z API
+});
+
+// ...pomijam kod tworzenia widoku...
+
+// subskrybujemy się na zmiany w baseDataStore w celu ich wyświetlenia
+baseDataStore.observable().subscribe(({ name, height, weight }) => {
+  dataElement.querySelector('.name').textContent = name;
+  dataElement.querySelector('.height').textContent = height;
+  dataElement.querySelector('.weight').textContent = weight;
+});
+
+// podpinamy akcję zmiany obrazka do przycisku
+dataElement.querySelector('.next-image-btn').addEventListener('click', () => {
+  // wysyłamy do dyspozytora akcję bez ładunku
+  // store sam wyliczy nowy stan na tej podstawie
+  dispatcher.next({
+    type: NEXT_IMAGE,
+  });
+});
+```
+
+Kod w całości znajdziesz na [StackBlitzu](https://stackblitz.com/edit/js-ilkfc6?file=index.js), gdzie również możesz go przetestować w praktyce i spróbować modyfikować na własną rękę. Jest rozdzielony na wiele plików i folderów dla zachowania czystości, więc możesz chcieć przejść po plikach w celu odkrycia całej implementacji. Powyższy fragment to połączenie różnych rzeczy z różnych plików.
+
+Pamiętaj także, że jest to tylko przykładowa implementacja oparta na RxJS. W „żywym projekcie” prawdopodobnie wyglądałaby nieco inaczej, np. byłyby zrobione destruktory RxJS-owych tematów i przede wszystkim napisano by to tak, aby nie aktualizować wszystkich komponentów co zmianę danych, a jedynie te, które aktualizacji wymagają. Jeśli zainteresował Cię temat, polecam pokombinować na własną rękę, jak można by tę implementację udoskonalić.
+
+PS. Jeśli odpalisz przykład na StackBlitz, to ostrzegam: niektóre obrazki są bardzo podobne (są wersje Pikachu dla dwóch płci, które różnią się kształtem ogona), więc warto przypatrzeć się, czy nie ma innego drobnego detalu.
+
+## Redux
+
+Można się zapytać — po co poznawać podejście sprzed niemal 10 lat, skoro technologia i trendy w niej ciągle się zmieniają? Otóż o ile oryginalny Flux jest już raczej niespotykany, tak podejścia na nim bazujące już są. Spośród nich najbardziej znanym, z ugruntowaną od wielu lat pozycją wśród twórców aplikacji webowych, jest Redux.
+
+Redux w dużej mierze realizuje założenia Fluksa, jednak z pewnymi istotnymi różnicami. Zanim jednak do tego przejdziemy, od razu powiem, że o ile ja rozróżniam Fluksa od Reduksa (bo mimo wszystko są różnice), to nie raz możesz się spotkać z tym, że te podejścia są ze sobą utożsamiane. Przykładem tego może być [dokumentacja do biblioteki Zustand](https://github.com/pmndrs/zustand/blob/HEAD/docs/guides/flux-inspired-practice.md), gdzie jako praktyki inspirowane Fluksem otrzymujemy opis Reduksa. Też w tym kontekście zrobiłem przed napisaniem tego artykułu [ankietę na LinkedIn](https://www.linkedin.com/feed/update/urn:li:activity:7122466016680394752/), gdzie byłem ciekaw, czy moi obserwatorzy mieli okazję poznać Fluksa takiego, jak opisałem wyżej, czy odmianę reduksową. Niestety post factum stwierdzam, że nieco źle sformułowałem pytanie, bo spytałem się, dzięki czemu poznało się podejście, a nie które dokładnie. Patrząc jednak na rozkład odpowiedzi (dosłownie pół na pół), można stwierdzić*, że Redux przyczynił się do wypromowania architektury Flux albo przynajmniej jej wariantu.
+
+\* Warto dodać, że przy tak małej grupie badawczej to i tak mocne przypuszczenie.
+
+### Redux a Flux
+
+Jedną z różnic między Reduksem a Fluksem jest to, że mamy tylko jeden magazyn (store) dla całej aplikacji. Tutaj jednak często nie traktuje się tego jako dużą różnicę, ponieważ wewnętrznie stan najczęściej dzieli się na mniejsze części (specjalistyczne reduktory). Jednak z dowolnego miejsca w aplikacji odwołujemy się zawsze do jednej, spójnej całości.
+
+W tym momencie należy już powiedzieć, czym jest reduktor. Ogólnie w programowaniu funkcyjnym reduktory to funkcje przyjmujące akumulator (dotychczasową wartość) i wartość, która zostanie zaaplikowana na akumulator. Taka funkcja zwraca nową wartość akumulatora po wykonaniu odpowiedniej operacji. W kontekście Reduksa akumulatorem jest aktualny stan aplikacji, a wartością wykonywana akcja. Wynikiem funkcji jest odpowiednio przekształcony stan. We Fluksie mogliśmy to tak rozwiązać (co zrobiłem na przykładzie), ale nikt od nas tego nie wymagał.
+
+Kolejna różnica to brak tak rozbudowanego dyspozytora, jak widzimy go we Fluksie. W Reduksie mamy oczywiście dispatcher do wywoływania akcji, jednak store'y nie rejestrują się w nim, nie ma tu reagowania na zdarzenia. Jest to jedynie funkcja wystawiona przez store, służąca do przesyłania akcji do reduktora. W tym momencie warto dodać, że nawet jeśli rozdzielimy stan na wiele oddzielnych reduktorów (co jest normalną praktyką), to są one wewnętrznie złączane w jeden.
+
+Sam stan (będący wynikiem pracy reduktorów) można powiedzieć, że jest już implementacją wzorca obserwator. Możemy się subskrybować na zmiany w nim, co często robimy przez tzw. selektory, które mapują wartości stanu do postaci, jaką potrzebujemy.
+
+Schemat Reduksa moglibyśmy zobrazować poniższym diagramem. Porównaj go do wyżej pokazanego schematu Fluksa i zobacz, jakie różnice mamy, zanim zastosujemy to w praktyce.
+
+<Image
+  image={redux}
+  alignCenter
+  fullSize
+  alt="Diagram z następującymi połączeniami. Węzeł Action jest podłączony do węzła Dispatcher znajdującego się wewnątrz dużej grupy Store. Węzeł Dispatcher jest podłączony do węzła Reducer również znajdującego się w grupie Store. Węzeł Reducer jest podłączony do węzła State również w grupie Store. Węzeł State jest połączony do węzła View znajdującego się już poza grupą State. Węzeł View natomiast jest podłączony do innego węzła Action, który też jest podłączony do węzła Dispatcher."
+  caption={<>Przepływ danych w Reduksie. W porównaniu z Fluksem, gdzie dyspozytor był centralnym punktem spajającym pojedyncze magazyny, tutaj to on jest w centrum. Zawiera własnego dyspozytora, funkcję reduktora i stan, do którego możemy się subskrybować. To, co jest zachowane, to jednostronna komunikacja oraz przesyłanie akcji do dyspozytora zamiast bezpośredniego modyfikowania wartości.</>}
+/>
+
+### Przykład użycia
+
+Przepiszmy powyższą implementację Fluksa w RxJS na czystego Reduksa. Zrobimy tak, ponieważ biblioteka [Redux](https://redux.js.org/) jest wciąż aktywnie rozwijana, do tego jest niezależna od frameworka stosowanego w JavaScript, więc nie musimy przepisywać wcześniej napisanego interfejsu. Aczkolwiek ostrzegam, że jeśli Reduksa poznałeś(-aś) niedawno, to możesz się zdziwić, bo raczej nie używa się go w taki sposób jak tu pokażę, tylko przez bindingi (biblioteki służące jako uproszczenie komunikacji dostosowane pod wybrany framework) lub implementacje dla konkretnych frameworków.
+
+Więcej o tym jednak po przykładzie, na razie przepiszmy aplikację pokazującą Pikachu na Reduksa. Poniżej pokażę najciekawsze fragmenty kodu, a całość znajdziesz w linku niżej.
+
+```javascript
+// jedyne funkcje, które są nam potrzebne z biblioteki Redux
+import { createStore, combineReducers } from 'redux';
+
+// zmienna przechowująca początkowy wycinek stanu opiekowany przez baseDataReducer
+const initialBaseDataState = {
+  name: '',
+  height: 0,
+  weight: 0,
+};
+
+// odpowiednik fluksowego store przechowującego podstawowe dane
+// reduktor baseDataReducer przyjmuje swój wycinek stanu jako akumulator oraz akcję
+// zwróć uwagę, że jest to zwykła funkcja, bez zależności od Reduksa
+function baseDataReducer(state = initialBaseDataState, action) {
+  // zauważ, że reduktor wygląda dokładnie tak samo, jak ten, który napisaliśmy we Fluksie
+  // zrobiłem to specjalnie, aby pokazać podobieństwo;
+  // jedyna różnica jest taka, że tutaj mamy do czynienia z prawdziwym reduktorem,
+  // czyli funkcja jest niezależna od żadnej zewnętrznej zmiennej ze stanem
+  switch (action.type) {
+    case SET_DATA:
+      return {
+        name: action.payload.name,
+        height: action.payload.height,
+        weight: action.payload.weight,
+      };
+    case CHANGE_NAME:
+      return {
+        ...state,
+        name: action.payload,
+      };
+    default:
+      return state;
+  }
+}
+
+// złączamy nasze reduktory w jeden za pomocą funkcji combineReducers
+const reducer = combineReducers({
+  baseData: baseDataReducer,
+  images: imagesReducer,
+  stats: statsReducer,
+});
+
+// tworzymy reduksowy store przy użyciu funkcji createStore
+const store = createStore(reducer);
+// funkcja w aktualnej wersji Reduksa jest oznaczona jako "deprecated",
+// jednak jest tak tylko dlatego, że twórcy biblioteki zachęcają do korzystania z Redux Toolkit
+
+// dla uproszczenia pracy z Reduksem tworzy się selektory
+// pobierające wybrane dane ze stanu
+
+// selektor pobierający ze stanu podstawowe dane o pokemonie
+function baseDataSelector(state) {
+  // w tym przypadku możemy zwrócić po prostu surowy stan
+  return state.baseData;
+}
+
+// ... pomijam kod pobierania z API...
+
+// przekazujemy dane z API w akcji do dyspozytora
+store.dispatch({
+  type: SET_DATA, // stała przechowująca nazwę akcji
+  payload: apiData, // dane pobrane z API
+});
+
+// ...pomijam kod tworzenia widoku...
+
+// subskrybujemy się na zmiany w store w celu ich wyświetlenia
+// warto dodać, że zwykle robi się to bindingami, a nie przez jawne użycie subscribe
+store.subscribe(() => {
+  // pobieramy dane ze stanu, korzystając z selektora
+  const { name, height, weight } = baseDataSelector(store.getState());
+  dataElement.querySelector('.name').textContent = name;
+  dataElement.querySelector('.height').textContent = height;
+  dataElement.querySelector('.weight').textContent = weight;
+});
+
+// podpinamy akcję zmiany obrazka do przycisku
+dataElement.querySelector('.next-image-btn').addEventListener('click', () => {
+  // wysyłamy do dyspozytora akcję bez ładunku
+  // store sam wyliczy nowy stan na tej podstawie
+  store.dispatch({
+    type: NEXT_IMAGE,
+  });
+});
+```
+
+Tak jak zapowiedziałem, kod w całości, razem z możliwością przeklikania aplikacji, znajdziesz na [StackBlitz](https://stackblitz.com/edit/js-bard3n?file=index.js).
+
+### Korzystanie z Reduksa na koniec 2023 roku
+
+W tym momencie zdaję sobie sprawę, że osoby niezaznajomione z Reduksem mogą mieć zgrzyt po tym, co napisałem wcześniej. Jakim cudem wciąż rozwijana biblioteka jest używana inaczej niż w domyślny sposób? Mimo że nie chcę w tym blogu aż tak wchodzić w konkretne implementacje, bo nie jest to zbyt uniwersalna wiedza i może szybko się zdezaktualizować (szczególnie biorąc pod uwagę, że mowa o frontendzie, gdzie dynamika trendów jest bardzo wysoka), to jednak ponownie zrobię ten wyjątek ze względu na temat.
+
+- [Redux Toolkit](https://redux-toolkit.js.org/) to dziś podstawowy sposób korzystania z Reduksa w [Reakcie](https://react.dev/). Pod spodem korzysta przede wszystkim z czystego Reduksa i bindingów [React-Redux](https://react-redux.js.org/), ale dodatkowo dodaje do tego wiele innych przydatnych bibliotek i funkcji upraszczających tworzenie i korzystanie ze stanu.
+- [NgRx](https://ngrx.io/) jest implementacją Reduksa napisaną w RxJS z myślą o frameworku [Angular](https://angular.io/). Korzystanie z niego jest analogiczne do używania oryginału.
+
+Warto w tym miejscu dodać, że dziś coraz popularniejsze są biblioteki, które realizują założenia Reduksa, gdzie magazyn zawiera dyspozytor przepuszczający akcje przez reduktory w celu otrzymania stanu, aczkolwiek nieograniczające nas, że musi być jeden centralny magazyn. Zamiast tego możemy tworzyć wiele specjalistycznych, każdy z własnym dyspozytorem, co ma swoje wady i zalety. Oczywiście nikt nam nie zabrania używania ich w postaci reduksowej, czyli jeden store na całą aplikację. Pośród rozwiązań tego typu wyróżniłbym:
+
+- [Zustand](https://github.com/pmndrs/zustand) — coraz popularniejsza biblioteka do zarządzania stanem w Reakcie, która upraszcza reduksowe podejście w wyżej opisany sposób.
+- [Pinia](https://pinia.vuejs.org/) — aktualne rozwiązanie do zarządzania stanem we frameworku [Vue](https://vuejs.org/), analogiczne do pokazanego wyżej Zustanda. Wyparło wcześniejszą bibliotekę [Vuex](https://vuex.vuejs.org/), która była dosłownym przeniesieniem Reduksa na Vue.
+
+Oczywiście bibliotek do zarządzania globalnym stanem jest znacznie więcej — jedne bardziej nawiązują do Reduksa (np. [mobx-state-tree](https://www.npmjs.com/package/mobx-state-tree)), inne bardziej do oryginalnego Fluksa (np. [Akita](https://github.com/salesforce/akita)). Są też takie, które rezygnują z tych podejść architektonicznych na rzecz własnych lub są nowoczesnymi implementacjami wzorca obserwator (np. [Elf](https://ngneat.github.io/elf/), [Jotai](https://jotai.org/)). Nawet nie będę próbować wymieniać wszystkich dostępnych, bo szkoda na to czasu, a jeśli czytasz ten artykuł w przyszłości, to nie zdziwiłbym się, gdyby któreś z wcześniej wspomnianych były już nierozwijane lub niemodne.
+
+## Podsumowanie
+
+W tym miejscu mogę spokojnie zakończyć serię o wzorcu obserwator na UI. Poznaliśmy wszystko: od prostego obserwowania zmian wartości, przez rozbudowę o dodatkowe elementy, po przykładowe podejścia do trzymania globalnego stanu aplikacji. Oczywiście poznanych dziś rzeczy nikt nie każe stosować od razu w aplikacjach — każda jest inna, każda wymaga innego podejścia. Nie ma uniwersalnie dobrych rozwiązań, a prawidłową odpowiedzią programisty na pytanie, które podejście użyć, brzmi: **„to zależy”**.
+
+Jeśli chciałbyś/chciałabyś pogłębić pokazane w tym artykule tematy, przede wszystkim warto po prostu skorzystać z Reduksa albo innych wymienionych w artykule bibliotek realizujących bardziej lub mniej założenia Fluksa. Możesz też poczytać o innych koncepcjach architektonicznych, które implementuje Redux — CQRS oraz Event Sourcing. Wiedza ta na pewno przyda Ci się, by zostać lepszym programistą.
+
+Natomiast w samym temacie kiedy co używać przywołam film sprzed roku, gdzie wraz z Dawidem Perdkiem gościmy u Marcina Ludwiga na kanale Frontend Architecture i rozmawiamy dokładnie na ten temat. Znajdziesz go tutaj: https://www.youtube.com/watch?v=lA8UHKyWjVE.
+
+## Literatura
+
+- In-Depth Overview | Flux, https://facebookarchive.github.io/flux/docs/in-depth-overview/ (ostatni dostęp: 01.11.2023 r.)
+- Getting Started with Redux | Redux, https://redux.js.org/introduction/getting-started (ostatni dostęp: 01.11.2023 r.)
+
+<small>Zdjęcie na okładce wygenerowane przez Stable Diffusion.</small>

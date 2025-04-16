@@ -1,0 +1,280 @@
+import Link from 'next/link';
+import {Image} from '@swistak-codes/components';
+import {Presentation} from "./presentation";
+import cover from './swistak-spirale.jpg';
+import polar from './Polar_graph_paper.svg.png';
+
+export const meta = {
+  title: 'Jak narysować spiralę?',
+  abstract:
+    'W artykule opisuję matematykę stojącą za spiralą Archimedesa i jak możemy jej użyć w praktyce, aby ją narysować.',
+  firstParagraph: (
+    <>
+      Na moim blogu rysowaliśmy już wiele rzeczy. <Link href="/post/jak-komputer-rysuje-linie">Linie</Link>, <Link href="/post/jak-komputer-rysuje-okregi">okręgi</Link>, <Link href="/post/algorytmiczne-rysowanie-roslin">rośliny</Link>, <Link href="/post/jak-narysowac-zegar-analogowy">zegar</Link>. Porysujmy znowu! Tym razem na tapet weźmy kolejną rzecz powiązaną z kołami — spirale. Po raz kolejny zobaczysz, jak w praktyce wykorzystać matematykę, geometrię i trygonometrię, aby zmusić komputer (z użyciem JavaScriptu) do narysowania czegokolwiek.
+    </>
+  ),
+  keyword: 'spirale',
+  categories: ['Matematyka', 'Programowanie', 'Grafika komputerowa'],
+  tags: [
+    'javascript',
+    'canvas',
+    'grafika komputerowa',
+    'geometria',
+    'trygonometria',
+    'układ biegunowy',
+    'spirala',
+    'spirala archimedejska',
+    'spirala Archimedesa',
+    'złota spirala',
+    'spirala logarytmiczna'
+  ],
+  slug: 'jak-narysowac-spirale',
+  updateTime: '2023-02-22T07:00:00+00:00',
+  publishTime: '2023-02-22T07:00:00+00:00',
+  cover,
+};
+
+## Spirale a matematyka
+
+Zacznijmy najpierw od tego, czym z punktu widzenia matematyki jest spirala i jak ją w ten sposób zdefiniować. Spirala taka, jaką większość z nas kojarzy, fachowo nazywa się spiralą Archimedesa. Z punktu widzenia geometrii jest to krzywa w $$\mathbb{R} ^{2}$$, czyli w przestrzeni dwuwymiarowej.
+
+### Wzór na spiralę
+
+Dobrze, ale skoro chcemy spiralę narysować, to sama wiedza, że jest to krzywa w przestrzeni dwuwymiarowej (czego i tak można było się domyślić), nie przyda się nam. Potrzebujemy jeszcze wzoru na punkty w przestrzeni. W podręcznikach znajdziemy następujący wzór na spiralę Archimedesa:
+
+$$
+r = a\theta + b
+$$
+
+We wzorze tym:
+
+- $$r$$ — promień, który spirala ma przy danym kącie.
+- $$\theta$$ — kąt, dla którego wyliczamy promień.
+- $$a$$ — parametr (wartość stała) określający odległość między „zakręceniami” spirali.
+- $$b$$ — parametr (wartość stała) określający „odsunięcie” spirali od środka. Najczęściej przyjmuje się wartość 0.
+
+Wpływ parametrów $$a$$ oraz $$b$$ na wygląd spirali możesz sprawdzić na poniższej prezentacji. Swoją drogą, właśnie coś takiego (ale bez zmiany parametrów w locie) osiągniesz, podążając za wskazówkami w dalszej części artykułu.
+
+<Presentation />
+
+Tylko teraz możesz powiedzieć, że coś tu nie gra. W końcu mieliśmy dostać wzór na współrzędne punktu, a dostaliśmy wzór na promień dla zadanego kąta. O co tu chodzi?
+
+### Układ współrzędnych biegunowych
+
+Otóż są to współrzędne, tylko w układzie współrzędnych biegunowych. Jeśli jesteś zaznajomiony(-a) z moim blogiem, mogłeś(-aś) już czytać o <Link href="/post/szybkie-wyszukiwanie-sciezek/">układzie współrzędnych Manhattan czy Czebyszewa</Link>, więc niekartezjańskie układy nie powinny być Ci obce. Różnica jest jednak taka, że tamte układy dalej operowały na współrzędnych $$x$$ i $$y$$, a różniły się jedynie sposobem określania odległości między punktami.
+
+W przypadku układu współrzędnych biegunowych (po ang. *polar coordinate system*) każdy punkt reprezentowany jest przez promień ($$r$$) i kąt ($$\theta$$). Bardziej fachowo mówiąc, są to promień wodzący punktu oraz jego amplituda. Sam układ moglibyśmy narysować mniej więcej w następujący sposób:
+
+<Image
+  image={polar}
+  alignCenter
+  fullSize
+  maxWidth="500px"
+  alt="Układ współrzędnych biegunowych z oznaczonymi kątami co 30 stopni."
+  caption={<>Układ współrzędnych biegunowych z oznaczonymi kątami co 30 stopni. Zwykle jednak, rysując ten układ, pomijamy opisywanie kątów.<br />(źródło: <a href="https://commons.wikimedia.org/wiki/File:Polar_graph_paper.svg">Mets501</a>, <a href="http://creativecommons.org/licenses/by-sa/3.0/">CC BY-SA 3.0</a>, via Wikimedia Commons)</>}
+/>
+
+Nie wnikajmy jakoś głęboko w matematykę stojącą za tym układem, jego historię czy zastosowania. Nas przede wszystkim będzie interesować, jak współrzędne układu biegunowego przekształcić we współrzędne kartezjańskie. A to możemy zrobić wzorem, który wyprowadziłem <Link href="/post/jak-narysowac-zegar-analogowy/#zegar-analogowy-z-punktu-widzenia-matematyki">w poprzednim artykule</Link>, dla znalezienia pozycji na okręgu, gdy znamy jego promień i kąt środkowy. Nie będę ponownie pokazywać, w jaki sposób go wyprowadzić; jeśli jesteś ciekaw(a), przeczytaj poprzedni artykuł poświęcony rysowaniu zegara analogowego. Tutaj po prostu przepiszę gotowe wzory:
+
+$$
+\begin{align*}
+x &= r \cdot \cos \theta \\
+y &= r \cdot \sin \theta
+\end{align*}
+$$
+
+Konwersję w drugą stronę również możemy wykonać, ale to wybiega poza obszar tematyczny tego artykułu.
+
+### Inne spirale
+
+Można powiedzieć, że poznaliśmy spiralę Archimedesa, przynajmniej od strony wzoru na nią. Warto jednak wiedzieć, że nie jest to jedyny rodzaj spirali.
+
+Uogólnieniem spirali Archimedesa jest wzór na spiralę archimedejską. Wygląda następująco:
+
+$$
+r = a \theta^{\frac{1}{n}} + b
+$$
+
+Względem poprzedniego wzoru różnica jest taka, że podnosimy kąt do potęgi $$\frac{1}{n}$$. Można przyjąć, że $$n$$ określa, jak bardzo „ściśnięta” jest spirala. Pozostałe symbole mają to samo znaczenie co do tej pory.
+
+Istnieją cztery nazwane rodzaje spirali zależne od wartości $$n$$:
+
+- $$n = 1$$: spirala Archimedesa, którą poznaliśmy wcześniej.
+- $$n = 2$$: spirala Fermata. Charakterystyczną cechą jest to, że dla każdego kąta zwracane są dwie wartości promienia. Tym samym powstała spirala jest symetryczna. Więcej informacji [tutaj](https://mathworld.wolfram.com/FermatsSpiral.html).
+- $$n = -1$$: spirala hiperboliczna. Więcej informacji [tutaj](https://mathworld.wolfram.com/HyperbolicSpiral.html).
+- $$n = -2$$: lituus. Więcej informacji [tutaj](https://mathworld.wolfram.com/Lituus.html).
+
+Oprócz tego dość charakterystyczna i znana jest spirala logarytmiczna. Dystans między kolejnymi „zakręceniami” przyrasta geometrycznie, stąd dość szybko staje się rozwlekła. Jej szczególnym przypadkiem jest złota spirala, gdzie spirala rozszerza się w tempie zgodnym ze złotym podziałem.
+
+Spiralę logarytmiczną opiszemy wzorem:
+
+$$
+r=ae^{b \theta}
+$$
+
+($$e$$ — podstawa logarytmu naturalnego)
+
+Natomiast szczególny przypadek złotej spirali możemy opisać takim wzorem:
+
+$$
+r=\varphi ^{2\theta /\pi}
+$$
+
+($$\varphi$$ — złoty podział)
+
+Nie będziemy implementować opisanych tu spiral, ale zachęcam do przerobienia pokazanego niżej kodu tak, aby narysował inny rodzaj spirali.
+
+## Przygotowanie środowiska programistycznego
+
+Podobnie jak w przypadku <Link href="/post/jak-narysowac-zegar-analogowy">rysowania zegara</Link>, tak i tutaj zrobimy to w przeglądarkowym JavaScripcie, wykorzystując element `<canvas>` (płótno) do rysowania. W tamtym artykule dałem bardziej szczegółowe instrukcje, w jaki sposób przygotować odpowiedniego HTML-a, więc zapraszam tam po szczegóły. Tutaj tylko w skrócie napiszę, że potrzebujemy mieć następujący tag:
+
+```html
+<canvas id="canvas" width="500" height="500">
+  Twoja przeglądarka nie wspiera Canvas
+</canvas>
+```
+
+Kod możesz w wygodny sposób napisać np. w serwisie [CodePen](https://codepen.io/), bez potrzeby robienia czegokolwiek na własnym komputerze (chociaż nie ma tutaj nic, co wymagałoby skomplikowanych instalacji i obciążania systemu).
+
+W kwestii części JavaScriptowej potrzebujemy dostać się do płótna i jego kontekstu rysowania w dwóch wymiarach, co zrobimy następująco:
+
+```javascript
+const canvas = document.getElementById("canvas");
+const context = canvas.getContext("2d");
+```
+
+Możemy teraz przejść do programowania rysowania spirali. W przeciwieństwie do rysowania zegara nie będziemy tworzyć żadnej animacji, więc nie musimy pisać kodu czyszczącego ekran czy też pętli odświeżającej go.
+
+## Funkcje do obliczania pozycji
+
+Zanim cokolwiek narysujemy, napiszmy najpierw funkcję, która obliczy promień dla zadanego kąta spirali. Załóżmy też, przynajmniej w tym miejscu, że parametry $$a$$ i $$b$$ możemy ustalić w dowolny sposób. Wzór jest dość prosty, więc i funkcja nie jest w żaden sposób skomplikowana:
+
+```javascript
+const getRadius = (parameterA, parameterB, angle) => {
+  return parameterA * angle + parameterB;
+};
+```
+
+Dodatkowo przyda nam się również funkcja, która zamieni współrzędne w układzie współrzędnych biegunowych na tradycyjny kartezjański. Przy okazji, żeby ładnie narysować, przesuniemy układ tak, aby punkt $$(0,0)$$ znajdował się na środku płótna. W tym celu zmierzymy, gdzie jest środek, zanim napiszemy funkcję:
+
+```javascript
+const centerX = canvas.width / 2;
+const centerY = canvas.height / 2;
+
+const polarToCartesian = (radius, angle) => {
+  const x = radius * Math.cos(angle) + centerX;
+  const y = radius * Math.sin(angle) + centerY;
+
+  return [x, y];
+};
+```
+
+Mamy teraz wszystko, co jest potrzebne do rysowania spirali. W takim razie narysujmy ją.
+
+## Pętla rysująca
+
+### Przydatne stałe
+
+Jednak zanim narysujemy spiralę, ustawmy sobie parę stałych:
+
+- maksymalny promień, który możemy narysować,
+- wartości parametrów $$a$$ i $$b$$,
+- o ile będziemy zwiększać kąt co iterację.
+
+W moim przypadku ustalę te stałe w poniższy sposób:
+
+```javascript
+const MAX_RADIUS = 250;
+const A = 5;
+const B = 0;
+const ANGLE_INCREMENT = 0.01;
+```
+
+Parametr $$a$$ o wartości 5 da ładnie rozsunięte ramiona spirali, a $$b$$ równe 0 brak odsunięcia od środka. Wartość, o którą zwiększamy kąt, jest eksperymentalnie wyznaczona przeze mnie — dawała najlepsze rezultaty przy metodzie rysowania opisanej dalej w tym artykule.
+
+### Iteracyjne odkrywanie punktów spirali
+
+Następnie musimy <Link href="/post/iteracja-co-to-jest">iteracyjnie</Link> odkryć punkty spirali, które narysujemy. Wykorzystamy pętlę typu `while`, ponieważ nie jesteśmy w stanie z góry określić liczby iteracji. Dlaczego? Otóż wiemy, jak kąt będzie przyrastać, ale nie wiemy, jaki będzie maksymalny. Znamy natomiast maksymalny promień, ale jego przyrost zależy od przyrastania kąta. Pętla `for` w takim przypadku nie jest naturalnym wyborem.
+
+Jednak aby odpowiednio wysterować taką pętlę, musimy poza pętlą zainicjować dwie zmienne: ostatnio wyliczony promień i aktualny kąt. Damy im zerowe wartości:
+
+```javascript
+let lastRadius = 0;
+let currentAngle = 0;
+```
+
+W samej pętli na razie tylko wyznaczmy punkty (bez ich rysowania). Iterować będziemy tak długo, aż osiągniemy maksymalny promień, a co odkrycie kolejnego punktu zaktualizujemy wartości powyższych zmiennych:
+
+```javascript
+while (lastRadius < MAX_RADIUS) {
+  const newRadius = getRadius(A, B, currentAngle);
+  const [newX, newY] = polarToCartesian(newRadius, currentAngle);
+
+  lastRadius = newRadius;
+  currentAngle += ANGLE_INCREMENT;
+}
+```
+
+### Narysowanie punktów
+
+Mamy punkty, ale wciąż ich nie narysowaliśmy. Wbrew pozorom w JavaScript nie jest to aż tak oczywiste zadanie, ponieważ nie mamy tutaj metody typu `putPixel` znanej z innych języków, ustawiającej kolor na wskazanym punkcie. Możemy jednak to obejść.
+
+Obejście, które ja proponuję, to rysowanie odcinków. Zapamiętajmy zawsze ostatni wyznaczony piksel i narysujmy od niego odcinek do nowo wyznaczonego. Przy zwiększaniu kąta o 0,01 co iterację obliczone odległości będą i tak się różnić o ok. 1 piksel, więc spirala będzie wyglądać dobrze, nie będzie „kanciasta”.
+
+Sposób rysowania odcinków w JavaScript opisałem w artykule o rysowaniu zegara i nie będę tutaj powtarzać jego dokładnego opisu. To, co najważniejsze, żebyś wiedział(a) — użyjemy dwóch funkcji:
+
+- `moveTo()` do ustawienia punktu startowego odcinka,
+- `lineTo()` do narysowania odcinka do wskazanego punktu.
+
+Przed pętlą ustawimy „ostatni” punkt na środku płótna, bo i tak stamtąd zaczynamy rysowanie. Musimy tylko wziąć pod uwagę przesunięcie współrzędnej X zależne od parametru $$b$$. Następnie ustawimy styl rysowania (`strokeStyle`) i je rozpoczniemy (`beginPath()`). Dopiero wtedy uruchomimy pętlę wyznaczającą punkty i tam wykonamy określenie odcinka. Zaraz za pętlą wywołamy narysowanie wszystkich określonych przez nas odcinków (`stroke()`). Całość będzie wyglądać następująco:
+
+```javascript
+let lastRadius = 0;
+let currentAngle = 0;
+let lastX = centerX + B;
+let lastY = centerY;
+
+context.beginPath();
+context.strokeStyle = 'black';
+while (lastRadius < MAX_RADIUS) {
+  context.moveTo(lastX, lastY);
+  const newRadius = getRadius(A, B, currentAngle);
+  const [newX, newY] = polarToCartesian(newRadius, currentAngle);
+  context.lineTo(newX, newY);
+
+  lastRadius = newRadius;
+  currentAngle += ANGLE_INCREMENT;
+  lastX = newX;
+  lastY = newY;
+}
+context.stroke();
+```
+
+## Koniec implementacji
+
+Jeśli podążałeś(-aś) według powyższych instrukcji, na Twoim ekranie powinna ukazać się spirala podobna do tej, którą pokazałem w prezentacji na początku artykułu. Jeśli chcesz porównać to, co napisałeś(-aś) do mojego kodu, albo po prostu jesteś tutaj po gotowca (ale wtedy chociaż przeczytaj teorię), implementację znajdziesz na jednej z dwóch poniższych platform:
+
+- [CodePen](https://codepen.io/tswistak/pen/MWBGNMg?editors=0011)
+- [repl.it](https://replit.com/@tswistak/spiral-js#script.js)
+
+Tym razem nie dam jak ostatnio rozwiązania w Pythonie, ale za to w ramach gratisu możesz zobaczyć, jak w bardzo prosty sposób przerobiłem kod rysujący spiralę, tak aby rysował złotą spiralę. Kod znajdziesz poniżej:
+
+- [CodePen](https://codepen.io/tswistak/pen/KKBBoRa?editors=0010)
+- [repl.it](https://replit.com/@tswistak/golden-spiral-js#script.js)
+
+Zwróć uwagę, że tak naprawdę jedyna różnica to funkcja `getRadius`, która teraz używa po prostu innego wzoru. W zasadzie reszta kodu jest taka sama.
+
+## Podsumowanie
+
+W tym artykule poruszyliśmy temat, mogłoby się wydawać, nieco trudniejszy niż ostatnio, ale koniec końców wcale nie było aż tak ciężko. Mimo że dla kogoś mniej obeznanego z matematyką takie pojęcia jak *układ współrzędnych biegunowych* mogą brzmieć przerażająco, nie stoi za tym nic trudnego. Ostatecznie całość narysowaliśmy dzięki dwóm prostym funkcjom i jednej prostej iteracji. Zachęcam do kombinowania na własną rękę z rysowaniem różnych kształtów i figur, a także do bliższego zapoznania się ze współrzędnymi biegunowymi — potrafią być przydatne nie tylko do obliczania punktów spirali.
+
+## Literatura
+
+- Polar coordinate system, https://en.wikipedia.org/w/index.php?title=Polar_coordinate_system&oldid=1135493895 (ostatnie odwiedziny 01.02.2023).
+- Weisstein, Eric W. "Archimedes' Spiral." From *MathWorld*--A Wolfram Web Resource. https://mathworld.wolfram.com/ArchimedesSpiral.html
+- Weisstein, Eric W. "Archimedean Spiral." From *MathWorld*--A Wolfram Web Resource. https://mathworld.wolfram.com/ArchimedeanSpiral.html
+- Weisstein, Eric W. "Logarithmic Spiral." From *MathWorld*--A Wolfram Web Resource. https://mathworld.wolfram.com/LogarithmicSpiral.html
+- Golden spiral, https://en.wikipedia.org/w/index.php?title=Golden_spiral&oldid=1136195648 (ostatnie odwiedziny 01.02.2023).
+
+
+<small>Zdjęcie na okładce wygenerowane przez DALL-E.</small>

@@ -1,0 +1,87 @@
+import Link from 'next/link';
+import {Image} from '@swistak-codes/components';
+import cover from './malpka.jpg';
+
+export const meta = {
+  title: 'Nie-liczby jako liczby, czyli zapis danych cyfrowych',
+  abstract:
+    'Jak liczbami zapisać śmieszny filmik z kotami? Jak każda litera może być liczbą? W tym artykule opowiemy sobie o sposobach kodowania danych.',
+  firstParagraph: (
+    <>
+      <Link href="/post/matematyka-zero-jedynkowa">W poprzednich artykułach</Link> z tej serii mówiliśmy o <Link href="/post/sposoby-zapisywania-liczb-przez-komputery">liczbach całkowitych</Link>, <Link href="/post/liczby-wymierne-i-rzeczywiste-w-zero-jedynkowym-swiecie">rzeczywistych</Link>, różnych ich kodowaniach,
+      więc można stwierdzić — „Acha! To tak działają kalkulatory!” Tylko jakoś zgubiliśmy tutaj to, o czym pisałem na
+      samym początku, że wszystko reprezentujemy jako liczby. Ale jak liczbami zapisać śmieszny filmik z kotami? Albo w
+      tym artykule, jak każda litera może być liczbą? Otóż wszystko ponownie odnosi się do… kodowania.
+    </>
+  ),
+  keyword: 'liczby',
+  categories: ['Teoria informatyki', 'Przetwarzanie danych'],
+  tags: [
+    'bmp',
+    'pcm',
+    'ascii',
+    'unicode',
+    'utf-8',
+    'bitmapa',
+    'karetka',
+    'ISO 8859',
+    'utf-16',
+    'system szesnastkowy',
+    'system heksadecymalny'
+  ],
+  slug: 'nie-liczby-jako-liczby-czyli-zapis-danych-cyfrowych',
+  updateTime: '2021-08-17T16:32:49+00:00',
+  publishTime: '2020-10-14T10:00:06+00:00',
+  cover,
+};
+
+## Cyfrowa reprezentacja znaków
+
+Zacznijmy od przypadku najprostszego, czyli przedstawienia znaków. Najprostszy jest z tego względu, że po prostu uznajemy, że dana pozycja to konkretny znak, co jest zresztą bardzo naturalne. Spójrzmy tylko na świat niekomputerowy. Każda litera w alfabecie ma określoną pozycję, więc wiemy, że pierwsze jest A, drugie Ą, trzecie B, i tak dalej. Również jeśli kiedyś byłeś harcerzem, możesz pamiętać takie szyfry harcerskie, jak ułamkowy czy tabliczka mnożenia, gdzie kolejne litery zamieniało się na określone liczby. W informatyce robimy dokładnie to samo — każdy znak ma przypisaną liczbę, co nazywamy kodowaniem.
+
+### ASCII
+
+Podstawowym kodowaniem znaków jest ASCII. Powstał on początkowo z myślą o dalekopisach (czyli czegoś, co dziś można by nazwać połączeniem drukarki i SMSów), ale z czasem został zaadoptowany w komputerach. Koduje on znaki na 7 bitach, czyli potrafi zapisać ich jedynie 128. Co ciekawe, znaki od 0 do 31 ($$0011111_2$$) są niedrukowalne — nazywamy je znakami sterującymi i służyły do sterowania urządzeniem, które odbierało dane (czyli początkowo właśnie telegrafem). W dzisiejszych czasach głównie wykorzystywane są tylko dwa: 10 ($$0001010_2$$), czyli Line Feed (koniec linii, w skrócie LF) i 13 ($$0001101_2$$), czyli Carriage Return (zawrócenie karetki*, w skrócie CR), a są one wykorzystywane jako… znak oznaczający przejście do nowej linii. Pewnie spytacie, dlaczego oba? Ano dlatego, że różne systemy różnie mają to zaprogramowane. Linuksy czy nowe macOSy wykorzystują LF, natomiast Windows połączenie CR i LF. Zaś stare systemy od Apple’a wykorzystywały samo CR. Ale skończmy o znakach sterujących i przejdźmy do tych, które są widoczne:
+
+- 32 ($$0100000_2$$) to spacja
+- od 48 ($$0110000_2$$) do 57 ($$0111001_2$$) mamy cyfry 0-9
+- od 65 ($$1000001_2$$) do 90 ($$1011010_2$$) mamy duże litery alfabetu łacińskiego (A, B, C, D, …, X, Y, Z)
+- od 97 ($$1100001_2$$) do 122 ($$1111010_2$$) mamy małe litery alfabetu łacińskiego (a, b, c, d, …, x, y, z)
+- natomiast pozostałe pozycje między 32 a 127 zajmują różne symbole, które widzimy na klawiaturze.
+
+Myślę, że z naszą dotychczasową wiedzą możemy dostrzec tutaj kilka problemów. Pierwszy nieduży jest taki, że w zasadzie dlaczego używamy tylko 7 bitów, skoro bajt ma ich 8? Przez to możemy zapisać o 128 znaków mniej. To dokładnie przekłada się na drugi problem — nie są to wszystkie możliwe znaki. Racja, pokrywają się one w większości z tym, co widzimy na klawiaturze, ale czasem wręcz instynktownie naciskamy ALT (bądź Option, gdy jesteś po jabłczanej stronie mocy) i mamy dostęp do sporego grona znaków, którego ASCII nie przewiduje. Tak by wyglądał początek znanego łamańca językowego, zapisany czysto w kodowaniu ASCII: „Chrzaszcz brzmi w trzcinie w Szczebrzeszynie, w szczekach chrzaszcza trzeszczy miazsz”. Trochę niezbyt oddaje to zdanie, które chcieliśmy zapisać. Chociaż gdybyśmy dostosowali język tak, żeby wszelkie „ó” stały się „u”, „ż” „rz”, i tak dalej, to przyszłe pokolenia dzieci piszących dyktanda i uczących się na blachę reguł ortografii byłyby nam bardzo wdzięczne.
+
+\* karetka to przesuwająca się część maszyny do pisania, na której miejscu pojawia się znak. W informatyce zaś karetką nazywamy ten taki pionowy symbol, który w edytorach tekstu wskazuje, w którym miejscu właśnie piszemy.
+
+### Unicode
+
+Tak naprawdę nikt nie będzie dostosowywał języka pod ograniczenia sprzętu, a raczej będzie się udoskonalać sprzęt, aby obsługiwał w pełni otaczający go świat. Z tego powodu postanowiono wykorzystać ten jeden niewykorzystany bit i zrobić kodowania rozszerzające ASCII o dodatkowe znaki. Powstało ich wiele — chociażby 16 różnych kodowań należących do standardu ISO 8859, gdzie każde obsługiwało inne alfabety. Tworzyło to wiele niedogodności, np. takie, że nie dość, że trzeba było wiedzieć, w jakim kodowaniu jest zapisany dany dokument, aby go dobrze odczytać, to też dokument nie mógł za bardzo zawierać znaków z różnych alfabetów. Choćby dziś w Internecie niektórzy stosują tekstowe emotikony zawierające znaki, których próżno szukać w polskim alfabecie, np. „¯\\\_(ツ)\_/¯”, gdzie twarz to tak naprawdę symbol z japońskiej katakany, który czytamy jako sylabę „tu”. Gdybyśmy zapisali to w stosowanym wówczas kodowaniu ISO-8859-2 zawierającym polskie znaki, zobaczylibyśmy coś w takim stylu: „ÂŻ\\\_(ă)\_/ÂŻ”. Powiedzmy sobie szczerze, raczej nie jest to sytuacja do zaakceptowania.
+
+Na szczęście w 1988 zaproponowano stworzenie kodowania, które umożliwiałoby zapisanie dowolnych znaków z dowolnych alfabetów, znane jako Unicode. Na Unicode ponownie składa się wiele różnych kodowań, z czego najpopularniejszymi są UTF-8 i UTF-16. Mimo że standard zaproponowano kilkadziesiąt lat temu, to tak naprawdę bardzo dużo czasu było potrzebne, by wszedł do codziennego użytku (wg badania w3techs.com z 17 listopada 2019, 94,3% stron w Internecie stosowało kodowanie UTF-8). W kodowaniach tych jest proste założenie — to, co zdefiniowało ASCII, zostawiamy tak, jak jest, ale dokładamy dodatkowe znaki. W przypadku UTF-8 jeden znak zajmuje co najmniej 8 bitów, jednak jeżeli potrzeba więcej bitów, dokładamy z przodu kolejne 8. Aby rozróżnić, kiedy mamy do czynienia z ASCII, a kiedy z UTF-8, to wszystkie znaki spoza ASCII nie mogą na ostatnich 8 bitach mieć liczb od 0 do 127. UTF-16 działa analogicznie, przy czym zamiast 8 bitów stosujemy 16. Warto tutaj nadmienić, że bardziej naturalnym zapisem jest UTF-16, ponieważ wprost odwzorowuje zapis Unicode w bitach. Unicode definiuje każdemu znakowi kod zapisany w systemie szesnastkowym (czyli jak binarny miał podstawę 2, tak tutaj jest podstawa 16, więc mamy do dyspozycji 16 cyfr*). W UTF-16 kody te mają wprost przełożenie na zapis binarny, więc znak o kodzie U+20AC (czyli symbol Euro) to będzie $$20AC_{16}$$. W UTF-8 natomiast musimy przeliczyć. Pominę tutaj szczegóły przeliczania, dlatego uwierzcie mi na słowo, że U+20AC to w UTF-8 $$E282AC_{16}$$, czyli jedynie ostatnie dwie cyfry się zgadzają. Podsumowując mówienie o unikodzie, to dzięki niemu jesteśmy w stanie zapisać słowa w niemal dowolnym istniejącym na świecie alfabecie i symbolach (nawet w egipskich hieroglifach), a zarazem jest zgodny z wieloletnim dobrze przyjętym standardem ASCII. Tak naprawdę jedyne, co komputer musi wiedzieć, aby odczytać dobrze znak, to znać przyporządkowanie, jakiej liczbie odpowiada jaki znak.
+
+\* Dodatkowe cyfry to litery od A do F, więc mamy po kolei: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, A, B, C, D, E, F. System szesnastkowy ma ciekawą właściwość, a mianowicie możemy wprost przekładać liczby po 4 bity na ten system. Przykładowo, $$10100010_2$$ zapiszemy jako $$A2_{16}$$ ($$1010_2$$ to $$10_{10}$$ czyli $$A_{16}$$,natomiast $$0010_2$$ to 2 w obu systemach). Liczba ta to dziesiętnie 162, więc nijak się to ma do złączenia 10 i 2.
+
+## Inne media
+
+Oczywiście ten artykuł nie nazywa się „litery jako liczby”, tylko „nie-liczby jako liczby”, dlatego też warto byłoby sobie opowiedzieć ogólnie o formatach zapisu czegokolwiek. Generalnie, podobnie jak przy zapisie liter, wszystko opiera się o przyjęty sposób rozkodowania liczb do wiadomości, którą chcemy odczytać. Stąd mamy różne formaty plików — przez lata pojawiły się różne standardy, a często różni twórcy oprogramowania chcieli mieć własne. Jednak aby zrozumieć pomysły za tym idące, opowiemy sobie krótko o ogólnie przyjętych podejściach do reprezentacji dwóch dość podstawowych mediów.
+
+### Obrazy
+
+Zacznijmy od obrazów. Pomijając wszelkie zaawansowane zagadnienia, takie jak kompresja, najbardziej podstawowym sposobem zapisu obrazów są bitmapy. Polegają one na tym, że zapisujemy po kolei opis każdego kolejnego punktu na obrazie (nazywanego pikselem). Aby opisać je, musimy określić kolor. Można to zrobić na dwa podstawowe sposoby:
+
+- Mamy odgórnie ustaloną paletę, gdzie w przypadku każdej liczby wiemy, jaki kolor przyporządkować. Dziś ten sposób jest rzadko stosowany, ale gdy był, to zwykle stosowane były palety o wielkości 1 (2 kolory), 4 (16 kolorów) lub 8 bitów (256 kolorów).
+- Mając trzy barwy podstawowe (czerwony, zielony, niebieski), określamy liczbowo natężenie każdej z nich. Najczęściej każdą z barw określa się 8 bitami, więc pojedynczy piksel zajmuje 24 bity.
+
+Mając zapisaną informację o rozmiarze obrazu (wysokość i szerokość), komputer jest w stanie wyświetlić go, odczytując po kolei grupy bitów przeznaczone kolejnym pikselom. W takiej formie obrazy są trzymane w pamięci karty graficznej w celu wyświetlenia na ekranie monitora. Tak samo przechowują obrazy również pliki w formacie BMP (co, na marginesie, jest skrótem od słowa bitmap). Niestety zajmują one dość dużo miejsca. Dla rozdzielczości Full HD (1920 na 1080 pikseli, czyli łącznie mamy 2073600 punktów do opisania) obraz w formacie 24-bitowym zajmowałby około 6 MB. Tymczasem znane dobrze wielu osobom pliki JPG mogą pomieścić takie obrazy nawet poniżej 1 MB. Dzieje się to dzięki kompresji, czyli technice zmniejszania ilości miejsca przy braku lub niewielkiej stracie informacji, ale o tym nie teraz.
+
+### Dźwięk
+
+Następne podstawowe medium to dźwięk. Tutaj rzecz zdaje się być bardziej abstrakcyjna, bo gdy w przypadku obrazów mamy kolorowe punkty, tak w przypadku dźwięku ciężej jest wyznaczyć taką minimalną jednostkę do opisania liczbą. Znowu jest wiele różnych podejść do tego problemu, jednak tutaj opiszę pokrótce podejście znane jako kodowanie PCM. Jest ono wykorzystywane chociażby do zapisu muzyki na płytach CD. Aby opisać kodowanie PCM, stosujemy dwie istotne miary — częstotliwość próbkowania wyrażoną w hercach i rozdzielczość w bitach. Jak pamiętamy z lekcji fizyki, dźwięk to fala akustyczna, stąd częstotliwość opisuje, na ile drobnych kawałków „pokroimy” tę falę w przeciągu sekundy, które następnie opiszemy liczbą określającą wysokość fali w danym momencie. A wielkość tej liczby to owa rozdzielczość podana w bitach. W przypadku płyt CD stosowana jest częstotliwość 44 kHz i rozdzielczość 16 bitów, co oznacza, że jedną sekundę dźwięku opisujemy 44 tysiącami 16-bitowych liczb. Czyli 1 sekunda dźwięku zajmuje około 86 kB, co daje ponad 5 MB na jedną minutę nagrania. Pamiętajmy, że mówimy tutaj tylko o jednym kanale, a więc o dźwięku mono. W przypadku tradycyjnego stereo, liczbę tę musimy pomnożyć razy dwa (a co dopiero przy dźwięku przestrzennym, gdzie mamy przykładowo 5 lub 7 kanałów). Oczywiście, podobnie jak z obrazami, tutaj też stosuje się kompresję, i dzięki temu 4-minutowy plik w formacie MP3 nie zajmuje ponad 40 MB, tylko około 5 MB.
+
+## Podsumowanie
+
+Podsumowując, zapisanie czegokolwiek na komputerze tak naprawdę sprowadza się do określenia sposobu zakodowania informacji w postaci liczb. Od najprostszych przypadków takich jak przypisanie liczb do konkretnych liter, po bardziej zaawansowane jak reprezentacja koloru. Tak długo, gdy mamy pomysł, jak coś można zapisać liczbami, możemy to zapisać na komputerze. A jak wiemy, matematyka jest tak wspaniałym narzędziem, że można nią opisać całą rzeczywistość*, więc jak to mówią na zachód od nas — „sky is the limit”.
+
+\* Niektórzy nawet twierdzą, że nasz świat da się tak świetnie opisać matematyką dlatego, że żyjemy w komputerowej symulacji niczym ta znana z Matriksa. Jak jesteś ciekaw więcej, to pogoogluj „hipoteza symulacji”. Co ciekawe, nie jest to kolejna teoria spiskowa, ale najzwyklejsza hipoteza naukowa, do której naukowcy opracowują sposoby na jej udowodnienie.
+
+<small>(zdjęcie na okładce: <a href="https://imaggeo.egu.eu/view/14530/" target="_blank" rel="noreferrer noopener nofollow">Kelvin, Tsz Hei Choi (distributed via imaggeo.egu.eu) </a>/ <a href="https://creativecommons.org/licenses/by-sa/3.0/" target="_blank" rel="noreferrer noopener nofollow">CC BY-SA 3.0</a>)</small>

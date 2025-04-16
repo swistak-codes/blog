@@ -1,0 +1,53 @@
+.container {
+  width: 200px;
+  height: 200px;
+  margin: 8px 8px;
+  display: inline-block;
+
+  &.linear {
+    background: linear-gradient(
+      0deg,
+      rgba(255, 0, 0, 1) 0%,
+      rgba(0, 255, 0, 1) 100%
+    );
+  }
+
+  &.linearAngle {
+    background: linear-gradient(
+      45deg,
+      rgba(255, 0, 255, 1) 0%,
+      rgba(255, 255, 0, 1) 100%
+    );
+  }
+
+  &.linearMultiple {
+    background: linear-gradient(
+      90deg,
+      rgba(255, 0, 0, 1) 0%,
+      rgba(255, 255, 0, 1) 25%,
+      rgba(0, 255, 0, 1) 50%,
+      rgba(0, 0, 255, 1) 75%,
+      rgba(255, 0, 255, 1) 100%
+    );
+  }
+
+  &.linearPartial {
+    background: linear-gradient(
+      90deg,
+      rgba(0, 0, 0, 1) 40%,
+      rgba(255, 255, 255, 1) 60%
+    );
+  }
+
+  &.radial {
+    background: radial-gradient(
+      circle,
+      rgba(0, 0, 0, 0) 0%,
+      rgba(255, 0, 0, 1) 100%
+    );
+  }
+
+  &.conic {
+    background: conic-gradient(rgba(63, 94, 251, 1) 0%, rgba(252, 70, 107, 1));
+  }
+}

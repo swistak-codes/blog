@@ -1,0 +1,543 @@
+import Link from 'next/link';
+import {Image} from '@swistak-codes/components';
+import {Presentation} from './presentation';
+import cover from './swistak_pod_prad.webp';
+
+export const meta = {
+  title: 'Problem komiwojażera — podejścia heurystyczne',
+  abstract:
+    'Artykuł przedstawia, jak możemy znaleźć satysfakcjonujące rozwiązania problemu komiwojażera, korzystając z metod heurystycznych.',
+  firstParagraph: (
+    <>
+      Opisując ostatnio <Link href="/post/problem-komiwojazera">problem komiwojażera</Link>, pokazałem sposoby, jak możemy otrzymać optymalne rozwiązanie. Niestety, co było widać na przykładach załączonych w artykule, algorytmy te były bardzo wolne, więc i nie do użycia w praktycznych zastosowaniach. W praktyce zaś stosuje się heurystyki, które może nie zapewniają znalezienia najlepszego rozwiązania, ale w zależności od tego, jaką zastosujemy, możemy uzyskać wynik bliski optymalnego. Zobaczmy przykładowe podejścia tego typu.
+    </>
+  ),
+  keyword: 'problem komiwojażera',
+  categories: ['Problemy obliczeniowe', 'Grafy'],
+  tags: [
+    'problem komiwojażera',
+    'symetryczny problem komiwojażera',
+    'tsp',
+    'travelling salesman problem',
+    'javascript',
+    'cykl Hamiltona',
+    'ścieżka Hamiltona',
+    'algorytm Christofidesa',
+    'algorytm najbliższego sąsiada',
+    'nn',
+    'rnn',
+    'nearest neighbor',
+    'mst',
+    'minimalne drzewo rozpinające',
+    'algorytm Kruskala',
+    'algorytm Fleury\'ego',
+    'cykl Eulera',
+    'skojarzenie doskonałe'
+  ],
+  slug: 'problem-komiwojazera-heurystyki',
+  updateTime: '2024-10-09T07:00:00+00:00',
+  publishTime: '2024-10-09T07:00:00+00:00',
+  cover,
+};
+
+## Uwagi wstępne
+
+Tekst ten jest bezpośrednią kontynuacją artykułu *<Link href="/post/problem-komiwojazera">Problem komiwojażera</Link>*, gdzie temat opisałem od strony teoretycznej, a także pokazałem sposoby na znalezienie optymalnego rozwiązania. Nie będę tutaj powtarzać opisanych tam rzeczy, dlatego jeśli nie czytałeś(-aś) go wcześniej, polecam tam zajrzeć.
+
+Jedynie przypomnę, że pokazując kod (wszystkie przykłady są w JavaScript), nie zakładam istnienia żadnego konkretnego sposobu zapisu grafu. Jedynie założę, że istnieje funkcja zwracająca odległość (wagę krawędzi): `distance(A: number, B: number): number`.
+
+## Heurystyki
+
+Zobaczyliśmy w poprzednim artykule, że znalezienie optymalnego rozwiązania jest trudnym obliczeniowo zadaniem i wraz ze zwiększeniem się rozmiarów problemu dochodzimy do granicy, kiedy po prostu nie jesteśmy w stanie wyznaczyć najlepszego wyniku. Jednak, w przypadku problemów obliczeniowych, niekoniecznie musi interesować nas najlepszy wynik, co „w miarę” dobry, ale nie całkowicie losowy.
+
+W tym miejscu zapoznajmy się z metodami heurystycznymi, czyli takimi, które jedynie przybliżają wynik do odpowiednio dobrego. Metod takich jest wiele. Są zarówno te stworzone typowo pod problem komiwojażera, jak i metaheurystyki, które pozwalają na znalezienie rozwiązania dowolnego problemu. Pokażę trzy przykładowe podejścia, stworzone typowo pod TSP, dzięki którym może nie znajdziemy optymalnych ścieżek (polecam porównać wyniki z poprzednim artykułem, używam tego samego zestawu danych), ale nie powinny się znacznie od nich różnić.
+
+Jeśli potrzebujesz tutaj fachowych terminów, to zakładając, że mamy funkcję oceny (czyli zwracającą liczbową wartość określającą jak dobre jest rozwiązanie, np. długość trasy w TSP), algorytmy dokładne szukają jej globalnego minimum (lub maksimum, zależy od definicji). Natomiast heurystyka ma na celu jedynie zbliżenie nas do niego, w ramach akceptowalnych nakładów obliczeniowych, nie zapewniając jego znalezienia.
+
+Warto dodać, że heurystyka w przeciwieństwie do zwykłych algorytmów nie musi być deterministyczna i każde uruchomienie może dać inny wynik.
+
+## Algorytm najbliższego sąsiada
+
+Najprostszym heurystycznym podejściem do rozwiązania problemu komiwojażera jest algorytm najbliższego sąsiada (po ang. *nearest neighbor*, NN), zwany błędnie algorytmem zachłannym. Myślę, że nazwa tłumaczy wszystko — co odwiedzony wierzchołek szukamy najbliższego do niego nieodwiedzonego i w ten sposób układamy trasę.
+
+Metoda ta daje niestety słabe rezultaty. Do tego rezultat może być inny w zależności od tego, od którego wierzchołka zaczniemy. Moglibyśmy teoretycznie sprawdzić wszystkie możliwe początki i wybrać najkrótszą z tras (wówczas jest mowa o powtarzalnym algorytmie najbliższego sąsiada, RNN), ale to wciąż nie znajdzie nam satysfakcjonująco krótkiej trasy. Algorytm ten jednak warto znać, ponieważ jak wskazują niektóre prace (np. D.S. Johnson i L.A. McGeoch, 1997) może stanowić bazę dla podejść metaheurystycznych.
+
+### Implementacja
+
+Jak wspomniałem, możemy zaimplementować ten algorytm na dwa sposoby — znajdując najkrótszą trasę dla dowolnego początkowego wierzchołka i wybierając najkrótszą trasę, sprawdzając wszystkie początkowe wierzchołki. W kodzie poniżej (JavaScript) zobaczysz implementację bazowego algorytmu, któremu wskazujemy, odkąd zacząć. Natomiast w zalinkowanym niżej Replit będą obie wersje.
+
+```javascript
+// funkcja znajdująca prawie najkrótszą ścieżkę w grafie
+// nodes jest typu number[], startNode typu number
+function tsp(nodes, startNode) {
+  // zbiór przechowujący odwiedzone wierzchołki, może już przechować startowy
+  const visitedNodes = new Set([startNode]);
+  // zmienna przechowująca długość ścieżki
+  let length = 0;
+  // zmienna przechowująca ścieżkę, zaczynamy od startowego wierzchołka
+  const path = [startNode];
+  // iterujemy tak długo, dopóki są jeszcze nieodwiedzone wierzchołki
+  while (visitedNodes.size < nodes.length) {
+    // wyciągamy ostatnio odwiedzony wierzchołek
+    const lastNode = path.at(-1);
+    // zmienne przechowujące aktualne minimum
+    let minDistance = Number.POSITIVE_INFINITY;
+    let nextNode = null;
+    // iterujemy po kolejnych wierzchołkach
+    for (let node of nodes) {
+      // ignorujemy odwiedzone wierzchołki
+      if (visitedNodes.has(node)) {
+        continue;
+      }
+      // sprawdzamy odległość z ostatniego wierzchołka do aktualnego
+      const distanceToNode = distance(lastNode, node);
+      // jeśli jest to najmniejsza odległość, to zapamiętujemy
+      if (distanceToNode < minDistance) {
+        minDistance = distanceToNode;
+        nextNode = node;
+      }
+    }
+    // dodajemy najbliższy wierzchołek do odwiedzonych
+    visitedNodes.add(nextNode);
+    // dodajemy do ścieżki
+    path.push(nextNode);
+    // oraz dodajemy odległość do niego
+    length += minDistance;
+  }
+  // dodajemy odległość do początku
+  length += distance(path.at(-1), startNode);
+  // zapętlamy ścieżkę do początku
+  path.push(startNode);
+  // zwracamy wynik
+  return {
+    length,
+    path,
+  };
+}
+```
+
+Kod możesz przetestować na [Replit](https://replit.com/@tswistak/tsp-nn#index.js). Również znajdziesz tam drugą wersję algorytmu wyszukującą trasę, sprawdzając wszystkie możliwe wierzchołki startowe.
+
+Uruchamiając kod, możesz zobaczyć, że iteracji jest zdecydowanie mniej i wykonanie jest o wiele szybsze, ale zarazem trasy są dłuższe. W kwestii wydajności obliczeniowej podstawowa wersja ma złożoność $$\Omicron(n^2)$$, natomiast jeśli chcemy sprawdzić wszystkie początkowe wierzchołki, to $$\Omicron(n^3)$$.
+
+### Prezentacja
+
+Poniżej możesz sprawdzić, jak wygląda działanie algorytmu najbliższego sąsiada w obu wariantach. Rozstaw w przestrzeni *miasta* (możesz też usunąć aktualne, naciskając *delete* lub *backspace* bądź dodać nowe przyciskiem pod diagramem) i uruchom wyszukanie trasy. Możesz zarówno uruchomić wyszukiwanie w formie animowanej, gdzie zobaczysz każdą iterację algorytmu (aktualnie sprawdzana trasa jest na niebiesko, w wersji RNN aktualne minimum jest zaznaczone na szaro), albo od razu przejść do końca. W przypadku wersji, gdzie wskazuje się początkowe miasto, po prostu naciśnij na wierzchołek, aby oznaczyć go jako startowy. Jeśli nie oznaczysz żadnego, początkowym wierzchołkiem będzie pierwszy utworzony na diagramie.
+
+<Presentation algorithms={["nn", "rnn"]} />
+
+Prezentacja została napisana z użyciem [ReactFlow](https://reactflow.dev/) i jej kod źródłowy znajdziesz na [GitHubie świstak.codes](https://github.com/swistak-codes/tsp-visualizer).
+
+## Algorytm Christofidesa
+
+Drugi algorytm, który pokażę, jest bardziej praktyczny, bo według różnych źródeł zapewnia znalezienie trasy co najwyżej 50% dłuższej od optymalnej. Do tego podejście to ze względu na swoje kroki wykonania przypomina nam, że problem komiwojażera jest problemem znalezienia ścieżki w grafie. Jak sam nagłówek wskazuje, jest to algorytm Christofidesa, nazwany po swoim twórcy, cypryjskim matematyku N. Christofidesie. Czasem trafimy też na nazwę algorytm Christofidesa-Serdyukova, ponieważ odkrył go w tym samym czasie także radziecki naukowiec A.I. Sierdiukow.
+
+### Kroki algorytmu
+
+Algorytm wyszukuje trasę rozwiązującą problem TSP w następujący sposób:
+
+1. Najpierw znajdujemy minimalne drzewo rozpinające grafu (MST). Jest to drzewo rozpinające grafu (czyli graf, gdzie każdy wierzchołek jest połączony z innym, ale jest jednocześnie acykliczny; bardziej szczegółowo opisałem je w <Link href="/post/sortowanie-cz-4-sortowanie-przez-wybieranie/#drzewa--podstawy">artykule o sortowaniu przez wybieranie</Link>) o najmniejszej sumie wag krawędzi. W ten sposób minimalizujemy liczbę krawędzi, które będziemy rozpatrywać, do tego zostawiając jedynie te najkrótsze między wskazanymi wierzchołkami, jednak wciąż zapewniając, że z każdego wierzchołka dojdziemy do każdego innego. Więcej o tym, jak szukamy MST, akapit niżej. Drzewo to oznaczmy jako $$T$$.
+2. Wyznaczamy zbiór $$O$$ zawierający jedynie te wierzchołki drzewa $$T$$, które są nieparzystego stopnia (czyli mają nieparzystą liczbę podłączonych do siebie krawędzi). Zgodnie z lematem o uściskach dłoni (po ang. *handshake lemma*), takich wierzchołków będzie zawsze parzysta liczba.
+3. Następnie na podgrafie składającym się z wierzchołków ze zbioru $$O$$ (ze wszystkimi krawędziami) wyszukujemy minimalne wagowo skojarzenie doskonałe. W ten sposób tworzymy pary wierzchołków, minimalizując długość krawędzi między nimi. Tak znaleziony zbiór krawędzi oznaczmy jako $$M$$. Więcej o tym, jak szukamy skojarzenia doskonałego, opisuję dalej.
+4. Teraz dodajemy krawędzie $$M$$ do drzewa $$T$$, tworząc multigraf $$H$$. Dzięki temu wszystkie wierzchołki będą parzystego stopnia. Dla wyjaśnienia dodam, że multigraf to graf, gdzie para wierzchołków może być ze sobą połączona wieloma krawędziami.
+5. Następny krok to znalezienie cyklu Eulera w $$H$$. <Link href="/post/grafy-wprowadzenie/#sk%C4%85d-w-og%C3%B3le-wzi%C4%99%C5%82y-si%C4%99-grafy">Cyklem Eulera</Link> nazywamy ścieżkę w grafie, która przechodzi przez każdą jego krawędź (nie wierzchołek!) dokładnie raz. Z racji tego, że wszystkie wierzchołki są obecnie parzystego stopnia, a graf jest spójny (czyli z każdego wierzchołka możemy dojść do innego — tego jesteśmy w tym przypadku pewni), to mamy do czynienia z grafem eulerowskim, więc taki cykl możemy znaleźć. Algorytmiczne podejście do znalezienia cykli Eulera opisuję dalej.
+6. Ostatni krok to wyznaczenie końcowego rozwiązania. Sam cykl Eulera nie jest wystarczający, bo możemy w nim przechodzić kilka razy przez ten sam wierzchołek. Dlatego też w tym kroku usuwamy powtórzenia przez najzwyklejsze pominięcie wierzchołka.
+
+Warto dodać, że algorytm nie jest deterministyczny. Jest tak dlatego, że:
+
+- Minimalnych drzew rozpinających może być wiele i w zależności od użytego algorytmu możemy znaleźć inne. Jednak algorytm Christofidesa zapewnia znalezienie trasy bliskiej optymalnej niezależnie od tego, w jaki sposób wyznaczymy MST.
+- Może być wiele różnych ścieżek Eulera, a nas interesuje dowolna z nich.
+
+Jak widzisz, mamy wiele różnych zagadnień grafowych. W przeciwieństwie do poprzedniego algorytmu, gdzie nawet nie czuliśmy, że mamy do czynienia z problemem grafowym, tutaj jest to widoczne aż nadto. Stąd musimy się nieco zagłębić w szczegóły, żeby wiedzieć, jak w ogóle podejść do implementacji algorytmu Christofidesa.
+
+### Szukanie minimalnego drzewa rozpinającego
+
+Do znalezienia minimalnego drzewa rozpinającego (MST, z ang. *minimum spanning tree*) istnieją znane wydajne algorytmy, które do tego są stosunkowo proste. Tradycyjnie studentów algorytmiki zapoznaje się z algorytmami: Prima (złożoność $$\Omicron(|V|^2)$$, $$\Omicron(|E| + |V| \log |V|)$$ lub $$\Omicron(|E| \log |V|)$$ — zależnie od użytej pomocniczej struktury danych) i Kruskala (złożoność $$\Omicron(|E| \log |V|)$$). Czasem też pokazuje się najstarsze opisane podejście, czyli algorytm Borůvki (złożoność $$\Omicron(|E| \log |V|)$$).
+
+Ja opiszę i wykorzystam algorytm Kruskala, bo jest najprostszy do wytłumaczenia, ale jeśli znasz inne podejście, możesz też go użyć w algorytmie Christofidesa.
+
+#### Kroki algorytmu Kruskala
+
+Algorytm Kruskala jest bardzo prosty w opisie i wydajny, dlatego postawiłem na niego. Chociaż warto dodać, że implementacja może być nieco bardziej zawiła, szczególnie w naszym przypadku, ale nie jest to bariera nie do pokonania.
+
+Kroki są następujące:
+
+1. Bierzemy same wierzchołki oryginalnego grafu i tworzymy z nich las $$L$$. Las w teorii grafów to zbiór drzew. W tym momencie wszystkie drzewa będą składać się z jednego wierzchołka.
+2. Następnie tworzymy zbiór $$S$$ ze wszystkimi krawędziami oryginalnego grafu. W kwestii implementacji zakłada się, że będzie to tablica, którą posortujemy rosnąco po wagach. Złożoność algorytmu głównie zależy od złożoności algorytmu sortującego — $$\Omicron(|E| \log |V|)$$ dla całego algorytmu Kruskala, bo zakładamy, że użyjemy np. sortowania szybkiego, które działa w czasie $$\Omicron(|E| \log |E|)$$.
+3. Dopóki w $$S$$ są krawędzie:
+    1. Weź i jednocześnie usuń z $$S$$ krawędź o najmniejszej wadze.
+    2. Jeśli pobrana krawędź połączy ze sobą dwa drzewa, dodaj ją do $$L$$. W przeciwnym razie zignoruj.
+4. Zwróć $$L$$, które jest w tym momencie minimalnym drzewem rozpinającym grafu.
+
+#### Implementacja algorytmu Kruskala
+
+Przejdźmy w takim razie do implementacji w JavaScript. Implementacji, którą tutaj pokażę, nie będę już powtarzać niżej przy okazji całości algorytmu Christofidesa. Dodam od razu, że jest ona typowo pod zastosowanie w naszym problemie, co zobaczysz poniżej.
+
+```javascript
+// algorytm Kruskala do znalezienia MST
+function mst(nodes) {
+  // lista krawędzi
+  const edges = [];
+  // rekonstruujemy listę krawędzi (unikalne dla naszego problemu)
+  for (let i = 0; i < nodes.length; i++) {
+    for (let j = i + 1; j < nodes.length; j++) {
+      edges.push({
+        from: nodes[i],
+        to: nodes[j],
+        weight: distance(nodes[i], nodes[j]),
+      });
+    }
+  }
+  // sortujemy krawędzie rosnąco według wag
+  // skorzystamy z sortowania wbudowanego w JS, które zapewni złożoność O(n log n)
+  edges.sort((a, b) => a.weight - b.weight);
+
+  // do przechowywania drzew będziemy używać struktury zbiorów rozłącznych (DSU)
+  // do jej zrobienia wykorzystamy wbudowaną w JS strukturę Map
+  // w tej mapie przechowamy mapowanie wierzchołka do jego rodzica w drzewie
+  const parent = new Map();
+  // a tutaj przybliżoną wysokość drzewa
+  const rank = new Map();
+
+  // funkcja szukająca korzenia drzewa, w którym znajduje się wierzchołek
+  function find(node) {
+    // jeśli parent.get(node) === node, to node jest korzeniem drzewa
+    if (parent.get(node) !== node) {
+      // jeśli nie, to rekurencyjnie dalej szukamy korzenia
+      // używamy set, ponieważ dokonujemy tzw. kompresji ścieżki, aby następne wyszukania były szybsze
+      parent.set(node, find(parent.get(node)));
+    }
+    // zwracamy korzeń drzewa
+    return parent.get(node);
+  }
+  // funkcja łącząca dwa drzewa w jedno
+  function union(node1, node2) {
+    // najpierw szukamy korzeni drzewa
+    const root1 = find(node1);
+    const root2 = find(node2);
+    // jeśli faktycznie mamy do czynienia z oddzielnymi drzewami...
+    if (root1 !== root2) {
+      // teraz musimy zdecydować, który korzeń stanie się rodzicem drugiego
+      // wykorzystamy do tego znane nam wysokości drzewa
+      // chcemy zawsze podłączyć wyższe do niższego
+      if (rank.get(root1) > rank.get(root2)) {
+        parent.set(root2, root1);
+      } else if (rank.get(root1) < rank.get(root2)) {
+        parent.set(root1, root2);
+      } else {
+        // w tym przypadku nie ma znaczenia, które podłączymy do którego
+        parent.set(root2, root1);
+        // jednak w tym przypadku musimy zwiększyć wysokość drzewa
+        rank.set(root1, rank.get(root1) + 1);
+        // w pozostałych przypadkach nie ma to już znaczenia,
+        // ponieważ wysokość drzewa nie ulegnie zmianie
+      }
+    }
+  }
+
+  // wracamy do algorytmu Kruskala
+  // w tym momencie inicjalizujemy las, tworząc jednoelementowe drzewa
+  for (const node of nodes) {
+    parent.set(node, node);
+    rank.set(node, 0);
+  };
+  // inicjalizujemy tablicę krawędzi opisujących MST
+  const mst = [];
+  // teraz przechodzimy po wszystkich krawędziach
+  for (const edge of edges) {
+    // sprawdzamy, czy dana krawędź połączyłaby ze sobą dwa drzewa
+    if (find(edge.from) !== find(edge.to)) {
+      // jeśli tak, dodajemy ją do MST
+      mst.push(edge);
+      // i aktualizujemy drzewa
+      union(edge.from, edge.to);
+    }
+  }
+  // zwracamy listę krawędzi drzewa
+  return mst;
+}
+```
+
+Jak widzisz, kodu wyszło zdecydowanie więcej, niż wynikałoby to z zaledwie czterech kroków, jednak były one niestety dość rozbudowane. Do tego kroki nie zakładały, że będziemy musieli skorzystać ze struktury zbiorów rozłącznych, jednak zastosowałem je, ponieważ jest to standardowy sposób implementacji lasu. Także musieliśmy dodać dodatkowy kod, którego w normalnej implementacji algorytmu Kruskala by nie było — musieliśmy skonstruować od zera listę krawędzi. Zwiększyło to niestety liczbę iteracji o $$n^2$$.
+
+### Znalezienie skojarzenia doskonałego
+
+W kwestii znalezienia skojarzenia doskonałego nie ma co kombinować. Musimy znaleźć pary wierzchołków, które są najbliżej siebie, więc po prostu iterujmy po kolejnych wierzchołkach i szukajmy najbliższych do siebie. W zasadzie zrobimy niemal to samo, co przy algorytmie najbliższego sąsiada. Kod jest dość oczywisty, myślę, że nie ma co go szerzej opisywać:
+
+```javascript
+// funkcja znajdująca skojarzenie doskonałe
+function perfectMatch(oddNodes) {
+  // zmienna, w której przechowamy wynikową listę krawędzi
+  const result = [];
+  // zbiór, do którego będziemy odkładać wykorzystane już wierzchołki
+  const used = new Set();
+  // przeitetujemy po wszystkich wierzchołkach i poszukamy najbliższej do niego pary
+  for (let i = 0; i < oddNodes.length; i++) {
+    // sprawdzamy wierzchołek tylko wtedy, gdy nie jest połączony w parę
+    if (!used.has(oddNodes[i])) {
+      // zmienne pomocnicze do szukania minimum
+      let bestMatch = null;
+      let bestDistance = Number.POSITIVE_INFINITY;
+      // szukamy najbliższego wierzchołka z niepołączonych w pary
+      for (let j = i + 1; j < oddNodes.length; j++) {
+        if (!used.has(oddNodes[j])) {
+          let d = distance(oddNodes[i], oddNodes[j]);
+          if (d < bestDistance) {
+            bestDistance = d;
+            bestMatch = oddNodes[j];
+          }
+        }
+      }
+      // po znalezieniu pary dodajemy ją do wyniku
+      // oraz do listy wykorzystanych wierzchołków
+      if (bestMatch !== null) {
+        result.push({
+          from: oddNodes[i],
+          to: bestMatch,
+          weight: bestDistance,
+        });
+        used.add(oddNodes[i]);
+        used.add(bestMatch);
+      }
+    }
+  }
+  // zwracamy listę krawędzi
+  return result;
+}
+```
+
+Z racji tego, że dla każdego wierzchołka przechodzimy przez (w przybliżeniu) wszystkie inne wierzchołki, złożoność czasowa tego algorytmu to $$\Omicron(n^2)$$.
+
+### Wyznaczanie cyklu Eulera
+
+Następnym wyzwaniem, które stoi przed nami, jest wyznaczenie cyklu Eulera. Tutaj mamy dwa klasyczne podejścia algorytmiczne — algorytm Fleury'ego (złożoność $$\Omicron(|E|^2)$$) i algorytm Hierholzera (złożoność $$\Omicron(|E|)$$). Mimo że drugi z tych algorytmów jest wydajniejszy, to ja jednak użyję pierwszego. Dlaczego? Bo jest dużo prostszy, a akurat w naszym przypadku jesteśmy w stanie osiągnąć złożoność $$\Omicron(|E|)$$. Zaraz wytłumaczę, jak to jest możliwe.
+
+#### Kroki algorytmu Fleury'ego
+
+Jak wspomniałem wcześniej, algorytm Fleury'ego jest bardzo prosty. Kroki są następujące:
+
+1. Zaczynamy od wyboru początkowego wierzchołka. Nie jest sprecyzowane, który ma to być wierzchołek, możemy wybrać dowolny. Najlepiej pierwszy dostępny, żeby nie szukać niepotrzebnie.
+2. Tak długo, aż nie odwiedziliśmy wszystkich krawędzi:
+    1. Bierzemy dowolną krawędź wychodzącą z aktualnego wierzchołka.
+    2. Sprawdzamy, czy krawędź nie jest mostem. Mostami nazywamy krawędzie, których usunięcie spowodowałoby, że graf przestanie być spójny.
+        1. Jeśli krawędź nie jest mostem, zapamiętujemy ją.
+        2. Jeśli krawędź jest mostem, to bierzemy inną krawędź wychodzącą z wierzchołka i powtarzamy proces. Jeśli most jest jedyną krawędzią, która nam została, to ją zapamiętujemy.
+    3. Zapisujemy krawędź do wyniku, oznaczamy jako odwiedzoną i przechodzimy przez nią do następnego wierzchołka.
+3. Zwracamy kolejność, w której przechodziliśmy po krawędziach.
+
+To, co psuje nam złożoność obliczeniową algorytmu, to punkt 2.2, czyli sprawdzanie, czy krawędź jest mostem. Jednak jak pamiętamy, w algorytmie Christofidesa do wyznaczenia cyklu Eulera dostajemy multigraf, gdzie wszystkie wierzchołki są parzystego stopnia. A to oznacza, że nigdy nie stracimy spójności grafu i możemy spokojnie pominąć ten punkt. Dzięki temu uzyskujemy złożoność $$\Omicron(|E|)$$.
+
+#### Implementacja algorytmu Fleury'ego
+
+Zaimplementujmy algorytm Fleury'ego w JavaScript, ale od razu w takiej formie, żeby był dopasowany do algorytmu Christofidesa. Oznacza to tyle, że nie zaprogramujemy sprawdzania, czy krawędź jest mostem, a także zrobimy kilka dodatkowych kroków, które są raczej charakterystyczne dla budowanego przez nas rozwiązania.
+
+Oto moja propozycja implementacji:
+
+```javascript
+// funkcja tworząca identyfikator krawędzi
+function getEdgeId(node1, node2) {
+  // mamy graf nieskierowany, więc musimy zapewnić kolejność zapisu wierzchołków
+  return node1 < node2 ? `${node1}-${node2}` : `${node2}-${node1}`;
+}
+
+// funkcja znajdująca cykl Eulera
+function getEulerianCircuit(multigraph) {
+  // mapa, która będzie przechowywać listę sąsiedztwa
+  const adjList = new Map();
+  // oraz zbiór, w którym będziemy przechowywać odwiedzone krawędzie
+  const visitedEdges = new Set();
+  // najwygodniejszą strukturą grafową do algorytmu Fleury'ego
+  // jest lista sąsiedztwa — do niej przekonwertujmy nasz multigraf
+  // w tym celu musimy przeiterować po wszystkich krawędziach multigrafu,
+  // który zapisany jest jako lista krawędzi
+  for (const edge of multigraph) {
+    // jeśli nie mamy w mapie któregoś z wierzchołków, tworzymy im puste listy
+    if (!adjList.has(edge.from)) {
+      adjList.set(edge.from, []);
+    }
+    if (!adjList.has(edge.to)) {
+      adjList.set(edge.to, []);
+    }
+    // dodajemy krawędzie do list odpowiadających wierzchołkom
+    adjList.get(edge.from).push(edge.to);
+    adjList.get(edge.to).push(edge.from);
+  }
+  // zmienna, która przechowa rezultat algorytmu
+  // uwaga! przechowamy kolejność odwiedzania wierzchołków, nie krawędzi
+  // taki sposób będzie dla nas bardziej przydatny
+  const result = [];
+  // stos (jako tablica), gdzie przechowamy wierzchołki, które mamy odwiedzić
+  // inicjujemy go od razu wierzchołkiem początkowym pierwszej krawędzi
+  const stack = [multigraph[0].from];
+  // w tym miejscu zaczyna się implementacja algorytmu Fleury'ego
+  // wykonujemy go tak długo, dopóki na stosie mamy wciąż wierzchołki do odwiedzenia
+  while (stack.length > 0) {
+    // pobieramy wierzchołek ze szczytu stosu
+    // dla wygody za szczyt uznajemy koniec tablicy
+    const node = stack.at(-1);
+    // zmienna, w której przechowamy informację, czy odwiedziliśmy krawędzie
+    let hasVisited = false;
+    // pobieramy listę krawędzi aktualnego wierzchołka
+    const neighbors = adjList.get(node);
+    // przechodzimy po wszystkich sąsiadujących wierzchołkach
+    for (const next of neighbors) {
+      // generujemy identyfikator krawędzi, aby sprawdzić w zbiorze, czy jest odwiedzona
+      const edgeId = getEdgeId(node, next);
+      // sprawdzamy, czy krawędź nie została odwiedzona
+      if (!visitedEdges.has(edgeId)) {
+        // przechodzimy przez nieodwiedzoną krawędź
+        // najpierw oznaczamy ją jako odwiedzoną
+        visitedEdges.add(edgeId);
+        // i dodajemy na stos wierzchołek, do którego prowadzi krawędź
+        stack.push(next);
+        // dodatkowo oznaczamy, że wierzchołek jeszcze powinniśmy zostawić
+        hasVisited = true;
+        // i przerywamy wykonanie pętli, żeby przejść do następnego wierzchołka
+        break;
+      }
+    }
+    // sprawdzamy, czy odwiedziliśmy jakąś krawędź
+    if (!hasVisited) {
+      // jeśli nie, to usuwamy wierzchołek ze szczytu stosu
+      // i dodajemy go do wyniku
+      result.push(stack.pop());
+    }
+  }
+  // zwracamy listę wierzchołków
+  return result;
+}
+```
+
+Najważniejszą różnicą jest to, że nie zapisujemy ścieżki w postaci odwiedzonych krawędzi, tylko kolejność, w której odwiedziliśmy wierzchołki. Aczkolwiek robimy to w ten sposób, że wierzchołek do wyniku dodajemy dopiero wtedy, gdy już nie dojdziemy do niego inaczej. Mimo takiej modyfikacji wynik wciąż jest prawidłowy i użyteczny w dalszych krokach algorytmu Christofidesa.
+
+### Implementacja
+
+Ostatecznie algorytm Christofidesa będzie wyglądać następująco (funkcji pokazanych wyżej już nie powtarzam, zamieszczam tu jedynie nowy kod):
+
+```javascript
+// funkcja zwracająca wierzchołki nieparzystego stopnia
+function getOddDegreeNodes(edges) {
+  // mapa przechowująca stopnie wierzchołków
+  const degree = new Map();
+  // iterujemy po kolejnych krawędziach
+  for (const edge of edges) {
+    // zwiększamy stopnie obu wierzchołków połączonych aktualną krawędzią
+    degree.set(edge.from, (degree.get(edge.from) || 0) + 1);
+    degree.set(edge.to, (degree.get(edge.to) || 0) + 1);
+  }
+  // tablica, w której przechowamy wierzchołki nieparzystego stopnia
+  const result = [];
+  // iterujemy po wszystkich wierzchołkach
+  for (const [node, value] of degree) {
+    if (value % 2 !== 0) {
+      // dodajemy wierzchołek o nieparzystym stopniu
+      result.push(node);
+    }
+  }
+  // zwracamy wynik
+  return result;
+}
+
+// funkcja przekształcająca cykl Eulera na ścieżkę Hamiltona
+// cykl Eulera jest zapisany jako lista odwiedzanych po kolei wierzchołków
+function convertToHamiltonianPath(nodes) {
+  // zbiór przechowujący odwiedzone wierzchołki
+  const visited = new Set();
+  // zmienna przechowująca wynikową ścieżkę
+  const result = [];
+  // iterujemy po kolejnych wierzchołkach cyklu Eulera
+  for (const node of nodes) {
+    // dodajemy do wyniku tylko nieodwiedzone wierzchołki
+    if (!visited.has(node)) {
+      result.push(node);
+      // pamiętamy, żeby oznaczyć wierzchołek jako odwiedzony
+      visited.add(node);
+    }
+  }
+  // zwracamy wynik
+  return result;
+}
+
+// funkcja do obliczenia długości trasy
+function calculatePathLength(nodes) {
+  let result = 0;
+  // sumujemy w pętli dystanse między kolejnymi wierzchołkami
+  for (let i = 0; i < nodes.length - 1; i++) {
+    result += distance(nodes[i], nodes[i + 1]);
+  }
+  return result;
+}
+
+// funkcja znajdująca najkrótszą ścieżkę w grafie
+// nodes jest typu number[]
+function tsp(nodes) {
+  // najpierw budujemy MST
+  const tree = mst(nodes);
+  // wyciągamy z niego wierzchołki o nieparzystym stopniu
+  const oddDegreeNodes = getOddDegreeNodes(tree);
+  // i tworzymy pary minimalnego dopssowania doskonałego
+  const perfectMatching = perfectMatch(oddDegreeNodes);
+  // tworzymy multigraf z MST i dopasowanych par
+  const multigraph = [...tree, ...perfectMatching];
+  // tworzymy cykl Eulera
+  const eulerianCircuit = getEulerianCircuit(multigraph);
+  // i przekształcamy go na ścieżkę Hamiltona
+  const hamiltonianPath = convertToHamiltonianPath(eulerianCircuit);
+  // dokładamy na koniec ścieżki pierwszy wierzchołek
+  const path = [...hamiltonianPath, hamiltonianPath[0]];
+  // liczymy długość trasy
+  const length = calculatePathLength(path);
+  // zwracamy rezultat
+  return {
+    path,
+    length,
+  };
+}
+```
+
+Trochę pisania było, ale doszliśmy do końca. Całość możesz przetestować na [Replit](https://replit.com/@tswistak/tsp-christofides#index.js). Możesz tam zobaczyć, że liczba iteracji i czas wykonania są nieduże, natomiast wyniki podobne albo lepsze niż te znalezione algorytmem najbliższego sąsiada. Warto wrócić do Replitów z poprzedniego artykułu i porównać wyniki z optymalnymi — różnice są niewielkie, a w niektórych przypadkach dostaliśmy nawet te same trasy.
+
+A co ze złożonością całości algorytmu? Określa się ją na $$\Omicron(n^3)$$.
+
+### Prezentacja
+
+Podobnie jak poprzedni, algorytm Christofidesa również możesz przetestować „graficznie”. Tym razem pod diagramem pokazuję, który aktualnie krok algorytmu jest wykonywany, więc warto przeklikać po kolei lub ustawić niższą prędkość animacji.
+
+<Presentation algorithms={["christofides"]} />
+
+## Inne podejścia heurystyczne
+
+Oczywiście nie powinno być zaskoczeniem, że dwa opisane wyżej podejścia nie są jedynymi wymyślonymi. Pośród podejść możemy wyróżnić:
+
+- Algorytm zachłanny — pod tą nazwą w TSP rozumiemy algorytm, gdzie mając listę wszystkich krawędzi, sortujemy je od najkrótszej i następnie zbieramy po kolei te krawędzie, które nie doprowadzą do powstania cyklu (przed odwiedzeniem wszystkich miast) i które nie spowodują, że jedno miasto odwiedzimy wielokrotnie.
+- Znalezienie optymalnej trasy bitonicznej — sprawdza się, gdy problem TSP rozwiązujemy w przestrzeni, gdzie możemy określić współrzędne punktów. Polega na skonstruowaniu z punktów wielokąta. Jak możesz zauważyć z prezentacji, podejście to ma sens, bo najkrótsze trasy nie mają przecięć krawędzi i są wielokątami.
+- Algorytm Clarke-Wrighta — w algorytmie tym zaczynamy od sytuacji, gdzie wszystkie miasta są połączone obustronnie z jednym, które traktujemy jako swego rodzaju centrum dystrybucyjne. Potem, w kolejnych krokach algorytmu, szukamy, jak możemy poszczególne miasta połączyć ze sobą, tworząc krótszą trasę. Powtarzamy to tak długo, aż otrzymamy trasę, gdzie nie odwiedzamy żadnego miasta więcej niż raz.
+- 2-opt, 3-opt, k-opt — algorytmy te nie tyle służą znalezieniu trasy, ile ulepszeniu istniejącej (NN lub losowa). Polegają na usuwaniu losowych krawędzi (liczba usuniętych odpowiada liczbie w nazwie algorytmu), a następnie połączeniu rozdzielonych grafów na inne sposoby, niż były oryginalnie, mając nadzieję, że znajdziemy dzięki temu krótszą trasę. Zwykle podejścia te stosuje się w połączeniu z innymi algorytmami — zwykle stanowią bazę dla działania metaheurystyk.
+- Algorytm Lina-Kernighana — można rozumieć jako ulepszenie algorytmu k-opt, gdzie bierzemy pod uwagę więcej warunków przy usuwaniu i dodawaniu krawędzi, dzięki czemu daje zazwyczaj lepsze rezultaty. Ze względu na jego sposób działania można spotkać też nazwę v-opt, gdzie *v* oznacza *variable* (zmienny).
+
+Oczywiście możemy również tworzyć metody na bazie metaheurystyk. W literaturze znajdziemy dość często opisy symulowanego wyżarzania, przeszukiwania tabu czy algorytmów ewolucyjnych do rozwiązywania TSP. W następnym artykule skupię się właśnie na nich.
+
+Oprócz tego znajdziemy też opisy zastosowania różnego rodzaju sieci neuronowych. Klasycznym podejściem są sieci Hopfielda, ale są też inne, nowocześniejsze rozwiązania. Nie chcę się jednak na nich skupiać, bo sieci neuronowe to bardzo szeroki temat, który wymaga rozbudowanego wstępu teoretycznego i matematycznego.
+
+## Podsumowanie
+
+Mieliśmy okazję zobaczyć i poznać dwa (nawet można powiedzieć, że trzy) podejścia do heurystycznego znajdowania rozwiązania problemu komiwojażera. Z jednej strony podejście bardzo proste, dające przeciętne rezultaty — algorytm najbliższego sąsiada. Z drugiej bardziej rozbudowany algorytm wykorzystujący wiele zależności występujących w grafach, dający dobre rezultaty — algorytm Christofidesa.
+
+A jeśli chcesz jeszcze przetestować, jak algorytmy te (oraz pokazane w poprzednim artykule) działają na tym samym zbiorze danych, który sam(a) zaprojektujesz, to poniżej ponownie zamieszczam interaktywną prezentację, ale tym razem z włączonym wyborem różnych algorytmów.
+
+<Presentation algorithms={["christofides", "rnn", "nn", "held-karp", "brute-force"]} />
+
+## Literatura
+
+- Cormen, T. H., Leiserson, C. E., Rivest, R. L., & Stein, C. (2020). The traveling-salesman problem. W *Introduction to algorithms* (3rd ed., pp. 1111–1117).
+- Cormen, T. H., Leiserson, C. E., Rivest, R. L., & Stein, C. (2020). Minimum spanning trees. W *Introduction to algorithms* (3rd ed., pp. 624–631).
+- Johnson, D. S., & McGeoch, L. A. (1997). The traveling salesman problem: A case study in local optimization. W E. H. L. Aarts & J. K. Lenstra (Eds.), *Local search in combinatorial optimization* (pp. 215–310). John Wiley and Sons.
+- Ziółkowski, J., Miziołek, A., & Ćwik, D. (2018). Travelling salesman problem – Case study. *Military Logistics Systems*, 49(2), 236–245. [doi:10.5604/01.3001.0012.7149](https://doi.org/10.5604/01.3001.0012.7149)
+- Christofides, N. (1976). *Worst-case analysis of a new heuristic for the travelling salesman problem* (Technical Report No. 388). Carnegie-Mellon University, Graduate School of Industrial Administration. U.S. Department of Commerce, National Technical Information Service.
+- Lin, J.-S. (2005, February 16). *Christofides’ heuristic* \[Course notes\]. IEOR 251 – Facility Design and Logistics, Columbia University.
+- Christofides algorithm, https://en.wikipedia.org/w/index.php?title=Christofides_algorithm&oldid=1233376933 (ostatnia wizyta 05.10.2024).
+- Perfect matching, https://en.wikipedia.org/w/index.php?title=Perfect_matching&oldid=1245742980 (ostatnia wizyta 05.10.2024).
+- Eulerian path, https://en.wikipedia.org/w/index.php?title=Eulerian_path&oldid=1248888619 (ostatnia wizyta 05.10.2024).
+- Reinelt, G. "TSPLIB--A Traveling Salesman Problem Library." ORSA Journal on Computing, Vol. 3, No. 4, pp. 376-384. Fall 1991.
+
+<small>Zdjęcie na okładce wygenerowane przez DALL-E.</small>

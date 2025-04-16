@@ -1,0 +1,340 @@
+import Link from 'next/link';
+import {Image} from '@swistak-codes/components';
+import {Presentation} from './presentation';
+import cover from './swistak_kurier.webp';
+import atsp from './atsp.png';
+
+export const meta = {
+  title: 'Problem komiwojażera',
+  abstract:
+    'Artykuł omawia, o co chodzi w problemie komiwojażera, i pokazuje przykładowe podejścia do jego rozwiązania.',
+  firstParagraph: (
+    <>
+      Do tej pory na blogu miałem okazję pokazać dwa ciekawe problemy obliczeniowe: <Link href="/post/problem-skoczka-szachowego">problem skoczka szachowego</Link> oraz <Link href="/post/zliczanie-unikalnych-elementow">zliczania unikalnych elementów</Link>. Omawiając je (i nie tylko), wspominałem o innym, może i najbardziej znanym — problemie komiwojażera. Czytaj dalej, aby dowiedzieć się, o co w nim chodzi, jak możemy go rozwiązać, dlaczego na okładce jest listonosz, a także co ma wspólnego z grafami. Tak, niemal równo po dwóch latach wracam na blogu do tematyki grafów.
+    </>
+  ),
+  keyword: 'problem komiwojażera',
+  categories: ['Problemy obliczeniowe', 'Grafy'],
+  tags: [
+    'problem komiwojażera',
+    'symetryczny problem komiwojażera',
+    'tsp',
+    'travelling salesman problem',
+    'javascript',
+    'cykl Hamiltona',
+    'ścieżka Hamiltona',
+    'algorytm Helda-Karpa'
+  ],
+  slug: 'problem-komiwojazera',
+  updateTime: '2024-09-25T07:00:00+00:00',
+  publishTime: '2024-09-25T07:00:00+00:00',
+  cover,
+};
+
+## Definicja
+
+Problem komiwojażera (po ang. travelling salesman problem, TSP), najprościej mówiąc, polega na tym, że mając zestaw punktów w przestrzeni (np. miasta na mapie), musimy wyszukać najkrótszą ścieżkę przechodzącą tylko raz przez każdy z tych punktów i wracającą do pierwszego (ścieżka zamknięta). Zakładamy, że z każdego punktu możemy dojść do każdego innego. Jest to w zasadzie coś, co (w uproszczeniu) na co dzień robią listonosze czy kurierzy.
+
+Brzmi prosto? W samym opisie tak, ale znalezienie takiej ścieżki nie należy do prostych zadań i znalezienie optymalnej ścieżki jest problemem NP-trudnym.
+
+A co to oznacza, że jest problemem NP-trudnym? Najkrócej mówiąc — sprawdzenie rozwiązania (nie jego znalezienie) ma złożoność co najmniej wielomianową. Czyli bardzo wysoką.
+
+### Odmiany problemu
+
+Już w tym miejscu wspomnę, że problem komiwojażera ma dwie odmiany, aczkolwiek w ramach artykułu zajmę się tylko jedną z nich. Są to:
+
+- Symetryczny problem komiwojażera (STSP) — odległości między dwoma punktami są takie same w obie strony, np. między dwoma punktami w układzie kartezjańskim odległość jest taka sama niezależnie, czy przemieszczamy się z A do B, czy z B do A. Jest to najpopularniejszy wariant problemu komiwojażera i nim się będziemy zajmować.
+- Asymetryczny problem komiwojażera (ATSP) — odległości między dwoma punktami mogą się różnić w zależności od kierunku podróży. Przykładowo, poruszając się po mieście z punktu A do B, możemy przemieścić się szybciej niż z B do A ze względu na ułożenie dróg jednokierunkowych.
+- Wersja decyzyjna — polega na tym, że oprócz grafu mamy podaną też pewną długość $$L$$ i mamy odpowiedzieć na pytanie, czy istnieje ścieżka o długości mniejszej lub równej $$L$$. Wówczas mamy do czynienia z klasą złożoności NP-zupełną, ale wytłumaczenie różnic między tymi klasami jest zdecydowanie poza zakresem tematycznym tego artykułu.
+- Wariant Steinera (Steiner TSP) — rozszerzenie problemu komiwojażera, gdzie zakładamy, że możemy wielokrotnie odwiedzić ten sam wierzchołek lub krawędź.
+
+<Image
+  image={atsp}
+  alignCenter
+  alt={""}
+  caption={<>Zobrazowanie na przykładzie okolic wrocławskiego rynku, dlaczego ATSP ma więcej sensu przy rozpatrywaniu punktów na mapie. Jak widać, dla dwóch punktów trasa ma zupełnie inną odległość w zależności od tego, w którym kierunku jedziemy. Przy czym tutaj bierzemy pod uwagę tylko odległość, a w praktycznych zastosowaniach byłby brany pod uwagę także czas, ile może zająć pokonanie drogi, biorąc pod uwagę ograniczenia prędkości, konfigurację świateł, lewoskręty itd.</>}
+/>
+
+### Problem komiwojażera jako problem grafowy
+
+We wstępie napisałem, że problem komiwojażera to powrót do tematyki <Link href="/category/grafy">grafów</Link>, której do tej pory poświęciłem 8 artykułów. Jeśli nie wiesz, czym są grafy, albo potrzebujesz powtórki z teorii, zapraszam do artykułu *<Link href="/post/grafy-wprowadzenie">Grafy — wprowadzenie</Link>*.
+
+Więc jak możemy zdefiniować problem komiwojażera jako problem grafowy? **Jest to problem znalezienia minimalnego cyklu Hamiltona w grafie pełnym, ważonym.**
+
+W skrócie, czym jest każde z pojęć, które zawarłem w tym krótkim zdaniu:
+
+- Graf ważony — graf, w którym krawędzie mają przypisane wagi. Przykładowo w grafie reprezentującym mapę: wierzchołki są miastami, krawędź to droga między nimi, a waga to jej długość.
+- Graf pełny — graf, gdzie każdy wierzchołek jest połączony ze wszystkimi innymi.
+- Cykl Hamiltona — jest to zamknięta ścieżka Hamiltona.
+    - Ścieżka Hamiltona — ścieżka, która przechodzi przez wszystkie wierzchołki grafu, ale tylko raz przez każdy z nich.
+    - Temat cykli i ścieżek Hamiltona szerzej poruszyłem w artykule *<Link href="/post/problem-skoczka-szachowego">Problem skoczka szachowego</Link>*.
+- Minimalny cykl Hamiltona — najkrótszy cykl Hamiltona, który możemy znaleźć w danym grafie.
+
+### Zastosowania
+
+Można teraz zadać pytanie, chociaż zapewne odpowiedzi nasuwają się same — jakie są praktyczne zastosowania problemu komiwojażera? Przede wszystkim ogólnie pojęte wyznaczanie tras przebiegających przez wiele punktów. Ma to zastosowanie chociażby w logistyce, robotyce, turystyce. Tutaj też zastosowanie może mieć problem marszrutyzacji, o którym za chwilę.
+
+Warto jednak wiedzieć, że nie musimy ograniczać się do tego, że wierzchołki są punktami w przestrzeni (np. miastami), a waga krawędzi to odległość wymagana do pokonania. Przykładowo problem komiwojażera ma też zastosowanie w kontekście optymalizacji procesów produkcyjnych. Wtedy wierzchołki będą reprezentować zadania do wykonania, a wagi krawędzi czas przestoju w działaniu maszyn. Więcej informacji o tym zastosowaniu znajdziesz w książce M. Pinedo *Scheduling: Theory, Algorithms, and Systems*.
+
+### Podobne problemy
+
+Zanim przejdziemy do najciekawszej części, czyli rozwiązywania problemu, warto wspomnieć, że mamy też inne problemy obliczeniowe, które są bardzo podobne do problemu komiwojażera i czasami (błędnie) z nim utożsamiane:
+
+- Problem chińskiego listonosza (po ang. Chinese postman problem) — polega na znalezieniu w grafie najkrótszej ścieżki zamkniętej, która przechodzi przez wszystkie krawędzie co najmniej raz.
+- Problem marszrutyzacji (po ang. vehicle routing problem, VRP) — uogólnienie problemu komiwojażera do praktycznego zastosowania, gdzie wyznaczamy wiele ścieżek (w zależności ile pojazdów/ludzi mamy dostępnych), aby obsłużyć wskazany zestaw klientów przy optymalnym wykorzystaniu środków. Problem rozwija się często o różne czynniki, np. różnice w pojazdach, ustalenie okien czasowych, obsługę jednego punktu przez wiele pojazdów. Programy rozwiązujące ten problem stoją u podstaw działania wielu firm, w szczególności kurierskich. Tutaj też pojawiają się ciekawe heurystyki. Na przykład, oprogramowanie firmy UPS unika lewoskrętów, bo mimo iż trasa może być krótsza, to staje się mniej bezpieczna, a do tego trzeba czekać na możliwość skrętu, co powoduje większe zużycie paliwa (przykładowe źródło tej informacji znajdziesz w sekcji Literatura).
+- Set TSP problem (niestety nie znam polskiej nazwy, tłumaczenie brzmiałoby mniej więcej *zbiorowy problem komiwojażera*) — zbiór wierzchołków jest podzielony na rozłączne podzbiory i musimy znaleźć trasę przechodzącą przez każdy podzbiór. TSP to szczególny przypadek tego problemu, gdzie zakładamy, że każdy podzbiór ma tylko jeden wierzchołek.
+- Travelling purchaser problem (TPP, po pol. problem podróżującego nabywcy) — kolejne uogólnienie problemu komiwojażera, gdzie zakładamy, że mamy pewną listę towarów do nabycia, i naszym celem jest znalezienie ścieżki między sklepami i powrót do punktu startowego. W tym przypadku TSP to szczególny przypadek TPP, gdzie każdy ze sklepów ma tylko jeden z interesujących nas towarów, do tego każdy inny.
+
+Znajdziemy też inne podobne, ale wróćmy już do meritum artykułu, czyli rozwiązania symetrycznego problemu komiwojażera.
+
+## Uwaga do rozwiązań programistycznych
+
+Poniżej zaprezentuję przykładowe algorytmiczne podejścia do rozwiązania problemu komiwojażera. Mimo że jest to problem grafowy, przy implementacji nie będę korzystać z żadnego ze <Link href="/post/sposoby-reprezentacji-grafow">standardowych sposobów zapisu grafu w pamięci</Link>. Po prostu pokażę sposób uniwersalny, który będzie pasować do dowolnego sposobu zapisu grafu, a co więcej, można go będzie nawet użyć, jeśli nasze wierzchołki (miasta) nie są w ogóle zapisane jako graf.
+
+A co dokładnie zrobię? Otóż każda z poniższych implementacji będzie zakładać, że wierzchołki są identyfikowane indeksami, więc po prostu będę przyjmować listę nazw wierzchołków, które chcemy odwiedzić (one nawet nie muszą reprezentować całego grafu, który mamy!). Oprócz tego założę, że istnieje funkcja zwracająca odległość (wagę krawędzi): `distance(A: number, B: number): number`.
+
+## Znalezienie optymalnego rozwiązania
+
+W ramach tego artykułu omówmy rozwiązania, które rozwiążą problem w sposób optymalny, czyli znajdując faktycznie najkrótszą trasę. Jest to teoretycznie możliwe, pytanie tylko brzmi, czy w ogóle warto tak robić? Nawet nie dlatego, czy rozwiązanie otrzymamy po kilkunastu milisekundach, czy kilku minutach, tylko raczej czy rozwiązania dożyjemy. A nawet czy dożyje go nasz komputer, planeta, wszechświat...
+
+### Sprawdzenie wszystkich permutacji (metoda siłowa)
+
+Pierwsze, co przychodzi do głowy, gdy chcemy znaleźć najkrótszą trasę — sprawdźmy wszystkie trasy i znajdźmy minimum. Zróbmy tak. Tylko najpierw nieco matematyki, algorytmika potem.
+
+#### Ile jest możliwych rozwiązań problemu komiwojażera?
+
+O ile rozwiązanie jest oczywiście tylko jedno, tak aby znaleźć te optymalne, musimy sprawdzić wszystkie trasy. To, co nas tutaj interesuje, to zagadnienie z kombinatoryki, którego chwilę temu użyłem w nagłówku — permutacja.
+
+Dokładnie interesuje nas permutacja bez powtórzeń. Możesz kojarzyć z lekcji matematyki zadania typu „na ile sposobów możemy rozmieścić 5 osób przy stole”. Nasz problem jest niemalże identyczny, tylko tutaj zadajemy pytanie: „na ile sposobów możemy odwiedzać po kolei miasta, odwiedzając każde tylko raz”. A wzór na permutację bez powtórzeń $$n$$ elementów to...
+
+$$
+P_n = n!
+$$
+
+Jest to nic innego jak silnia z $$n$$. Silnię omawiałem m.in. przy okazji <Link href="/post/rekurencja-co-to-jest">rekurencji</Link> albo obliczania <Link href="/post/symbol-newtona">symbolu Newtona</Link>, więc jeśli nie wiesz, jak ją obliczać, zapraszam tam.
+
+W przypadku problemu komiwojażera jednak możemy zauważyć (zakładając, że mamy zbiór miast $$\{A, B, C, D\}$$), że trasy $$ABCD$$, $$BCDA$$, $$CDAB$$ i $$DABC$$ będą identyczne. Dlatego zakładamy, że ustawienia pierwszego miasta nie zmieniamy, jest stałe. Stąd możliwych tras nie będzie $$n!$$, tylko $$(n-1)!$$. Teoretycznie tras jest mniej, bo w przypadku symetrycznego TSP trasy $$ABCD$$ i $$DCBA$$ są takie same, więc moglibyśmy zapisać $$P = \frac{(n-1)!}{2}$$, ale generując algorytmicznie wszystkie permutacje, nie bierzemy tego pod uwagę.
+
+Stąd mamy do sprawdzenia algorytmicznie aż $$(n-1)!$$ permutacji, więc upraszczając, mamy do czynienia z tragiczną złożonością obliczeniową $$\Omicron(n!)$$. O ile dla 5 miast będą to 24 permutacje, to dla 10 już 3628800. A szukając gotowych zbiorów danych, trafimy na zestawy nawet setek tysięcy miast (punktów). Nawet silnia ze 100 jest już gigantyczną liczbą (ok. $$9 \cdot 10^{157}$$), a co dopiero mówić o tysiącach miast. Zakładając, że sprawdzenie tysiąca permutacji zajęłoby 100 nanosekund ($$0,0001$$ ms), to potrzebowalibyśmy ok. $$10^{150}$$ milisekund, czyli trochę ponad $$10^{139}$$ lat. Przeciętna firma kurierska nie może tyle czekać, żeby wyznaczyć trasę swojemu pracownikowi.
+
+#### Implementacja algorytmiczna
+
+Mimo to zaimplementujmy ten sposób. W ramach testów nie musimy wyznaczać tras dla 100 miast, ale np. tylko dla maksymalnie 20. Chwilę to zajmie, ale czas ten będziemy mierzyć w milisekundach, sekundach, a nie w latach.
+
+Tylko jak generować wszystkie permutacje? Dwa algorytmy tego typu opisałem już na blogu przy okazji <Link href="/post/kryptarytmy/#algorytmy-generowania-wszystkich-permutacji">kryptarytmów</Link> i nie będę tym razem wymyślać nic innego. Weźmiemy prostszy z opisanych tam algorytmów, czyli leksykograficzne generowanie permutacji. Następnie będziemy szukać trasy o najkrótszej długości. Nie musimy generować od razu wszystkich permutacji, możemy generować jedna po drugiej i sprawdzać, czy nowa trasa jest krótsza od poprzedniej. Takie podejście nawet będzie lepsze, wykonamy iteracji dosłownie tyle, ile jest permutacji (nie licząc liczby iteracji wykonanych przy generowaniu permutacji).
+
+Kod takiego podejścia w JavaScript znajdziesz poniżej:
+
+```javascript
+// funkcja zamieniająca ze sobą elementy tablicy
+function swap(array, i, j) {
+  let tmp = array[i];
+  array[i] = array[j];
+  array[j] = tmp;
+}
+
+// funkcja generująca wszystkie permutacje elementów tablicy a
+// * oznacza, że jest to generator (więcej o tym w artykule "Iteracja - co to jest")
+// opis algorytmu znajdziesz w artykule "Kryptarytmy"
+function* lexicographic(a) {
+  let j, k, l;
+  let n = a.length - 1;
+  while (true) {
+    yield a;
+    j = n - 1;
+    while (a[j] >= a[j + 1]) {
+      j--;
+    }
+    if (j < 0) {
+      return;
+    }
+    l = n;
+    while (a[j] >= a[l]) {
+      l--;
+    }
+    swap(a, j, l);
+    k = j + 1;
+    l = n;
+    while (k < l) {
+      swap(a, k, l);
+      k++;
+      l--;
+    }
+  }
+}
+
+// funkcja znajdująca najkrótszą ścieżkę w grafie
+// nodes jest typu number[]
+function tsp(nodes) {
+  // każda trasa będzie zaczynać się od pierwszego wierzchołka,
+  // dlatego permutacje będziemy generować z pozostałych
+  const nodesToFindPath = nodes.slice(1);
+  // zmienne przechowujące aktualne minimum
+  let currentMinLength = Number.POSITIVE_INFINITY;
+  let currentMinPath = [];
+  // iterujemy po wszystkich permutacjach
+  for (const path of lexicographic(nodesToFindPath)) {
+    // pełna ścieżka, którą sprawdzamy
+    const fullPath = [nodes[0], ...path, nodes[0]];
+    // obliczamy długość ścieżki
+    let currentLength = 0;
+    for (let i = 0; i < fullPath.length - 1; i++) {
+      // pobieramy dwa sąsiadujące wierzchołki
+      const currentNode = fullPath[i];
+      const nextNode = fullPath[i + 1];
+      // dodajemy do ścieżki odległość między wierzchołkami
+      currentLength += distance(currentNode, nextNode);
+    }
+    // jeśli ścieżka jest krótsza od aktualnego minimum, to aktualizujemy
+    if (currentLength < currentMinLength) {
+      currentMinLength = currentLength;
+      currentMinPath = fullPath;
+    }
+  }
+  // zwracamy wynik
+  return {
+    length: currentMinLength,
+    path: currentMinPath,
+  };
+}
+```
+
+Całość kodu, wraz z odczytem przykładowych danych (att48 ze zbioru TSPLIB) w wersji do uruchomienia, znajdziesz na [Replit](https://replit.com/@tswistak/tsp-all-permutations#index.js). Możesz tam też zobaczyć, w jaki sposób rośnie liczba iteracji i czas wykonania wraz ze zwiększaniem się rozmiarów problemu.
+
+#### Prezentacja
+
+Poniżej możesz sprawdzić, jak wygląda działanie algorytmu siłowego. Rozstaw w przestrzeni *miasta* (możesz też usunąć aktualne, naciskając *delete* lub *backspace* bądź dodać nowe przyciskiem pod diagramem) i uruchom wyszukanie trasy. Możesz zarówno uruchomić wyszukiwanie w formie animowanej, gdzie zobaczysz każdą iterację algorytmu (dokładniej aktualne minimum na szaro i aktualnie sprawdzaną trasę na niebiesko), albo od razu przejść do końca. Ostrzegam tylko, że na zobaczenie ostatecznego wyniku możesz chwilę poczekać. Do tego wyłączyłem tę opcję, jeśli wierzchołków jest więcej niż 10 — nie chcę Ci zawiesić przeglądarki (chociaż i tak jest to możliwe).
+
+<Presentation algorithms={["brute-force"]} />
+
+Prezentacja została napisana z użyciem [ReactFlow](https://reactflow.dev/) i jej kod źródłowy znajdziesz na [GitHubie świstak.codes](https://github.com/swistak-codes/tsp-visualizer).
+
+### Algorytm Helda-Karpa
+
+Nieco wydajniejszym sposobem znalezienia optymalnej trasy w problemie TSP jest algorytm Helda-Karpa opublikowany w 1962 r. przez M. Helda i R. M. Karpa ([doi:10.1137/0110015](https://doi.org/10.1137/0110015)).
+
+#### Opis algorytmu
+
+Algorytm Helda-Karpa wykorzystuje programowanie dynamiczne, co oznacza, że będziemy najpierw rozwiązywać mały podproblem i na jego bazie budować rozwiązanie większego problemu. Co prawda nigdy nie opisywałem na blogu samego programowania dynamicznego, ale algorytmy na nim bazujące pokazywałem m.in. przy okazji <Link href="/post/podobienstwo-ciagow-znakow">mierzenia podobieństwa ciągów znaków (algorytm Wagnera-Fischera)</Link> i <Link href="/post/szukanie-najkrotszych-sciezek-w-grafie">szukania najkrótszych ścieżek w grafie (algorytm Floyda-Warshalla)</Link>.
+
+Idea jest taka, że mając zbiór miast $$S$$, zaczynamy od jednego miasta i potem dokładamy kolejne. Załóżmy, że zbiór $$S$$ składa się z miast $$\{0,1,2,3,...,j\}$$. Wtedy:
+
+1. Zakładając, że zaczynamy od miasta $$0$$, pozostaje nam do budowy ścieżki zbiór $$\{1,2,...,j\}$$. W tym momencie zawsze jest jedna ścieżka do każdego z miasta, więc spisujemy sobie możliwości $$0 \rightarrow 1$$, $$0 \rightarrow 2$$, ..., $$0 \rightarrow j$$. Zapamiętajmy to w ten sposób, że mamy znane odległości dla zbiorów $$\{0,1\}$$, $$\{0,2\}$$, ..., $$\{0,j\}$$.
+2. Następnie dla każdej ze ścieżek dokładamy kolejne miasta. Przykładowo dla zbioru $$\{0,1\}$$ dokładamy $$2$$: wówczas sprawdzamy trasy $$0 \rightarrow 1 \rightarrow 2$$ i $$0 \rightarrow 2 \rightarrow 1$$. Zapamiętujemy krótszą z nich jako wynik dla zbioru $$\{0,1,2\}$$. To samo robimy z pozostałymi miastami i pozostałymi zbiorami.
+3. Następnie znowu rozszerzamy zbiory. Kontynuujmy nasz przykład, więc będziemy próbować zbudować $$\{0,1,2,3\}$$. W tym celu szukamy, która trasa będzie krótsza (miejmy na uwadze, że w przypadku zbioru kolejność nie ma znaczenia, pamiętamy po prostu najkrótszą trasę dla każdego z tych zbiorów): $$\{0,1,2\}$$ z dołożonym $$3$$, $$\{0,1,3\}$$ z dołożonym $$2$$, $$\{0,2,3\}$$ z dołożonym $$1$$. Zapamiętujemy najkrótszą trasę jako rezultat zbioru $$\{0,1,2,3\}$$. Całość tego opiera się na fakcie, że jeśli wynikiem zbioru $$\{0,1,2\}$$ była trasa $$0 \rightarrow 2 \rightarrow 1$$, to $$0 \rightarrow 2 \rightarrow 1 \rightarrow 3$$ na pewno będzie krótsze niż $$0 \rightarrow 1 \rightarrow 2 \rightarrow 3$$, więc nie musimy go nawet sprawdzać. Oczywiście zakładamy, że nie mamy ujemnych wag krawędzi.
+4. Kontynuujemy tak długo, aż ułożymy trasę dla całego zbioru $$\{0,1,2,...,j\}$$.
+
+Zdefiniujmy to teraz w nieco bardziej ogólny sposób, przede wszystkim w sposób rekurencyjny, bo tego wymaga od nas programowanie dynamiczne. W tym celu definiujemy funkcję $$\operatorname{C}(S,j)$$, która reprezentuje minimalny koszt dotarcia od miasta $$0$$ do miasta $$j$$, odwiedzając wszystkie miasta w zbiorze $$S = \{0,1,2,...,j\}$$:
+
+$$
+\operatorname{C}(S,j) = \min_{i \in S, i \neq j} \left( \operatorname{C} \left(S \setminus \{j\}, i \right) + \operatorname{d} \left(i, j \right) \right)
+$$
+
+$$\operatorname{d} \left(i, j \right)$$ to funkcja zwracająca odległość z miasta $$i$$ do miasta $$j$$.
+
+Jak widzimy, zbiór rekurencyjnie definiuje, że aby znaleźć najkrótszą ścieżkę, musimy wyznaczyć najkrótszą ścieżkę bez ostatniego elementu. Jednak aby rekurencja nie była nieskończona, potrzebujemy jeszcze warunek początkowy, który wygląda tutaj następująco:
+
+$$
+\operatorname{C}(\{0\},0) = 0
+$$
+
+Natomiast na koniec musimy obliczyć koszt pełnej trasy, czyli „zatoczyć koło”. Dlatego też końcowy wzór musi uwzględnić przejście z $$j$$ do $$0$$.
+
+Dzięki temu, że zapamiętujemy najkrótsze ścieżki dla każdego z mniejszych zbiorów, jesteśmy w stanie zmniejszyć złożoność obliczeniową z $$\Omicron(n!)$$ do $$\Omicron(n^2 \cdot 2^n)$$. Złożoność ta wynika z tego, że mamy $$2^n$$ podzbiorów $$S$$ i dla każdego z nich musimy przejść przez $$n$$ miast. Dalej jest to bardzo wysoka złożoność obliczeniowa, aczkolwiek rosnąca nieco wolniej niż przy metodzie siłowej.
+
+#### Implementacja
+
+Doskonale rozumiem, jeśli powyższy opis mógł być dla Ciebie zbyt zawiły, dlatego teraz zobaczmy, jak będzie to wyglądać w kodzie (JavaScript), może tak będzie bardziej zrozumiale:
+
+```javascript
+// funkcja do tworzenia klucza dla memoizacji zbiorów
+function memoKey(visitedSet, last) {
+  // klucz jest unikalny dla danego zbioru odwiedzonych miast i ostatniego miasta
+  const visitedKey = [...visitedSet].sort().join(",");
+  return `${visitedKey},${last}`;
+}
+
+// funkcja znajdująca najkrótszą ścieżkę w grafie
+// nodes jest typu number[]
+function tsp(nodes) {
+  // pomocniczo spiszmy sobie liczbę miast
+  const n = nodes.length;
+  // mapa, w której przechowamy wyniki poprzednich iteracji
+  const memo = new Map();
+  // funkcja rekurencyjna obliczająca minimalny koszt dotarcia do wierzchołka `last`,
+  // odwiedzając wszystkie wierzchołki z visitedSet
+  // argumenty funkcji są indeksami z tablicy nodes
+  function heldKarp(visitedSet, last) {
+    // pobieramy klucz dla aktualnego zbioru odwiedzonych miast i ostatniego miasta
+    const key = memoKey(visitedSet, last);
+    // sprawdzamy, czy wynik jest już w pamięci
+    if (memo.has(key)) {
+      return memo.get(key);
+    }
+    // jeśli wszystkie wierzchołki zostały odwiedzone, zawracamy do wierzchołka początkowego
+    if (visitedSet.size === n) {
+      return {
+        cost: distance(nodes[last], nodes[0]),
+        path: [nodes[last], nodes[0]],
+      };
+    }
+    // zmienne przechowujące aktualne minimum
+    let minLength = Number.POSITIVE_INFINITY;
+    let minPath = [];
+    // próbujemy odwiedzić każdy wierzchołek, który jeszcze nie został odwiedzony
+    for (let next = 0; next < n; next++) {
+      // jeśli wierzchołek nie został odwiedzony, wykonujemy obliczenia
+      if (!visitedSet.has(next)) {
+        // tworzymy nowy zbiór odwiedzonych wierzchołków z aktualnego
+        const newVisitedSet = new Set(visitedSet);
+        // dodajemy aktualny wierzchołek
+        newVisitedSet.add(next);
+        // wywołujemy rekurencyjnie funkcję dla nowego zbioru odwiedzonych wierzchołków
+        const result = heldKarp(newVisitedSet, next);
+        // obliczamy aktualną długość trasy, wykorzystując wynik z wywołania rekurencyjnego
+        const currentCost = distance(nodes[last], nodes[next]) + result.cost;
+        // jeśli jest mniejsza, zapamiętujemy
+        if (currentCost < minLength) {
+          minLength = currentCost;
+          minPath = [nodes[last], ...result.path];
+        }
+      }
+    }
+    // zapamiętujemy wynik
+    memo.set(key, { cost: minLength, path: minPath });
+    // i zwracamy go
+    return memo.get(key);
+  }
+  // zaczynamy obliczenia od wierzchołka początkowego i odwiedzając tylko jego
+  const result = heldKarp(new Set([0]), 0);
+  // zwracamy wynik
+  return {
+    length: result.cost,
+    path: result.path,
+  };
+}
+```
+
+Analogicznie jak poprzednio, kod w całości z możliwością uruchomienia znajdziesz na [Replit](https://replit.com/@tswistak/tsp-held-karp#index.js). Możesz porównać wyniki z poprzednią implementacją (korzysta z tego samego zbioru danych).
+
+Jeśli nie chcesz uruchamiać, to powiem od razu, że iteracji jest znacznie mniej i obliczenia są o wiele szybsze. Gdy przy metodzie siłowej znalezienie rozwiązania dla 12 miast wymagało 39916800 iteracji i trwało (u mnie) ok. 14 sekund, tak teraz iteracji było zaledwie 56332 i zajęło to 91 milisekund. Jednak metoda ta, mimo że jest szybsza, wciąż nie nadaje się do praktycznych zastosowań, gdzie mamy do czynienia z o wiele większym rozmiarem problemu.
+
+#### Prezentacja
+
+Tak jak poprzednio, teraz też możesz sprawdzić na prezentacji, jak wygląda wykonanie algorytmu. Tym razem na szaro pokazane są najdłuższe zapamiętane ścieżki. Nie pokazuję wszystkich zapamiętanych, bo gromadzi się ich bardzo dużo i graf przestawał być czytelny. Tym razem limit liczby wierzchołków to 15.
+
+<Presentation algorithms={["held-karp"]} />
+
+## Podsumowanie
+
+W ramach artykułu poznaliśmy od strony teoretycznej problem komiwojażera, a także w jaki sposób możemy znaleźć optymalne rozwiązania. Jednak, jak sami mogliśmy zobaczyć, znajdowanie ich było dość kosztowne obliczeniowo, więc tych metod raczej nie stosujemy, tylko metody heurystyczne. Mimo wszystko warto znać też sposoby umożliwiające znalezienie dokładnego rozwiązania, a <Link href="/post/problem-komiwojazera-heurystyki">o heurystykach przeczytasz w kolejnym artykule z serii</Link>.
+
+## Literatura
+
+- Travelling salesman problem, https://en.wikipedia.org/w/index.php?title=Travelling_salesman_problem&oldid=1245192661 (ostatnie odwiedziny 14.09.2024).
+- Pinedo, M. L. (2008). Flow shops with limited intermediate storage. W *Scheduling: Theory, Algorithms, and Systems* (3rd ed., pp. 163-171). Springer.
+- Why UPS Drivers Don’t Make Left Turns, CIRCUIT (Oct. 2, 2023), https://getcircuit.com/teams/blog/why-ups-drivers-dont-make-left-turns (ostatnie odwiedziny 14.09.2024).
+- Reinelt, G. "TSPLIB--A Traveling Salesman Problem Library." ORSA Journal on Computing, Vol. 3, No. 4, pp. 376-384. Fall 1991.
+- Held, M., & Karp, R. M. (1962). A dynamic programming approach to sequencing problems. *Journal of the Society for Industrial and Applied Mathematics*, 10(1), 196-210. [doi:10.1137/0110015](https://doi.org/10.1137/0110015)
+
+<small>Zdjęcie na okładce wygenerowane przez DALL-E.</small>

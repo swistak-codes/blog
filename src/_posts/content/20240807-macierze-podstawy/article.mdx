@@ -1,0 +1,492 @@
+import Link from 'next/link';
+import {Image} from '@swistak-codes/components';
+import cover from './swistak_matrix.webp';
+import mem from './aYWPAL0_700bwp_v1.webp';
+import mnozenie from './Matrix_multiplication_diagram_2.svg.png'
+
+export const meta = {
+  title: 'Macierze — podstawowe operacje',
+  abstract:
+    'Artykuł przedstawia podstawowe zagadnienia związane z macierzami wraz z umieszczeniem ich w kontekście informatyki i programowania.',
+  firstParagraph: (
+    <>
+      Spośród mnogości zagadnień matematyki akademickiej na zagadnieniach z algebry liniowej znajdziemy jedno, które jest proste, a zarazem bardzo przydatne i szeroko stosowane w informatyce. Są to macierze. W tym artykule przybliżę, czym one są, co z nimi robimy i jakie mają zastosowania, szczególnie w informatyce. Z racji tego, że jest to blog głównie informatyczno-programistyczny, a nie matematyczny, to oprócz suchych opisów jak liczymy macierze ręcznie pokażę je też od strony algorytmicznej — zaprogramujemy je.
+    </>
+  ),
+  keyword: 'macierze',
+  categories: ['Matematyka'],
+  tags: [
+    'macierze',
+    'matematyka',
+    'dodawanie',
+    'odejmowanie',
+    'mnożenie',
+    'potęgowanie',
+    'transpozycja',
+    'szybkie potęgowanie'
+  ],
+  slug: 'macierze-podstawy',
+  updateTime: '2024-08-07T07:00:00+00:00',
+  publishTime: '2024-08-07T07:00:00+00:00',
+  cover,
+  moveCoverToTop: true,
+};
+
+## Definicja
+
+Najprościej mówiąc (za polską Wikipedią): macierz (po ang. *matrix*) to układ liczb, symboli lub wyrażeń zapisanych w prostokątnej tablicy. Po prostu tyle. Jeśli jesteś programistą, możesz mieć tu szybkie i łatwe skojarzenie — dwuwymiarowa tablica liczb. Dosłownie tym są macierze. A wyglądają tak (obie formy zapisu są dopuszczalne, ale ja będę stosować pierwszą z nich):
+
+$$
+\mathbf{A} = \begin{bmatrix}1&2&3\\4&5&6\\7&8&9\end{bmatrix}, \mathbf{A} = \begin{pmatrix}1&2&3\\4&5&6\\7&8&9\end{pmatrix}
+$$
+
+Natomiast jeśli chcielibyśmy podejść do tematu bardziej formalnie, to przytoczę najprostszą z definicji, którą znalazłem w swoich starych książkach akademickich. Cytuję za *Algebrą liniową 1* T. Jurlewicz i Z. Skoczylasa (dokładne szczegóły w sekcji *Literatura* na końcu artykułu):
+
+> Macierzą rzeczywistą (zespoloną) wymiaru $$m \times n$$, gdzie $$m,n \in \N$$, nazywamy prostokątną tablicę złożoną z $$mn$$ liczb rzeczywistych (zespolonych) ustawionych w $$m$$ wierszach i $$n$$ kolumnach.
+
+Z tej definicji warto zwrócić uwagę na wartości $$m$$ i $$n$$. $$m$$ to liczba wierszy macierzy, a $$n$$ to liczba kolumn. Wiersze i kolumny liczymy od prawego górnego rogu (od 1) do prawego dolnego rogu. Rozkłada się to następująco:
+
+$$
+\mathbf{A} = \begin{bmatrix}a_{1,1}&a_{1,2}&\ldots &a_{1,n}\\a_{2,1}&a_{2,2}&\ldots &a_{2,n}\\a_{3,1}&a_{3,2}&\ldots &a_{3,n}\\\vdots &\vdots &\ddots &\vdots \\a_{m,1}&a_{m,2}&\ldots &a_{m,n}\end{bmatrix}
+$$
+
+Jak to też pokazałem, macierze zwykle zapisuje się dużą łacińską literą. Inny sposób zapisu jest przez użycie wyrazu ogólnego, czyli byłoby to w tym przypadku $$[a_{ij}]$$. Tutaj zobacz kolejne powiązanie z programowaniem — iterując po tablicy dwuwymiarowej, zazwyczaj jako pierwszy licznik używa się `i`, jako drugi `j`. Jeśli kiedyś zastanawiałeś(-aś) się, dlaczego liczniki w pętlach się nazywa tymi literkami (oraz dalej `k`), to wzięło się to właśnie z matematyki, m.in. z macierzy.
+
+Szczególnym przypadkiem macierzy jest macierz kwadratowa, gdzie mamy taką samą liczbę kolumn i wierszy, czyli $$n = m$$. Wówczas mowa jest o macierzach 2 stopnia, 3 stopnia itd. gdzie liczba oznacza liczbę kolumn i wierszy. Pokazana przeze mnie na samym początku macierz $$\mathbf{A}$$ to macierz 3 stopnia.
+
+## Zastosowania macierzy
+
+Wyjątkowo, zanim przejdziemy do opisu działań, powiedzmy sobie, jakie w ogóle macierze mają zastosowania w informatyce, po co warto je znać, będąc programistą.
+
+Otóż na operacjach na macierzach opiera się sporo algorytmów, wbrew pozorom szeroko wykorzystywanych w różnych dziedzinach. Na moim blogu już pokazywałem praktyczne wykorzystania macierzy w artykułach:
+
+- *<Link href="/post/przeksztalcenia-grafiki-2d">Przekształcenia grafiki 2D — matematyczny punkt widzenia</Link>* — transformacje liniowe i afiniczne kształtów czy pojedynczych pikseli matematycznie zapisujemy i obliczamy z wykorzystaniem macierzy.
+- *<Link href="/post/przeksztalcenia-grafiki-3d">Przekształcenia grafiki 3D</Link>* — to samo tyczy się grafiki trójwymiarowej. Tutaj operacje te są o tyle istotne, że właśnie na obliczeniach macierzowych opiera się transformacja z wymiaru trzeciego na drugi (rzutowanie), aby wyświetlić obraz na ekranie monitora (renderowanie).
+- *<Link href="/post/otoczka-wypukla">Otoczka wypukła</Link>* — o ile sam temat macierzy nie wymagał, tak do jednego z kroków algorytmu (wykrywanie lewoskrętów) wykorzystałem obliczanie wyznacznika macierzy (poza zakresem poruszanych niżej podstaw).
+- *<Link href="/post/kompresja-obrazow">Kompresja obrazów</Link>* — zapis macierzowy był przydatny do prostego zapisu wzorów matematycznych.
+- *<Link href="/post/podobienstwo-ciagow-znakow/">Mierzenie podobieństwa ciągów znaków</Link>* — tak samo jak wyżej
+- *<Link href="/post/sposoby-reprezentacji-grafow">Sposoby reprezentacji grafów</Link>* — tutaj zapis nie jest przydatny w kontekście matematyki, tylko po prostu wizualnej czytelności.
+
+Oczywiście nie wyczerpuje to zupełnie listy zastosowań. Macierze są podstawowymi strukturami danych w wielu językach i bibliotekach przystosowanych do zaawansowanych obliczeń matematycznych: MATLAB, Octave, Scilab, NumPy. Ich obliczanie znajdziemy także w wielu algorytmach kryptograficznych, symulacji fizycznych czy uczenia maszynowego. Choćby w tym ostatnim warto wspomnieć, że na obliczeniach macierzowych opierają się najpopularniejsze dziś w kontekście uczenia maszynowego sieci neuronowe stojące za praktycznie wszystkimi popularnymi <Link href="/post/sztuczna-inteligencja-a-co-to-a-komu-to-potrzebne">„sztucznymi inteligencjami”</Link>.
+
+Swoją drogą, podane tutaj zastosowania idealnie pokazują też, dlaczego jest tak duży popyt na karty graficzne (GPU). Dużo obliczeń związanych z grafiką, w szczególności te związane z renderowaniem grafiki trójwymiarowej, opierają się na dużej liczbie operacji na macierzach, więc ich procesory muszą być do tego przystosowane. Z czasem jednak, gdy procesory stawały się mocniejsze, procesory GPU zostały udostępnione do innych obliczeń (patrz: Nvidia CUDA). Początkowo było to stosowane przede wszystkim do obliczeń fizycznych w grach (np. PhysX, również od Nvidii), ale z czasem powszechne stało się wykorzystywanie GPU do kopania kryptowalut (obliczenia kryptograficzne), co wręcz napędzało to popyt na najsilniejsze dostępne karty graficzne. Dziś w kontekście dużego popytu na GPU wymienia się sztuczną inteligencję — właśnie przez obliczenia macierzowe sieci neuronowych, które są tutaj o wiele szybsze niż na zwykłych procesorach.
+
+Podsumowując, jeśli będziesz się zastanawiać, czy macierze są wykorzystywane w informatyce, to wystarczy spojrzeć na popyt na karty graficzne. Jeśli jest nietypowo duży, to znaczy, że algorytmy wykorzystujące obliczenia macierzowe są szeroko stosowane. A&nbsp;jeśli chcesz obracać się w rejonach programowania związanych z grafiką komputerową (w tym w gamedevie, gdzie też przydatne są symulacje fizyczne) czy sztuczną inteligencją, macierze trzeba znać. Często najcięższe z operacji będą schowane w gotowych funkcjach, ale dalej będziesz miał(a) styczność z zapisem macierzowym.
+
+<Image
+  image={mem}
+  alignCenter
+  maxWidth="300px"
+  alt={"Zdjęcie zestresowanego chłopca na tle tablicy z równaniami matematycznymi z tekstem po angielsku: \"I don't need math! I'll just make videogames when I grow up!\", co oznacza po polsku: \"Nie potrzebuję matematyki! Gdy dorosnę, zostanę twórcą gier komputerowych!\". Na dole loga Autodesk, Unity, OpenGL, C++ i Oculus VR z memami sugerującymi, że tworzenie gier wymaga matematyki."}
+  caption={<>Nie potrzebuję matematyki! Gdy dorosnę, zostanę twórcą gier komputerowych!
+    <br/>(źródło: <a href="https://9gag.com/gag/aYWPAL0" target="_blank" rel="noreferrer">https://9gag.com/gag/aYWPAL0)</a></>}
+/>
+
+## Transpozycja macierzy
+
+Zacznę od operacji typowej dla macierzy — transpozycji. Będzie to jedyna operacja, o której napiszę, a która jest jednoargumentowa (czyli wykonujemy ją dosłownie na macierzy bez uczestnictwa jakiejkolwiek dodatkowej macierzy bądź liczby), dlatego też w ten sposób zacznijmy.
+
+### Definicja
+
+Transpozycja macierzy $$\mathbf{A}$$, oznaczana jako $$\mathbf{A}^{\mathrm{T}}$$, to dosłownie zamiana wierszy z kolumnami. Wszystkie elementy z pierwszego wiersza będą teraz w pierwszej kolumnie, z drugiego wiersza w drugiej kolumnie, itd. Operując na ogólnych symbolach, moglibyśmy zapisać to w ten sposób:
+
+$$
+a^{\mathrm{T}}_{ij} = a_{ji}
+$$
+
+Przykładowo:
+
+$$
+\begin{bmatrix}
+1 & 2 \\
+3 & 4 \\
+5 & 6 \\
+\end{bmatrix}^{\mathrm{T}}
+=
+\begin{bmatrix}
+1 & 3 & 5 \\
+2 & 4 & 6 \\
+\end{bmatrix}
+$$
+
+### Implementacja
+
+W języku programowania (tutaj JavaScript) zapisalibyśmy to jako dosłownie przepisywanie w pętli zawartości tablicy dwuwymiarowej do innej, ale zamieniając ze sobą współrzędne:
+
+```javascript
+function transpose(matrix) {
+  // pobieramy wymiary macierzy
+  const rows = matrix.length;
+  const cols = matrix[0].length;
+  // tworzymy nową macierz, zamieniając ze sobą wymiary
+  const result = Array.from({ length: cols }, () =>
+    Array(rows).fill(0),
+  );
+  // iterujemy po wszystkich wartościach, aby przypisać je do nowej macierzy
+  for (let i = 0; i < rows; i++) {
+    for (let j = 0; j < cols; j++) {
+      result[j][i] = matrix[i][j];
+    }
+  }
+  return result;
+}
+```
+
+Kod możesz przetestować na [Replit](https://replit.com/@tswistak/transpose#index.js).
+
+### Dodatkowe pojęcia
+
+Przy okazji transpozycji warto również dodać:
+
+1. Jeśli $$\mathbf{A}^{\mathrm{T}} = \mathbf{A}$$, to mówimy, że macierz jest symetryczna. Warunek ten mogą spełnić jedynie macierze kwadratowe (takie, które mają równą liczbę wierszy i kolumn).
+2. Transpozycja transponowanej macierzy zwraca oryginalną macierz: $$(\mathbf{A}^{\mathrm{T}})^{\mathrm{T}} = \mathbf{A}$$.
+3. Macierz z jednym wierszem nazywamy *wektorem wierszowym* (samo *wektor* też wystarczy), a macierz z jedną kolumną *wektorem kolumnowym*. Wówczas, dla uproszczenia zapisu i oszczędności miejsca, wektor kolumnowy zwykło się zapisywać jako transpozycję wektora wierszowego. Zapis taki możemy spotkać w podręcznikach do grafiki komputerowej, bo wektory kolumnowe wykorzystuje się do zapisu współrzędnych przy transformacjach.
+
+$$
+\mathbf{A} = \begin{bmatrix}
+1 \\
+2 \\
+3 \\
+4
+\end{bmatrix} =  \begin{bmatrix}
+1 & 2 & 3 & 4
+\end{bmatrix}^{\mathrm{T}}
+$$
+
+## Dodawanie i odejmowanie macierzy
+
+Teraz rozpatrzmy najprostszą z operacji, w której udział biorą już dwie macierze. Mianowicie opowiedzmy sobie o dodawaniu i odejmowaniu, bo wykonuje się je tak samo.
+
+### Definicja
+
+Jest to bardzo prosta operacja. Mając dwie macierze o tych samych wymiarach (nie mogą być różne!), po prostu dodajemy lub odejmujemy liczby na tych samych pozycjach. Matematycznie zapisalibyśmy to tak:
+
+$$
+\begin{align*}
+\mathbf{A} + \mathbf{B} &= \begin{bmatrix}
+a_{1,1}&a_{1,2}&\ldots &a_{1,n}\\a_{2,1}&a_{2,2}&\ldots &a_{2,n}\\a_{3,1}&a_{3,2}&\ldots &a_{3,n}\\\vdots &\vdots &\ddots &\vdots \\a_{m,1}&a_{m,2}&\ldots &a_{m,n}
+\end{bmatrix} + \begin{bmatrix}
+b_{1,1}&b_{1,2}&\ldots &b_{1,n}\\b_{2,1}&b_{2,2}&\ldots &b_{2,n}\\b_{3,1}&b_{3,2}&\ldots &b_{3,n}\\\vdots &\vdots &\ddots &\vdots \\b_{m,1}&b_{m,2}&\ldots &b_{m,n}
+\end{bmatrix} \\ &= \begin{bmatrix}
+a_{1,1}+b_{1,1}&a_{1,2}+b_{1,2}&\ldots &a_{1,n}+b_{1,n}\\a_{2,1}+b_{2,1}&a_{2,2}+b_{2,2}&\ldots &a_{2,n}+b_{2,n}\\a_{3,1}+b_{3,1}&a_{3,2}+b_{3,2}&\ldots &a_{3,n}+b_{3,n}\\\vdots &\vdots &\ddots &\vdots \\a_{m,1}+b_{m,1}&a_{m,2}+b_{m,2}&\ldots &a_{m,n}+b_{m,n}
+\end{bmatrix} \\
+\mathbf{A} + \mathbf{B} &= [ a_{ij} + b_{ij} ] \\
+\mathbf{A} + \mathbf{B} &= \mathbf{C} \iff c_{ij} = a_{ij} + b_{ij} \\
+\mathbf{A} + \mathbf{B} &= \mathbf{C} \iff c_{ij} = a_{ij} - b_{ij}
+\end{align*}
+$$
+
+Przykładowo:
+
+$$
+\begin{bmatrix}
+1 & 2 \\
+3 & 4 \\
+5 & 6 \\
+\end{bmatrix} + \begin{bmatrix}
+6 & 1 \\
+4 & 3 \\
+2 & 5 \\
+\end{bmatrix} = \begin{bmatrix}
+7 & 3 \\
+7 & 7 \\
+7 & 11 \\
+\end{bmatrix}
+$$
+
+### Implementacja
+
+W kodzie tym razem będzie to proste dodawanie do siebie elementów tablic dwuwymiarowych na tych samych pozycjach. Prosta implementacja w JavaScript poniżej:
+
+```javascript
+function add(A, B) {
+  // pobierzmy wymiary z pierwszej macierzy
+  // załóżmy, że użytkownik podał obie z tymi samymi wymiarami
+  const rows = A.length;
+  const cols = A[0].length;
+  // tworzymy nową macierz o tych samych wymiarach
+  const result = Array.from({ length: rows }, () => Array(cols).fill(0));
+  // w pętli dodajemy elementy na tych samych pozycjach
+  for (let i = 0; i < rows; i++) {
+    for (let j = 0; j < cols; j++) {
+      result[i][j] = A[i][j] + B[i][j];
+    }
+  }
+  return result;
+}
+```
+
+Odejmowanie będzie niemal takie samo — wystarczy tylko zamienić dodawanie elementów na ich odejmowanie. Kod do przetestowania znajdziesz na [Replit](https://replit.com/@tswistak/addition#index.js).
+
+## Mnożenie macierzy przez skalar
+
+Kolejna operacja, mnożenie przez skalar, ponownie jest bardzo prosta. Tak jak pisałem we wstępie, macierze są prostym zagadnieniem. Przynajmniej do pewnego momentu, ale tak jest ze wszystkim w matematyce.
+
+### Definicja
+
+Nie wchodząc w dokładną matematyczną definicję, czym jest skalar i o co chodzi z mnożeniem przez niego, operację tę najłatwiej zapamiętać jako mnożenie macierzy przez liczbę. Wówczas wynikiem jest macierz, gdzie każdy z jej elementów został pomnożony przez tę liczbę.
+
+$$
+\begin{align*}
+c\mathbf{A} &= \begin{bmatrix}
+c \cdot a_{1,1}&c \cdot a_{1,2}&\ldots &c \cdot a_{1,n}\\c \cdot a_{2,1}&c \cdot a_{2,2}&\ldots &c \cdot a_{2,n}\\c \cdot a_{3,1}&c \cdot a_{3,2}&\ldots &c \cdot a_{3,n}\\\vdots &\vdots &\ddots &\vdots \\c \cdot a_{m,1}&c \cdot a_{m,2}&\ldots &c \cdot a_{m,n}
+\end{bmatrix} \\
+c\mathbf{A} &= [ c \cdot a_{ij} ]
+\end{align*}
+$$
+
+Przykładowo:
+
+$$
+2 \begin{bmatrix}
+1 & 2 \\
+3 & 4 \\
+5 & 6 \\
+\end{bmatrix} = \begin{bmatrix}
+2 & 4 \\
+6 & 8 \\
+10 & 12 \\
+\end{bmatrix}
+$$
+
+### Implementacja
+
+W kodzie znów wszystko to kończy się prostą iteracją po wszystkich elementach tablicy dwuwymiarowej — tym razem po prostu każdą wartość mnożymy przez skalar. W JavaScript wyglądałoby to następująco:
+
+```javascript
+function multiplyByScalar(matrix, scalar) {
+  // pobierzmy wymiary macierzy
+  const rows = matrix.length;
+  const cols = matrix[0].length;
+  // tworzymy nową macierz o tych samych wymiarach
+  const result = Array.from({ length: rows }, () => Array(cols).fill(0));
+  // w pętli mnożymy każdy element przez skalar
+  for (let i = 0; i < rows; i++) {
+    for (let j = 0; j < cols; j++) {
+      result[i][j] = matrix[i][j] * scalar;
+    }
+  }
+  return result;
+}
+```
+
+Kod do przetestowania jak zawsze znajdziesz na [Replit](https://replit.com/@tswistak/scalar-multiplication#index.js).
+
+### Dodatkowe pojęcia
+
+Przy okazji mnożenia przez skalar warto dodać, że w definicjach często spotykamy się z mnożeniem przez skalar $$-1$$, czyli $$(-1)\mathbf{A}$$ lub $$-\mathbf{A}$$. Możemy w ten sposób zapisać np. definicję odejmowania macierzy:
+
+$$
+\mathbf{A} - \mathbf{B} = \mathbf{A} + (-1)\mathbf{B}
+$$
+
+Można też dzięki niemu zaprezentować pojęcie macierzy antysymetrycznej. Jest to taka macierz, która po transpozycji będzie równa samej sobie pomnożonej przez skalar $$-1$$:
+
+$$
+\mathbf{A}^{\mathrm{T}} = -\mathbf{A}
+$$
+
+## Mnożenie macierzy
+
+Na sam koniec zostawiłem moim zdaniem najtrudniejszą z podstawowych operacji wykonywanych na macierzach, mianowicie mnożenie dwóch macierzy. Pod tą nazwą można znaleźć kilka różnych definicji, jednak zwykle rozumie się przez nią *mnożenie Cauchy'ego*. Niestety nie da się w jednozdaniowym skrócie powiedzieć, na czym polega, więc poniżej wypiszę nieco bardziej rozbudowaną definicję.
+
+### Definicja
+
+Jeśli chcemy wykonać iloczyn $$\mathbf{A}\mathbf{B}=\mathbf{C}$$, to musi być spełniony warunek, że $$\mathbf{A}$$ ma tyle samo kolumn co $$\mathbf{B}$$ wierszy. Jeśli oznaczymy wymiary macierzy $$\mathbf{A}$$ jako $$n \times m$$, a $$\mathbf{B}$$ jako $$m \times p$$, to wynikowa macierz $$\mathbf{C}$$ będzie mieć wymiary $$n \times p$$. Możemy już w tym momencie zauważyć, że mnożenie macierzy, w przeciwieństwie do mnożenia liczb, **nie&nbsp;jest przemienne**. Tylko jak w takim razie wyznaczamy wartości macierzy $$\mathbf{C}$$? Wzór to:
+
+$$
+c_{ij} = \sum^m_{r=1}a_{ir}b_{rj} = a_{i,1}b_{1,j} + a_{i,2}b_{2,j} + \dots + a_{i,m}b_{m,j}
+$$
+
+Wizualnie moglibyśmy przedstawić to następująco:
+
+<Image
+  image={mnozenie}
+  alignCenter
+  maxWidth="400px"
+  forceWhiteBackground
+  alt={"Diagram ilustrujący mnożenie macierzy z macierzami A i B, które dają macierz wynikową, pokazując elementy i ich połączenia."}
+  caption={<>(źródło: <a href="https://commons.wikimedia.org/wiki/File:Matrix_multiplication_diagram_2.svg">File:Matrix multiplication diagram.svg:User:BilouSee below.</a>, <a href="http://creativecommons.org/licenses/by-sa/3.0/">CC BY-SA 3.0</a>, via Wikimedia Commons)</>}
+/>
+
+Przykładowe mnożenie wyglądałoby następująco:
+
+$$
+\begin{align*}
+\begin{bmatrix}
+1 & 2 & 3 \\
+4 & 5 & 6
+\end{bmatrix} \cdot \begin{bmatrix}
+6 & 1 \\
+4 & 3 \\
+2 & 5
+\end{bmatrix} &=
+\begin{bmatrix}
+(1 \cdot 6 + 2 \cdot 4 + 3 \cdot 2) & (1 \cdot 1 + 2 \cdot 3 + 3 \cdot 5) \\
+(4 \cdot 6 + 5 \cdot 4 + 6 \cdot 2) & (4 \cdot 1 + 5 \cdot 3 + 6 \cdot 5)
+\end{bmatrix} =\\&=
+\begin{bmatrix}
+20 & 22 \\
+56 & 49
+\end{bmatrix}
+\end{align*}
+$$
+
+### Naiwna implementacja programistyczna
+
+Jeśli iloczyn zaimplementujemy wprost z definicji, nazywamy to naiwnym algorytmem mnożenia macierzy. Kod takiego podejścia w JavaScript mógłby wyglądać następująco:
+
+```javascript
+function multiply(A, B) {
+  // pobierzmy potrzebne wymiary z obu macierzy
+  const rowsA = A.length;
+  const colsA = A[0].length;
+  const colsB = B[0].length;
+  // tworzymy nową macierz o odpowiednich wymiarach
+  const result = Array.from({ length: rowsA }, () =>
+    Array(colsB).fill(0),
+  );
+  // w pętli mnożymy elementy z oryginalnych macierzy
+  for (let i = 0; i < rowsA; i++) {
+    for (let j = 0; j < colsB; j++) {
+      for (let k = 0; k < colsA; k++) {
+        result[i][j] += A[i][k] * B[k][j];
+      }
+    }
+  }
+  return result;
+}
+
+```
+
+Kod do przetestowania znajdziesz na [Replit](https://replit.com/@tswistak/multiplication#index.js).
+
+Niestety, takie podejście nie jest zbyt wydajne. Widząc liczbę pętli, łatwo możemy zauważyć, że mamy do czynienia ze złożonością obliczeniową $$\Omicron(n^3)$$. Są jednak algorytmy, dzięki którym możemy obliczać jeszcze wydajniej, np. w 2024 r. (doi:[10.1137/1.9781611977912.134](https://doi.org/10.1137%2F1.9781611977912.134)) opublikowano podejście osiągające złożoność (szacunkową) $$\Omicron(n^{2,371552})$$. Celem informatyków jest odnalezienie algorytmu osiągającego wydajność $$\Omicron(n^2)$$, co byłoby optymalne, ponieważ i tak musimy odczytać $$n^2$$ elementów macierzy. Niestety nie wiadomo, czy jest to możliwe.
+
+Warto jednak wiedzieć, że dla szczególnych przypadków macierzy możemy pisać jeszcze prostsze algorytmy. Na przykład mamy macierze diagonalne, które są kwadratowe i wszystkie wartości poza główną przekątną (z lewego górnego rogu do prawego dolnego) mają zerowe ($$a_{ij} = 0 \text{ dla } i \neq j$$). Wówczas możemy pomnożyć dwie takie macierze z wydajnością $$\Omicron(n)$$. Zobacz przykład:
+
+$$
+\begin{align*}
+\mathbf{A} &= \begin{bmatrix}
+1 & 0 & 0 \\
+0 & 2 & 0 \\
+0 & 0 & 3
+\end{bmatrix} = \mathrm{diag}(1;2;3)\\
+\mathbf{B} &= \begin{bmatrix}
+4 & 0 & 0 \\
+0 & 5 & 0 \\
+0 & 0 & 6
+\end{bmatrix} = \mathrm{diag}(4;5;6)\\
+\mathbf{A}\mathbf{B} &= \begin{bmatrix}
+1 \cdot 4 & 0 & 0 \\
+0 & 2 \cdot 5 & 0 \\
+0 & 0 & 3 \cdot 6
+\end{bmatrix} = \begin{bmatrix}
+4 & 0 & 0 \\
+0 & 10 & 0 \\
+0 & 0 & 18
+\end{bmatrix} = \mathrm{diag}(4;10;18)
+\end{align*}
+$$
+
+Jak widać, wówczas wystarczy jedynie mnożyć ze sobą wartości na przekątnej, do czego wystarczy tylko jeden przebieg pętli. Przykładową implementację pominę, polecam napisać ją na własną rękę.
+
+## Potęgowanie macierzy
+
+Skoro mamy mnożenie, to można zadać pytanie — czy macierze możemy potęgować?
+
+> A można jak najbardziej, jeszcze jak.
+
+### Definicja
+
+Przede wszystkim nasza macierz $$\mathbf{A}$$ musi być kwadratowa, a wykładniki liczbami naturalnymi. Mając spełnione te dwa warunki, potęgowanie macierzy definiuje się rekurencyjnie w następujący sposób:
+
+$$
+\begin{align*}
+\mathbf{A}^0 &= \mathbf{I} \\
+\mathbf{A}^{n+1} &= \mathbf{A} \cdot \mathbf{A}^{n}
+\end{align*}
+$$
+
+Pojawił się tutaj nowy symbol: $$\mathbf{I}$$. Jest to macierz jednostkowa, czyli szczególny przypadek macierzy diagonalnej, gdzie na przekątnej mamy same jedynki. W tym przypadku zakładamy, że ma ona te same wymiary co macierz $$\mathbf{A}$$.
+
+Przykładowe potęgowanie wyglądałoby następująco:
+
+$$
+\begin{align*}
+\begin{bmatrix}
+1 & 2 \\
+3 & 4
+\end{bmatrix}^2 &= \begin{bmatrix}
+1 & 2 \\
+3 & 4
+\end{bmatrix} \cdot \begin{bmatrix}
+1 & 2 \\
+3 & 4
+\end{bmatrix} = \\ &=
+\begin{bmatrix}
+(1 \cdot 1 + 2 \cdot 3) & (1 \cdot 2 + 2 \cdot 4) \\
+(3 \cdot 1 + 4 \cdot 3) & (3 \cdot 2 + 4 \cdot 4)
+\end{bmatrix} = \\ &=
+\begin{bmatrix}
+7 & 10 \\
+15 & 24
+\end{bmatrix} \\
+\begin{bmatrix}
+1 & 2 & 3 \\
+4 & 5 & 6 \\
+7 & 8 & 9
+\end{bmatrix}^0 &= \mathbf{I}_3 = \begin{bmatrix}
+1 & 0 & 0 \\
+0 & 1 & 0 \\
+0 & 0 & 1
+\end{bmatrix}
+\end{align*}
+$$
+
+### Implementacja
+
+Oczywiście moglibyśmy podejść naiwnie do implementacji i po prostu w pętli wykonywać mnożenie macierzy. Takie podejście jednak wymagałoby wykonania przez nas $$n$$ mnożeń. Biorąc pod uwagę i tak już wysoką złożoność liczenia iloczynu, wykonanie go $$n$$ razy brzmi przerażająco. Na szczęście potęgowanie macierzy możemy napisać wydajniej, stosując dobrze wszystkim znane szybkie potęgowanie (a jeśli go nie znasz, to zapraszam do artykułu *<Link href="/post/szybkie-potegowanie">Podstawy algorytmiki: szybkie potęgowanie</Link>*).
+
+Zakładając, że mamy implementację naszego mnożenia, możemy potęgowanie macierzy zaimplementować następująco (w JavaScript), korzystając z szybkiego potęgowania w wersji rekurencyjnej:
+
+```javascript
+// funkcja tworząca macierz jednostkową
+function identity(n) {
+  return Array.from({ length: n }, (_, i) =>
+    Array.from({ length: n }, (_, j) => (i === j ? 1 : 0)),
+  );
+}
+
+// potęgowanie macierzy
+function power(matrix, exponent) {
+  // A^0 = I
+  if (exponent === 0) {
+    return identity(matrix.length);
+  }
+  if (exponent % 2 === 1) {
+    // obsługa nieparzystych wykładników
+    return multiply(matrix, power(matrix, exponent - 1));
+  } else {
+    // obsługa parzystych wykładników
+    const halfPower = power(matrix, Math.floor(exponent / 2));
+    return multiply(halfPower, halfPower);
+  }
+}
+```
+
+Kod do potestowania jak zawsze znajdziesz na [Replit](https://replit.com/@tswistak/exponentiation#index.js)
+
+## Podsumowanie
+
+W ten oto szybki sposób przeszliśmy przez definicję macierzy, ich zastosowania w informatyce i podstawowe operacje na nich. Liczę, że ten krótki opis pomógł Ci zrozumieć lub przypomnieć sobie o tym, wbrew pozorom przydatnym dla programistów, zagadnieniu.
+
+## Literatura
+
+- Jurlewicz, T., & Skoczylas, Z. (2001). Macierze i wyznaczniki. W T. Jurlewicz & Z. Skoczylas, Algebra liniowa 1: Definicje, twierdzenia, wzory (wyd. 8 zmienione, s. 49-89). Oficyna Wydawnicza GiS.
+- Antoniewicz, R., & Misztal, A. (2009). Przestrzeń macierzy. W R. Antoniewicz & A. Misztal, Matematyka dla studentów ekonomii: Wykłady z ćwiczeniami (wyd. 4 poprawione, s. 69-71). Wydawnictwo Naukowe PWN.
+- Smoluk, A. (2007). Bazy, operatory liniowe, macierze. W A. Smoluk, Podstawy algebry liniowej (s. 115-135). Wydawnictwo Akademii Ekonomicznej im. Oskara Langego we Wrocławiu.
+- Williams, V. V., Xu, Y., Xu, Z., & Zhou, R. (2024). New bounds for matrix multiplication: From alpha to omega. In Proceedings of the 2024 Annual ACM-SIAM Symposium on Discrete Algorithms (SODA) (pp. 3792-3835). [doi:10.1137/1.9781611977912.134](https://doi.org/10.1137/1.9781611977912.134)
+- Macierz, https://pl.wikipedia.org/w/index.php?title=Macierz&oldid=74118924 (ostatni dostęp lip. 26, 2024).
+
+<small>Zdjęcie na okładce wygenerowane przez DALL-E.</small>

@@ -1,0 +1,594 @@
+import Link from 'next/link';
+import {Image} from '@swistak-codes/components';
+import cover from './typescript-groundhog.jpg';
+import vennTs from './venn-ts.png';
+import vennLiteral from './venn-literal.png';
+import vennUnion1 from './venn-union1.png';
+
+export const meta = {
+  title: 'Teoria zbiorów a TypeScript',
+  abstract:
+    'W artykule pokazuję, w jaki sposób zagadnienia z algebry zbiorów znajdują swoje zastosowanie w systemie typów TypeScripta.',
+  firstParagraph: (
+    <>
+      Omawiając ostatnio <Link href="/post/algebra-zbiorow">algebrę zbiorów</Link>, przedstawiłem jej zastosowanie w najbardziej oczywisty dla programistów sposób — na strukturach danych zbiorów i tablic. Jak się jednak okazuje, zagadnienia z niej mają znacznie więcej zastosowań w informatyce. Tym razem pokażę, jakie przełożenie ma ten obszar logiki matematycznej na język programowania <a href="https://www.typescriptlang.org/" target="_blank">TypeScript</a>, a dokładniej na jego system typów. Innymi słowy, nie zastosujemy logiki w wykonywalnym kodzie programu, ale w technicznym opisie tego, co my w ogóle programujemy. A patrząc z jeszcze innej strony — poznamy wycinek teorii typów w praktyce.
+    </>
+  ),
+  keyword: 'typescript',
+  categories: ['Logika', 'Programowanie'],
+  tags: [
+    'typescript',
+    'javascript',
+    'zbiory',
+    'logika',
+    'matematyka',
+    'programowanie',
+    'iloczyn',
+    'suma'
+  ],
+  slug: 'teoria-zbiorow-typescript',
+  updateTime: '2023-08-23T07:00:00+00:00',
+  publishTime: '2023-08-23T07:00:00+00:00',
+  cover,
+};
+
+## Uwaga wstępna
+
+Artykuł zostanie poświęcony rozpatrywaniu języka TypeScript od strony logiki matematycznej, więc zakładam, że znasz jej podstawy. Jeśli nie, zapraszam do moich innych artykułów, gdzie opisuję:
+
+- <Link href="/post/podstawy-logiki">podstawowe pojęcia i rachunek zdań</Link>,
+- <Link href="/post/kwantyfikatory">kwantyfikatory</Link>,
+- <Link href="/post/algebra-zbiorow">algebrę zbiorów</Link>.
+
+W kontekście tego tekstu szczególnie przydadzą Ci się pojęcia z teorii zbiorów.
+
+## Czym jest TypeScript?
+
+Z racji tego, że mój blog nie skupia się wokół konkretnych obszarów informatyki ani języków programowania, zakładam, że możesz nie wiedzieć, czym jest TypeScript. W tym akapicie zrobię krótkie wprowadzenie do poziomu takiego, jaki może się przydać do zrozumienia artykułu. Jeśli wiesz, czym jest TypeScript, możesz spokojnie przejść do *Typy proste jako zbiory*.
+
+TypeScript to, najkrócej mówiąc, język programowania bazujący na JavaScript, dodający do niego silne typowanie. Pokazując najprościej, gdy JavaScript pozwala na coś takiego:
+
+```javascript
+var a = 21;
+a = 'trzydzieści siedem';
+a === true;
+```
+
+to ten sam kod w TypeScript zostanie uznany za błędny, ponieważ pierwsza linijka będzie implikować, że zmienna jest typu liczbowego, więc nie możemy przypisać do niej ciągu znaków ani przyrównać do wartości logicznej. Możesz to zobaczyć na własną rękę w [TypeScript Playground](https://www.typescriptlang.org/play?#code/G4QwTgBCELwQTARgNwChpwEQBcwC8BPAEzwEsBTQbUABjUiAZwqPIFtM0MY5cBXc5IA), czyli w aplikacji, dzięki której możemy sprawdzać, jak działa TypeScript. Będę stosować linki do niej do zobrazowania wszystkich przykładów w artykule.
+
+TypeScript z racji tego, że musi opisać słabo typowany język, jakim jest JavaScript, daje bardzo dużą dowolność w definiowaniu typów. Dzięki temu możemy pokryć najdziwniejsze przypadki, do których zmuszają nas sytuacje w kodzie aplikacji, a których nie spotkalibyśmy w językach programowania takich jak C++, C# czy Java. Pominę opis, po co to robić, ponieważ wiele osób się już na ten temat wypowiedziało w Internecie (w tym ja, sprawdź <Link href="/publikacje">Publikacje</Link>). W kontekście artykułu interesuje nas, co system typów ma wspólnego ze zbiorami, albo nawet ogólniej — z logiką matematyczną.
+
+Jeszcze najkrócej mówiąc — czym jest typowanie? Jest to inaczej system typów, czyli klasyfikacja tego, co programujemy (zmiennych, funkcji itd., czyli wyrażeń) w zależności od rodzaju wartości. Typ definiuje, czym jest dana wartość i jakie operacje można na niej wykonać. W dużym uproszczeniu: o słabym typowaniu mówimy wtedy, gdy typ wyrażenia możemy w dowolnym momencie zmienić, a o silnym, gdy nie ma takiej możliwości.
+
+Podkreślam słowo *uproszczenie*, bo mówiąc o systemach typów, podział nie jest taki prosty i zero-jedynkowy, a pojęć jest dużo więcej. Jednak na potrzeby tego, co chcę tutaj opisać, taki skrót zupełnie wystarczy.
+
+## Typy jako zbiory
+
+### Typy proste
+
+Zacznijmy od najprostszych typów, które są dostępne w TypeScript, czyli: `string` (ciąg znaków), `number` (typ liczbowy), `boolean` (typ logiczny, boolowski). Na razie skupmy się na tych. Pomyślmy o nich jako o zbiorach:
+
+- Typ `string` to zbiór wszystkich możliwych kombinacji znaków układających się w ciągi.
+- Typ `number` to zbiór liczb wymiernych (w JavaScript wszystkie liczby to 64-bitowe liczby zmiennoprzecinkowe).
+- Typ `boolean` to zbiór składający się z dwóch wartości: `true` i `false`.
+
+Skoro reprezentujemy typy jako zbiory, musimy w jakiś sposób opisać uniwersum (zbiór wszystkich możliwych wartości) i zbiór pusty. TypeScript nam to oferuje:
+
+- `any` i `unknown` to uniwersum ($$\Omega$$). Różnica między nimi polega na tym, że `unknown` wymusza na programiście zawężenie typu, a `any` nie, jednak z punktu widzenia teorii zbiorów są tym samym. Dla uproszczenia dalej w artykule pominę `unknown` (chociaż w kodzie powinieneś/powinnaś stosować go zamiast `any`).
+- `never` to zbiór pusty. Tutaj jako zbiór pusty nie rozumiemy wartości `null` (brak wartości) czy `undefined` (niezdefiniowanej wartości), bo te dla TypeScript są oddzielnymi typami. `never` opisuje sytuację, gdy nie da się sprecyzować żadnej wartości, nawet jej braku, czyli czegoś, co nigdy nie powinno się zdarzyć.
+
+Nawiązując do powyższego, mamy jeszcze dodatkowe dwa typy:
+
+- Typ `null`, który zawiera tylko wartość `null` — czyli brak wartości.
+- Typ `undefined`, który opisuje brak zdefiniowanej wartości — czyli `undefined`.
+
+Różnica jest taka: `null` to konkretna wartość symbolizująca brak wartości. `undefined` oznacza, że zmienna nie ma przypisanej wartości. `never` to natomiast sytuacja, gdy żadna wartość nie może zostać przypisana, ponieważ nie istnieje wartość, którą dałoby się do danej zmiennej przypisać. Wiem, brzmi to skomplikowanie, ale różnica między `null` i `undefined` pochodzi z JavaScript, nie została wymyślona przez twórców TypeScript.
+
+W uproszczeniu świat typów TypeScripta moglibyśmy opisać następującym diagramem Venna:
+
+<Image
+  image={vennTs}
+  alignCenter
+  fullSize
+  forceWhiteBackground={false}
+  alt="Prostokąt opisany any/unknown, wewnątrz którego zawarte są nieprzecinające się elipsy: number, string, boolean, null i unknown."
+  caption={<>Diagram przedstawiający zbiory reprezentujące TypeScriptowe typy i powiązania między nimi.</>}
+/>
+
+Poniżej możesz zobaczyć zobrazowanie tego wszystkiego w praktyce:
+
+```typescript
+var tekst: string;
+var liczba: number;
+var logiczna: boolean;
+var wszystko: any;
+var nic: never;
+
+// prawidłowe przypisania wartości
+tekst = 'coś';
+liczba = 37;
+logiczna = false;
+
+tekst = 37; // Type 'number' is not assignable to type 'string'.
+liczba = false; // Type 'boolean' is not assignable to type 'number'.
+logiczna = 'coś'; // Type 'string' is not assignable to type 'boolean'.
+
+// any może mieć każdą wartość
+wszystko = 37;
+wszystko = 'coś';
+wszystko = false;
+
+// never nie może przyjąć żadnej wartości
+nic = 37; // Type 'number' is not assignable to type 'never'.
+nic = 'coś'; // Type 'string' is not assignable to type 'never'.
+nic = false; // Type 'boolean' is not assignable to type 'never'.
+// nawet pustej i niezdefiniowanej wartości
+nic = null; // Type 'null' is not assignable to type 'never'.
+nic = undefined; // Type 'undefined' is not assignable to type 'never'.
+```
+
+Powyższy kod możesz sprawdzić w praktyce na [TypeScript Playground](https://www.typescriptlang.org/play?#code/G4QwTgBALgpg1gZygLgksBLAdgcwNwBQokANhgMYBeARiKlgK4C21MYhxEJA9jhZVjoRq3biRggsHcBADuCSgE8kcbqkmLpkLBXoxgbQgQD0xiAAdu5sCFlYYFsEvMYEkjCDngo3QNqA5DAJYRCgIAF4IAHJyP0jCMipacIgAZgB2eN5+QWSAMxASBBgjYKRk9LwIUwgAFUVzB0jGFjZIiFcILG5QkAQEDBxBanFobmh6xvRsHEiAOgIEmk8I-MLiqrM6hqiRMQksNo6unr6BoZGfce2m5lYwOYWsqhyI6NjK6q3JqExcQ4ROt0IL1+oMQMMHJcoBMdqJxJIHiYzBoIExuIAfQAcTAwMEA4IAQOAgdEAE0AoIBeMA+Xy4gjyJQqMYRCq0hTKKCqZJvXxxFn09mMiCrIpGar2AzaHGojEOaxKABWpPx6JAxPscopVICBB05HKGQ2tRhNxa93aAOOwNOYIhoyujTFrXmOs5MW5H02RqmfzNgJOoPOkLG0OuDvuTooeQKwoNX1hewRPotILO4IuQaNoYeotsMFC5gYSBg6ownRxlGJMFy2Aw3FkkiLGr8WudEUYJBI7sNIYY7f+vst-tTgbtUUz4d1EQYWArVfsxM7sciU5n2BgxL7SatAdtwft+kdQA).
+
+### Typy literal
+
+Skoro każdy typ prosty jest zbiorem, to czy możemy dostać się do ich konkretnych wartości i w ten sposób zdefiniować własny typ? Jak najbardziej tak. Służą do tego typy *literal* (typ dosłowny, aczkolwiek nie spotkałem się nigdy z takim tłumaczeniem, dlatego zostanę przy angielskiej nazwie), czyli użycie konkretnej wartości jako typu zmiennej. Wygląda to następująco:
+
+```typescript
+// Uwaga! Definicja typu to co innego niż przypisanie wartości!
+// W tym miejscu jedynie definiujemy typ
+var liczba: 21;
+var tekst: 'tekst';
+var logiczna: false;
+
+// prawidłowe przypisania wartości
+liczba = 21;
+tekst = 'tekst';
+logiczna = false;
+
+// błędne przypisania, mimo że dalej jest to wartość z tego samego zbioru
+liczba = 37; // Type '37' is not assignable to type '21'.
+tekst = 'coś'; // Type '"coś"' is not assignable to type '"tekst"'.
+logiczna = true; // Type 'true' is not assignable to type 'false'.
+```
+
+Możesz przetestować kod na [TypeScript Playground](https://www.typescriptlang.org/play?#code/PTAEFUHcEMHNoISgCIFMBmBLAdpgxgFbSgAuAngA4CupA9qHvTtqrPboD6AoFATgF6VMAZ2i5UoGDxK1A2oB5MCAFAhQAdVJkAtqE2ZUBIXhoFUAEzJjQpjDkxUTmshoqKAbtB6gANvj4AjaAAuUAAmAEYAbjcPUlQAayESYIByEnjE5Kj3Ty9aWF9sINB0aC8hVCjlMApaXmhIFm5+QRFcYklpOUxFHzx-YgBeUMjFNISSUCHU9JJMnryCweLS8sqVP0AhQEBMQFNG3gEKYVFMaAAaHUxNeg5xU1L9UBNEugkPTsBwQFA+WLZQEU1WPR-JhaDwqD1fAFJqAAMwAdgioBUABVKOJkvDkqBhKBsLQJtAhEJMLBCn4vOJpM50eFkgA6UYzaHJRgyTJIsCoijogBErJ5WJxeIJRJJZIpL3I3NAyR5Y0SAoZuXyfUK0JIYIqHNAXPRGqoqEFQlx+NAhOJpOg5Mp9Cl6JKZUNdKAA).
+
+Dlaczego tak jest? Skupmy się na liczbach. Mimo że mamy typ `number`, to ustawiając jako typ wartość `21`, mówimy kompilatorowi, że jest to jedyna dopuszczalna wartość. Na chłopski rozum chciałoby się powiedzieć, że `21` to liczba i `37` to także liczba, więc powinno dać się przypisać, jednak stosując *literal*, zawężamy się do wskazanego podzbioru, więc:
+
+$$
+\begin{align*}
+21 \in number \land 21 \in \{21\} &\implies \{21\} \subseteq number \\
+37 \in number \land 37 \in \{37\} &\implies \{37\} \subseteq number \\
+37 \notin \{21\} &\implies \{37\} \nsubseteq \{21\}
+\end{align*}
+$$
+
+<Image
+  image={vennLiteral}
+  alignCenter
+  fullSize
+  maxWidth="300px"
+  forceWhiteBackground={false}
+  alt="Elipsa z napisem number, a w niej dwie nieprzecinające się elipsy 37 i 21"
+  caption={<>Typy 37 i 21 są podzbiorami typu number, jednak nie mają ze sobą części wspólnej.</>}
+/>
+
+Oczywiście wartość zmiennej o typie `21` możemy wciąż przypisać do nadzbioru, czyli `number`:
+
+```typescript
+var liczba: 21;
+liczba = 21;
+
+// deklarujemy zmienną o ogólniejszym typie
+var liczba2: number;
+liczba2 = liczba; // prawidłowe przypisanie
+
+// sprawdźmy w drugą stronę, nieznając wartości zmiennej
+// słowo kluczowe declare mówi kompilatorowi,
+// że ta zmienna na pewno już istnieje i ma wartość
+declare var liczba3: number;
+liczba = liczba3; // Type 'number' is not assignable to type '21'.
+```
+
+Ponownie, możesz to sprawdzić na [TypeScript Playground](https://www.typescriptlang.org/play?#code/G4QwTgBANglgxgLwEYgFwQEwEYDcAoWRFCAXk1zzwHoqIATAUwGspwBXAKwYFsBPCBNxgMAdiMCggBAD20gOYBnqCOEcAzgl7cIAF14AHYXlCRCyEBnQi23JAzD5TKDKWjwzOCDQh6pesCAB3EQZvMA0DVRBlBkovVT9AukAvQD4IAPowNllJVW0wKRFATEAAGghohBEQDnE4NPBtKUBtQDgYASFRYI5qWlVAIUApAJkWNkQBkMY4VjAQ7nkA1qYpbgNWBvz54u6IQB9AEO0QNuExA8rvBiCZDjZtiBhc6K5biG4DgPqmwHBAPAmpkONXIggADMlmstnsBDcxDIjmBHi8ABV9CEAORWGx2FG3VRlKTaCAgVSqGCySpIKB7GS6PSo7AogB0QA).
+
+## Suma zbiorów
+
+Teraz możesz sobie pomyśleć: fajnie, że definiujemy podzbiory, ale co mi z podzbioru zawierającego tylko jedną wartość? W tym miejscu wprowadźmy jedną z podstawowych operacji na zbiorach — sumę. W TypeScript zapisuje się ją operatorem `|`.
+
+Mówiąc o typach literal, możemy za pomocą sumy zbiorów tworzyć typy obsługujące nieco więcej wartości. I to niekoniecznie stanowiące podzbiór tylko jednego typu:
+
+```typescript
+var liczba: 37 | 21;
+var liczbaLubTekst: 999 | 'tekst';
+
+// prawidłowe przypisania
+liczba = 37;
+liczbaLubTekst = 999;
+liczba = 21;
+liczbaLubTekst = 'tekst';
+```
+
+Sprawdź sam(a) na [TypeScript Playground](https://www.typescriptlang.org/play?#code/G4QwTgBANglgxgLwEYgFwQMwHYIB8IBMAjANwBQoksiKAMgK5IAqApgNYDOALugJz94IAci7tuQ8mQD0UiAAcwIAO4wAJoCFAAPZKW8sAgCecmBxAA7GCDLVkICAF5MWcjbqNWnLg4j9eL+LbexP40IAzMYl6OIpESZEA).
+
+Czyli w przypadku typu zmiennej `liczbaLubTekst` osiągnęliśmy coś, co moglibyśmy zobrazować następującym diagramem:
+
+<Image
+  image={vennUnion1}
+  alignCenter
+  fullSize
+  maxWidth="400px"
+  forceWhiteBackground={false}
+  alt="Nieprzecinające się elipsy z napisami number i string, a na nich narysowana druga elipsa z napisem '999 | tekst'."
+  caption={<>Typ `999 | "tekst"` przecina się ze zbiorami string i number, aczkolwiek nie jest podzbiorem żadnego z nich.</>}
+/>
+
+Sumować możemy oczywiście każdy możliwy zbiór (typ). Tym samym możemy robić następujące rzeczy:
+
+```typescript
+var liczbaLubTekst: number | string;
+var logicznaLubPusta: boolean | null;
+
+// poniższe przypisania są prawidłowe
+liczbaLubTekst = 21;
+liczbaLubTekst = 'tekst';
+logicznaLubPusta = true;
+logicznaLubPusta = null;
+
+// można również przypisywać wartości z dowolnych podzbiorów
+declare var wybraneLiczby: 37 | 21;
+declare var wybraneLiczbaTekst: 999 | "tekst";
+// poniższe przypisania są również prawidłowe
+liczbaLubTekst = wybraneLiczby;
+liczbaLubTekst = wybraneLiczbaTekst;
+
+// nie można jednak przypisać typów, które jedynie się przecinają
+declare var rozne: 21 | false | "cos";
+liczbaLubTekst = rozne; // Type 'boolean' is not assignable to type 'string | number'.
+logicznaLubPusta = rozne; // Type '21' is not assignable to type 'boolean | null'.
+```
+
+Możesz przetestować powyższy kod na [TypeScript Playground](https://www.typescriptlang.org/play?#code/G4QwTgBANglgxgLwEYgDIFckBUCmBrAZwBcAuCAO3QFskdIAfCYsGcgcwG4AoUSKAezbwE5NJgAK6YiDJJ+-KDhDkIjSlCjcuAem0QADv3IxAPoAEEOA2AQBPfTALKYIJoFBAKyADuMACaAhQH5PHC5YRBQMbHxiCABeCAAmAEZuUOQxSMIiWIgAciIoohyUwWFRCMlpbKIwdBxioUQyiSkiFzj1TS4dPSp+E1EIMABnz2McEytbewIbTxBAcEAIObAifkBtQDgYCAQIH0CFchs4AAsDfh9kGH5hzy4fHDgocEteJZskMGUcVGEkGzIAMwAdlUCWSdweTzAL3Abw+Xx+YRAuEyZAAnBjQQAifKZLHcXRnYxmCyTOwOJwuAjuG5jCb6T7efyBYKpcKYFHROKed6fcjfX42FK-dKcrLc3kIkVirSEsYQXr9FwAKxwPlEeDJ0wWECIdhGABoIHgiENoRBVT4bPKCDBAJiAkwerBAytcEMezwgrzA-BEODISVBADMQFACJZGFi4PwCPiQiKImLsj6-RwIISsHZLDk5AolOQchAHBR+FkQARbWxREhFLr+Lqs7lmKw2KDKDQ6DkAHQhEqNdIVVrJ338tMZxs5JKF4vkUsQcuV6u11YN-TZ3OKZRt9AabtAA).
+
+A jakie są najczęstsze zastosowania tego w praktyce?
+
+- Sumami typów literal zwykle zawęża się możliwy przedział wartości, jakie może przyjąć dana zmienna, coś na wzór typów wyliczeniowych (`enum`) w innych językach programowania.
+- `| undefined` służy adnotacji, że dana zmienna (np. argument funkcji) jest opcjonalna. Jest to inne zastosowanie niż `| null`, który mówi, że możemy jawnie wskazać brak wartości. Jednak w praktyce wielu programistów JavaScript utożsamia `null` i `undefined`, więc trzeba pisać `| null | undefined`.
+- Ze względu na specyfikę JavaScript nie ma tutaj mechanizmu przeciążeń funkcji i metod z wersjami z różnymi typami argumentów czy też ich różną ilością. Można to zdefiniować na poziomie TypeScript, ale koniec końców trzeba potem napisać najbardziej ogólną wersję biorącą pod uwagę wszystkie przypadki — wówczas unie typów są bardzo przydatne. A suma typu `string | number | boolean | null` jest zdecydowanie bardziej zawężająca niż `any`.
+
+## Typy obiektowe
+
+Skoro zobaczyliśmy, jak się zachowują typy proste i jak się przekładają na zbiory, wprowadźmy do tego wszystkiego typy obiektowe. Są to typy, w których definiujemy pary klucz-typ. Jeśli znasz koncepcje klas czy interfejsów z obiektowych języków programowania, to jest to coś podobnego — określamy, jakiego typu może być pole o danej nazwie. Różnica jest tylko taka, że takie JavaScriptowe obiekty są bardziej zbliżone do słowników (map) — nie ma tu konstruktora, tylko jest to worek, w którym trzymamy pary klucz-wartość. To, co daje TypeScript, to jawne określenie co ten worek może posiadać.
+
+```typescript
+// definiujemy typ za pomocą słowa kluczowego `type`
+type Obiekt = {
+    poleTekstowe: string;
+    poleNumeryczne: number;
+    nieobowiazkoweLogiczne?: boolean;
+    // ? wskazuje nieobowiązkowe pole, któremu nie musimy przypisywać wartości
+    logiczneLubNiezdefiniowane: boolean | undefined;
+    // w przypadku `| undefined` musimy już jawnie podać wartość undefined
+    jakasStala: 'cos' | 'tekst';
+}
+// moglibyśmy też zdefiniować typ obiektowy za pomocą `interface`,
+// ale dla uproszczenia artykułu pominiemy różnice
+
+// prawidłowe przypisanie
+var obiekt1: Obiekt = {
+    poleTekstowe: 'tekst',
+    poleNumeryczne: 73.12,
+    jakasStala: 'cos',
+    logiczneLubNiezdefiniowane: undefined,
+};
+
+// możemy też zrobić, że oprócz wskazanych pól obiekt może trzymać dowolne inne
+type Obiekt2 = {
+    // pod dowolnym kluczem (typu string) mogą być tylko wartości typu number lub string
+    [k: string]: number | string;
+    // wszystkie jawnie zdefiniowane muszą mieć typ będący podzbiorem typu wartości dowolnego pola
+    znanePole: string;
+}
+
+// prawidłowe przypisanie
+var obiekt2: Obiekt2 = {
+    znanePole: 'tekst',
+    dowolneInne: 73,
+};
+
+// błędne przypisanie
+obiekt2.znanePole = 21; // Type 'number' is not assignable to type 'string'.
+```
+
+Kod znajdziesz na [TypeScript Playground](https://www.typescriptlang.org/play?#code/PTAEBMFMDMEsDtYFcBWkC2BPUAXTAHUALwENR8B7dCgY0FBAUAZ0CFACgdzIGsAbJGo9pADmFUAAM8+SGIBQkyKADyAI1iROOUAF5QAbxmhD5Ct0gAVdYxyCAXExwAnBEIDcBo5VMA5JOkgPMfnhIO3hfZX83I1BESApldlgSIk5BABkKIVggyAB+OwSTSBJ4KKMQUFzQNkZOZNQFWPjEuhTBY1MAGlANAGeHDCQYtVB0JEZYLHIHIgJYRkwOQHBAapIHa0BtQBpYd0NuTOyiYLSkZS81Iig4RHYSkNBC0xLQAB9QJHgrhEhwF1Bd0AVNjTWb4EjgThDMRvD5fYLgMSjcaTbAoJCAH0BQCgSGxYsZwCQVhx1hQNitYTBvuAAdi6owAMo4EjcEh2ADkNAojDZr1AbJwlhwbLcAF8ZBVqEJuLBlJgNlMBZjLpSbstcARQPE1Bp2NhSMZqPRxAgBQ5oCQaNJxWBmQpwCz3vgHFyiPxIIgyGs8JDmENKOgEGopg5ekdspAZNbpjjYOBWGwFE7QfMSmoZAA3Naa1TqHAARjsKm1mh0+minnMgtsfIFnCsbM6AIrPj8ARydgA7ABmAB0eYATI3orSSAymSz2ZzuUOjPssjkTmcLnDYLdgnYKdcfo2RW4o9R0RhsIriM7VEtuofNU7evxqrVkiVAgALci9bjdLW50YUK+OWboISEDsCYwSgAgwRyAQChFrm-baHoAIVJQ4DAWwoGYOgPS8G6WEABSSEMVhOPAQgAJQ-kIDCyiseDcKkqwklssDqvgQxhOgEQOKAvDKPYJFCACADanB2MRzgALqhOE-i8uJpFlIYQKMLMVicCM2K4iMyrXKuHBgWMKkMAGkC0RqyiAJiA4B0DQ2AoUQqgUAMWGEYxmzbGhoHCKIngkACRx3AACkUYmOM4oqRshDgxnG7RJnMjCphGmbcV+Gj9oWObpQhZZGAFwTBaY7K1vWM6GOAIHcMEACS8DrqA3Y7nuFTKMwVlgfF+AprEMhpTg-Y9vlkCFQoOj9nmfwVGY0F8hxXE8vMMQUJoo4TEI8AkMopi4KI8h8vJQhsj2QA).
+
+Co więcej, z racji tego, że nazwy pól nie mogą się powtarzać, obiekty są zbiorami. Więc mamy tu sytuację, że sam typ obiektowy jest zbiorem, który ma tylko jedną wartość — definicję obiektu zgodnego z typem, ale też i sama ta definicja jest zbiorem. Jednak nie możemy tu mówić typowo o podzbiorach, że wyciągnięcie pojedynczego pola będzie zgodne z typem bazowym. Takie sytuacje są niedopuszczalne:
+
+```typescript
+type Obiekt = {
+    poleTekstowe: string;
+    poleNumeryczne: number;
+    nieobowiazkoweLogiczne?: boolean;
+    logiczneLubNiezdefiniowane: boolean | undefined;
+    jakasStala: 'cos' | 'tekst';
+}
+
+var fragment = {
+    poleTekstowe: 'tekst'
+};
+
+var obiekt: Obiekt = fragment;
+// Type '{ poleTekstowe: string; }' is missing the following properties from type 'Obiekt': poleNumeryczne, logiczneLubNiezdefiniowane, jakasStala
+```
+
+Ten kod również możesz sprawdzić na [TypeScript Playground](https://www.typescriptlang.org/play?ssl=14&ssc=137&pln=14&pc=147#code/C4TwDgpgBA8gRgSwga2FAvFA3gKCvqMAewBsIAVFAZ2CIHcIAuKGgJwQDsBzAbjwOJkAcgFcAthFYgAxgC8OTKB3FxJfAkqRE49BAENZyehAAyRLgjkKA-Mx2kIejuoIlzl+aZFwhSWQBMIADNOBHonRXsyJygAHygRDkCQhX8XfAArPWQ9KgBlYD0SPWYAcmkiKlK4qFLgamBSvgBfHBwANz1WKCDWPS4JDjRMXA1BCgbjMvrkGlKcZr4OrqhtJFRmeHXhnr6BiCGeKBwAehOocnBoUqxCB0pZ2gZmNk5eKGbqhCooMW+qN5QYAAC2gQVIbjogLArCIkFYwCQP16RDEQKutS2KEazHGogkUisEAANFA3BYiSZvL4IAFgqFwgpSVkcvlCsUgA).
+
+## Suma zbiorów na typach obiektowych
+
+Po wprowadzeniu typów obiektowych wróćmy do operacji na zbiorach. Jak się zachowa typ obiektowy, gdy zrobimy unię typów? Otóż tak, jak każdy inny typ: będziemy mogli użyć albo jednego typu, albo drugiego. Najlepiej zilustruje to poniższy przykład:
+
+```typescript
+type Obiekt = {
+    poleTekstowe: string;
+    poleNumeryczne: number;
+}
+
+type InnyObiekt = {
+    logiczneLubNiezdefiniowane: boolean | undefined;
+    jakasStala: 'cos' | 'tekst';
+}
+
+// tworzymy unię obu typów
+type SumaObiektow = Obiekt | InnyObiekt;
+
+// prawidłowe przypisanie wartości z typu Obiekt
+var obiekt1: SumaObiektow = {
+    poleNumeryczne: 20,
+    poleTekstowe: 'jakiś tekst'
+};
+// prawidłowe przypisanie wartości z typu InnyObiekt
+var obiekt2: SumaObiektow = {
+    logiczneLubNiezdefiniowane: true,
+    jakasStala: 'tekst'
+};
+```
+
+Jak zawsze możesz go sprawdzić na [TypeScript Playground](https://www.typescriptlang.org/play?#code/C4TwDgpgBA8gRgSwga2FAvFA3gKCvqMAewBsIAVFAZ2CIHcIAuKGgJwQDsBzAbjwOJkAcgFcAthFYgAxgC8OTKB3FxJfAL44coSFACSHDiHhJUGbP3wkiXBHIUAZEXCFJZAEwgAzTgnoBDBWY4IlIIQKgAHygRDk8fBXc+AigAK39kfyoAZWB-En9mAHJpIioiqKgi4GpgIo0tAHpGqGA6IlZZEDEQGI4EQExAKCI4EVbwAGe6bXBobPF-ExRaOnMls2iDI3XgPhxmwiIwVn86BUJO8AQqQKQoOn9WWkBtQGkEKFlxsDGdnAA3R7DRDLACMzHmYkWwNQ9HMuBSgggogkUnsigATAAGAA0lkOZEoyBo9EURXSyAQz1atSKOHUfAOxGOp3Oxy6YGut2gDyeRFe70+OjGW2M0OA-0BI1MwHR4IWO1hmHhBGstjRThcbnivgCQVarBEEFxKXJWVy+UKVRqRLqdJ4QA).
+
+Jednak pojawia się tutaj dodatkowa rzecz — typy obiektowe również się zsumują, w końcu też są zbiorami. Oznacza to, że będziemy mogli użyć dowolnych dostępnych pól jednocześnie, przynajmniej wszystkich z jednego typu. Zobacz te przypadki na tych samych typach:
+
+```typescript
+// prawidłowe przypisanie wartości z obu typów
+var obiekt3: SumaObiektow = {
+    poleNumeryczne: 20,
+    poleTekstowe: 'jakiś tekst',
+    logiczneLubNiezdefiniowane: true,
+    jakasStala: 'tekst'
+};
+// prawidłowe przypisanie wartości z typu Obiekt i wybranego z InnyObiekt
+var obiekt4: SumaObiektow = {
+    poleNumeryczne: 20,
+    poleTekstowe: 'jakiś tekst',
+    logiczneLubNiezdefiniowane: true
+};
+// prawidłowe przypisanie wartości z typu InnyObiekt i wybranego z Obiekt
+var obiekt5: SumaObiektow = {
+    poleNumeryczne: 20,
+    logiczneLubNiezdefiniowane: true,
+    jakasStala: 'tekst'
+};
+// błędne jest natomiast przypisanie tylko wybranych wartości z obu typów
+var obiekt6: SumaObiektow = {
+    poleNumeryczne: 20,
+    jakasStala: 'tekst'
+}
+// Type '{ poleNumeryczne: number; jakasStala: "tekst"; }' is not assignable to type 'SumaObiektow'.
+// Property 'logiczneLubNiezdefiniowane' is missing in type '{ poleNumeryczne: number; jakasStala: "tekst"; }' but required in type 'InnyObiekt'.
+```
+
+Ten przypadek również możesz sprawdzić na [TypeScript Playground](https://www.typescriptlang.org/play?#code/C4TwDgpgBA8gRgSwga2FAvFA3gKCvqMAewBsIAVFAZ2CIHcIAuKGgJwQDsBzAbjwOJkAcgFcAthFYgAxgC8OTKB3FxJfAL44coSFACSHDiHhJUGbP3wkiXBHIUAZEXCFJZAEwgAzTgnoBDBWY4IlIIQKgAHygRDk8fBXc+AigAK39kfyoAZWB-En9mAHJpIioiqKgi4GpgIo0tAHpGqGA6IlZZEDEQGI4EQExAKCI4EVbwAGe6bXBobPF-ExRaOnMls2iDI3XgPhxmwiIwVn86BUJO8AQqQKQoOn9WWkBtQGkEKFlh0fGwKZwAN0eX1MwAAzMx5mJFohlvRzLgUoIIKIJFJ7IoAEwABgANJZDmRKMgaPRFEV0sgEM9WrUiniUtZbOinC43PFfAEgq1WCIIPSCBSsrl8oUqjViXUcOo+AdiMdTudjl0wNdbtAHk8iK93p8dGMdlB3nQQHATgouEQPvpDMYYagAUCRiCACwQhY7OGYBECMIoyQyeSY3H4pFEkkMYoUqk0iV0-GMuyBlmuCAebwch5c4A8iBSmUtOUnM7QJVXG79dWPF5vK1663bO1oI0ms0QC1WnYO1jA5YAVjdUI9qy9Id94n96OY2P5VhsicczhTaYSfkzimzvJnaQyQryBWK4poRTz+xaFcLCugqQgNCU-loYgQWTQpZV5buoBIyEtxtNgRkAAW9xVlqNafCMYw6H8gLdk6ywAGwDtCIKehYiJjqiAZctO+KCjke6itUtJSqeUDkLMVRYASyLjmigbMMoYiqKwPDbpk+EiswABEh7AFxrHqBU1xKEQaBZFQCBcBw-hwGQrSWjo0BFJCyGwnQRQAHSkQACqwRySKAVQJsyi5sum-SchAQlUFAj5UBJ3CGhwPxKVRSJ+nRXKMcxrF4cK+5QDxtT8VAglQKMaCsBAACOIgIFF7hOS5VRbLaIKaUAA).
+
+## Iloczyn zbiorów
+
+Następną operacją na zbiorach, którą oferuje TypeScript, jest iloczyn zbiorów. Odpowiada za nią operator `&` lub (w przypadku interfejsów) słowo kluczowe `extends`.
+
+### Iloczyn typów prostych
+
+Zacznijmy najpierw od iloczynów typów prostych. Tutaj sprawa jest dość oczywista. Żadne z typów prostych nie przecinają się (patrz diagram na początku artykułu), więc ich iloczyn zawsze będzie zbiorem pustym (`never`):
+
+```typescript
+// definiujemy typ będący iloczynem typów prostych
+type LiczbaLogiczna = number & boolean; // type LiczbaLogiczna = never
+
+// błędne przypisania - nie istnieje część wspólna number i boolean
+var nieDaRady: LiczbaLogiczna = 1; // Type 'number' is not assignable to type 'never'.
+var tezNieDaRady: LiczbaLogiczna = true; // Type 'number' is not assignable to type 'never'.
+var nawetTo: LiczbaLogiczna = undefined; // Type 'undefined' is not assignable to type 'never'.
+```
+
+Możesz to sprawdzić na [TypeScript Playground](https://www.typescriptlang.org/play?#code/PTAEBMFMDMEsDtYFcBWkC2BPUAXTAHUAI0ExAcQUEABjbWAGwHtKAvTeDXAgZ4HdR8AnegGc8lABYAoPPkigAMrGZEAhnPoBzRU3jLQAXlDwk6IpH6gAZMXr1akZfADcoEBxnytKtZuY79hyAA3MwkJVyJAIUAyNj5+FnxYIQdYXQBaQ1hZRJxESDRQZhJAbUBAcEBQbiF8Tlo-IxMzUFhrW3t4CUDlc1yAEWUAJWVwTAAuDyVVDS0-AwBGZ1cAFQJZAHI6034VxqFDehxQZSEhWHUdIjtcejdVtmDNgDp2ztxIJgA5TN6BodGFce8proDDh+EhIPMwEt3GtjBstoldvtDsdTspzrIcFdpDcgmYVo8Ol1lNxIDgFvRfp4Jj5tEDQEh4FA4GxwBDQFDVgymQhIOB4Tt4HsDkcTmcLpjrqA1riHkA). Warto też dopisać sobie inne przypadki — zobaczysz wtedy, że zawsze otrzymasz typ `never`.
+
+Jest jednak wyjątek od powyższej reguły — uniwersum. Wszystkie typy są podtypami `any` lub `unknown`, więc możemy wykonać iloczyn, ale zachowanie staje się nieoczywiste. Zobacz poniżej, co się dzieje w tym przypadku:
+
+```typescript
+// wersja z any
+type Liczby = number & any; // type Liczby = any
+// prawidłowe przypisania
+var poprawne1: Liczby = 1;
+var poprawne2: Liczby = 'tekst';
+
+// wersja z unknown
+type Liczby2 = number & unknown; // type Liczby = number
+// prawidłowe przypisanie
+var poprawne3: Liczby2 = 1;
+// błędne przypisanie
+var niepoprawne: Liczby2 = 'tekst'; // Type 'string' is not assignable to type 'number'.
+```
+
+Ten kod również znajdziesz na [TypeScript Playground](https://www.typescriptlang.org/play?#code/PTAEHcFMCcGcCsCGoBepEDsCeAoALlgA6SgAyAlgMYoBGWoAvKBgK4C2NMoAZOtgNygQoAsTJVa9JplzDCAe0LRE4DCSUoi5WJnKIcAN0TRQCpSrUBGAFzjqdRqEv9Dx04uWrIAJlsV7UqAA5HiQANaweEEuOMJQcEiooCwYYRjyqvhEJP6S3o6sHFy8KWkZGILCojkSDkyFnNCxYGaeaqbQmoTaupCuJq0WkADMfrVY+UzOzczkkINeHV09GHP9s-MeQ2MBk8GhEVGVYAAq2cGR0OQYAOZBoNrM8njosLDkNxiINAA2JHjyETnIINGBBAB0OCAA).
+
+Dlaczego tak się dzieje? Nie znalazłem dokładnego wyjaśnienia, ale należy założyć, że `any` nie jest „prawdziwym” uniwersum wszystkich zbiorów (typów). `any` to bardziej wytrych, ucieczka z systemu typów TypeScripta umożliwiająca wstawienie czegokolwiek. Jest nadtypem i podtypem wszystkiego jednocześnie. Znalazłem w Internecie przyrównanie go do czarnej dziury, która wsysa wszystko — to chyba najlepsze określenie natury `any`. Stąd iloczyn czegokolwiek z `any` daje `any`.
+
+Prawdziwym uniwersum, nadtypem wszystkich typów, jest `unknown`, dlatego iloczyn `unknown` i konkretnego typu daje ów konkretny typ. `unknown` w przeciwieństwie do `any` nie jest równocześnie podtypem wszystkiego. Podtypem wszystkiego jest zbiór pusty, czyli `never`, niebędący zarazem nadtypem wszystkiego.
+
+Jeszcze dla formalności zobaczmy, czy faktycznie `never` zachowuje się jak zbiór pusty:
+
+```typescript
+type Liczby3 = number & never; // type Liczby = never
+
+var niepoprawne: Liczby3 = 1; // Type 'number' is not assignable to type 'never'.
+```
+
+Kod jest dostępny na [TypeScript Playground](https://www.typescriptlang.org/play?#code/C4TwDgpgBAMglgYwF4CMQGYoF4oDsCuAtihAE5QBkeEAbmQNxQD0TUoksiqI21dpAKAE0AhuVxwIYAPZhSIgO64IALk7I0mHAEZGLKABVw0AOQFiZE1DgBnPNOBQRNm3ADmuESgA20YNLZjKDNaSwA6ASA).
+
+### Iloczyn typów literal
+
+Wiedząc, czym są typy literal w TypeScript i jak działa iloczyn zbiorów, ta część powinna być formalnością. Dlatego ograniczmy się jedynie do przykładu w kodzie:
+
+```typescript
+// iloczyn podtypu i nadtypu zawsze daje podtyp
+type Liczba1 = 21 & number; // type Liczba1 = 21;
+var poprawna1: Liczba1 = 21;
+var niepoprawna1: Liczba1 = 37; // Type '37' is not assignable to type '21'.
+
+// bardziej złożony przypadek, ale działający tak samo
+type StaleTekstowe = 'tekst' | 'cos';
+type Tekst1 = StaleTekstowe & string; // type Tekst1 = "tekst" | "cos"
+var poprawna2: Tekst1 = 'tekst';
+var niepoprawna2: Tekst1 = 'inny'; // Type '"inny"' is not assignable to type 'Tekst1'.
+
+// analogiczna sytuacja jest przy sumie literal różnych rodzajów
+type TekstLiczba = 'tekst' | 21;
+type Liczba2 = TekstLiczba & number; // type Liczba2 = 21
+type Tekst2 = TekstLiczba & string; // type Tekst2 = "tekst"
+var poprawna3: Liczba2 = 21;
+var poprawna4: Tekst2 = 'tekst';
+var niepoprawna3: Liczba2 = 'tekst'; // Type '"tekst"' is not assignable to type '21'.
+var niepoprawna4: Tekst2 = 21; // Type '21' is not assignable to type '"tekst"'.
+
+// oczywiście możemy też wyliczyć część wspólną typów literal
+type Wspolny = StaleTekstowe & TekstLiczba; // type Wspolny = "tekst"
+var poprawna5: Wspolny = 'tekst';
+var niepoprawna5: Wspolny = 'cos'; // Type '"cos"' is not assignable to type '"tekst"'.
+var niepoprawna6: Wspolny = 21; // Type '21' is not assignable to type '"tekst"'.
+
+// gdy typy literal są rozłączne, ich iloczyn jest zbiorem pustym
+type StaleTekstoweInne = StaleTekstowe & 'inny' // type StaleTekstoweInne = never
+type TekstLiczbaInna = TekstLiczba & 37; // type TekstLiczbaInna = never
+type TekstLiczbaLogiczny = TekstLiczba & boolean; // type TekstLiczbaLogiczny = never
+var niepoprawna7: StaleTekstoweInne = 'inny'; // Type 'string' is not assignable to type 'never'.
+var niepoprawna8: TekstLiczbaInna = 37; // Type 'number' is not assignable to type 'never'.
+var niepoprawna9: TekstLiczbaLogiczny = false; // Type 'boolean' is not assignable to type 'never'.
+```
+
+Kod jest dostępny na [TypeScript Playground](https://www.typescriptlang.org/play?#code/PTAEEsBsHsGMC8CeA7UAHaATALotBXCUZAQxz0PhIHcBneAU1ExICsmNy0AoXNJgDLgEAIxIBGUAF5QAJkkAyYvgC2IhgCcA3KBCg+g4fDGSZ8rdwBuJDemhoNNUuIBcoIaInS54i9dvI4AwYDk4Sbh7GXjIAzADsOnoAKnhMAOTxaRC0xNDYoCS0tOAA5qQikEzY0PqpoGnyaQB03Nx6YhqY8EGsoPCAQoDQgD6A0MiI6BpIaGQMANYANAWVzN0k-WyAoICw49gks6C0JCrQvHUAyruVSXO01dRMMmnYN9hZAD71sNC0aRYGoNdZrdTKALiQri9oPdQEpbhpwMgSokwP9AcDvAAiZ5A7AY0AfDFfWgYqw2OyhaikWRuNHYEFPF6-UkBIIhRyUkjUgEvekIsa-XRgFL8eoYvmIDFZcA5ZB5ApFUrlZbVWoitK08TNVp6EikGAlIykA6IbD4EiwVgkUDsW4TJAHVRBUCQcDPRyQUAaADPQzGsAAFp6sFRWF7qKcRbTImJvAyce8fH86tHOd4o0YY0pkKp1NpBarDJ5ZN55BGmLTizJ054YQdsPDEciC9ycZXQFiXiT-OT2aQYhEM6mzL5mT2wgAWGkvNtx25M7uBYL2XskfvuQcz7FzpvC9IdnGS7K5fKFYplEgVKo1f4NTUtBes5cTqetku+fO7+qNI+yk8K8+Xvo151Gk+63JKLRtGAxxDAwKg7AwQygHASDUOAgDagLATrUIgLoIIggDggKACCAJiA6FEXQaBepAyAbKqYbOq6mjgmWoAAOq0BgNHjDIYIQjiUJMEo1ZRE2-wcVxYyYluuKjmyYQAKxuBJ0DcbGMnzmSi7yRySnsZxqlSY8RICskIGEt8h7Sse8pnkqV7NqBMkQaO2lPhyABsykGWpw47iB37Wb+tmKheyrAWqYG4lqUGquMLpuuC1p7AcdEaNAAxbPAyAMIsKrCIGUAoSg1oMLaxjgNAGhweg+C3IgKisXxDC0oJACSyA5d4zWtdCShpOKWR6P8PWQvcHVdTIOWWJorEiWIE1WlWLwprW8RiXU80kIt3jTbNqIrYOAjQAaCBGS2tyrUoIjQKpDC6htkaHZ4x2ndlPHEAwM0aK5j4UqQcRuKNAnjZ1Dz1IN-lqnCCIlFKMpyqeoWASqN57RoWoPku-0kAAHC+l2DjtsQJB+IHZmomjwzZSMAeFjno5jWl-SuACcBPYCmr2Gh9ABm4K0AwUPpDdd26tTwW0-ZQEM19VNNEAA).
+
+### Iloczyn typów obiektowych
+
+W kontekście iloczynu ciekawie się dzieje, gdy chodzi o typy obiektowe, szczególnie że jego główne zastosowanie w TypeScript jest właśnie przy nich.
+
+Tutaj sprawa jest o tyle ciekawa, że iloczyn de facto staje się sumą. Typ, który otrzymujemy, nie jest częścią wspólną, tylko połączeniem typów po obu stronach operatora. Zachowanie to jest bardzo zbliżone do działania dziedziczenia w językach obiektowych (stąd iloczyn można też uzyskać słowem kluczowym `extends`).
+
+Możesz się zastanawiać — tylko jaki to ma sens? Czy tego nie robi już operator sumy? Otóż nie. Odwołajmy się teraz do spójników, którym odpowiadają dane operacje. Suma to odpowiednik spójnika *lub* — czyli coś jest jednym obiektem albo oboma w całości. W praktyce może być jednym w całości i częściowo też drugim. Iloczyn jest odpowiednikiem spójnika *i*. Oznacza to, że nasz nowy typ musi być oboma typami jednocześnie, nie możemy sobie w żaden sposób wybierać.
+
+Ale dość teorii, zobaczmy to w kodzie:
+
+```typescript
+// iloczyn dwóch obiektów z różnymi polami
+type Obiekt1 = {
+    poleTekstowe: string;
+    poleNumeryczne: number;
+}
+type Obiekt2 = {
+    poleLogiczne: boolean;
+}
+type DwaRozne = Obiekt1 & Obiekt2;
+// musimy wypełnić pola z obu obiektów
+var poprawne1: DwaRozne = {
+    poleLogiczne: true,
+    poleTekstowe: 'tekst',
+    poleNumeryczne: 21
+};
+// niewypełnienie któregokolwiek prowadzi do błędu
+var niepoprawne1: DwaRozne = {
+    poleTekstowe: 'tekst',
+    poleNumeryczne: 21
+}
+// Type '{ poleTekstowe: string; poleNumeryczne: number; }' is not assignable to type 'DwaRozne'.
+// Property 'poleLogiczne' is missing in type '{ poleTekstowe: string; poleNumeryczne: number; }' but required in type 'Obiekt2'.
+
+// analogicznie działa `extends`
+interface Interfejs1 {
+    poleTekstowe: string;
+    poleNumeryczne: number;
+}
+interface Interfejs2 extends Interfejs1 {
+    poleLogiczne: boolean;
+}
+// możemy zrobić przypisanie wcześniej zdefiniowanej zmiennej, bo typy zawierają te same pola
+var poprawne2: Interfejs2 = poprawne1;
+```
+
+Kod jak zawsze jest dostępny na [TypeScript Playground](https://www.typescriptlang.org/play?#code/PTAEEsBsHsGMC8CeA7UATA7gZ9gC1NAEbgCmA1gC5YajygBOWgPoDKIC24oADtJAIYcAUBURcSoAPLFyFAIygAvKADeg0Ou68SAFXIBnCtAwkAXKAP1wyAOYBuNRp6QSAOQCubEvUQJkp0MgehF72AL7CouJSpJQATIoqDupOJAAy0Nbgvv6E0Fp8yGERYqAAIhh8AErQ8H4J0TLyAGSS0nH2IKBsbnrgbIigGJGAQoDI4IDggJr8tASEbrMxVBiCAG589Jpc9HwYfrJm5VU1dUqqGlNpGVm1-hT0biQANEkXumQGRv4A5BT6FF-Pc4pdyebzZMyxWSCUIdMBjEhDMSjUjw0CULD0EjWaBkXgYGLcehGPhoeCcNDQUCEYaATEA0G5VusAqQeFsdnsDhVqjcEmdHFo3h9jGYfn8AS9gR4vD4bhCoeFOtpIqAvspXn9PmYLFY7BcQdLwQEgiFQKEvhA9AFoBRQHw9L1rMg+IRnKBDG7lV9Dty-F8AHSCToABSJYnoIhVKXSmWy5vAlo49p1EFQIhKqvV70MwvMdx1tj1UrBsqNbGC9ALZqpbhtmIAjm5wJi0CmPemGnF-YJA2ACnwYDHaqR0GS+MM+KAAAYkAAev2QaD0k8EVl+9AAZnxYOIAJLINfrkgAKz08j5yQFGpz2ps9iBWn1xb8ZkCZZC0JX+68m+3oD3B+PPR4lnedFz-L8N0As8JS0aNrmfKk8mcAoik6NhoCYEh+loIliEmLYkC4eMCmHDAEBIQBtQHhI9aDQEh1yscBiT8Gj4A4EhkBYx5ELbAZ4B2UhtiPQBQQDdcQ9AEcQnD4RkNlZbZdhIWIzH-b9APiJR5PZEhZFsIA).
+
+A co dzieje się w przypadku, gdy mamy takie same pola w obu typach? Wykonywany jest również na nich iloczyn. Oznacza to, że możemy dojść do przypadku, kiedy otrzymamy `never`. Zobacz poniżej:
+
+```typescript
+type Obiekt = {
+    poleTekstowe: string;
+    poleNumeryczne: number;
+}
+// 1 przypadek: powtórzone pole jest podtypem
+type Przypadek1 = Obiekt & { poleTekstowe: 'tekst' };
+// prawidłowe przypisanie
+var poprawne1: Przypadek1 = {
+    poleNumeryczne: 21,
+    poleTekstowe: 'tekst',
+};
+// błędne
+var niepoprawne1: Przypadek1 = {
+    poleNumeryczne: 37,
+    poleTekstowe: 'coś', // Type '"coś"' is not assignable to type '"tekst"'.
+};
+
+// 2 przypadek: powtórzone pole jest zupełnie innego typu
+type Przypadek2 = Obiekt & { poleTekstowe: number };
+// każde przypisanie będzie teraz niepoprawne
+var niepoprawne2: Przypadek2 = {
+    poleNumeryczne: 21,
+    poleTekstowe: 'tekst', // Type 'string' is not assignable to type 'never'.
+};
+var niepoprawne3: Przypadek2 = {
+    poleNumeryczne: 37,
+    poleTekstowe: 1, // Type 'number' is not assignable to type 'never'.
+}
+
+// zobaczmy, jak to działa przy interfejsie
+interface Interfejs1 {
+    poleTekstowe: string;
+    poleNumeryczne: number;
+}
+// błąd kompilacji pojawi się już przy definicji interfejsu
+interface Interfejs2 extends Interfejs1 {
+    poleTekstowe: number;
+}
+// Interface 'Interfejs2' incorrectly extends interface 'Interfejs1'.
+//  Types of property 'poleTekstowe' are incompatible.
+//    Type 'number' is not assignable to type 'string'.
+```
+
+Ten kod również znajdziesz na [TypeScript Playground](https://www.typescriptlang.org/play?#code/C4TwDgpgBA8gRgSwga2FAvFA3gKCvqMAewBsIAVFAZ2CIHcIAuKGgJwQDsBzAbjwOJkAcgFcAthFYgAxgC8OTKB3FxJfAL44A9FqgBGQq1ngAhgBMUzYnWABno0QWFS0AFYQazs6EhicP6AAFI1MLZANMeCRUKAAybGcySmQaekUAcmBqYHSodT4dZzBWEzonYuMwBCoTDiQcADcTViKSsog9ZmDK8xQI7H58QQhRCSk5BWYAJj0AGkHEimy05kzs9Pn87V06iGJi0oVG5qUkfbaFTqhu0L6MAYJF0ckZeUUAZgB2ecfh5NSGKtpERANqAGyghXI4Gg6QARMCQbDctUlEQ0CYqFQEFwOCY4GQoLRCdCoHCsilgEiAHQ4LbbKBTQw9MJWeh2BzlFxQdyeWQiSCAIUBdlBOAouERiWARP4STcwL1kIzIogUGh4lhFv9aIClCpJHkCrpkCZAD6AFiZ4GqtSQUDggExAMyyG1ZEqyU57IgHdrHFq7c6HCBTLoheVhJUPAQuZ7jN7TOYLP7LHVrCngyEk9JsThcZFUVHozHY3H46BEgKkhQNSTpGlbJq+s6ei4Qd7B5kocO4X5R8QvCYfb4Jlxalb6WYQ3RQyAVvWsXP5qAYrE4vEEssZyvV2s4emyIhwExyMQgbkmZCEiWOhAmAUmC0ijgugBmEFcWIgOE4z8P0AAko-JBfN8DC7SMkiTRQs24Phu2EXsY0mXUxFUVgeHwWl6TgAVAFBAMwoGQIgxCqEhD1cBBnFcUpyKxO1uREE17wsJ9OAQaQyIfZ9XyoaUv0An8oH-Ti30ZCAAA8sg4Mw80EwCuJAodwIpUdlGQtQMMKGTWCffj0k0oCqCmZEOGBVhWAgaRgBIE8xIkqSOL46QYT0uSa3pKApw8KAiCfQxPUkUBSUTJSGFyZpoE4YEiJMYAEBLGlCgIDyZ1UucRTzDg0UXQsVxLC9JRhKCcypIA).
+
+## Podsumowanie
+
+Jak pokazałem w tym artykule, teoria zbiorów znalazła zastosowanie w informatyce nie tylko przy obsłudze kolekcji, co pokazałem poprzednio. Mogłeś(-aś) zobaczyć, że pozwoliła także w formalny sposób zdefiniować część języka programowania — jego system typów. Oczywiście jest to tylko drobny wycinek TypeScriptu. Nie chciałem wchodzić bardziej w zawiłości tego języka, wolałem ograniczyć się do zupełnych podstaw, które najprościej było przenieść na zagadnienia znane z logiki.
+
+Też nie pomyśl, że przeniesienie definicji języka programowania na język logiki to coś zarezerwowane tylko dla TypeScriptu. On posłużył mi tu bardziej jako przykład, bo jest to język, z którym mam najwięcej do czynienia na co dzień, więc też najłatwiej mi o nim mówić. Do tego jest to też o tyle ciekawy przykład, że TypeScript ma bardzo rozbudowany system typów.
+
+W kwestii, czy zrozumienie języka w taki sposób przez matematyczne definicje jest przydatne, zdecyduj samodzielnie. Mnie osobiście podejście takie pomogło lepiej zrozumieć, co się dzieje i dlaczego przy definiowaniu typów. Czasem warto zrozumieć, dlaczego pewne rzeczy działają w dany sposób, a nie ograniczać się do ślepego przyjęcia, że tak jest i tyle.
+
+## Literatura
+
+- The TypeScript Handbook, https://www.typescriptlang.org/docs/handbook/intro.html (ostatni dostęp: 21 sierpnia 2023)
+
+<small>Zdjęcie na okładce wygenerowane przez Stable Diffusion.</small>

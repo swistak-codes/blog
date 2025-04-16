@@ -1,0 +1,406 @@
+import Link from 'next/link';
+import {Image} from '@swistak-codes/components';
+import cover from './mikasa.jpg';
+import zaorane from './zaorane.jpg';
+
+export const meta = {
+  title: 'Funkcja Ackermanna',
+  abstract:
+    'Artykuł opisuje w prosty sposób, czym jest, dlaczego wymyślono i jakie ma zastosowania funkcja Ackermanna.',
+  firstParagraph: (
+    <>
+      Świat matematyki bogaty jest w różne funkcje, definicje, odkrycia, które mogą wydawać się na pierwszy rzut oka całkowicie zbędne. I nie mam tutaj na myśli słynnych wzorów skróconego mnożenia, gdzie ludzie odmierzają sobie dni, kiedy ich nie użyli, tylko nieco bardziej zaawansowane koncepcje. W artykule chcę pochylić się nad jedną taką rzeczą — funkcją Ackermanna. Powstała, aby udowodnić, że można zrobić tak skomplikowaną i jednocześnie obliczalną funkcję. Zaś co może być ciekawe dla informatyków, w naszej niszy też znalazła pewne specyficzne zastosowanie. Poznajmy ją bliżej.
+    </>
+  ),
+  keyword: 'Ackermann',
+  categories: ['Matematyka'],
+  tags: [
+    'funkcja ackermanna',
+    'rekurencja',
+    'c',
+    'prymitywna rekurencja',
+    'derekursywacja'
+  ],
+  slug: 'funkcja-ackermanna',
+  updateTime: '2023-12-20T07:00:00+00:00',
+  publishTime: '2023-12-20T07:00:00+00:00',
+  cover,
+};
+
+## Definicja
+
+Żeby wytłumaczyć, czym jest funkcja Ackermanna, najprościej będzie przedstawić historię jej powstania, a potem opowiedzieć o wszystkich matematycznych zawiłościach, które tu napotkamy. Postaram się jednak trzymać prostego języka, a w przypadku gdy użyję jakiegoś dziwnego terminu matematycznego, prosto go wyjaśnić.
+
+### Historia
+
+Historia zaczyna się w latach 20. XX wieku, kiedy to studenci Davida Hilberta (o którym nie da się powiedzieć w skrócie, [co mu zawdzięczamy](https://en.wikipedia.org/wiki/List_of_things_named_after_David_Hilbert)) — Wilhelm Ackermann i Gabriel Sudan badali podstawy obliczeń, nawiązując do wcześniejszych prac Hilberta (dla ułatwienia pominę szczegóły). Obaj w ramach swoich prac odkryli funkcje, które są całkowicie obliczalne, ale jednocześnie nie są prymitywnie rekurencyjne (za chwilę wyjaśnię).
+
+Warto tu wspomnieć, że G. Sudan odkrył taką funkcję wcześniej (w 1927 r.), jednak to funkcja Ackermanna (1928 r.) zdobyła sławę i błędnie jest nazywana pierwszą odkrytą obliczalną funkcją nieprymitywnie rekurencyjną. Zawdzięczamy to D. Hilbertowi i częściowo W. Ackermannowi, że w swoich pracach nie cytowali pracy G. Sudana. Żeby nie mówić całkowicie źle — Ackermann wspomniał o funkcji Sudana, aczkolwiek nie mógł zacytować konkretnej pracy, bo ta nie została jeszcze opublikowana.
+
+### Funkcja prymitywnie rekurencyjna
+
+Skoro Sudan i Ackermann odkryli funkcje nieprymitywnie rekurencyjne, to zadajmy sobie pytanie, jakie to są funkcje prymitywnie rekurencyjne. Wejdziemy teraz w nieco skomplikowany obszar matematyki (teoria obliczeń), ale postaram się wytłumaczyć to zagadnienie najprościej, jak umiem.
+
+#### Intuicyjna definicja dla informatyków
+
+Najbardziej intuicyjną dla informatyków definicją, jaką moglibyśmy podać, jest taka, że jeśli zaprogramujemy taką funkcję, to kod będzie się składać jedynie z <Link href="/post/iteracja-co-to-jest">pętli z licznikiem</Link> (`for`), gdzie liczbę iteracji znamy jeszcze przed ich rozpoczęciem.
+
+#### Definicja matematyczna
+
+Spójrzmy na to teraz od strony matematycznej. Możemy wyróżnić trzy podstawowe rodzaje funkcji prymitywnie rekurencyjnych:
+
+- funkcje stałe, które niezależnie od argumentów zwracają tą samą wartość: $$C_n^k(x_1,...,x_k) = n$$ (w zapisie $$k$$ to liczba argumentów)
+- funkcje następnika, które zwracają swój argument zwiększony o 1: $$S(x) = x + 1$$
+- funkcje rzutowania, które zwracają jeden ze swoich argumentów: $$P_i^k(x_1,...,x_k)=x_i$$
+
+Oczywiście to tylko mały zakres wszystkich funkcji, które moglibyśmy nazwać prymitywnie rekurencyjnymi. Dodatkowo definiujemy dwa operatory do zaaplikowania skończoną liczbę razy na wyżej wymienione, aby otrzymać inne funkcje prymitywnie rekurencyjne:
+
+- Operator kompozycji (zapisywany symbolem $$\circ$$), czyli wykorzystanie wyniku funkcji jako argumentu kolejnej. Mając funkcję $$h(x_1,...,x_m)$$ i $$m$$ funkcji $$g_1(x_1,...,x_k), ..., g_m(x_1, ..., x_k)$$, możemy zapisać:
+
+$$
+\begin{gather*}
+h \circ (g_1, ... g_m) = f \\
+\Updownarrow \\
+f(x_1,...,x_k) = h(g_1(x_1,...,x_k), ..., g_m(x_1, ..., x_k))
+\end{gather*}
+$$
+
+- Operator prostej rekursji (zapisywany literą $$\rho$$). Tutaj sprawa się nieco komplikuje w zapisie, ale postaram się to wytłumaczyć. Mając funkcję z $$k$$ argumentami $$g(x_1, ..., x_k)$$ i funkcję z $$k+2$$ argumentami $$h(y, z, x_1, ..., x_k)$$, możemy zapisać:
+
+$$
+\begin{gather*}
+\rho(g,h) = f \\
+\Updownarrow \\
+f(0, x_1, ... x_k) = g(x_1, ..., x_k) \\
+f(S(y), x_1, ... x_k) = h(y, f(y, x_1, ... x_k), x_1, ... x_k)
+\end{gather*}
+$$
+
+To, co tutaj widzimy, to nic innego jak prosta pętla z licznikiem. Gdy $$f$$ dostaje jako pierwszy argument $$0$$, wywołujemy funkcję $$g$$, która zwraca początkową wartość. $$h$$ natomiast służy obliczeniu wartości dla kolejnych iteracji, gdzie pierwszy argument to licznik, a drugi to wynik poprzedniej iteracji. Argumenty $$(x_1, ..., x_k)$$ są dodatkowymi, niezmiennymi w trakcie iteracji argumentami funkcji. Przy okazji zobacz, że sprytnie wykorzystaliśmy tutaj funkcję następnika do zdefiniowania odliczania w pętli.
+
+#### Przykład funkcji prymitywnej rekurencyjnie
+
+Jak to działa? Załóżmy, że chcielibyśmy w taki sposób zapisać najprostszą funkcję, jaką możemy wymyślić, a która cokolwiek oblicza — dodawanie dwóch argumentów ($$dodaj(x,y) = x + y$$). Aby zapisać je za pomocą zdefiniowanych wyżej funkcji i operacji, moglibyśmy zrobić:
+
+$$
+\begin{gather*}
+dodaj(0, y) = P_1^1(y) = y \\
+dodaj(S(x), y) = S(dodaj(x, y)) = (S \circ P_2^3)(x, dodaj(x,y), y) \\
+\Downarrow \\
+dodaj = \rho(P_1^1, S \circ P_2^3)
+\end{gather*}
+$$
+
+Przetestujmy. Spróbujmy dodać do siebie liczby $$1$$ (aby móc ją zapisać prosto jako $$S(0)$$) i $$3$$:
+
+$$
+\begin{align*}
+dodaj(1,3) &= \rho(P_1^1, S \circ P_2^3) (1, 3) \\
+&= \rho(P_1^1, S \circ P_2^3) (S(0), 3) \\
+&= (S \circ P_2^3)(0, dodaj(0,3), 3) \\
+&= S(dodaj(0, 3)) \\
+&= S(\rho(P_1^1, S \circ P_2^3) (0, 3)) \\
+&= S(P_1^1(3)) \\
+&= S(3) \\
+&= 4
+\end{align*}
+$$
+
+Oczywiście nie muszę chyba pisać, że nie ma żadnego praktycznego zastosowania z zapisywania dodawania w ten sposób. Służy to tylko do tego, aby pokazać, że dodawanie faktycznie jest funkcją prymitywnie rekurencyjną. Poza tym skoro wiemy, że dodawanie jest prymitywnie rekurencyjne, możemy na jego bazie w analogiczny sposób budować kolejne funkcje, np. mnożenie. Takie funkcje też będą prymitywnie rekurencyjne.
+
+#### Funkcja nieprymitywnie rekurencyjna
+
+Czym w takim razie będzie funkcja nieprymitywnie rekurencyjna? Z matematycznego punktu widzenia będzie to funkcja, której nie jesteśmy w stanie zapisać za pomocą skończonej liczby przedstawionych wyżej operacji na znanych funkcjach prymitywnie rekurencyjnych.
+
+Definicja bardziej informatyczna będzie taka, że obliczania nieprymitywnej rekurencyjnie funkcji nie jesteśmy w stanie zaprogramować, używając jedynie pętli z licznikiem (z odgórnie znaną liczbą iteracji), przez co prawdopodobnie musielibyśmy uciekać się do pętli typu `while`. Ewentualnie zapisalibyśmy taką funkcję <Link href="/post/rekurencja-co-to-jest">rekurencyjnie</Link> i nie bylibyśmy jej w stanie <Link href="/post/derekursywacja">zderekursywować</Link> do wcześniej opisanej postaci.
+
+### Oryginalna wersja
+
+Funkcja Ackermanna przez lata doczekała się różnych wersji i często pod tą nazwą znajdziemy coś zupełnie innego, niż zostało oryginalnie wymyślone. Dlatego najpierw zobaczmy oryginalnie zdefiniowaną przez W. Ackermanna funkcję $$\varphi(m,n,p)$$ dla $$m, n, p$$ będących nieujemnymi liczbami całkowitymi.
+
+$$
+\begin{align*}
+\varphi(m,n,0) &= m + n \\
+\varphi(m,0,1) &= 0 \\
+\varphi(m,0,2) &= 1 \\
+\varphi(m,0,p) &= m \text{, dla } p > 2 \\
+\varphi(m,n,p) &= \varphi(m, \varphi(m, n-1, p), p-1) \text{, dla } n, p > 0
+\end{align*}
+$$
+
+O ile cztery pierwsze warianty są proste do obliczenia (dodawanie, stałe wartości i projekcja), tak ostatni wariant już sporo komplikuje. Jak się okazuje, rekurencji tej nie jesteśmy w stanie w żaden sposób zapisać za pomocą wyżej opisanych operacji, dlatego funkcja nie jest prymitywnie rekurencyjna. Chociaż, co jest bardzo istotne, jest całkowicie policzalna i dla dowolnych argumentów $$m, n, p$$ (oczywiście pamiętając, że będących nieujemnymi liczbami całkowitymi) zwróci wartość.
+
+Warto zauważyć, że dla kolejnych wartości $$p$$ funkcja opisuje kolejne operacje matematyczne:
+
+$$
+\begin{align*}
+\varphi(m,n,0) &= m + n \\
+\varphi(m,n,1) &= m \cdot n \\
+\varphi(m,n,2) &= m^n
+\end{align*}
+$$
+
+Dla wyższych $$p$$ wchodzimy w obszar hiperoperacji, ale na razie zostawmy ten temat.
+
+### Najpowszechniejsza wersja
+
+Obecnie najbardziej znana jest dwuargumentowa wersja tej funkcji opracowana przez Rózsę Péter (1935 r.), a następnie uproszczona przez Raphaela Robinsona (1948 r.). Nazywana jest funkcją Ackermanna-Péter, chociaż w ogólnej świadomości jest to po prostu funkcja Ackermanna. Dla odróżnienia nazwiemy ją $$A(m,n)$$, gdzie $$m,n$$ są nieujemnymi liczbami całkowitymi. Wzór wygląda następująco:
+
+$$
+A(m,n) = \begin{cases}
+n + 1 & \text{dla } m = 0 \\
+A(m - 1, 1) & \text{dla } m > 0 \text{ i } n = 0 \\
+A(m - 1, A(m, n - 1)) & \text{dla } m > 0 \text{ i } n > 0
+\end{cases}
+$$
+
+W źródłach znajdziemy także alternatywny, równoważny zapis:
+
+$$
+\begin{align*}
+A(0,n) &= n + 1 \\
+A(m + 1, 0) &= A(m, 1) \\
+A(m+1, n+1) &= A(m, A(m+1,n))
+\end{align*}
+$$
+
+Dla uproszczenia, w dalszej części artykułu pisząc *funkcja Ackermanna*, będę mieć na myśli właśnie tę wersję, nie oryginalną.
+
+#### Wartości funkcji
+
+Dla ciekawych, jakie wartości przyjmuje funkcja dla różnych wartości $$m$$ i $$n$$, poniżej tabela. W pierwszej kolumnie znajdują się $$m$$, w pierwszym wierszu $$n$$, natomiast w pozostałych komórkach wynik funkcji $$A(m,n)$$.
+
+|  |                         0                          |                     1                      |                     2                      |                     3                      |                     4                      |
+|:---------:|:--------------------------------------------------:|:------------------------------------------:|:------------------------------------------:|:------------------------------------------:|:------------------------------------------:|
+|   **0**   |                       $$1$$                        |                   $$2$$                    |                   $$3$$                    |                   $$4$$                    |                   $$5$$                    |
+|   **1**   |                       $$2$$                        |                   $$3$$                    |                   $$4$$                    |                   $$5$$                    |                   $$6$$                    |
+|   **2**   |                       $$3$$                        |                   $$5$$                    |                   $$7$$                    |                   $$9$$                    |                   $$11$$                   |
+|   **3**   |                       $$5$$                        |                   $$13$$                   |                   $$29$$                   |                   $$61$$                   |                  $$125$$                   |
+|   **4**   |      $$13$$<br/>$$= 2\uparrow \uparrow 3-3$$       | $$65533$$<br/>$$= 2\uparrow \uparrow 4-3$$ |         $$2\uparrow \uparrow 5-3$$         |         $$2\uparrow \uparrow 6-3$$         |         $$2\uparrow \uparrow 7-3$$         |
+|   **5**   | $$65533$$<br/>$$= 2\uparrow \uparrow\uparrow 3-3$$ |     $$2\uparrow \uparrow\uparrow 4-3$$     |     $$2\uparrow \uparrow\uparrow 5-3$$     |     $$2\uparrow \uparrow\uparrow 6-3$$     |     $$2\uparrow \uparrow\uparrow 7-3$$     |
+|   **6**   |     $$2\uparrow \uparrow\uparrow\uparrow 3-3$$     | $$2\uparrow \uparrow\uparrow\uparrow 4-3$$ | $$2\uparrow \uparrow\uparrow\uparrow 5-3$$ | $$2\uparrow \uparrow\uparrow\uparrow 6-3$$ | $$2\uparrow \uparrow\uparrow\uparrow 7-3$$ |
+
+W powyższej tabeli $$\uparrow$$ to tzw. strzałka Knutha, czyli sposób zapisu hiperoperacji. Nie wnikając dokładnie, czym one są, najłatwiej sobie wyobrazić, że zapis ten reprezentuje iterowanie *wcześniejszego* operatora. Dla $$\uparrow$$ *wcześniejszym* operatorem jest mnożenie, stąd jest to nic innego jak potęgowanie (zapewne kojarzysz używanie `^` jako operatora potęgowania). Przykład:
+
+$$
+2 \uparrow 4 = 2 \cdot (2 \cdot (2 \cdot 2)) = 2^4 = 16
+$$
+
+Dlatego też użycie podwójnej strzałki będzie powtarzaniem potęgowania (tzw. tetracja):
+
+$$
+2 \uparrow \uparrow 4 = 2 \uparrow (2 \uparrow (2 \uparrow 2)) = 2^{2^{2^2}} = 2^{16} = 65536
+$$
+
+Kolejna strzałka w takim razie zwiększa te liczby jeszcze bardziej (trzy strzałki — pentacja). Już nie rozpisując, w jaki sposób zapiszemy $$2\uparrow\uparrow\uparrow 4$$, wynikiem będzie 2 z wieżą wykładniczą, gdzie zapisalibyśmy 65536 dwójek. Jest to **bardzo** duża liczba. Wyobraź sobie, jak duże są wyniki funkcji Ackermanna dla $$A(6,n)$$, skoro już przy trzech strzałkach warto było odpuścić sobie rozpisywanie.
+
+#### Wersja nierekurencyjna?
+
+Patrząc na tę tabelkę wartości, możemy zauważyć pewien schemat, w jaki sposób wartości rosną wraz z kolejnymi $$m$$ i $$n$$. Co więcej, moglibyśmy wówczas zapisać funkcję Ackermanna bez jej rekurencyjnego wywoływania. Jednak nie będziemy mogli tego nazwać wersją nierekurencyjną (z matematycznego punktu widzenia), ponieważ strzałka Knutha (czy po prostu sekwencja hiperoperacji) jest też zdefiniowana rekurencyjnie. Nie znajdziemy tutaj wzoru jawnego, jak można go wyprowadzić choćby dla <Link href="/post/derekursywacja/#derekursywacja-matematyczna">ciągu Fibonacciego</Link>.
+
+Dla ciekawych, taki wzór (korzystający ze strzałki Knutha) mógłby wyglądać następująco:
+
+$$
+A(m,n) = \begin{cases}
+n + 1 & \text{ dla } m = 0 \\
+n + 2 & \text{ dla } m = 1 \\
+2n + 3 & \text{ dla } m = 2 \\
+2 \uparrow^{(m-2)}(n+3) - 3 & \text{ dla } m > 2
+\end{cases}
+$$
+
+W powyższym zapisie $$\uparrow^n$$ to $$\uparrow$$ powtórzone $$n$$ razy.
+
+Od razu dodam, że nie będę w ramach tego artykułu dowodzić, że funkcja Ackermanna-Péter nie jest prymitywnie rekurencyjna. Jest wiele opracowań na ten temat, np. [polska Wikipedia](https://pl.wikipedia.org/wiki/Funkcja_Ackermanna#W%C5%82asno%C5%9Bci) albo oryginalna praca R. Robinsona (doi:[10.1090/S0002-9904-1948-09121-2](https://doi.org/10.1090/S0002-9904-1948-09121-2)), a prościej tego nie wytłumaczę.
+
+## Zastosowanie w matematyce
+
+Zanim przejdziemy do głównego tematu bloga, czyli informatyki, zostańmy jeszcze na chwilę przy matematyce. Czy ma ona jakieś zastosowania w tej dziedzinie lub jakie ma/miała znaczenie?
+
+- Przede wszystkim odkrycie tej funkcji jest kluczowe, ponieważ obaliło powszechne przekonanie z początku XX wieku, że każda obliczalna funkcja jest prymitywnie rekurencyjna. Wciąż jest to najpopularniejszy i jeden z najprostszych przykładów obliczalnej funkcji, która nie jest prymitywnie rekurencyjna.
+- Oryginalna funkcja Ackermanna pozwoliła opisać podstawowe operacje arytmetyczne i wyjść poza nie. Dziś do tego celu raczej stosuje się inne rzeczy, np. sekwencję hiperoperacji Rubena Goldsteina. Aczkolwiek warto dodać, że zwykle są to po prostu inne wersje funkcji Ackermanna (np. wspomniana sekwencja hiperoperacji).
+
+Warto jednak pamiętać, że raczej nie znajdziemy tej funkcji w jakiś powszechnych wzorach. Jej główne znaczenie leży, jak opisałem wyżej, w roli teoretycznej, służąc do eksploracji i zrozumienia granic obliczalności i rekurencji.
+
+## Zastosowanie w informatyce
+
+We wstępie stwierdziłem, że funkcja Ackermanna znalazła specyficzne zastosowanie w informatyce. Jesteś gotowy(-a) dowiedzieć się jakie?
+
+Otóż funkcja Ackermanna w informatyce jest stosowana do sprawdzania, jak kompilatory radzą sobie z optymalizacją rekurencji. W moich artykułach sprzed ponad 2 lat o <Link href="/post/rekurencja-co-to-jest">rekurencji</Link> i <Link href="/post/derekursywacja">derekursywacji</Link> pokazałem przykład, w jaki sposób kompilator GCC radzi sobie z przełożeniem rekurencji, rekurencji ogonowej i iteracji na asemblera. Dla poziomu optymalizacji `-O3` wersja rekurencyjna zajęła 208 linii kodu, a iteracyjna i ogonowa około 20.
+
+### Kod wersji rekurencyjnej
+
+A jak kompilatory C poradzą sobie z funkcją Ackermanna? Zapiszmy ją w języku C:
+
+```c
+int a(int m, int n) {
+  if (m == 0) {
+    return n + 1;
+  }
+  if (m > 0 && n == 0) {
+    return a(m - 1, 1);
+  }
+  return a(m - 1, a(m, n - 1));
+}
+```
+
+Kod zamieszczam również na [Replit](https://replit.com/@tswistak/ackerman#main.c), gdzie możesz sprawdzić też szybkość działania. U mnie obliczanie $$A(4,1)$$ zajęło ponad 18 sekund. Polecam wejść w plik `Makefile` i zedytować flagi kompilacji o zmianę poziomu optymalizacji. Dostępne są `-O0, -O1, -O2, -O3, -Ofast, -Os, -Oz, -Og, -O, -O4`, o których możesz więcej [przeczytać tutaj](https://clang.llvm.org/docs/CommandGuide/clang.html#cmdoption-O0). Sprawdź na własną rękę, jak w zależności od nich zmieniają się czasy wykonania. Przełożenie na kod asemblerowy przykładowych konfiguracji (kompilator clang 17.0.1 dla architektury x86-64) możesz znaleźć na [Compiler Explorer](https://godbolt.org/z/fcPf14aGn).
+
+Oczywiście samo przeglądanie kodu asemblerowego nie jest wyznacznikiem szybkości działania aplikacji. Warto wykonać wiele prób uruchomienia na kompilacji z danym parametrem i porównać średnie czasy między sobą.
+
+### Historia badań
+
+Jedną z pierwszych osób, która wykorzystała funkcję Ackermanna do badania wydajności kompilatorów, był Y. Sundblad. W swojej pracy z 1971 r. (doi:[10.1007/bf01935330](https://doi.org/10.1007%2FBF01935330)) porównał ze sobą kompilatory języków ALGOL-60 (3 różne), ALGOL W, PL/I oraz SIMULA-67 na komputerach IBM 360/75 i CD 6600. Zaproponował też *Ackermann rating* do oceny języków programowania (kompilatorów) pod kątem zdolności rozwiązywania tejże funkcji. Ciekawych wyników zapraszam do znalezienia treści artykułu.
+
+Pracę Sundblada kontynuował B. Wichmann, który poświęcił badaniu wydajności kompilatorów przy użyciu funkcji Ackermanna różne prace, między innymi:
+
+- *Ackermann's function: A study in the efficiency of calling procedures* (1976, doi:[10.1007/BF01940783](https://doi.org/10.1007%2FBF01940783))
+- *How to call procedures, or second thoughts on Ackermann's function* (1977, doi:[10.1002/spe.4380070303](https://doi.org/10.1002%2Fspe.4380070303))
+
+Warto przeczytać te prace, ponieważ autor postanowił tam dość szczegółowo rozpisać (szczególnie w pierwszej pracy), co wpływa na prędkość wykonania funkcji w różnych językach.
+
+## Iteracyjny algorytm obliczania
+
+Na sam koniec zadajmy sobie pytanie — skoro kompilatory potrafią zoptymalizować kod obliczania funkcji Ackermanna do jedynie 20 linii kodu asemblerowego (gdzie rekurencji nie ma), to pytanie brzmi, jak my moglibyśmy informatycznie zderekursywować tę funkcję?
+
+Zaprezentuję tutaj dwa iteracyjne podejścia przedstawione przez J.W. Grossmana i R.S. Zeitman (doi:[10.1016/0304-3975(88)90046-1](https://doi.org/10.1016/0304-3975(88)90046-1)). Pierwsze z nich to przeniesienie wprost zapisu rekurencyjnego na iteracyjny analogicznie do tego, jak kompilatory przekształcają kod do asemblera. Drugim jest optymalizacja przez zapamiętywanie obliczeń, wykorzystując fakt, że wyniki się regularnie powtarzają dla kolejnych $$m$$.
+
+### Wersja bez optymalizacji
+
+Podejście pierwsze zapisane w C wygląda następująco:
+
+```c
+// pomijam funkcje obsługi stosu,
+// możesz je zobaczyć w całości kodu na Replit
+int a(int m, int n) {
+  // dodajemy na stos wartości m i n
+  push(m);
+  push(n);
+  // zmienne, do których będziemy pobierać wartości
+  int m_current, n_current;
+  // tak długo, jak na stosie jest więcej niż jedna wartość
+  while (top > 0) {
+    // ściągamy wartości m i n ze stosu
+    n_current = pop();
+    m_current = pop();
+    if (m_current == 0) {
+      // przypadek: A(0, n) = n + 1
+      push(n_current + 1);
+    } else if (n_current == 0) {
+      // przypadek A(m, 0) = A(m - 1, 1)
+      push(m_current - 1);
+      push(1);
+    } else {
+      // przypadek A(m, n) = A(m - 1, A(m, n - 1))
+      push(m_current - 1);
+      push(m_current);
+      push(n_current - 1);
+    }
+  }
+  // ostatnia wartość, która została na stosie, to wynik
+  return pop();
+}
+```
+
+Tak samo jak poprzednio, kod wykonywalny wraz z mierzeniem czasu wykonania znajdziesz na [Replit](https://replit.com/@tswistak/ackerman-iterative1#main.c). Tym razem nie zamieszczam wersji skompilowanych do asemblera — chętnych zapraszam do samodzielnego zrobienia tego, np. na platformie [Compiler Explorer](https://godbolt.org/), tak jak ja to robiłem.
+
+W tym przypadku obliczenie $$A(4,1)$$ zajęło ok. 6 sekund. Można to uznać za sukces, ponieważ autorzy oryginalnej pracy stwierdzili, że na ich sprzęcie wykonanie zajęłoby kilka miesięcy. To tylko pokazuje, jak olbrzymi postęp poczyniono ze sprzętem i kompilatorami przez 35 lat — to, co kiedyś uznawano za na tyle niewydajne, że wykonania się nie doczeka, dziś jesteśmy w stanie wyliczyć.
+
+Autorzy pracy niestety nie podali złożoności obliczeniowej algorytmu. Natomiast podali złożoność pamięciową — $$\Omicron(A(m,n))$$. Oznacza to, że w najgorszym przypadku na stosie znajdzie się tyle liczb, ile wynosi wynik obliczanej przez nas funkcji. Łatwo można się domyśleć że czyni to podejście niepraktycznym, szczególnie gdy chcemy obliczać większe wartości funkcji.
+
+### Wersja z optymalizacjami
+
+Autorzy pracy zauważyli, że wartości funkcji dla kolejnych $$m$$ regularnie się powtarzają, tym samym możemy je odpowiednio przepisywać, aż trafimy na wartość dla wskazanych przez nas $$m$$ i $$n$$. Zobacz poniżej, jak to wygląda wraz z zaznaczonymi liczbami, które przepisujemy dalej:
+
+$$
+\begin{align*}
+m = 0 &: 1,\underline{2},\underline{3},\underline{4},\underline{5},\underline{6},\underline{7},\underline{8},\underline{9},\underline{10},\underline{11},\underline{12},\underline{13},\underline{14},\underline{15},\underline{16},\underline{17},... \\
+m = 1 &: 2, \underline{3}, 4, \underline{5}, 6, \underline{7}, 8, \underline{9}, 10, \underline{11}, 12, \underline{13}, 14, \underline{15}, 16, \underline{17}, 18, ... \\
+m = 2 &: 3, \underline{5}, 7, 9, 11, \underline{13}, 15, 17, 19, 21, 23, 25, 27, \underline{29}, 31, 33, ... \\
+m = 3 &: 5, \underline{13}, 29, 61, 125, 253, 509, 1021, 2045, 4093, 8189, 16381, 32765, \underline{65533}, ... \\
+m = 4 &: 13, \underline{65533}, ...
+\end{align*}
+$$
+
+Podejście wykorzystujące tą zależność wygląda następująco:
+
+```c
+int a(int m, int n) {
+  // inicjalizujemy tablice, które pomogą przechować
+  // cząstkowe rozwiązania
+  int next[m + 1];
+  int goal[m + 1];
+  // tablicę next zapełniamy wartościami 0
+  // tablicę goal wartościami 1
+  for (int i = 0; i < m + 1; i++) {
+    next[i] = 0;
+    goal[i] = 1;
+  }
+  // goal[m] nadajemy wartość -1
+  goal[m] = -1;
+  // inicjalizujemy zmienną, w której zapiszemy wynik
+  int value;
+  // iterujemy tak długo, jak next[m] jest różne od n+1
+  // stosujemy do..while, ponieważ musimy wykonać przynajmniej jeden przebieg
+  do {
+    // zaczynamy od pierwszej zapamiętanej wartości zwiększonej o 1
+    value = next[0] + 1;
+    // zmienna określająca, jak długo będziemy w wewnętrznej pętli
+    int transferring = 1;
+    // zmienna przechowująca aktualną wartość m
+    // będziemy wewnątrz pętli zwiększać ją o 1
+    int m_current = 0;
+    // pętla szukająca kolejnych wartości
+    while (transferring) {
+      if (next[m_current] == goal[m_current]) {
+        // jeśli wartości next i goal są takie same, zmieniamy wartość goal na
+        // value
+        goal[m_current] = value;
+      } else {
+        // w przeciwntym wypadku będziemy mogli wyjść z pętli po zakończeniu
+        // aktualnej iteracji
+        transferring = 0;
+      }
+      // zwiększamy wartość aktualnego next
+      next[m_current] = next[m_current] + 1;
+      // zwiększamy wartość aktualnego m
+      m_current++;
+    }
+  } while (next[m] != n + 1);
+  // zwracamy wynik
+  return value;
+}
+```
+
+Ponownie, kod w wersji wykonywalnej znajdziesz na [Replit](https://replit.com/@tswistak/ackerman-iterative2#main.c).
+
+Tutaj obliczanie $$A(4,1)$$ zajęło około 400 000 ns, czyli poniżej 1 milisekundy. Co ciekawe, w kontekście rozwoju przez ostatnie 35 lat autorom oryginalnej pracy obliczenie tej wartości zajęło 12 minut.
+
+Dodatkowo, w oryginalnej pracy znajdziemy złożoność obliczeniową pokazanego wyżej algorytmu — wynosi ona $$\Omicron(m \cdot A(m,n))$$. Złożoność pamięciowa to natomiast $$\Omicron(m)$$. Tym samym moglibyśmy próbować obliczać nawet duże wartości funkcji, bo raczej nie wykonamy obliczeń dla $$m > 5$$ (ale nikt nie broni spróbować).
+
+## Podsumowanie
+
+Tak oto doszliśmy do końca mojej próby wytłumaczenia funkcji Ackermanna. Jak widzisz, może nie ma zbyt praktycznego zastosowania, czy to w matematyce, czy informatyce, jednak uważam, że warto ją poznać choćby ze względu na jej znaczenie teoretyczne. W informatyce natomiast może nam dobitnie pokazać, że czasem warto spróbować derekursywować funkcje, ponieważ różnica w wykonaniu między 18 sekundami a 0,4 milisekundami jest *ogromna*, tak jak i rozwój komputerów przez ostatnie 30 lat.
+
+Na marginesie dodam, nawiązując do okładki artykułu, że prawdopodobnie postacie Ackermanów z *Attack on Titan* nie mają nic wspólnego z W. Ackermannem ani z jego funkcją. *der Acker* to po niemiecku ziemia uprawna, ziemia orna, więc *Ackermann* moglibyśmy przetłumaczyć jako rolnik (jak bardzo znam niemiecki, to tak się nie tłumaczy) albo **oracz**. Kto oglądał/czytał, ten przyzna, że ta druga alternatywa pasowałoby do cech charakterystycznych tej postaci. Daje to też dodatkowy wymiar do nazwy funkcji, biorąc pod uwagę, w jaki sposób może zamęczyć procesor lub jak duże liczby możemy nią wygenerować. Innymi słowy, po zawieszeniu obliczeniami procesora można powiedzieć:
+
+<Image
+  image={zaorane}
+  caption={<></>}
+  alignCenter
+  maxWidth="500px"
+  alt="Zdjęcie zaoranego pola z nagłówkiem Zaorane"
+/>
+
+## Literatura
+
+- Kościelski, A. *Matematyczne podstawy informatyki. Część 1: Funkcje rekurencyjne*. 23 stycznia 2015, https://ii.uni.wroc.pl/~kosciels/pi/fre.pdf
+- Cristian Calude, Solomon Marcus, Ionel Tevy, *The first example of a recursive function which is not primitive recursive*, Historia Mathematica, Volume 6, Issue 4, 1979, Pages 380-384, ISSN 0315-0860, doi:[10.1016/0315-0860(79)90024-7](https://doi.org/10.1016/0315-0860(79)90024-7).
+- Robinson, Raphael M. *Recursion and double recursion*. Bull. Amer. Math. Soc.54(1948), 987–993. doi:[10.1090/S0002-9904-1948-09121-2](https://doi.org/10.1090/S0002-9904-1948-09121-2)
+- Sundblad, Y. *The Ackermann function. a theoretical, computational, and formula manipulative study*. BIT 11, 107–119 (1971). doi:[10.1007/BF01935330](https://doi.org/10.1007/BF01935330)
+- Jerrold W. Grossman, R.Suzanne Zeitman, *An inherently iterative computation of ackermann's function*, Theoretical Computer Science, Volume 57, Issues 2–3, 1988, Pages 327-330, ISSN 0304-3975, doi:[10.1016/0304-3975(88)90046-1](https://doi.org/10.1016/0304-3975(88)90046-1).
+- Ackermann function, https://en.wikipedia.org/w/index.php?title=Ackermann_function&oldid=1187881741 (ostatnie odwiedziny 11 grudnia, 2023).
+- Primitive recursive function, https://en.wikipedia.org/w/index.php?title=Primitive_recursive_function&oldid=1188584599 (ostatnie odwiedziny 11 grudnia, 2023).
+- Weisstein, Eric W. "Ackermann Function." From MathWorld--A Wolfram Web Resource. https://mathworld.wolfram.com/AckermannFunction.html
+
+<small>Zdjęcie na okładce oraz mem na końcu wygenerowane przez DALL-E.</small>

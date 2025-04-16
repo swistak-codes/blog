@@ -1,0 +1,364 @@
+import Link from 'next/link';
+import {Image} from '@swistak-codes/components';
+import cover from './swistak_liczy.webp';
+
+export const meta = {
+  title: 'Problem zliczania unikalnych elementów',
+  abstract:
+    'Artykuł opisuje problem zliczania unikalnych elementów (count-distinct problem) i pokazuje przykładowe podejścia do jego rozwiązania.',
+  firstParagraph: (
+    <>
+      W świecie informatyki mamy wiele znanych problemów obliczeniowych, takich jak problem komiwojażera, które z jednej strony mają praktyczne zastosowania, a z drugiej stanowią idealny przykład do nauki algorytmów heurystycznych. Dzisiaj chciałem pokazać mniej znany z problemów, który, nawet mogłoby się wydawać na pierwszy rzut oka, problemem nie jest — zliczanie unikalnych elementów. Opowiem, dlaczego jest to problem, gdzie ma zastosowania i pokażę do niego przykładowe podejście algorytmiczne.
+    </>
+  ),
+  keyword: 'programowanie',
+  categories: ['Problemy obliczeniowe'],
+  tags: [
+    'problem zliczania unikalnych elementów',
+    'problemy obliczeniowe',
+    'count-distinct problem',
+    'hyperloglog',
+    'loglog',
+    'cvm',
+    'algorytm Flajoleta-Martina',
+    'djb2'
+  ],
+  slug: 'zliczanie-unikalnych-elementow',
+  updateTime: '2024-07-17T07:00:00+00:00',
+  publishTime: '2024-07-17T07:00:00+00:00',
+  cover,
+};
+
+## Problem zliczania unikalnych elementów
+
+### O co chodzi?
+
+Problem zliczania unikalnych elementów (po ang. count-distinct problem), co w zasadzie sama nazwa wskazuje, dotyczy zliczania, ile unikalnych elementów wystąpiło w strumieniu danych. Przede wszystkim interesują nas tu zastosowania w czasie rzeczywistym, więc przykładowe, konkretne zastosowania to:
+
+- Monitorowanie popularności w systemach rekomendacyjnych — obchodzi nas liczba unikalnych odwiedzin. Wbrew pozorom, przy dużej liczbie produktów i odwiedzających (wyobraź sobie duży sklep typu Amazon) takie obliczenie przestaje być proste.
+- Wykrywanie ataków DDoS — liczba unikalnych adresów IP wysyłających pakiety w wybranym odcinku czasu. Tutaj zależy nam na szybkim czasie reakcji i jak najmniejszym obciążeniu zasobów.
+- Zarządzanie zasobami — zliczanie unikalnych użytkowników w celu optymalizacji wydajności. Tutaj również nie możemy mocno obciążyć zasobów obliczeniowych.
+
+Na ogół wszędzie tam, gdzie zależy nam na sprawdzaniu unikatowości w czasie rzeczywistym, gdy dane ciągle napływają, a w szczególności gdy tych danych jest dużo, tam zastosowanie ma problem zliczania unikalnych elementów.
+
+### Tylko gdzie tu problem?
+
+Możesz teraz zadać bardzo trafne pytanie — co jest takiego problematycznego w zliczaniu unikalnych elementów? Nieraz to się robi, nawet ucząc się programowania. I pewnie w większości zastosowań zrobisz to w prosty sposób (który zresztą pokażę w tym artykule) i będzie to wystarczające. Jednak tam, gdzie mówimy o tym problemie, mamy na tyle dużo danych, na tyle szybko napływających, że musimy brać pod uwagę ograniczenia związane z czasem wykonania i dostępną pamięcią.
+
+A dlaczego tak? Rozpatrzmy to:
+
+- Pamięć — danych może być na tyle dużo albo mogą być na tyle rozbudowane, że nie bylibyśmy w stanie ich wszystkich przechowywać w pamięci w celu zliczania. Pamiętaj, że mówiąc o strumieniach danych, mówimy o danych, które przychodzą na bieżąco i są w pamięci tylko na czas ich przetwarzania, więc nie mamy ich wszystkich dostępnych naraz.
+- Czas przetwarzania — w kontekście zliczania elementów najbardziej oczywiste wydaje się korzystanie ze zbiorów, jednak przy bardzo dużej liczbie danych będzie to kosztowne obliczeniowo. W przypadku strumieni danych, szczególnie tych bardzo dynamicznych, szybka aktualizacja liczby unikalnych elementów jest kluczowa.
+
+### Definicja problemu
+
+Zdefiniujmy teraz ten problem w bardziej formalny sposób, żebyśmy wiedzieli, z czym mamy do czynienia i jaki wynik jest oczekiwany.
+
+> Mamy strumień danych $$x_1,x_2,...,x_s$$ z powtórzeniami, a także stałą (całkowitą) $$m$$. Jako $$n$$ oznaczmy liczbę unikalnych elementów ($$|\{ e_1, e_2, ..., e_n \}|$$) w strumieniu, gdzie $$n = |\{ x_1,x_2,...,x_s \}|$$.
+>
+> Naszym celem jest znalezienie $$\widehat{n}$$, będącego przybliżeniem $$n$$, wykorzystując jedynie $$m$$ jednostek pamięci, gdzie $$m \ll n$$.
+
+($$\ll$$ oznacza w matematyce *znacznie mniejszy od*)
+
+Warto zauważyć istotną rzecz — szukamy przybliżenia. W przypadku problemów obliczeniowych zwykle nie interesuje nas dokładny (lub optymalny) wynik, a najlepsze możliwe przybliżenie.
+
+## Rozwiązanie naiwne
+
+Mimo że rozwiązanie naiwne nie spełnia założeń, które stawiamy dla algorytmów rozwiązujących problem zliczania unikalnych elementów, to je pokażę, ponieważ jest szansa, że mogłeś(-aś) trafić na ten artykuł, szukając, jak po prostu policzyć liczbę unikalnych elementów bez martwienia się o warunek $$m \ll n$$.
+
+W tym celu najprościej jest użyć wbudowanej w język struktury zbioru (lub słownika/mapy, jeśli zbiory nie są dostępne). Dodawaj wszystkie elementy po kolei i sprawdź, ile elementów znajduje się w strukturze. Zbiory oparte są na tablicach haszowanych lub drzewach, dzięki czemu nie jest możliwe dodanie do nich powtarzających się elementów, a sprawdzenie, czy element istnieje, jest w miarę szybkie (zależy od tego, czy jest oparty na drzewie, czy na tablicy haszowanej; zawsze będzie jednak bardziej wydajne niż w przypadku zwykłej tablicy).
+
+### Zliczenie unikalnych elementów w tablicy
+
+W przypadku JavaScript, dla danych zapisanych w tablicy jest to dosłownie tak proste:
+
+```javascript
+const array = ["ananas", "banan", "jablko", "jablko", "ananas"];
+const set = new Set(array);
+console.log(`Elementów: ${array.length}, unikalnych: ${set.size}`);
+// Elementów: 5, unikalnych: 3
+```
+
+W razie czego podrzucam [Replit](https://replit.com/@tswistak/naive#index.js) z tym kodem, ale myślę, że nie ma tu zbyt wiele do testowania.
+
+### Zliczanie unikalnych elementów na bieżąco
+
+Natomiast jeśli chcielibyśmy zrobić coś bliżej problemu, który tutaj zaprezentowałem, musimy mieć możliwość dodawania elementów na bieżąco i też sprawdzania w każdej chwili, ile było unikalnych. W tym celu zrobimy prostą klasę, która będzie służyć jako licznik unikalnych elementów. Udostępnimy publicznie metodę dodawania i sprawdzania ich liczby. Taki kod w JavaScript mógłby wyglądać następująco:
+
+```javascript
+class NaiveUniqueCounter {
+  #set = new Set();
+
+  add(element) {
+    this.#set.add(element);
+  }
+
+  count() {
+    return this.#set.size;
+  }
+}
+
+const counter = new NaiveUniqueCounter();
+counter.add("ananas");
+counter.add("banan");
+counter.add("jablko");
+counter.add("jablko");
+counter.add("ananas");
+console.log("Unikalnych elementów: ", counter.count());
+// Unikalnych elementów: 3
+```
+
+Ten kod również znajdziesz na [Replit](https://replit.com/@tswistak/naive-stream#index.js).
+
+Oczywiście pamiętajmy, że nie zadowoli nas w kontekście rozwiązania problemu zliczania unikalnych elementów. W pamięci będziemy musieli trzymać wszystkie dodawane elementy, co w przypadku dużej liczby danych będzie nieopłacalne i może być kosztowne obliczeniowo mimo korzystania ze zbioru.
+
+A dla chętnych podrzucam jeszcze [Replit](https://replit.com/@tswistak/naive-rxjs), gdzie taki sam licznik został zrobiony z użyciem [RxJS](https://rxjs.dev/). Przede wszystkim dlatego, że bibliotekę tę często stosuje się do śledzenia napływających danych na front-endzie, co pokazałem w artykule *<Link href="/post/obserwator">Podstawy działania UI — wzorzec obserwator</Link>*.
+
+## HyperLogLog
+
+Przejdźmy teraz do właściwego rozwiązania problemu zliczania unikalnych elementów. Opowiem o algorytmie HyperLogLog, który opracowano w 2007 r. na bazie wcześniejszych LogLog (2000 r.) i algorytmie Flajoleta-Martina (1984 r.). Został zaprojektowany tak, aby zużywać bardzo mało pamięci, a do zliczania unikalnych elementów wykorzystuje analizę rozkładu zer po obliczeniu haszów elementów. Oczywiście musimy pamiętać, że algorytm jedynie estymuje liczbę unikalnych elementów. Wejdźmy głębiej w jego działanie.
+
+### Jak to działa?
+
+Algorytm HyperLogLog opiera się na obserwacji, że liczność wielozbioru (czyli zbioru, w którym mogą być powtórzenia) zawierającego równomiernie rozproszone liczby losowe możemy oszacować, obliczając maksymalną liczbę zer wiodących w binarnym zapisie tychże liczb. Wtedy, gdy maksymalna liczba zer wynosi $$n$$, liczność szacujemy na $$2^n$$. Oczywiście od razu możemy się domyślić, że będzie to bardzo duże przybliżenie, a poza tym nie mamy zawsze do czynienia z liczbami. Dlatego też HyperLogLog zdecydowanie rozszerza tę ideę i możemy tutaj zauważyć następujące kluczowe punkty stojące za ideą działania.
+
+#### Haszowanie
+
+Po pierwsze, aby każdy element był liczbą, niezależnie czym jest, haszujemy go. Funkcja haszująca musi zostać dobrana tak, aby zapewnić rozkład liniowy i stałą liczbę bitów. W oryginalnej wersji HyperLogLog jest mowa o 32-bitowych haszach, natomiast w późniejszym HyperLogLog++ o 64-bitowych, aby zredukować liczbę kolizji. Co istotne, nie jest tu narzucona żadna konkretna funkcja.
+
+#### Podział na koszyki
+
+Po drugie, zamiast jednego wielozbioru mamy wiele. Stosujemy tu podział na koszyki (po ang. buckets), do których elementy przydzielamy na podstawie pierwszych kilku bitów wartości hasza. Liczbę tych bitów określamy jako $$b$$, możemy ją ustalić przy inicjalizacji algorytmu i wpływa na liczbę koszyków. Liczba dostępnych koszyków to $$m = 2^b$$. W opisach algorytmu też znajdziemy odwrotny opis, że ustalić możemy liczbę koszyków $$m$$, a liczbę bitów obliczamy jako $$b = \log_2(m)$$. W praktyce wychodzi na to samo.
+
+Mając koszyki, przechowujemy w każdym z nich maksymalną liczbę zer wiodących, którą obserwowaliśmy, dodając do nich elementy. W tym miejscu zachodzi oszczędność pamięci — zamiast całych elementów, czy też ich haszy, zapamiętujemy tylko jedną liczbę. Tym samym złożoność pamięciowa algorytmu to $$\Omicron(m)$$.
+
+Warto zauważyć, że dzięki faktowi, że liczby są rozłożone równomiernie, możemy oszacować liczbę elementów w koszyku na $$n/m$$. Co przyda nam się dalej, zbiór koszyków będziemy oznaczać jako $$M$$.
+
+#### Estymacja liczby elementów
+
+Jednak jak teraz możemy estymować liczbę unikalnych elementów, skoro mamy wiele wielozbiorów (koszyków)? Otóż obliczamy wcześniej podaną estymację dla każdego koszyka, po czym obliczamy średnią harmoniczną z następującego wzoru:
+
+$$
+Z = \left( \frac{1}{m} \sum_{i=1}^{m} 2^{-M_i} \right)^{-1}
+$$
+
+Sama średnia jednak nam nie wystarczy. Daje jedynie miarę rzadkości, więc musimy ją przemnożyć przez $$m$$, aby otrzymać oszacowanie liczby elementów w każdym z koszyków ($$n/m$$). W takim razie, aby uzyskać całkowitą liczność, musimy pomnożyć ponownie przez $$m$$. Jednak zauważono, że nie jest to wystarczające, i wprowadzono współczynnik korekcyjny $$\alpha_m$$, który przybliża się jako:
+
+$$
+\alpha_m = \frac{0,7213}{1 + 1,079 / m}
+$$
+
+Więc ostateczna estymacja będzie wynosić:
+
+$$
+E = \alpha_m \cdot m^2 \cdot Z
+$$
+
+Do tego wprowadza się dodatkowe korekcje dla małych i dużych wartości $$E$$ (wg [doi:10.1145/2452376.2452456](https://doi.org/10.1145/2452376.2452456)). Są następujące:
+
+- Dla małych ($$E \leq \frac{5}{2} m$$) obliczamy $$E^* = m \cdot \log\left(\frac{m}{V}\right)$$, gdzie $$V$$ to liczba pustych koszyków. Oczywiście możemy to liczyć tylko w przypadku, gdy $$V > 0$$. Korekcja ta nazywa się zliczaniem liniowym (po ang. linear counting).
+- Dla dużych ($$E > \frac{1}{30} \cdot 2^{32}$$) obliczamy $$E^* = -2^{32} \cdot \log\left(1 - \frac{E}{2^{32}}\right)$$.
+
+Stosujemy te korekcje, ponieważ dla małych wartości $$E$$ wyniki mogą zaniżać puste koszyki (stąd też musimy sprawdzać, czy jakiekolwiek są). W przypadku dużych wynikają z ograniczania liczb do 32 bitów.
+
+#### Dlaczego średnia harmoniczna?
+
+Teoretycznie zamiast średniej harmonicznej moglibyśmy użyć arytmetycznej. Tak nawet rozwiązywano problem zliczania unikalnych elementów. Stosując poniższy wzór, uzyskamy starsze podejście, czyli algorytm LogLog:
+
+$$$
+E = \alpha_m \cdot m \cdot 2^{\frac{1}{m}\sum_{i=1}^{m} M_i}
+$$$
+
+Dlaczego jednak w HyperLogLog używamy średniej harmonicznej? Na wartość średniej arytmetycznej silnie wpływają ekstremalne wartości, na co harmoniczna jest bardziej odporna. W tym przypadku możemy mieć taki problem, ponieważ zauważono, że liczba zer wiodących rozkłada się geometrycznie — duża liczba zer jest rzadka, natomiast mała jest powszechna. W przypadku dużych wartości skrajnych średnia harmoniczna daje bardziej reprezentatywny wynik.
+
+Dla przykładu porównajmy obliczenie średnich dla liczb $$\{95,100,102,100000\}$$ (na górze obliczenie średniej arytmetycznej, na dole harmonicznej):
+
+$$
+\begin{align*}
+\mu&=\frac{1}{4}\cdot(95+100+102+100000) = 25074,25 \\
+H&=4\cdot \left( \frac{1}{95} + \frac{1}{100} + \frac{1}{102} + \frac{1}{100000} \right)^{-1} \approx 131,84
+\end{align*}
+$$
+
+Jak widzimy, mając znacznie odstającą od reszty wartość, średnia harmoniczna dała rezultat bardziej zbliżony do większości danych.
+
+### Przykładowa implementacja
+
+Zdaję sobie sprawę, że dla programistów kod czasami tłumaczy idee lepiej niż opisy i wzory matematyczne. Oto przykładowa implementacja w JavaScript wraz z przykładową funkcją haszującą (DJB2):
+
+```javascript
+// obliczamy wcześniej 2**32, aby nie powtarzać obliczeń
+const POW_2_32 = Math.pow(2, 32);
+
+class HyperLogLog {
+    // w konstruktorze przyjmujemy, ile bitów będzie wyznaczać koszyk
+    constructor(b) {
+        this.b = b;
+        // obliczamy liczbę koszyków (1 << b == 2**b)
+        this.m = 1 << b;
+        // tworzymy koszyki i wypełniamy je zerami
+        this.buckets = new Array(this.m).fill(0);
+        // obliczamy współczynnik korygujący razem z m**2
+        this.amm = (0.7213 / (1 + 1.079 / this.m)) * this.m ** 2;
+    }
+
+    // funkcja dodająca element typu string
+    add(value) {
+        // obliczamy hash
+        const hash = this.#hash(value);
+        // na podstawie b pierwszych bitów określamy indeks koszyka
+        const bucket = hash >>> (32 - this.b);
+        // "odcinamy" pozostałe bity
+        const w = hash & ((1 << (32 - this.b)) - 1);
+        // obliczamy liczbę wiodących zer wbudowaną funkcją clz32
+        const zeros = Math.clz32(w) + 1;
+        // ustalamy nową wartość koszyka
+        // obliczamy ją jako max z aktualnej wartości i liczby zer dodawanego elementu
+        this.buckets[bucket] = Math.max(this.buckets[bucket], zeros);
+    }
+
+    // funkcja obliczająca liczbę unikalnych elementów
+    count() {
+        // liczymy średnią harmoniczną
+        const z = 1 / this.buckets.reduce((acc, val) => acc + 2 ** -val, 0);
+        // mnożymy ją przez współczynnik korygujący i m**2, aby uzyskać estymację
+        let e = this.amm * z;
+        // sprawdzamy, czy estymacja jest za mała
+        if (e <= (5 / 2) * this.m) {
+            // liczymy, ile jest pustych koszyków
+            let V = this.buckets.filter((val) => val === 0).length;
+            if (V > 0) {
+                // jeśli był jakikolwiek, ustawiamy nową estymację
+                e = this.m * Math.log(this.m / V);
+            }
+        } else if (e > (1 / 30) * POW_2_32) {
+            // korekcja, jeśli estymacja jest za duża
+            // zwracamy skorygowaną estymację
+            e = -(POW_2_32 * Math.log(1 - e / POW_2_32));
+        }
+        return e;
+    }
+
+    // funkcja haszująca, implementacja algorytmu DJB2
+    #hash(value) {
+        // wartość początkowa hasza
+        let hash = 5381;
+        // iterujemy po wszystkich znakach ciągu
+        for (let i = 0; i < value.length; i++) {
+            // pobieramy kod znaku
+            const char = value.charCodeAt(i);
+            // zwiększamy aktualny hash wg wzoru hash * 33 + char
+            // (hash << 5) + hash == hash * 32 + hash === hash * 33
+            hash = (hash << 5) + hash + char;
+            // w poniższy sposób w JS zapewniamy,
+            // że hash będzie 32-bitową liczbą całkowitą
+            hash |= 0;
+        }
+        // zwracamy hash
+        // dodatkowo wykonujemy też przesunięcie zapewniające,
+        // że liczba jest nieujemna
+        return hash >>> 0;
+    }
+}
+
+const counter = new HyperLogLog(16);
+counter.add("ananas");
+counter.add("banan");
+counter.add("jablko");
+counter.add("jablko");
+counter.add("ananas");
+console.log("Unikalnych elementów: ", counter.count());
+// Unikalnych elementów: 3.000068666646041
+```
+
+Kod możesz przetestować na [Replit](https://replit.com/@tswistak/hyperloglog#index.js). Jako funkcję haszującą użyłem tam algorytmu DJB2, który jest jednym z najprostszych do obliczenia haszy dla wartości tekstowych, aczkolwiek niekoniecznie może dobrze się sprawdzać w praktycznych zastosowaniach. Do praktycznych zastosowań poleciłbym poszukać lepszych algorytmów obliczających niekryptograficzne hasze, np. MurmurHash3.
+
+Swoją drogą dodam, że w JavaScript nie mają zbyt wiele sensu optymalizacje potęgowania czy mnożenia z zastosowaniem przesunięć bitowych, ale zostawiłem je, ponieważ są też w wielu dostępnych w Internecie implementacjach, a mogłem tutaj przy okazji wyjaśnić, co dokładnie robią. Pomoże Ci to także łatwiej przenieść kod na inne języki, gdzie takie optymalizacje mają już sens.
+
+### Wydajność algorytmu
+
+Patrząc na kod, możemy łatwo oszacować wydajność obliczeniową algorytmu.
+
+Spójrzmy najpierw na dodawanie elementu. Z racji tego, że nie iterujemy tam po koszykach, a długość hasza jest stała, to zakładamy, że złożoność jest stała — $$\Omicron(1)$$.
+
+W przypadku zliczania musimy już przeiterować po wszystkich koszykach, aby obliczyć średnią harmoniczną. Stąd też złożoność obliczeniowa jest liniowa, zależna od liczby koszyków — $$\Omicron(m)$$.
+
+Pamiętamy z tego, co wcześniej pisałem, że złożoność pamięciowa to także $$\Omicron(m)$$. Podsumowując, złożoność obliczeniowa i pamięciowa algorytmu zależy tylko i wyłącznie od liczby koszyków, a nie od liczby elementów. Elementy mogą wpłynąć jedynie na wydajność funkcji haszującej, jednak tą pomijamy, ponieważ algorytm nie definiuje, którą powinniśmy użyć. Wszystko to oznacza, że algorytm ten możemy z powodzeniem stosować tam, gdzie mamy do czynienia z bardzo dużą liczbą elementów.
+
+Tak na marginesie dodam, że czasem możemy znaleźć informację, że złożoność obliczeniowa zliczania elementów w HyperLogLog jest stała ($$\Omicron(1)$$). Tak na przykład jest [w dokumentacji funkcji `PFCOUNT`](https://redis.io/docs/latest/commands/pfcount/) z Redisa, która pod spodem używa HyperLogLog. Stała złożoność wynika tutaj jednak tylko i wyłącznie z faktu, że programista używający tej funkcji nie ma możliwości ręcznego ustalenia liczby koszyków — odgórnie jest ich 16384 (czyli $$2^{14}$$). Dlatego też, z punktu widzenia użytkownika funkcji `PFCOUNT`, złożoność obliczeniowa jest stała.
+
+## Sprawdzenie błędu przybliżenia
+
+Poznaliśmy HyperLogLog, więc sprawdźmy teraz, jaki mniej więcej jest błąd przybliżenia, które daje nam ten algorytm. W tym celu zrobiłem bardzo proste badanie, gdzie dodaję różne liczby losowych elementów i sprawdzam, o ile przybliżenie (po zaokrągleniu) różni się od prawdziwej liczby unikalnych elementów. Nie będzie to w żaden sposób naukowe badanie, ale pozwoli zobrazować, czy algorytmowi warto ufać. Dodatkowo użyję dwóch różnych algorytmów haszujących (DJB2 i MurmurHash3), aby sprawdzić, jaki mają wpływ na wynik.
+
+Według publikacji (np. [doi:10.1007/978-3-540-39658-1_55](https://doi.org/10.1007/978-3-540-39658-1_55)) błąd standardowy jest zależny od liczby koszyków. Dla HyperLogLog wynosi $$\sigma = 1,05/\sqrt{m}$$. Spróbujmy to zweryfikować.
+
+### Opis badania
+
+Aby sprawdzić wiarygodność algorytmu, postanowiłem sprawdzić 100000-elementowy zbiór imion i nazwisk wygenerowanych za pomocą [Fakera](https://fakerjs.dev/). Po wygenerowaniu danych zliczałem, ile faktycznie jest unikalnych elementów, a potem sprawdzałem to za pomocą HyperLogLog z dwoma różnymi funkcjami haszującymi.
+
+Jako że znaczenie ma tutaj liczba koszyków, to właśnie tą wartością manipulowałem, a dokładniej liczbą bitów, którą wyznaczamy koszyk. Sprawdzałem wartości od 1 do 16 bitów, co odpowiada od 2 do 65536 koszyków.
+
+Dla jednej liczby koszyków test powtarzałem 10 razy, ponieważ mamy do czynienia z danymi losowymi. Zwykle wartość unikalnych elementów wahała się w okolicach 94500, jednak z racji tego, że mogły być za każdym razem inne, hasze mogły też zostać inaczej obliczone, dlatego trzeba było wielokrotnie powtórzyć. Warto dodać, że aby badanie było bardziej precyzyjne, należałoby zdecydowanie zwiększyć liczbę powtórzeń, przynajmniej do 100.
+
+Na koniec, aby wyciągnąć coś z tych wyników, obliczyłem dla każdej liczby koszyków odchylenie standardowe i błąd standardowy. Odchylenie standardowe pokazuje zmienność danych wokół prawdziwego wyniku, jak blisko siebie są pomiary. Błąd standardowy natomiast mówi nam, jaka jest precyzja estymacji. Obie wartości chcemy mieć jak najbliżej zera, aby wyniki były jak najbardziej wiarygodne.
+
+Kod, którym wykonałem badanie, znajdziesz na [tym Replit](https://replit.com/@tswistak/benchmark#index.js).
+
+### Wyniki
+
+Czas przejść do wyników. Wyszły mi następujące:
+
+| b  | DJB2 $$s$$           | DJB2 $$\sigma$$ | MMH3 $$s$$          | MMH3 $$\sigma$$ | $$1,05/\sqrt{m}$$ |
+|----|----------------------|-----------------|---------------------|-----------------|-------------------|
+| 1  | 4,5221               | 1,4300          | 1,3978              | 0,4420          | 0,7425            |
+| 2  | 1,1985               | 0,3790          | 1,6720              | 0,5287          | 0,5250            |
+| 3  | 2,1291               | 0,6733          | 2,7048              | 0,8553          | 0,3712            |
+| 4  | 5,1263               | 1,6211          | 3,8858              | 1,2288          | 0,2625            |
+| 5  | 4,4750               | 1,4151          | 3,7733              | 1,1932          | 0,1856            |
+| 6  | 5,1351               | 1,6239          | 9,8580              | 3,1174          | 0,1312            |
+| 7  | 9,3009               | 2,9412          | 10,9367             | 3,4585          | 0,0928            |
+| 8  | 11,3409              | 3,5863          | 17,4661             | 5,5233          | 0,0656            |
+| 9  | 15,5987              | 4,9328          | 22,6504             | 7,1627          | 0,0464            |
+| 10 | 22,5914              | 7,1440          | 29,5945             | 9,3586          | 0,0328            |
+| 11 | 49,3836              | 15,6165         | 32,9341             | 10,4147         | 0,0232            |
+| 12 | 60,7669              | 19,2162         | 80,3441             | 25,4070         | 0,0164            |
+| 13 | 86,2227              | 27,2660         | 91,0861             | 28,8039         | 0,0116            |
+| 14 | 2,8858               | 0,9126          | 5,2158              | 1,6494          | 0,0082            |
+| 15 | 0,0576               | 0,0182          | 0,1071              | 0,0339          | 0,0058            |
+| 16 | 0,0070               | 0,0022          | 0,0092              | 0,0029          | 0,0041            |
+
+W powyższej tabeli DJB2 i MMH3 oznaczają użyty algorytm haszujący — kolejno DJB2 i MurmurHash3. $$s$$ to odchylenie standardowe, $$\sigma$$ to błąd standardowy, a w ostatniej kolumnie pokazałem przewidywany błąd standardowy.
+
+Z wyników widać, że zarówno liczba koszyków, jak i funkcja haszująca mają wpływ na błąd algorytmu. Niestety nie wiem, skąd wynika wyraźny pik między 6 bitami a 13 bitami. Pomijając jednak tą część, widać, że algorytm radził sobie mniej więcej tak, jak było to przewidywane. Możliwe, że wykonując więcej powtórzeń, wyniki byłyby jeszcze lepsze.
+
+## Inne podejścia
+
+HyperLogLog to najpopularniejsze podejście algorytmiczne do problemu zliczania unikalnych elementów, ale nie jedyne.
+
+Zostając w okolicach HyperLogLog, są wszystkie algorytmy, o których wspomniałem przy okazji, czyli:
+
+- algorytm Flajoleta-Martina — bez dzielenia na koszyki
+- LogLog — stosuje średnią arytmetyczną zamiast harmonicznej
+- HyperLogLog++ — opiera się na 64-bitowych haszach zamiast 32-bitowych
+
+Zupełnie inne podejście prezentują algorytmy takie jak min/max sketches i bottom-m sketches. Przechowują określoną liczbę ekstremalnych wartości (najmniejszych lub największych) i na podstawie ich rozkładu szacują liczbę unikalnych elementów.
+
+Najnowszym w literaturze podejściem jest algorytm CVM (inna nazwa: algorytm D) opracowany w 2022 r. przez Sourava Chakraborty, N.V. Vinodchandrana i Kuldeep S. Meela. Nie stosuje on obliczania haszy, a zamiast tego przechowuje niektóre z elementów strumienia i probabilistycznie oblicza, ile różnych elementów napotkał. Co ciekawe, autorzy algorytmu podają, że jest na tyle prosty, że zrozumieją go nawet osoby bez ukończonych studiów. Natomiast Donald Knuth stwierdził, że jest idealny do nauki podstaw informatyki. Ciekawych opisu zapraszam poniżej do sekcji literatury, gdzie zamieszczam zarówno oryginalną pracę, jak i późniejsze opracowanie od D. Knutha.
+
+## Podsumowanie
+
+Problem zliczania unikalnych elementów, mimo że brzmi jak coś prostego i oczywistego, jest ciekawym wyzwaniem algorytmicznym. Pokazuje wprost, jak czasem trzeba kombinować, aby spełnić pewne postawione przed nami założenia — tutaj małego zajmowania pamięci. Podejście HyperLogLog, które bliżej przybliżyłem, jest stosowane w praktyce (patrz np. wspomniany przeze mnie Redis) i warto przynajmniej wiedzieć, na jakiej zasadzie to działa i dlaczego rezultat nie jest dokładny. Jednak, co istotne, rezultat nie musi być dokładny — w zastosowaniach często wystarczy jedynie znać rząd wielkości. Do tego, tak jak wspomniałem wcześniej, polecam też poznać na własną rękę algorytm CVM, choćby z racji bycia całkowicie świeżym podejściem i jeszcze nierozpoznanym tak jak HyperLogLog.
+
+## Literatura
+
+- Count-distinct problem, https://en.wikipedia.org/w/index.php?title=Count-distinct_problem&oldid=1230102473 (ostatnie odwiedziny 09.07.2024).
+- Durand, M., Flajolet, P. (2003). Loglog Counting of Large Cardinalities. In: Di Battista, G., Zwick, U. (eds) Algorithms - ESA 2003. ESA 2003. Lecture Notes in Computer Science, vol 2832. Springer, Berlin, Heidelberg. [doi:10.1007/978-3-540-39658-1_55](https://doi.org/10.1007/978-3-540-39658-1_55).
+- Średnia harmoniczna – Encyklopedia Zarządzania, https://mfiles.pl/pl/index.php?title=%C5%9Arednia_harmoniczna&oldid=213813 (ostatnie odwiedziny 09.07.2024).
+- Stanis F. 008 - djb2 hash, https://theartincode.stanis.me/008-djb2/ (ostatnie odwiedziny 09.07.2024).
+- Heule, S., Nunkesser, M., & Hall, A. (2013). HyperLogLog in practice: Algorithmic engineering of a state of the art cardinality estimation algorithm. In Proceedings of the EDBT 2013 Conference (Genoa, Italy). [doi:10.1145/2452376.2452456](https://doi.org/10.1145/2452376.2452456), https://research.google/pubs/hyperloglog-in-practice-algorithmic-engineering-of-a-state-of-the-art-cardinality-estimation-algorithm/
+- Chassaing, P., & Gerin, L. (2011). Efficient estimation of the cardinality of large data sets. arXiv. https://arxiv.org/abs/math/0701347
+- Sourav Chakraborty, N. V. Vinodchandran¹, and Kuldeep S. Meel. Distinct Elements in Streams: An Algorithm for the (Text) Book. In 30th Annual European Symposium on Algorithms (ESA 2022). Leibniz International Proceedings in Informatics (LIPIcs), Volume 244, pp. 34:1-34:6, Schloss Dagstuhl – Leibniz-Zentrum für Informatik (2022) [doi:10.4230/LIPIcs.ESA.2022.34](https://doi.org/10.4230/LIPIcs.ESA.2022.34)
+- Knuth, D. E. (2023). The CVM Algorithm for Estimating Distinct Elements in Streams. [PDF](https://cs.stanford.edu/~knuth/papers/cvm-note.pdf)
+
+<small>Zdjęcie na okładce wygenerowane przez DALL-E.</small>

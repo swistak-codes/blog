@@ -1,0 +1,204 @@
+import Link from 'next/link';
+import {Image, Center} from '@swistak-codes/components';
+import cover from './kocie_lapy.jpg';
+import twelve from './12.png';
+import hexedit from './hexedit.png';
+import base64 from './base64.png';
+import base12 from './base12.png';
+
+export const meta = {
+  title: 'Systemy liczbowe — uzupełnienie',
+  abstract:
+    'W artykule opisuję różne systemy liczbowe (poza binarnym): ich właściwości oraz zastosowania, nie tylko w informatyce.',
+  firstParagraph: (
+    <>
+      <Link href="/post/matematyka-zero-jedynkowa">W pierwszym artykule</Link> z serii o przechowywaniu danych w postaci
+      cyfrowej pokazałem system binarny oraz bardzo dobrze nam znany system dziesiętny. <Link
+      href="/post/nie-liczby-jako-liczby-czyli-zapis-danych-cyfrowych">Do tego w ostatnim z artykułów</Link> przemyciłem
+      system szesnastkowy. Pomyślałem, że warto byłoby opowiedzieć nieco więcej o różnych systemach liczbowych, ich
+      właściwościach i zastosowaniach (nie tylko w informatyce).
+    </>
+  ),
+  keyword: 'systemy liczbowe',
+  categories: ['Teoria informatyki', 'Matematyka'],
+  tags: [
+    'hex',
+    'system ósemkowy',
+    'base64',
+    'systemy addytywne',
+    'matematyka',
+    'systemy pozycyjne',
+    'liczby rzymskie',
+    'system szesnastkowy',
+    'system heksadecymalny',
+    'system negabinarny',
+    'system czwórkowy',
+    'system oktalny',
+    'system dwunastkowy',
+    'system sześćdziesiątkowy',
+  ],
+  slug: 'systemy-liczbowe-uzupelnienie',
+  updateTime: '2021-08-17T16:32:57+00:00',
+  publishTime: '2020-10-21T10:00:44+00:00',
+  cover,
+};
+
+## Definicja
+
+Najpierw przypomnijmy sobie szybko teorię systemów liczbowych, a także uzupełnijmy ją. System liczbowy to, najkrócej mówiąc, sposób zapisu liczb. Określa on skończony ciąg znaków (zwany cyframi), który stosujemy do zapisu liczb. Zbiór ten powinien dawać nam nieskończoną możliwość kombinacji, aby móc zapisać nieskończony zbiór liczb. Warto zauważyć, że systemy liczbowe mogą być odczytywane i zapisywane na różne sposoby, dlatego wyróżniamy ich dwa podstawowe rodzaje — addytywne i pozycyjne.
+
+### Systemy addytywne
+
+W tych systemach tworzymy liczby poprzez dodawanie kolejnych symboli. Przykładami takich systemów stosowanych do dziś są systemy jedynkowy oraz rzymski. W przypadku jedynkowego dostawiamy kolejne kreski, aby otrzymywać kolejne liczby, i ewentualnie co piąty element skreślamy ostatnie cztery.
+
+<Image
+  image={twelve}
+  alignCenter
+  fullSize
+  alt="Obrazek zawiera trzy grupy. Pierwsza i druga grupa mają po 4 pionowe kreski przekreślone piątą. Trzecia grupa składa się z 2 pionowych kresek"
+  caption="Liczba 12 zapisana w systemie jedynkowym"
+/>
+
+### Systemy pozycyjne
+
+Systemy pozycyjne to najbardziej znane i rozpowszechnione sposoby zapisu liczb. Polegają one na tym, że mamy skończony ciąg symboli (cyfr), które reprezentują kilka najmniejszych liczb naturalnych. Ich liczbę nazywamy podstawą systemu liczbowego. Przykładowo, najbardziej nam znany system dziesiętny (podstawa 10) zawiera cyfry 0, 1, 2, …, 8, 9 — jest ich dokładnie 10.
+
+Nazwa „pozycyjny” wzięła się stąd, że cyfry zapisujemy na ściśle określonych pozycjach. Cyfrę na każdej z pozycji mnożymy przez kolejne potęgi podstawy systemu, stąd, przykładowo, liczbę 137 możemy rozbić następująco:
+
+$$
+1 \cdot 10^2 + 3 \cdot 10^1 + 7 \cdot 10^0 = 100 + 30 + 7 = 137
+$$
+
+Uogólniając, sprowadza się to do następującego wzoru, który już wcześniej przedstawiałem:
+
+$$
+(a_na_{n-1}...a_2a_1)_b=\sum_{i=1}^n(a_i\cdot b^{i-1})
+$$
+
+We wzorze tym $$a_n$$ to kolejne cyfry w liczbie, natomiast $$b$$ to podstawa systemu.
+
+## Systemy liczbowe warte uwagi
+
+Po przypomnieniu sobie definicji chciałbym teraz pokazać różne systemy liczbowe, moim zdaniem warte uwagi. Są to systemy, które albo są wciąż w użyciu (i mają praktyczne zastosowania), albo miały wpływ na dzisiejszy świat, albo po prostu są ciekawe. Nie wszystkie mają związek z komputerami, jednak mimo to warto się z nimi zapoznać. Przy okazji chciałem dodać, że w artykule tym pominę zarówno system dziesiętny, jak i system binarny, o których pisałem więcej w „<Link href="/post/matematyka-zero-jedynkowa">1 0 0 0? 0 1 0 1! 1 0 0 1 – czyli matematyka zero-jedynkowa</Link>” i tam również odsyłam.
+
+### System rzymski (łaciński)
+
+Jest to prawdopodobnie jedyny system liczbowy, którym obok dziesiętnego posługuje się bardzo duża liczba osób. Jednocześnie też w tym zestawieniu jest to jedyny system addytywny. W matematyce był używany do końca średniowiecza, a dziś ma bardzo specyficzne zastosowania, jak nazwy szkół, zapis miesięcy w datach, imiona władców, określanie powtarzalnych wydarzeń czy ważnych wydarzeń historycznych. Stąd właśnie widzimy takie formy zapisu, jak VII Liceum Ogólnokształcące, Jan Paweł II, II wojna światowa, XIX wiek itd.
+
+Do zapisu rzymskiego do dziś przetrwało 7 symboli: I (1), V (5), X (10), L (50), C (100), D (500) i M (1000). Dawniej używano także inne, by móc zapisać większe liczby, jednak wyszły one z codziennego użytku. W celu zapisania liczby za ich pomocą stosujemy mechanizmy dodawania i odejmowania. Możemy trzy razy z rzędu powtórzyć symbol, aby otrzymać jego wielokrotności, bądź dostawić z lewej strony do innego, żeby otrzymać liczbę mniejszą o ów dostawiony symbol. Przykładowe liczby prezentują się następująco: II = 2, III = 3, IV = 4, IX = 9, XX = 20, XXI = 21, CM = 900, MMXXXVII = 2037, MMMCMXCIX = 3999. Ostatnia z nich jest największą liczbą, jaką jesteśmy w stanie zapisać przy użyciu wspomnianych wcześniej siedmiu symboli.
+
+### System szesnastkowy (heksadecymalny)
+
+<Center>Podstawa systemu: **16**, cyfry: **0, 1, 2, 3, … 8, 9, A, B, C, D, E, F**</Center>
+
+Drugi (po binarnym) najważniejszy system liczbowy w informatyce. Zazwyczaj aby przedstawić dane cyfrowe, nie konwertujemy liczb z systemu binarnego do dziesiętnego, tylko właśnie do szesnastkowego (inaczej heksadecymalnego, potocznie hex). Dlaczego tak? System szesnastkowy, podobnie jak inne, których podstawą jest potęga liczby 2, ma bardzo prosty sposób przeliczania do systemu binarnego i odwrotnie. Każde cztery bity liczb binarnej możemy przedstawić jako jedną cyfrę systemu szesnastkowego.
+
+Aby móc reprezentować 16 cyfr, stosuje się dodatkowo litery od A do F, gdzie $$A_{16} = 10_{10}$$, $$B_{16} = 11_{10}$$, $$C_{16} = 12_{10}$$, i tak dalej, aż do 15. Zobaczmy sobie na przykładzie, dlaczego przeliczanie między systemem szesnastkowym a binarnym jest takie proste.
+
+$$
+11010101_2 = D5_{16} = 213_{10}
+$$
+
+$$
+1101_2 = D_{16} = 13_{10}
+$$
+
+$$
+0101_2 = 5_{16} = 5_{10}
+$$
+
+Jak widać, rozbiliśmy naszą 8-bitową liczbę na dwie 4-bitowe części i, przeliczając każdą z nich na system szesnastkowy, mogliśmy złożyć liczbę w tym systemie. Zależność ta działa oczywiście także w drugą stronę. Jeżeli chcecie zobaczyć zastosowanie tego systemu w praktyce, uruchomcie dowolny program do przeglądania danych w postaci heksadecymalnej, na przykład on-line’owy [HexEd.it](https://hexed.it/), i otwórzcie dowolny plik. Zobaczycie wtedy plik w dwóch postaciach — zwykle z lewej strony zobaczycie poszczególne bajty w postaci heksadecymalnej, a po prawej ich odpowiedniki w jednej z odmian kodu ASCII (w przypadku HexEd.it jest to CP437, podstawowe kodowanie systemów typu DOS).
+
+<Image
+  image={hexedit}
+  alignCenter
+  fullSize
+  alt="Zrzut ekranu z edytora plików w formacie heksadecymalnym"
+  caption={<>
+    Podgląd pierwszych 128 bajtów zamieszczonego wyżej obrazka z liczbą 12 w systemie jedynkowym. W pierwszej kolumnie mamy licznik linii pliku, w środkowej zapis heksadecymalny, w prawej reprezentację symbolami kodu CP437.<br />
+    Jako ciekawostkę powiem, że pierwszych osiem bajtów to sygnatura pliku PNG, dzięki której aplikacje mogą rozpoznać, z jakim formatem pliku mają do czynienia. Większość formatów stosuje sygnatury na pierwszych bajtach plików, ponieważ samo rozszerzenie jest łatwo zmienić, więc tym samym nie jest odpowiednim wyznacznikiem, z którym formatem pliku mamy do czynienia.
+  </>}
+/>
+
+### System negabinarny
+
+<Center>Podstawa systemu: **-2**, cyfry: **0, 1**</Center>
+
+Jest to odmiana systemu binarnego, gdzie również mamy do czynienia jedynie z cyframi 0 oraz 1, jednak różni się od typowego binarnego tym, że tutaj podstawą systemu liczbowego jest -2. Ciekawostką jest, że system ten był stosowany w komputerach, a dokładniej w polskich komputerach typu GEO-1 oraz UMC (są to czasy sprzed komputerów osobistych). Sam system został opracowany przez prof. Zdzisława Pawlaka w latach 50. XX wieku.
+
+Zaletą tego systemu jest fakt, że aby zapisać liczby ujemne, nie potrzebujemy stosować ani znaku, ani żadnego kodowania, jak to jest w przypadku tradycyjnego systemu binarnego. Dzięki temu kolejne liczby prezentują się następująco: $$1100_{-2} = -4_{10}$$, $$1101_{-2} = -3_{10}$$, $$10_{-2} = -2_{10}$$, $$11_{-2} = -1_{10}$$, $$1_{-2} = 1_{10}$$, $$110_{-2} = 2_{10}$$, $$111_{-2} = 3_{10}$$, $$100_{-2} = 4_{10}$$.
+
+### System czwórkowy
+
+<Center>Podstawa systemu: **4**, cyfry: **0, 1, 2, 3**</Center>
+
+System czwórkowy, podobnie jak szesnastkowy, ma analogiczną właściwość prostego przeliczania na system binarny. Każde dwa bity liczby binarnej to jedna cyfra systemu czwórkowego. O ile sam system nie należy do jakichś szeroko omawianych, to wspominam o nim, bo możliwe, że w przyszłości o nim jeszcze usłyszymy. Dlaczego? Ponieważ cztery „symbole” (które możemy interpretować jako cyfry) posiada również kod DNA — A, T, C, G.
+
+Tworząc ten artykuł udało mi się trafić na opracowanie z 2010 roku sporządzone przez naukowców z Chinese University of Hong Kong, którym udało się na bakteriach E.Coli zakodować Deklarację Niepodległości. Jednocześnie oszacowali, że na jednym gramie takich bakterii można by zakodować 900 000 GB danych. Więcej można znaleźć w prezentacji pod [poniższym linkiem](https://2010.igem.org/files/presentation/Hong_Kong-CUHK.pdf).
+
+Bardziej współczesnym użyciem jest używanie go w transmisji danych. Wykorzystujemy wówczas fakt, że zamiast przesyłać dane na zasadzie napięcie dodatnie (1) – ujemne (0), to stosujemy wiele jego wartości. Przykładowo, w kodowaniu 2B1Q, stosowanym między innymi w technologii komunikacyjnej ISDN, stosowane są poziomy napięcia +450mV ($$10_4$$), +150mV ($$11_4$$), -150mV ($$01_4$$), -450mV ($$00_4$$).
+
+### System ósemkowy (oktalny)
+
+<Center>Podstawa systemu: **8**, cyfry: **0, 1, 2, 3, 4, 5, 6, 7**</Center>
+
+System ósemkowy był wykorzystywany historycznie w dawnych komputerach tam, gdzie dziś korzysta się z systemu szesnastkowego. Podobnie jak on lub czwórkowy, ma bardzo proste przeliczenie na system binarny — tym razem trzy kolejne bity to jedna cyfra. Używano go natomiast dlatego, że w dawnych komputerach typu mainframe procesory operowały na słowach 6-, 12-, 24- czy 36-bitowych. Wszystkie te liczby są podzielne przez 3, więc można bez problemu przedstawić całą liczbę binarną w systemie ósemkowym.
+
+W dzisiejszych czasach wielkości słowa, na których operują procesory, są podzielne przez 8 (32, 64, dawniej 8 i 16), stąd system ósemkowy nie ma już zbyt praktycznego zastosowania. Mimo to wciąż możemy go znaleźć choćby w językach programowania.
+
+### Base64
+
+<Center>Podstawa systemu: **64**, cyfry: **A, B, C, … X, Y, Z, a, b, c, …, x, y, z, 0, 1, 2, …, 7, 8, 9, +, /** oraz **=** dla przesunięć, gdy potrzebne</Center>
+
+Przejdźmy do jednego z najszerzej stosowanych systemów liczbowych z punktu widzenia informatyki. Chociaż, co warto zauważyć, mało kto zdaje sobie sprawę, że nim jest. Base64 najczęściej wykorzystuje się tam, gdzie możemy przesyłać dane jedynie w postaci kodowania ASCII, a chcemy przesłać coś, co tekstem nie jest, np. zdjęcie. Dość powszechne jest wykorzystanie tego kodowania na stronach WWW w celu przesłania obrazków wewnątrz kodu HTML lub CSS, bez wykorzystywania do tego oddzielnych plików.
+
+W Base64 każde kolejne sześć bitów zapisujemy jako jeden znak. Z racji, że 64 jest jedną z potęg liczby 2, to mamy tutaj dokładnie ten sam prosty sposób przeliczania, o którym pisałem wcześniej wielokrotnie. Jednak, jak można się domyśleć, bajt ma osiem bitów, a kodowaniem tym zapiszemy jedynie sześć. Nikt nas nie zapewni, że dane, które przesyłamy, będą mieć liczbę bitów podzielną przez 6. Wówczas do naszej liczby dopisujemy znak przesunięcia = tyle razy, aby liczba bitów była podzielna przez 6.
+
+Jeżeli chcielibyście pobawić się kodowaniem base64, można znaleźć w internecie wiele konwerterów. Jednak, jeżeli jesteście na komputerze, można to też zrobić bez opuszczania tej strony. Wystarczy wejść do narzędzi programistycznych przeglądarki (zwykle znajdują się pod klawiszem F12) i przejść do zakładki Konsola. Tam możecie wykonać dwie funkcje — `btoa()` (do konwersji do base64) i `atob()` (do konwersji z base64). Możemy je wykorzystać tak, jak na następującym zrzucie ekranu:
+
+<Image
+  image={base64}
+  alignCenter
+  fullSize
+  alt={`Zrzut ekranu z konsoli JavaScript. Pierwsza linijka: btoa('Test!'). Druga linijka: "VGVzdCE=". Trzecia linijka: atob('VGVzdCE='). Czwarta linijka: "Test!"`}
+  caption=""
+/>
+
+Dla rozwiania wątpliwości — tym sposobem każdy znak, niezależnie czy litera, czy cyfra, zostaje zamieniony na kod ASCII, a dopiero potem przeliczony na Base64.
+
+### System dwunastkowy
+
+<Center>Podstawa systemu: **12**, cyfry: **0, 1, 2, 3, …, 8, 9, A, B**</Center>
+
+<Image
+  image={base12}
+  alignCenter
+  fullSize
+  maxWidth="254px"
+  alt="0, 1, 2, 3, 4, 5, 6, 7, 8, 9, ↊, ↋"
+  caption="Alternatywne cyfry używane w systemie dwunastkowym. Niestety nie są powszechne w czcionkach dostępnych na komputerach."
+/>
+
+Na koniec artykułu chciałbym uciec od informatyki i przejść do moim zdaniem dwóch interesujących systemów liczbowych. Na początek — system dwunastkowy. Jest on od wielu lat proponowany jako alternatywa dla powszechnie stosowanego systemu dziesiętnego. Oczywiście system dziesiętny jest tak głęboko zakorzeniony w używaniu, że nie ma co się spodziewać jego zmiany na inny. Jednak warto się przyjrzeć, dlaczego zwolennicy uważają system dwunastkowy za lepszy.
+
+Zacznijmy od faktu, że system ten istnieje w naszym życiu do określania czasu. Od czasów historycznych mamy 12 miesięcy, 12 znaków zodiaku i 24 godziny w ciągu dnia (12 w systemie, gdzie dopisujemy AM/PM). Nas już mniej to dotyczy, ale zobaczmy, że w systemie imperialnym obecnie stosuje się przeliczanie co 12. 1 stopa to 12 cali, 1 cal to 12 linii a 1 linia to 12 punktów. Podobnie było z jednostkami monetarnymi. W Starożytnym Rzymie 1 as składał się z 12 uncji. W Wielkiej Brytanii, aż do 1971 roku, panował system, w którym 1 szyling dzielił się na 12 pensów, natomiast 1 funt na 240 pensów. W Polsce też stosujemy, już coraz rzadziej, określanie wielkości pochodzące z systemu dwunastkowego — tuzin (12 sztuk) czy gros (12 tuzinów = 144 sztuki).
+
+Tylko to są użycia historyczne, z kolei dziś powszechnie stosujemy system dziesiętny. To w czym jest lepszy system dwunastkowy, że są ludzie sugerujący przejście na niego? Jednym z argumentów jest więcej prostych do przeliczania ułamków. W systemie dziesiętnym jako proste możemy uznać:
+
+$$
+\tfrac{1}{2} = 0,5 ; \tfrac{1}{4} = 0,25 ; \tfrac{1}{5} = 0,2 ; \tfrac{1}{8} = 0,125 ; \tfrac{1}{10} = 0,1
+$$
+
+co oczywiście wynika z faktu, że 10 jest podzielne tylko przez 1, 2 i 5. Za to 12 jest podzielne przez 1, 2, 3, 4 i 6, więc możemy więcej liczb przedstawić w takiej prostej formie:
+
+$$
+\tfrac{1}{2} = 0,6 ; \tfrac{1}{3} = 0,4 ; \tfrac{1}{4} = 0,3 ; \tfrac{1}{6} = 0,2 ; \tfrac{1}{8} = 0,16 ; \tfrac{1}{9} = 0,14 ; \tfrac{1}{10} = 0,1
+$$
+
+Dla chętnych dowiedzenia się nieco więcej o tym systemie polecam filmik sprzed kilku lat z kanału Numberphile na Youtube, który możecie znaleźć [pod tym linkiem](https://www.youtube.com/watch?v=U6xJfP7-HCc).
+
+### System sześćdziesiątkowy
+
+System sześćdziesiątkowy to historyczny system, wykorzystywany jeszcze w starożytnej Mezopotamii (najpierw przez Sumerów, później przez Mezopotamczyków). Później był także używany przez arabskich astronomów i europejskich matematyków, chociażby przez Fibonacciego do operacji na ułamkach. Tylko dlaczego miałby nas interesować w dzisiejszych czasach? Otóż jego pozostałości mamy do dziś. Zastanawialiście się kiedyś, dlaczego godzina ma 60 minut, a minuta 60 sekund? Dlaczego kąt pełny ma 360 stopni (60 * 6 = 360)? Mianowicie wszystko to jest spuścizną po tamtych czasach. Dlatego na zakończenie artykułu zapamiętajmy, że pewne rzeczy pozostają niezmienne nawet wtedy, gdy cały świat wokół się zmienił.
+
+<small>(oryginał zdjęcia na okładce pobrany z serwisu [pixabay](https://pixabay.com/photos/paws-cat-claw-paw-claws-feline-340071/))</small>

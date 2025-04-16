@@ -1,0 +1,29 @@
+.postFooterContainer {
+  background: var(--sc__postFooter--background);
+  color: var(--sc__postFooter--color);
+  margin: 1rem 0 2rem 0;
+  padding: 1rem;
+
+  a,
+  a:link,
+  a:visited,
+  a:hover,
+  a:active {
+    color: var(--sc__postFooter--color);
+  }
+
+  &.top {
+    margin-bottom: 1rem;
+  }
+}
+
+.divider {
+  border: 0;
+  height: 1px;
+  background-image: linear-gradient(
+    to right,
+    color-mix(in srgb, var(--sc__postFooter--color) 0%, transparent),
+    color-mix(in srgb, var(--sc__postFooter--color) 75%, transparent),
+    color-mix(in srgb, var(--sc__postFooter--color) 0%, transparent)
+  );
+}

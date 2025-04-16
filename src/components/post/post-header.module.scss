@@ -1,0 +1,56 @@
+@use '../consts';
+@use '../common';
+
+$outlineSize: 2px;
+$blurShadow: 5px;
+
+.styleWrapper {
+  width: 100%;
+  position: relative;
+
+  &.useHoverEffect {
+    &:hover {
+      cursor: pointer;
+
+      img {
+        filter: blur(2px);
+      }
+
+      .titleWrapper {
+        transform: scale(1.05);
+      }
+    }
+  }
+}
+
+.title {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  display: flex;
+  align-items: flex-end;
+
+  .titleWrapper {
+    @include common.pseudoH1;
+    width: 100%;
+    text-align: center;
+    color: var(--sc__postHeader--color);
+    text-shadow: (-$outlineSize) (-$outlineSize) 0 var(--sc__postHeader--border),
+      ($outlineSize) (-$outlineSize) 0 var(--sc__postHeader--border),
+      (-$outlineSize) ($outlineSize) 0 var(--sc__postHeader--border),
+      $outlineSize $outlineSize 0 var(--sc__postHeader--border),
+      1px -1px $blurShadow var(--sc__postHeader--border),
+      -1px 1px $blurShadow var(--sc__postHeader--border),
+      1px 1px $blurShadow var(--sc__postHeader--border);
+    font-size: 2.5rem;
+    display: block;
+    margin: 1.5rem;
+    padding: 0;
+
+    @media (max-width: consts.$mobile-breakpoint) {
+      font-size: 1.5rem;
+    }
+  }
+}

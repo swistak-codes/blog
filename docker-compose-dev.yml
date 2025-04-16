@@ -1,0 +1,30 @@
+version: "3"
+
+services:
+  matomo-db:
+    restart: "no"
+
+  matomo-app:
+    restart: "no"
+
+  matomo-web:
+    restart: "no"
+    ports:
+      - "8080:80"
+
+  search:
+    restart: "no"
+    ports:
+      - "8108:8108"
+
+  blog:
+    build:
+      args:
+        - HIDE=false
+        - URL=http://localhost
+    ports:
+      - "80:4200"
+    environment:
+      - NEXT_PUBLIC_BASE_URL=http://localhost
+      - NEXT_PUBLIC_MATOMO_URL=http://localhost:8080
+      - NEXT_PUBLIC_MATOMO_SITE_ID=1

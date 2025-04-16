@@ -1,0 +1,55 @@
+@use '../common';
+
+.linkWrapper {
+  text-decoration: none;
+
+  &:hover,
+  &:active {
+    img {
+      transform: rotate(2deg);
+
+      @media screen and (prefers-reduced-motion: reduce) {
+        transform: rotate(0deg);
+      }
+    }
+
+    .title {
+      text-decoration: underline;
+    }
+  }
+}
+
+.logo {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+}
+
+.logoWrapper {
+  flex-grow: 1;
+  max-width: 100px;
+
+  img {
+    border-radius: 100%;
+  }
+}
+
+.titleWrapper {
+  display: flex;
+  flex-direction: column;
+  margin-left: 1rem;
+}
+
+.title {
+  @include common.pseudoH1;
+  color: var(--sc__header--title);
+  font-family: 'Rokkitt', serif;
+  font-weight: 400;
+  margin: 0;
+}
+
+.subtitle {
+  color: var(--sc__header--subtitle);
+  font-size: 0.8rem;
+}

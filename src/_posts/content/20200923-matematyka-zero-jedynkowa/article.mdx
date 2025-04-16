@@ -1,0 +1,199 @@
+import Link from 'next/link';
+import {Image} from '@swistak-codes/components';
+import cover from './sowa.jpg';
+import dodawanie from './obraz.png';
+import odejmowanie from './obraz-1.png';
+
+export const meta = {
+  title: '1 0 0 0? 0 1 0 1! 1 0 0 1 – czyli matematyka zero-jedynkowa',
+  abstract:
+    'Komputery trzymają wszystkie informacje w postaci cyfr. Nie od 0 do 9 znanych nam na co dzień. Wszystko jest opisane zaledwie dwoma: 0 i 1.',
+  firstParagraph: (
+    <>
+      Zapewne wiecie bądź jakoś domyśliliście się po tytule, że komputery trzymają wszystkie informacje w postaci cyfr.
+      I to nie takich zwykłych od 0 do 9 dobrze znanych nam na co dzień. Wszystko to, co znajduje się w komputerach,
+      jest opisane zaledwie dwoma cyframi: 0 i 1. Dokładnie tyle wystarczy, aby opisać dosłownie wszystko — liczby,
+      zdjęcia, muzykę, filmy, programy, teksty… Gdybyśmy zajrzeli w pamięć komputera tak, żeby zobaczyć w niej surowy
+      zapis danych, ujrzelibyśmy widok zbliżony do tego z filmu Matrix — deszcz zer i jedynek. Pochylmy się jednak nad
+      tym, dlaczego tak jest? Po co? Skąd to się wzięło, jak to ogarnąć i jakie to ma niesamowite właściwości?
+    </>
+  ),
+  keyword: 'matematyka zero-jedynkowa',
+  categories: ['Matematyka', 'Teoria informatyki'],
+  tags: [
+    'matematyka',
+    'system binarny',
+    'system dziesiętny',
+    'system dwójkowy',
+    'dodawanie',
+    'odejmowanie',
+    'przesunięcia bitowe',
+    'systemy liczbowe'
+  ],
+  slug: 'matematyka-zero-jedynkowa',
+  updateTime: '2021-08-17T16:44:29+00:00',
+  publishTime: '2020-09-23T10:00:45+00:00',
+  cover,
+};
+
+## Systemy liczbowe
+
+Jak na maszynę liczącą przystało, komputer operuje na liczbach. Tylko skoro mamy do dyspozycji jedynie zera i jedynki, to oczywistym się staje to, że komputerowe 100 nie jest tym samym, czym jest dla nas na co dzień. Idąc dalej tym tropem, jeżeli chcielibyśmy zrobić proste dodawanie, to powiedzielibyśmy, że 100 + 100 = 200. Ale hola hola, pojawia się tu 2, a jesteśmy ograniczeni do 0 i 1. Nagle okazuje się, że 100 + 100 to w świecie komputerów 1000. Oczywiście, każdy by chciał taką magię w swoim portfelu, jednak zaraz sobie wyjaśnimy, że nie ma w tym totalnie nic nadzwyczajnego.
+
+Zacznijmy od tego, że istnieje w matematyce takie pojęcie jak system liczbowy. W skrócie, definiuje on sposób zapisywania liczb. Do naszych celów skupmy się na szczególnym przypadku, czyli na systemach pozycyjnych, które (w bardzo dużym uproszczeniu) opisują, ile mamy do dyspozycji cyfr, aby zapisać liczbę. Na co dzień stosujemy system dziesiętny (bądź stosując nazwę wywodzącą się z łaciny: system decymalny), którego nazwa bierze się stąd, że używamy 10 cyfr (0, 1, 2, 3, 4, 5, 6, 7, 8, 9). Idąc dalej, możemy na tej zasadzie tworzyć dowolną liczbę takich systemów — jedyne, co jest istotne, to to, że musimy użyć co najmniej jedną cyfrę. Ba, nie musimy się wcale ograniczać 10 cyframi, które używamy. Tak naprawdę każdy znak może być cyfrą w systemie liczbowym, a w celu rozróżnienia, jakim systemem operujemy, zwykło się wpisywać za liczbą w indeksie dolnym (czyli lekko pod spodem) podstawę systemu liczbowego. Wracając do tematu — to, co używają komputery, to system dwójkowy, inaczej zwany systemem binarnym, czyli taki, gdzie mamy dwie cyfry (0 i 1). Wszystko to brzmi fajnie, tylko jak to ogarnąć? Jak „tłumaczyć” liczby między różnymi systemami liczbowymi?
+
+## System dziesiętny
+
+Zanim przejdziemy do ogólnych definicji czy systemu binarnego, pochylmy się dalej nad dobrze nam znanym systemem dziesiętnym, tylko spójrzmy na niego tym razem od tej mniej oczywistej strony (bądź zapomnianej po latach). Spójrzmy na poniższą liczbę:
+
+$$
+2501_{10}
+$$
+
+Nie zastanawiajmy się, co ta liczba oznacza, dlaczego akurat tę użyłem. Nie szukajmy odpowiedzi w memach, (pop)kulturze czy numerologii. Odłóżmy to na bok. Zamiast tego, spróbujmy sobie tę liczbę rozbić na drobniejsze elementy. Jak możesz pamiętać ze szkoły podstawowej, każda z cyfr w liczbie miała swoją nazwę i nie mam tu na myśli „dwa”, „pięć”, „zero”, „jeden”. W systemie dziesiętnym mamy coś takiego jak: cyfra jedności, cyfra dziesiątek, cyfra setek, cyfra tysięcy itd. Czyli nasze 2501 możemy opisać jako:
+
+| 2       | 5     | 0          | 1        |
+|---------|-------|------------|----------|
+| tysięcy | setek | dziesiątek | jedności |
+
+Skoro mamy to opisane w taki sposób, to się zastanówmy, czy możemy to, co tutaj odczytamy, zastosować w obliczeniach? Otóż tak. Mając taką informację, co w sumie dość oczywiste, możemy odtworzyć pierwotną liczbę. Przy czym nie mam tu na myśli złączenia cyfr, zapisując je obok siebie, tylko przez obliczenia. Zapiszmy więc to matematycznie:
+
+$$
+2000+500+0+1=2501_{10}
+$$
+
+Tak, to było proste, ale wciąż to nie jest uniwersalne. Zejdźmy poziom niżej:
+
+$$
+2\cdot1000+5\cdot100+0\cdot10+1\cdot1=2501_{10}
+$$
+
+Teraz w zasadzie zapisaliśmy w postaci mnożenia to, co czytamy, czyli dwie cyfry tysięcy, więc mnożymy 2 przez 1000. Zarazem też dzięki temu wróciło nam do równania 10, które straciliśmy wcześniej ze względu na to, że cyfr dziesiątek nie było (czyli było zero[3]). Jednak czy możemy dojść do czegoś ciekawszego? Na przykład tak, żeby widzieć podstawę naszego systemu liczbowego w każdym z mnożeń. Wykorzystajmy więc, czym są 1, 10, 100 i 1000, czyli że są kolejnymi potęgami liczby 10:
+
+$$
+2\cdot10^3+5\cdot10^2+0\cdot10^1+1\cdot10^0=2501_{10}
+$$
+
+Teraz stała się rzecz ciekawa, a mianowicie wszystkie działania oparliśmy o liczbę 10, czyli podstawę naszego systemu liczbowego. Każda kolejna 10 w naszym równaniu jest podniesiona do potęgi, gdzie wykładnikiem (ta liczba zapisywana na górze) są kolejne liczby, zaczynając od 0. Możemy więc uogólnić ten wzór: jest to suma, gdzie każdy sumowany element to mnożenie i-tej liczby (oznaczmy ją jako ai) przez podstawę systemu liczbowego (oznaczmy go literką b) podniesioną do potęgi i-1. Zapiszmy to teraz językiem matematyki:
+
+$$
+(a_na_{n-1}...a_2a_1)_b=\sum_{i=1}^n(a_i\cdot b^{i-1})
+$$
+
+Wygląda strasznie, ale nie ma czego się bać.
+
+## System dwójkowy
+
+Przejdźmy do systemu dwójkowego. Jak już wspomniałem, liczby w nim zapisujemy przy użyciu tylko dwóch cyfr, czyli 0 i 1. Zobaczmy więc po kolei, jaki odpowiednik w systemie dziesiętnym mają kolejne liczby binarne:
+
+$$
+0_2=0_{10},\; 1_2=1_{10},\; 10_2=2_{10},\; 11_2=3_{10},\; 100_2=4_{10},\; 101_2=5_{10}
+$$
+
+Oczywiście nikt nie będzie przeliczać sobie po kolei jakichś większych liczb, więc zobaczmy, jak ma się nasz wcześniejszy wzór do rzeczy w przypadku trochę bardziej rozbudowanej liczby:
+
+$$
+\begin{align*}
+101101_2 &= 1\cdot2^5+0\cdot2^4+1\cdot2^3+1\cdot2^2+0\cdot2^1+1\cdot2^0 \\
+&= 1\cdot32+0\cdot16+1\cdot8+1\cdot4+0\cdot2+1\cdot1 \\
+&=45_{10}
+\end{align*}
+$$
+
+Jak widać, nasza zależność działa i właśnie przekonaliśmy się, że dla komputera 101101 znaczy tyle, co dla nas 45. Wszystko fajnie, ale oczywiście to nie wszystko.
+
+## Konwersja systemu dziesiętnego na binarny
+
+Na razie dowiedzieliśmy się, jak zamienić liczbę binarną na dziesiętną, a co w drugą stronę? Otóż jak możesz pamiętać ze szkoły, działaniem przeciwnym do mnożenia jest dzielenie, więc i tutaj będziemy dzielić. W tym celu wykorzystujemy prosty przepis: dzielimy liczbę przez podstawę systemu liczbowego i zapisujemy resztę z dzielenia. Następnie wynik tego dzielenia znowu dzielimy przez podstawę systemu, zapisujemy resztę i powtarzamy to tak długo, aż dojdziemy do dzielenia liczby mniejszej niż podstawa naszego systemu liczbowego i zapisujemy ją jako ostatnią resztę. Aby otrzymać wynik, odczytujemy nasze reszty z dzielenia od końca. Jeżeli tego nie czujesz, przeanalizuj poniższy przykład dla zamiany liczby 20 w systemie dziesiętnym na jej odpowiednik binarny:
+
+1. $$\frac{20}{2} = 10\;r\;0$$
+2. $$\frac{10}{2} = 5\;r\;0$$
+3. $$\frac{5}{2} = 2\;r\;1$$
+4. $$\frac{2}{2} = 1\;r\;0$$
+5. $$\frac{1}{2} = 0\;r\;1$$
+6. odczytujemy reszty od dołu, czyli $$20_{10} = 10100_2$$
+
+Istnieje jeszcze drugi sposób obliczeń dla tych, którzy wolą odejmować, jednak który wymaga znajomości kolejnych potęg liczby 2 (wbrew pozorom przydatna wiedza dla informatyków). Polega on na tym, że rozpisujemy sobie z nimi taką tabelkę, aby mieć jedną z potęg większą od naszej liczby. Następnie jeżeli aktualna liczba jest mniejsza od potęgi, zapisujemy 0, a jeżeli większa bądź równa, to 1 i odejmujemy od liczby wartość tej potęgi, po czym idziemy dalej w prawą stronę tabelki, aż dojdziemy do końca. Przeanalizujmy to na przykładzie jeszcze innej liczby — 37:
+
+| | | $$2^6$$ | $$2^5$$ | $$2^4$$ | $$2^3$$ | $$2^2$$ | $$2^1$$ | $$2^0$$ | |
+|-|-|---------|---------|---------|---------|---------|--------|----------|-|
+| | | 64      | 32      | 16 | 8 | 4 | 2 | 1 | |
+| Krok 1: | 37 | | 1 | | | | | | 37 - 32 = 5 |
+| Krok 2: | 5 | | 1 | 0 | 0 | 1 | | | 5 - 4 = 1 |
+| Krok 3: | 1 | | 1 | 0 | 0 | 1 | 0  | 1 |  |
+
+Czyli $$37_{10} = 100101_2$$. Prawda, że proste?
+
+## Operacje arytmetyczne
+
+Dobrze. Skoro umiemy już tłumaczyć liczby dziesiętne na dwójkowe i na odwrót, to powiedzmy sobie, jak wykonywać na nich podstawowe działania, a także powiemy o nieco mniej oczywistych.
+
+### Dodawanie i odejmowanie
+
+Oczywiście najbardziej podstawowymi operacjami, których uczymy się zawsze jako pierwszych, są dodawanie i odejmowanie. Tak naprawdę niewiele różnią się one od tego, które znamy w systemie dziesiętnym. Różnica jest jedynie taka, że ograniczamy się do cyfr 0 i 1 (jakby inaczej), a reszta na dobrą sprawę jest analogiczna. Zobaczmy więc przykład, gdzie dodamy do siebie liczby $$10110_2$$ i $$1010_2$$, czyli $$22_10$$ i $$10_10$$ (spodziewamy się więc wyniku $$32_{10} = 100000_2$$). Zrobimy to tak, jak uczyliśmy się w szkole podstawowej, czyli pisemnie:
+
+<Image
+  image={dodawanie}
+  alignCenter
+  fullSize
+  alt="Krok 1:
+Dodajemy liczby od prawej strony. Tutaj mamy dość oczywistą sytuację, gdzie 0 + 0 = 0
+
+        Krok 2:
+        Dochodzimy do sytuacji, gdzie mamy 1 + 1. W systemie binarnym wynosi to 10, więc wpisujemy 0, a 1 przenosimy dalej.
+
+        Krok 3:
+        W tym przypadku mamy 1 + 1 + 0 = 10, więc ponownie zapisujemy 0, a 1 przenosimy.
+
+        Krok 4:
+        Ponownie mamy analogiczną sytuację do poprzednich kroków.
+
+        Krok 5:
+        Tutaj doszliśmy do sytuacji, gdzie brakło nam cyfr w drugiej liczbie, więc możemy dopisać sobie do niej 0. Mimo to wciąż mamy analogiczną sytuację jak poprzednio.
+
+        Krok 6:
+        W tym momencie brakło nam już cyfr w obu liczbach, a wciąż została przeniesiona. W takim razie dopisujemy sobie zera do obu i wykonujemy 1 + 0 + 0, co daje nam 1. Tym samym kończymy liczenie.
+"
+  caption=""
+/>
+
+Odejmowanie również wygląda jak znane nam odejmowanie pisemne. Skorzystamy z tych samych liczb, więc będziemy spodziewać się liczby $$12_{10} = 1100_2$$:
+
+<Image
+  image={odejmowanie}
+  alignCenter
+  fullSize
+  alt="Krok 1:
+Odejmujemy liczby od prawej strony. Tutaj znowu mamy dość oczywistą sytuację, gdzie 0 - 0 = 0
+
+Krok 2:
+Po raz kolejny mamy prostą sytuację, ponieważ 1 - 1 = 0
+
+Krok 3:
+ 1 - 0 = 1
+
+Krok 4:
+Tym razem dochodzimy do sytuacji, gdzie mamy 0 - 1, więc musimy pożyczyć liczbę z lewej. W takim razie odejmujemy 10 - 1 = 1. Skoro pożyczyliśmy cyfrę, to w jej dawnym miejscu mamy 0, toteż skończyliśmy już liczenie.
+"
+  caption=""
+/>
+
+### Przesunięcia bitowe
+
+Jak widzimy, wszystko wygląda tak samo, jak w systemie dziesiętnym i tak jest również w przypadku mnożenia i dzielenia, dlatego je pominiemy. Natomiast skupmy się na operacji wyjątkowej dla systemu binarnego, czyli na przesunięciu bitowym. Wyróżniamy ich dwa rodzaje – w prawo i w lewo.
+
+#### Przesunięcie w lewo
+
+Przesunięcie w lewo oznaczamy symbolem $$<<$$. Możemy działanie to rozumieć w taki sposób, że dopisujemy z prawej strony liczby kolejne zera, czyli $$111_2 << 1 = 1110_2$$, natomiast $$111_2 << 3 = 111000_2$$. Tylko pewnie w tym momencie zadajesz sobie pytanie, co mi to daje? Otóż jest to bardzo szybki sposób na mnożenie. Przesuwając o 1, mnożymy liczbę razy 2, przesuwając o 2 — razy 4, przesuwając o 3 — razy 8 itd. Co to oznacza? Że liczba zer, o jaką przesuwamy, jest równa potędze, do której jest podniesione 2 i wynikiem jest mnożenie przez właśnie wynik tego potęgowania. Wróćmy do wcześniejszych przykładów. $$111_2$$ (czyli $$7_{10}$$) przesuwamy o jeden w lewo i otrzymujemy $$1110_2$$, które wynosi dokładnie 14 (a 7 razy 2 to właśnie 14). Natomiast $$111000_2$$ to $$56_{10}$$ (bo 7 razy 8 to 56).
+
+#### Przesunięcie w prawo
+
+Przesunięcie w prawo jako przeciwną operację oznaczamy oczywiście przeciwnym symbolem, czyli $$>>$$. Tym razem jednak, zamiast dopisywać zera z prawej strony, to obcinamy liczbę, czyli $$111_2 >> 1 = 11_2$$, natomiast $$111_2 >> 2 = 1_2$$. I teraz, jak można się domyśleć, sposobem stosowania analogii, gdy dopisując zera, mnożyliśmy, tak skracając liczbę, dzielimy. Więc sprawdźmy. Jak dobrze pamiętamy — $$111_2$$ to $$7_{10}$$, natomiast $$11_2$$ to 3 (7 dzielone przez 2 to 3,5 a inaczej 3 reszty 1). Dla drugiego przypadku 7 dzielone przez 4 daje 1,75, inaczej 1 reszty 3. Zauważmy zarazem, że to, co odcięliśmy, jest jednocześnie resztą z dzielenia.
+
+Oczywiście nie jest to coś zarezerwowanego tylko dla liczb binarnych. W naszym systemie dziesiętnym takie dopisywanie zer i obcinanie są równoznaczne z mnożeniem i dzieleniem przez dziesięć. Powiedzmy sobie szczerze — w systemie dziesiętnym zapisujemy to po prostu jako mnożenie. A wspomniałem o samej operacji, ponieważ mnożenie i dzielenie przez 2 to dość częsta operacja i dzięki tej własności jest ona możliwa do wykonania bardzo szybko.
+
+## Podsumowanie
+
+Wiedza na temat systemu binarnego jest czymś, czego, powiedzmy sobie szczerze, nie wykorzystujemy na co dzień. Frontendowcy ustawiając elementy CSSem czy backendowcy odpytujący bazę danych nie zastanawiają się nad tym, jak dodać do siebie dwie liczby binarne pod kreską, czy jak to przełożyć na język programowania. Jednak jest to podstawa podstaw tego, czym operujemy. Należy pamiętać, że komputery to tak naprawdę bardzo rozbudowane kalkulatory i wszystko w pewnym etapie sprowadza się tutaj do zapisu matematycznego. I nawet jeśli tej wiedzy nie użyjesz nigdy w praktyce, warto wiedzieć, jak to wszystko działa na najniższym logicznym poziomie (o fizycznym może kiedy indziej).
+
+<small>(oryginał zdjęcia na okładce opublikowany w serwisie [Pixabay](https://www.flickr.com/photos/granth/382907735))</small>

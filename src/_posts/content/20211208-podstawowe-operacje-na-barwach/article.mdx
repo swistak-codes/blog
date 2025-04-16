@@ -1,0 +1,231 @@
+import Link from 'next/link';
+import {Image, Iframe, Square} from '@swistak-codes/components';
+import cover from './kolorowa-papuga.jpg';
+
+export const meta = {
+  title: 'Podstawowe operacje na barwach',
+  abstract:
+    'Jak zmieniać jasność, kontrast? Jak robić korekcję gamma? Co to jest solaryzacja i negatyw? W tym artykule wszystko wyjaśniam.',
+  firstParagraph: (
+    <>
+      <Link href="/post/jak-komputer-zapisuje-kolory">W poprzednim artykule opisałem</Link>, czym są barwy oraz jak są reprezentowane liczbowo, aby następnie można było je bezproblemowo zapisać na komputerze. W takim razie przejdźmy do tego, co misie lubią najbardziej — algorytmiki. W tym artykule opiszę najbardziej podstawowe operacje, jakie możemy wykonywać na kolorach.
+    </>
+  ),
+  keyword: 'barwy',
+  categories: ['Grafika komputerowa'],
+  tags: [
+    'grafika',
+    'kolory',
+    'skala szarości',
+    'jasność',
+    'kontrast',
+    'gamma',
+    'tryb dwukolorowy',
+    'negatyw',
+    'solaryzacja',
+    'javascript'
+  ],
+  slug: 'podstawowe-operacje-na-barwach',
+  updateTime: '2021-12-08T15:33:49+00:00',
+  publishTime: '2021-12-08T05:00:41+00:00',
+  cover,
+};
+
+## Uwaga wstępna
+
+Tradycyjnie, jak przystało na artykuły tego typu, będzie tu dużo prezentacji, które znajdziesz [na moim GitHubie](https://github.com/swistak-codes/colors-presentation). Zostały napisane w TypeScript z Preact.
+
+W każdej z prezentacji możesz wrzucić własny obrazek lub zdjęcie. Nie musisz się jednak martwić — wszystko zostaje na Twoim komputerze i nie jest nigdzie przesyłane; całość obliczeń jest wykonywana w Twojej przeglądarce internetowej.
+
+Dodatkowo, jeśli nie miałeś(-aś) okazji czytać mojego <Link href="/post/jak-komputer-zapisuje-kolory">artykułu na temat barw i ich reprezentacji w komputerze</Link>, nadrób tę zaległość, bo poniższy tekst można traktować jako kontynuację tamtego artykułu. Nawet jeśli takie pojęcia, jak RGB, głębia kolorów czy dithering nie są Ci obce, to warto przypomnieć sobie nieco teorii.
+
+## Konwersja na skalę szarości
+
+### Podstawowy przypadek
+
+Zacznijmy od najprostszej z operacji, czyli przekształcenie obrazu na odcienie szarości. W swojej najprostszej wersji sprowadza się to do obliczenia średniej arytmetycznej wartości każdego z kanałów RGB, a następnie wstawienie tej wartości do każdego z nich. Można to wyrazić wzorem:
+
+$$
+R'=G'=B' = \frac{R+G+B}{3}
+$$
+
+Poniżej możesz zobaczyć, jak to wygląda w praktyce. Naciśnij przycisk Przeglądaj i wybierz dowolne zdjęcie z dysku (nie zostanie nigdzie przesłane!), a zobaczysz jego wersję czarno-białą obliczoną według powyższego wzoru.
+
+<Iframe src="/iframe-content/colors/index.html#/grayscale" minHeight={600} />
+
+Jest to najczęściej spotykana wersja i prawdopodobnie całkowicie wystarczająca do większości zastosowań.
+
+### Sterowanie poziomem jasności
+
+Często jednak dla lepszego efektu wizualnego nie stosuje się zwykłej średniej arytmetycznej, tylko średnią ważoną. Pozwala to na sterowanie efektem i uzyskanie często lepszych rezultatów niż poprzednim wzorem. Jest to dokładnie ten sam wzór, który używamy w modelach <Link href="/post/jak-komputer-zapisuje-kolory">YUV/YCbCr</Link> do wyznaczenia kanału jasności. Obliczenie wygląda następująco:
+
+$$
+\begin{align*}
+R'=G'=B' &= K_rR+K_gG+K_bB, \\
+\text{gdzie: } K_r+K_g+K_b &= 1
+\end{align*}
+$$
+
+Przykładowo, w modelu przestrzeni barw YUV, w oryginalnym standardzie telewizji, kanał czarno-biały jest tworzony z wykorzystaniem następujących wag, co daje bardzo dobre wizualnie rezultaty:
+
+$$
+\begin{align*}
+K_r &= 0,299
+\\ K_g &= 0,587 \\
+K_b &= 0,114
+\end{align*}
+$$
+
+Poniżej możesz sprawdzić, jak wygląda efekt w zależności od podania różnych wag. Można sterować dwoma wagami jednocześnie, a trzecia jest obliczana jako różnica dwóch wpisanych. Za pomocą radio buttona możesz wybrać, która z wag ma być wyliczana automatycznie.
+
+<Iframe src="/iframe-content/colors/index.html#/grayscale-adjusted" minHeight={600} />
+
+### Tryb dwukolorowy
+
+Zamiast zastosowania skali szarości możemy chcieć uzyskać jedynie dwie barwy — białą i czarną. Aby to zrobić, stosujemy zwykły wzór na średnią, a potem wartość progową (ang. threshold), poniżej której zaokrąglamy wartość koloru do (0%, 0%, 0%) lub powyżej której do (100%, 100%, 100%).
+
+Tym razem zamiast wzoru pokażę kod, którym można to osiągnąć:
+
+```javascript
+const newColor = (r + g + b) / 3 > threshold ? 255 : 0;
+r = newColor;
+g = newColor;
+b = newColor;
+```
+
+Jego działanie w praktyce możesz zobaczyć poniżej. Przesuwaj suwakiem, aby wybrać wartość progową i tym samym zobaczyć inny efekt:
+
+<Iframe src="/iframe-content/colors/index.html#/twotone" minHeight={600} />
+
+## Zmiana podstawowych parametrów kolorów
+
+W programach graficznych jednymi z najczęściej wykonywanych prostych operacjach na barwach są zmiana kontrastu, zmiana jasności, a także korekcja gamma. Zobaczmy, co tak naprawdę kryje się za tymi operacjami.
+
+### Zmiana jasności
+
+Zmiana jasności to najprostsza z operacji zmiany podstawowych parametrów kolorów, jaką możemy zrobić. Polega na rozjaśnieniu bądź ściemnieniu wszystkich pikseli o taką samą, stałą wartość. Jest to zdecydowanie najprostsze do zrobienia w przestrzeni kolorów HSL, gdzie wystarczy manewrować jedynie składową L odpowiadającą za jasność. W najpopularniejszym RGB jest to również proste.
+
+Jak widziałeś(-aś) wcześniej, w skali szarości jasność zmieniała się, jeśli taką samą wartość odejmowaliśmy bądź dodawaliśmy do każdej składowej koloru. Tutaj działa to dokładnie tak samo. Dla przykładu kolor zielony zdefiniowany jako RGB(0, 255, 0) <Square color="rgb(0,255,0)" /> po przyciemnieniu o połowę może być zapisany jako RGB(0, 128, 0) <Square color="rgb(0,128,0)" />. Analogicznie działa to dla innych kolorów. Teraz technicznie, jak to wygląda?
+
+Operując na 24-bitowych barwach (8 bitów na kanał), najłatwiej jest operować jasnością jako skalą od -255 do 255, gdzie początkowa wartość to 0. We wzorach przyjmijmy, że oznaczymy ją literą $$I$$. Następnie wartość tą dodajemy do każdej ze składowych koloru, jednocześnie ograniczając, że musimy utrzymać się w zakresie wartości od 0 do 255:
+
+$$
+\begin{align*}
+R' &= \text{trunc}(R + I) \\
+G' &= \text{trunc}(G + I) \\
+B' &= \text{trunc}(B + I) \\
+\text{trunc}(x) &= \begin{cases}
+0 & \text{dla } x < 0 \\
+255  & \text{dla } x > 255 \\
+x & \text{w przeciwnym przypadku}
+\end{cases}
+\end{align*}
+$$
+
+Poniżej możesz sprawdzić, jak wygląda w praktyce manipulacja jasnością:
+
+<Iframe src="/iframe-content/colors/index.html#/brightness" minHeight={600} />
+
+### Zmiana kontrastu
+
+Kontrast, najprościej mówiąc, to różnica między najjaśniejszym i najciemniejszym punktem obrazu. Oczywiście nie możemy zmienić jedynie tych dwóch pikseli, tylko przekształcić odpowiednio wszystkie, aby uzyskać należyty efekt. Jest to nieco trudniejsza operacja niż powyższa, ale wciąż nic skomplikowanego.
+
+Analogicznie jak poprzednio, kontrast ($$C$$) będziemy określać jako wartość w przedziale od -255 do 255. Pierwsze, co musimy zrobić, to obliczyć współczynnik poprawy kontrastu. Jest wiele sposób na jego wyznaczenie, a jeden z nich (najprostszy, jaki znalazłem) to:
+
+$$
+F=\frac{259\cdot(C+255)}{255\cdot (259-C)}
+$$
+
+Następnie współczynnik ten możemy wykorzystać do korekcji barwy. Tak jak poprzednio, stosujemy go do wszystkich składowych koloru, przy czym tym razem mnożymy wartość, co da nam takie wzory:
+
+$$
+\begin{align*}
+R' &= \text{trunc}(F \cdot (R - 128) + 128) \\
+G' &= \text{trunc}(F \cdot (G - 128) + 128) \\
+B' &= \text{trunc}(F \cdot (B - 128) + 128)
+\end{align*}
+$$
+
+Poniżej możesz sprawdzić, jak wygląda w praktyce manipulacja kontrastem:
+
+<Iframe src="/iframe-content/colors/index.html#/contrast" minHeight={600} />
+
+### Korekcja gamma
+
+Korekcja gamma (znana też jako modulacja gamma), najprościej rzecz ujmując, pozwala na nieliniową zmianę różnic między poziomami jasności. Jest szczególnie pomocna dlatego, że o ile ludzkie oko jest wyczulone bardziej na różnice w jasności niż na różnice w barwach, to jednocześnie, gdy mamy dużo ciemnych bądź jasnych punktów koło siebie, zlewają nam się one ze sobą. Korekcja gamma pozwala zwiększyć różnice między nimi, równocześnie nie zmieniając aż tak obrazu, jak wcześniej pokazana zmiana jasności czy kontrastu.
+
+Współczynnik gamma zapisujemy oczywiście grecką literą $$\gamma$$. Następnie każdą składową barwy przekształcamy następująco:
+
+$$
+\begin{align*}
+R' &= 255 \cdot \left( \frac{R}{255} \right)^{\frac{1}{\gamma}} \\
+G' &= 255 \cdot \left( \frac{G}{255} \right)^{\frac{1}{\gamma}} \\
+B' &= 255 \cdot \left( \frac{B}{255} \right)^{\frac{1}{\gamma}}
+\end{align*}
+$$
+
+Poniżej możesz sprawdzić, co daje korekcja gamma:
+
+<Iframe src="/iframe-content/colors/index.html#/gamma" minHeight={600} />
+
+## Całkowita zmiana barw
+
+Na koniec przejrzyjmy jeszcze dwa najprostsze z algorytmów umożliwiające całkowitą zmianę kolorystyki obrazu. Oba mają korzenie w tradycyjnej fotografii i na pewno urozmaicą Twoją wiedzę na temat wykonywania operacji na barwach.
+
+### Negatyw
+
+W fotografii analogowej po wywołaniu kliszy mogliśmy obserwować, że kolory na niej są zupełnie inne niż te, które widzimy na odbitce. Dokładniej mówiąc, są to dosłownie odwrotne kolory, stąd wywołane klisze zwykło się nazywać negatywami. Efekt ten można uzyskać na komputerze w bardzo prosty sposób. Skoro jest to odwrócenie barw, wystarczy wykonać następujące obliczenia:
+
+$$
+\begin{align*}
+R' &= 255 - R \\
+G' &= 255 - G \\
+B' &= 255 - B
+\end{align*}
+$$
+
+Możesz się oczywiście zastanawiać nad zastosowaniem takiego efektu, ale jest ono dość oczywiste: przenosząc zdjęcia analogowe do formatu cyfrowego, niekoniecznie musimy skanować odbitki; możemy skanować oryginalne klisze. Wówczas trzeba jakoś przywrócić oryginalne barwy.
+
+Poniżej możesz przetestować efekt w praktyce:
+
+<Iframe src="/iframe-content/colors/index.html#/inversion" minHeight={600} />
+
+### Solaryzacja
+
+Ostatnim efektem, który chciałem pokazać w tym artykule, jest solaryzacja. Solaryzację można traktować jako rozszerzenie tematu negatywu — robimy w zasadzie to samo, tylko ustalamy wartość graniczną (nazwijmy ją $$T$$, od ang. threshold — próg), powyżej bądź poniżej której nie odwracamy barwy. Kwestia, czy odwracamy poniżej, czy powyżej, jest umowna i zależy od efektu, jaki chcemy uzyskać.
+
+Obliczenie tym razem wygląda tak (w wersji, gdzie tworzymy negatyw poniżej wartości granicznej):
+
+$$
+\begin{align*}
+R' &= \begin{cases}
+255 - R & \text{dla } R \leqslant  T \\
+R & \text{w przeciwnym przypadku}
+\end{cases} \\
+G' &= \begin{cases}
+255 - G & \text{dla } G \leqslant T \\
+G & \text{w przeciwnym przypadku}
+\end{cases} \\
+B' &= \begin{cases}
+255 - B & \text{dla } B \leqslant T \\
+B & \text{w przeciwnym przypadku}
+\end{cases} \\
+\end{align*}
+$$
+
+Pewnie po wstępie zastanawiasz się, co może to mieć wspólnego z tradycyjną fotografią. Otóż solaryzacją nazywano efekt, dzięki któremu niektóre barwy pochodzące z intensywnych źródeł światła nie były rejestrowane na kliszy w formie negatywu. Efekt ten zaobserwowano przy robieniu zdjęć słońca, które po wywołaniu pokazywały, że słońce ma czarny kolor. Możemy też mówić o zjawisku Sabattiera (pseudosolaryzacja), które w skrócie można nazwać jako celowo wymuszoną solaryzację, co dokładnie odwzorowujemy cyfrowo powyższymi obliczeniami.
+
+Poniżej możesz przetestować, jaki efekt daje solaryzacja wraz ze zmianą wartości granicznej, a także, jaka jest różnica między opisanymi wcześniej dwoma różnymi implementacjami:
+
+<Iframe src="/iframe-content/colors/index.html#/solarization" minHeight={600} />
+
+## Literatura
+
+- *Image Processing 101 Chapter 1.3: Color Space Conversion*, [https://www.dynamsoft.com/blog/insights/image-processing/image-processing-101-color-space-conversion/](https://www.dynamsoft.com/blog/insights/image-processing/image-processing-101-color-space-conversion/) (ostatnie odwiedziny 27.11.2021).
+- *OpenCV | Understanding Brightness in an Image*, [https://www.geeksforgeeks.org/opencv-understanding-brightness-in-an-image/](https://www.geeksforgeeks.org/opencv-understanding-brightness-in-an-image/) (ostatnie odwiedziny 27.11.2021).
+- *Image Processing Algorithms Part 5: Contrast Adjustment*, [https://www.dfstudios.co.uk/articles/programming/image-programming-algorithms/image-processing-algorithms-part-5-contrast-adjustment/](https://www.dfstudios.co.uk/articles/programming/image-programming-algorithms/image-processing-algorithms-part-5-contrast-adjustment/) (ostatnie odwiedziny 27.11.2021).
+- Shao V. *Implementing the Gamma Correction Algorithm Using the TMS320C2xx DSP*, Digital Signal Processing Solutions, wrzesień 1997.
+- *Solaryzacja*, [http://www.algorytm.org/przetwarzanie-obrazow/solaryzacja.html](http://www.algorytm.org/przetwarzanie-obrazow/solaryzacja.html) (ostatnie odwiedziny 27.11.2021).
+- *Sabattier effect*, [https://en.wikipedia.org/w/index.php?title=Sabattier_effect&oldid=1057385837](https://en.wikipedia.org/w/index.php?title=Sabattier_effect&oldid=1057385837) (ostatnie odwiedziny 27.11.2021).
+
+<small>(zdjęcie na okładce pochodzi z serwisu [Pixabay](https://pixabay.com/illustrations/bird-parrot-colorful-animal-3769459/))</small>

@@ -1,0 +1,151 @@
+import {Image} from '@swistak-codes/components';
+import cover from './pandy.jpg';
+import hal from './hal.png';
+import chomik from './chomik.jpg';
+import testTuringa from './Test-Turinga.png';
+
+export const meta = {
+  title: 'Sztuczna inteligencja — a co to? a komu to potrzebne?',
+  abstract:
+    'Sztuczna inteligencja — zewsząd atakujący nas buzzword. Do tego wszelkie pokrewne terminy odmieniane na różne sposoby. O co w tym wszystkim chodzi?',
+  firstParagraph: (
+    <>
+      Sztuczna inteligencja — zewsząd atakujący nas buzzword. Telefony ze sztuczną inteligencją, aparaty fotograficzne
+      napędzane sztuczną inteligencją, algorytmy sztucznej inteligencji. Do tego wszelkie pokrewne terminy odmieniane na
+      różne sposoby i łączone ze wszelkimi możliwymi rzeczownikami — smart home, smart car, smart zegarki, smart
+      odkurzacze, smart żarówki, uczenie maszynowe, uczące się algorytmy… Dołóżmy nagłówki z gazet — sztuczna
+      inteligencja zastępuje dziennikarzy, czeka nas bunt sztucznej inteligencji, sztuczna inteligencja to bla bla bla.
+      Do tego wszędzie słyszymy o zagrożeniach sztucznej inteligencji — utrata prywatności, inwigilacja, zabranie pracy,
+      przejęcie władzy nad światem, zniszczenie ludzkości, i tak dalej. Czas to wszystko poukładać.
+    </>
+  ),
+  keyword: 'sztuczna inteligencja',
+  categories: ['Sztuczna inteligencja'],
+  tags: [
+    'sztuczna inteligencja',
+    'ai',
+    'si',
+    'artificial intelligence',
+    'uczenie',
+    'wnioskowanie',
+    'rozwiązywanie problemów',
+    'percepcja',
+    'język',
+    'słaba ai',
+    'silna ai',
+    'test Turinga',
+    'artificial general intelligence'
+  ],
+  slug: 'sztuczna-inteligencja-a-co-to-a-komu-to-potrzebne',
+  updateTime: '2020-06-27T09:22:56+00:00',
+  publishTime: '2020-06-22T09:55:14+00:00',
+  cover,
+  english: 'https://synergycodes.com/blog/artificial-intelligence-what-is-it/',
+  youtube: 'https://www.youtube.com/watch?v=45e4oJbIs1Q'
+};
+
+## Science-fiction staje się rzeczywistością
+
+Z pewnością można powiedzieć to, że wokół tematu sztucznej inteligencji narosło sporo mitów i niezrozumienia. Jest to jednak zrozumiałe. Dzisiejszy świat coraz bardziej dogania powieści, filmy i gry science-fiction. Trudno jest przez to rozgraniczyć, co już jest „science” a co jeszcze „fiction”. Świetnym przykładem, do tego związanym z tematem artykułu, jest „2001: Odyseja Kosmiczna”. Film pojawił się na rok przed misją Apollo 11, a przedstawiał loty w kosmos jako coś codziennego. O ile tego wciąż jeszcze nie mamy (stan na czerwiec 2020 r.), to są tam drobne rzeczy, które w czasach powstawania były totalnym sci-fi, a dziś są codziennością. Wymienić tu można choćby wideo rozmowy czy komputer, z którym można rozmawiać. A kto widział film, ten pamięta, co sztuczna inteligencja HAL tam nawyczyniała. Z drugiej strony są filmy, które wprost pokazują jej bunt, jak na przykład „Terminator”. Nie dziwmy się więc, że sztucznej inteligencji ludzie się najzwyczajniej w świecie boją.
+
+<Image
+  image={hal}
+  alignRight
+  fullSize
+  maxWidth='207px'
+  alt="HAL"
+  caption={<>HAL 9000 — filmowy prekursor Siri, Alexy i asystenta Google.
+    <br/><a href="https://publicdomainvectors.org/en/free-clipart/HAL9000-vector-drawing/13533.html" target="_blank">(źródło)</a></>}
+/>
+
+Tylko oczywiście nie byłoby aż tak źle, gdyby nie to, że ktoś pomyślał, że na haśle „sztuczna inteligencja” można zarobić nie tylko w beletrystyce czy szerzej pojmowanej rozrywce. Pojęcie to przez długi czas istniało tam oraz pośród naukowców zajmujących się rozwojem „inteligentnych” algorytmów. Dziś jakiekolwiek działanie algorytmów sugerujące jakąkolwiek inteligencję już jest tak nazywane. Doprowadziło to do tego, że marketingowcy lubią wszystko nazywać sztuczną inteligencją. Niestety, nie poprawia to sytuacji zrozumienia tematu, a wręcz przeciwnie. Dlatego rozłóżmy na części pierwsze encyklopedyczną definicję i przełóżmy ją na prosty język, aby rozwiać wszelkie niedopowiedzenia i nadinterpretacje.
+
+## Sztuczna inteligencja — definicja
+
+Sztuczna inteligencja (w skrócie SI, bądź AI z angielskiego Artificial Intelligence) to, najkrócej mówiąc, zdolność maszyny cyfrowej (czyli między innymi komputera) do wykonywania zadań przypisywanych bytom inteligentnym. Poprawnie, nazwę tą powinno przypisywać się projektom tworzenia systemów obdarzonych procesami intelektualnymi charakterystycznymi dla ludzi, takich jak zdolność wnioskowania, odkrywania znaczeń, generalizowania czy uczenia z poprzednich doświadczeń. Inteligencję w SI często sprowadza się do kilku aspektów, które wymienię tutaj za encyklopedią Britannica. Nie jest to jednak sztywny podział, bo często owe aspekty mieszają się ze sobą.
+
+### Uczenie
+
+Prawdopodobnie najpopularniejszy dziś aspekt SI. Najogólniej mówiąc, jest to poznawanie pewnego zagadnienia przez zapamiętywanie (prostszy sposób) czy generalizowanie go (trudniejsze, lecz dające lepsze rezultaty). Po wyuczeniu programu pewnej reguły stosujemy ją w praktyce, aby otrzymać pożądane rezultaty. Przykładem może być program, który uczymy, przekazując mu angielskie zdania w czasie teraźniejszym i przeszłym. Następnie wykonując taki program, spodziewalibyśmy się, żeby do każdego czasownika w formie teraźniejszej dokładał końcówkę „ed”, tym samym zmieniając go w formę przeszłą.
+
+### Wnioskowanie
+
+W tym przypadku program wyciąga wnioski, korzystając ze znanych reguł logicznych i aktualnego stanu wiedzy pochodzącego z przekazanych danych. Ten aspekt SI jest podstawą systemów ekspertowych. Reguły mogą być albo zaprogramowane na stałe, albo pochodzić z jakiejś bazy danych lub być po prostu wyuczone. Przykładowo nasz system posiada prostą regułę: „chomik może być albo w klatce, albo w transporterze”. System otrzymał dane: „chomika nie ma w klatce”, stąd wnioskuje: „chomik jest w transporterze”.
+
+<Image
+  image={chomik}
+  alignLeft
+  fullSize
+  alt="Chomik w czajniku"
+  maxWidth="226px"
+  caption={<>Chomik oszukujący sztuczną inteligencję.
+    <br/><a href="https://www.publicdomainpictures.net/pl/view-image.php?image=1411&picture=hamster-w-czajnik" target="_blank">(źródło)</a></>}
+/>
+
+Na tym przykładzie warto zauważyć jedną z ułomności sztucznej inteligencji. Zna ona świat takim, jakiego jest wyuczona. Jeżeli z reguł wynika, że chomik może być w klatce albo w transporterze, to nie ma możliwości, aby otrzymać wniosek, że nasz biedny futrzak postanowił odzyskać wolność. Musielibyśmy mieć kolejną regułę, która to zakłada.
+
+### Rozwiązywanie problemów
+
+Prawdopodobnie to najpopularniejsze przez lata zastosowanie sztucznej inteligencji. Jest to zwykle przeszukiwanie zakresu możliwych działań w celu opracowania takiej ich sekwencji, aby móc osiągnąć wyznaczony z góry cel. Zazwyczaj wykorzystuje się je przy rozwiązywaniu problemów, które są bardzo kosztowne obliczeniowo (czyli znalezienie rozwiązania zajęłoby BARDZO dużo czasu, przykładowo miliony lat) i poprzez wykorzystanie odpowiednich technik jesteśmy w stanie przyspieszyć znalezienie rozwiązania (na przykład do kilkunastu minut, co brzmi lepiej). Najczęściej nie najlepszego, ale wystarczająco dobrego. Jednak tutaj zaliczamy też te algorytmy, które przeszukują wszystkie możliwe rozwiązania w celu znalezienia poprawnego bądź najlepszego.
+
+Jako przykłady można tutaj zaproponować rozwiązywanie popularnych, trudnych problemów. Moim ulubionym jest problem komiwojażera, czyli odnalezienie najkrótszej trasy przechodzącej przez wybrane punkty w przestrzeni (np. na mapie). Jest on dość praktycznym problemem — codzienne zastosowanie tego, to przykładowo ustawianie tras kurierów. Załóżmy, że kurier musi odwiedzić w mieście zaledwie 100 punktów. Jeżeli chcielibyśmy przejrzeć wszystkie możliwe rozwiązania tego problemu, musielibyśmy wygenerować ich $$100! \approx 9 \cdot 10^{157}$$. Dla porównania, zdaniem naukowców w widzialnym wszechświecie jest około $$10^{80}$$ atomów. Powiedzmy sobie szczerze, nie mielibyśmy fizycznej możliwości przejść przez to wszystko.
+
+### Percepcja
+
+Prawdopodobnie jeden z najbardziej efektownych, najciekawszych, ale równie faktycznie najniebezpieczniejszych aspektów sztucznej inteligencji. Polega ono na analizie otoczenia na podstawie „zmysłów”, zazwyczaj wzroku. To tutaj mieszczą się algorytmy rozpoznające twarze, płeć, wiek, otoczenie, zachowanie, i tym podobne. W dzisiejszych czasach najczęściej jest łączone z technikami uczenia maszynowego.
+
+Dlaczego napisałem to pierwsze zdanie? Otóż powiedzmy sobie szczerze, robi to wrażenie. Jakoś oswojeni jesteśmy z tym, że komputer obliczy nam trasę z punktu do punktu czy zaproponuje produkt, jaki może nas zainteresować. Jednakże gdy algorytm na podstawie zdjęcia oceni nasz wiek, to powoduje to efekt WOW (przypomnijmy sobie tylko 2015 rok i szał w mediach społecznościowych na stronę how-old od Microsoftu). Najciekawszy? Jak najbardziej. Z programistycznego punktu widzenia napisanie takiego SI daje dużą satysfakcję. W kwestii niebezpieczeństwa nie ukrywajmy — technologie rozpoznawania twarzy są czymś, co bardzo interesuje rządy, szczególnie w krajach, gdzie wolność jest ograniczana. Przykładowo, w Chinach już to istnieje i stanowi podstawę systemu oceniania obywateli. Powiedzmy sobie szczerze, „Rok 1984″ to nie jest powieść, której rzeczywistość chcielibyśmy doświadczyć.
+
+### Język
+
+Rozumienie języka naturalnego to sztandarowy wręcz aspekt SI, którego osiągnięcie ma świadczyć o zatarciu się granic między człowiekiem a maszyną. To właśnie na tym oparty jest słynny test Turinga. Niestety, pojawia się tutaj problem natury filozoficznej. Mianowicie możemy napisać algorytmy, które rozpoznają znaczenie zdań, będą potrafiły formułować składne wypowiedzi. Tylko kiedy jest to tylko odtwarzanie znanych wzorców, a kiedy już rozumienie? W zasadzie jak możemy zdefiniować, co sprawia, że my jako ludzie rozumiemy język i posługujemy się nim?
+
+Pomińmy aspekty filozoficzne. Oczywiście jesteśmy w stanie tworzyć mniej lub bardziej „rozumiejące” język algorytmy. Aczkolwiek nie są one na tyle perfekcyjne, jak byśmy tego chcieli, czego dowodem jest fakt, że żaden nie przeszedł wciąż pozytywnie testu Turinga (choć niektóre były blisko, np. Cleverbot w 2011 roku). Jednak dziedzina NLP (Natural Language Processing — przetwarzanie języka naturalnego; nie mylić z takim samym akronimem z dziedziny psychologii) wciąż się rozwija i może dojdziemy kiedyś do poziomu, gdy jakiś chatbot, zamiast irytować użytkownika, przejdzie test Turinga.
+
+<Image
+  image={testTuringa}
+  alignCenter
+  fullSize
+  alt="Schemat testu Turinga"
+  caption="Schemat testu Turinga. Sędzia (C) na podstawie rozmowy z „graczami” (A i B), nie wiedząc, kim oni są, powinien rozstrzygnąć, który z nich jest maszyną, a który człowiekiem."
+/>
+
+## Podejścia do SI
+
+Tworząc projekty sztucznej inteligencji, musimy wybrać podejście, w jaki sposób chcemy ją zrealizować i jakie powinny być ramy jej działania oraz oczywiście cel.
+
+### Podejście symboliczne (top-down) i redukcjonistyczne (bottom-up)
+
+Podejścia top-down i bottom-up określają sposób, w jaki tworzymy inteligencję naszego projektu SI.
+
+Top-down, czyli podejście symboliczne, to takie, gdzie tworząc sztuczną inteligencję, nie interesuje nas kompletnie to, jak działa mózg i jak człowiek postrzega pewne rzeczy. Po prostu znajdujemy sposób, jak przetworzyć pewne symbole tak, aby odwzorować działanie inteligentne. Przykładowo, jeżeli tworzylibyśmy SI do rozpoznawania liter, to w podejściu top-down określilibyśmy wcześniej programowi wzorce geometryczne, które powinien wykorzystać.
+
+Bottom-up, czyli podejście redukcjonistyczne, polega na czymś wręcz przeciwnym, czyli naszą SI chcemy odwzorować procesy zachodzące w mózgu, wręcz zimitować jego strukturę i przepisać na język maszynowy. W definicjach encyklopedycznych mówi się wprost o odwzorowaniu wprost struktury mózgu, jednak zwykle za podejście to uznaje się wykorzystywanie sieci neuronowych (struktur zdecydowanie prostszych niż prawdziwe neurony). Kontynuując przykład rozpoznawania liter — w podejściu bottom-up uczylibyśmy maszynę, jak każda litera wygląda, aby sama opracowała sobie sposób ich rozróżnienia.
+
+### Słaba i silna SI oraz symulacje kognitywistyczne
+
+Kolejny podział bardziej wskazuje na cel, jaki chcemy osiągnąć, tworząc sztuczną inteligencję. Możemy w tym kontekście mówić o słabej i silnej sztucznej inteligencji, a także o symulacjach kognitywistycznych (które tutaj akurat pominę).
+
+Silna SI (znana też jako AGI — Artificial General Intelligence), to próba stworzenia dosłownie mówiąc myślącej maszyny, czyli takiej, której zdolności byłby nie do odróżnienia od ludzkich. Jednocześnie taka sztuczna inteligencja byłaby wielozadaniowa a nie skupiona na jednej czynności. Innymi słowy, to właśnie z silną SI zdecydowana większość ludzi kojarzy ten temat. Zarazem warto zwrócić uwagę na to, że (z tego co wiemy oficjalnie) taka wciąż nie powstała (czerwiec 2020). Jest to temat bardzo trudny nie tylko z technicznego punktu widzenia, ale także filozoficznego (czym jest świadomość i jak ją odwzorować cyfrowo?) i etycznego. Warto zwrócić jednak uwagę, że eksperci uważają, że silna SI może pojawić się w latach 2040-2050.
+
+Słaba SI to przeciwieństwo poprzedniego podejścia. W tym przypadku tworzymy inteligentne systemy wyspecjalizowane do rozwiązywania konkretnych problemów. Jest to aktualnie podstawowe podejście do tworzenia sztucznej inteligencji. Dlatego też, jeżeli algorytm potrafi rozpoznawać twarz, to możemy być pewni, że nie będzie też potrafił wyznaczyć najkrótszej trasy kurierowi. Nikt nie broni łączyć wielu systemów w jeden, jak to ma miejsce w asystentach typu Alexa, gdzie mamy systemy rozpoznawania mowy oraz systemy przetwarzania języka naturalnego. Pamiętajmy tylko, że nie są to uniwersalne rozwiązania, więc raczej jak ktoś z takich urządzeń korzysta, nie musi się obawiać, że jego dom skończy jak Discovery One.
+
+## Paradoks Moraveca
+
+W zasadzie na sam koniec mógłbym napisać tradycyjnie o etyce, o zastosowaniach, czy też o kontrowersjach. Jednak te tematy były poruszane wiele razy, tutaj też nieco o to zahaczyłem, więc nie sądzę, że takie podsumowanie jest bardzo potrzebne. Na sam koniec, aby zobrazować, na ile ciekawa jest dziedzina sztucznej inteligencji i jak bardzo inna od tego jak postrzegamy ludzką inteligencję, chciałbym zostawić was z jednym z ważniejszych odkryć w dziedzinie SI — paradoks Moraveca. Cytat pochodzi z książki „Mind Children” z 1988 roku:
+
+> Stosunkowo łatwo sprawić, żeby komputery przejawiały umiejętności dorosłego człowieka w testach na inteligencję albo w grze w warcaby, ale jest trudne albo wręcz niemożliwe zaprogramowanie im umiejętności rocznego dziecka w percepcji i mobilności.
+>
+> ~ <cite>Hans Moravec</cite>
+
+## Literatura
+
+- Pozycje podstawowe:
+  - Artificial intelligence, [https://www.britannica.com/technology/artificial-intelligence](https://www.britannica.com/technology/artificial-intelligence) (ostatnio odwiedzone 14 czerwca 2020).
+- Pozycje dodatkowe:
+  - Paradoks Moraveca, [https://pl.wikipedia.org/w/index.php?title=Paradoks_Moraveca&oldid=59252845](https://pl.wikipedia.org/w/index.php?title=Paradoks_Moraveca&oldid=59252845) (ostatnio odwiedzone 14 czerwca 2020).
+  - Artificial Consciousness, [https://en.wikipedia.org/w/index.php?title=Artificial_consciousness&oldid=962341180](https://en.wikipedia.org/w/index.php?title=Artificial_consciousness&oldid=962341180) (ostatnio odwiedzone 14 czerwca 2020).
+  - Artificial general intelligence, [https://en.wikipedia.org/w/index.php?title=Artificial_general_intelligence&oldid=962458099](https://en.wikipedia.org/w/index.php?title=Artificial_general_intelligence&oldid=962458099) (ostatnio odwiedzone 14 czerwca 2020).
+  - 2001: Odyseja kosmiczna (2001: A Space Odyssey), reż. Stanley Kubrick, USA 1968 😉
+
+<small>(oryginał zdjęcia na okładce opublikowany na licencji [CC0](https://creativecommons.org/licenses/publicdomain/) w serwisie [Pixnio](https://pixnio.com/pl/obiekty/zabawki/panda-zabawki))</small>

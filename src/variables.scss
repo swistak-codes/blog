@@ -1,0 +1,139 @@
+@use 'sass:color';
+
+$headerBackground: #27292b;
+$white: #FAFAFA;
+$black: #1b1c1e;
+$gray: #252628;
+$lightGray: #f5f5f5;
+$accent: #912525;
+$secondAccent: #006700;
+
+$darken01lightGray: color.adjust($lightGray, $lightness: -10%);
+$darken005lightGray: color.adjust($lightGray, $lightness: -5%);
+$darken01white: color.adjust($white, $lightness: -10%);
+$darken01gray: color.adjust($gray, $lightness: -10%);
+$lighten005headerBackground: color.adjust($headerBackground, $lightness: 5%);
+$lighten0125gray: color.adjust($gray, $lightness: 12.5%);
+$lighten0075gray: color.adjust($gray, $lightness: 7.5%);
+
+$english0: #feffff;
+$english1: #a8c3ce;
+$english2: #537d8f;
+$english3: #1c495c;
+$english4: #01121a;
+
+$youtube0: #fffefe;
+$youtube1: #f2c3d1;
+$youtube2: #cc728c;
+$youtube3: #84243f;
+$youtube4: #25000b;
+
+@mixin lightTheme {
+  --sc--body: #{$lightGray};
+  --sc--text: #{$black};
+  --sc--background: #{$white};
+  --sc--white: #{$white};
+  --sc--black: #{$black};
+  --sc__postHeader--border: #{$black};
+  --sc__postHeader--color: #{$white};
+  --sc--textHighlight: brightness(225%);
+  --sc__header--background: #{$headerBackground};
+  --sc__header--title: #{$darken01white};
+  --sc__header--subtitle: #{$lightGray};
+  --sc__moveToTop--background: #{$headerBackground};
+  --sc__moveToTop--hoveredBackground: #{$lighten005headerBackground};
+  --sc__moveToTop--icon: #{$lightGray};
+  --sc__table--border: #{$black};
+  --sc__table--hoverBackground: #{$darken01lightGray};
+  --sc__table--stripeBackground: #{$darken005lightGray};
+  --sc--blockQuoteBorder: #{$darken01lightGray};
+  --sc__categoryBadge--background: #{$accent};
+  --sc__categoryBadge--color: white;
+  --sc__tagBadge--background: #{$secondAccent};
+  --sc__tagBadge--color: white;
+  --sc__tableOfContents--border: #{$headerBackground};
+  --sc__tableOfContents--background: #{$lightGray};
+  --sc__postFooter--background: #{$headerBackground};
+  --sc__postFooter--color: #{$darken01white};
+  --sc__footer--background: #{$headerBackground};
+  --sc__footer--color: #{$darken01white};
+  --sc__similarPosts--background: #{$white};
+  --sc__similarPosts--titleBackground: #{$darken01white};
+  --sc__similarPosts--hideButtonBackground: #{$headerBackground};
+  --sc__similarPosts--hideButtonColor: #{$white};
+  --sc--siteShadow: -1px 1px 5px #{$darken01white};
+  --sc__search--border: #{$headerBackground};
+  --sc__english--background: #{$english1};
+  --sc__english--color: #{$english4};
+  --sc__english--border: #{$english2};
+  --sc__youtube--background: #{$youtube1};
+  --sc__youtube--color: #{$youtube4};
+  --sc__youtube--border: #{$youtube2};
+}
+
+@mixin darkTheme {
+  --sc--body: #{$black};
+  --sc--text: #{$white};
+  --sc--background: #{$gray};
+  --sc--white: #{$white};
+  --sc--black: #{$black};
+  --sc__postHeader--border: #{$black};
+  --sc__postHeader--color: #{$white};
+  --sc--textHighlight: brightness(85%);
+  --sc__header--background: #{$headerBackground};
+  --sc__header--title: #{$darken01white};
+  --sc__header--subtitle: #{$lightGray};
+  --sc__moveToTop--background: #{$lightGray};
+  --sc__moveToTop--hoveredBackground: #{$darken005lightGray};
+  --sc__moveToTop--icon: #{$black};
+  --sc__table--border: #{$white};
+  --sc__table--hoverBackground: #{$lighten0125gray};
+  --sc__table--stripeBackground: #{$lighten0075gray};
+  --sc--blockQuoteBorder: #{$lighten0125gray};
+  --sc__categoryBadge--background: #{$accent};
+  --sc__categoryBadge--color: white;
+  --sc__tagBadge--background: #{$secondAccent};
+  --sc__tagBadge--color: white;
+  --sc__tableOfContents--border: #{$headerBackground};
+  --sc__tableOfContents--background: #{$black};
+  --sc__postFooter--background: #{$lighten005headerBackground};
+  --sc__postFooter--color: #{$darken01white};
+  --sc__footer--background: #{$headerBackground};
+  --sc__footer--color: #{$darken01white};
+  --sc__similarPosts--background: #{$gray};
+  --sc__similarPosts--titleBackground: #{$black};
+  --sc__similarPosts--hideButtonBackground: #{$lightGray};
+  --sc__similarPosts--hideButtonColor: #{$black};
+  --sc--siteShadow: -1px 1px 5px #{$darken01gray};
+  --sc__search--border: #{$lightGray};
+  --sc__english--background: #{$english3};
+  --sc__english--color: #{$english0};
+  --sc__english--border: #{$english4};
+  --sc__youtube--background: #{$youtube3};
+  --sc__youtube--color: #{$youtube0};
+  --sc__youtube--border: #{$youtube4};
+}
+
+:root {
+  @include lightTheme;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    @include lightTheme;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    @include darkTheme;
+  }
+}
+
+html[data-theme="light"] {
+  @include lightTheme;
+}
+
+html[data-theme="dark"] {
+  @include darkTheme;
+}

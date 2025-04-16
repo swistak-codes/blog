@@ -1,0 +1,65 @@
+@use './consts';
+@use './common';
+
+.pureLink {
+  &:hover,
+  &:active {
+    filter: initial;
+  }
+}
+
+.hideVisually {
+  @include common.hideVisually;
+}
+
+.clearfix {
+  &::after {
+    clear: both;
+    content: '';
+    display: table;
+  }
+}
+
+.contentContainer {
+  background: var(--sc--background);
+  box-shadow: var(--sc--siteShadow);
+}
+
+.unitMargin {
+  margin-top: 1rem;
+}
+
+.contentWrapper {
+  padding: 0 2rem;
+}
+
+.section {
+  margin: 2rem 0;
+  box-shadow: var(--sc--siteShadow);
+}
+
+.centered {
+  text-align: center;
+  margin: 0 auto;
+}
+
+.fakeBody {
+  background: var(--sc--body);
+  padding: 0.01rem 0;
+}
+
+.hideToc {
+  :global(.toc) {
+    @include common.hideVisually;
+  }
+}
+
+.pageContainer {
+  max-width: consts.$page-width;
+  margin: 0 auto;
+}
+
+.unitPadding {
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}

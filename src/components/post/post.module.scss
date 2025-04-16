@@ -1,0 +1,112 @@
+@use '../common';
+
+.wrapper {
+  padding-bottom: 1rem;
+  word-break: break-word;
+
+  p,
+  ul,
+  ol {
+    text-align: left;
+    text-wrap: pretty;
+  }
+
+  // table of contents
+  :global(.toc) {
+    width: fit-content;
+    border: 1px solid var(--sc__tableOfContents--border);
+    background: var(--sc__tableOfContents--background);
+    padding: 0.5rem 1.5rem 0.5rem 0.5rem;
+
+    &:before {
+      content: 'Spis treści:';
+      margin: 1rem 1rem 0 1rem;
+      font-size: 1.25rem;
+      font-weight: bold;
+    }
+  }
+
+  // nested lists counters
+  ol {
+    counter-reset: section;
+    list-style-type: none;
+
+    > li:before {
+      counter-increment: section;
+      content: counters(section, '.') '. ';
+    }
+  }
+
+  // tables
+  table {
+    width: 90%;
+    margin: 0 auto;
+    border-collapse: collapse;
+    border: 1px solid var(--sc__table--border);
+
+    th,
+    td {
+      border: 1px solid var(--sc__table--border);
+      padding: 0.25rem;
+    }
+
+    thead > tr {
+      background: var(--sc__table--stripeBackground);
+    }
+
+    tr {
+      &:nth-child(even) {
+        background: var(--sc__table--stripeBackground);
+      }
+
+      &:hover {
+        background: var(--sc__table--stripeBackground);
+      }
+    }
+  }
+
+  // strikethrough
+  del {
+    font-weight: 400;
+    text-decoration-thickness: 2px;
+    text-decoration-color: red;
+
+    // accessibility concerns
+    &::before,
+    &::after {
+      @include common.hideVisually;
+    }
+
+    &::before {
+      content: ' [początek przekreślenia] ';
+    }
+
+    &::after {
+      content: ' [koniec przekreślenia] ';
+    }
+  }
+
+  // latex responsiveness
+  :global(.math), :global(.katex-display) {
+    overflow-x: auto;
+  }
+
+  // quotes
+  blockquote {
+    border-left: 8px solid var(--sc--blockQuoteBorder);
+    padding-left: 1rem;
+  }
+
+  // centered small
+  small {
+    width: 100%;
+    display: block;
+    text-align: center;
+  }
+}
+
+.comments {
+  background: var(--sc--background);
+  color: var(--sc-text);
+  padding: 1rem;
+}

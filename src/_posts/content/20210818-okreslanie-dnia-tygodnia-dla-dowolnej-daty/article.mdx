@@ -1,0 +1,280 @@
+import Link from 'next/link';
+import {Image, Iframe} from '@swistak-codes/components';
+import cover from './bialy-krolik.jpg';
+
+export const meta = {
+  title: 'Określanie dnia tygodnia dla dowolnej daty',
+  abstract:
+    'W artykule opisuję kilka sposobów na określenie dnia tygodnia dla dowolnej daty: w kodzie, matematycznie oraz w formie zagadki logicznej.',
+  firstParagraph: (
+    <>
+      Po wielokrotnym poruszaniu tematu na blogu, że wszelkie rzeczy związane z datami powinno się zostawić specjalistycznym bibliotekom i nie robić ich na własną rękę, nadszedł czas, aby coś w tym temacie jednak pokazać. Spośród wielu rzeczy, jakie możemy obliczać z dat, stwierdziłem, że najciekawsze jest określenie dnia tygodnia. Opiszę tutaj kilka sposobów, jak możemy to zrobić — nie tylko w kodzie, ale też matematycznie oraz w formie zagadki logicznej.
+    </>
+  ),
+  keyword: 'data',
+  categories: ['Algorytmy', 'Data i czas'],
+  tags: [
+    'daty',
+    'rata die',
+    'Zeller',
+    'RFC 3339',
+    'Sakamoto',
+    'Lewis Carroll',
+    'doomsday',
+    'kalendarz gregoriański',
+    'modulo',
+    'data juliańska',
+    'javascript',
+    'c'
+  ],
+  slug: 'okreslanie-dnia-tygodnia-dla-dowolnej-daty',
+  updateTime: '2021-09-29T19:20:37+00:00',
+  publishTime: '2021-08-18T08:00:14+00:00',
+  cover,
+};
+
+## Kilka uwag wstępnych
+
+Zanim przejdziemy do artykułu, chciałbym na szybko omówić kilka rzeczy:
+
+- Pod prawie każdym z algorytmów zamieściłem prezentację jego działania wraz z pokazaniem obliczeń wykonywanych pomiędzy. Kod źródłowy każdego z nich, napisany w JavaScripcie, znajdziesz na moim [GitHubie](https://github.com/swistak-codes/weekday-algorithms).
+- We wzorach bardzo często będą powtarzać się dwie operacje, które mogą być na pierwszy rzut oka niezrozumiałe, aczkolwiek są bardzo proste:
+  - $$\text{mod}$$ — modulo, czyli uzyskanie reszty z dzielenia. Na przykład: $$10 \text{ mod } 4 = 2$$ czy $$10 \text{ mod } 5 = 0$$. Programiści mogą znać tę operację pod symbolem $$\%$$.
+  - $$\lfloor ... \rfloor$$ — podłoga (tak, to prawdziwa nazwa), czyli zaokrąglenie liczby w dół, np. $$\lfloor 10,8 \rfloor = 10$$. Programiści mogą znać tę operację pod angielską nazwą floor.
+- Metody pokazuję w wersjach dla kalendarza gregoriańskiego. Mają odpowiedniki dla kalendarza juliańskiego, jednak pominąłem je, bo i tak nie jest on w powszechnym użyciu.
+- Operacja modulo jest inaczej zdefiniowana matematycznie, a inaczej w większości języków programowania. Chodzi tutaj o obsługę ujemnych liczb. Przykładowo, z matematycznej definicji $$(-2) \text{ mod } 7$$ powinno nam zwrócić 5, natomiast komputerowe definicje zwrócą -2. Warto dowiedzieć się, jak działa modulo w Twoim języku, zanim zaczniesz implementację wzorów matematycznych. Więcej informacji na ten temat znajdziesz [tutaj](https://en.wikipedia.org/wiki/Modulo_operation#Variants_of_the_definition).
+
+## Podejścia matematyczne
+
+Zaczniemy od podejść matematycznych, które są dość nudne, jednak możemy w miarę szybko za ich pomocą otrzymać pożądany rezultat nawet na zwykłym kalkulatorze.
+
+### Rata Die
+
+Zacznijmy od najprostszego, czyli Rata Die (RD). Samo Rata Die nie jest właściwą nazwą tego algorytmu, ponieważ termin ten to po prostu system numeracji dni kalendarzowych analogiczny do <Link href="/post/dlaczego-mierzenie-i-przetwarzanie-czasu-jest-trudne-czesc-1">opisywanej przeze mnie wcześniej daty juliańskiej</Link> (JD). Różni się od niej natomiast tym, że JD jest bardzo uniwersalny, natomiast RD opiera się na wybranej przez nas dacie początkowej, jest zależny od strefy czasowej i najczęściej bazuje na kalendarzu gregoriańskim (czyli dla dat sprzed wprowadzenia go stosujemy kalendarz proleptyczny).
+
+Natomiast na czym polega podejście obliczania dni w ten sposób? Otóż obliczamy liczbę dni $$d$$, jakie minęły od daty znanego dnia tygodnia $$D$$, a następnie, aby obliczyć dzień tygodnia, stosujemy bardzo prosty wzór:
+
+$$
+w = (D+d) \text{ mod } 7
+$$
+
+We wzorze $$w$$ jest obliczonym dniem tygodnia. Dni odliczaj od zera i od niedzieli, czyli niedziela to 0, poniedziałek to 1 itd.
+
+Możesz zadać teraz dwa pytania — który znany dzień tygodnia najlepiej przyjąć i jak obliczyć liczbę dni, jaka od nich minęła? Popularne jest przyjęcie 1 stycznia 1 r. n. e., który to wypada w poniedziałek wg proleptycznego kalendarza gregoriańskiego. Natomiast do obliczenia liczby dni możemy wykorzystać wzór na datę juliańską. Mając tę datę, możemy obliczyć liczbę dni od 1.01.0001 za pomocą wzoru:
+
+$$
+RD = \lfloor JD - 1721424,5 \rfloor
+$$
+
+Ze względu na obliczenia na dużych liczbach, jakie nam tutaj wychodzą, metody tej raczej nie stosuje się przy obliczaniu ręcznym. Poniżej możesz przetestować, jak Rata Die działa:
+
+<Iframe src="/iframe-content/weekday/rata-die.html" minHeight={255} />
+
+### Kongruencja Zellera
+
+Zdecydowanie prostszą obliczeniowo, aczkolwiek o wiele mniej intuicyjną metodą, jest kongruencja Zellera. Sprowadza się ona do poniższego wzoru:
+
+$$
+h = \left(q + \left\lfloor\frac{13(m+1)}{5}\right\rfloor + K + \left\lfloor\frac{K}{4}\right\rfloor + \left\lfloor\frac{J}{4}\right\rfloor - 2J\right) \bmod 7
+$$
+
+Natomiast alternatywna wersja dla programistycznej wersji modulo to:
+
+$$
+h=\left(q + \left\lfloor\frac{13(m+1)}{5}\right\rfloor + K + \left\lfloor\frac{K}{4}\right\rfloor + \left\lfloor\frac{J}{4}\right\rfloor + 5J\right) \bmod 7
+$$
+
+Trochę jest tu różnych symboli, więc przedstawmy je:
+
+- $$h$$ — dzień tygodnia; liczenie zaczyna się od soboty (czyli 0 — sobota, 1 — niedziela itd.).
+- $$q$$ — dzień miesiąca.
+- $$m$$ — miesiąc; odliczamy od 3 i traktujemy rok, że zaczyna się od marca (3 — marzec, 4 — kwiecień itd., ale 13 — styczeń, 14 — luty). Oznacza to, że marzec 2021 traktujemy jako trzeci miesiąc 2021 roku, ale już styczeń 2021 jako trzynasty miesiąc 2020 roku.
+- $$K$$ — rok w aktualnym wieku (np. 2021 to 21 rok). Możemy to obliczyć jako $$rok \text{ mod } 100$$.
+- $$J$$ — wiek; odliczany od 0, czyli XX wiek to 19, XXI to 20 itd. Możemy to obliczyć jako $$\lfloor \frac{rok}{100} \rfloor$$. Warto nadmienić, że nie stosujemy tutaj tradycyjnego przypisywania do wieku, gdzie każdy zaczyna się rokiem pierwszym (według której rok 2000 to wciąż XX wiek), stąd nie musimy robić na to poprawki we wzorze.
+
+Brzmi dość zawile, ale same obliczenia są na tyle proste, że można je szybko wykonać nawet bez kalkulatora. Sama idea działania bazuje na tym, że rozmieszczenie dni jest wbrew pozorom dość przewidywalne i z pomocą tych wielu zmiennych obliczamy, jakie przesunięcia należy zastosować. $$q$$ jest przesunięciem spowodowanym dniami miesiąca, a $$K$$ rokiem. Dalsza część wzoru za $$K$$ to poprawka na lata przestępne.
+
+Najciekawsza część wzoru to oczywiście ta, która liczy przesunięcie na podstawie miesiąca. Wyjaśnienie jest dość proste. Jeśli rozpiszemy sobie miesiące od marca do lutego, to liczba ich dni wynosi po kolei: 31, 30, 31, 30, 31, 31, 30, 31, 30, 31, 31, 28/29. Tym samym mamy ciągle na przemian 31 i 30, z tym wyjątkiem, że co 5 miesięcy powtarzamy 31 dni (stąd dzielenie przez 5). Natomiast z racji tego, że najbardziej nieregularny luty jest na końcu, nie musimy się nim przejmować. A skąd 13? Jeśli obliczymy liczbę dni każdego z miesięcy modulo 5, to każdy pięciomiesięczny cykl będzie wyglądać: 3, 2, 3, 2, 3. Daje to sumę 13 i są to te dodatkowe dni, które generują przesunięcie między miesiącami.
+
+Poniżej możesz przetestować działanie kongruencji Zellera:
+
+<Iframe src="/iframe-content/weekday/zeller.html" minHeight={300} />
+
+## Podejścia programistyczne
+
+Nikt nam jako programistom nie broni stosowania powyżej opisanych metod matematycznych. Nawet sam to zrobiłem, programując prezentacje. Powstało jednak parę algorytmów wymyślonych typowo pod języki programowania. Jak zauważysz, są one w dużej mierze zmodyfikowanymi wersjami kongruencji Zellera. Z tego też powodu pominę prezentację dla każdego z nich oddzielnie, tylko zamieszczę wspólną na koniec.
+
+### RFC 3339
+
+Standard RFC 3339, <Link href="/post/jak-komputer-przechowuje-date-i-skad-zna-aktualna">o którym wspomniałem przy okazji standardu ISO 8601</Link>, definiuje algorytm, jakim powinniśmy obliczać dzień tygodnia dla dowolnej daty od 1 marca 1 r. p.n.e. włącznie. Znajdziemy go w załączniku B standardu. Zdefiniowany jest tam w języku C, jednak tutaj znajdziesz moją interpretację na język JavaScript:
+
+```javascript
+function dayOfWeek(day, month, year) {
+  var weekDay = [
+    'Sunday',
+    'Monday',
+    'Tuesday',
+    'Wednesday',
+    'Thursday',
+    'Friday',
+    'Saturday',
+  ];
+  month -= 2;
+  if (month < 1) {
+    month += 12;
+    year -= 1;
+  }
+
+  var century = Math.floor(year / 100);
+  year %= 100;
+
+  return weekDay[
+    (Math.floor((26 * month - 2) / 10) +
+      day +
+      year +
+      Math.floor(year / 4) +
+      Math.floor(century / 4) +
+      5 * century) %
+      7
+  ];
+}
+```
+
+### Metoda Sakamoto
+
+Na początku lat 90. XX wieku Tomohiko Sakamoto opublikował na grupie usenetowej (pradawny odpowiednik for czy grup facebookowych) comp.lang.c algorytm umożliwiający obliczenie dnia tygodnia. Pokazał go w dwóch wersjach — czytelnej (dość uniwersalnej) oraz jednolinijkowej (dostosowanej czysto pod język C).
+
+Wersja czytelna, ale przeniesiona na JavaScript, wygląda następująco:
+
+```javascript
+function dayOfWeek(day, month, year) {
+  var t = [0, 3, 2, 5, 0, 3, 5, 1, 4, 6, 2, 4];
+
+  year -= +(month < 3);
+  return (
+    (year +
+      Math.floor(year / 4) -
+      Math.floor(year / 100) +
+      Math.floor(year / 400) +
+      t[month - 1] +
+      day) %
+    7
+  );
+}
+```
+
+Natomiast ta jednolinijkowa, tylko dla języka C (w tej wersji zgodna tylko z K&R C, nie z najpopularniejszym obecnie ANSI C), wygląda następująco:
+
+```c
+dow(m,d,y) { y-=m<3; return(y+y/4-y/100+y/400+"-bed=pen+mad."[m]+d)%7; }
+```
+
+Algorytm zwraca liczby od 0 do 6, gdzie 0 oznacza niedzielę, 1 poniedziałek itd. Według autora algorytm jest prawdziwy dla lat od 1752 roku wzwyż (data wprowadzenia kalendarza gregoriańskiego w Anglii), jednak powinna działać bez problemu z każdą datą gregoriańską. Obliczenia przypominają dość mocno kongruencję Zellera, jednak sama tablica przesunięć jest wręcz wprost wzięta z algorytmu Gaussa, którego w ramach tego artykułu nie opisywałem.
+
+#### Prezentacja
+
+<Iframe src="/iframe-content/weekday/index.html" minHeight={380} />
+
+## Podejścia „rekreacyjne”
+
+Na koniec omówię metody, które powstały bardziej po to, żeby można było je łatwo zapamiętać i tym samym łatwo wykonywało się je ręcznie, a nawet w pamięci. Tej części prezentować w kodzie już nie będę, jednak pokażę przykłady, jak za ich pomocą można obliczyć dzień tygodnia.
+
+### Metoda Lewisa Carrolla
+
+Pierwszy sposób, jaki pokażę, został wymyślony przez Lewisa Carrolla (tak, tego od „Alicji w Krainie Czarów”). Sam autor twierdził, że z pomocą tej metody był w stanie obliczać dzień tygodnia w 20 sekund, przy czym zakładał, że ktoś bardziej sprawny w obliczeniach potrzebowałby maksymalnie 15 sekund. Oryginalna wersja opisywała obliczenia zarówno dla kalendarza juliańskiego, jak i gregoriańskiego, jednak tutaj skupię się tylko na tym drugim.
+
+Algorytm brzmi następująco:
+
+- Datę podziel na cztery części: liczbę wieków, liczbę lat w wieku, miesiąc i dzień miesiąca.
+- Oblicz cztery następujące wartości. Każdą z wartości podziel przez 7 i zostaw tylko resztę z dzielenia. Kolejne wartości dodawaj do siebie w pamięci, pamiętając o dzieleniu przez 7:
+  - Wiek: weź resztę z dzielenia wieku przez 4, następnie odejmij ją od 3 i pomnóż przez 2.
+  - Rok: podziel przez 12 (liczba tuzinów) łącznie z zapamiętaniem reszty z dzielenia (nadwyżka). Zsumuj je ze sobą (liczbę tuzinów z nadwyżką). Nadwyżkę podziel przez 4 i liczbę całkowitą z wyniku dodaj do poprzedniej sumy.
+  - Miesiąc: jeśli angielska nazwa zaczyna lub kończy się samogłoską, odejmij go od 10. Dla kolejnego miesiąca będzie to ta wartość plus liczba dni poprzedniego miesiąca. Z wartości do zapamiętania: dla stycznia jest to 0, dla lutego i marca 3, dla grudnia 12. Jest to najtrudniejsza część, dlatego poniżej dodatkowe wyjaśnienia:
+    - W angielskim wyróżniamy samogłoski: a, e, i, o, u, stąd miesiącami z nimi są: kwiecień (April), czerwiec (June), sierpień (August), październik (October).
+    - Np. liczbę dla maja obliczymy następująco. Kwiecień to $$10-4=6$$. Kwiecień ma 30 dni, więc $$6 + 30 = 36$$. Pamiętamy o regule dzielenia: $$36 \text{ mod } 7 = 1$$, czyli maj to 1.
+  - Dzień: przepisz, ale jeśli rok jest przestępny, to odejmij 1.
+    - Prosta reguła do zapamiętania lat przestępnych jest taka, że są to wszystkie lata podzielne przez 4 z wyjątkiem lat zerowych w wiekach podzielnych przez 4. Dla prostszych obliczeń wystarczy patrzeć na dwie ostatnie cyfry.
+    - Np. 1700 jest rokiem przestępnym, bo 0 jest podzielne przez 4, a 17 nie jest. 1800 nie jest przestępny, ponieważ 18 jest podzielne przez 4.
+- Wynik jest dniem tygodnia, gdzie 0 to niedziela, 1 poniedziałek itd.
+
+Policzmy to na przykładzie, który podał sam autor, czyli 18.09.1783 r.:
+
+- Wiek: reszta z dzielenia 17 przez 4 to 1. $$3 - 1 = 2$$. Następnie: $$2 \cdot 2 = 4$$.
+- Rok: 83 to 6 tuzinów i 11 nadwyżki, łącznie daje to 17. $$17 + 2 = 19$$. Pamiętamy o regule dzielenia przez 7, więc $$19 \text{ mod } 7 = 5$$.
+- Dotychczasowa suma (wiek + rok): $$4 + 5 = 9$$, co po dzieleniu przez 7 daje resztę 2.
+- Miesiąc: poprzedni to sierpień (z samogłoską), który jest 2. Ma 31 dni, więc $$2 + 31 = 33$$. Ponownie reguła dzielenia: $$33 \text{ mod } 7 = 5$$.
+- Dotychczasowa suma (wiek + rok + miesiąc): $$2 + 5 =7$$. Reszta z dzielenia przez 7 da nam 0.
+- Dzień: 18, ponieważ nie  jest to rok przestępny. Jednak pamiętamy o dzieleniu, stąd $$18 \text{ mod } 7 = 4$$.
+- Sumarycznie: $$0 + 4 =  4$$, czyli czwartek.
+
+### Reguła Doomsday
+
+Kolejne podejście pamięciowe zaproponował w 1973 r. znany brytyjski matematyk John Conway (możesz go kojarzyć z automatu komórkowego „gra w życie”). Niestety, nie mam pojęcia, jaka jest polska nazwa, dlatego stosuję połowicznie przetłumaczoną angielską nazwę (doomsday rule). Dokładne tłumaczenie mogłoby brzmieć „reguła dnia zagłady”, ale brzmi to dość dziwnie.
+
+Wróćmy jednak do samego algorytmu. Metoda jest prosta obliczeniowo i sam Conway podobno potrafił podać poprawną odpowiedź w dwie sekundy. Opiera się ona na znajomości tzw. doomsdayów dla każdego roku, czyli dni, które wypadają w dość charakterystyczne daty i zawsze są tym samym dniem. Następnie, znając takie dni, wystarczy wykonać proste odejmowanie naszej daty do najbliższego z doomsdayów, wykonać modulo 7 i otrzymujemy dzień tygodnia. Dni w tej metodzie należy odliczać od 0 do 6, gdzie 0 to niedziela.
+
+Cała rzecz opiera się w dużej mierze na zapamiętaniu, jakie daty są doomsdayami oraz jak wyznaczać, który to dzień tygodnia. Daty wymieniam za oryginalnym artykułem J. Conwaya, w którym opisał on tę metodę. Można znaleźć też inne zestawy dat. Oprócz dat wymieniam proste sposoby ich zapamiętania, chociaż w Internecie można też znaleźć różne mnemoniki do tego:
+
+- 31 (zwykłe lata) lub 32 stycznia (lata przestępne). Oczywiście nie ma takiego dnia jak 32 stycznia i jest to 1 lutego, jednak podobno lepiej jest w ten sposób zapamiętać.
+- 28 lub 29 lutego — po prostu ostatni dzień lutego.
+- 7 marca — 3 (bo trzeci miesiąc) + 4 = 7.
+- 4 kwietnia — kwiecień to czwarty miesiąc.
+- 9 maja — 5 (piąty miesiąc) + 4 = 9.
+- 6 czerwca — szósty miesiąc.
+- 11 lipca — 7 (siódmy miesiąc) + 4 = 11.
+- 8 sierpnia — ósmy miesiąc.
+- 5 września — 9 (dziewiąty miesiąc) - 4 = 5.
+- 10 października — dziesiąty miesiąc.
+- 7 listopada — 11 (jedenasty miesiąc) - 4 = 7.
+- 12 grudnia — dwunasty miesiąc.
+
+A jak możemy wyznaczyć, w jaki dzień wypada doomsday? Otóż tutaj musimy już nieco więcej zapamiętać i wyliczyć. Musimy zapamiętać dzień startowy dla wybranego wieku (ponownie odliczamy je od wieku zerowego, a nie pierwszego), a potem dodajemy. Wystarczy zapamiętać cztery wieki, ponieważ kalendarz gregoriański powtarza się co 400 lat:
+
+- 1800-1899 — piątek
+- 1900-1999 — środa
+- 2000-2099 — wtorek
+- 2100-2199 — niedziela
+
+Teraz w zwykłe lata doomsdaye przesuwają się o jeden dzień, czyli skoro w 2000 roku był to wtorek, to w 2001 jest to środa. W przypadku lat przestępnych przeskakujemy o dwa dni, czyli gdy w 2003 roku mieliśmy piątek, to w 2004 roku będzie to niedziela. Co ciekawe, w dowolnym wieku jest zależność, że co 12 lat (tuzin lat) doomsday przesuwa się nam o jeden dzień, co dodatkowo upraszcza obliczenie. Możemy to też przedstawić matematycznie, jednak reguła jest prostsza do zapamiętania niż wzór:
+
+$$
+w = 5 \cdot \left(\left\lfloor \frac{rok}{100} \right\rfloor \text{ mod } 4\right) \text{ mod } 7 + wtorek
+$$
+
+Conway z czasem zaproponował łatwe do zapamiętania uproszczenie, gdzie możemy algorytm rozbić na 6 prostych kroków:
+
+- Zaczynamy od różnicy dnia względem doomsdaya.
+- Następnie określamy dzień dla wieku.
+- Później, ile tuzinów lat minęło od początku wieku.
+- Potem reszta z dzielenia tuzinów od roku, dla którego szukamy daty.
+- Na koniec liczbę lat przestępnych między ostatnim tuzinem a aktualnym rokiem. Jest to wynik dzielenia poprzedniej liczby (reszty z dzielenia) przez cztery.
+- Wszystkie te wartości dodajemy do siebie.
+
+Sprawdźmy w takim razie datę 18.10.1942:
+
+- W październiku doomsday wypada 10. dnia, stąd kolejny — 17. dnia. Oznacza to, że 18.10 jest 1 dzień po doomsdayu.
+- 1942 znajduje się w przedziale wiekowym 1900-1999, który zaczyna się od środy.
+- Między 1900 a 1942 mamy 3 tuziny ($$42/12=3,5$$).
+- Reszta z dzielenia wynosi 6 ($$42 \text{ mod } 12 = 6$$).
+- Mamy jeden rok przestępny ($$\lfloor \frac{6}{4} = 1 \rfloor$$).
+- Otrzymujemy: $$1 + \text{środa} + 3 + 6 + 1$$. 6 + 1 daje 7, czyli tydzień, więc możemy to pominąć. Środa to dzień nr 3, więc dostajemy $$1 + 3+ 3 = 7$$. Reszta z dzielenia 7 przez 7 to 0, czyli szukany przez nas dzień to niedziela.
+
+Na koniec ponura ciekawostka — John Conway zmarł 11 kwietnia 2020 r., a dzień ten jest dokładnie 15. doomsdayem w roku (w 2020 roku była to sobota).
+
+## Podsumowanie
+
+Biorąc pod uwagę pozorną nieregularność kalendarza gregoriańskiego, czy też jak skomplikowanym wydaje on się być, trzeba przyznać, że sposoby określenia dnia tygodnia nie są aż tak straszne, jak mogłoby się to wydawać. Wciąż jestem zadania, że kiedy programujemy, to lepiej korzystać z gotowych, sprawdzonych bibliotek do przetwarzania dat, ale dobrze wiedzieć, co się w nich ukrywa.
+
+Wiedzę z tego artykułu możesz ewentualnie wykorzystać, żeby wyuczyć się metody Carrolla lub reguły Doomsday. Nie dość, że zapewnią one bardzo dobry trening dla mózgu, to gdy je opanujesz, możesz popisywać się przed znajomymi, że masz „kalendarz w głowie”.
+
+## Literatura
+
+- Rata Die, [https://en.wikipedia.org/w/index.php?title=Rata_Die&oldid=975910107](https://en.wikipedia.org/w/index.php?title=Rata_Die&oldid=975910107) (ostatnio odwiedzone 22.07.2021).
+- Zeller's congruence, [https://en.wikipedia.org/w/index.php?title=Zeller%27s_congruence&oldid=1033222037](https://en.wikipedia.org/w/index.php?title=Zeller%27s_congruence&oldid=1033222037) (ostatnio odwiedzone 22.07.2021).
+- Klyne, G., & Newman, C. (2002). RFC3339: date and time on the internet: timestamps.
+- "Need code to find DayOfWeek from month/day/year" [https://groups.google.com/g/comp.lang.c/c/m4YG7Uw72Ic/m/WQj-pRNzJaIJ](https://groups.google.com/g/comp.lang.c/c/m4YG7Uw72Ic/m/WQj-pRNzJaIJ) (ostatnio odwiedzone 22.07.2021)
+- Carroll L. (1887). "To find the day of the week for any given date". *Nature*, 31 March 1887, pp. 517.
+- Conway J.H., "Tomorrow is the Day After Doomsday". *Eureka*. October 1973. p. 28-32.
+- ["What Day is Doomsday"](https://ww2.amstat.org/mam/2014/calendar/doomsday.html). Mathematics Awareness Month. April 2014. (ostatnio odwiedzone 22.07.2021)
+
+<small>(zdjęcie na okładce pochodzi z serwisu [Flickr](https://www.flickr.com/photos/dullhunk/6368274823); autor [Dunk](https://www.flickr.com/photos/dullhunk/), opublikowane na licencji [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/))</small>

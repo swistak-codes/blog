@@ -1,0 +1,27 @@
+@use '../consts';
+
+.socialLink {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  color: var(--sc__header--title);
+  height: 2rem;
+  font-size: 1.75rem;
+
+  &:active,
+  &:hover,
+  &:visited,
+  &:link {
+    text-decoration: none;
+    color: var(--sc__header--title);
+  }
+
+  i {
+    display: block;
+
+    @media (max-width: consts.$mobile-breakpoint) {
+      font-size: 2.25rem;
+    }
+  }
+}

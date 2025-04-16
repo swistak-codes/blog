@@ -1,0 +1,248 @@
+import Link from 'next/link';
+import {Image, Iframe} from '@swistak-codes/components';
+import cover from './zolw-rosliny.jpg';
+import rpy from './rpy_zolw.png';
+import lisc from './lisc.png';
+
+export const meta = {
+  title: 'Algorytmiczne rysowanie roślin w 3D',
+  abstract:
+    'W artykule pokazuję, jak wykorzystać L-systemy do tworzenia grafiki trójwymiarowej na przykładzie fraktali oraz roślin.',
+  firstParagraph: (
+    <>
+      <Link href="/post/algorytmiczne-rysowanie-roslin">W poprzednim artykule</Link> udało nam się narysować, całkowicie algorytmicznie, różne fraktale oraz rośliny o różnych kształtach. Jednak wszystko to było tylko dwuwymiarowe, ale po co tak się ograniczać? Przenieśmy to, co do tej pory poznaliśmy w trzeci wymiar dla jeszcze lepszego efektu.
+    </>
+  ),
+  keyword: 'l-systemy',
+  categories: ['Grafika komputerowa'],
+  tags: [
+    'l-systemy',
+    'grafika żółwiowa',
+    '3d',
+    'rpy',
+    'obrót',
+    'krzywe Kocha',
+    'krzywa Hilberta',
+    'rośliny'
+  ],
+  slug: 'algorytmiczne-rysowanie-roslin-w-3d',
+  updateTime: '2022-01-04T18:08:09+00:00',
+  publishTime: '2022-01-05T06:00:24+00:00',
+  cover,
+};
+
+## Uwaga wstępna
+
+Artykuł, który właśnie czytasz, to kontynuacja wpisu <Link href="/post/algorytmiczne-rysowanie-roslin">Algorytmiczne rysowanie roślin</Link>. Będę tutaj zakładać, że tamten artykuł znasz, więc nie będę ponownie tłumaczyć rzeczy tam opisanych. Wprowadziłem tam takie pojęcia, jak L-systemy, grafika żółwiowa i stochastyczne L-systemy. Jeśli są one Ci obce, polecam nadrobić ewentualną zaległość, ponieważ tutaj będziemy je rozwijać o pojęcia związane z grafiką trójwymiarową.
+
+Natomiast wszystkie przedstawione w artykule prezentacje zostały napisane w języku JavaScript z wykorzystaniem bibliotek [Three.js](https://threejs.org/) i [Lindenmayer](https://github.com/nylki/lindenmayer). Ich kod źródłowy znajdziesz [na moim GitHubie](https://github.com/swistak-codes/lsystems-3d).
+
+## Grafika żółwiowa w 3D
+
+W poprzedniej części artykułu przedstawiłem zagadnienie grafiki żółwiowej, które to pozwoliło nam rysować kształty przez wydawanie poleceń. Możesz sobie jednak zadać pytanie — czy ta technika też jest dostępna w 3D? Oczywiście, że tak. Nie jest może jakoś rozpoznawalna i kojarzona z trzecim wymiarem, jednak jej założenia możemy jak najbardziej zastosować w tej przestrzeni.
+
+### Operacje 3D
+
+Z racji tego, że przestrzeń trójwymiarowa, jak sama nazwa wskazuje, ma o ten jeden wymiar więcej, to wiele rzeczy nam się komplikuje. Przede wszystkim — możemy wykonać więcej rzeczy. W dwóch wymiarach mieliśmy tylko dwie możliwości obrotu ze względu na to, że można obracać się tylko wokół jednej osi. Natomiast mając trzy wymiary, możemy obracać się wokół trzech osi. Tym samym nasz „żółw” będzie miał aż 6 podstawowych poleceń do wykonywania obrotów. Oprócz nich stosuje się też dodatkowe, do obrotu o $$180^{\circ}$$.
+
+Polecenia te w L-systemach zapisujemy następująco:
+
+- $$+$$ — obróć w lewo o kąt $$\delta$$ (oś Z).
+- $$-$$ — obróć w prawo o kąt $$\delta$$ (oś Z).
+- $$\&$$ — nachyl w dół o kąt $$\delta$$ (oś Y).
+- $$\land$$ — nachyl w górę o kąt $$\delta$$ (oś Y).
+- $$\backslash$$ — przechyl w lewo o kąt $$\delta$$ (oś X).
+- $$/$$ — przechyl w prawo o kąt $$\delta$$ (oś X).
+- $$|$$ — obróć o $$180^{\circ}$$ względem osi Z.
+
+<Image
+  image={rpy}
+  alignCenter
+  fullSize
+  alt="Prezentacja kątów RPY na żółwiu"
+  caption={<>
+    Rotacje 3D w grafice żółwiowej z zaznaczonymi kierunkami obracania dla każdego z poleceń.<br />
+    (rysunek żółwia pochodzi ze strony: <a href="https://publicdomainvectors.org/en/free-clipart/Cartoon-turtle/49993.html" target="_blank">https://publicdomainvectors.org/en/free-clipart/Cartoon-turtle/49993.html</a>)
+  </>}
+/>
+
+### Jak to zastosować w praktyce?
+
+W przypadku grafiki dwuwymiarowej wyobrażenie sobie, jak ma działać rysowanie przez żółwia, było dość proste. Wystarczyło albo, przesuwając się do przodu, stawiać za sobą piksele (grafika rastrowa), albo po prostu tworzyć linie od punktu do punktu (grafika wektorowa). Jednak w 3D nie jest to już takie oczywiste.
+
+W grafice trójwymiarowej operujemy na kształtach, których podstawową jednostką budulcową są wielokąty, najczęściej trójkąty. Z takich dwuwymiarowych trójkątów rozmieszczonych w przestrzeni tworzymy modele 3D i w zależności od stopnia szczegółowości trójkątów jest mniej lub więcej. Szczególnie dobrze było to widać w pierwszych grach trójwymiarowych, gdzie figury były kanciaste, co wynikało z małej liczby wielokątów. Jak widać, nie ma tu miejsca ani na piksele, ani na linie.
+
+Problem możemy rozwiązać na dwa sposoby. Z jednej strony, zamiast pikseli możemy stawiać woksele, czyli trójwymiarowy odpowiednik pikseli. Takie rozwiązanie jednak nie będzie najładniej wyglądać. W przypadku codziennych zastosowań zwykle wykorzystuje się je albo przy obrazach z tomografii komputerowej, albo przy modelowaniu terenu w grach komputerowych (np. widać to bardzo wyraźnie w Minecraft). Możemy to zastosować do grafiki żółwiowej, jednak jest, moim zdaniem, lepszy sposób.
+
+Innym rozwiązaniem jest stawianie bryły o dowolnie wybranym kształcie za każdym razem, gdy wydajemy żółwiowi polecenie pójścia do przodu. Linie możemy zastąpić cienkimi walcami, ale już w przypadku naszego zastosowania, jakim są rośliny, możemy pokusić się o renderowanie modeli, np. liści w odpowiednich momentach. Pamiętajmy też, że nie musimy ograniczać się do znanego nam alfabetu. $$F$$ oznaczało pójście do przodu, ale możemy dodać, np. że symbol $$S$$ rysuje sferę. Ogranicza nas jedynie wyobraźnia.
+
+Jeszcze zostaje techniczna kwestia związana z obrotami. Jest to nic innego jak rotacje wokół wybranej osi, co możemy obliczyć np. za pomocą macierzy transformacji lub kwaternionów, co opisałem w artykule <Link href="/post/przeksztalcenia-grafiki-3d">*Przekształcenia grafiki 3D*</Link>. Obroty w lewo bądź w dół wykonujemy, podając dodatni kąt, natomiast w drugą stronę, mnożąc go przez $$-1$$. Analogicznie, przesunięcia również powinny być wykonywane za pomocą macierzy transformacji. W praktyce, w wielu narzędziach do grafiki trójwymiarowej nie trzeba tego liczyć ręcznie, wystarczy zastosować specjalne funkcje (np. [zobacz tutaj](https://github.com/swistak-codes/lsystems-3d/blob/main/src/3d.js#L68), jak ja to zrobiłem w poniższych prezentacjach).
+
+### Tworzenie wielokątów żółwiem
+
+W kontekście grafiki żółwiowej możemy wyróżnić jeszcze jedną technikę tworzenia grafiki 3D. Mianowicie żółw może rysować wielokąty, które potem składane są w modele trójwymiarowe. Nie będę stosować tej techniki w prezentacjach do tego artykułu, jednak będę pokazywać reguły L-systemów, które służą do ich rysowania.
+
+Reguły rysowania wielokątów są zamykane w klamrach $$\{\}$$ i ich wierzchołki są wyznaczane przez polecenie przesuwania żółwia bez rysowania ($$f$$). Przykładowo, taka reguła narysuje nam kształt przypominający liść:
+
+$$
+\{-f+f+f-|-f+f+f\}
+$$
+
+Poniżej możesz zobaczyć, jaki mniej więcej wielokąt uzyskamy (symulacja w dwuwymiarowej grafice żółwiowej, z kątem $$45^{\circ}$$ i poleceniami $$-F+F+F-+++++-F+F+F$$).
+
+<Image
+  image={lisc}
+  alignCenter
+  fullSize
+  alt="Liść"
+  caption={<>
+  </>}
+/>
+
+### Dodatkowe polecenia
+
+Oprócz powyżej opisanych w literaturze możemy znaleźć jeszcze dwa dodatkowe polecenia sterujące wyglądem trójwymiarowych modeli. Pomijam je w prezentacjach, jednak o nich wspominam, ponieważ możesz chcieć zastosować to w swoich rozwiązaniach.
+
+- $$!$$ — zmniejszenie średnicy rysowanych odcinków.
+- $$'$$ — zmiana koloru na następny w palecie.
+
+Jeśli będziesz to implementować u siebie, pamiętaj, że żółw w swojej informacji o stanie będzie musiał mieć informacje o średnicy i kolorze, co oznacza, że trzeba je też wziąć pod uwagę przy rozgałęzianiu.
+
+## Proste fraktale w 3D
+
+### Wyspa Kocha
+
+Podobnie jak <Link href="/post/algorytmiczne-rysowanie-roslin">w poprzednim artykule</Link>, zanim zaczniemy rysować rośliny, zacznijmy od fraktali. Rozpocznijmy od znanej już nam wyspy Kocha. Oczywiście nikt nam nie broni w 3D użyć tego samego L-systemu co przy wersji dwuwymiarowej, jednak możemy pokusić się o dodanie trójwymiarowego efektu przez tworzenie kwadratowych ścian, z których budujemy fraktal. Zdefiniujemy to następująco:
+
+$$
+\begin{align*}
+\omega&: \&-XS-XS-XS-XS \\
+p_1&: X \rightarrow XS+XS-XS-XSXS+XS+XS-X\\
+p_2&: S \rightarrow F \land F \land F \land F \land F\\
+\delta &=90^{\circ}
+\end{align*}
+$$
+
+Poniżej możesz zobaczyć, co otrzymujemy z tego w praktyce. W polu z licznikiem możesz zdefiniować liczbę iteracji L-systemu, natomiast sam model trójwymiarowy możesz oglądać z różnych stron. Mała instrukcja obsługi:
+
+- Kółkiem myszy (lub gestem szczypnięcia na panelach dotykowych) zmienia się przybliżenie.
+- Przesuwając myszkę po naciśnięciu lewego przycisku (lub po prostu przesuwając palcem), obracasz kamerę.
+- To samo co powyżej, ale z lewym przyciskiem myszy (bądź dwoma palcami) przesuwasz kamerę.
+
+<Iframe src="/iframe-content/lsystems-3d/index.html?data=koch" minHeight={700} />
+
+### Krzywa Hilberta
+
+Tego fraktala ostatnio nie omawiałem, chociaż na pewno możesz go kojarzyć. Jest to krzywa wypełniająca kwadratową przestrzeń kształtem przywodzącym na myśl labirynt. Ma nawet wiele praktycznych zastosowań w informatyce, jednak nie chcę teraz poświęcać jej zbyt wiele czasu. Nas w tym momencie interesuje jej trójwymiarowa wersja, która tworzy taki „labirynt”, tylko wewnątrz sześcianu.
+
+L-system, który nam to wygeneruje, zapiszemy następująco:
+
+$$
+\begin{align*}
+\omega&: A\\
+p_1&: A \rightarrow B-F+CFC+F-D\&F\land D - F + \&\&CFC+F+B//\\
+p_2&: B \rightarrow A\&F\land CFB \land F \land D \land \land -F-D\land |F \land B|FC \land F \land A//\\
+p_3&: C \rightarrow |D\land |F \land B-F+C\land F \land A \&\&FA\&F \land C+F+B \land F \land D//\\
+p_4&: D \rightarrow |CFB-F+B|FA\&F\land A\&\&FB-F+B|FC//\\
+\delta &=90^{\circ}
+\end{align*}
+$$
+
+Efekt jest następujący:
+
+<Iframe src="/iframe-content/lsystems-3d/index.html?data=hilbert" minHeight={700} />
+
+Dla porównania, dwuwymiarowa krzywa Hilberta jest definiowana następującym L-systemem:
+
+$$
+\begin{align*}
+\omega&: A\\
+p_1&: A \rightarrow +BF-AFA-FB+\\
+p_2&: B \rightarrow -AF+BFB+FA-\\
+\delta &=90^{\circ}
+\end{align*}
+$$
+
+Jak widać, wraz z wprowadzeniem trzeciego wymiaru sprawy dość mocno się komplikują.
+
+## Trójwymiarowe rośliny
+
+### Krzewy
+
+Przejdźmy do właściwej części artykułu, czyli do modelowania roślin. Zacznijmy od L-systemu generującego krzew. Najpierw zobaczmy formalny zapis, a następnie wszystko sobie wyjaśnimy:
+
+$$
+\begin{align*}
+\omega&: A\\
+p_1&: A \rightarrow [\&FL!A]////'[\&FL!A]///////'[\&FL!A]\\
+p_2&: F \rightarrow S ///// F\\
+p_3&: S \rightarrow F L\\
+p_4&: L \rightarrow ['''\land \land\{-f+f+f-|-f+f+f\}]\\
+\delta &=22,5^{\circ}
+\end{align*}
+$$
+
+W pierwszej regule tworzymy trzy gałęzie wychodzące z wierzchołka $$A$$. Każda z nich składa się z właściwej gałęzi ($$F$$), liścia ($$L$$) oraz wierzchołka. Druga i trzecia reguła określają długość gałęzi, natomiast czwarta określa jak narysować liść.
+
+Teraz zobaczmy, jak możemy to wykorzystać do rysowania. Zacznijmy od wersji, która narysuje tylko gałęzie:
+
+<Iframe src="/iframe-content/lsystems-3d/index.html?data=bush" minHeight={700} />
+
+Teraz weźmy pod uwagę liście. Na razie na miejscu liści wstawmy sfery, aby zobaczyć, gdzie będą się znajdować:
+
+<Iframe src="/iframe-content/lsystems-3d/index.html?data=bush2" minHeight={700} />
+
+Dokończmy nasz krzew, rysując liście. Tak jak wspomniałem na początku artykułu, nie będę tutaj brać pod uwagę reguł rysowania wielokątów, tylko po prostu w ich miejsce wstawiam podobny model.
+
+<Iframe src="/iframe-content/lsystems-3d/index.html?data=bush3" minHeight={700} />
+
+### Roślina
+
+W książce *The Algorithmic Beauty of Plants* możemy znaleźć przykład jeszcze jednego prostego L-systemu generującego trójwymiarową roślinę, tym razem z kwiatami. Tutaj zapis jest dość charakterystyczny, ponieważ zamiast symboli mamy nazwy elementów rośliny, ale sam sposób budowy jest bardzo podobny.
+
+$$
+\begin{align*}
+\omega:& \text{plant}\\
+p_1&: \text{plant} \rightarrow \text{internode} + [\text{plant}+\text{flower}]--\\&//
+[--\text{leaf}]\text{internode}[++\text{leaf}]\\&- [\text{plant}\text{ flower}]++\text{plant}\text{ flower} \\
+p_2:& \text{internode} \rightarrow F \text{seg}[//\&\&\text{leaf}][//\land\land\text{leaf}]F\text{seg}\\
+p_3:& \text{seg} \rightarrow \text{seg} F \text{seg}\\
+p_4:& \text{leaf} \rightarrow ['\{+f-ff-f+|+f-ff-f\}]\\
+p_5:& \text{flower} \rightarrow [\&\&\&\text{pedicel}'/\text{wedge}////\text{wedge}////\\&\text{wedge}////\text{wedge}////\text{wedge}]\\
+p_6:& \text{pedicel} \rightarrow FF\\
+p_7:& \text{wedge} \rightarrow ['\land F][\{ \&\&\&\&-f+f|-f+f \}]\\
+\delta &=18^{\circ}
+\end{align*}
+$$
+
+Poniżej możesz zobaczyć prezentację uproszczonej wersji powyższego, gdzie stosuję model liści, a zamiast kwiatów wyświetlam sfery. Na dole prezentacji zobaczysz litery zamiast pełnych nazw — zmieniłem to dla uproszczenia kodu aplikacji.
+
+<Iframe src="/iframe-content/lsystems-3d/index.html?data=plant" minHeight={700} />
+
+### Zastosowanie stochastycznych L-systemów
+
+Jak pamiętasz z poprzedniego artykułu, na sam koniec przedstawiłem technikę wprowadzenia losowości do L-systemów, gdzie definiowaliśmy prawdopodobieństwo, z jakim wykonywane były wybrane reguły. Tutaj również możemy to zastosować. Zobaczmy ostatnią roślinę, ale z dodaną małą losowością na najbardziej kluczowej regule, czyli $$p_3$$, odpowiadającej za kształt łodygi. Tym samym podmienimy tę regułę na następującą:
+
+$$
+\begin{align*}
+p_3'&: \text{seg} \xrightarrow{.33} \text{seg} [//\&\& \text{leaf}] [//\land\land \text{leaf} ]  F \text{seg}\\
+p_3''&: \text{seg} \xrightarrow{.33}\text{seg} F \text{seg}\\
+p_3'''&: \text{seg} \xrightarrow{.34}\text{seg}
+\end{align*}
+$$
+
+Efekt wygląda następująco (aby zobaczyć, jak działa losowość, możesz naciskać przycisk ponownego rysowania):
+
+<Iframe src="/iframe-content/lsystems-3d/index.html?data=plant2" minHeight={700} />
+
+## Podsumowanie
+
+Jak mogłeś(-aś) zobaczyć w artykule, grafika żółwiowa nie ogranicza się jedynie do dwóch wymiarów. W grafice 3D możemy za jej pomocą robić równie ciekawe rzeczy, a ułatwia to nam koncepcja L-systemów, które w zwięzły, matematyczny sposób opisują, jak generować złożone kształty. Chyba nie zaskoczę Cię, pisząc, że temat nie jest wyczerpany. Jest jeszcze wiele w dziedzinie L-systemów, czego nie zdołałem opowiedzieć na przestrzeni dwóch ostatnich artykułów, dlatego ponownie zachęcam do odwiedzenia strony [Algorithmic Botany](http://algorithmicbotany.org/papers/), gdzie znajdziesz całkowicie za darmo prace naukowe poświęcone algorytmicznemu rysowaniu roślin, głównie z użyciem L-systemów.
+
+## Literatura
+
+- Prusinkiewicz, P., Lindenmayer A. *The Algorithmic Beauty of Plants*. Springer-Verlag, 1996.
+- Prusinkiewicz, P., Hanan, J. *Lindenmayer Systems, Fractals, and Plants*. Springer-Verlag, 1989.
+- Hilbert curve, [https://en.wikipedia.org/w/index.php?title=Hilbert_curve&oldid=1043532189](https://en.wikipedia.org/w/index.php?title=Hilbert_curve&oldid=1043532189) (ostatnie odwiedziny 28.12.2021).
+
+<small>(obrazek na okładce: [Image](https://pixabay.com/photos/turtle-flowers-sunflower-field-5161130/) by [Дмитрий Бирюков](https://pixabay.com/users/dimadim_art-11205138/?utm_source=link-attribution&utm_medium=referral&utm_campaign=image&utm_content=5161130) from [Pixabay](https://pixabay.com/?utm_source=link-attribution&utm_medium=referral&utm_campaign=image&utm_content=5161130))</small>

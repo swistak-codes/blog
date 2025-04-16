@@ -1,0 +1,217 @@
+import Link from 'next/link';
+import {Image, Iframe} from '@swistak-codes/components';
+import cover from './kret.jpg';
+import minMax from './szukanie-min-max.png';
+import selectSort from './sortowanie-przez-wybieranie.png';
+import drzewa from './drzewa.png';
+import drzewo from './drzewo.png';
+import kopiec from './kopiec.png';
+import naprawa from './naprawa-kopca.png';
+
+export const meta = {
+  title: 'Sortowanie, cz. 4 — sortowanie przez wybieranie',
+  abstract:
+    'Po sortowaniu bąbelkowym i przez wstawianie nadszedł czas na omówienie ostatniego z prostych podejść. Tym razem będziemy wybierać.',
+  firstParagraph: (
+    <>
+      <Link href="/post/sortowanie-cz-2-sortowanie-babelkowe">Po sortowaniu bąbelkowym</Link> i <Link href="/post/sortowanie-cz-3-sortowanie-przez-wstawianie">sortowaniu przez wstawianie</Link> nadszedł czas na omówienie
+      ostatniego z tak zwanych prostych podejść do <Link
+      href="/post/sortowanie-cz-1-wprowadzenie-teoretyczne">sortowania</Link>. Tym razem elementów nie będziemy zamieniać czy
+      wstawiać, tylko wybierać. A co to dokładnie oznacza? Więcej w artykule.
+    </>
+  ),
+  keyword: 'sortowanie',
+  categories: ['Sortowanie'],
+  tags: [
+    'sortowanie',
+    'select sort',
+    'heap sort',
+    'sortowanie przez kopcowanie',
+    'kopiec',
+    'kopiec binarny',
+    'drzewa',
+    'sortowanie przez wybieranie',
+    'wyszukiwanie'
+  ],
+  slug: 'sortowanie-cz-4-sortowanie-przez-wybieranie',
+  updateTime: '2021-08-17T16:34:14+00:00',
+  publishTime: '2020-12-17T10:00:31+00:00',
+  cover,
+};
+
+## Uwaga wstępna
+
+Tak jak poprzednio, kod użyty przy tworzeniu tego artykułu znajdziesz na moim GitHubie: [https://github.com/swistak-codes/sorting-algorithms](https://github.com/swistak-codes/sorting-algorithms). Myślę, że już pamiętasz, że nie są to wzorcowe implementacje, a jedynie takie, które się dobrze wizualizuje.
+
+## Szukanie największego/najmniejszego elementu
+
+Zanim opowiem o sortowaniu przez wybieranie, chciałbym się skupić przez chwilę na najprawdopodobniej jednym z najprostszych możliwych algorytmów — wyszukaniu największego albo najmniejszego elementu w liście bądź tablicy.
+
+Idea jest niesamowicie prosta. Przechodzimy elementy po kolei i sprawdzamy, czy aktualnie rozpatrywany jest mniejszy/większy od poprzedniego (w zależności od tego, czy szukamy minimum, czy maksimum). Jeśli tak, zapamiętujemy tę wartość i idziemy dalej. Schemat działania takiego wyszukiwania możesz kojarzyć z <Link href="/post/wyszukiwanie-w-listach">mojego wcześniejszego artykułu o wyszukiwaniu</Link>. Jest to wyszukiwanie liniowe. Wygląda mniej więcej tak jak na poniższym przykładzie:
+
+<Image
+  image={minMax}
+  alignCenter
+  fullSize
+  alt="Schemat wykonania algorytmu wyszukującego najmniejszy i największy element w kolekcji."
+  caption={<>
+    Szukanie minimum i maksimum w liście krok po kroku. Zielonym kolorem oznaczyłem moment, w którym zmieniamy minimum bądź maksimum.
+  </>}
+/>
+
+W razie potrzeby zwykle nie musimy tego implementować samodzielnie. Języki programowania zazwyczaj już posiadają implementację szukania minimum/maksimum w swoich bibliotekach standardowych.
+
+## Sortowanie przez wybieranie
+
+Tylko teraz możesz sobie zadać pytanie — po co to pokazałem? Z jednej strony, przecież każdy programista powinien to znać, a z drugiej, co to ma do sortowania? Otóż tak, każdy programista powinien to znać i ma to wiele wspólnego z sortowaniem.
+
+Jak opowiadałem w poprzednich artykułach o sortowaniu, to powoływałem się często na to, w jaki sposób sortujemy na co dzień, np. książki na półce lub karty w ręce. Opowiadałem o zamienianiu kolejności sąsiadujących elementów albo braniu elementów po kolei i następnie wstawianiu ich w odpowiednie miejsce. Jednak nie opowiedziałem o sposobie, który prawdopodobnie nie raz stosowałeś, układając rzeczy w jakiejś kolejności.
+
+Otóż nie raz układając coś w kolejności, szukamy w naszej nieposortowanej kolekcji element najmniejszy, po czym wstawiamy go na koniec kolekcji posortowanej. Jeżeli kiedyś układałeś alfabetycznie w taki sposób książki na półce, to zastosowałeś algorytm sortowania przez wybieranie.
+
+W przypadku podejścia programistycznego robimy to zazwyczaj tak, że (podobnie jak w sortowaniu przez wstawianie) ustalamy część naszej tablicy jako posortowaną. Następnie szukamy najmniejszego elementu. Jeśli znaleźliśmy go, to wstawiamy go na początku tablicy (najprościej — zamieniając pierwszy element z najmniejszym). W kolejnym kroku znowu szukamy najmniejszego elementu, jednak obszar poszukiwań zmniejszamy. Robimy to, dopóki wszystkie elementy nie trafią do posortowanej części. Wygląda to tak jak na następującym schemacie:
+
+<Image
+  image={selectSort}
+  alignCenter
+  fullSize
+  alt="Schemat wykonania algorytmu sortowania przez wybieranie"
+  caption={<>
+    Rozpisane krok po kroku sortowanie przez wybieranie. W tablicy wyodrębniamy część posortowaną i nieposortowaną i w nieposortowanej szukamy najmniejszego elementu. Gdy go znajdziemy, zamieniamy miejscami z pierwszym nieposortowanym i poszerzamy zakres posortowanej części.
+  </>}
+/>
+
+Natomiast jakbyś chciał zobaczyć, w jaki sposób działa to w praktyce, tym razem również możesz zwizualizować działanie algorytmu krok po kroku. Analogicznie jak w poprzednich artykułach — u góry ustawiasz parametry początkowej kolekcji, a na dole sterujesz wizualizacją. Na wykresie na żółto zaznaczam aktualnie rozpatrywany element, a na zielono, do czego go porównujemy.
+
+<Iframe src="/iframe-content/sorting-visualizer/index.html?algorithm=selectionSort" minHeight={620} />
+
+## Wydajność sortowania przez wybieranie
+
+Jak możesz zauważyć, algorytm nie osiąga niestety rewelacyjnych wyników. Działa podobnie wolno co sortowanie bąbelkowe. Jednak zwróć uwagę na liczbę wykonanych zamian elementów — jest zdecydowanie najmniejsza z tych, które dotąd widzieliśmy! Nic w tym dziwnego, ponieważ elementy zawsze trafiają na swoje ostateczne miejsce w posortowanej tablicy.
+
+Pewnie zadajesz sobie w głowie pytanie — czy da się przyspieszyć ten sposób? Odpowiem: tak. Musimy tylko zmienić nasze podejście do wybierania. Aktualne podejście do szukania minimalnego elementu jest jak najbardziej poprawne, jednak to ono sprawia, że mamy tak dużo porównań. Tylko jak to zrobić?
+
+Odpowiedź na to pytanie niestety nie należy do najprostszych i oczywistych. Jak pamiętasz wcześniej wspominany przeze mnie artykuł o wyszukiwaniu, są szybkie sposoby wyszukiwania, takie jak wyszukiwanie binarne czy interpolacyjne. Jednakże możemy je wykonywać tylko na uprzednio posortowanych danych. Co jak co, ale gdybyśmy mieli posortowane dane, to nie musielibyśmy już się martwić o ich posortowanie.
+
+## Kopce
+
+W artykule o wyszukiwaniu wspomniałem, że są struktury ułatwiające wyszukiwanie. Jest to dokładnie to, czego tutaj potrzebujemy — użycie struktury danych, która zapewni nam szybkie wyszukiwanie elementów.  Przykładem takiej struktury, którą możemy użyć do tego celu, jest kopiec, a dokładniej kopiec binarny. Kopiec jest o tyle ciekawą strukturą, pasującą nam do sortowania, że całkowicie bazuje na tablicy.
+
+Kopiec (inaczej stóg, sterta, z ang. heap) to struktura danych reprezentująca drzewo (w kontekście informatycznym), a te charakteryzują się występowaniem hierarchii między wartościami. W przypadku kopców hierarchia ta opiera się na wartościach elementów — niżej w hierarchii zawsze znajdują się elementy mniejsze od tych wyżej w hierarchii. Aczkolwiek, co warto zaznaczyć, nie ma tutaj żadnej relacji między elementami na tym samym poziomie hierarchii.
+
+### Drzewa — podstawy
+
+Z racji, że kopce to drzewa, wprowadzę na szybko nieco terminologii z nimi związanej. W momencie pisania tego artykułu nie posiadam żadnego innego opisującego drzewa, dlatego postaram się przekazać najważniejsze informacje w telegraficznym skrócie. Zacznijmy od tego, że drzewo jest grafem acyklicznym i spójnym. Co to oznacza? Otóż:
+
+- Jest grafem, czyli składa się z węzłów (zwanych też wierzchołkami) i krawędzi, które łączą wierzchołki między sobą. W przypadku grafów, które nas interesują, każda krawędź powinna łączyć dwa węzły i do każdego węzła powinna przylegać przynajmniej jedna krawędź (jedyny wyjątek od reguły — mamy tylko jeden węzeł, wówczas nie możemy mieć krawędzi).
+- Acykliczny, czyli element nie może mieć krawędzi sam do siebie.
+- Spójny, czyli z każdego wierzchołka możemy dostać się do innego wierzchołka. Co ciekawe, w drzewach powinna być tylko jedna możliwa droga przejścia z wierzchołka do wierzchołka.
+
+<Image
+  image={drzewa}
+  alignCenter
+  fullSize
+  alt="Świerk, graf-drzewo wg matematyki, graf-drzewo wg informatyki"
+  caption={<>
+    Na tym obrazku widzimy trzy różne drzewa. Z lewej mamy drzewo takie, jakie zna przeciętny zjadacz chleba, pośrodku drzewo, które znają matematycy, natomiast z prawej jest drzewo według informatyków.
+  </>}
+/>
+
+Gdy mówimy o drzewach w informatyce, to głównie charakteryzują się one utrzymywaniem hierarchii między wierzchołkami. Posiadają one nieco własnej terminologii, która jest następująca:
+
+- Aby reprezentować hierarchię, mówimy, że mamy węzły będące rodzicami i ich potomków (często nazywa się ich dziećmi).
+- W przypadku kopca binarnego, który opiera się na drzewie binarnym* (inaczej, drzewie drugiego rzędu), każdy węzeł może mieć maksymalnie jednego rodzica i maksymalnie dwóch potomków.
+- Tylko jeden węzeł może być bez rodzica i nazywamy go korzeniem.
+- Węzły nieposiadające dzieci nazywamy liśćmi.
+
+<Image
+  image={drzewo}
+  alignCenter
+  fullSize
+  alt="Graficzna reprezentacja pojęć: korzeń, krawędź, węzeł, rodzic, potomek, liść"
+  caption={<>
+    Nazewnictwo związane z drzewami w informatyce.
+  </>}
+/>
+
+\* jeżeli kojarzysz to pojęcie, to warto w tym miejscu zaznaczyć, że drzewo binarne to nie jest to samo, co binarne drzewo poszukiwań. Drzewo binarne to po prostu drzewo, gdzie każdy element może mieć maksymalnie dwoje dzieci, jednak nie wyznacza żadnych powiązań między elementami.
+
+### Kopiec binarny
+
+Kopiec binarny to struktura bazująca na tablicy, reprezentująca drzewo binarne. Charakteryzuje się tym, że:
+
+- Obaj potomkowie rodzica są od niego mniejsi (lub obaj są więksi, zależnie od rodzaju kopca).
+- Każdy poziom jest pełny, czyli rodzic ma zawsze dwóch potomków.
+- Wyjątkiem od tej reguły jest ostatni poziom, który nie musi spełniać tej reguły, jednak wówczas kopiec budowany jest tak, żeby elementy nie robiły „luk”, patrząc od lewej strony.
+
+Wyróżniamy dwa rodzaje kopców binarnych — typu max i typu min. W przypadku tego pierwszego rodzic jest zawsze większy od swoich dzieci, a w przypadku drugiego, rodzic jest zawsze mniejszy.
+
+Z racji, że kopiec bazuje na tablicy, musimy wiedzieć jak odwoływać się do jego elementów. Wygląda to następująco:
+
+- Korzeń to pierwszy element tablicy
+- Jeżeli rodzic to element $$i$$, to jego dzieci znajdują się na pozycjach $$2i$$ oraz $$2i+1$$.
+- Jeżeli potomek znajduje się na pozycji i, to jego rodzica znajdziemy na pozycji $$\lfloor \frac{i}{2} \rfloor$$.
+
+### Budowanie kopca
+
+Mówiąc o kopcu, wypada opowiedzieć, jak go stworzyć. Niestety, nie jest to operacja zbyt oczywista. Zacznijmy od procedury naprawiania istniejącego kopca, ponieważ jest bazą do budowy kopca.
+
+<Image
+  image={kopiec}
+  alignCenter
+  fullSize
+  alt="Tablica: 10, 6, 3, 4, 1, 2 reprezentująca narysowany kopiec. Pierwszy poziom: 10. Drugi poziom: 6, 3. Trzeci poziom: 4, 1, 2"
+  caption={<>
+    Poprawnie zbudowany kopiec. Na górze tablica przechowująca go, a na dole jego wizualna reprezentacja wraz z odniesieniami do elementów tablicy.
+  </>}
+/>
+
+Naprawa kopca polega na tym, że sprawdzamy dzieci aktualnie rozpatrywanego elementu. Jeżeli któreś z nich jest większe od rodzica, zamieniamy je miejscami, a następnie procedurę powtarzamy dla zamienionego elementu. Jeśli nie dokonaliśmy żadnej zamiany, oznacza to, że kopiec jest naprawiony częściowo. Częściowo, gdyż przy naprawie zakładamy, że reszta kopca jest w porządku i nie musimy jej przerabiać.
+
+<Image
+  image={naprawa}
+  alignCenter
+  fullSize
+  alt="Schemat pokazujący jakie kroki wykonujemy naprawiając kopiec"
+  caption={<>
+    Naprawa kopca krok po kroku dla pierwszego elementu (czyli tego, który powinien być największy). W pierwszym kroku dokonaliśmy zamiany, dlatego następnie kontynuujemy naprawianie, wchodząc głębiej w drzewo. Jednak w drugim kroku widzimy, że oboje dzieci są na odpowiednich miejscach, więc procedurę naprawy możemy zakończyć. Zauważmy, że mimo to kopiec nadal jest zepsuty (elementy oznaczone na czerwono są na złych pozycjach, a zielone na dobrych).
+  </>}
+/>
+
+Teraz, aby zbudować kopiec, musimy wywołać naprawianie kopca po kolei dla wszystkich elementów, za każdym razem powiększając kopiec. Zaczynamy od wycinka tablicy, gdzie pierwszym elementem będzie rodzic ostatniego elementu tablicy i wywołujemy dla niego naprawę kopca. Następnie zwiększamy tablicę o jeden element i ponownie naprawiamy. Robimy to tak długo, aż naprawimy kopiec o długości całej naszej tablicy.
+
+## Sortowanie przez kopcowanie
+
+Dowiedzieliśmy się, że istnieje taka struktura, jak kopiec, która opiera się na tablicy, i że za jej pomocą bez problemu znajdziemy największy element w niej. W takim razie wykorzystajmy to przy sortowaniu.
+
+Idea jest następująca. Całą tablicę, którą mamy posortować, najpierw przekształcamy w kopiec. Wówczas pierwszy element w niej będzie największy. Zamieniamy miejscami pierwszy element z ostatnim, dzięki czemu ostatni element jest posortowany. W tym momencie ponownie uznajemy, że część naszej tablicy jest posortowana (aktualnie element ostatni), a część nie. Następnie za kopiec uznajemy całą nieposortowaną część i naprawiamy kopiec. Po naprawie największy element znów jest na pierwszej pozycji. Całość powtarzamy tak długo, aż nieposortowana część przestanie istnieć.
+
+Możesz sprawdzić, jak wygląda to w praktyce na poniższej wizualizacji. Tym razem dodatkowo pod przyciskami do kontroli wizualizacji wyświetlam także wizualizację kopca. Obserwuj, w jaki sposób są w nim przenoszone wartości, oraz jak w trakcie właściwego sortowania kopiec stale się pomniejsza.
+
+<Iframe src="/iframe-content/sorting-visualizer/index.html?algorithm=heapSort" minHeight={920} />
+
+Jak możesz zaobserwować, sortowanie w taki sposób jest zdecydowanie szybsze niż tradycyjne sortowanie przez wybieranie. Dzięki zastosowaniu kopca ograniczyliśmy liczbę porównań potrzebnych do znalezienia największego elementu, co przełożyło się na lepsze osiągi. Niestety przez to, że musimy stale naprawiać kopiec, zwiększyła się nam liczba zamian elementów.
+
+## Wydajność i właściwości
+
+Podsumujmy sobie teraz oba przedstawione algorytmy w taki sposób, jak robiliśmy to do tej pory.
+
+W kwestii wydajności sortowanie przez wybieranie niestety również zalicza się do klasy $$O(n^2)$$ pod kątem liczby porównań tak jak poprzednio poznane przez nas proste algorytmy. Jednak zdecydowanie wyróżnia się liczbą wykonanych zamian elementów. Lepiej prezentuje się sortowanie przez kopcowanie. Zastosowanie kopca uprościło operację wyszukiwania i tym samym obniżyliśmy liczbę porównań. Według literatury jego wydajność w najgorszym (oraz przeciętnym) przypadku to $$O(n \log n)$$.
+
+A jak wygląda kwestia stabilności? Niestety, oba algorytmy są niestabilne. Warto jednak tutaj zauważyć, że możemy zrobić stabilną wersję sortowania przez wstawianie dzięki delikatnej modyfikacji — zamiast zamieniać najmniejszy element z pierwszym w nieposortowanym, można go tam wstawiać. Wówczas algorytm wykonuje więcej operacji zapisu, ale za to zachowujemy stabilność.
+
+## Literatura
+
+### Pozycje podstawowe
+
+- Knuth D. E., „Sortowanie przez wybieranie” w *Sztuka programowania Tom 3 Sortowanie i wyszukiwanie*. Warszawa: Wydawnictwa Naukowo-Techniczne, 2002, s. 145-166
+- Harris S., Ross J., „Sortowanie przez wybieranie” w *Od podstaw Algorytmy*. Gliwice: Helion, 2006, s. 165–170
+- Cormen T. H., Leiserson C. E., Rivest R.L., „Heapsort — sortowanie przez kopcowanie” w *Wprowadzenie do algorytmów*. Warszawa: Wydawnictwa Naukowo-Techniczne, 2001, s. 173-185
+- Wirth N., „Sortowanie przez wybieranie” w *Algorytmy + struktury danych = programy*. Warszawa: Wydawnictwa Naukowo-Techniczne, 2002, s. 80–82
+- Wirth N., „Sortowanie drzewiaste” w *Algorytmy + struktury danych = programy*. Warszawa: Wydawnictwa Naukowo-Techniczne, 2002, s. 88–94
+
+### Pozycje uzupełniające
+
+- Wirth N., „Struktury drzewiaste, Pojęcia podstawowe i definicje” w *Algorytmy + struktury danych = programy*. Warszawa: Wydawnictwa Naukowo-Techniczne, 2002, s. 211–219
+
+<small>(zdjęcie na okładce z serwisu [pxhere](https://pxhere.com/en/photo/1359582))</small>

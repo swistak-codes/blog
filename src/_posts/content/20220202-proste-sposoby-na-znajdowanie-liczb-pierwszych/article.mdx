@@ -1,0 +1,240 @@
+import Link from 'next/link';
+import {Image, Iframe} from '@swistak-codes/components';
+import cover from './amonit.jpg';
+import czasy from './czasy.png';
+import czasyLog from './czasy-log.png';
+import czasyBezNaiwnej from './czasy-bez-naiwnej.png';
+
+export const meta = {
+  title: 'Proste sposoby na znajdowanie liczb pierwszych',
+  abstract:
+    'W artykule poznajemy najprostsze sposoby na znajdowanie liczb pierwszych, takie jak metoda naiwna i sito Eratostenesa.',
+  firstParagraph: (
+    <>
+      <Link href="/post/liczby-pierwsze-i-proste-sposoby-na-ich-sprawdzanie">Ostatnio</Link> opisałem, czym są liczby pierwsze, a także pokazałem prosty, niemal 800-letni algorytm do ich testowania. Jednak nie kończmy na tym tematu. O liczbach pierwszych można mówić dużo, dlatego kontynuujmy. Tym razem pokażę, jakie mamy najprostsze sposoby na znajdowanie liczb pierwszych.
+    </>
+  ),
+  keyword: 'liczby pierwsze',
+  categories: ['Algorytmy', 'Liczby pierwsze'],
+  tags: [
+    'liczby pierwsze',
+    'sito eratostenesa',
+    'metoda naiwna',
+    'sito sundarama',
+    'javascript'
+  ],
+  slug: 'proste-sposoby-na-znajdowanie-liczb-pierwszych',
+  updateTime: '2022-02-05T10:12:07+00:00',
+  publishTime: '2022-02-02T06:00:13+00:00',
+  cover,
+};
+
+## Metoda naiwna
+
+Zdecydowanie najprostszym sposobem jest zastosowanie znanego już nam <Link href="/post/liczby-pierwsze-i-proste-sposoby-na-ich-sprawdzanie">testu pierwszości</Link> na $$n$$ kolejnych liczbach w celu znalezienia, które z nich są liczbami pierwszymi. Nie jest to wydajny sposób, jednak czysto dla formalności zobaczmy, na czym to polega.
+
+Idea jest bardzo prosta. Iterujemy po kolei liczby od $$2$$ do $$n$$, wykonując na każdej z nich test pierwszości (w tym przypadku metodę naiwną z dzieleniem aż do $$\sqrt{n}$$). Jeśli liczba przechodzi test, zapisujemy ją.
+
+W kodzie (JavaScript) wygląda to następująco:
+
+```javascript
+function naive(n) {
+    const result = [];
+    for (let i = 2; i <= n; i++) {
+        let isPrime = true;
+        for (let j = 2; j <= Math.sqrt(i); j++) {
+            if (i % j === 0) {
+                isPrime = false;
+                break;
+            }
+        }
+        if (isPrime) {
+            result.push(i);
+        }
+    }
+    return result;
+}
+```
+
+## Sito Eratostenesa
+
+Po kolejny algorytm musimy cofnąć się do czasów antycznej Grecji, ponieważ jest przypisywany Eratostenesowi, który żył w III w. p.n.e. Natomiast najstarszy jego zapis pochodzi z II w. n.e. z dzieła *Wstęp do arytmetyki* Nikomachosa z Gerazy.
+
+### Opis algorytmu
+
+Idea sita polega na tym, że z góry zakładamy, że wszystkie liczby są pierwsze. Przechodzimy po kolei po liczbach i jak natrafimy na liczbę pierwszą, to uznajemy każdą jej wielokrotność za liczbę złożoną. Formalnie rzecz biorąc, kroki algorytmu są następujące:
+
+1. Tworzymy listę kolejnych liczb naturalnych od $$2$$ do $$n$$. Początkowo uznajemy, że wszystkie są pierwsze.
+2. Zaczynamy iterację od $$i = 2$$.
+3. Wyliczamy wszystkie wielokrotności $$i$$ większe od niego samego. Oznaczamy je jako liczby złożone.
+4. Bierzemy kolejną liczbę z listy oznaczoną jako pierwsza, przypisujemy do $$i$$ i powtarzamy dla niej krok 3. Algorytm powtarzamy tak długo, aż wykonamy go dla wszystkich liczb pierwszych mniejszych bądź równych $$n$$.
+
+W kodzie wygląda to następująco:
+
+```javascript
+function eratosthenes(n) {
+    // tablica jest indeksowana od 0, więc traktujemy że indeks 0 oznacza liczbę 2
+    const numbers = new Array(n - 1).fill(true);
+    const result = [];
+    for (let i = 2; i <= n; i++) {
+        if (!numbers[i - 2]) {
+            // jeśli liczba nie jest pierwszą, przechodzimy dalej
+            continue;
+        }
+        result.push(i);
+        for (let j = i + i; j <= n; j += i) {
+            // uznajemy wielokrotności za liczby złożone
+            numbers[j - 2] = false;
+        }
+    }
+
+    return result;
+}
+```
+
+### Przykład
+
+Zobaczmy, jak to wygląda. Zakładając, że chcemy znaleźć liczby pierwsze od 2 do 10, będzie to działać następująco.
+
+Rozpoczynamy od listy:
+
+|2|3|4|5|6|7|8|9|10|
+|-|-|-|-|-|-|-|-|-|
+
+Zaczynamy od $$i = 2$$. Wykreślamy wszystkie wielokrotności 2:
+
+|2|3|<del>4</del>|5|<del>6</del>|7|<del>8</del>|9|<del>10</del>|
+|-|-|-|-|-|-|-|-|-|
+
+Kolejna liczba pierwsza to $$3$$. Wykreślmy jej wielokrotności:
+
+|2|3|<del>4</del>|5|<del>6</del>|7|<del>8</del>|<del>9</del>|<del>10</del>|
+|-|-|-|-|-|-|-|-|-|
+
+Analogiczne kroki wykonalibyśmy dla $$i = 5$$ oraz $$i = 7$$. Tym samym zostają nam na liście jedynie liczby pierwsze:
+
+|2|3| |5| |7| | | |
+|-|-|-|-|-|-|-|-|-|
+
+## Sito Sundarama
+
+Kolejny algorytm jest już bardziej współczesny, ponieważ powstał w 1934 r. i opracował go indyjski student S. P. Sundaram. Tutaj, podobnie jak w sicie Eratostenesa, również będziemy wykluczać liczby po uprzednim zbudowaniu listy liczb, jednak w nieco inny sposób.
+
+### Idea algorytmu
+
+Zaczynamy od nieskończonej tabeli, która wygląda następująco:
+
+| | | | | | | | | |
+|-|-|-|-|-|-|-|-|-|
+|4|7|10|13|16|19|22|25|...|
+|7|12|17|22|27|32|37|42|...|
+|10|17|24|31|38|45|52|59|...|
+|13|22|31|40|49|58|67|76|...|
+|16|27|38|49|60|71|82|93|...|
+|.|.|.|.|.|.|.|.|...|
+
+Tabela ta na pierwszy rzut oka nie zawiera żadnych szczególnych liczb i, jak można zauważyć, konstruowana jest przez bardzo proste dodawanie do siebie liczb. Jednak ma dość ciekawą zależność. Jeżeli weźmiemy dowolną liczbę naturalną $$N$$ większą od $$0$$ znajdującą się w tej tabeli, to $$2N+1$$ jest liczbą złożoną. Natomiast jeśli wybrane przez nas $$N$$ nie znajduje się w tej tabeli, to $$2N+1$$ jest liczbą pierwszą. Możemy w ten sposób znaleźć wszystkie liczby pierwsze z wyjątkiem $$2$$.
+
+### Jak wyznaczyć listę liczb?
+
+Aby uzyskać tabelę (czy też listę) liczb analogiczną do pokazanej powyżej dla liczb całkowitych od 1 do k, możemy to zrobić za pomocą wzoru:
+
+$$
+\begin{align*}
+i+j&+2ij, \\ &\text{gdzie:} \\
+i,j &\in \N \\
+1\leqslant &i \leqslant j \\
+i+j+2ij &\leqslant k
+\end{align*}
+$$
+
+Da się to przełożyć na mniej więcej taki algorytm:
+
+1. Dla każdego $$i$$ w zakresie od 1 do $$k$$:
+    1. $$j = i$$
+    2. Tak długo, dopóki $$i+j+2ij \leqslant k$$:
+        1. Dodaj do listy $$i+j+2ij$$.
+        2. Zwiększ $$j$$ o 1.
+
+### Przykład w kodzie
+
+W kodzie algorytm wyszukujący liczby pierwsze z wykorzystaniem sita Sundarama będzie wyglądać następująco:
+
+```javascript
+function sundaram(n) {
+    // jeśli 2i + 1 wyznacza nam liczbę pierwszą, to jeśli za największą uznajemy n, to musimy odwrócić równanie aby wyznaczyć największą liczbę w liście
+    const k = (n - 1) / 2;
+    const numbers = new Array(n).fill(true);
+    for (let i = 1; i <= k; i++) {
+        let j = 1;
+        let newNumber = i + j + 2 * i * j;
+        while (newNumber <= k) {
+            numbers[newNumber - 1] = false;
+            j++;
+            newNumber = i + j + 2 * i * j;
+        }
+    }
+    const result = [];
+    if (n > 2) {
+        result.push(2);
+    }
+    for (let i = 1; i <= k; i++) {
+        if (numbers[i - 1]) {
+            result.push(2 * i + 1);
+        }
+    }
+    return result;
+}
+```
+
+Warto dodać, że powyżej pokazana wersja jest napisana najprościej, jak się da, i algorytm można dalej optymalizować. W Internecie można znaleźć zmodyfikowane implementacje sita Sundarama, które zmniejszają liczbę wykonywanych obliczeń, jednak zapoznanie się z nimi zostawiam dla chętnych. Powyższa implementacja jest zupełnie wystarczająca do prostych zastosowań.
+
+## Porównanie szybkości działania
+
+Tak jak poprzednio, porównajmy szybkość wykonywania pokazanych algorytmów analogicznym testem. Tym razem mierzę prędkość wykonania dla wyszukiwania liczb pierwszych w zakresie od 2 do n. Początkowa wartość n wynosiła 100 i z każdym kolejnym testem podnosiłem tą wartość o 100 aż do 100 000. Każdy algorytm został wykonany 50 razy dla jednego zakresu i następnie obliczyłem średnią z mierzonych czasów. Wszystko przeniosłem na wykresy. Na osi Y znajduje się czas w nanosekundach, a na osi X górny limit (n). Kod tego testu znajdziesz [na moim GitHubie](https://github.com/swistak-codes/prime-numbers). Wyniki tutaj pokazane zostały otrzymane na MacBooku Pro 2018 z procesorem Intel Core i7 2,6GHz.
+
+<Image
+  image={czasy}
+  alignCenter
+  fullSize
+  alt="Wykres czasów wykonania w nanosekundach do górnego limitu wyszukiwania liczb. Wartości dla metody naiwnej, sita Eratostenesa i sita Sundarama"
+  caption={<>
+    Porównanie czasów wykonania algorytmów na skali liniowej.
+  </>}
+/>
+
+<Image
+  image={czasyLog}
+  alignCenter
+  fullSize
+  alt="Wykres czasów wykonania w nanosekundach (w skali logarytmicznej) do górnego limitu wyszukiwania liczb. Wartości dla metody naiwnej, sita Eratostenesa i sita Sundarama"
+  caption={<>
+    Porównanie czasów wykonania algorytmów na skali logarytmicznej.
+  </>}
+/>
+
+<Image
+  image={czasyBezNaiwnej}
+  alignCenter
+  fullSize
+  alt="Wykres czasów wykonania w nanosekundach do górnego limitu wyszukiwania liczb. Wartości dla sita Eratostenesa i sita Sundarama"
+  caption={<>
+    Porównanie czasów wykonania na skali liniowej bez metody naiwnej.
+  </>}
+/>
+
+To, co rzuca się od razu w oczy, to dużo wyższy czas wykonania dla metody naiwnej. Mimo że zastosowaliśmy optymalny test, który był najszybszy według poprzedniego artykułu, wciąż sprawdzanie liczba po liczbie bez żadnego „triku” nie sprawdza się najlepiej. Różnica w czasie wykonania jest taka, że sprawdzenie 100 000 liczb zajęło metodzie naiwnej 9 milisekund, podczas gdy obu sitom w okolicach 1 milisekundy. Są to oczywiście nieduże wartości, jednak różnica zaczyna być odczuwalna przy większych zakresach.
+
+Uwagę zdecydowanie zwraca fakt, że sito Sundarama zdaje się działać gorzej niż sito Eratostenesa. Różnice nie są duże, ale wraz ze zwiększaniem się zakresu widać, że obie krzywe odsuwają się od siebie. Czy zoptymalizowana wersja sita Sundarama sprawdziłaby się lepiej? Na pewno warto byłoby to sprawdzić, co pozostawiam dla zainteresowanych.
+
+## Podsumowanie
+
+W artykule miałeś(-aś) okazję zobaczyć najprostsze sposoby na otrzymanie listy liczb pierwszych. Od niedoskonałej, aczkolwiek najprostszej metody naiwnej, przez klasyczny algorytm sita Eratostenesa, po ciekawy, bardziej współczesny sposób. Wciąż nie są to sposoby, które rozwiążą wbrew pozorom bardzo codzienny problem generowania 2048-bitowych liczb pierwszych dla algorytmów kryptograficznych, jednak z punktu widzenia nauki programowania sito Eratostenesa to szkolna klasyka, którą trzeba znać. Pokazuje ono, jak zauważenie prostej zależności (czyli że wielokrotności liczby pierwszej są liczbami złożonymi) i wykorzystanie jej (eliminując tym samym operację dzielenia, mamy jedynie szybkie dodawanie) potrafi drastycznie wpłynąć na wydajność algorytmu. A jeśli interesują Cię jeszcze jakieś podobne sposoby na generowanie liczb pierwszych, możesz zainteresować się tematem sita Atkina.
+
+## Literatura
+
+- Mollin, R. A. (2002). *A Brief History of Factoring and Primality Testing B. C. (Before Computers)*. Mathematics Magazine, 75(1), 18. [doi:10.2307/3219180](https://doi.org/10.2307%2F3219180)
+- Ferrando, Elisabetta (2005). *Abductive processes in conjecturing and proving (PhD)*. Purdue University. pp. 70–72.
+- Sieve of Sundaram, [https://en.wikipedia.org/w/index.php?title=Sieve_of_Sundaram&oldid=1037378331](https://en.wikipedia.org/w/index.php?title=Sieve_of_Sundaram&oldid=1037378331) (ostatnie odwiedziny 16.01.2022).
+
+<small>(obrazek na okładce: [Mike Beauregard from Nunavut, Canada](https://commons.wikimedia.org/wiki/File:Ammonite_Open_Staircase.jpg), [CC BY 2.0](https://creativecommons.org/licenses/by/2.0), via Wikimedia Commons)</small>

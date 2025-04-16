@@ -1,0 +1,435 @@
+import Link from 'next/link';
+import {Image, Iframe} from '@swistak-codes/components';
+import cover from './swinka.jpg';
+
+export const meta = {
+  title: 'Dziwny przypadek reszty z dzielenia',
+  abstract:
+    'Obliczenie reszty z dzielenia — niby oczywista operacja, a różne języki programowania potrafią zwracać nam różne wyniki. Dlaczego tak jest?',
+  firstParagraph: (
+    <>
+      Gdy we wczesnych latach podstawówki uczyliśmy się dzielenia (szczególnie „pod kreską”), w pewnym momencie dowiadywaliśmy się, że nie da się liczb idealnie podzielić. Czasami zostaje reszta. W końcu gdy dzielimy 6 na 4, to w szóstce zmieścimy tylko jedną czwórkę, ale to nie oznacza, że 6 dzielone przez 4 to po prostu 1. Mamy jeszcze 2 reszty, ewentualnie co dokładniejsi podaliby wynik 1,5. Jak się okazuje, obliczenie reszty z dzielenia, mimo że wydaje się czymś prostym i oczywistym... no cóż, zawsze coś musi się komplikować. Dlatego też przeanalizujmy tę operację: rozłóżmy ją na czynniki pierwsze i zobaczmy, co może tutaj pójść inaczej, i dlaczego, mimo różnych wyników, wciąż wszystko jest poprawnie.
+    </>
+  ),
+  keyword: 'reszta z dzielenia',
+  categories: ['Matematyka', 'Programowanie'],
+  tags: [
+    'matematyka',
+    'modulo',
+    'dart',
+    'python',
+    'c',
+    'javascript',
+    'truncate',
+    'podłoga',
+    'zaokrąglenie',
+    'Boute',
+    'dzielenie obcięte',
+    'dzielenie',
+    'dzielenie z podłogą',
+    'dzielenie z zaokrągleniem',
+    'dzielenie euklidejskie',
+    'algorytm e',
+    'algorytm f'
+  ],
+  slug: 'dziwny-przypadek-reszty-z-dzielenia',
+  updateTime: '2021-12-05T11:07:50+00:00',
+  publishTime: '2021-09-01T07:30:19+00:00',
+  english: 'https://4markdown.com/the-curious-case-of-division-remainders/',
+  cover,
+};
+
+## Programistyczny problem z resztą z dzielenia
+
+W zasadzie we wstępie opisałem, czym jest reszta z dzielenia. Jednak dla lepszego zrozumienia, dlaczego jest jakikolwiek z tym problem, po prostu go doświadczmy. Na potrzeby naszego przykładu załóżmy, że chcemy wykonać cztery operacje:
+
+$$
+\begin{cases} 8
+\text{ mod } 5, \\
+-8  \text{ mod } 5 ,\\
+8 \text{ mod } (-5), \\
+-8 \text{ mod } (-5)
+\end{cases}
+$$
+
+Dla wyjaśnienia: $$\text{mod}$$ to operacja obliczenia reszty z dzielenia. Weźmy pod uwagę trzy języki programowania: Dart, Python oraz C (na dwa sposoby).
+
+### Dart
+
+W języku Dart wykonujemy poniższy kod źródłowy ([tutaj dostępny w serwisie repl.it](https://replit.com/@tswistak/ModuloDart#main.dart)):
+
+```dart
+void main() {
+  print('8 mod 5 = ${8 % 5}');
+  print('-8 mod 5 = ${-8 % 5}');
+  print('8 mod -5 = ${8 % -5}');
+  print('-8 mod -5 = ${-8 % -5}');
+}
+```
+
+Wyniki:
+
+$$
+\begin{cases} 8
+\text{ mod } 5 = 3, \\
+-8  \text{ mod } 5 = 2,\\
+8 \text{ mod } (-5) = 3, \\
+-8 \text{ mod } (-5) = 2
+\end{cases}
+$$
+
+### Python
+
+Teraz spróbujemy taki kod w języku Python ([tutaj dostępny w serwisie repl.it](https://replit.com/@tswistak/ModuloPython)):
+
+```python
+print('8 mod 5 = {}'.format(8 % 5))
+print('-8 mod 5 = {}'.format(-8 % 5))
+print('8 mod -5 = {}'.format(8 % -5))
+print('-8 mod -5 = {}'.format(-8 % -5))
+```
+
+Wyniki:
+
+$$
+\begin{cases} 8
+\text{ mod } 5 = 3, \\
+-8  \text{ mod } 5 = 2,\\
+8 \text{ mod }(-5) = -2, \\
+-8 \text{ mod } (-5) = -3
+\end{cases}
+$$
+
+### C
+
+Na koniec zobaczmy, jak to wygląda w języku C. W tym języku możemy wyliczać resztę z dzielenia na dwa sposoby, więc tak też zrobimy w przypadku naszego kodu ([tutaj dostępny w serwisie repl.it](https://replit.com/@tswistak/ModuloC#main.c)):
+
+```c
+#include <stdio.h>
+#include <math.h>
+
+int main(void) {
+  printf("Pierwszy sposób (operator %%):\n");
+  printf("8 mod 5 = %d\n", 8 % 5);
+  printf("-8 mod 5 = %d\n", -8 % 5);
+  printf("8 mod -5 = %d\n", 8 % -5);
+  printf("-8 mod -5 = %d\n", -8 % -5);
+  printf("Drugi sposób (funkcja remainder):\n");
+  printf("8 mod 5 = %0.f\n", remainder(8, 5));
+  printf("-8 mod 5 = %0.f\n", remainder(-8, 5));
+  printf("8 mod -5 = %0.f\n", remainder(8, -5));
+  printf("-8 mod -5 = %0.f\n", remainder(-8, -5));
+  return 0;
+}
+```
+
+Wyniki dla pierwszego sposobu:
+
+$$
+\begin{cases} 8
+\text{ mod } 5 = 3, \\
+-8  \text{ mod } 5 = -3,\\
+8 \text{ mod } (-5) = 3, \\
+-8 \text{ mod } (-5) = -3
+\end{cases}
+$$
+
+Wyniki dla drugiego sposobu:
+
+$$
+\begin{cases} 8
+\text{ mod } 5 = -2, \\
+-8  \text{ mod } 5 = 2,\\
+8 \text{ mod } (-5) = -2, \\
+-8 \text{ mod } (-5) = 2
+\end{cases}
+$$
+
+### Co jest grane?
+
+Podsumowując, z tych trzech języków programowania okazało się, że dla prostej operacji wyliczenia reszty z dzielenia otrzymywaliśmy następujące wyniki:
+
+$$
+\begin{cases} 8
+\text{ mod } 5 = \{ 3, -2\}, \\
+-8  \text{ mod } 5 = \{ 2, -3\}, \\
+8 \text{ mod } (-5) = \{ 3, -2 \}, \\
+-8 \text{ mod } (-5) = \{ 2, -3 \}
+\end{cases}
+$$
+
+Brzmi to jak straszna niezgodność, bo dostajemy ciągle 3 i -2 albo 2 i -3. Do tego każdy z tych czterech przypadków ma wyniki inaczej rozłożone. Z matematycznego punktu widzenia, dla zadanych argumentów funkcja powinna zawsze zwracać ten sam wynik. Tutaj jednak, w zależności od języka programowania, dostajemy inne wyniki. Jesteś ciekaw(a), dlaczego, i który z nich jest poprawny z matematycznego punktu widzenia? Zapraszam do dalszej lektury.
+
+## Definicja euklidejska
+
+Zacznijmy od tego, jak reszta z dzielenia jest powszechnie definiowana w matematyce. Jest opisana w twierdzeniu o dzieleniu z resztą, znanym też jako dzielenie euklidejskie.
+
+Twierdzenie to mówi, że dla liczb całkowitych $$a$$ i $$b$$, gdzie $$b \neq 0$$, istnieją takie liczby całkowite $$q$$ oraz $$r$$, dla których:
+
+$$
+\begin{align*}
+a &= bq+r \\
+\text{gdzie: }& 0 \leqslant r < \vert{b} \rvert
+\end{align*}
+$$
+
+$$\vert{b} \rvert$$ to wartość bezwzględna z $$b$$, czyli na „chłopski rozum” usunięcie znaku z liczby (dodatnia pozostaje dodatnią, ale ujemna zmienia się na dodatnią).
+
+O ile sam wzór może nie być Ci znany, to na pewno rozpoznasz każdy z jego składników po nazwach:
+
+- $$a$$ — dzielna (liczba, którą dzielimy)
+- $$b$$ — dzielnik (liczba, przez którą dzielimy)
+- $$q$$ — iloraz (wynik dzielenia), tutaj jako liczba całkowita
+- $$r$$ — reszta z dzielenia
+
+Z tej definicji od razu moglibyśmy odrzucić jako niepoprawne wszystkie te wyniki, które są ujemne. W takim razie, jaki jest wzór na resztę z dzielenia? Najpopularniejszą interpretacją z powyższej definicji, jest następujący wzór:
+
+$$
+r =  a - b\cdot \left\lfloor\frac{a}{b} \right\rfloor
+$$
+
+$$\lfloor . \rfloor$$ to funkcja podłogi, czyli zaokrąglenie w dół, lub jak wielu upraszcza — odcięcie części ułamkowej i zostawienie jedynie całkowitej. W tym właśnie miejscu pojawiają się schody zwane liczbami ujemnymi. Dlaczego?
+
+Na logikę, jeśli przykładowo z $$-1,6$$ (wynik z dzielenia 8 przez 5, gdzie jedna z tych liczb będzie ujemną) odcinamy część ułamkową, to powinniśmy otrzymać $$-1$$. Dlatego to uproszczenie definicji podłogi, o którym wspomniałem, jest bardzo złe i wprowadzające w błąd. $$-1,6$$ możemy zaokrąglić albo do $$-1$$, albo do $$-2$$. Zaokrąglenie w dół to zawsze zaokrąglenie do liczby mniejszej, czyli w tym przypadku $$\lfloor -1,6 \rfloor = -2$$, wbrew temu, co mówi intuicja. Stąd też  w pokazanych wyżej przypadkach mamy do czynienia jedynie z dwoma poprawnymi sposobami obliczenia reszty:
+
+$$
+\begin{align*}
+r &= 8 - 5 \cdot 1 = 3\\
+r &= - 8 + 5 \cdot 2 = 2
+\end{align*}
+$$
+
+Aczkolwiek mogłeś(-aś) tutaj wypatrzeć jedną nieścisłość. Otóż z podanego wyżej wzoru wychodzą też wyniki -3 i -2. Oczywiście wyniki te są nieprawidłowe, ponieważ reszta powinna być zawsze dodatnia. W tym miejscu właśnie pojawia się nam problem z definicją, a co z tego wynika, pewna mnogość interpretacji, gdy chcemy wyliczać dla każdego możliwego przypadku.
+
+Zakładając jednak, że reszty mogą być tylko dodatnie, to w tym momencie można by zakończyć artykuł i skwitować, że ze wszystkich pokazanych wyżej języków programowania jedynie Dart obliczył dobrze reszty z dzielenia. To byłoby jednak zbyt proste i zobaczmy, w jaki sposób języki programowania implementują resztę z dzielenia, tym samym powodując te błędy.
+
+## Informatyczne implementacje
+
+W informatyce wyróżnia się kilka różnych algorytmów obliczania reszty z dzielenia, z których w zasadzie wszystkie są na swój sposób poprawne. Wynika to z tego, że w systemach obliczeniowych stosuje się nieco prostszą definicję dzielenia z resztą:
+
+$$
+\begin{align*}
+a &= bq + r \\
+\vert{r} \rvert &< \vert{b} \rvert
+\end{align*}
+$$
+
+Tracimy warunek, że reszta musi być większa bądź równa zeru, a jedynie jej wartość bezwzględna musi być mniejsza od dzielnika. Jest to ważne, ponieważ dla dzielnika $$-5$$ reszta $$3$$ będzie jak najbardziej poprawna (wartość bezwzględna z $$-5$$ to $$5$$).
+
+Przejdźmy więc do implementacji.
+
+### „Dzielenie obcięte”
+
+W tym rodzaju dzielenia wykorzystujemy funkcję trunc (od ang. truncation, co można tłumaczyć jako obcięcie) w celu wykonania zaokrąglenia. Polega ona na dosłownie obcięciu części ułamkowej, czyli $$\text{trunc}(1,6) = 1$$ i $$\text{trunc}(-1,6) = -1$$.
+
+Wzór na resztę z dzielenia wygląda następująco:
+
+$$
+r = a - b \text{ trunc}\left( \frac{a}{b} \right)
+$$
+
+Sprawdźmy sobie nasze przypadki testowe na tym wzorze:
+
+$$
+\begin{cases}
+8 \text{ mod } 5 = 8 - 5 \text{ trunc}\left( \frac{8}{5}\right) = 8 -  5 \cdot 1=3, \\
+-8  \text{ mod } 5 = -8 - 5 \text{ trunc}\left( \frac{-8}{5}\right) = -8 -  5 \cdot(-1)=-3, \\
+8 \text{ mod } (-5) = 8 - (-5) \text{ trunc}\left( \frac{8}{-5}\right) = 8 +  5 \cdot (-1)=3, \\
+-8 \text{ mod } (-5) = -8 - (-5) \text{ trunc}\left( \frac{-8}{-5}\right) = -8 +  5\cdot1=-3
+\end{cases}
+$$
+
+To, co warto zapamiętać, to fakt, że w tym podejściu wynik operacji modulo ma zawsze ten sam znak co dzielna. Wartość bezwzględna reszty jest zawsze taka sama. Sposób ten jest zdecydowanie najprostszy w implementacji, a także najprostszy obliczeniowo dla komputera, ponieważ operacja dzielenia całkowitoliczbowego (ignorująca część ułamkową, jak i resztę z dzielenia) działa dokładnie tak, jakbyśmy zamknęli dzielenie w funkcji trunc.
+
+Właśnie w ten sposób zrealizowana jest operacja modulo w języku C. Analogicznie działa wiele innych języków, m.in. C++ C#, Go, JavaScript, PHP, Swift, Visual Basic.
+
+### „Dzielenie z podłogą”
+
+Gdy omówiłem dzielenie euklidejskie, pokazałem, że resztę z dzielenia możemy obliczyć, wykorzystując dzielenie z funkcją podłogi. Taki też sposób sugeruje Donald Knuth w swojej *Sztuce Programowania*. Przypomnijmy sobie wzór:
+
+$$
+r = a - b\cdot \left\lfloor\frac{a}{b} \right\rfloor
+$$
+
+Co istotne, podążając za pomysłem Knutha, nie definiujemy, że reszta ma być większa bądź równa zero. Wręcz przeciwnie. Autor *Sztuki Programowania* wprost podaje, że:
+
+- jeśli $$b > 0$$, wtedy $$0 \leqslant a \text{ mod } b < b$$,
+- jeśli $$b < 0$$, wtedy $$0 \geqslant a \text{ mod } b > b$$.
+
+Sprawdźmy więc nasze przypadki testowe:
+
+$$
+\begin{cases}
+8 \text{ mod } 5 = 8 - 5 \left\lfloor \frac{8}{5}\right\rfloor = 8 -  5 \cdot 1=3, \\
+-8  \text{ mod } 5 = -8 - 5 \left\lfloor \frac{-8}{5}\right\rfloor = -8  - 5 \cdot(-2)=2, \\
+8 \text{ mod } (-5) = 8 - (-5) \left\lfloor \frac{8}{-5}\right\rfloor= 8 +  5 \cdot (-2)=-2, \\
+-8 \text{ mod } (-5) = -8 - (-5)\left\lfloor \frac{-8}{-5}\right\rfloor= -8 +  5\cdot1=-3
+\end{cases}
+$$
+
+W tym przypadku wynik operacji zawsze przyjmuje znak dzielnika. Z tego też powodu nie ma zgodności z definicją matematyczną. Metodę tą jednak powszechnie się stosuje przede wszystkim dlatego, że wzór z podłogą jest zdecydowanie najpopularniejszym ze wzorów na resztę z dzielenia.
+
+Wróćmy teraz do fragmentów kodu, które pokazałem. Zdecydowanie najpopularniejszym językiem, który w taki sposób implementuje domyślnie operację modulo, jest Python. Oprócz niego tak zdefiniowaną tę operację mają między innymi Lua, Perl, R, Ruby, Scratch, TCL, a także popularne arkusze kalkulacyjne.
+
+### Dzielenie z zaokrągleniem
+
+Kolejną definicją jest ta, którą przedstawiono w standardzie IEEE-754 (standard zapisu liczb zmiennoprzecinkowych). Według niej zamiast podłogi stosujemy zwykłe zaokrąglenie do najbliższej liczby całkowitej.
+
+$$
+r = a - b\cdot \text{round}\left( \frac{a}{b} \right)
+$$
+
+Jak można się domyśleć, wciąż będziemy mieć liczby ujemne, stąd nie będzie zgodności z matematyczną definicją. Jednak tradycyjnie sprawdźmy nasze cztery przypadki testowe:
+
+$$
+\begin{cases}
+8 \text{ mod } 5 = 8 - 5 \text{ round}\left( \frac{8}{5}\right) = 8 -  5 \cdot 2=-2, \\
+-8  \text{ mod } 5 = -8 - 5 \text{ round}\left( \frac{-8}{5}\right) = -8 -  5 \cdot(-2)=2, \\
+8 \text{ mod } (-5) = 8 - (-5) \text{ round}\left( \frac{8}{-5}\right) = 8 +  5 \cdot (-2)=-2, \\
+-8 \text{ mod } (-5) = -8 - (-5) \text{ round}\left( \frac{-8}{-5}\right) = -8 +  5\cdot2=2
+\end{cases}
+$$
+
+Tutaj zdecydowanie najbardziej mijamy się z wynikami, jakie powinny być według definicji matematycznej, stąd też ten sposób jest najrzadziej spotykanym. Jeżeli już jest, to najczęściej jako jedna z alternatyw dla zwykłej operacji modulo, tak jak to pokazałem na przykładzie języka C. Wciąż ze względu na fakt, że sposób ten jest częścią jednego z najważniejszych standardów w informatyce, trzeba było o nim wspomnieć.
+
+### Dzielenie euklidejskie wg R.T. Boute'a
+
+Wszystkie powyższe sposoby obliczały resztę z dzielenia, jednak żaden z nich nie robił tego w poprawny matematycznie sposób. Według definicji matematycznej reszta z dzielenia powinna być zawsze dodatnia, czego nie zapewniał żaden z pokazanych wzorów. Problem ten rozwiązał w swojej pracy z 1992 r. R. T. Boute ([doi:10.1145/128861.128862](https://doi.org/10.1145/128861.128862)).
+
+Za podstawę bierzemy dowolną z dwóch definicji — odciętą lub z podłogą, ponieważ dla dodatnich liczb zawsze dają poprawny wynik. Natomiast w pozostałych przypadkach zachowujemy się następująco:
+
+$$
+\begin{align*}
+a \text{ mod } (-b) &= a \text{ mod } b \\
+-a \text{ mod } b &= -(a \text{ mod } b) + b \cdot I \cdot J \\
+&\text{gdzie: } \\
+J = \text{jeśli } b < 0 &\text{, wtedy } (-1); \text{w przeciwnym wypadku } 1  \\
+I = \text{jeśli } a/b \in \Z &\text{, wtedy } 0; \text{ w przeciwnym wypadku } 1
+\end{align*}
+$$
+
+Ewentualnie można zastosować równoważny wzór:
+
+$$
+r = a - \vert b \rvert \left\lfloor \frac{a}{\vert b \rvert} \right\rfloor
+$$
+
+Jednak czy wzór ten na pewno zapewni nam wyniki zgodne z matematyczną definicją? Sprawdźmy:
+
+$$
+\begin{cases}
+8 \text{ mod } 5 = 8 - \vert 5\rvert \left\lfloor \frac{8}{\vert 5 \rvert }\right\rfloor = 8 -  5 \left\lfloor \frac{8}{5}\right\rfloor =  8 -  5 \cdot 1=3, \\
+-8  \text{ mod } 5 = -8 - \vert 5\rvert \left\lfloor \frac{-8}{\vert 5 \rvert }\right\rfloor = -8 -  5 \left\lfloor \frac{-8}{5}\right\rfloor =  -8 -  5 \cdot (-2)=2 \\
+8 \text{ mod } (-5) = 8 - \vert -5\rvert \left\lfloor \frac{8}{\vert -5 \rvert }\right\rfloor = 8 -  5 \left\lfloor \frac{8}{5}\right\rfloor =  8 -  5 \cdot 1=3, \\
+-8 \text{ mod } (-5) = -8 - \vert -5\rvert \left\lfloor \frac{-8}{\vert -5 \rvert }\right\rfloor = -8 -  5 \left\lfloor \frac{-8}{5}\right\rfloor =  -8 -  5 \cdot (-2)=2
+\end{cases}
+$$
+
+Wyniki w każdym przypadku są poprawne, tak więc ostatecznie otrzymaliśmy wzór zgodny z definicją matematyczną. Jednak wśród języków programowania jest to mało popularne podejście. Z pokazanych na początku artykułu, w taki sposób oblicza Dart, ale podobnie jest też w takich językach, jak ABAP, Maple czy Pascal (nie w każdej implementacji).
+
+## Przekształcenia formy „obciętej”
+
+Z racji tego, że najbardziej powszechne w językach programowania jest obliczanie reszty z dzielenia w postaci „obciętej”, to możemy chcieć przekształcić tę formę do innej z tutaj pokazanych, w szczególności do euklidejskiej.
+
+### Algorytm E
+
+Algorytm E pozwala nam przekształcić resztę z dzielenia obliczaną z wykorzystaniem operacji `trunc` na zgodną z euklidejską. Matematyczny wzór wygląda tutaj następująco:
+
+$$
+\begin{align*}
+r &= r_T + I \cdot b \\
+&\text{gdzie:}\\
+I &= \begin{cases}
+0 & \text{jeśli } r_T \geqslant 0, \\
+1 & \text{jeśli } r_T < 0 \text{ oraz } b > 0, \\
+-1 & \text{jeśli } r_T < 0 \text{ oraz } b < 0
+\end{cases} \\
+r_T &\text{ — reszta z dzielenia obliczona z funkcją trunc} \\
+b &\text{ — dzielnik}
+\end{align*}
+$$
+
+W kodzie (JavaScript) moglibyśmy to dość prosto przedstawić w następujący sposób:
+
+```javascript
+function mod(a, b) {
+  var r = a % b;
+  if (r < 0) {
+    if (b > 0) {
+      r = r + b;
+    } else {
+      r = r - b;
+    }
+  }
+  return r;
+}
+```
+
+Przetestujmy jego działanie „na kartce”. Jeżeli chcesz sobie przypomnieć wartości, które musimy poprawić, możesz zerknąć w wyniki z języka C. Oto obliczenia:
+
+$$
+\begin{cases}
+8 \text{ mod } 5 = 3 + 0 \cdot 5 = 3, \\
+-8  \text{ mod } 5 = -3 + 1\cdot 5 = 2,\\
+8 \text{ mod } (-5) = 3 + 0 \cdot (-5) = 3, \\
+-8 \text{ mod } (-5) = -3 + (-1) \cdot (-5) = -3+5=2
+\end{cases}
+$$
+
+Jak widać, byliśmy w stanie szybko poprawić wyniki, które otrzymamy w znacznej większości języków programowania, tak aby były zgodne z matematyczną definicją reszty z dzielenia.
+
+### Algorytm F
+
+Postać euklidejska jest najważniejsza, jednak jeśli z jakiegoś powodu chciał(a)byś z formy „obciętej” uzyskać rezultat jak w „dzieleniu z podłogą”, możesz skorzystać z algorytmu F.  Wygląda on następująco:
+
+$$
+\begin{align*}
+r &= r_T + I \cdot b \\
+&\text{gdzie:}\\
+I &= \begin{cases}
+1 & \text{jeśli } \text{signum}(r_T) \neq \text{signum}(b), \\
+0 & \text{w przeciwnym przypadku }
+\end{cases} \\
+\text{signum}(n)&\text{ — funkcja zwracająca znak liczby } n\\
+\end{align*}
+$$
+
+Kod tego algorytmu w JavaScript wygląda następująco:
+
+```javascript
+function mod(a, b) {
+  var r = a % b;
+  if ((r > 0 && b < 0) || (r < 0 && b > 0)) {
+    r = r + b;
+  }
+  return r;
+}
+```
+
+Ponownie przetestujmy ten wzór ręcznie:
+
+$$
+\begin{cases}
+8 \text{ mod } 5 = 3 + 0 \cdot 5 = 3, \\
+-8  \text{ mod } 5 = -3 + 1\cdot 5 = 2,\\
+8 \text{ mod } (-5) = 3 + 1 \cdot (-5) = -2, \\
+-8 \text{ mod } (-5) = -3 + 0 \cdot (-5) = -3
+\end{cases}
+$$
+
+Jeśli przypomnimy sobie wyniki, które zwrócił nam Python, to wszystko się zgadza. Aczkolwiek warto wiedzieć, że w praktyce prędzej przyda się poprzedni algorytm niż ten.
+
+## Podsumowanie
+
+Jak mogłeś(-aś) zauważyć, tak pozornie prosta i oczywista operacja matematyczna, jak obliczenie reszty z dzielenia, wcale taką być nie musi. Aczkolwiek jeśli czytasz mojego bloga od pewnego czasu, to już pewnie jesteś do tego przyzwyczajony(-na).
+
+W takim razie pamiętaj, że kiedy będziesz musiał(a) wykonywać w algorytmach operację modulo, upewnij się, czy możesz mieć do czynienia z liczbami ujemnymi, a jeśli tak, to jakie wyniki w tym przypadku powinny być zwracane. Już w poprzednim artykule, przy obliczaniu dnia tygodnia, zwracałem na to uwagę, ale to nie jedyny taki przypadek w całym gronie algorytmów i wzorów matematycznych.
+
+## Literatura
+
+- Knuth, D. E., „Integer Functions and Elementary Number Theory” *The Art of Computer Programming Volume 1 Fundamental Algorithms Third Edition*. Addison-Wesley, 2020, s. 39-45
+- Raymond T. Boute. 1992. The Euclidean definition of the functions div and mod. *ACM Trans. Program. Lang. Syst.* 14, 2 (April 1992), 127–144. DOI:[https://doi.org/10.1145/128861.128862](https://doi.org/10.1145/128861.128862)
+- "IEEE Standard for Floating-Point Arithmetic," in *IEEE Std 754-2019 (Revision of IEEE 754-2008)*, vol., no., pp.1-84, 22 July 2019, doi:10.1109/IEEESTD.2019.8766229.
+- Leijen, Daan. "Division and modulus for computer scientists." (2003).
+
+<small>(zdjęcie na okładce pochodzi z serwisu [Max Pixel](https://www.maxpixel.net/Money-Economy-Finance-Save-Coins-Piggy-Bank-5906402), udostępnione w domenie publicznej)</small>

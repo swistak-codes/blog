@@ -1,0 +1,142 @@
+@use '../../consts';
+
+$width: 300px;
+$hide-width: 35px;
+$breakpoint: consts.$page-width + $width * 2 + 50px;
+
+.floatingIfFullScreen {
+  @media (min-width: $breakpoint) {
+    position: fixed;
+    width: $width + $hide-width;
+    box-sizing: border-box;
+    top: 0;
+    right: 0;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    margin-right: 0;
+    transition: margin-right 0.5s ease-in-out;
+  }
+
+  &.hiddenFloat {
+    @media (min-width: $breakpoint) {
+      margin-right: -$width;
+    }
+  }
+}
+
+.hideButton {
+  display: none;
+
+  @media (min-width: $breakpoint) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    width: $hide-width;
+    position: relative;
+    background: var(--sc__similarPosts--hideButtonBackground);
+    border-top-left-radius: 50%;
+    border-bottom-left-radius: 50%;
+    padding: 1rem 0 1rem 0;
+    cursor: pointer;
+    pointer-events: initial;
+
+    svg {
+      display: block;
+      fill: var(--sc__similarPosts--hideButtonColor);
+      transform: rotate(0deg) scale(0.5);
+      width: 384px;
+    }
+  }
+
+  &.collapsedButton {
+    @media (min-width: $breakpoint) {
+      svg {
+        transform: rotate(180deg) scale(0.5);
+      }
+    }
+  }
+}
+
+.similarPostsContainer {
+  background-color: var(--sc__similarPosts--background);
+  box-shadow: var(--sc--siteShadow);
+  pointer-events: initial;
+
+  strong {
+    box-sizing: border-box;
+    text-align: center;
+    display: block;
+    width: 100%;
+    padding: 1rem;
+    background-color: var(--sc__similarPosts--titleBackground);
+  }
+}
+
+.similarPostsWrapper {
+  display: flex;
+  flex-direction: row;
+  padding: 1rem;
+  gap: 1rem;
+  align-items: baseline;
+
+  @media (min-width: $breakpoint) {
+    flex-direction: column;
+  }
+}
+
+.postBox {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  width: 100%;
+
+  a {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    text-decoration: none;
+    font-weight: bold;
+    width: 100%;
+
+    &:hover {
+      cursor: pointer;
+      transform: scale(1.05);
+
+      img {
+        filter: blur(1px);
+      }
+    }
+  }
+}
+
+.postImage {
+  aspect-ratio: 16/9;
+  width: 100%;
+  max-width: 200px;
+  position: relative;
+
+  img {
+    position: absolute;
+    inset: 0px;
+    box-sizing: border-box;
+    padding: 0px;
+    border: medium;
+    margin: auto;
+    display: block;
+    width: 0px;
+    height: 0px;
+    min-width: 100%;
+    max-width: 100%;
+    min-height: 100%;
+    max-height: 100%;
+    object-fit: cover;
+  }
+}

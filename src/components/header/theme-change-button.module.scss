@@ -1,0 +1,38 @@
+.container {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+}
+
+.toggle {
+  &:global(.react-toggle--checked) {
+    &:hover :global(.react-toggle-track) {
+      background-color: lightgray !important;
+    }
+
+    :global(.react-toggle-track) {
+      background-color: white;
+    }
+
+    i {
+      margin: -3px 0;
+    }
+  }
+
+  &:not(:global(.react-toggle--checked)) {
+    i {
+      margin: -3px;
+    }
+  }
+
+  :global(.react-toggle-track-check) {
+    display: flex;
+  }
+
+  :global(.react-toggle-track-x) {
+    display: flex;
+  }
+}

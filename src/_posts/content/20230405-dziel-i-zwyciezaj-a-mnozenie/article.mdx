@@ -1,0 +1,244 @@
+import Link from 'next/link';
+import {Image} from '@swistak-codes/components';
+import cover from './rodzina_swistakow.jpg';
+
+export const meta = {
+  title: 'Dziel i zwyciężaj a mnożenie',
+  abstract:
+    'Artykuł przedstawia algorytm Karacuby, który wykorzystuje strategię „dziel i zwyciężaj” w celu przemnożenia dwóch liczb.',
+  firstParagraph: (
+    <>
+      Podczas nauki programowania jedną z pierwszych koncepcji z zakresu projektowania algorytmów, którą poznajemy, jest „dziel i zwyciężaj”. Poznaje się ją w kontekście <Link href="/post/wyszukiwanie-w-listach">wyszukiwania binarnego</Link>, a niektórzy nauczyciele przypominają, że strategia ta jest też wykorzystywana w <Link href="/post/sortowanie-cz-5-dziel-i-zwyciezaj">najszybszych algorytmach sortowania</Link>. Jednak wiesz, że to podejście ma jeszcze więcej zastosowań? W artykule chciałem pokazać moim zdaniem jedno z ciekawszych — algorytm Karacuby, czyli algorytm szybkiego mnożenia oparty na „dziel i zwyciężaj”.
+    </>
+  ),
+  keyword: 'mnożenie',
+  categories: ['Matematyka', 'Algorytmy'],
+  tags: [
+    'javascript',
+    'matematyka',
+    'mnożenie',
+    'mnożenie pisemne',
+    'algorytm Karacuby'
+  ],
+  slug: 'dziel-i-zwyciezaj-a-mnozenie',
+  updateTime: '2023-04-05T07:00:00+00:00',
+  publishTime: '2023-04-05T07:00:00+00:00',
+  cover,
+};
+
+## Standardowy algorytm mnożenia
+
+W jaki sposób działa sama operacja mnożenia, opisywać nie będę, ale zanim przejdziemy do podejścia, które chciałem opisać w tym artykule, omówmy sobie algorytmicznie klasyczne podejście do operacji mnożenia.
+
+Uprzedzając pomysły — nie robimy tego w pętli `for`, powtarzając dodawanie mnożnej do siebie tyle razy, ile wynosi mnożnik. To akurat byłoby dość kiepskim pomysłem.
+
+Ogólnie stosowanym w informatyce algorytmem mnożenia (o złożoności $$\Omicron(n^2)$$, gdzie $$n$$ to liczba cyfr) jest... algorytm pisemnego mnożenia (w angielskiej literaturze: long multiplication). Tak, dokładnie ten sposób, który poznałeś(-aś) w pierwszych latach podstawówki, stanowi trzon implementacji operacji mnożenia w komputerach. Zakładam, że każdy orientuje się, jak to się robi, stąd nie będę tego rozpisywać słownie. Natomiast poniżej możesz zobaczyć, w jaki sposób moglibyśmy zapisać to w kodzie (JavaScript):
+
+```javascript
+// dla ułatwienia zakładamy, że a i b są typu string
+// zakładamy również, że liczby mogą być tylko naturalne
+function multiply(a, b) {
+  // tworzymy tablicę na wynik
+  const product = []
+  // iterujemy po kolejnych cyfrach mnożnika, od tyłu
+  for (let i = b.length - 1; i >= 0; i--) {
+    // zmienna przechowująca przeniesioną cyfrę
+    let carry = 0;
+    // aktualna cyfra mnożnika
+    const multiplicand = parseInt(b[i]);
+    // iterujemy po kolejnych cyfrach mnożnej, od tyłu
+    for (let j = a.length - 1; j >= 0; j--) {
+      // aktualna cyfra mnożnej
+      const multiplier = parseInt(a[j]);
+      // aktualnie wyliczona cyfra wyniku na interesującej nas pozycji
+      // jeśli nie istnieje, bierzemy 0
+      const currentDigit = product[i + j + 1] || 0;
+      // dodajemy do aktualnej cyfry przeniesioną cyfrę oraz iloczyn cyfr mnożnej i mnożnika
+      const currentResult = currentDigit + carry + multiplicand * multiplier
+      // zapisujemy aktualną wartość przeniesienia
+      // dzielenie przez 10, ponieważ operujemy w systemie dziesiętnym
+      carry = Math.trunc(currentResult / 10);
+      // zapisujemy odpowiednią cyfrę do wyniku
+      product[i + j + 1] = currentResult % 10;
+    }
+    // gdy przeszliśmy przez całą mnożną, zapisujemy przeniesioną cyfrę do wyniku
+    if (carry > 0) {
+      product[i] = carry;
+    }
+  }
+
+  // zwracamy iloczyn jako string
+  return product.join('');
+}
+```
+
+Kod możesz przetestować na [repl.it](https://replit.com/@tswistak/long-multiplication#index.js). Zwrócę tylko uwagę, że pokazany tutaj sposób nie musi być optymalną implementacją, a bardziej chodziło mi o przedstawienie samej idei, jak mnożenie pisemne można zapisać w postaci kodu.
+
+Jednak nie skupiajmy się na tym algorytmie, bo to nie jemu poświęcony jest ten artykuł.
+
+## Algorytm Karacuby
+
+Powyższy algorytm jest bardzo prosty i można wręcz powiedzieć, że każdy go zna. Jednak ma wadę w postaci wysokiej złożoności obliczeniowej. Nawet przy liczeniu na kartce nie jest to podejście najszybsze. Na postęp w tej dziedzinie czekaliśmy aż do 1960 roku, kiedy to Anatolij Karacuba (w anglojęzycznych źródłach Anatoly Karatsuba) opracował algorytm pozwalający mnożyć ze złożonością obliczeniową $$\Omicron(n^{log_2{3}})$$, czyli w przybliżeniu $$\Omicron(n^{1.58})$$.
+
+### Idea algorytmu
+
+Podstawowy zamysł algorytmu jest taki, że mając liczby $$a$$ i $$b$$, które chcemy pomnożyć, możemy je rozbić na cztery mniejsze. Dzięki temu co prawda wykonamy więcej różnych mnożeń, ale będziemy mnożyć mniejsze liczby, ostatecznie zmniejszając liczbę wykonywanych operacji.
+
+#### Podstawy matematyczne
+
+Załóżmy, że $$a$$ i $$b$$ możemy przedstawić w postaci $$n$$ cyfr w <Link href="/post/systemy-liczbowe-uzupelnienie">systemie pozycyjnym</Link> o podstawie $$B$$ (w systemie dziesiętnym $$B = 10$$). Dla dowolnej dodatniej liczby całkowitej $$m$$ mniejszej od $$n$$ możemy zapisać obie liczby w następujący sposób:
+
+$$
+\begin{align*}
+a &= a_1 \cdot B^m + a_0 \\
+b &= b_1 \cdot B^m + b_0
+\end{align*}
+$$
+
+Zarówno $$x_0$$, jak i $$x_1$$ muszą być mniejsze od $$B^m$$. Warto dodać, że mimo iż $$B^m$$ wygląda na bardzo ciężką operacją, tak naprawdę jest to tylko dodanie $$m$$ zer do liczby. Dla przykładu, jeśli jesteśmy w systemie dziesiętnym, a $$m = 6$$, to otrzymamy bardzo proste równanie: $$54 \cdot 10^6 = 54000000$$.
+
+Po rozbiciu w taki sposób liczb na cztery mniejsze możemy zauważyć, że:
+
+$$
+\begin{align*}
+a \cdot b &= \left(a_1 \cdot B^m + a_0 \right)\left( b_1 \cdot B^m + b_0 \right) \\
+&= a_1b_1B^{2m} + \left(a_1b_0 + a_0b_1 \right)B^m + a_0b_0 \\
+&= z_2 B^{2m} + z_1B^m + z_0
+\end{align*}
+$$
+
+Dla uproszczenia zapisu i dalszych obliczeń wprowadziliśmy trzy zmienne $$z$$, które wynoszą:
+
+$$
+\begin{align*}
+z_0 &= a_0b_0 \\
+z_1 &= a_1b_0 + a_0b_1 \\
+z_2 &= a_1b_1
+\end{align*}
+$$
+
+W tym momencie mamy już zdecydowanie prostszy wzór na mnożenie, jednak wciąż nie jest to algorytm Karacuby. To, co do tej pory wyznaczyliśmy, to sposób na mnożenie, który w 1864 r. opisał Charles Babbage. Karacubie zawdzięczamy zauważenie, że możemy wykonać jedynie trzy mnożenia zamiast czterech. W tym celu musimy zmienić najbardziej „zawiłą” część wzoru, czyli $$z_1$$. Wykorzystując $$z_0$$ i $$z_2$$, możemy pozbyć się jednego z mnożeń w następujący sposób:
+
+$$
+\begin{align*}
+z_1 &= a_1b_0+a_0b_1 \\
+&= a_1b_0+a_0b_1+a_1b_1-a_1b_1+a_0b_0-a_0b_0 \\
+&= a_1b_0+a_0b_0 + a_0b_1 + a_1b_1 - a_1b_1 - a_0b_0 \\
+&= \left(a_0+a_1 \right)b_0 + \left(a_0+a_1 \right)b_1 - a_1b_1 - a_0b_0 \\
+&= \left(a_0+a_1 \right) \left(b_0+b_1 \right) - a_1b_1 - a_0b_0 \\
+&= \left(a_0+a_1 \right) \left(b_0+b_1 \right) - z_2 - z_0
+\end{align*}
+$$
+
+#### Przykład „na kartce”
+
+Policzmy sobie w ten sposób $$21370 \cdot 7312$$. Załóżmy, że $$m = 3$$ (oczywiście $$B = 10$$), stąd nasze liczby możemy przedstawić następująco:
+
+$$
+\begin{align*}
+21370 &= 21 \cdot 10^3 + 370 \\
+7312 &= 7 \cdot 10^3 + 312
+\end{align*}
+$$
+
+Obliczmy w takim razie składowe $$z$$:
+
+$$
+\begin{align*}
+z_2 &= 21 \cdot 7 = 147 \\
+z_0 &= 370 \cdot 312 = 115440 \\
+z_1 &= (21 + 370)(7 + 312) - z_2 - z_0 = 391 \cdot 319 - 147 - 115440 \\
+&= 124729 - 115587 = 9142
+\end{align*}
+$$
+
+Podstawmy teraz wartości do końcowego wzoru, aby uzyskać wynik:
+
+$$
+\begin{align*}
+21370 \cdot 7312 &= z_2 \cdot 10^{2m} + z_1 \cdot 10^m + z0 \\
+&= 147 \cdot 10^6 + 9142 \cdot 10^3 + 115440 \\
+&= 147000000 + 9142000 + 115440 \\
+&= 1156257440
+\end{align*}
+$$
+
+#### Mniej skomplikowanych mnożeń
+
+Patrząc na powyższe rozpisanie działania, możesz się zastanawiać — fakt, pozbyliśmy się mnożenia $$21370 \cdot 7312$$, ale dalej musieliśmy obliczyć wcale nie najprostsze $$370 \cdot 312$$ i $$391 \cdot 319$$. Pamiętajmy jednak, że nikt nas nie blokuje przed tym, żeby algorytm był rekurencyjny. Gdy napotykamy kolejne mnożenia dużych liczb, zastosujmy na nich ponownie algorytm Karacuby.
+
+Pamiętajmy jednak, że rekurencja musi mieć warunek końcowy. Najprostszy, który możemy zrobić, to taki, że wykonujemy zwykłe mnożenie wtedy, gdy jedna z liczb jest jednocyfrowa. Wówczas wiemy, że dalsze dzielenie liczby na mniejsze nie ma już sensu, a obliczenie powinno być dosyć proste.
+
+W tym momencie warto też dodać, że jeśli będziemy przekładać algorytm Karacuby na język programowania, warto sobie zdefiniować, jak wyznaczać wartość $$m$$. Najprościej jest potraktować, że jest to połowa długości (mierzonej w cyfrach) najdłuższej z liczb. Wtedy z każdym wywołaniem rekurencyjnym będziemy dzielić największą liczbę „na pół” (wizualnie), co da prosty i sensownie działający kod.
+
+### Implementacja
+
+Poniżej znajdziesz implementację algorytmu Karacuby w języku JavaScript. Daleko jej do idealnej, ale pokazuje, jak możemy przenieść powyższą ideę na dość prosty algorytm rekurencyjny. Zanim jednak przejdziemy do kodu, parę uwag odnośnie rzeczy komplikujących kod względem tego, co opisałem powyżej:
+
+- Z racji tego, iż liczby są ciągiem znaków, może się przytrafić na skutek „dzielenia”, że ciąg będzie się zaczynać od zera lub składać tylko z nich. Musimy taki przypadek obsłużyć, usuwając zera.
+- Na wejściu algorytm przyjmuje typ `string` i na nim też operuje, więc przy wywołaniu rekurencyjnym obliczającym $$z_1$$ będziemy musieli przekonwertować wartość na typ liczbowy, żeby wykonać mnożenie, a potem z powrotem na `string`.
+- Tutaj też pojawia się kolejny problem. Algorytm miał obsłużyć mnożenie dużych liczb, ale w tym momencie ograniczamy się wbudowanym typem liczbowym. Oczywiście w prawdziwym środowisku prawdopodobnie obok tego kodu znajdowałyby się również funkcje do obsługi dodawania, odejmowania i potęgowania, więc nie byłoby czym się przejmować, ale w takim typowo treningowym jest już gorzej. Warto pamiętać, że zawsze możemy skorzystać z wbudowanych w język typów do obsługi dużych liczb, np. `BigInt` w JavaScript.
+
+Przejdźmy już do kodu:
+
+```javascript
+// dla ułatwienia zakładamy, że a i b są typu string
+// zakładamy również, że liczby mogą być tylko naturalne
+function karatsuba(a, b) {
+  // usuwamy zera na przodzie liczb, aby nie zaburzyły algorytmu
+  // wykorzystamy do tego proste wyrażenie regularne
+  a = a.replace(/^0+/, '');
+  b = b.replace(/^0+/, '');
+  // jeśli jedna z liczb jest jednocyfrowa, wykonujemy tradycyjne mnożenie
+  if (a.length < 2 || b.length < 2) {
+    return parseInt(a || '0') * parseInt(b || '0');
+  }
+  // znajdujemy, ile cyfr ma pozostać w drugiej części liczby
+  const m = Math.trunc(Math.max(a.length, b.length) / 2);
+  // obliczamy punkt podziału dla każdej z liczb
+  const aM = a.length - m;
+  const bM = b.length - m;
+  // dzielimy liczby na mniejsze
+  // jeśli po podziale nic nie zostaje w pierwszej części, dajemy 0
+  const a1 = a.substring(0, aM) || '0';
+  const a0 = a.substring(aM);
+  const b1 = b.substring(0, bM) || '0';
+  const b0 = b.substring(bM);
+  // wywołujemy algorytm rekurencyjnie dla mniejszych liczb
+  const z0 = karatsuba(a0, b0);
+  const z2 = karatsuba(a1, b1);
+  // tutaj niestety musimy dokonać konwersji typów
+  const z1 = karatsuba(
+    (parseInt(a1) + parseInt(a0)).toString(),
+    (parseInt(b1) + parseInt(b0)).toString()
+  ) - z2 - z0;
+  // zwracamy rezultat zgodnie ze wzorem
+  return (z2 * Math.pow(10, m * 2)) + (z1 * Math.pow(10, m)) + z0;
+}
+```
+
+Kod znajdziesz na [repl.it](https://replit.com/@tswistak/karatsuba#index.js). Zamieszczam jeszcze drugą wersję opartą na BigInt [na tym repl.it](https://replit.com/@tswistak/karatsuba-bigint).
+
+## Inne algorytmy mnożenia
+
+Algorytm Karacuby nie jest jedynym algorytmem mnożenia szybszym od mnożenia pisemnego. Donald Knuth w Sztuce Programowania poświęca dużo uwagi dwóm innym algorytmom:
+
+- Algorytm Tooma-Cooka. W wersji opisanej przez Knutha (różni się od oryginalnej), znanej jako Algorytm T, osiąga złożoność obliczeniową $$\Omicron\left(n2^{\sqrt{2\log n}} \log n \right)$$.
+- Algorytm Schönhage–Strassena. Autorzy opisali, że algorytm zaimplementowany zgodnie z ich myślą powinien osiągnąć złożoność obliczeniową $$\Omicron(n \log n \log\log n)$$.
+
+Są też nowsze podejścia. Algorytm, który najprawdopodobniej jest już nie do pokonania pod kątem złożoności, został opisany w 2021 r. (opracowany w 2019 r.) przez Davida Harveya i Jorisa van der Hoevena (doi:[10.4007/annals.2021.193.2.4](https://doi.org/10.4007%2Fannals.2021.193.2.4)). Wynosi ona $$\Omicron(n \log n)$$, co uważa się za granicę, poniżej której nie jesteśmy w stanie zejść dla mnożenia (przynajmniej zdaniem autorów algorytmu).
+
+## Podsumowanie
+
+Pisząc ten artykuł, chciałem głównie zwrócić uwagę na to, że słynna strategia projektowania algorytmów „dziel i zwyciężaj” ma bardzo szerokie zastosowania nawet w tak podstawowym zagadnieniu, jakim jest mnożenie. A przy okazji, na samym początku artykułu mogłeś(-aś) zobaczyć, że nawet takie zupełne podstawy matematyki, które poznawaliśmy w podstawówce, mają swoje zastosowanie w informatyce.
+
+## Literatura
+
+- Multiplication algorithm, https://en.wikipedia.org/w/index.php?title=Multiplication_algorithm&oldid=1142724836 (ostatnie odwiedziny 13.03.2023).
+- Knuth, D. E. “How Fast Can We Multiply?” w *The art of computer programming: Volume 2.*. Addison-Wesley, 2011, s. 294-318
+- Karatsuba algorithm, https://en.wikipedia.org/w/index.php?title=Karatsuba_algorithm&oldid=1136568213 (ostatnie odwiedziny 13.03.2023).
+- Charles Babbage, Chapter VIII – Of the Analytical Engine, Larger Numbers Treated, *Passages from the Life of a Philosopher*, Longman Green, Londyn, 1864; s. 125
+- David Harvey. Joris van der Hoeven. "Integer multiplication in time O(nlogn)." Ann. of Math. (2) 193 (2) 563 - 617, March 2021. doi:[10.4007/annals.2021.193.2.4](https://doi.org/10.4007/annals.2021.193.2.4)
+- Klarreich, E. (2019). Multiplication hits the speed limit. Communications of the ACM, 63(1), 11–13. doi:[10.1145/3371387](https://doi.org/10.1145/3371387)
+
+<small>Zdjęcie na okładce wygenerowane przez DALL-E.</small>

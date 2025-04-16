@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+    <channel>
+        <title>świstak.codes — Wpisy offtopic</title>
+        <link>https://swistak.codes</link>
+        <description></description>
+        <lastBuildDate>Wed, 24 Apr 2024 07:00:00 GMT</lastBuildDate>
+        <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
+        <generator>https://github.com/jpmonette/feed</generator>
+        <image>
+            <title>świstak.codes — Wpisy offtopic</title>
+            <url>https://swistak.codes/fav270.png</url>
+            <link>https://swistak.codes</link>
+        </image>
+        <copyright>Wszystkie prawa zastrzeżone 2020-2024, Tomasz Świstak</copyright>
+        <item>
+            <title><![CDATA[Historie zza kulis bloga na 4-lecie]]></title>
+            <link>https://swistak.codes/offtopic/historie-zza-kulis-bloga-4-lecie</link>
+            <guid>https://swistak.codes/offtopic/historie-zza-kulis-bloga-4-lecie</guid>
+            <pubDate>Wed, 24 Apr 2024 07:00:00 GMT</pubDate>
+            <description><![CDATA[Parę ciekawostek i przemyśleń związanych z prowadzeniem i utrzymaniem bloga świstak.codes.]]></description>
+            <content:encoded><![CDATA[ Niemal 4 lata temu opublikowałem pierwszy wpis na blogu świstak.codes. Miałem już okazję opisywać rewolucję po 2 latach istnienia i podzielić się  różnymi statystykami na 3-lecie. Tym razem jednak rewolucji nie ma, też nie chcę dzielić się jedynie prostymi statystykami. Zamiast tego opiszę kilka (moim zdaniem) ciekawych rzeczy związanych z prowadzeniem tej strony.<br /><a href="https://swistak.codes/offtopic/historie-zza-kulis-bloga-4-lecie">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[(prawie) Codzienny wtręt programisty (31-40)]]></title>
+            <link>https://swistak.codes/offtopic/prawie-codzienny-wtret-programisty</link>
+            <guid>https://swistak.codes/offtopic/prawie-codzienny-wtret-programisty</guid>
+            <pubDate>Wed, 31 May 2023 07:00:00 GMT</pubDate>
+            <description><![CDATA[Teksty publikowane przeze mnie na social mediach w ramach serii „(prawie) Codzienny wtręt programisty”. Części 31-40.]]></description>
+            <content:encoded><![CDATA[ (prawie) Codzienny wtręt programistyczny to seria krótkich wpisów na moich social mediach, gdzie dzieliłem się krótkimi radami i przemyśleniami na temat programowania. W tym artykule znajdziesz spisane treści wpisów o numerach od 31 do 40.<br /><a href="https://swistak.codes/offtopic/prawie-codzienny-wtret-programisty">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[Codzienny wtręt programisty (1-30)]]></title>
+            <link>https://swistak.codes/offtopic/codzienny-wtret-programisty</link>
+            <guid>https://swistak.codes/offtopic/codzienny-wtret-programisty</guid>
+            <pubDate>Tue, 28 Mar 2023 07:00:00 GMT</pubDate>
+            <description><![CDATA[Teksty publikowane przeze mnie na social mediach w ramach serii „Codzienny wtręt programisty”. Części 1-30.]]></description>
+            <content:encoded><![CDATA[ Codzienny wtręt programistyczny to seria codziennych, krótkich wpisów na moich social mediach, gdzie dzieliłem się krótkimi radami i przemyśleniami na temat programowania. Na razie przez 30 dni, ale możliwe, że będę go kontynuować. W tym artykule znajdziesz spisane treści wszystkich tych wpisów.<br /><a href="https://swistak.codes/offtopic/codzienny-wtret-programisty">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+        <item>
+            <title><![CDATA[świstak.codes powraca!]]></title>
+            <link>https://swistak.codes/offtopic/swistak-codes-powraca</link>
+            <guid>https://swistak.codes/offtopic/swistak-codes-powraca</guid>
+            <pubDate>Wed, 18 May 2022 07:00:00 GMT</pubDate>
+            <description><![CDATA[świstak.codes po przerwie powróciło do nadawania nowych wpisów! Więcej szczegółów w środku.]]></description>
+            <content:encoded><![CDATA[ W końcu nadszedł ten długo oczekiwany dzień. świstak.codes powróciło w nowej odsłonie.  Poza dość widoczną zmianą wyglądu, zmieniła się część techniczna strony — nie polegam już na WordPressie, tylko w całości na autorskim rozwiązaniu. Jesteś ciekaw(a) szczegółów? Więcej w dalszej części wpisu.<br /><a href="https://swistak.codes/offtopic/swistak-codes-powraca">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
+    </channel>
+</rss>

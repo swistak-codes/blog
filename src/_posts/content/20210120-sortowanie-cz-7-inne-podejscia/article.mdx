@@ -1,0 +1,139 @@
+import Link from 'next/link';
+import {Image, Iframe} from '@swistak-codes/components';
+import cover from './kurczak-gnom.jpg';
+import bstOdczyt from './bst-odczyt.png';
+import bstDodawanie from './drzewo-binarne-dodawanie.png'
+
+export const meta = {
+  title: 'Sortowanie, cz. 7 — inne podejścia',
+  abstract:
+    'W tym artykule omawiam kilka innych, mniej popularnych podejść do sortowania, które nie zmieściły się w poprzednich artykułach o sortowaniu.',
+  firstParagraph: (
+    <>
+      W ciągu sześciu ostatnich artykułów o sortowaniu opisałem najbardziej znane podejścia do sortowania oraz kilka wywodzących się od nich. Algorytmów sortowania jest jednak bardzo wiele i nie byłem w stanie omówić wszystkich tych, które planowałem. W tym artykule opisuję trzy algorytmy, które miały znaleźć się wcześniej na blogu, jednak z różnych powodów odłożyłem je na później — sortowanie odd-even, gnoma oraz drzewiaste.
+    </>
+  ),
+  keyword: 'sortowanie',
+  categories: ['Sortowanie'],
+  tags: [
+    'sortowanie',
+    'tree sort',
+    'drzewa',
+    'bst',
+    'sortowanie odd-even',
+    'sortowanie gnoma',
+    'gnome sort',
+    'sortowanie drzewiaste',
+    'drzewo binarne',
+    'binarne drzewo poszukiwań',
+    'dfs',
+    'depth-first search',
+    'in-order',
+    'przechodzenie w głąb'
+  ],
+  slug: 'sortowanie-cz-7-inne-podejscia',
+  updateTime: '2021-08-17T16:36:40+00:00',
+  publishTime: '2021-01-20T10:00:38+00:00',
+  cover,
+};
+
+## Uwaga wstępna
+
+Jeśli czytałeś poprzednie części, to wiesz, co mam tu do powiedzenia, więc tylko podaję link: [https://github.com/swistak-codes/sorting-algorithms](https://github.com/swistak-codes/sorting-algorithms).
+
+## Sortowanie odd-even
+
+Prawdę mówiąc, w tym przypadku nie znam polskiego tłumaczenia tej nazwy z żadnej polskojęzycznej literatury, dlatego trzymam się oryginalnej, angielskiej nazwy. Można ją przetłumaczyć na język polski jako nieparzyste-parzyste, jednak doskonale zdaję sobie sprawę z tego, że raczej ten, kto zna ten algorytm, kojarzy go z oryginalnej nazwy.
+
+Jest to algorytm sortowania przez zamianę bazujący na sortowaniu bąbelkowym, który również stanowi kolejne podejście do rozwiązania problemu żółwi i zajęcy. W tym przypadku stosujemy przeskoki co dwa elementy i najpierw iterujemy po elementach na nieparzystych indeksach, a potem na parzystych indeksach. Co warto wspomnieć, porównujemy i zamieniamy sąsiadujące ze sobą elementy, a nie rozstawione od siebie jak w sortowaniu grzebieniowym. Całość sortowania powtarzamy tak długo, aż tablica zostanie posortowana.
+
+Demonstrację działania algorytmu możesz zobaczyć poniżej:
+
+<Iframe src="/iframe-content/sorting-visualizer/index.html?algorithm=oddEvenSort" minHeight={620} />
+
+Algorytm ten, podobnie jak sortowanie bąbelkowe, ma złożoność obliczeniową $$O(n^2)$$, więc nie znajduje raczej praktycznych zastosowań. Też ciężko go nazwać optymalizacją bubble sortu, bo pomimo rozwiązania problemu wolno przemieszczających się elementów, wciąż mamy bardzo dużą liczbę porównań. Warto jednak wspomnieć, że na podobnej zasadzie działa algorytm Batcher's odd–even mergesort — zdecydowanie wydajniejszy, który jest jedną z wieloprocesorowych odmian sortowania przez scalanie.
+
+## Sortowanie gnoma
+
+Gnome sort (początkowo zwany stupid sort) to jeden z młodszych algorytmów, jakie miałem okazję rozpatrywać pod tę serię artykułów, ponieważ został opisany dopiero w 2000 roku przez H. Sarbazi-Asada. Można go nazwać swoistym połączeniem sortowania bąbelkowego z sortowaniem przez wstawianie.
+
+Idea algorytmu opiera się na tym, że przechodzimy po kolei po tablicy i jeśli natrafimy na element znajdujący się w złym miejscu, dokonujemy zamiany, a potem... zaczynamy się cofać w tablicy, aż element będzie na dobrym miejscu. Gdy element znajdzie się w dobrym miejscu, znowu idziemy do przodu.
+
+Dzięki takiemu podejściu mamy w naszym algorytmie tylko jedną pętlę wystarczającą do posortowania danych. Niestety jest to bardzo niewydajne podejście — zdecydowanie lepiej jest wrócić od razu do poprzednio rozpatrywanej pozycji, tak jak to jest zrobione w sortowaniu przez wstawianie. Możesz sprawdzić zachowanie algorytmu poniżej:
+
+<Iframe src="/iframe-content/sorting-visualizer/index.html?algorithm=gnomeSort" minHeight={620} />
+
+Algorytm nie ma praktycznych zastosowań (znowu złożoność $$O(n^2)$$) i można go traktować co najwyżej jako ciekawostkę.
+
+## Sortowanie drzewiaste
+
+W artykule o <Link href="/post/sortowanie-cz-4-sortowanie-przez-wybieranie">sortowaniu przez wybieranie</Link> omówiłem pokrótce struktury drzewiaste. Tam wykorzystaliśmy kopiec, który umożliwiał szybkie znalezienie największego elementu. Struktury tego typu możemy również inaczej wykorzystać w sortowaniu — mianowicie do samego posortowania elementów. Przykładem takiego rozwiązania jest algorytm sortowania drzewiastego. Wykorzystuje on strukturę zwaną binarnym drzewem poszukiwań (często powszechnie nazywana drzewem binarnym, jednak jest to określenie wprowadzające w błąd).
+
+### Binarne drzewo poszukiwań
+
+Binarne drzewo poszukiwań (z ang. binary search tree, BST) to bardzo ciekawa struktura danych. Jest to, jak nazwa wskazuje, drzewo, gdzie każdy element ma maksymalnie dwójkę dzieci i mamy dość ściśle wyznaczoną hierarchię. Lewe dziecko jest zawsze mniejsze od rodzica, natomiast prawe dziecko jest od niego większe. Hierarchia taka utrzymuje się przez całe drzewo. Tę ideę możesz znać z <Link href="/post/wyszukiwanie-w-listach">wyszukiwania binarnego</Link> — właśnie na nim bazuje BST.
+
+Możesz teraz zadać pytanie — jak budujemy takie drzewo? Otóż o ile w przypadku kopca wykorzystywaliśmy tablicę, tak tutaj każdy węzeł traktujemy jako oddzielny obiekt w pamięci. Każdy węzeł powinien zawierać: wartość węzła, referencję na lewe dziecko, referencję na prawe dziecko. Chcąc dodać element, wyszukujemy wolne miejsce, zaczynając od korzenia. Jest mniejszy od korzenia? Idziemy w lewo. Większy? W prawo. Jest już w danym miejscu? To powtarzamy procedurę — w lewo, gdy chcemy dodać element mniejszy, a w prawo, gdy większy. Powtarzamy to tak długo, aż trafimy na wolne miejsce.
+
+<Image
+  image={bstDodawanie}
+  alignCenter
+  fullSize
+  alt="Schemat dodawania elementu do drzewa przeszukiwań binarnych"
+  caption={<>
+    Schemat dodawania elementu do drzewa przeszukiwań binarnych. (1) Najpierw porównujemy wartość elementu, który chcemy dodać, z wartością korzenia. Jest mniejszy, więc schodzimy na lewego potomka. (2) Teraz znowu porównujemy. Wartość, którą chcemy dodać, jest większa, więc schodzimy do prawego potomka. (3) Prawy potomek jednak nie istnieje, co oznacza, że trafiliśmy na miejsce, gdzie wstawiamy element.
+  </>}
+/>
+
+Oznacza to, że drzewo, które budujemy, nie musi mieć ściśle ustalonej struktury pod kątem wymaganej liczby dzieci, tak jak to jest w przypadku kopca binarnego. Możemy nawet doprowadzić do przypadku, kiedy zawsze zapisujemy po lewej lub prawej stronie — wówczas nasze drzewo staje się... listą wiązaną. Jest to największa wada drzew BST. Można ją jednak rozwiązać, modyfikując procedurę dodawania przez uzupełnianie jej procedurami równoważenia drzewa, lecz wówczas mówimy już o innych strukturach danych, takich jak drzewa czerwono-czarne, AVL czy splay.
+
+### Odczytanie posortowanych danych
+
+Z racji, że drzewa przechowywane są w pamięci jako oddzielne obiekty, czyli nie jako tablica, musimy znaleźć sposób odczytu danych z nich tak, aby mieć je w interesującej nas kolejności. Biorąc pod uwagę powyżej pokazane drzewo, interesowałaby nas taka kolejność:
+
+<Image
+  image={bstOdczyt}
+  alignCenter
+  fullSize
+  alt="Schemat odczytywania elementów w kolejności rosnącej z drzewa przeszukiwań binarnych"
+  caption={<>
+    Kolejność odczytu elementów w BST pozwalająca odczytać elementy w kolejności rosnącej.
+  </>}
+/>
+
+Problem ten nazywa się fachowo przechodzeniem drzewa i mamy do tego wiele podejść. Mamy podejście w szerz (z ang. breadth-first search, BFS, a także level order), które odczytuje elementy po kolei poziomami. Istnieje również wiele podejść przechodzenia w głąb (z ang. depth-first search, DFS) i to wśród nich znajdziemy to interesujące nas — in-order.
+
+W przechodzeniu in-order odczytujemy dane w kolejności: lewe dziecko, aktualny węzeł, prawe dziecko. Wchodząc w każdy potomny węzeł, tak naprawdę wykonujemy przechodzenie po raz kolejny (rekurencyjnie). Przekładając na język programowania, wyglądałoby to następująco:
+
+```javascript
+function inOrder(node) {
+  if (!node) return;
+  inOrder(node.left);
+  console.log(node.value);
+  inOrder(node.right);
+}
+```
+
+Zakładam tutaj, że węzeł jest obiektem zawierającym trzy pola: left i right będące referencjami na dzieci (mogą być puste) oraz value przechowujące aktualną wartość. Na początku sprawdzamy, czy przekazany do funkcji węzeł istnieje, i jeżeli nie, to przerywamy wykonanie. Jeśli kontynuujemy, to wywołujemy rekurencyjnie tę samą funkcję dla lewego dziecka. Następnie wypisujemy wartość aktualnego elementu, a potem wywołujemy rekurencyjnie funkcję dla prawego dziecka. Oczywiście w przypadku algorytmu sortowania, zamiast wypisywać będziemy dodawać do wynikowej tablicy, jednak sama idea pozostaje taka sama.
+
+### Wydajność i zastosowania
+
+Algorytm możesz przetestować na poniższej wizualizacji:
+
+<Iframe src="/iframe-content/sorting-visualizer/index.html?algorithm=treeSort" minHeight={920} />
+
+Porównując z innymi opisanymi wcześniej algorytmami, tu osiągamy świetną złożoność obliczeniową w typowym przypadku ($$O(n\log{n})$$). W zasadzie pod tym kątem mamy podobną sytuację jak w sortowaniu szybkim. W takim razie, dlaczego nie używamy sortowania drzewiastego tylko quicksort? Właśnie przez użycie dodatkowej struktury danych, co zwiększa znacznie złożoność pamięciową.
+
+Zaletą sortowania drzewiastego jest możliwość optymalizacji pod kątem złożoności obliczeniowej przez stosowanie innych drzew niż BST. Rewelacyjne wyniki można osiągnąć korzystając z drzew splay (algorytm na nich bazujący nazywa się splaysort), jednak wciąż mamy dużą stratę pod kątem obciążenia pamięci.
+
+## Podsumowanie
+
+Zaprezentowane wyżej algorytmy należy traktować w dużej mierze w formie algorytmicznej ciekawostki (może z wyjątkiem sortowania drzewiastego). Mimo to warto poznawać nawet takie, aby widzieć, jakie różne sposoby na rozwiązanie problemu można wymyślić. Warto wiedzieć, że problem optymalnego posortowania dowolnych danych jest wciąż otwarty i świat informatyki wciąż czeka na algorytm, który będzie sortować przy złożoności obliczeniowej jak najbardziej zbliżonej do liniowej i jednocześnie jak najmniejszej pamięciowej. A jak wspomniałem na początku, nawet idea tak słabego algorytmu jak sortowanie odd-even może być wykorzystana w innym, dużo wydajniejszym.
+
+## Literatura
+
+- Grama A., Gupta A., Karypis G., Kumar V., „Odd-Even Transposition” w *Introduction to Parallel Computing, Second Edition.* Addison Wesley, 2003.
+- Hamid S-A. (2000). Stupid Sort: A new sorting algorithm. *Computing Science Glasgow Newsletter 599, 4.*
+- Cormen T. H., Leiserson C. E., Rivest R.L., „Drzewa poszukiwań binarnych” w *Wprowadzenie do algorytmów*. Warszawa: Wydawnictwa Naukowo-Techniczne, 2001, s. 284-304
+
+<small>(źródło zdjęcia na okładce: [pxhere](https://pxhere.com/en/photo/1042324))</small>

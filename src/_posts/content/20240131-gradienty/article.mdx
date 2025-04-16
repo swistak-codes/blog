@@ -1,0 +1,429 @@
+import Link from 'next/link';
+import {Image} from '@swistak-codes/components';
+import cover from './swistak_akwarelista.jpg';
+import {Gradient} from "./gradient";
+import {Presentation} from './presentation';
+import rgb from './800px-RGB_Cube_Show_lowgamma_cutout_a.png';
+import hsl from './HSL_color_solid_cylinder_saturation_gray.png';
+import cubicBezier from './cubic-bezier.png';
+
+export const meta = {
+  title: 'Rysowanie gradientów',
+  abstract:
+    'Artykuł opisuje, jak algorytmicznie podejść do tematu rysowania gradientów.',
+  firstParagraph: (
+    <>
+      W grafice często stosuje się gradienty, żeby zapewnić płynne przejście między jednym kolorem a drugim, co daje ciekawe efekty, jak np. stworzenie pozoru trójwymiarowości. Jednak w jaki sposób programy graficzne wyliczają, w którym miejscu powinien się znaleźć który kolor? Zbadajmy ten temat i sami spróbujmy narysować gradienty całkowicie algorytmicznie.
+    </>
+  ),
+  keyword: 'gradient',
+  categories: ['Grafika komputerowa', 'Programowanie'],
+  tags: [
+    'krzywe Béziera',
+    'javascript',
+    'interpolacja liniowa',
+    'wielomian Bernsteina',
+    'rgb',
+    'hsl',
+    'kolory',
+    'gradient'
+  ],
+  slug: 'gradienty',
+  updateTime: '2024-01-31T07:00:00+00:00',
+  publishTime: '2024-01-31T07:00:00+00:00',
+  cover,
+};
+
+## Uwaga wstępna
+
+W artykule będę zakładać, że znasz podstawowe pojęcia z grafiki komputerowej. Przede wszystkim przydatna będzie Ci znajomość, czym są przestrzenie barw. Jeśli tematu nie znasz lub czujesz, że wymaga odświeżenia, polecam swój starszy artykuł *<Link href="/post/jak-komputer-zapisuje-kolory">Jak komputer zapisuje kolory?</Link>* Przydatna będzie też znajomość zagadnień matematycznych, które opisałem w artykule o <Link href="/post/krzywe-beziera">krzywych Béziera</Link>.
+
+Polecam też przejrzeć inne moje artykuły z zakresu grafiki komputerowej, bo znajdziesz tam wytłumaczenia też innych pojęć, jednak niekoniecznie muszą być one potrzebne do zrozumienia w pełni tego artykułu. Jeśli temat Cię ciekawi, otwórz w nowej karcie <Link href="/category/grafika-komputerowa">ten link</Link> i poczytaj więcej o matematyce i algorytmice skrywającej się za rysowaniem się rzeczy na ekranie komputera.
+
+## Trochę teorii
+
+Czym są gradienty w grafice komputerowej, powiedziałem w zasadzie we wstępie — jest to płynne przejście między jednym kolorem a drugim. Tylko nie musimy się tak ograniczać, bo przechodzić możemy przez wiele kolorów. Ważne tylko, żeby przejście było płynne. Co więcej, samo gradientowe wypełnienie może być realizowane na różne sposoby — może przechodzić po linii, rozchodzić się po promieniu czy nawet tworzyć stożek. Nawet gradient nie musi stanowić całego wypełnienia, a tylko jego fragment. Przykłady takich różnych podejść możesz zobaczyć poniżej:
+
+<div style={{ textAlign: 'center' }}>
+  <Gradient type="linear" />
+  <Gradient type="linearAngle" />
+  <Gradient type="linearMultiple" />
+  <Gradient type="linearPartial" />
+  <Gradient type="radial" />
+  <Gradient type="conic" />
+</div>
+
+Wygląda to ładnie, jednak teraz można zadać podstawowe pytanie: jak wyznaczać kolory znajdujące się między wskazanymi? Odpowiedź tradycyjnie brzmi: *to zależy*. Po pierwsze, możemy różnie podchodzić matematycznie do wyliczania koloru w danym miejscu, a po drugie, możemy operować na różnych przestrzeniach barw.
+
+W przypadku matematycznych wyliczeń najczęściej stosuje się interpolację liniową, aczkolwiek dla lepszego efektu wizualnego możemy stosować np. interpolację gamma czy wielomianową. Jednak sama interpolacja powie tylko, jak powinniśmy się ruszać wartościami liczbowymi między kolorami. Natomiast kolory matematycznie zapisujemy w przestrzeniach barw i tutaj zaczyna się ciekawie. Przede wszystkim dlatego, że możemy mieć zupełnie różne kolory *pomiędzy*, co zobaczysz dalej w artykule. Stąd temat gradientów w grafice komputerowej nie sprowadza się do jednego, prostego, uniwersalnego sposobu.
+
+Od razu dodam, że w praktyce najczęściej będziemy się spotykać z interpolacją liniową w przestrzeni RGB (nawet gdy kolor zapisujemy w innym formacie), ale warto poznać temat od różnych stron.
+
+## Interpolacja liniowa
+
+### Matematyka
+
+Podstawowym narzędziem matematycznym do wyliczania wartości między dwoma innymi jest interpolacja liniowa. Wzór na nią jest następujący:
+
+$$
+L(t) = (1-t) \cdot P_0 + t \cdot P_1
+$$
+
+Jest to równanie parametryczne, co najłatwiej rozpoznać po zmiennej $$t$$. Mówi to nam tyle, że wyznaczamy punkt na wykresie w danym *momencie czasu*. $$t$$ przyjmuje tutaj wartości od 0 do 1, więc możemy operować również procentami. We wzorze mamy też $$P_0$$ i $$P_1$$ — są to dwie wartości, między którymi szukamy innych.
+
+Stosując wzór jednowymiarowo, otrzymujemy pełen zakres liczb, które się znajdują między dwoma wskazanymi. Przykładowo:
+
+- dla $$P_0 = 0$$ i $$P_1 = 10$$: $$L(0,2) = 0,8 \cdot 0 + 0.2 \cdot 10 = 2$$
+- dla $$P_0 = 10$$ i $$P_1 = 20$$: $$L(0,5) = 0,5 \cdot 10 + 0.5 \cdot 20 = 5 + 10 = 15$$.
+
+W przypadku większej liczby wymiarów obliczenie powtarzamy dla każdego wymiaru oddzielnie. Wówczas gdybyśmy narysowali na układzie współrzędnych punkty dla wszystkich wartości $$t$$ między 0 a 1, utworzą odcinek między punktami $$P_0$$ i $$P_1$$. Można też powiedzieć, operując terminami znanymi z grafiki komputerowej, że rysujemy w ten sposób <Link href="/post/krzywe-beziera">liniową krzywą Béziera</Link>.
+
+### Inne warianty wzoru
+
+Warto dodać, że można znaleźć też wzór nieparametryczny dla dwóch wymiarów wyglądający następująco:
+
+$$
+\frac {y-y_0}{x-x_0} = \frac {y_1-y_0}{x_1-x_0}
+$$
+
+Oraz przekształcenie tego wzoru, gdzie dla wskazanego $$x$$ szukamy $$y$$:
+
+$$
+L(x) = y_0 + \frac{y_1-y_0}{x_1-x_0}(x-x_0)
+$$
+
+Wzór ten jest jak najbardziej prawidłowy, jednak w kontekście obliczania gradientów bardziej praktyczny będzie jednowymiarowy wzór parametryczny.
+
+Sam wzór parametryczny ma też inną, prostszą postać:
+
+$$
+L(t) = P_0 + t \cdot (P_1 - P_0)
+$$
+
+Jest bardziej oczywisty i zdecydowanie prościej go zapamiętać do obliczeń na kartce. Wersja ta jednak może prowadzić do błędnych obliczeń w <Link href="/post/liczby-wymierne-i-rzeczywiste-w-zero-jedynkowym-swiecie">systemach zmiennoprzecinkowych</Link> (czyli stosowanych na co dzień w programowaniu), przez co dla $$t=1$$ wynik może być różny od $$P_1$$.
+
+Dalej w tekście będę cały czas stosować pierwszy z pokazanych przeze mnie wzorów. Natomiast Ciebie zachęcam do poszukania i poczytania na temat wad i zalet obu z nich.
+
+### Programowanie
+
+W językach programowania przyjęło się implementować interpolację liniową pod funkcją `lerp` (od **l**inear int**erp**olation). Znajdziemy ją zwykle w silnikach gier, bibliotekach graficznych, bibliotekach matematycznych, a także w [bibliotece standardowej C++](https://en.cppreference.com/w/cpp/numeric/lerp).
+
+Jeśli natomiast nie masz dostępu do gotowej funkcji, napisanie jej to dosłownie zastosowanie wzoru. W JavaScripcie mogłoby to wyglądać następująco:
+
+```javascript
+function lerp(p0, p1, t) {
+  return (1 - t) * p0 + t * p1;
+}
+```
+
+Natomiast w językach, gdzie należy wskazać typy, wszystkie argumenty będą jednym ze zmiennoprzecinkowych typów (np. `double`) i taki sam typ będzie zwracany.
+
+## Interpolacja liniowa w przestrzeni RGB
+
+Już wiemy, że za pomocą interpolacji liniowej (`lerp`) możemy wyznaczyć punkty między dwoma wybranymi. Tylko jak to się ma do kolorów?
+
+### Przestrzeń barw jako przestrzeń trójwymiarowa
+
+Barwy w przestrzeni RGB (czerwony-zielony-niebieski) określamy trzema wartościami, oddzielne dla każdego ze składowych kolorów. Spójrzmy na to z takiej perspektywy — czym to się różni od pozycji w trójwymiarowym układzie współrzędnych? W końcu tu i tu są trzy wymiary, tylko inaczej nazwane. Jeśli tej idei jeszcze do końca nie czujesz, pomyśl o przestrzeni barw w następujący sposób:
+
+<Image
+  image={rgb}
+  alignCenter
+  alt="Kolorowy sześcian z osią X opisaną jako Red, osią Y jako Green, osią Z jako Blue."
+  caption={<>Przestrzeń barw RGB jako sześcian wraz z opisanymi interpretacjami osi OX, OY, OZ jako barw.<br/>
+    (źródło: <a href="https://commons.wikimedia.org/wiki/File:RGB_Cube_Show_lowgamma_cutout_a.png">SharkD</a>, <a href="https://creativecommons.org/licenses/by-sa/3.0">CC BY-SA 3.0</a>, via Wikimedia Commons</>}
+/>
+
+Innymi słowy, przestrzeń barw możemy interpretować dosłownie jako trójwymiarową przestrzeń. Jedyne, co nas ogranicza, to wartości, które są zależne od tego, iloma bitami jest zapisana barwa. Najczęściej mamy do czynienia z 24-bitowym zapisem koloru, wówczas każda ze składowych barw ma 8 bitów, stąd zakres wartości wynosi od 0 do 255. Jednak jeśli chcemy podejść uniwersalnie, zakres wartości może być od 0 do 1, wtedy niezależnie od rozdzielczości bitowej będziemy w stanie zaokrąglić wartość kanału do odpowiedniej liczby całkowitej.
+
+A w kontekście takiej reprezentacji przestrzeni barw, czym jest gradient? Niczym innym jak odcinkiem między dwoma punktami. Po prostu wizualnie położenie każdego punktu w przestrzeni możemy opisać konkretnym kolorem.
+
+### Obliczanie koloru
+
+Połączmy dotychczasową wiedzę w jedno, aby być w stanie, na razie, obliczyć kolory, na które składa się gradient. Napiszemy w tym celu dwie funkcje:
+
+- `lerpColor`, która przyjmie kolory w postaci obiektów `{ r, g, b }` oraz `t` i zwróci kolor obliczony interpolacją liniową.
+- `getGradientColors`, która dla wskazanych kolorów początkowego i końcowego zwróci wskazaną liczbę kolorów tworzących gradient.
+
+Kod w JavaScripcie wygląda następująco:
+
+```javascript
+// funkcja obliczająca interpolację liniową
+function lerp(p0, p1, t) {
+  return (1 - t) * p0 + t * p1;
+}
+
+// funkcja obliczająca interpolację liniową dla koloru
+function lerpColor(c0, c1, t) {
+  // zakładamy, że kolory są zapisane 8-bitowo, dlatego zaokrąglimy
+  return {
+    r: Math.round(lerp(c0.r, c1.r, t)),
+    g: Math.round(lerp(c0.g, c1.g, t)),
+    b: Math.round(lerp(c0.b, c1.b, t)),
+  };
+}
+
+// funkcja zwracająca kolory stanowiące gradient
+function getGradientColors(startColor, endColor, numColors) {
+  const colors = [];
+  for (let i = 0; i < numColors; i++) {
+    const t = i / (numColors - 1);
+    colors.push(lerpColor(startColor, endColor, t));
+  }
+  return colors;
+}
+```
+
+Możesz go przetestować, na razie bez rysowania, na [Replit](https://replit.com/@tswistak/linear-interpolation#index.js). Przykładowo, dla kolorów białego i czarnego oraz 10 barw dostajemy taką sekwencję:
+
+```javascript
+[
+  { r: 0, g: 0, b: 0 },
+  { r: 28, g: 28, b: 28 },
+  { r: 57, g: 57, b: 57 },
+  { r: 85, g: 85, b: 85 },
+  { r: 113, g: 113, b: 113 },
+  { r: 142, g: 142, b: 142 },
+  { r: 170, g: 170, b: 170 },
+  { r: 198, g: 198, b: 198 },
+  { r: 227, g: 227, b: 227 },
+  { r: 255, g: 255, b: 255 }
+]
+```
+
+### Przetestuj to!
+
+A jak to wygląda w praktyce? Możesz sprawdzić na prezentacji poniżej. Za pomocą suwaków ustaw położenie kolorów na gradiencie. Możesz też dodawać nowe kolory, usuwać je i przede wszystkim je edytować.
+
+<Presentation type="linearRgb" />
+
+Prezentacja została napisana w [Reakcie](https://react.dev/) i jej kod znajdziesz na [GitHubie świstak.codes](https://github.com/swistak-codes/gradient).
+
+## Interpolacja liniowa w przestrzeni HSL
+
+### Trójwymiarowa reprezentacja przestrzeni HSL
+
+Kolory w przestrzeni HSL definiujemy trzema wartościami:
+
+- `H` — odcień, wyrażony kątem,
+- `S` — nasycenie, w procentach (od 0% do 100%),
+- `L` — ilość światła białego, również w procentach.
+
+Tę przestrzeń barw również możemy zinterpretować geometrycznie, aczkolwiek nie w typowym kartezjańskim układzie współrzędnych, a cylindrycznym, co wygląda następująco:
+
+<Image
+  image={hsl}
+  alignCenter
+  fullSize
+  alt="Reprezentacja modelu HSL."
+  caption={<>
+    Cylindryczna reprezentacja modelu HSL.<br />
+    (<a href="https://commons.wikimedia.org/wiki/File:HSL_color_solid_cylinder_saturation_gray.png">HSL_color_solid_cylinder.png: SharkDderivative work: SharkD  Talk</a>, <a href="https://creativecommons.org/licenses/by-sa/3.0">CC BY-SA 3.0</a>, via Wikimedia Commons)
+  </>}
+/>
+
+Mimo że jest to inny rodzaj układu współrzędnych, to wciąż możemy tutaj wykonać interpolację liniową i tak też zrobimy. Dlatego też nie powtórzę pokazania w kodzie jak to wygląda, bo algorytm jest dosłownie ten sam.
+
+### Przetestuj to!
+
+Poniżej możesz zobaczyć, w jaki sposób wszystko to przekłada się na praktykę. Prezentacja działa analogicznie do poprzedniej. Polecam w szczególności posprawdzać różnicę dla różnych konfiguracji jedynie dwóch kolorów.
+
+Dodam tylko, że w przypadku wyboru koloru, nawet jeśli Twoja przeglądarka pozwala zdefiniować go w przestrzeni HSL, to nie będzie mieć to znaczenia, bo JavaScript zwraca kolor w przestrzeni RGB i ręcznie go konwertuję na HSL. Podkreślam to, ponieważ w przestrzeni HSL niektóre barwy możemy określić różnymi wartościami (o czym piszę dalej).
+
+<Presentation type="linearHsl" />
+
+Jak widzisz, wyniki są całkowicie różne od tych z przestrzeni RGB. Bierze się to z faktu, że w przestrzeni cylindrycznej interpolacja liniowa nie tworzy czegoś, co wizualnie nazwalibyśmy odcinkiem, tylko raczej krzywą, ponieważ będzie zakręcać się wokół środka (pierwsza współrzędna to kąt). Jeśli chcielibyśmy uzyskać takie same wyniki, bez zmiany przestrzeni barw, musielibyśmy zrezygnować z liniowego podejścia do interpolacji i próbować *odkręcać* krzywą. Aczkolwiek dużo prościej jest po prostu przekonwertować kolor na przestrzeń RGB.
+
+### Szczególny przypadek w HSL
+
+Wróćmy teraz do zamieszania z wartościami — o ile w przestrzeni RGB kolory biały i czarny definiowało się tylko w jeden sposób (każdy kanał ma tą samą wartość), tak tutaj odpowiada za to jedynie kanał światła białego. Oznacza to, że gradienty mogą być zupełnie różne w zależności od wartości `H` i `S`.
+
+W prezentacji powyżej konwerter RGB→HSL dla skali szarości ustawia saturację na 0%, więc różnicy nie ma, otrzymujemy przejście po skali szarości. Jednak gdybyśmy chcieli mieć gradient z białego do czarnego, ale saturacja miała wartość 100%, uzyskalibyśmy przejście przez kolor wskazywany przez kąt `H` (czerwony dla 0).
+
+## Interpolacja wielomianowa
+
+### Dlaczego i jak?
+
+Efekty uzyskiwane przez interpolację liniową nie zawsze są zadowalające. Zwraca się uwagę, że liniowa interpolacja niekoniecznie oddaje to, jak my postrzegamy różnice między barwami, przez co może się wydawać, że zbyt długo „ciągniemy się” po zbliżonych do siebie barwach. Jednym z rozwiązań jest interpolacja wielomianowa.
+
+Niestety nie ma jednego konkretnego wzoru, bo i mamy różnego rodzaju wielomiany. Zresztą interpolacja liniowa to szczególny przypadek interpolacji wielomianowej. Na szczęście w świecie grafiki komputerowej jest jedna szczególnie lubiana interpolacja wielomianowa bazująca na wielomianach Bernsteina. Tak, mowa tu o krzywych Béziera. Przy czym użyjemy ich nie wprost do interpolacji, tylko do przybliżania kształtu dowolnego wielomianu, który będzie służyć do interpolacji. W anglojęzycznym świecie znajdziemy takie interpolacje, często definiowane właśnie krzywymi Béziera, pod nazwą *easing* (złagodzenie).
+
+Dodam, że interpolacje tego typu często stosuje się też przy tworzeniu animacji, stąd wiele źródeł w Internecie mówi o nich w tym kontekście. Jednak z punktu widzenia matematyki jest to dokładnie to samo.
+
+### Zastosowanie krzywych Béziera
+
+#### Sześcienne krzywe Béziera
+
+Mając wizualną kontrolę nad interpolacją wielomianową, zwykle jest to realizowane za pomocą sześciennych krzywych Béziera, czyli takich, które składają się z czterech punktów kontrolnych. W praktyce jednak manipulujemy jedynie dwoma środkowymi, bo punkt zerowy znajduje się w $$(0,0)$$, natomiast ostatni w $$(1,1)$$.
+
+<Image
+  image={cubicBezier}
+  alignCenter
+  alt=""
+  caption={<>Edytor sześciennych krzywych Béziera wbudowany w narzędzia programistyczne Firefoksa. Widzimy tutaj zarówno edytor krzywej (po prawej), jak i wybór gotowych ustawień kształtu (po lewej).</>}
+/>
+
+Bardzo istotną rzeczą, na którą musimy zwrócić uwagę, jest to, że punkty kontrolne krzywej nie mają przełożenia na kolory w przestrzeni barw. One jedynie wyznaczają kształt wielomianu.
+
+#### Obliczanie koloru
+
+Skoro punkty kontrolne krzywej nie mają przełożenia na przestrzeń barw, to jak wykorzystujemy je do obliczenia gradientu? Tutaj musimy wyjść nieco poza schematyczne myślenie.
+
+Krzywą Béziera wyznaczyliśmy kształt krzywej wyznaczającej, jak przyrasta wartość podczas interpolacji, jednak wcale nie potrzebujemy znaleźć dokładnego wzoru wielomianu. Pomyślmy o tym bardziej jako o manewrowaniu *prędkością* interpolacji liniowej. Wówczas wystarczy, że etap obliczania koloru wykonamy trzyetapowo:
+
+1. Do wzoru na sześcienną krzywą Béziera przekazujemy kolejne `t` (wybraną odgórnie liczbę), aby uzyskać tablicę współrzędnych zawierających przybliżony kształt krzywej. Jako wynik otrzymujemy wartość w przedziale $$[0, 1]$$.
+2. Gdy otrzymujemy `t` wskazujące na pozycję w gradiencie, wyszukujemy, między którymi wyliczonymi przez nas wartościami `x` krzywej się `t` znajduje. Określamy w zakresie między 0 a 1, w jaki sposób `t` jest odsunięte od obu `x`, po czym przekazujemy tę liczbę do wzoru na interpolację liniową, gdzie interpolujemy między wartościami `y` obu punktów.
+3. Otrzymany z interpolacji liniowej `y` używamy jako `t` w interpolacji liniowej, jednak tym razem między kolorami gradientu.
+
+Do obliczania krzywej Béziera użyjemy wprost wzoru, nie będziemy posiłkować się specjalnymi algorytmami. W tym konkretnym przypadku będzie dość prosty:
+
+$$
+B(t) = 3(1-t)^2t \cdot P_1 + 3(1-t)t^2 \cdot P_2 + t^3
+$$
+
+Jeśli czujesz pewien zgrzyt, że korzystamy z estymacji funkcji, a nie z konkretnego wzoru, nie martw się. W informatyce często tak robimy dla ułatwienia obliczeń, na czym zresztą bazuje cała dziedzina obliczeń numerycznych. Podobnie się robi np. przy obliczaniu <Link href="/post/obliczanie-calek-oznaczonych">całek oznaczonych</Link> — nie wyliczamy na nie wzoru (choć moglibyśmy), tylko przybliżamy ich wartość, stosując dużo prostsze narzędzia geometryczne.
+
+#### Przykład w kodzie
+
+Całość brzmi zawile, ale kod na pewno trochę rozjaśni sytuację. A może on wyglądać następująco (JavaScript):
+
+```javascript
+// funkcje lerp i lerpColor zostały zdefiniowane tak samo, jak poprzednio
+
+// funkcja obliczająca sześcienną krzywą Béziera
+function cubicBezier(p1, p2, t) {
+  return 3 * (1 - t) ** 2 * t * p1 + 3 * (1 - t) * t ** 2 * p2 + t ** 3;
+}
+
+// funkcja ograniczająca przedział do 0-1
+function clamp(value) {
+  return Math.max(0, Math.min(1, value));
+}
+
+// funkcja zwracająca przybliżony kształt krzywej
+function getCurveApproximation(p1, p2, numPoints) {
+  const points = [];
+  for (let i = 0; i < numPoints; i++) {
+    const t = i / (numPoints - 1);
+    points.push({
+      x: cubicBezier(p1.x, p2.x, t),
+      y: clamp(cubicBezier(p1.y, p2.y, t)),
+    });
+  }
+  return points;
+}
+
+// funkcja interpolująca t z krzywej Béziera
+function getTFromCurve(curve, t) {
+  // znajdziemy dwa punkty między naszym aktualnym t
+  // korzystając z wyszukiwania binarnego (punkty są posortowane po x)
+  let left = 0;
+  let right = curve.length - 1;
+  // szukamy tak długo, aż znajdziemy sąsiadujące ze sobą punkty
+  while (right - left > 1) {
+    const mid = Math.trunc((left + right) / 2);
+    if (curve[mid].x < t) {
+      left = mid;
+    } else {
+      right = mid;
+    }
+  }
+  // wyciągamy punkty, między którymi znajduje się t
+  const p0 = curve[left];
+  const p1 = curve[right];
+  // wyliczamy, w którym miejscu między punktami jest t
+  const lerpT = (t - p0.x) / (p1.x - p0.x);
+  // interpolujemy wartość y
+  return lerp(p0.y, p1.y, lerpT);
+}
+
+// funkcja zwracająca kolory stanowiące gradient
+function getGradientColors(startColor, endColor, numColors, p1, p2) {
+  // generujemy przybliżoną krzywą składającą się z tylu punktów co gradient
+  // to nie jest reguła, że konkretnie tyle punktów trzeba użyć
+  const curve = getCurveApproximation(p1, p2, numColors);
+  const colors = [];
+  for (let i = 0; i < numColors; i++) {
+    const t = i / (numColors - 1);
+    // aproksymujemy wartość t na podstawie krzywej
+    const polyT = getTFromCurve(curve, t);
+    colors.push(lerpRgbColor(startColor, endColor, polyT));
+  }
+  return colors;
+}
+```
+
+Możesz go przetestować, na razie bez rysowania, na [Replit](https://replit.com/@tswistak/polynomial-interpolation#index.js). Przykładowo, dla kolorów białego i czarnego, 10 barw oraz punktów $$P_1=(0.33, 1)$$ i $$P_2=(0.68, 1)$$ (szybki wzrost na początku, a potem wolny przyrost) dostajemy taką sekwencję:
+
+```javascript
+[
+  { r: 0, g: 0, b: 0 },
+  { r: 76, g: 76, b: 76 },
+  { r: 135, g: 135, b: 135 },
+  { r: 179, g: 179, b: 179 },
+  { r: 210, g: 210, b: 210 },
+  { r: 232, g: 232, b: 232 },
+  { r: 245, g: 245, b: 245 },
+  { r: 252, g: 252, b: 252 },
+  { r: 255, g: 255, b: 255 },
+  { r: 255, g: 255, b: 255 }
+]
+```
+
+Jak widać po wartościach, uzyskaliśmy pożądany efekt. Kolor szybko wzrósł z 0 do 76 (przy interpolacji liniowej był przeskok z 0 na 28), po czym im bliżej końca, tym coraz mniejsze były przeskoki. Szczególnie dobrze to widać na sam koniec, gdzie w wyniku zaokrąglenia wartości mamy dwa razy z rzędu ten sam kolor.
+
+#### Gotowe, sprawdzone wartości
+
+Z racji dużej popularności tego sposobu, nie tylko przy tworzeniu gradientów, ale też animacji, istnieje sporo gotowych wartości punktów kontrolnych dających zadowalające efekty. Trzy najbardziej znane to:
+
+- ease-in (złagodzone wejście) — $$P_1=(0.32, 0); P_2=(0.67, 0)$$
+- ease-out (złagodzone wyjście) — $$P_1=(0.33, 1); P_2=(0.68, 1)$$
+- ease-in-out (złagodzone wejście-wyjście) — $$P_1=(0.65, 0); P_2=(0.35, 1)$$
+
+Pokazałem je w wersjach układanych wielomianami trzeciego stopnia (w literaturze angielskiej *cubic*), ale znajdziemy też inne wersje dające nieco inne zachowania. Bez problemu znajdziesz je w wielu narzędziach, np. pokazanych wyżej narzędziach programistycznych Firefoksa.
+
+Dla chętnych pokombinować, bez instalacji czegokolwiek, polecam poniższe źródła online:
+
+- [easings.net](https://easings.net/) — baza gotowych wartości punktów kontrolnych, a dokładniej różnych odmian trzech wyżej opisanych. Zobaczymy tam kształt krzywej, który ma wpływ na gradient, lub jak zachowałaby się animacja, której czas jest interpolowany w taki sposób.
+- [cubic-bezier.com](https://cubic-bezier.com) — wizualny edytor sześciennych krzywych. Niestety podgląd otrzymujemy tylko na animacji, ale w kontekście gradientów zawsze możesz przekopiować wartości i sprawdzić je poniżej, dosłownie w następnym akapicie.
+
+Z racji tego, że wyżej pokazane przypadki są typowe, to są znane dokładne wzory interpolacji wielomianowych, nie musimy przybliżać kształtu. Użycie dokładnego wzoru będzie zdecydowanie szybsze niż aproksymacja krzywą, a potem szukanie wartości interpolacją liniową. Wzory znajdziesz bez problemu w Internecie (np. na pokazanym wyżej easings.net).
+
+#### Przetestuj to!
+
+Czas najwyższy sprawdzić, jak wygląda interpolacja wielomianowa zastosowana do wyliczania kolorów gradientów. W prezentacji poniżej możesz ustawić punkty kontrolne sześciennej krzywej Béziera, aby ustalić kształt, według którego kolory będą interpolowane. O ile nie zrobiłem na prezentacji tak przyjemnego w użyciu edytora, jak na cubic-bezier.com, to przynajmniej dodałem podgląd kształtu krzywej, aby widzieć, w jaki sposób jej kształt przekłada się na obliczane kolory. Dodatkowo możesz też sprawdzić, jak wygląda zachowanie zarówno w przestrzeni RGB, jak i HSL.
+
+<Presentation type="polynomial" />
+
+Warto poeksperymentować z różnymi wartościami punktów kontrolnych, nie tylko z tymi, które podałem wcześniej lub są podane na stronie easings.net. Na przykład, ja bardzo lubię efekt przejścia uzyskiwany dla punktów $$(1,0), (0,1)$$ w przestrzeni RGB. Kojarzy mi się z niedoskonałościami starych wyświetlaczy, dając ciekawy efekt retro.
+
+Niestety, taka forma układania gradientów nie jest zbyt popularna, przynajmniej w chwili pisania artykułu. Znane mi przykłady:
+
+- Jeśli jesteś programistą front-endowym, możesz zainteresować się wtyczką do [PostCSS](https://www.npmjs.com/package/postcss-easing-gradients) dodającą możliwość definiowania interpolacji gradientów przy pomocy krzywych Béziera i nie tylko.
+  - Ewentualnie sprawdź, czy może [zostało to już zaakceptowane jako część standardu CSS](https://github.com/w3c/csswg-drafts/issues/1332).
+- Jeśli jesteś designerem, sprawdź [ten plugin do Figmy](https://www.figma.com/community/plugin/907899097995668330/easing-gradients).
+
+Jeśli znasz inne przykłady, szczególnie w narzędziach przeznaczonych do edycji grafiki wektorowej lub zdjęć, daj znać!
+
+### Eksperyment: trójwymiarowe krzywe Béziera
+
+Pisząc powyższy tekst, miałem przemyślenie, że o ile zdarza się definiować funkcję wielomianową sześcienną krzywą, to nigdy nie spotkałem się z tym, żeby rysować gradient dosłownie jak krzywą Béziera. Czyli punkty kontrolne są punktami w przestrzeni barw i w ten sposób pobieramy kolejne kolory.
+
+Jednak skoro mamy już cały aparat matematyczny i algorytmiczny, do tego skrypt rysujący co chcemy, to czemu tego po prostu nie zrobić? Dlatego poniżej zobaczysz już ostatnią prezentację, gdzie właśnie w ten sposób możesz pobawić się w tworzenie gradientów.
+
+<Presentation type="bezier3d" />
+
+Jak możesz zauważyć, nigdy nie trafiamy idealnie w żaden z pośrednich kolorów, tylko w zbliżone, dając łagodniejszy efekt przejścia. Czy ma to sens i jest intuicyjne? Oceń już sam(a). A jeśli ciekawi Cię jak to obliczam, to szczegóły znajdziesz w kodzie prezentacji [na GitHubie](https://github.com/swistak-codes/gradient).
+
+## Podsumowanie
+
+Tak oto doszliśmy do końca artykułu. Zaczęliśmy od najprostszych gradientów opierających się na interpolacji liniowej, aby dojść do interpolacji wielomianowej, gdzie kształt wielomianu przybliżaliśmy krzywymi Béziera, żeby zakończyć na interpolacji samą krzywą Béziera. Po raz kolejny mogliśmy zobaczyć, że ciekawe wizualnie efekty często opierają się na nie najtrudniejszej matematyce, ale możemy próbować eksperymentować, aby wyciągnąć jak najwięcej. W praktyce najczęściej spotkasz się z gradientami interpolowanymi liniowo w przestrzeni RGB (ewentualnie RGBA, jeśli bierzemy pod uwagę przezroczystość), więc warto zobaczyć, jak zagadnienie można interpretować na inne sposoby.
+
+## Literatura
+
+- Hughes J. F. i inni, „28.18 Interpolating Color” w *Computer Graphics: Principles and Practice, 3rd Edition*. Pearson Education Inc., 2008, s. 777-779
+- Evoniuk J., *Color Representation and Gradients* https://evoniuk.github.io/Color-Representation-and-Gradients/ (ostatni dostęp 21.01.2024).
+- Larsen A., *Easing Linear Gradients* — CSS-Tricks https://css-tricks.com/easing-linear-gradients/ (ostatni dostęp 21.01.2024).
+- *\<easing-function\> - CSS: Cascading Style Sheets* — MDN https://developer.mozilla.org/en-US/docs/Web/CSS/easing-function (ostatni dostęp 21.01.2024).
+
+<small>Zdjęcie na okładce wygenerowane przez DALL-E.</small>

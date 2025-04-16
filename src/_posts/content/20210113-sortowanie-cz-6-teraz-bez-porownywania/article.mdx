@@ -1,0 +1,247 @@
+import Link from 'next/link';
+import {Image, Iframe} from '@swistak-codes/components';
+import cover from './pieski-preriowe.jpg';
+import elem2 from './2-elementy.png';
+import elem3 from './3-elementy.png';
+import pozycyjne from './sortowanie-pozycyjne.png';
+import zliczanie from './sortowanie-zliczanie.png';
+
+export const meta = {
+  title: 'Sortowanie, cz. 6 — teraz bez porównywania!',
+  abstract:
+    'Sortowanie bez wykonywania porównań. Brzmi jak coś niemożliwego? Przekonaj się, że można i tak. Omówimy tutaj radix sort oraz counting sort.',
+  firstParagraph: (
+    <>
+      Przez ostatnie cztery artykuły poświęcone sortowaniu omawialiśmy sobie różne sposoby, w jaki sposób porównywać
+      elementy, a następnie zamieniać, by odbyło się to z jak najmniejszą liczbą porównań, co też przekładać się miało
+      na jak najszybszy czas wykonania algorytmu. Porównywanie elementów wydaje się być czymś całkowicie naturalnym, bo
+      przecież jak możemy ustalić kolejność bez tego? Ano, można. I w tym artykule pokażę, jak to można zrobić.
+    </>
+  ),
+  keyword: 'sortowanie',
+  categories: ['Sortowanie'],
+  tags: [
+    'sortowanie',
+    'radix sort',
+    'sortowanie przez zliczanie',
+    'sortowanie optymalne',
+    'sortowanie pozycyjne',
+    'drzewo porównań',
+    'counting sort',
+  ],
+  slug: 'sortowanie-cz-6-teraz-bez-porownywania',
+  updateTime: '2021-08-17T16:36:34+00:00',
+  publishTime: '2021-01-13T10:00:55+00:00',
+  cover,
+};
+
+## Uwaga wstępna
+
+Tak, kolejny raz przypominam o GitHubie: [https://github.com/swistak-codes/sorting-algorithms](https://github.com/swistak-codes/sorting-algorithms). Myślę, że już pamiętasz, że nie są to wzorcowe implementacje, a jedynie takie, które się dobrze wizualizuje.
+
+## Ograniczenie problemu sortowania
+
+Do tej pory, rozpatrując sortowanie, cały czas omawialiśmy je sobie na liczbach. W końcu tak jest najprościej — raczej nie ma nikt problemu z tym, żeby określić, jaka liczba jest większa od której, podczas gdy chociażby sortowanie alfabetyczne mogłoby już sprawiać pewne problemy. Jednak podkreślmy sobie, do tej pory sortowaliśmy tak, że moglibyśmy sortować dowolne dane. Jedyne, co musieliśmy ustalić, to sposób na porównanie danych, które nam określało porządek elementów.
+
+Teraz omówimy sortowanie bez porównywania. Nie możemy sobie określić funkcji porównującej, dlatego też musimy zawęzić nasz problem. Teraz nie będziemy sortować dowolnych danych, lecz będziemy sortować, bardzo konkretnie, liczby. Co więcej, skupimy się na liczbach naturalnych, ponieważ są one najprostszym przypadkiem, jaki możemy rozpatrywać, patrząc na algorytmy, które nie wykorzystują porównań. Jednak zanim przejdziemy do braku porównań, spójrzmy na ich maksymalną minimalizację.
+
+## Optymalny algorytm sortowania z porównywaniem
+
+W algorytmach sortowania szybkiego i sortowania przez scalanie byliśmy w stanie zejść dość nisko z liczbą porównań potrzebną do posortowania danych. Jednak przez fakt, że są to algorytmy mające działać w dowolnych przypadkach, wykonują nadmiarowe porównania lub zapisy. Przykładowo, weźmy pod lupę tablicę o wielkości trzech elementów. Quicksort nie wykona dużej liczby zamian, a zazwyczaj wykona ok. 8 porównań. Merge sort natomiast wykona bardzo mało porównań, ale możemy spodziewać się 5 operacji zapisu i oczywiście użycia tablic pomocniczych.
+
+W przypadku tak małych tablic, jak dwu- czy trzyelementowe, możemy łatwo napisać optymalne algorytmy, które wykonają równocześnie najmniejszą potrzebną liczbę porównań, jak i najmniejszą potrzebną liczbę zamian. W przypadku dwóch elementów wystarczy jedno porównanie i jedna zamiana, zaś przy trzech — trzy porównania i dwie zamiany.
+
+### Dwa elementy
+
+Jest to oczywiście najprostszy z możliwych przypadków. Aby określić kolejność, wystarczy nam tylko jedno porównanie i w razie potrzeby jedna zamiana. Przedstawia to poniższe drzewo porównań:
+
+<Image
+  image={elem2}
+  alignCenter
+  fullSize
+  alt="Drzewo porównań dla kolekcji dwuelementowej"
+  caption={<>
+    Drzewo porównań dla dwuelementowej kolekcji.
+  </>}
+/>
+
+Nasza początkowa kolekcja składa się z dwóch elementów o indeksach 0 i 1. Porównujemy je. Jeżeli kolejność jest zachowana (lewa gałąź), zostawiamy kolekcję taką, jaka jest. W przeciwnym razie dokonujemy zamiany elementów. Stąd element, który pierwotnie był na pozycji 1, teraz znajdzie się na pozycji 0 (czyli zerowy znajdzie się na pierwszej).
+
+### Trzy elementy
+
+W przypadku trzech elementów, jeżeli chcemy osiągnąć optymalną liczbę porównań i zamian, musimy się nieco bardziej nagimnastykować. W końcu zgodnie z tym, co mówi nam matematyka, trzy elementy możemy ułożyć na 6 różnych sposobów (możemy to wyliczyć, korzystając z silnii: $$3!=6$$). Nie będziemy tutaj dochodzić do tego krok po kroku co i jak porównywać, tylko od razu pokażę, jak to wygląda.
+
+<Image
+  image={elem3}
+  alignCenter
+  fullSize
+  alt="Drzewo porównań dla kolekcji trzyelementowej"
+  caption={<>
+    Drzewo porównań dla trzyelementowej kolekcji.
+  </>}
+/>
+
+Traktujmy to jako proste drzewo decyzyjne. Najpierw sprawdzamy dwa pierwsze elementy (indeksy 0 i 1), następnie dwa ostatnie (indeksy 1 i 2), a jeśli jest konieczność, to porównujemy również pierwszy z ostatnim. Oznacza to, że w optymistycznym przypadku wykonujemy dwa porównania a w pesymistycznym trzy. Biorąc pod uwagę, że mamy tylko trzy elementy, otrzymujemy idealną, liniową złożoność obliczeniową. Niestety, podejście to ma wady. Po pierwsze, zakładanie, że zawsze będziemy mieć do czynienia z sortowaniem trzech elementów, jest dość słabe, raczej musimy być bardziej uniwersalni. Po drugie, przenosząc to na język programowania, każde z rozgałęzień w drzewie jest kolejnym warunkiem. Tym samym takie sortowanie sprowadziłoby się do mniej więcej takiego kodu, jaki możemy zobaczyć poniżej. Nie wygląda to zbyt pięknie.
+
+```javascript
+function sort(a) {
+  if (a[0] <= a[1]) {
+    if (a[1] > a[2]) {
+      if (a[0] <= a[2]) {
+        var temp = a[1];
+        a[1] = a[2];
+        a[2] = temp;
+      } else {
+        var temp = a[0];
+        a[0] = a[2];
+        a[2] = a[1];
+        a[1] = temp;
+      }
+    }
+  } else {
+    if (a[1] <= a[2]) {
+      if (a[0] <= a[2]) {
+        var temp = a[0];
+        a[0] = a[1];
+        a[1] = temp;
+      } else {
+        var temp = a[0];
+        a[0] = a[1];
+        a[1] = a[2];
+        a[2] = temp;
+      }
+    } else {
+      var temp = a[0];
+      a[0] = a[2];
+      a[2] = temp;
+    }
+  }
+  return a;
+}
+```
+
+Oczywiście w taki sposób moglibyśmy rozpisać tablice o dowolnej wielkości. Problem jest tylko taki, że im większa tablica, tym drzewo staje się coraz większe. Pamiętajmy, że wszystkie możliwości ułożenia elementów obliczamy, wykorzystując silnię, a ta niestety rośnie dość szybko. Silnia z 4 to 24, a silnia z 5 to 120. Rozpisanie drzew, a potem przeniesienie ich na język programowania, byłoby dość uciążliwe.
+
+## Sortowanie przez zliczanie
+
+Omówiliśmy sobie, w jaki sposób można maksymalnie zminimalizować liczbę porównań. Przejdźmy więc teraz do meritum wpisu, czyli jak sortować bez porównywania. Najprostsze podejście tego typu nazywa się sortowaniem przez zliczanie (z ang. counting sort). Aby zadziałało, musimy założyć, że w naszej nieposortowanej kolekcji mamy tylko i wyłącznie liczby naturalne z zakresu od 0 do k. Wówczas w celu posortowania danych, wykorzystujemy tablicę pomocniczą, która będzie mieć k elementów i będzie służyć posortowaniu danych wejściowych.
+
+Do tablicy pomocniczej wpisujemy, ile razy wystąpił element o danym indeksie w oryginalnych danych. Przykładowo, jeśli liczba 2 wystąpiła trzykrotnie, to w tablicy pomocniczej pod indeksem 2 zapiszemy liczbę 3.
+
+Gdy już to zrobimy, następnym krokiem jest zamiana liczby wystąpień na indeksy elementów w posortowanej tablicy. Dokładniej — zapiszemy, pod jakim indeksem kończy się występowanie danego elementu. Przykładowo, jeśli element ma zapisane 4, a poprzedni miał zapisane 2, to aktualny element znajdziemy pod indeksami 2 i 3. Gdy już to skończymy, to znając indeksy konkretnych elementów, możemy przystąpić do stworzenia posortowanej wersji oryginalnej tablicy. Całość sortowania można zobaczyć na poniższym schemacie.
+
+<Image
+  image={zliczanie}
+  alignCenter
+  fullSize
+  alt="Sortowanie przez zliczanie kolekcji 5,4,2,5,0,2,5"
+  caption={<>
+    Schemat sortowania przez zliczanie.
+  </>}
+/>
+
+Możesz zobaczyć, że zliczamy najpierw, ile tablica wejściowa ma elementów o takiej samej wartości co indeks tablicy pomocniczej. Strzałkami oznaczyłem, jak zliczyliśmy wszystkie piątki do elementu o indeksie 5. Następnie, aby obliczyć indeksy, sumujemy indeks poprzedniego elementu (startujemy od 0) z liczbą wystąpień. Na przykład, na powyższym schemacie dla ostatniego elementu obliczyliśmy wartość ostatniego indeksu na 7 — poprzedni element miał wyliczony indeks 4, a mamy 3 wystąpienia liczby 5. Na samym końcu, bazując na tablicy indeksów, tworzymy wyjściową tablicę.
+
+Algorytm możesz poniżej przetestować w praktyce:
+
+<Iframe src="/iframe-content/sorting-visualizer/index.html?algorithm=countingSort" minHeight={650} />
+
+Sortowanie przez zliczanie działa wystarczająco szybko, jednak ma dosyć spore wady. Pierwsza jest taka, że musimy znać największy element w tablicy, aby utworzyć pomocniczą o odpowiedniej wielkości. Drugą wadą jest to, że tablica pomocnicza może przez to osiągnąć horrendalne rozmiary. Załóżmy, że na wejściu dajemy tablicę $$[0, 1 000 000, 30]$$. Mimo że ma ona tylko trzy elementy, musimy stworzyć nową, która ma ich aż milion. Oznacza to, niestety, dość wysoką złożoność pamięciową, która wynosi $$O(n+k)$$, gdzie n to liczba elementów, a k to największa liczba w tablicy.
+
+## Sortowanie pozycyjne
+
+Na szczęście nie ma rzeczy niemożliwych i udało się informatykom opracować algorytm działający na podobnej zasadzie, ale pozbawiony tych błędów. Jest to sortowanie pozycyjne (z ang. radix sort). Tak naprawdę jest to modyfikacja sortowania przez zliczanie, która zakłada, że chcemy posortować cały zakres liczb możliwych do zapisania w w bitach. Zwykle zmienne całkowitoliczbowe zapisujemy w 32- lub 64-bitach. Cały trik algorytmu polega na tym, że nie będziemy potrzebować tablicy zawierającej $$2^{32}$$ lub $$2^{64}$$ elementów, lecz, przykładowo, 4-, 8- lub 16-elementową, i to niezależnie od wielkości tablicy wejściowej, tylko od tego, jak szybko chcemy, żeby algorytm się nam wykonał. Jak to możliwe?
+
+### Idea sortowania pozycyjnego
+
+Najbardziej ogólnie mówiąc, idea sortowania pozycyjnego polega na tym, że sortujemy liczby po ich poszczególnych pozycjach (stąd nazwa). Dla systemu dziesiętnego wyglądałoby to mniej więcej tak jak na poniższym obrazku.
+
+<Image
+  image={pozycyjne}
+  alignCenter
+  fullSize
+  alt="Sortowanie pozycyjne kolekcji 320,876,28,1,18,900"
+  caption={<>
+    Schemat sortowania pozycyjnego, bazującego na liczbach dziesiętnych. Dla ułatwienia, zamiast np. 1 czy 28 zapisałem 001 i 028, aby lepiej było widać pozycje cyfr w liczbach.
+  </>}
+/>
+
+W tym przykładzie, aby posortować tablicę, potrzebujemy trzy przebiegi pętli. W pierwszym sortujemy po części jedności liczby. Co ważne, zachowujemy oryginalną kolejność elementów z tą samą wartością, czyli np. tutaj element 900 nie wskoczył przed 320, mimo że oba mają cyfrę 0. W kolejnym kroku sortujemy po cyfrze dziesiątek, a w ostatnim po cyfrze setek. Jeżeli dana część nie posiada cyfry, to traktujemy, jakby było tam 0 (stąd 001, 028, itd.). W ten sposób, jeżeli pamiętamy, żeby nie dokonywać niepotrzebnych zamian, jesteśmy w stanie ułożyć wszystkie liczby w odpowiedniej kolejności.
+
+Możesz teraz zadać pytanie — tylko jak sortujemy po tych cyfrach, skoro mieliśmy nie porównywać? Tutaj właśnie wykorzystujemy w tym celu.... sortowanie przez zliczanie.
+
+### Sortowanie przez zliczanie a sortowanie pozycyjne
+
+Wykorzystujemy tutaj sortowanie przez zliczanie, aby posortować liczby po ich wskazanej części. Dzięki temu wystarczy nam tablica takiej wielkości, ile różnych wartości możemy spotkać. W przypadku systemu dziesiętnego są to wartości od 0 do 9, więc tablica pomocnicza będzie liczyć tylko 10 elementów niezależnie od tego, jak duże są dane wejściowe.
+
+Sortowanie działa dokładnie tak samo, z tą jedną różnicą, że patrzymy tylko na wybraną część liczby. Czyli zliczamy, ile razy wystąpiła ta część liczby, określamy indeksy, a potem przepisujemy wartości do nowej tablicy. Wówczas ta nowa tablica jest wejściem dla kolejnej iteracji sortowania przez zliczanie.
+
+### Użycie z liczbami binarnymi
+
+Wszystko brzmi bardzo łatwo i przyjemnie, jednak w informatyce nie stosujemy <Link href="/post/matematyka-zero-jedynkowa">liczb dziesiętnych, tylko binarne</Link>. Jednak znając sposób działania algorytmu, zmiana myślenia na inny system liczbowy powinna być tutaj tylko formalnością. Natomiast to, co chciałem tu pokazać, to charakterystyczne cechy, które mogą Ci się przydać podczas implementacji tego algorytmu.
+
+Przede wszystkim musimy ustalić dwie stałe: w — rozmiar liczby w bitach oraz d — ile bitów będziemy rozpatrywać w jednej iteracji. Pamiętaj, że im wyższa wartość d, tym mniej iteracji wykonamy, ale z drugiej strony zwiększy się rozmiar tablicy pomocniczej. Liczbę iteracji potrzebną do posortowania tablicy obliczymy z prostego wzoru $$p = w / d$$, gdzie p to liczba iteracji.
+
+Następnie, już wewnątrz iteracji potrzebujemy znać wartości dla wykonania sortowania przez zliczanie. Wielkość tablicy pomocniczej musi oczywiście odpowiadać ilości możliwych liczb, jakie rozpatrujemy. Każdy bit może pomieścić dwie różne wartości, więc aby obliczyć wielkość, zastosujemy tutaj znaną z matematyki regułę mnożenia. Dla dwóch bitów $$2\cdot2$$, dla trzech $$2 \cdot 2 \cdot 2$$ i tak dalej, co w uogólnieniu daje nam wzór $$2^d$$. Warto sobie przypomnieć operację przesunięcia bitowego, dzięki której obliczymy szybciej tę wartość na komputerze: $$1 \ll d$$.
+
+Następna wartość, którą musimy obliczyć, to rozpatrywana cyfra dla aktualnego elementu.  Wykorzystamy do tego nieco bardziej skomplikowanie wyglądający wzór, ale wszystko wytłumaczę:
+
+$$
+(k_{i} \gg (d \cdot p)) \wedge ((1 \ll d) - 1)
+$$
+
+Po lewej stronie koniunkcji odcinamy (z prawej strony) tę część liczby, jaka nas nie interesuje, w zależności od tego, w której iteracji jesteśmy. Po prawej natomiast tworzymy tak zwaną maskę, która określi, jakie bity nas interesują (czyli pozwoli nam odciąć lewą stronę liczby). Dzięki temu wynikiem koniunkcji będzie dokładnie ta część liczby, którą potrzebujemy w aktualnej iteracji. Zobacz na przykładzie, jak to działa:
+
+$$
+\begin{align*}
+k_i = 150_{10} = 10010110_{2} &\;;\; d = 2_{10} \;;\; p = 2_{10} \\
+(10010110_{2} \gg (2_{10} \cdot 2_{10})) &\wedge ((1_{10} \ll 2_{10}) - 1_{10}) \\
+(\mathbf{1001}0110_{2} \gg 4_{10})  &\wedge (100_2 - 1_{2}) \\
+10\mathbf{01}_{2}  &\wedge \mathbf{11}_2  = 01_{2}
+\end{align*}
+$$
+
+Może wydawać się to nadal nieco zawiłe przez fakt, że raz mamy liczby binarne (z 2 w indeksie), a raz dziesiętne, jednak jest to dość proste. Zwróć uwagę na trzecią linijkę, gdzie mamy już rozwiązaną część równań. Jako że zbieramy 2 bity i jesteśmy w drugim przebiegu, to odcinamy 4 bity z prawej strony oryginalnego elementu, zostawiając jedynie cztery pierwsze (pogrubione). Natomiast z prawej strony równania otrzymujemy tyle jedynek, że jesteśmy w stanie za ich pomocą wydobyć tyle cyfr, ile potrzebujemy.
+
+### Przetestuj!
+
+Algorytm napisany w ten sposób możesz przetestować poniżej. Dla uproszczenia założyłem, że liczby są zawsze 8-bitowe (maksymalnie możemy mieć 100, więc mieści się to w ośmiu bitach), oraz że w kolejnych iteracjach rozpatrujemy zawsze 2 cyfry. Dlatego zawsze, niezależnie czy elementy są już posortowane, czy nie, musimy przejść przez cztery iteracje.
+
+<Iframe src="/iframe-content/sorting-visualizer/index.html?algorithm=radixSort" minHeight={650} />
+
+## Wydajność sortowania bez porównań
+
+Po przejrzeniu tych dwóch algorytmów można by pomyśleć — zawsze to porównania były problemem i to one powodowały słabą wydajność algorytmów. Tutaj nie porównujemy, więc nie ma nic bardziej wydajnego! Otóż to nieprawda. Niestety, porównania to nie wszystko. Faktycznie, proces porównania jest kosztowny, jednak rozłóżmy na czynniki pierwsze, czym on jest. Jakbyśmy weszli na bardzo niski poziom kodu maszynowego, to operacja porównania wyglądałaby mniej więcej tak:
+
+1. Ściągnij element 1 z pamięci do rejestru procesora.
+2. Ściągnij element 2 z pamięci do rejestru procesora.
+3. Porównaj elementy (zwykle taka instrukcja działa na zasadzie „przeskocz do instrukcji X, jeśli (nie)równe").
+
+Wąskim gardłem nie jest porównanie, lecz sam odczyt (również zapis) z pamięci komputera. W naszym przypadku opieramy się na pamięci RAM, a jeśli mamy szczęście (mało danych), to na cache'u procesora. W gorszych przypadkach opieralibyśmy się na odczycie z dysku (bardzo wolny). Tym samym operacja zamiany wygląda jeszcze gorzej, ponieważ w najgorszej implementacji wykonujemy trzy operacje zapisu i trzy operacje odczytu. Po zoptymalizowaniu wyglądałoby to lepiej, ponieważ opieralibyśmy się wówczas na rejestrach procesora i jedynie wykonalibyśmy dwa razy zapis do pamięci. Załóżmy jednak najgorszy przypadek, gdyż w przypadku języków niekompilowanych bezpośrednio do kodu maszynowego (czyli większość stosowanych dziś jak Java, C#, JavaScript, Python itd.), nie mamy aż tak drobiazgowej kontroli nad wykonaniem się kodu (jednak warto zauważyć, że często są w nich niskopoziomowe techniki optymalizacji).
+
+Sortując bez porównań, wciąż pobieramy elementy z pamięci. Nie musimy robić tego dwa razy dla jednego porównania, jednak wciąż wykonujemy to wiele razy. Stąd nie mówimy tutaj o całkowitej oszczędności na odczycie, a jedynie o zmniejszonej ich ilości. Do tego wykonujemy bardzo dużo operacji zapisu w pamięci, nawet więcej niż przy innych sortowaniach. Porównaj chociażby sytuację z sortowania pozycyjnego do sortowania przez scalanie (też były zapisy zamiast zamian). Sortując pozycyjnie 15-elementową tablicę, wykonamy łącznie 132 operacje zapisu. W przypadku merge sort zapisujemy około 75 razy, czyli w bardzo mocnym przybliżeniu o połowę mniej.
+
+Do tego oczywiście wciąż pozostaje nam kwestia złożoności pamięciowej. Jak widzieliśmy, z nią jest niewesoło. Nie dość, że tworzymy nową tablicę na rezultat w obu przypadkach (czyli już pojawia się złożoność $$O(n)$$ tylko na tym), to jeszcze stosujemy tablice pomocnicze. Dla sortowania pozycyjnego nie jest to aż takie straszne, gdyż mamy do czynienia ze złożonością $$O(n + 2^d)$$, gdzie d to liczba porównywanych bitów. Czyli realnie, do n dochodzą nam wartości pokroju 4, 8 czy 16. W sortowaniu przez zliczanie jest to $$O(n + k)$$, gdzie k to największy element w tablicy wejściowej. Górny zakres najczęściej stosowanych 32-bitowych zmiennych (w wersji bez znaku) to $$2^{32} - 1$$, więc w najgorszym przypadku (lub uniwersalnym) musimy zająć bardzo dużo pamięci. Naprawdę **BARDZO DUŻO** pamięci.
+
+## Szybkie podsumowanie
+
+Podsumujmy teraz na szybko wszystko to, co zobaczyliśmy:
+
+- W obu algorytmach całkowicie pozbyliśmy się porównań, jednak nie oznacza to zaprzestania korzystania z odczytu z pamięci. Ten dalej istnieje, aczkolwiek jest tych odczytów mniej — czyli na plus.
+- Niestety, w zamian za to więcej zapisujemy w pamięci, co również jest operacją kosztowną — czyli na minus.
+- Jednak nie zapominajmy, że sortowanie tego typu mocno nas ogranicza. Nie korzystamy już z funkcji porównującej, więc tak naprawdę jedyne, co możemy sortować, to liczby. Do tego w przypadku sortowania przez zliczanie tylko liczby naturalne. W przypadku sortowania pozycyjnego, po odpowiednich modyfikacjach możemy sortować również liczby zmiennoprzecinkowe (artykuł na ten temat znajdziesz w sekcji Literatura).
+
+Co warto dodać, oba algorytmy są stabilne, aczkolwiek w tym przypadku to raczej nas nie interesuje. W ramach ciekawostki można również wspomnieć o tym, że sama idea sortowania pozycyjnego powstała już w 1887 roku (H. Hollerith), jednak jego obecna wersja (wykorzystująca pod spodem sortowanie przez zliczanie) jest datowana na 1954 rok (H. H. Seward).
+
+## Literatura
+
+### Pozycje podstawowe
+
+- Cormen T. H., Leiserson C. E., Rivest R.L., „Sortowanie w czasie liniowym” w *Wprowadzenie do algorytmów.* Warszawa: Wydawnictwa Naukowo-Techniczne, 2001, s. 206-219
+- Knuth D. E., „Sortowanie optymalne” w *Sztuka programowania Tom 3 Sortowanie i wyszukiwanie.* Warszawa: Wydawnictwa Naukowo-Techniczne, 2002, s. 190-262
+
+### Pozycje dodatkowe
+
+- Terdiman P. (4 stycznia 2000). „[Radix Sort Revisited](http://www.codercorner.com/RadixSortRevisited.htm)” (ostatnio odwiedzone 31 grudnia 2020)
+
+<small>(oryginał zdjęcia na okładce: [BrokenSphere](https://commons.wikimedia.org/wiki/File:Black-tailed_prairie_dogs_at_SF_Zoo_7.JPG), [CC BY 3.0](https://creativecommons.org/licenses/by/3.0), via Wikimedia Commons)</small>

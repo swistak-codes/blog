@@ -1,0 +1,10 @@
+{
+  "apiKey": "jp2137",
+  "node": {
+    "host":"localhost",
+    "port":"8108",
+    "protocol":"http",
+    "path":"",
+    "tls":false
+  }
+}

@@ -1,0 +1,15 @@
+@use '../consts';
+
+$breakpoint: consts.$mobile-breakpoint + 380px;
+
+.container {
+  @media (min-width: $breakpoint) {
+    position: absolute;
+    bottom: 0.5rem;
+    right: 1rem;
+  }
+}
+
+.buyCoffee {
+  width: 125px;
+}

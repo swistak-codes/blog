@@ -1,0 +1,23 @@
+.matrix-view {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  align-items: center;
+
+  .back {
+    width: max-content;
+    padding: 2px 6px;
+  }
+
+  .container {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    gap: 16px;
+
+    .value-input {
+      width: 50px;
+    }
+  }
+}

@@ -1,0 +1,405 @@
+import Link from 'next/link';
+import {Image} from '@swistak-codes/components';
+import cover from './swistaki-kubizm.jpg';
+import { Presentation } from './presentation';
+
+export const meta = {
+  title: 'Podstawy algorytmiki: szybkie potęgowanie',
+  abstract:
+    'Artykuł omawia jeden z podstawowych algorytmów matematycznych w informatyce — szybkie potęgowanie.',
+  firstParagraph: (
+    <>
+      Potęgowanie to dość podstawowa, a jednocześnie przydatna operacja w matematyce. Jednak wykonując je według definicji, możemy nie dać rady zrobić tego szybko, szczególnie gdy podnosimy liczby do wysokich potęg. Mimo to jest na to sposób, jak można potęgi obliczać szybko, i to na tyle prostym algorytmem, że jest zwykle jednym z pierwszych, które poznajemy przy nauce programowania. Opowiedzmy sobie o nim, przetestujmy, a także sprawdźmy, czy naprawdę jest taki szybki.
+    </>
+  ),
+  keyword: 'potęgowanie',
+  categories: ['Matematyka', 'Algorytmy'],
+  tags: [
+    'szybkie potęgowanie',
+    'potęgowanie',
+    'matematyka',
+    'rekurencja',
+    'system binarny',
+    'przesunięcia bitowe',
+    'javascript'
+  ],
+  slug: 'szybkie-potegowanie',
+  updateTime: '2023-01-11T07:00:00+00:00',
+  publishTime: '2023-01-11T07:00:00+00:00',
+  cover,
+};
+
+## Potęgowanie
+
+Zanim przejdziemy do omówienia algorytmu, zróbmy szybką powtórkę z matematyki i opowiedzmy, czym jest potęgowanie i jakie ma właściwości.
+
+### Definicja
+
+#### Potęgi naturalne
+
+Ogólnie rzecz ujmując, potęgowanie to uogólnienie wielokrotnego mnożenia elementu przez siebie, czyli:
+
+$$
+a^{n}=\underbrace {a\cdot a\cdot \dots \cdot a\cdot a} _{n}
+$$
+
+Przykładowo:
+
+$$
+2^4 = 2 \cdot 2 \cdot 2 \cdot 2 = 16
+$$
+
+W powyższym zapisie $$a$$ nazwiemy podstawą potęgi, a $$n$$ wykładnikiem.
+
+Warto zwrócić uwagę, że tak jest w przypadku wykładników będących liczbami całkowitymi dodatnimi. Jeśli chcemy całkowicie pokryć zakres liczb naturalnych, potrzebujemy jeszcze znać wynik dla wykładnika zerowego. Jest to zawsze:
+
+$$
+a^0 = 1
+$$
+
+Innymi słowy, potęgowanie moglibyśmy zdefiniować rekurencyjnie w następujący sposób:
+
+$$
+a^{n}={
+\begin{cases}
+1 &{\text{ dla }n=0}\\
+a^{n-1}\cdot a &{\text{ dla }n\geqslant 1}
+\end{cases}
+}
+$$
+
+Ten przypadek będzie nas interesować w kontekście algorytmów pokazanych w artykule, ale jeszcze opowiedzmy sobie o innych przypadkach wykładników.
+
+#### Inne wykładniki
+
+Pierwszym przypadkiem są liczby ujemne, tym samym dając nam cały zakres liczb całkowitych. W tym przypadku potęgowanie wygląda następująco:
+
+$$
+a^{-n} = \frac{1}{a^n}
+$$
+
+Natomiast w przypadku wykładnika wymiernego dochodzi do pierwiastkowania, co wygląda następująco:
+
+$$
+a^{\frac{m}{n}} = \sqrt[n]{a^m}
+$$
+
+Moglibyśmy też jako wykładnik potęgi mieć liczbę niewymierną lub zespoloną, ale te przykłady pomińmy, żeby nie wchodzić w bardziej zaawansowane obszary matematyki. Do tego w kontekście opisanych tutaj algorytmów nas to nie będzie interesować.
+
+### Własności potęgowania
+
+To, co natomiast nas zainteresuje, to własności potęgowania, szczególnie że niektóre z nich wykorzystamy w opisanych tutaj algorytmach. Jest ich niewiele, ale warto je znać:
+
+- Mnożąc potęgi o tej samej podstawie, dodajemy ich wykładniki: $$a^m \cdot a^n = a^{m+n}$$.
+- I na odwrót — dzieląc, odejmujemy wykładniki: $$a^m / a^n = a^{m-n}$$.
+- Podnosząc potęgę do potęgi, mnożymy wykładniki: $$(a^m)^n = a^{m\cdot n}$$.
+- Iloczyn podniesiony do potęgi możemy rozbić: $$(a \cdot b)^n = a^n \cdot b^n$$.
+- Tak samo jest z ilorazem (ułamkami): $$(\frac{a}{b})^n = \frac{a^n}{b^n}$$
+
+### Szczególny przypadek zera
+
+Warto też wspomnieć od razu o szczególnym przypadku, którym jest podnoszenie zera do potęgi. Możemy tu mówić o trzech przypadkach:
+
+- $$0^n = 0$$ dla $$n > 0$$.
+- Dla $$n < 0$$ wartość jest niezdefiniowana, ponieważ otrzymalibyśmy dzielenie przez zero.
+- Jeśli chodzi o $$0^0$$, zależy od kontekstu, w którym operujemy. W niektórych przypadkach przyjmuje się, że $$0^0 = 1$$, natomiast w innych, że nie da się określić wartości.
+
+Nas ten ostatni przypadek interesuje w kontekście języków programowania, a w nich w większości przypadków zakłada się $$0^0 = 1$$. Aczkolwiek standard liczb zmiennoprzecinkowych IEEE-754-2008 zakłada, że w jednym z trzech wariantów funkcji potęgowania dla $$0^0$$ powinniśmy zwrócić wartość `NaN` (Not-a-Number, ang. nie-liczba).
+
+### Niewydajny algorytm potęgowania
+
+Bazując na powyższej wiedzy, moglibyśmy zrobić prosty, teoretycznie prawidłowy algorytm potęgowania (kod dostępny na [repl.it](https://replit.com/@tswistak/bad-iterative#index.js)):
+
+```javascript
+function power(a, n) {
+  let result = 1;
+  for (let i = 0; i < n; i++) {
+    result = result * a;
+  }
+  return result;
+}
+```
+
+Fani <Link href="/post/rekurencja-co-to-jest">rekurencji</Link> mogliby zapisać go tak (kod dostępny na [repl.it](https://replit.com/@tswistak/bad-recursive#index.js)):
+
+```javascript
+function power(a, n) {
+  if (n === 0) {
+    return 1;
+  } else {
+    return a * power(a, n - 1);
+  }
+}
+```
+
+Skoro rekurencja, to dlaczego nie rekursja ogonowa? Co prawda w pokazywanym tutaj JavaScript nie ma sensu ten rodzaj optymalizacji ([przynajmniej na koniec 2022 roku](https://bugs.chromium.org/p/v8/issues/detail?id=4698)), ale mimo to pokażę (kod dostępny na [repl.it](https://replit.com/@tswistak/bad-recursive#index.js)):
+
+```javascript
+function power(a, n, acc = 1) {
+  if (n === 0) {
+    return acc;
+  } else {
+    return power(a, n - 1, acc * a);
+  }
+}
+```
+
+O ile wyniki są prawidłowe, podejście to jest jednak złe, ponieważ wymaga od nas wykonania tylu mnożeń, ile wynosi wykładnik. W prostych przypadkach nie ma to znaczenia, ale ogólnie nie powinniśmy w taki sposób programować potęgowania od podstaw.
+
+## Szybkie potęgowanie
+
+Mówiąc o potęgowaniu w kontekście informatyki, zwykle ma się na myśli algorytm nazywany w polskiej literaturze algorytmem szybkiego potęgowania. W zagranicznej natomiast znany jest jako potęgowanie przez podnoszenie do kwadratu (exponentiating by squaring) lub potęgowanie binarne (binary exponentiation). Jest to bardzo stare podejście, starsze niż informatyka, bo zostało opisane już przed 200 r. p.n.e. w Chanshsutrze.
+
+### Idea algorytmu
+
+Jak mówi jedna z zagranicznych nazw tego algorytmu, algorytm szybkiego potęgowania opiera się na podnoszeniu do kwadratu. Zobaczmy przykład, gdzie dowolną liczbę chcemy podnieść do potęgi szesnastej ($$a^{16}$$).
+
+Tradycyjnie zrobilibyśmy to za pomocą piętnastu mnożeń, ale jak możemy się domyślić, przy dużych liczbach może nie być to najszybsze. Natomiast przypomnijmy sobie w tym momencie jedną z własności potęgowania, która mówiła, że podnosząc potęgę do potęgi, mnożymy wykładniki. To oznacza, że w naszym przypadku moglibyśmy wykonać coś następującego:
+
+$$
+a^{16} = \left(a^2\right)^8 = \left(\left(a^2\right)^2\right)^4 = \left(\left(\left(a^2\right)^2\right)^2\right)^2
+$$
+
+Uogólniając, możemy to zapisać jako:
+
+$$
+a^n = \left( a^2 \right) ^{\frac{n}{2}}
+$$
+
+Tym samym zamiast piętnastu mnożeń wykonamy jedynie cztery. Brzmi to jak niesamowite uproszczenie, prawda?
+
+Tylko że tutaj mieliśmy bardzo prosty przypadek, gdzie wykładnik był potęgą liczby 2. Wtedy faktycznie operacja jest tak prosta, ale co w przypadku dowolnych wykładników? Możemy zastosować inną z własności potęgowania, czyli że mnożąc potęgi o tej samej podstawie, dodajemy ich wykładniki.
+
+Jak jednak zdecydować, kiedy to wykonujemy? Otóż wtedy, gdy aktualny wykładnik jest nieparzysty. Dlatego, biorąc jako przykład podnoszenie do potęgi 11 ($$a^{11}$$), będzie to wyglądać następująco:
+
+$$
+a^{11} = a \cdot \left( a^2 \right)^5 = a \cdot \left(a \cdot \left( a^2 \right)^2 \right) ^2
+$$
+
+Uogólniając, dla nieparzystych $$n$$ możemy zapisać definicję:
+
+$$
+a^n = a \cdot \left( a^2 \right) ^{\frac{n-1}{2}}
+$$
+
+### Definicja binarna
+
+W tym ostatnim przypadku, jeśli chciałbyś/chciałabyś rozpisywać to ręcznie na kartce, może się to stać nieco skomplikowane. Prawdę mówiąc, gdy rozpisywałem powyżej $$x^{11}$$, tak aby mieć jedynie mnożenia i podnoszenia do kwadratu, też w pewnym momencie się zawahałem. Jest jednak bardzo proste wytłumaczenie jak to obliczać, posiłkując się zapisem liczby w formie binarnej.
+
+Na początek (za *Sztuką Programowania* D. Knutha) przyjmijmy sobie dwa symbole, które możemy traktować jako rozkazy, co mamy w danym momencie robić:
+
+- `S` — podnieś do kwadratu,
+- `X` — pomnóż przez podstawę potęgi.
+
+Zacznijmy od zapisania wykładnika w postaci binarnej. W przypadku $$11_{10}$$ jest to $$1011_2$$. Każde $$1$$ zamieniamy na `SX`, natomiast $$0$$ na `S`, po czym skreślamy pierwsze `SX`. W przypadku $$1011_2$$ ($$11_{10}$$) będzie to: `S SX SX`. Idąc więc zgodnie z tym ciągiem operacji, potęgę skonstruujemy w następujący sposób:
+
+1. `S`: $$a^2$$
+2. `SX`: $$\left( a^2 \right) ^2 \cdot a$$
+3. `SX`: $$\left( \left( a^2 \right) ^2 \cdot a \right) ^2 \cdot a$$
+
+Pamiętając, że operacja mnożenia jest przemienna, możesz zauważyć, że uzyskaliśmy dokładnie to samo równanie.
+
+### Definicja rekurencyjna
+
+W zastosowaniu algorytmicznym większe znaczenie ma definicja rekurencyjna. Możemy ją zbudować z pokazanych przeze mnie wcześniej uogólnień, czyli:
+
+$$
+a^{n}={
+\begin{cases}
+1 &{\text{ dla }}n=0\\
+\left( a^2 \right) ^{\frac{n}{2}} &{\text{ dla }n\text{ parzystych}}\\
+a \cdot \left( a^2 \right) ^{\frac{n-1}{2}} &{\text{ dla }n\text{ nieparzystych}}
+\end{cases}
+}
+$$
+
+Warto wspomnieć, że często w algorytmice, szczególnie przy nauce podstaw programowania, korzysta się z nieco prostszej definicji, która prowadzi do większej liczby wywołań rekurencyjnych, jednak wciąż jest poprawna:
+
+$$
+a^{n}={
+\begin{cases}
+1 &{\text{ dla }}n=0\\
+\left( a^2 \right) ^{\frac{n}{2}} &{\text{ dla }n\text{ parzystych}}\\
+a \cdot a ^{n-1} &{\text{ dla }n\text{ nieparzystych}}
+\end{cases}
+}
+$$
+
+### Kod
+
+W podręcznikach do programowania najczęściej znajdziemy ten algorytm zapisany w kodzie tak jak poniżej, czyli według drugiej definicji:
+
+```javascript
+function power(a, n) {
+  if (n === 0) {
+    return 1;
+  } else if (n % 2 === 0) {
+    return power(a * a, n / 2);
+  } else {
+    return a * power(a, n - 1);
+  }
+}
+```
+
+Kod wraz z testami dostępny jest na [repl.it](https://replit.com/@tswistak/binary-recursive#index.js).
+
+Możemy jednak napisać też kod zgodny z pierwszą pokazaną definicją, tym samym zmniejszając nieco liczbę wywołań rekurencyjnych:
+
+```javascript
+function power(a, n) {
+  if (n === 0) {
+    return 1;
+  } else if (n % 2 === 0) {
+    return power(a * a, n / 2);
+  } else {
+    return a * power(a * a, (n - 1) / 2);
+  }
+}
+```
+
+Ten kod również znajdziesz na [repl.it](https://replit.com/@tswistak/binary-recursive2#index.js).
+
+Oczywiście według definicji rekurencyjnej możemy napisać również kod korzystający ze zwykłej <Link href="/post/iteracja-co-to-jest">iteracji</Link>. Będzie to wyglądać następująco (dodałem komentarze tłumaczące, co się dzieje w odniesieniu do wersji rekurencyjnej):
+
+```javascript
+function power(a, n) {
+  // ustalamy początkową wartość wyniku na 1, czyli wartość a^0
+  let result = 1;
+  // iterujemy tak długo, jak wykładnik jest większy od 0
+  while (n > 0) {
+    if (n % 2 === 0) {
+      // przypadek, kiedy n jest parzyste
+      // aktualizujemy wykładnik
+      n = n / 2;
+      // podnosimy podstawę potęgi do kwadratu i ją zapamiętujemy
+      a = a * a;
+    } else {
+      // przypadek, kiedy n jest nieparzyste
+      // najpierw mnożymy wynik przez aktualną podstawę
+      result = result * a;
+      // następnie znowu podnosimy podstawę potęgi do kwadratu
+      a = a * a;
+      // i odpowiednio aktualizujemy wykładnik
+      n = (n - 1) / 2;
+    }
+  }
+  // zwracamy wynik obliczeń
+  return result;
+}
+```
+
+Również kod tego rozwiązania zamieściłem na [repl.it](https://replit.com/@tswistak/binary-iterative#index.js). Tutaj oczywiście odniosłem się do pierwszej pokazanej przeze mnie definicji rekurencyjnej, ale możesz też spróbować w analogiczny sposób <Link href="/post/derekursywacja">zderekursywować</Link> drugie podejście rekurencyjne. To już jednak pozostawiam Ci do zrobienia na własną rękę w ramach ćwiczenia. Jeśli potrzebujesz podpowiedzi, opis algorytmu można znaleźć w tomie drugim *Sztuki Programowania* D. Knutha.
+
+### Kod według definicji binarnej
+
+Analogicznie do wersji iteracyjnej pokazanej powyżej moglibyśmy napisać algorytm, który wprost przenosi definicję binarną szybkiego potęgowania. Oczywiście nie musimy do tego celu konwertować liczby na jej zapis binarny, bo ten i tak istnieje w pamięci komputera, tylko musimy się do niego sprytnie odwołać. A możemy to zrobić za pomocą dwóch operacji:
+
+- $$n \land 1$$ (w kodzie: `n & 1`) — wykonanie operacji `AND 1` zwróci wartość ostatniego bitu.
+- $$n >> 1$$ — przesunięcie bitowe w prawo „skróci” liczbę binarną o ostatni bit.
+
+Dla wygody będziemy iterować od tyłu, co możemy zrobić, bo mnożenie jest przemienne. Kod będzie wyglądać wówczas następująco (dostępny na [repl.it](https://replit.com/@tswistak/binary-iterative2#index.js)):
+
+```javascript
+function power(a, n) {
+  // ustalamy początkową wartość wyniku na 1, czyli wartość a^0
+  let result = 1;
+  // iterujemy tak długo, jak wykładnik jest większy od 0
+  while (n > 0) {
+    if (n & 1 === 1) {
+      // ostatni bit wynosi jeden, więc wykonujemy operacje SX;
+      // z racji tego, że S jest wykonywane w obu przypadkach,
+      // wewnątrz warunku wykonamy tylko X
+      result = result * a;
+    }
+    // wykonujemy operację S, która jest wspólna dla obu przypadków
+    a = a * a;
+    // "skracamy" wykładnik o 1 bit
+    n = n >> 1;
+  }
+  // zwracamy wynik obliczeń
+  return result;
+}
+```
+
+Co jednak warto zauważyć, $$n \land 1$$ to nic innego jak sprawdzenie parzystości, a $$n >> 1$$ to podzielenie przez dwa. Jeśli podmienimy operacje binarne na ich matematyczne odpowiedniki, uzyskamy dokładnie to, o co poprosiłem poprzednio — iteracyjną wersję uproszczonej definicji rekurencyjnej.
+
+Dodam też, że na bazie powyższego algorytmu powstał algorytm potęgowania modularnego, który opisałem w artykule *<Link href="/post/szybkie-szukanie-duzych-liczb-pierwszych/#potęgowanie-modularne">Szybkie szukanie dużych liczb pierwszych</Link>*. Jeśli spojrzysz na przedstawiony tam kod, robimy dokładnie to samo, tylko z tą różnicą, że przy mnożeniach wykonujemy dodatkowo operację modulo.
+
+## Potęgowanie liczby 2
+
+W tym momencie warto wspomnieć, że gdy chcemy podnosić do potęgi liczbę 2, istnieje do tego o wiele lepszy, jeszcze wydajniejszy sposób, mianowicie przesunięcie bitowe w lewo. Opisałem to już w artykule *<Link href="/post/matematyka-zero-jedynkowa/#przesunięcia-bitowe">1 0 0 0? 0 1 0 1! 1 0 0 1 – czyli matematyka zero-jedynkowa</Link>*, ale dla przypomnienia powtórzę tutaj w kontekście potęgowania.
+
+Operację przesunięcia bitowego w lewo możemy sobie wyobrazić wizualnie jako dopisanie zera na końcu liczby binarnej. W praktyce jest to nic innego jak mnożenie przez potęgi liczby 2, tzn. $$<< 1$$ to pomnożenie przez 2 ($$2^1$$), $$<< 2$$ przez 4 ($$2^2$$), $$<< 3$$ przez 8 ($$2^3$$) itd.
+
+Do tego w systemie binarnym kolejne potęgi liczby 2 zapisujemy jako 1 z taką ilością zer, ile wynosi wykładnik. To znaczy $$1_2 = 1_{10}$$ ($$2^0$$), $$10_2 = 2_{10}$$ ($$2^1$$), $$100_2 = 4_{10}$$ ($$2^2$$), $$1000_2 = 8_{10}$$ ($$2^3$$) itd.
+
+Łącząc tę wiedzę w jedno, możemy napisać bardzo prostą funkcję do obliczania potęg dwójki (kod dostępny na [repl.it](https://replit.com/@tswistak/power-two#index.js)):
+
+```javascript
+function power2(n) {
+  return 1 << n;
+}
+```
+
+## Porównanie szybkości działania
+
+Skoro pokazaliśmy różne sposoby na potęgowanie, porównajmy ich prędkość działania, czy na pewno warto było pisać algorytm szybkiego potęgowania, a także jak spisują się jego różne implementacje.
+
+Kod, na podstawie którego powstały wszystkie przedstawione niżej wykresy i wnioski, znajdziesz na [moim GitHubie](https://github.com/swistak-codes/exponentation-benchmark). Porównanie zostało zrobione w JavaScript, który jest językiem interpretowanym, więc możemy nie mieć żadnych zalet wynikających ze stosowania operacji bitowych. Mimo to powinniśmy być w stanie wyciągnąć pewne wnioski.
+
+W przypadku wszystkich pokazanych niżej wyników procedura testowa wyglądała tak, że wykonywałem każde obliczenie każdym algorytmem 100 razy i zliczałem czas wykonania w nanosekundach. Odrzucałem dwie wartości skrajne i wyciągałem średnią z pozostałych wyników. Wszystko było odpalane na MacBooku Pro 2018 z procesorem i7 2,6 GHz. Wykresy są interaktywne i możesz je przybliżać i oddalać. Po najechaniu kursorem myszy pojawi się menu w prawym górnym rogu, gdzie możesz sterować wyglądem, natomiast klikając nazwy w legendzie na dole, możesz ukrywać nieinteresujące Cię dane. Ponadto na dole znajduje się także przełącznik, dzięki któremu możesz zmienić skalę osi Y z liniowej na logarytmiczną.
+
+### Potęgowanie dowolnej liczby
+
+Najpierw porównajmy szybkość wykonania różnych implementacji szybkiego potęgowania z różnymi sposobami implementacji potęgowania według definicji. Żeby porównanie było ciekawsze, porównamy to wszystko z wbudowaną funkcją potęgowania w język programowania. Pamiętaj, że czasy wykonania są orientacyjne i służą jedynie ogólnemu porównaniu wydajności. Liczba, którą podnosiłem do potęgi, to 3.
+
+<Presentation dataset="exp3number" />
+
+Możemy na szybko zauważyć, że w przypadku JavaScript na tak małym zakresie liczb nie widać znaczących różnic w czasie wykonania.
+
+### Potęgowanie dowolnej liczby (BigInt)
+
+Niestety, wbudowany typ liczbowy ogranicza nas swoim zakresem (maksymalnie mogliśmy obliczyć $$3^{33}$$), dlatego wykonałem test również na typie liczbowym `BigInt`, który umożliwia korzystanie z liczb nieskończenie dużych, jednak kosztem wydajności (obliczenia są wykonywane programowo zamiast sprzętowo). Analogiczne porównanie w tym przypadku wypada następująco:
+
+<Presentation dataset="exp3bigint" />
+
+Tutaj widzimy już wyraźnie, szczególnie po włączeniu skali logarytmicznej, że różne algorytmy mają różne szybkości działania. Najgorzej spisują się te wyliczające wg definicji, następnie binarny, a potem wszystkie trzy implementacje szybkiego potęgowania. Najlepiej sprawdza się potęgowanie wbudowane w język programowania.
+
+### Potęgowanie liczby 2
+
+Wykonajmy jeszcze analogiczne porównanie, ale tym razem potęgując liczbę 2. Dlatego też dołożymy do porównania dodatkowo obliczanie tej potęgi przesunięciem bitowym.
+
+<Presentation dataset="exp2number" />
+
+W przeciwieństwie do potęgowania liczby 3 tutaj jasno możemy zauważyć, że implementacje rekurencyjne wg definicji radzą sobie gorzej. Zaskakujące jest, jak dobrze poradziła sobie iteracyjna wersja według definicji i że nie najlepiej wypadło potęgowanie wbudowane w język.
+
+### Potęgowanie liczby 2 (BigInt)
+
+Dodatkowo zróbmy to samo na typie `BigInt` (powyżej mogliśmy maksymalnie obliczyć $$2^{53}$$), gdzie ze względu na obliczenia programowe nie mamy zalet związanych z niskopoziomową optymalizacją. Jak tutaj się to sprawuje?
+
+<Presentation dataset="exp2bigint" />
+
+Możemy zaobserwować podobną wydajność jak przy potęgowaniu liczby 3. Warto jednak zwrócić uwagę, że tym razem potęgowanie wbudowane w JavaScript dużo lepiej się sprawuje niż szybkie potęgowanie, tak samo jak przesunięcia.
+
+### Wnioski
+
+Na podstawie wyżej pokazanych wyników możemy zauważyć, że o ile w przypadku wbudowanego typu liczbowego, gdzie mamy ograniczenie zakresu, nie ma większych różnic w wydajności (chyba że przy wersjach rekurencyjnych według definicji), to w przypadku `BigInt` różnica jest zauważalna.
+
+Jeśli chodzi o same implementacje algorytmu szybkiego potęgowania, nie widać tutaj zauważalnych różnic z wyjątkiem wersji binarnej. Ta wersja w przypadku wbudowanego typu liczbowego sprawuje się lepiej (chociaż nieznacznie), natomiast przy `BigInt` wyraźnie gorzej. Jest to jednak spowodowane faktem, że operacje bitowe są bardzo wydajne, gdy są przeprowadzane na poziomie procesora. W przypadku typu liczbowego bez limitu zakresu wszystkie obliczenia są wykonywane programowo, operacje bitowe są symulowane, więc tracimy na wydajności.
+
+Ciekawe jest zachowanie wbudowanej operacji potęgowania względem naszych implementacji. Teoretycznie interpreter języka powinien wykonać taką operację najszybciej, ponieważ nie musi interpretować kodu algorytmu. Faktycznie wypada najszybciej w typie `BigInt`, ale w zwykłym typie liczbowym już bywa różnie. W przypadku potęgowania liczby 2 większość napisanych przeze mnie implementacji była szybsza, chociaż pamiętajmy, że różnica między 200 a 100 nanosekundami jest zupełnie niezauważalna. W praktycznych zastosowaniach nie będzie to stanowić argumentu, że lepiej napisać algorytm szybkiego potęgowania zamiast użyć wbudowanej w język funkcji czy operatora.
+
+Na pewno warto byłoby powtórzyć ten test na języku programowania, który nie jest interpretowany, tylko kompilowany jak np. C. Wtedy moglibyśmy się przekonać, czy na pewno optymalizacje polegające na stosowaniu operacji binarnych mają sens. Do tego warto też zauważyć, że interpretery takich języków jak JavaScript często wykonują różne optymalizacje pod spodem, które mogą wpływać na szybkość wykonania. W przypadku kompilowanych języków mamy pełną kontrolę nad optymalizacjami za pomocą flag kompilatora (np. w GCC `-O[liczba]`), więc można nawet zbadać ich wpływ na szybkość wykonania.
+
+## Podsumowanie
+
+Algorytm szybkiego potęgowania to bardzo prosty algorytm pokazujący nam, że własności znane z matematyki mogą mieć praktyczne zastosowanie w celu zmniejszenia liczby potrzebnych obliczeń. Warto jednak pamiętać, że zwykle nie będziesz musiał(a) pisać tego na własną rękę. Jeśli Twój język programowania ma wbudowany operator potęgowania lub jego biblioteka standardowa posiada do tego funkcję, korzystaj z tego. Ewentualne niewielkie różnice wydajnościowe wynikające z napisanego od zera zoptymalizowanego algorytmu nie są zazwyczaj argumentem za własną implementacją.
+
+## Literatura
+
+- Knuth, D. E. “Evaluation of Powers” w *The art of computer programming: Volume 2.*. Addison-Wesley, 2011, s. 461-485
+- Exponentiation, https://en.wikipedia.org/w/index.php?title=Exponentiation&oldid=1126439411 (ostatnie odwiedziny 29.12.2022).
+- Exponentiation by squaring, https://en.wikipedia.org/w/index.php?title=Exponentiation_by_squaring&oldid=1123579425 (ostatnie odwiedziny 29.12.2022).
+- Algorytm szybkiego potęgowania, *Fizyka: szkoła podstawowa*, https://www.afizyka.pl/informatyka-algorytm-szybkiego-potegowania (ostatnie odwiedziny 29.12.2022).
+
+<small>Zdjęcie na okładce wygenerowane przez DALL-E. Oryginał znajduje się [tutaj](https://labs.openai.com/s/EyIggkhO9PQ4Gkvlnl2qBx2X).</small>

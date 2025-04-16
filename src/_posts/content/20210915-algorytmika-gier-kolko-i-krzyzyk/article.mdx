@@ -1,0 +1,279 @@
+import Link from 'next/link';
+import {Image, Iframe} from '@swistak-codes/components';
+import cover from './kolko_krzyzyk.jpg';
+import blokRozgalezienie from './BLOK-ROZGALEZIENIE.png';
+import blokuj from './BLOKUJ.png';
+import minimax from './minimax.png';
+import rozgalezienie from './rozgalezienie_poprawione.png';
+import kolkoKrzyzyk from './Tic-tac-toe-full-game-tree-x-rational.png';
+import win10 from './win10_smooth.webp';
+import wygraj from './WYGRAJ.png';
+
+export const meta = {
+  title: 'Algorytmika gier — kółko i krzyżyk',
+  abstract:
+    'Pokazuję dwa sposoby na zrobienie sztucznej inteligencji dla gry w kółko i krzyżyk: wykorzystanie reguł decyzyjnych oraz algorytm Minimax.',
+  firstParagraph: (
+    <>
+      Poprzednio w serii algorytmika gier pochyliłem się nad <Link href="/post/algorytmika-gier-saper">grą w sapera</Link>, gdzie przeanalizowaliśmy, jak generuje się planszę oraz prowadzi rozgrywkę. Teraz spróbujmy przenieść na komputer jedną z najpopularniejszych gier rozgrywanych na kartce — kółko i krzyżyk. Jednak tym razem nie skupimy się na zaprogramowaniu całej rozgrywki, a tylko na jednej rzeczy: <Link href="/post/sztuczna-inteligencja-a-co-to-a-komu-to-potrzebne">sztucznej inteligencji</Link> komputerowego gracza.
+    </>
+  ),
+  keyword: 'kółko i krzyżyk',
+  categories: ['Gry', 'Sztuczna inteligencja'],
+  tags: [
+    'sztuczna inteligencja',
+    'minimax',
+    'kółko i krzyżyk',
+    'drzewo decyzyjne',
+    'alfa-beta',
+    'drzewo stanu gry',
+    'gra o sumie zerowej',
+    'javascript',
+    'react',
+    'drzewa',
+  ],
+  slug: 'algorytmika-gier-kolko-i-krzyzyk',
+  updateTime: '2021-09-10T07:22:40+00:00',
+  publishTime: '2021-09-15T07:30:02+00:00',
+  cover,
+};
+
+## Uwaga wstępna
+
+Podobnie jak w poprzednim artykule o saperze, także i tu zachęcam do spróbowania zaprogramowania algorytmów na własną rękę. Nie jest to wymagane dla zrozumienia artykułu, ale zawsze pomoże wynieść z niego coś więcej.
+
+[Pod tym linkiem](https://codesandbox.io/s/tictactoe-template-dn9dh?) udostępniam szablon zawierający grę w kółko i krzyżyk napisaną w JavaScript z pomocą Reacta. W pliku `src/logic/computeComputerMove.js` znajdziesz pustą funkcję `computeComputerMove`, której zadaniem jest zwrócenie współrzędnych pola, na którym ma zostać wykonany następny ruch.
+
+W artykule pokażę dwa algorytmy, więc możesz spróbować zaprogramować oba. Natomiast jeśli chciałbyś/chciałabyś po prostu zobaczyć gotowca, to zapraszam na repozytorium na [GitHubie](https://github.com/swistak-codes/tic-tac-toe), gdzie znajdziesz gotowe implementacje.
+
+## Jak się w to gra?
+
+Parafrazując klasyka, chciałoby się powiedzieć, że jakie kółko i krzyżyk jest, każdy widzi. Jednak mimo wszystko przypomnijmy sobie podstawowe zasady gry.
+
+W najpopularniejszym wariancie grę rozgrywa się na polu o wymiarach 3 × 3. Jeden z graczy gra krzyżykami (najczęściej ten właśnie zaczyna), drugi kółkami. Każdy z graczy na przemian stawia w jednym z niezajętych pól swój symbol. Koniec gry następuje wtedy, gdy któryś z graczy utworzy linię trzech swoich elementów (pionowa, pozioma lub po przekątnej; wówczas wygrywa), albo gdy wszystkie pola zostaną zajęte (remis).
+
+Dla utrwalenia zasad możesz zagrać w kółko i krzyżyk z komputerowym graczem poniżej (grasz krzyżykami i zaczynasz).  Dokładnie to, co tutaj widzisz, jest efektem tego artykułu.
+
+<Iframe src="/iframe-content/tictactoe/demo/index.html" minHeight={280} />
+
+## Trochę matematyki
+
+Wróćmy do teorii gry w kółko i krzyżyk. Z racji tego, że gra jest turowa i potrzebne są trzy ruchy jednego gracza do zwycięstwa, oznacza to, że każda gra odbędzie się w co najmniej 5 ruchach z 9 możliwych. Daje to niedużą liczbę możliwych rozgrywek. Pierwsze, co przychodzi na myśl, biorąc pod uwagę wiedzę z dziedziny kombinatoryki, to że możliwych rozgrywek jest $$9! = 362880$$. Tak jednak nie jest, ponieważ nie zawsze wykorzystujemy całą planszę. Przypomnijmy sobie, że pierwszy gracz może zakończyć grę już po 5 ruchach (3 swoich). Do tego momentu mamy możliwych $$9\cdot 8\cdot 7 \cdot 6 = 15120$$ gier, z czego tylko część jest zakończona.
+
+To ile tych gier jest ostatecznie? Możemy to policzyć następująco dla gier kończących się pięcioma ruchami:
+
+- Mamy 8 możliwości ułożenia 3 symboli w jednej linii. Możemy je układać w dowolnej kolejności na $$8 \cdot 3! = 48$$ sposobów.
+- Pozostały gracz ma do wyboru 6, a potem 5 pól, gdzie może postawić swój symbol. Daje to liczbę kombinacji $$6 \cdot 5 = 30$$.
+- Łącznie daje to nam $$8 \cdot 3! \cdot 6 \cdot 5 = 48 \cdot 30 = 1440$$ zwycięskich gier z 15120 możliwych rozegrań do tego momentu.
+
+Dla dalszych ruchów obliczenia robią się bardziej skomplikowane, dlatego pominę ich wytłumaczenie, tylko wypiszę wzory:
+
+- Gry kończące się wygraną w 6 ruchach: $$8 \cdot 3! \cdot 6 \cdot 5 \cdot 4 - 6 \cdot 3! \cdot 2 \cdot 3! = 5328$$.
+- W 7 ruchach: $$8 \cdot 3 \cdot 6 \cdot 3! \cdot 5 \cdot 4 \cdot 3 - 6 \cdot 3 \cdot 6 \cdot 3! \cdot 3! = 47952$$.
+- W 8 ruchach: $$8 \cdot 3 \cdot 6 \cdot 3! \cdot 5 \cdot 4 \cdot 3 \cdot 2 - 6 \cdot 3 \cdot 6 \cdot 3! \cdot 2 \cdot 4! = 72576$$.
+- W 9 ruchach: $$2 \cdot 3 \cdot 8 \cdot 4! \cdot 4! + 6 \cdot 3 \cdot 4 \cdot 4! \cdot 4! + 22 \cdot 1 \cdot 4! \cdot 4! = 81792$$.
+- Remisy: $$16 \cdot 5! \cdot 4! = 46080$$.
+- Łącznie wszystkich możliwych gier mamy $$1440+5328+47952+72576+81792+46080 = 255168$$.
+
+## Strategia wygrywania w kółko i krzyżyk
+
+Specyfika gry w kółko i krzyżyk jest taka, że pierwszy gracz ma zwykle więcej do powiedzenia. W przypadku doświadczonego pierwszego gracza drugi może doprowadzić co najwyżej do remisu. Nie ma możliwości zmiany przebiegu rozgrywki bez błędu przeciwnika. Z drugiej strony, będąc pierwszym graczem, musimy wiedzieć, jak nie dać złapać się w pułapki drugiego gracza, aby bezproblemowo wygrać.
+
+Strategia optymalnej gry w kółko i krzyżyk znalazła się nie raz w zainteresowaniu naukowców. To, co tutaj przedstawię, to strategia opisana przez Kevina Crowleya i Roberta S. Sieglera w 1993 r. (doi:[10.1016/0364-0213(93)90003-Q](https://doi.org/10.1016%2F0364-0213%2893%2990003-Q)). Należy ją czytać w taki sposób, że staramy się sprawdzać po kolei warunki kolejnych możliwych ruchów, i gdy taki jest możliwy, wykonujemy go. Całość powtarzamy tak długo, aż ukończymy grę.
+
+Strategia ta to tak naprawdę algorytm grania w kółko i krzyżyk. Możesz go wprost zaimplementować w swojej grze, aby mieć bardzo prostą sztuczną inteligencję. Albo po prostu zapamiętać i korzystać przy tradycyjnych rozgrywkach w kółko i krzyżyk.
+
+### 1. Wygraj
+
+**Jeżeli:** jest wiersz, kolumna lub przekątna z dwoma moimi symbolami i puste miejsce,<br />
+**Wtedy:** zagraj na pustym miejscu (i wygraj grę).
+
+<Image
+  image={wygraj}
+  alignCenter
+  fullSize
+  alt="Trzy plansze z grą w kółko i krzyżyk prezentujące jak wygrać grę."
+  caption={<>
+    Trzy sytuacje, w których gracz X powinien zastosować „Wygraj”. Na zielono oznaczono ruch, który powinno się wykonać, pozostałe symbole już znajdowały się wcześniej. O ile przypadki 1 i 2 są dość oczywiste, to w przypadku 3 można również blokować. Według strategii zwycięstwo jest ważniejsze niż blokowanie przeciwnika.
+  </>}
+/>
+
+### 2. Zablokuj
+
+**Jeżeli:** jest wiersz, kolumna lub przekątna z dwoma symbolami mojego przeciwnika i puste miejsce,<br />
+**Wtedy:** zagraj na pustym miejscu (tym samym blokując potencjalne jego zwycięstwo).
+
+<Image
+  image={blokuj}
+  alignCenter
+  fullSize
+  alt="Dwie plansze z grą w kółko i krzyżyk prezentujące jak blokować wygraną przeciwnika."
+  caption={<>
+    Dwie przykładowe sytuacje, kiedy powinno się blokować potencjalną wygraną przeciwnika.
+  </>}
+/>
+
+### 3. Zrób rozgałęzienie
+
+**Jeżeli:** są dwa przecinające się wiersze, kolumny lub przekątne z jednym moim symbolem i dwa puste miejsca oraz...<br />
+**Jeżeli:** miejsce przecięcia jest puste,<br />
+**Wtedy:** przejdź do miejsca przecięcia (tym samym tworząc dwie możliwości wygranej w następnym ruchu).
+
+<Image
+  image={rozgalezienie}
+  alignCenter
+  fullSize
+  alt="Dwie plansze z grą w kółko i krzyżyk prezentujące jak wykonać rozgałęzienie"
+  caption={<>
+    Dwie przykładowe sytuacje, kiedy powinniśmy zrobić rozgałęzienie. Na żółto oznaczone są przecinające się wiersze, kolumny i przekątne. W pierwszym przypadku mamy przecięcie się pierwszej kolumny i drugiego wiersza. W drugim przypadku przecięcie przekątnej z trzecim wierszem. Dzięki wykonaniu takiego ruchu zapewniamy sobie zwycięstwo w grze.
+  </>}
+/>
+
+### 4. Zrób blokujące rozgałęzienie
+
+**Jeżeli:** są dwa przecinające się wiersze, kolumny lub przekątne z jednym symbolem przeciwnika i dwa puste miejsca oraz...<br />
+**Jeżeli:** miejsce przecięcia jest puste,<br />
+**Wtedy:**<br />
+**Jeżeli:** jest puste miejsce, które tworzy dwa symbole w rzędzie dla mnie (tym samym zmuszając mojego przeciwnika do blokowania),<br />
+**Wtedy:** przejdź do tego miejsca.<br />
+**W przeciwnym wypadku:** przejdź do miejsca przecięcia (tym samym blokując miejsce, gdzie przeciwnik mógłby zrobić rozgałęzienie).
+
+<Image
+  image={blokRozgalezienie}
+  alignCenter
+  fullSize
+  alt="Dwie plansze z grą w kółko i krzyżyk prezentujące jak wykonać blokujące rozgałęzienie"
+  caption={<>
+    Dwa przykłady wykonania blokującego rozgałęzienia. Zauważ, że mamy tu zwykle kilka możliwości ruchu. W pierwszym przypadku mamy możliwość utworzenia dwóch swoich symboli z rzędu przy jednoczesnym blokowaniu, stąd preferujemy taki ruch. W drugim przypadku możemy jedynie zablokować potencjalne rozgałęzienie.
+  </>}
+/>
+
+### 5. Zagraj środek
+
+**Jeżeli:** środek jest pusty,<br />
+**Wtedy:** zagraj środek.
+
+### 6. Zagraj przeciwny narożnik
+
+**Jeżeli:** mój przeciwnik jest w narożniku oraz...<br />
+**Jeżeli:** przeciwny narożnik jest pusty,<br />
+**Wtedy:** zagraj przeciwny narożnik.
+
+### 7. Zagraj pusty narożnik
+
+**Jeżeli:** jest pusty narożnik,<br />
+**Wtedy:** przejdź do pustego narożnika.
+
+### 8. Zagraj pusty bok
+
+**Jeżeli:** jest pusty bok,<br />
+**Wtedy:** przejdź na pusty bok.
+
+### Sztuczna inteligencja?
+
+Jeśli powyższa strategia brzmi dla Ciebie jak typowe wydawanie rozkazów maszynie, to masz całkowitą rację. Do tego właśnie sprowadza się zaprogramowanie sztucznej inteligencji grającej w kółko i krzyżyk — 8 warunków (w praktyce nieco więcej, gdyż sprawdzamy różne pozycje na planszy, ale jest to wciąż 8 przypadków). Jeśli kiedykolwiek spotkałeś się z jakimś żartem, że jakaś sztuczna inteligencja zapewne sprowadza się do kilku warunków, to cóż, właśnie masz na to idealny przykład.
+
+<Image
+  image={win10}
+  alignCenter
+  fullSize
+  maxWidth="348px"
+  alt="Microsoft is using AI to make Windows 10 updates smoother -> `if (user.isDoingStuff() && user.hasUnsavedWork()) update()`"
+  caption={<>
+    „Sztuczna inteligencja” w praktyce 🙃<br />
+    (źródło: <a href="https://www.reddit.com/r/ProgrammerHumor/comments/8rbmh9/ai_you_say/" target="_blank">https://www.reddit.com/r/ProgrammerHumor/comments/8rbmh9/ai_you_say/</a>)
+  </>}
+/>
+
+Taki sposób tworzenia sztucznej inteligencji to, innymi słowy, przeniesienie wiedzy eksperta na program komputerowy. Przy trudniejszych zastosowaniach nie zawsze się to sprawdza, jednak było dość powszechnym podejściem w czasach przed popularyzacją uczenia maszynowego. Jest to podstawa tzw. systemów ekspertowych, czyli systemów, które operując na wiedzy eksperckiej, są w stanie przeprowadzić proces wnioskowania i wytłumaczyć użytkownikowi, dlaczego została podjęta dana decyzja.
+
+Swoją drogą, tworząc sztuczną inteligencję do gier, często robimy poziomy trudności. W przypadku tej strategii możemy tego dokonać bardzo prosto — wyrzucając wybrane warianty ruchów. Moja propozycja jest taka, że dla poziomu łatwego możemy zrezygnować z obu rodzajów rozgałęzień, natomiast dla średniozaawansowanego wykorzystujemy tylko jedno z nich. Są to najbardziej zaawansowane i często najmniej oczywiste ruchy, które pozwalają wygrać grę bądź powstrzymać przeciwnika przed zwycięstwem. Wówczas komputerowego gracza będzie można pokonać, a jednocześnie nie będzie on wykonywać ruchów wyglądających losowo.
+
+### Implementacja w kodzie
+
+Tutaj możesz sprawdzić, jak ta strategia sprawdza się w praktyce. Pod planszą pokazane są komentarze opisujące, jaką decyzję w danym momencie podejmuje gracz komputerowy:
+
+<Iframe src="/iframe-content/tictactoe/winning-strategy/index.html" minHeight={450} />
+
+Tak jak wspomniałem wcześniej, kod źródłowy możesz znaleźć [na moim GitHubie](https://github.com/swistak-codes/tic-tac-toe/blob/main/winning-strategy/src/logic/computeComputerMove.js). Od razu ostrzegam, że kod jest dość rozwlekły, ponieważ napisanie sprawdzania tych wszystkich warunków wbrew pozorom zajmuje nieco miejsca. Mimo że kodu jest dużo, to jest jednak prosty i sprowadza się do bardzo prostych operacji. Da się go także uprościć, ale napisałem go w bardziej rozwlekły sposób dla lepszego zobrazowania, co się dzieje.
+
+## Algorytm Minimax
+
+Powyższe podejście działa bardzo dobrze, jednak ma podstawowy problem — nie jest uniwersalne. Zostało opracowane po wnikliwej analizie konkretnej gry, toteż nie da się go przenieść na dowolną inną grę, jak warcaby, szachy, czy nawet gomoku, które ma zasady bardzo zbliżone do kółka i krzyżyka. Dlatego też zobaczmy jeszcze jedno podejście, które można zastosować nie tylko w kółku i krzyżyk, ale też w wielu innych grach, czyli algorytm Minimax (zwany też min-max).
+
+Zanim przejdziemy do jego omówienia, czas na nieco historii. Autorstwo algorytmu przypisuje się Johnowi von Neumannowi (1928 r., [doi:10.1007/bf01448847](http://doi.org/10.1007/bf01448847)), jednak podobne pomysły przedstawiali wcześniej Émile Borel (1921 r., [doi:10.2307/1906946](http://doi.org/10.2307/1906946) [tłumaczenie z 1953 r.]) i Charles Babbage (1844-1868). Co ciekawe, Charles Babbage opracował podejście podobne do Minimax przy opracowywaniu automatu do gry... w kółko i krzyżyk.
+
+Jeszcze mała, poboczna uwaga — algorytm opisuję na bazie późniejszych opracowań, bo niestety oryginalna praca von Neumanna jest napisana po niemiecku, a nie znam na tyle dobrze tego języka, żeby cokolwiek tam zrozumieć.
+
+### Idea algorytmu
+
+Pomysł, jak ma działać algorytm, jest zawarty w jego nazwie. Jest to strategia, gdzie po kolei rozpatrujemy możliwości potoczenia się gry tak, żeby maksymalizować zysk jednego gracza, a przy następnym ruchu minimalizować zysk drugiego gracza. Oczywiście zakłada się, że przeciwnik też będzie chciał wykonać najlepszy możliwy ruch, jaki może. Dlatego też rezultatem algorytmu powinien być taki ruch, który zmusi przeciwnika do wykonania możliwie najgorszego ruchu.
+
+Jest to oczywiście mocno uproszczona definicja, a jeśli jesteś bardziej zainteresowany(-a) tematem od strony teoretycznej, to warto poczytać o teorii gier, szczególnie o grach o sumie zerowej i równowadze Nasha.
+
+### Drzewo stanu gry
+
+Aby móc obliczyć, jaki zestaw ruchów jest dla nas najlepszy, a jednocześnie najgorszy dla przeciwnika, musimy wygenerować wszelkie możliwe stany planszy dostępne po każdym z ruchów. W zależności od tego, jaki ruch wykonamy w aktualnej turze, inne ruchy są dostępne dla przeciwnika w kolejnej. Od tego, który ruch wykona przeciwnik, zależy, jakie ruchy my możemy dalej wykonać. Tworzy to strukturę zwaną drzewem stanu gry.
+
+Czym są drzewa w informatyce, omawiałem przy okazji <Link href="/post/sortowanie-cz-4-sortowanie-przez-wybieranie">sortowania przez wybieranie</Link>, i bardzo zachęcam do przeczytania tam o teorii, jeśli spotykasz się z tym pojęciem po raz pierwszy.
+
+W naszym drzewie stanu gry, jak wspomniałem wcześniej, każdy węzeł będzie stanem planszy w danym momencie. Potomkami takiego węzła będą kolejne ruchy, jakie mogą zostać wykonane po tym ruchu. Innymi słowy, będziemy musieli wygenerować wszystkie możliwe stany gry, aby algorytm mógł wybrać najlepszy ruch. Jak się możesz domyślać, nie jest to idealne podejście. O ile w przypadku tak prostej gry, jak kółko i krzyżyk, uda się to zrobić w rozsądnym czasie, o tyle w bardziej zaawansowanych grach, jak np. szachy, jest to niewykonalne, stąd stosuje się powszechnie różne heurystyki upraszczające drzewo. Część z nich doczekała się opisania jako oddzielne algorytmy, o czym opowiadam później.
+
+<Image
+  image={kolkoKrzyzyk}
+  alignCenter
+  fullSize
+  alt="Krok 1: 2, 5, 7, 9, 8, 10. Porównanie: 2 < 5. Krok 2: 2, 5, 7, 9, 8, 10. Porównanie: 5 < 7. Krok 3: 2, 5, 7, 9, 8, 10. Porównanie: 7 < 9. Krok 4: 2, 5, 7, 9, 8, 10. Porównanie: 9 > 8."
+  caption={<>
+    Tak wygląda pełne drzewo gry w kółko i krzyżyk dla gracza X. Dla uproszczenia autor tego diagramu połączył ze sobą identyczne gałęzie, stąd struktura na rysunku tak naprawdę nie jest drzewem. Aczkolwiek sens jest zachowany. Do tego drzewo jest dość małe, ponieważ wyeliminowano z niego symetryczne warianty ruchów prowadzące do takich samych sytuacji.<br />
+    (źródło: By Mike like0708 - Own work, CC0, <a href="https://commons.wikimedia.org/w/index.php?curid=98793312" target="_blank">https://commons.wikimedia.org/w/index.php?curid=98793312</a>)
+  </>}
+/>
+
+### Ogólny zarys algorytmu
+
+Minimax opiera się na przeszukiwaniu drzewa w głąb, co oznacza, że jest algorytmem rekurencyjnym. W podejściach tego typu zaczynamy od korzenia drzewa, skąd schodzimy w dół, aby potem wracać do góry.
+
+W przypadku Minimax schodzimy w dół do końcowych stanów gry (czyli liści drzewa), albo do maksymalnej głębokości, jaką chcemy sprawdzać. Określamy tam wynik gry z perspektywy naszego, komputerowego gracza. Przyjęło się stosować $$+\infty$$ dla wygranej i $$-\infty$$ dla przegranej, jednak nie jest to przymus stosować takie wartości. Ważne tylko, aby wartości były określane w taki sposób, że najlepiej oddadzą aktualny stan planszy.
+
+Wracając do góry, zbieramy wartości ze wszystkich potomnych stanów gry i wybieramy minimum bądź maksimum. Maksimum wybieramy dla naszego gracza, minimum dla przeciwnika. Ostatecznie dochodzimy z powrotem do korzenia drzewa i wybieramy ten ruch, dla którego została zwrócona największa wartość. Zobrazowanie działania algorytmu możesz zobaczyć na poniższym schemacie:
+
+<Image
+  image={minimax}
+  alignCenter
+  fullSize
+  alt="Schemat wykonania algorytmu Minimax"
+  caption={<>
+    Prezentacja działania algorytmu Minimax. Na pomarańczowo pokazano, które wartości przechodzą do węzła rodzica, a na zielono najlepszą dostępną ścieżkę. Tym samym naszym kolejnym ruchem będzie utworzenie takiego stanu gry, jaki wskazuje nam zielona krawędź na poziomie pierwszym.
+  </>}
+/>
+
+### Implementacja w kółko i krzyżyk
+
+W przypadku gry w kółko i krzyżyk, jak wspomniałem wcześniej, nie musimy martwić się o wydajność algorytmu, więc możemy spokojnie przeprowadzić go w pełni, czyli do końcowego stanu gry. Natomiast w kwestii programisty pozostaje wybór wartości. Możemy podejść do tego, wykorzystując tylko trzy wartości — nieskończoności dla wygranej i przegranej, a zero dla remisu. Można też pomyśleć nad innym ustawianiem wartości, które będzie premiować szybsze wygrane, jednak w praktyce będzie to mieć znaczenie tylko w przypadku, gdy zaczyna komputerowy gracz.
+
+Dla ułatwienia ja w swojej implementacji podszedłem do tematu, wykorzystując tylko trzy wartości, ponieważ dla drugiego gracza, który się broni, nie ma to większego znaczenia. Poniżej możesz zobaczyć, jak sprawdza się to w praktyce:
+
+<Iframe src="/iframe-content/tictactoe/minimax/index.html" minHeight={450} />
+
+Tak jak w poprzednim przypadku, kod źródłowy możesz znaleźć [na moim GitHubie](https://github.com/swistak-codes/tic-tac-toe/blob/main/minimax/src/logic/computeComputerMove.js). Zwróć uwagę, że kod jest o wiele prostszy i dosłownie jedyne miejsce, gdzie zawiera logikę gry, to sprawdzenie, kto wygrywa. Oczywiście w trudniejszych grach przy generowaniu ruchów trzeba by sprawdzać, czy dany ruch jest możliwy; tu jednak wystarczy jedynie sprawdzenie, czy pole jest puste.
+
+## Inne podejścia
+
+Algorytm Minimax nie jest bez wad. Przede wszystkim nie należy do najszybszych sposobów. Wygenerowanie drzewa ze wszystkimi możliwościami rozgrywki jest kosztowne, szczególnie w grach o bardziej skomplikowanych zasadach czy większych planszach niż kółko i krzyżyk. Z tego też powodu opracowano inne algorytmy bazujące na podobnej idei, jednak wykonujące się szybciej:
+
+- Najbardziej znaną alternatywą dla Minimax jest algorytm alfa-beta. Jest to na dobrą sprawę poprawiony Minimax w tym sensie, że nie sprawdzamy wszystkich rozgałęzień drzewa stanu gry. Odcinamy te, które są dla nas najmniej korzystne (stąd alternatywna nazwa — algorytm odcięć alfa-beta) i sprawdzamy tylko te najlepsze gałęzie.
+- Istnieją jeszcze inne modyfikacje algorytmu Minimax, takie jak: NegaScout, Negamax, Expectiminimax.
+- Wszystkie wymienione wyżej algorytmy działają na zasadzie wyszukiwania w głąb. Są jednak również algorytmy typu Best-First, gdzie wyszukiwanie odbywa się podobnie do wyszukiwania wszerz, jednak z naciskiem na eksplorację najlepiej zapowiadających się rozgałęzień. Możemy tu wyróżnić takie algorytmy, jak B*, SSS*, Monte-Carlo Tree Search czy Best-First Minimax Search.
+- W przypadku kółka i krzyżyka jest to oczywiście przesada, ale dla bardziej rozbudowanych gier można zastosować techniki głębokiego uczenia, w szczególności sieci neuronowe. W tej dziedzinie zdecydowanie najbardziej znany jest projekt Alpha Zero od Google'a. Wykorzystuje on połączenie głęboko uczących się sieci neuronowych i przeszukiwania Monte-Carlo Tree Search. Jeśli jesteś ciekaw(a), jak w tym podejściu wygląda kółko i krzyżyk, to udało mi się znaleźć działający przykład na [GitHubie](https://github.com/grimmer0125/alphago-zero-tictactoe-js).
+
+## Literatura
+
+- Bottomley H., *How many Tic-Tac-Toe (noughts and crosses) games are possible?*, [http://www.se16.info/hgb/tictactoe.htm](http://www.se16.info/hgb/tictactoe.htm) (ostatnie odwiedziny: 23.08.2021).
+- Crowley, K. and Siegler, R.S. (1993), Flexible Strategy Use in Young Children's Tic-Tac-Toe. Cognitive Science, 17: 531-561. [https://doi.org/10.1207/s15516709cog1704_3](https://doi.org/10.1207/s15516709cog1704_3)
+- Minimax: [https://www.chessprogramming.org/index.php?title=Minimax&oldid=24142](https://www.chessprogramming.org/index.php?title=Minimax&oldid=24142) (ostatnie odwiedziny: 23.08.2021).
+- Monnens, D. (2013). " I commenced an examination of a game called'tit-tat-to'": Charles Babbage and the" First" Computer Game. In *DiGRA Conference*.
+- Leyton-Brown K., Shoham Y., „Further Solution Concepts for Normal-Form Games” w *Essentials of Game Theory: A Concise Multidisciplinary Introduction*. Morgan & Claypool, 2008, s. 15-31. [https://doi.org/10.2200/S00108ED1V01Y200802AIM003](https://doi.org/10.2200/S00108ED1V01Y200802AIM003)
+- Search: [https://www.chessprogramming.org/index.php?title=Search&oldid=24558](https://www.chessprogramming.org/index.php?title=Search&oldid=24558) (ostatnie odwiedziny: 23.08.2021).
+
+<small>(obrazek na okładce to kolaż obrazków wygenerowanych przez sieć neuronową VQGAN+CLIP po zadaniu jej różnych kombinacji haseł „animals” oraz „tic-tac-toe”; źródło obrazka na froncie: [https://commons.wikimedia.org/wiki/File:Tic_tac_toe.svg](https://commons.wikimedia.org/wiki/File:Tic_tac_toe.svg))</small>

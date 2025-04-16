@@ -1,0 +1,22 @@
+.prevNextContainer {
+  margin: 1rem 0.75rem 0.5rem 0.75rem;
+}
+
+.prevNextWrapper {
+  display: flex;
+  flex-direction: column;
+  max-width: 33%;
+
+  &:first-child {
+    float: left;
+  }
+
+  &:nth-child(2) {
+    text-align: right;
+    float: right;
+  }
+
+  > *:first-child {
+    font-size: 0.85rem;
+  }
+}

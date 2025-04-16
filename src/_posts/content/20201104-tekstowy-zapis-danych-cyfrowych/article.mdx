@@ -1,0 +1,221 @@
+import Link from 'next/link';
+import {Image} from '@swistak-codes/components';
+import cover from './krowa_tekst.png';
+import bmp from './bmp.png';
+import bmpJson from './bmp-json.png';
+import xml from './xml.png';
+import svg from './svg.png';
+import obj from './obj.png';
+
+export const meta = {
+  title: 'Tekstowy zapis danych cyfrowych',
+  abstract:
+    'W artykule tym robię przegląd różnych podejść do przechowywania danych w formie tekstowej. Także sprawdzam różnice względem zapisu binarnego.',
+  firstParagraph: (
+    <>
+      <Link href="/post/przetwarzanie-plikow-w-praktyce-obrazy-bmp">Ostatnio opisywałem, jak podejść do odczytu obrazów
+        zapisanych w plikach BMP.</Link> Pliki tego typu to
+      klasyczny przykład zapisu danych cyfrowych w postaci plików binarnych — wszystkie informacje są przechowywane jako
+      liczby, będąc w ten sposób zakodowane. Takich formatów jest wiele więcej. Ale oprócz nich, mamy także formaty
+      tekstowe. Pliki te można odczytać i edytować nawet bez specjalnego oprogramowania, a potrafią przechować równie
+      dużo informacji. Przejrzyjmy najpopularniejsze sposoby przechowywania danych w taki sposób.
+    </>
+  ),
+  keyword: 'tekstowy zapis danych',
+  categories: ['Teoria informatyki', 'Przetwarzanie danych'],
+  tags: [
+    'xml',
+    'json',
+    'ascii',
+    'bmp',
+    'svg',
+    'open office xml',
+    'opendocument',
+    'rss',
+    'epub',
+    'xhtml',
+    'html',
+    'yaml',
+    'toml',
+    'protocol buffers',
+    'protobuf',
+    'sgml',
+    'rtf',
+    'tex',
+    'latex',
+    'obj',
+    'stl'
+  ],
+  slug: 'tekstowy-zapis-danych-cyfrowych',
+  updateTime: '2021-08-17T16:38:12+00:00',
+  publishTime: '2020-11-04T10:00:18+00:00',
+  cover,
+};
+
+## Formaty tekstowe a binarne
+
+Na początek powiedzmy sobie, czym się charakteryzują oba rodzaje zapisu danych i czym się różnią. Przede wszystkim formaty tekstowe do zapisu wykorzystują jedynie tzw. znaki widzialne z kodu ASCII (czy nawet Unicode). Dlatego aby je zinterpretować, odczytujemy tekst, który następnie interpretujemy w taki sposób, jaki potrzebujemy. W przypadku formatów binarnych nie ograniczamy się kodowaniem znaków. Traktujemy, że każdy bajt przechowuje wartość od 0 do 255 i już do twórców formatu należy określenie tego, jak te wartości interpretować.
+
+Formaty tekstowe mają to do siebie, że możemy je przejrzeć i edytować dowolnym edytorem tekstu, nawet Notatnikiem. Oczywiście odczyt a interpretacja danych to inna sprawa. Formaty binarne w tradycyjnych edytorach są całkowicie nieczytelne. Możemy się tu posiłkować edytorami z widokiem heksadecymalnym, jednak bez dokumentacji formatu niewiele możemy powiedzieć. Co prawda formaty tekstowe też mogą być enigmatyczne, gdy nie znamy struktury, jednak wciąż możemy odczytać z nich więcej. Przypomnijmy sobie z poprzedniego artykułu o formacie BMP (binarnym), w jaki sposób były zapisane metadane pliku:
+
+<Image
+  image={bmp}
+  alignCenter
+  fullSize
+  alt="Zrzut ekranu z edytora heksadecymalnego pokazujący nagłówek pliku BMP"
+  caption={<>
+    Fragment pliku BMP przechowujący jego metadane. Przykładowo, bajty C2 02 00 00 C2 02 00 00 informują nas, że obraz ma wymiary 706×706.
+  </>}
+/>
+
+Dla odmiany, jeśli plik BMP byłby formatem tekstowym, metadane w nim mogłyby wyglądać przykładowo tak (przeniesione jedynie te zaznaczone na niebiesko):
+
+<Image
+  image={bmpJson}
+  alignCenter
+  fullSize
+  alt="Kod w formacie JSON reprezentujący te same metadane pliku BMP, co pokazany wcześniej zapis binarny"
+  caption={<>
+    Plik w tekstowym formacie, który reprezentuje analogiczne dane co powyższy format binarny.
+  </>}
+/>
+
+Format tekstowy jest oczywiście dla nas dużo czytelniejszy. Zaletą jest także to, że z punktu widzenia programowania taki format jest o wiele łatwiej przetwarzać. Jednak z drugiej strony warto zwrócić uwagę na rozmiar. Format tekstowy zajmuje 107 bajtów, natomiast te same dane w formacie binarnym zaledwie 16.
+
+## Uniwersalne standardy zapisu danych w postaci tekstowej
+
+Formatów tekstowych jest wiele i powstawały już od najwcześniejszych czasów komputeryzacji. Chciałbym jednak zwrócić uwagę na to, że pośród nich znajdziemy ogólnie przyjęte standardy — uniwersalne formaty zapisu danych, za pomocą których można zapisać dowolne informacje. Opiszę tu dwa najpopularniejsze: XML oraz JSON.
+
+### XML
+
+XML (z ang. Extensible Markup Language — rozszerzalny język znaczników) to prawdopodobnie najbardziej rozpowszechniony standard zapisu danych w formie tekstowej. Jak sama nazwa wskazuje, jest to język znaczników (podobnie jak HTML), jednak zdefiniowany tak, że nie wskazuje konkretnych elementów, jakie można używać, a raczej zestaw reguł, w jaki sposób dokumenty zapisywać i odczytywać. Prace nad standardem rozpoczęto w 1996 roku, natomiast opublikowano go w 1998 roku.
+
+#### Struktura XML
+
+W formacie XML możemy wyróżnić podział na znaczniki i zawartość. Znaczniki to w zdecydowanej większości tagi zapisywane w postaci `<nazwaTagu></nazwaTagu>` lub `<nazwaTagu />`. XML nie definiuje odgórnie zestawu znaczników — definiujemy je sami, tworząc plik lub jego schemat. Za zawartość natomiast uznaje się wszystko, co nie jest znacznikiem. Warto też wspomnieć o tym, że tagi mogą mieć również atrybuty, które są parami klucz-wartość. Przykładowo: `<nazwaTagu atrybut=”wartość” />`.
+
+XML jest strukturą drzewiastą. Oznacza to, w uproszczeniu, że cały dokument jest hierarchiczny i ma jeden punkt startowy. Zobaczmy na przykład poniżej:
+
+<Image
+  image={xml}
+  alignCenter
+  fullSize
+  alt="Dwa dokumenty XML. Z lewej prawidłowy, z prawej nieprawidłowy."
+  caption={<>
+    Z lewej strony widzimy poprawnie zapisany plik XML, natomiast z prawej nieprawidłowo.
+  </>}
+/>
+
+Na początku mamy zdefiniowany nagłówek pliku XML, wskazujący wersję formatu i sposób kodowania znaków. Dalej posiadamy już zapisaną w nim właściwą strukturę danych. W prawidłowym zapisie XML jest zawsze jeden element nadrzędny (korzeń), który kolejno może mieć wiele elementów i kolejne elementy mogą zawierać pod sobą kolejne, budując w ten sposób hierarchię znaną w informatyce jako rodzic-dziecko.
+
+#### Nawigacja po plikach XML
+
+Do nawigacji po plikach XML stosuje się bardzo różne sposoby. Wiele bibliotek dla programistów umożliwiających odczyt tego formatu oferuje różne podejścia, jak pobieranie elementów po nazwach tagów czy automatyczny odczyt do wskazanych klas i struktur. Jednak warto tutaj wyróżnić bardzo uniwersalny sposób, dzięki któremu możemy bardzo łatwo nawigować po plikach XML — XPath. Jest to język zapytań, w którym zapisujemy ścieżki opisujące, do czego chcemy się dostać w naszym XML. Przykładowo, dla pokazanego wcześniej na obrazku pliku moglibyśmy zrobić następujące zapytania:
+
+- `/element/podElement` — pobierze wszystkie elementy typu podElement będące dzieckiem elementu element, z zaznaczeniem, że element jest korzeniem.
+- `/element/podElement[1]` —analogicznie jak wyżej, jednak pobierze jedynie pierwszy podElement
+- `//podElement` — pobierze wszystkie elementy typu podElement, niezależnie od ich położenia w drzewie
+- `/element/*` — pobierze wszystkie dzieci elementu element
+- `//*` — pobierze wszystkie elementy w dokumencie
+
+Są to dość proste przykłady, jednak warto mieć na uwadze, że XPath pozwala na dużo więcej. Obsługuje także tworzenie zapytań po atrybutach, a co istotne, można definiować różnego rodzaju warunki odnośnie ich wartości.
+
+#### Zastosowanie XML w popularnych formatach plików
+
+Na standardzie XML bazuje wiele popularnych formatów plików. Można wśród nich wyróżnić:
+
+- SVG — format zapisu grafiki wektorowej, wspierany obecnie przez wszystkie aplikacje do ich obróbki, a także przez przeglądarki internetowe.
+- Office Open XML — ogólna nazwa specyfikacji formatów wykorzystywanych przez pakiet Microsoft Office (docx, xlsx, pptx). Warto tutaj dodać, że jeżeli podejrzymy plik przykładowo z Worda, to zobaczymy zapis binarny. Jednak w praktyce jest to plik typu ZIP, który możemy rozpakować, we wnętrzu którego znajdziemy pliki XML.
+- OpenDocument — konkurencyjny standard formatów dla powyższego, najbardziej znany z darmowych pakietów biurowych, takich jak OpenOffice. Również jest skompresowane formatem ZIP, więc aby dostać się do XMLi, trzeba najpierw rozpakować.
+- RSS — ogólnie przyjęty standard do przesyłania nagłówków wiadomości i nowości ze stron internetowych do czytników RSS
+- EPUB — format do zapisu e-booków, wspierany przez wszystkie czytniki dostępne na rynku poza Kindle (o ironio najpopularniejszym). Tutaj także jest to format tekstowy skompresowany uprzednio do ZIP.
+- XHTML — format zapisu dokumentów, zwykle stron internetowych, bazujący na XML. Co warto zauważyć, nie można go mylić z HTML. Formaty te są bardzo do siebie zbliżone, jednak HTML nie jest kompatybilny ze standardem XML.
+
+Można wyróżnić jeszcze wiele innych, jednak te są zdecydowanie najpopularniejsze i najczęściej spotykane.
+
+<Image
+  image={svg}
+  alignCenter
+  fullSize
+  alt="Kod pliku SVG oraz rysunek w nim zapisany"
+  caption={<>
+    Plik SVG. Z lewej strony zawartość pliku, którą możemy odczytać edytorem tekstowym, a z prawej ten sam plik wyświetlony w edytorze grafiki.
+  </>}
+/>
+
+### JSON
+
+JSON (z ang. JavaScript Object Notation — JavaScriptowa notacja obiektów) to kolejny bardzo popularny, uniwersalny format tekstowy. Jak można się domyśleć po nazwie, bazuje on na JavaScript, a dokładniej na sposobie zapisu w nim obiektów. Warto jednak wiedzieć, że mimo to jest niezależny od konkretnego języka programowania i obsłużymy go w niemal każdym popularnym.
+
+#### Składnia JSON
+
+Pliki JSON mogą zawierać dane następujących typów (w nawiasie angielskie nazwy ze specyfikacji):
+
+- liczby (number) — w formacie dziesiętnym. Format nie rozróżnia liczb zmiennoprzecinkowych od całkowitych.
+- ciągi znaków (string) — obsługuje znaki w Unicode, zapisane pomiędzy cudzysłowami.
+- logiczne (boolean) — wartość *true* albo *false*.
+- tablica (array) — uporządkowana lista wartości dowolnych typów (mogą być różne w jednej tablicy). Elementy są zapisane pomiędzy nawiasami kwadratowymi i rozdzielone przecinkami.
+- obiekt (object) — kolekcja par nazwa-wartość, gdzie nazwy są ciągami znaków, natomiast wartości są dowolnego typu. Nazwy nie mogą się powtarzać wewnątrz jednego obiektu. Obiekty są zapisane w nawiasach klamrowych, nazwa i wartość są rozdzielone dwukropkiem a kolejne pary przecinkiem.
+- null — pusta wartość, zapisana przez słowo kluczowe *null*.
+
+Przykładowy plik JSON z użytymi różnymi typami danych wygląda następująco:
+
+```json
+{
+    "imię": "Tomasz",
+    "wiek": 30,
+    "czyJestProgramistą": true,
+    "hobby": ["programowanie", "gry"],
+    "numeryTelefonu": [
+        {
+            "typ": "domowy",
+            "numer": "444 555 666"
+        },
+        {
+            "typ": "firmowy",
+            "numer": "333 444 555"
+        }
+    ],
+    "powiązani": null
+}
+```
+
+#### Zastosowania
+
+O ile nie ma zbyt wielu popularnych formatów bazujących na JSON, to sam ten format jest bardzo szeroko stosowany. Jego najpopularniejsze zastosowania to komunikacja stron internetowych z serwerami. Zarówno dane przesyłane na serwer, jak i w drugą stronę, najpowszechniej są zapisywane właśnie w formacie JSON. Innym bardzo popularnym zastosowaniem są pliki konfiguracyjne (np. programiści JavaScript mogą kojarzyć pliki package.json z konfiguracją projektu).
+
+### Inne uniwersalne formaty tekstowe
+
+Oprócz XML i JSON mamy jeszcze więcej nieco innych analogicznych, uniwersalnych formatów tekstowych. Wymienię tutaj kilka popularnych:
+
+- YAML (z ang. Yet Another Markup Language — jeszcze inny język znaczników) — miał być w założeniu prostą alternatywą dla XML, ostatecznie stał się czymś w stylu JSON z tą różnicą, że istotne są tutaj białe znaki (spacje, przejścia do nowej linii itd.)
+- TOML (z ang. Tom’s Obvious, Minimal Language —oczywisty, minimalny język Toma) — minimalny język, stworzony z myślą o plikach konfiguracyjnych, jednak posiadający bardzo duże możliwości.
+- Protocol Buffers (bufory protokołów) — język zaproponowany przez Google do przesyłania danych, również wykorzystywany przez nich w komunikacji między maszynami; przypominający z wyglądu zapis klas w językach programowania.
+- SGML (z ang. Standard General Markup Language — standardowy ogólny język znaczników) — język znaczników będący standardem ISO. To na nim bazują takie formaty, jak XML czy HTML.
+
+## Inne formaty tekstowe
+
+Do tej pory opisałem jedynie formaty tekstowe bardzo ogólnego użytku, o wielorakich zastosowaniach. Jednak mamy też takie, które mają specyficzne zastosowania, są całkowicie tekstowe i nie bazują na żadnym standardzie ogólnego zastosowania. Możemy wyróżnić przykładowe:
+
+- RTF (ang. Rich Text Format) — format opracowany w 1987 r. przez Microsoft do zapisu dokumentów tekstowych. Wspierany przez wiele edytorów, a jest domyślnym formatem w takich jak Windowsowy WordPad czy MacOSowy TextEdit.
+- TeX (często stylizowane jako $$\TeX$$) — format opracowany w 1978 r. do profesjonalnego składu drukarskiego. Dziś wykorzystywany najczęściej w zastosowaniach naukowych, np. jest standardem dla artykułów w wielu prestiżowych czasopismach. TeX słynie też z bardzo rozbudowanych możliwości zapisu wyrażeń matematycznych i, przykładowo, nawet na tym blogu stosuję go do tego celu. Często utożsamiany z $$\LaTeX$$, który jest kolekcją popularnych makr do TeX.
+- OBJ (znany też jako Wavefront .obj) — format stworzony przez Wavefront Technologies do zapisu modeli 3D. Z racji swojej prostoty jest dziś wspierany przez wiele programów do grafiki trójwymiarowej. Zwykle łączy się go razem z plikami MTL zawierającymi informacje o oteksturowaniu modelu.
+- STL — tekstowy format wykorzystywany do przechowywania modeli do druku 3D. Warto wspomnieć, że pliki STL mogą być zapisywane zarówno w formie tekstowej, jak i binarnej, i bardzo prawdopodobne jest, że raczej częściej spotkasz te drugie. Wynika to z tego, co wspomniałem na początku artykułu, że zapis binarny zajmuje mniej miejsca, co jest szczególnie przydatne przy rozbudowanych modelach.
+
+Oczywiście do tego dochodzi mnóstwo formatów, które mają służyć typowo przechowaniu tekstu, kodu czy skryptów, jednak te z oczywistych względów postanowiłem tutaj pominąć.
+
+<Image
+  image={obj}
+  alignCenter
+  fullSize
+  alt="Kod pliku OBJ oraz model 3D w nim zapisany"
+  caption={<>
+    Model 3D zapisany w formacie OBJ. Z lewej zapis, jaki widzimy w edytorze tekstowym, a z prawej w programie do modelowania 3D
+  </>}
+/>
+
+## Podsumowanie
+
+Formaty tekstowe mają wiele zastosowań i można za ich pomocą zapisać niemalże wszystko. Należy jednak pamiętać, że wszystko ma swoje wady i zalety. Mamy tutaj czytelną strukturę i prostotę odczytu, ale kosztem większej objętości. Dlatego jeśli mielibyśmy samodzielnie zaprojektować własny format, warto pomyśleć nad tym, co jest lepsze — prostota odczytu czy mniejszy rozmiar; zaufanie ogólnie przyjętym standardom czy własne rozwiązania.
+
+<small>(zdjęcie na okładce wygenerowane przy użyciu aplikacji *cowsay* w domyślnym terminalu macOS Catalina)</small>

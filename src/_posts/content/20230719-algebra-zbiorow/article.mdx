@@ -1,0 +1,701 @@
+import Link from 'next/link';
+import {Image} from '@swistak-codes/components';
+import cover from './swistaki_grupa.jpg';
+import vennLitery from './Venn_diagram_gr_la_ru.svg.png';
+import vennLiczby from './Venn_Diagram_of_Numbers_Expanded.svg.png';
+import vennIntersect from './venn_aib.png';
+import vennUnion from './venn_sum.png';
+import vennNeg from './venn_neg.png';
+import vennDiffA from './venn_diff_a.png';
+import vennDiffB from './venn_diff_b.png';
+import vennXor from './venn_xor.png';
+
+export const meta = {
+  title: 'Logika dla informatyków — algebra zbiorów',
+  abstract:
+    'W artykule pokazuję zagadnienia z algebry zbiorów napisane pod kątem ich zastosowań w informatyce.',
+  firstParagraph: (
+    <>
+      Przedstawiając ostatnio podstawy logiki dla informatyków, ograniczyłem się tylko do podstaw rachunku zdań — bo to on jest najczęściej spotykany. Następnie opisałem kwantyfikatory, które rzadziej spotyka się w programowaniu, ale wciąż należy je znać. Moim zdaniem kolejnym często spotykanym zagadnieniem z logiki, aczkolwiek już mniej kojarzonym z programowaniem, jest algebra zbiorów. Zobaczmy, czym ona jest i jakie ma zastosowanie w informatyce.
+    </>
+  ),
+  keyword: 'logika',
+  categories: ['Logika'],
+  tags: [
+    'logika',
+    'matematyka',
+    'zbiory',
+    'iloczyn',
+    'relacje',
+    'suma',
+    'różnica',
+    'różnica symetryczna',
+    'xor',
+    'javascript',
+    'python',
+    'struktury danych',
+    'kolekcje',
+    'dopełnienie',
+    'prawa de Morgana'
+  ],
+  slug: 'algebra-zbiorow',
+  updateTime: '2023-07-19T23:00:00+00:00',
+  publishTime: '2023-07-19T07:00:00+00:00',
+  cover,
+};
+
+## Uwaga wstępna
+
+Tekst jest kontynuacją artykułów *<Link href="/post/podstawy-logiki">Logika dla informatyków — podstawy</Link>* i *<Link href="/post/kwantyfikatory">Logika dla informatyków — kwantyfikatory</Link>*. Dlatego też zakładam, że pojęcia, które tam przedstawiłem, nie są Ci obce.
+
+## Teoria zbiorów
+
+Czym jest zbiór? Cóż, tego nie definiujemy, gdyż jest to pojęcie pierwotne teorii mnogości (czyli inaczej teorii zbiorów). Możemy sobie wyobrazić je jako worek zawierający różne elementy. Warto zwrócić uwagę na słowo *różne*, ponieważ elementy w zbiorze nie mogą się powtarzać. A przykładowe zbiory na pewno znasz z lekcji matematyki — zbiór liczb naturalnych ($$\N$$), całkowitych ($$\Z$$), rzeczywistych ($$\R$$)...
+
+### Zapis przynależności do zbioru
+
+Jeśli chcemy zapisać, że element $$a$$ należy do zbioru $$A$$, zrobimy to, stosując następujący zapis: $$a \in A$$. $$\in$$ fachowo nazywamy symbolem relacji należenia do zbioru i jest to tak naprawdę lekko zmodyfikowana grecka litera $$\epsilon$$ (małe epsilon). Jeśli chcielibyśmy zaprzeczyć, czyli zapisać, że element nie należy do zbioru, wówczas wystarczy przekreślić symbol relacji, a więc „$$b$$ nie należy do zbioru $$B$$” zapiszemy następująco: $$b \notin B$$.
+
+### Definiowanie zbiorów
+
+Jak natomiast definiujemy zawartość zbiorów? Możemy to zrobić na dwa sposoby:
+
+- Jeśli zbiór jest skończony, możemy wypisać jego elementy: $$A = \{ a_1, a_2, ..., a_n \}$$ to n-elementowy zbiór A. Dla przykładu, jeśli zbiór A zawiera tylko 4 elementy, które są liczbami naturalnymi od 1 do 4, zapiszemy to jako $$A = \{ 1, 2, 3, 4 \}$$. Zwróć od razu uwagę, że w taki sposób definiujemy strukturę danych zbioru w niektórych językach programowania, np. w Pythonie.
+- Jeśli zbiór jest nieskończony albo jest skończony, tylko zawiera wiele elementów, wygodniej będzie określić zawartość, pisząc warunek $$f(a)$$, który spełnia każdy element $$a$$. Zapisujemy to wówczas następująco: $$A = \{ a: f(a) \}$$. Warto jednak pamiętać, że należy zaznaczyć, z jakiego innego zbioru pochodzą elementy, stąd wcześniej pokazany zbiór (liczby naturalne od 1 do 4) zapisalibyśmy jako: $$A = \{ a \in \N : 1 \leqslant a \leqslant 4  \}$$. Idąc głębiej w teorię mnogości, niezastosowanie wskazania zbioru mogłoby doprowadzić do sprzeczności, takich jak np. paradoks Russella, ale jest to poza wiedzą potrzebną w praktyce przeciętnemu informatykowi.
+
+Warto pamiętać też o szczególnym przypadku zbioru, czyli zbiorze pustym, który zapisujemy symbolem $$\varnothing$$. Jak można domyślić się z nazwy, nie zawiera on żadnych elementów.
+
+Również w kontekście teorii możemy mówić o uniwersum (otoczenie, przestrzeń) oznaczanym symbolem $$\Omega$$. Jest to zbiór wszystkich rozważanych obiektów, gdzie zawierają się wszystkie zbiory, na których operujemy. Ma to zastosowanie np. przy formalnych definicjach operacji.
+
+### Diagramy Venna
+
+Zbiory i operacje na nich najłatwiej jest pokazać graficznie. Na pewno nie raz widziałeś(-aś) rysunek z co najmniej dwoma przecinającymi się elipsami, które reprezentowały zbiory. Są to tzw. diagramy Venna. Zwykle składają się z:
+
+- figur, najczęściej elips, które symbolizują zbiory.
+- prostokąta, który symbolizuje otoczenie zbioru (uniwersum). Warto dodać, że nie jest to obowiązkowy element diagramów Venna, ale często stosuje się go dla zobrazowania pewnych działań.
+- Jeśli chcemy przedstawić diagramem wynik działania na zbiorach, robimy to przez zamalowanie obszaru.
+
+Najważniejszą cechą diagramów Venna jest to, że pozwalają w prosty sposób przedstawić zależności między zbiorami. Poniżej możesz zobaczyć trzy przykładowe diagramy Venna, które prezentują zupełnie różne rzeczy. Dzięki temu możesz zobaczyć, jak szerokie są zastosowania tego zapisu. Będę go zresztą używać w całym artykule dla lepszego zobrazowania działań na zbiorach.
+
+<Image
+  image={vennIntersect}
+  alignCenter
+  fullSize
+  maxWidth="400px"
+  alt="2 elipsy w prostokącie z zamalowanym obszarem, gdzie obie elipsy się przecinają."
+  caption={<>Diagram z zaznaczoną częścią wspólną zbiorów A i B.</>}
+/>
+
+<Image
+  image={vennLiczby}
+  alignCenter
+  fullSize
+  maxWidth="400px"
+  alt="7 elips pokazujących relację pomiędzy zbiorami liczb."
+  caption={<>Diagram pokazujący relacje między liczbami zespolonymi (C), urojonymi (imaginary), rzeczywistymi (R), niewymiernymi (I), wymiernymi (Q), całkowitymi (Z) i naturalnymi (N).<br />(źródło: <a href="https://commons.wikimedia.org/wiki/File:Venn_Diagram_of_Numbers_Expanded.svg">Daniele Pugliesi</a>, <a href="https://creativecommons.org/licenses/by-sa/3.0">CC BY-SA 3.0</a>, via Wikimedia Commons)</>}
+/>
+
+<Image
+  image={vennLitery}
+  alignCenter
+  fullSize
+  maxWidth="400px"
+  alt="Trzy przecinające się elipsy zapisane literami z różnych alfabetów. W miejscach przecięć znajdują się litery wspólne dla danych alfabetów."
+  caption={<>Diagram pokazujący zbiory liter alfabetów: greckiego (z lewej), łacińskiego (z prawej) i cyrylicy (na dole).<br />(źródło: <a href="https://commons.wikimedia.org/wiki/File:Venn_diagram_gr_la_ru.svg">Watchduck</a>, Public domain, via Wikimedia Commons)</>}
+/>
+
+### Relacje
+
+W kontekście zbiorów istotne jest pojęcie relacji między dwoma zbiorami. Czym formalnie ona jest, na razie nie chcę opisywać (później będzie o tym dokładniej), jednak już w tym miejscu należy wspomnieć o tym, jakie podstawowe zależności mogą występować między zbiorami. Zdaję sobie sprawę, że już drugi raz operuję tym terminem i wciąż go nie wytłumaczyłem, ale nadrobimy to.
+
+Dla uproszczenia załóżmy, że będziemy mówić o dwóch zbiorach: $$A$$ i $$B$$. Jednak o relacjach tych możemy mówić dla dowolnej liczby zbiorów (oczywiście więcej niż jednego). Najważniejsze, które można wymienić, to:
+
+- Jeśli zbiory nie zawierają wspólnych elementów, to są rozłączne.
+- W przeciwnym przypadku, czyli gdy mają niepustą część wspólną, mówimy, że się przecinają.
+- Zbiory mogą też być równe — mają wówczas wszystkie elementy wspólne. Zapisujemy to zwykłym znakiem równości, np. $$A = B$$ oznacza, że zbiory $$A$$ i $$B$$ są równe.
+- Inkluzja, czyli zbiór jest zawarty w całości w innym zbiorze.
+  - Zbiór zawarty w innym nazywamy podzbiorem. Natomiast zbiór zawierający inny zbiór nazywamy nadzbiorem.
+  - Zapisujemy to, stosując symbol $$\subseteq$$ (lub w drugą stronę $$\supseteq$$, zależnie co w czym się zawiera). Można spotkać też symbol $$\subset$$ (i $$\supset$$).
+  - Jeśli chcielibyśmy zapisać, że $$A$$ jest podzbiorem $$B$$, napiszemy: $$A \subseteq B$$. Natomiast $$B \supseteq A$$ przeczytamy jako: $$B$$ jest nadzbiorem $$A$$.
+  - Różnica w symbolach jest taka, że jeśli zbiory są równe, to wciąż możemy powiedzieć, że jeden ze zbiorów jest podzbiorem drugiego (i na odwrót), co dokładnie mówi symbol $$\subseteq$$. Teoretycznie $$\subset$$ mówi, że zbiory nie mogą być równe (brak poziomej kreski), jednak używający ów symbol nie zawsze się do tego stosują. Stąd wprowadzono $$\subsetneq$$, który już wprost mówi, że zbiory nie mogą być równe.
+
+Formalnie możemy zdefiniować zawieranie się zbiorów w następujący sposób:
+
+$$
+A \subseteq B \iff \forall x: (x \in A \implies x \in B)
+$$
+
+Natomiast równość zbiorów:
+
+$$
+A = B \iff (A \subseteq B \land B \subseteq A)
+$$
+
+Jeśli spojrzeć na wcześniej pokazane przeze mnie diagramy Venna, przecinanie się zbiorów mogliśmy zauważyć np. na rysunku z literami alfabetów, gdzie występowałyby przecięcia się trzech zbiorów w różnych konfiguracjach. Natomiast inkluzję najlepiej dostrzeglibyśmy na diagramie ze zbiorami liczb.
+
+## Algebra zbiorów
+
+Przejdźmy teraz do najciekawszej rzeczy z naszego punktu widzenia, czyli do algebry zbiorów. Uważam tak dlatego, że to właśnie w tym momencie będziemy mieć największy punkt styku teorii zbiorów z programowaniem.
+
+Przedstawię po kolei operacje na zbiorach wraz z przeniesieniem ich na język programowania. Pokażę je równocześnie w dwóch językach:
+
+- W Pythonie ze względu na dostępność wszystkich operacji na wbudowanej strukturze zbioru.
+- W JavaScript z użyciem biblioteki [Lodash](https://lodash.com/) na zwykłych tablicach. Będę zakładać, że wszystkie funkcje udostępniane przez Lodasha znajdują się w globalnym obiekcie `_`.
+
+Warto się rozeznać, jak kwestia dostępności funkcji wygląda w Twoim ulubionym języku programowania i czy są dostępne dla zbiorów, czy tablic. Ewentualnie którą zewnętrzną bibliotekę najlepiej użyć, aby te funkcje otrzymać. Można je też napisać od zera, ale gotowe, sprawdzone implementacje będą już dokładnie przetestowane i odpowiednio zoptymalizowane. Jednak dla ciekawych pokażę, w jaki sposób można by takie funkcje napisać, chociaż z góry zaznaczam, że będę stawiać przede wszystkim na czytelność rozwiązania, a nie optymalność obliczeniową czy pamięciową.
+
+### Suma zbiorów
+
+Pierwszą operacją, którą przedstawiam, jest suma zbiorów, zwana też unią zbiorów. W matematyce stosuje się raczej tę pierwszą nazwę, jednak ta druga jest często spotykana w informatyce ze względu na bezpośrednie tłumaczenie angielskiej nazwy tej operacji, czyli *union*. Tak już się przyjęło, że w informatyce zazwyczaj stosuje się spolszczenia angielskich nazw zamiast ich polskich odpowiedników.
+
+Wynikiem sumy zbiorów jest zbiór, który składa się ze wszystkich elementów sumowanych zbiorów. Operator sumy oznaczamy symbolem $$\cup$$, więc suma zbiorów $$A$$ i $$B$$ zostanie zapisana jako $$A \cup B$$. Warto wiedzieć, że operacja jest przemienna, więc $$A \cup B = B \cup A$$. Możesz skojarzyć sobie symbol $$\cup$$ z $$\lor$$ znanym z rachunku zdań, ponieważ operację tą można traktować jako „to, co jest w zbiorze A, *lub* to, co jest w zbiorze B”. Skoro możemy w taki sposób zapisać słownie, to czemu nie formalnie? A językiem matematyki zapiszemy to zdanie następująco (oczywiście biorąc pod uwagę, że mówimy o dowolnych elementach $$x$$ z uniwersum):
+
+$$
+A \cup B = \{ x \in \Omega : x \in A \lor x \in B \}
+$$
+
+<Image
+  image={vennUnion}
+  alignCenter
+  fullSize
+  maxWidth="400px"
+  alt="W całości zamalowane 2 elipsy w prostokącie."
+  caption={<>Diagram Venna z zaznaczonym na czerwono wynikiem sumy zbiorów A i B.</>}
+/>
+
+Przykładowo, mając zbiory $$A = \{1, 3, 5\}$$ oraz $$B = \{2, 4, 5\}$$, ich suma będzie wynosić $$A \cup B = \{ 1, 2, 3, 4, 5 \}$$. Zwróć uwagę, że nie powtórzyliśmy 5 — w końcu jak wspomniałem, elementy w zbiorze nie mogą się powtarzać.
+
+W wielu językach programowania sumę zbiorów znajdziemy pod nazwą `union()`. W Pythonie znajdziemy również operator `|` (ten sam co dla alternatywy logicznej) robiący dokładnie to samo. Warto dodać, że jeśli operujemy na tablicach, niektóre języki programowania i biblioteki również oferują funkcję `union()` dla tablic (np. [C#](https://learn.microsoft.com/en-us/dotnet/api/system.linq.enumerable.union?view=net-7.0), [Lodash dla JavaScript](https://lodash.com/docs/4.17.15#union)), która złącza dwie tablice, pomijając duplikaty.
+
+Przykład na zbiorach w Pythonie (kod dostępny na [Replit](https://replit.com/@tswistak/python-union#main.py)):
+
+```python
+# deklarujemy dwa zbiory, stosując klamry
+A = {1, 3, 5}
+B = {2, 4, 5}
+# wypisujemy rezultat użycia funkcji union()
+print(A.union(B))  # {1, 2, 3, 4, 5}
+# uzyskamy to samo, stosując operator |
+print(A | B) # {1, 2, 3, 4, 5}
+```
+
+A tutaj analogiczna operacja na tablicach w JavaScript z Lodashem (kod dostępny na [Replit](https://replit.com/@tswistak/js-union#index.js)):
+
+```javascript
+// deklarujemy dwie tablice
+const A = [1, 3, 5];
+const B = [2, 4, 5];
+// wypisujemy rezultat użycia funkcji _.union()
+console.log(_.union(A, B));  // [ 1, 3, 5, 2, 4 ]
+// dla porównania zwykłe połączenie tablic (concat())
+console.log(A.concat(B)); // [ 1, 3, 5, 2, 4, 5 ]
+```
+
+Gdybym miał unię napisać od zera (tutaj w JavaScript), zrobiłbym to na jeden z poniższych sposobów:
+
+```javascript
+// podejście zrobione czysto na tablicach
+function union1(first, second) {
+  // definiujemy tablicę wynikową
+  const result = [];
+  // dodajemy wszystkie elementy z pierwszej tablicy;
+  // oczywiście zamiast pętli moglibyśmy użyć gotowych mechanizmów języka
+  // np. w JavaScript `result = [...first]`
+  // albo w innych językach funkcje typu Array.copy()
+  for (const element of first) {
+    result.push(element);
+  }
+  // dodajemy elementy z drugiej tablicy
+  for (const element of second) {
+    // element dodajemy tylko wtedy, gdy nie istnieje już w tablicy
+    if (!result.includes(element)) {
+      result.push(element);
+    }
+  }
+  // zwracamy wynik
+  return result;
+}
+
+// podejście sprytne
+function union2(first, second) {
+  // złączamy obie tablice w tradycyjny sposób
+  const merged = first.concat(second);
+  // usuńmy duplikaty w najprostszy możliwy sposób...
+  // ...tworząc zbiór z tablicy
+  // UWAGA! zbiory nie zapewniają zachowania kolejności elementów
+  const set = new Set(merged);
+  // konwertujemy zbiór na tablicę i go zwracamy
+  return Array.from(set);
+}
+
+// deklarujemy dwie tablice
+const A = [1, 3, 5];
+const B = [2, 4, 5];
+// wypisujemy rezultat użycia funkcji union
+console.log(union1(A, B));  // [ 1, 3, 5, 2, 4 ]
+console.log(union2(A, B));  // [ 1, 3, 5, 2, 4 ]
+```
+
+Obie funkcje możesz przetestować na [Replit](https://replit.com/@tswistak/js-union2#index.js).
+
+### Iloczyn zbiorów
+
+Kolejną operacją, którą możemy wykonać na zbiorach, jest ich iloczyn, czego wynik nazywamy częścią wspólną, przekrojem lub przecięciem (po ang. *intersection* — warto zapamiętać w kontekście programowania). Jak samo nazewnictwo wskazuje, w wyniku tej operacji otrzymujemy zbiór zawierający jedynie te elementy, które są wspólne dla obu zbiorów.
+
+Operator iloczynu zbiorów to symbol $$\cap$$, więc przecięcie zbiorów $$A$$ i $$B$$ zapiszemy jako $$A \cap B$$. Podobnie jak suma, iloczyn również jest przemienny, stąd $$A \cap B = B \cap A$$. Też analogicznie do sumy iloczyn uznaje się za odpowiednik koniunkcji ($$\land$$ — ponownie, podobieństwo symboli) — w końcu moglibyśmy tę operację opisać jako „to, co należy do A, *i* to, co należy do B”. Oznacza to, że formalnie moglibyśmy zdefiniować przecięcie następująco:
+
+$$
+A \cap B = \{ x \in \Omega : x \in A \land x \in B \}
+$$
+
+<Image
+  image={vennIntersect}
+  alignCenter
+  fullSize
+  maxWidth="400px"
+  alt="2 elipsy w prostokącie z zamalowaną częścią wspólną."
+  caption={<>Diagram Venna z zaznaczonym na czerwono wynikiem iloczynu zbiorów A i B.</>}
+/>
+
+Zobaczmy działanie w praktyce. Tym razem na potrzeby przykładu zdefiniujmy trzy zbiory: $$A = \{1, 3, 5\}$$, $$B = \{2, 4, 5\}$$ oraz $$C = \{6,7,8\}$$.
+
+- Zbiory $$A$$ i $$B$$, jak widzimy na pierwszy rzut oka, mają wspólny element $$5$$, stąd: $$A \cap B = \{5\}$$.
+- Żaden z tych dwóch zbiorów nie ma elementów wspólnych z C, dlatego: $$A \cap C = B \cap C = A \cap B \cap C = \varnothing$$.
+
+A jak jest w językach programowania? Tutaj ponownie warto spojrzeć na angielską nazwę działania, bo najczęściej operację tę znajdziemy pod nazwą funkcji `intersection()`. Dodatkowo w Pythonie możemy zastosować operator koniunkcji, czyli `&`. Tak samo jak wcześniej, mimo że operacje te klasycznie wykonuje się na zbiorach, znajdziemy je często również dla tablic.
+
+Przykład na zbiorach w Pythonie (kod dostępny na [Replit](https://replit.com/@tswistak/python-intersection#main.py)):
+
+```python
+# deklarujemy trzy zbiory
+A = {1, 3, 5}
+B = {2, 4, 5}
+C = {6, 7, 8}
+# wypisujemy rezultat użycia funkcji intersection()
+print(A.intersection(B))  # {5}
+print(A.intersection(C))  # set()
+# uzyskamy to samo, stosując operator &
+print(A & B) # {5}
+print(A & C) # set()
+```
+
+Analogiczna operacja na tablicach w JavaScript z Lodashem (kod dostępny na [Replit](https://replit.com/@tswistak/js-intersection#index.js)):
+
+```javascript
+// deklarujemy trzy tablice
+const A = [1, 3, 5];
+const B = [2, 4, 5];
+const C = [6, 7, 8];
+// wypisujemy rezultat użycia funkcji _.intersection()
+console.log(_.intersection(A, B));  // [ 5 ]
+console.log(_.intersection(A, C));  // []
+```
+
+A gdybym miał przecięcie tablic zaprogramować od zera (w JavaScript), zrobiłbym to tak:
+
+```javascript
+function intersection(first, second) {
+  // wyciągamy z pierwszej tablicy elementy,
+  // które znajdują się w drugiej
+  return first.filter(x => second.includes(x));
+}
+
+// deklarujemy trzy tablice
+const A = [1, 3, 5];
+const B = [2, 4, 5];
+const C = [6, 7, 8];
+// wypisujemy rezultat użycia funkcji intersection()
+console.log(intersection(A, B));  // [ 5 ]
+console.log(intersection(A, C));  // []
+```
+
+Funkcję możesz przetestować na [Replit](https://replit.com/@tswistak/js-intersection2#index.js).
+
+### Różnica zbiorów
+
+Następną podstawową operacją na zbiorach jest różnica zbiorów (po ang. complement, relative complement). Tutaj wynikiem operacji są wszystkie elementy jednego zbioru, pomijając te należące do drugiego ze zbiorów. Tym samym jest to pierwsza z poznanych przez nas operacji, która nie jest przemienna, tzn. kolejność, w której zapiszemy zbiory wokół operatora, ma znaczenie.
+
+A jak w ogóle zapisujemy różnicę? Stosujemy symbol $$\setminus$$, więc różnica zbiorów $$A$$ i $$B$$ zostanie zapisana jako $$A \setminus B$$.
+
+<Image
+  image={vennDiffA}
+  alignCenter
+  fullSize
+  maxWidth="400px"
+  alt="2 elipsy w prostokącie z zamalowaną częścią elipsy A, która nie przecina elipsy B."
+  caption={<>Diagram Venna z zaznaczonym na czerwono wynikiem różnicy zbiorów A i B.</>}
+/>
+
+Zobaczmy operację na przykładzie naszego ulubionego zestawu zbiorów: $$A = \{1, 3, 5\}$$ i $$B = \{2, 4, 5\}$$. Z racji tego, że operacja nie jest przemienna, zobaczmy oba przypadki:
+
+- $$A \setminus B = \{ 1, 3 \}$$ — jedynym elementem wspólnym było 5, więc usuwamy je z elementów zbioru $$A$$.
+- $$B \setminus A = \{ 2, 4 \}$$ — analogicznie jak wyżej, tylko tym razem usuwamy 5 z elementów zbioru $$B$$.
+
+<Image
+  image={vennDiffB}
+  alignCenter
+  fullSize
+  maxWidth="400px"
+  alt="2 elipsy w prostokącie z zamalowaną częścią elipsy B, która nie przecina elipsy A."
+  caption={<>Diagram Venna z zaznaczonym na czerwono wynikiem różnicy zbiorów B i A.</>}
+/>
+
+W przypadku różnicy nie mamy aż tak widocznego odpowiednika w rachunku zdań jak było do tej pory. Najbliższe będzie wyrażenie $$p \land \neg q$$, czyli zanegowana implikacja. Bierze się to stąd, że różnica $$A$$ i $$B$$ to takie elementy uniwersum, które są w $$A$$ i nie są w $$B$$. Innymi słowy, takie elementy zbioru A, które nie należą do B, czyli:
+
+$$
+A \setminus B = \{ x \in \Omega : x \in A \land x \notin B \} = \{ x \in A : x \notin B \}
+$$
+
+Jak sprawa ma się w programowaniu? Tutaj mimo angielskiej nazwy *complement* różnicę zbiorów zwykle znajdziemy jako funkcję `difference()`, czyli w dosłownym tłumaczeniu *różnica*. A skoro różnica, to np. w Pythonie możemy zastosować operator odejmowania (czyli po prostu `-`) do wykonania tej operacji. Zobacz przykład w Pythonie (dostępny na [Replit](https://replit.com/@tswistak/python-diff#main.py)):
+
+```python
+# deklarujemy dwa zbiory
+A = {1, 3, 5}
+B = {2, 4, 5}
+# wypisujemy rezultat użycia funkcji difference()
+print(A.difference(B))  # {1, 3}
+print(B.difference(A))  # {2, 4}
+# uzyskamy to samo, stosując operator -
+print(A - B) # {1, 3}
+print(B - A) # {2, 4}
+```
+
+Poniżej jeszcze przykład na tablicach w JavaScript z Lodashem (również dostępny na [Replit](https://replit.com/@tswistak/js-diff#index.js)):
+
+```javascript
+// deklarujemy dwie tablice
+const A = [1, 3, 5];
+const B = [2, 4, 5];
+// wypisujemy rezultat użycia funkcji _.difference()
+console.log(_.difference(A, B));  // [ 1, 3 ]
+console.log(_.difference(B, A));  // [ 2, 4 ]
+```
+
+A jak można by najprościej zaimplementować to od zera dla tablic? Skoro interesują nas takie elementy jednej tablicy, które nie należą do drugiej, to przefiltrujmy ponownie, tylko z dosłownie odwrotnym warunkiem niż dla iloczynu:
+
+```javascript
+function difference(first, second) {
+  // wyciągamy z pierwszej tablicy elementy,
+  // które nie znajdują się w drugiej
+  return first.filter(x => !second.includes(x));
+}
+
+// deklarujemy dwie tablice
+const A = [1, 3, 5];
+const B = [2, 4, 5];
+// wypisujemy rezultat użycia funkcji difference()
+console.log(difference(A, B));  // [ 1, 3 ]
+console.log(difference(B, A));  // [ 2, 4 ]
+```
+
+Kod jak zawsze możesz przetestować na [Replit](https://replit.com/@tswistak/js-diff2#index.js).
+
+### Dopełnienie zbioru
+
+Zobaczyliśmy już odpowiedniki alternatywy i koniunkcji dla zbiorów. Patrząc jednak na operacje znane z rachunku zdań, brakuje nam odpowiednika najprostszej z nich — negacji. A tym odpowiednikiem jest dopełnienie zbioru (uzupełnienie), po ang. absolute complement. Angielska nazwa wskazuje, że jest to operacja bardzo mocno powiązana z różnicą zbiorów.
+
+Dopełnienie zbioru $$A$$ zapiszemy jako $$A'$$ lub $$A^\complement$$ (litera $$\complement$$ wywodzi się z angielskiej nazwy). Wynikiem operacji jest otrzymanie wszystkiego z uniwersum poza zbiorem $$A$$, czyli można powiedzieć, że jest to różnica uniwersum i zbioru $$A$$:
+
+$$
+A' = \Omega \setminus A
+$$
+
+<Image
+  image={vennNeg}
+  alignCenter
+  fullSize
+  maxWidth="400px"
+  alt="2 elipsy w prostokącie z zamalowanym całym obszarem poza elipsami."
+  caption={<>Diagram Venna z zaznaczonym na czerwono wynikiem dopełnienia sumy zbiorów A i B.</>}
+/>
+
+Bardziej formalnie dopełnienie zdefiniowalibyśmy następująco:
+
+$$
+A' = \{ x \in \Omega : x \notin A \}
+$$
+
+Z racji tego, jak działa dopełnienie, nie znajdziemy jego odpowiednika w programowaniu. W końcu nie jesteśmy w stanie określić uniwersum jakiejś kolekcji. A jeśli kolekcja jest najzwyczajniej podzbiorem innej, to wystarczy wykonać różnicę. O dopełnieniu jednak trzeba było wspomnieć, ponieważ jest ważne z punktu widzenia praw teorii zbiorów. Te poruszę później, ale zauważ, że skoro dopełnienie jest odpowiednikiem negacji, to pozwoli nam np. zdefiniować prawa de Morgana (tak, tutaj też są).
+
+### Różnica symetryczna zbiorów
+
+Przedostatnią operacją, którą chciałem przedstawić, jest różnica symetryczna zbiorów (po ang. symmetric difference, disjunctive union). Czym się różni od *zwykłej* różnicy? Otóż jej wynikiem są wszystkie elementy zbiorów poza ich częścią wspólną. Można by więc powiedzieć, patrząc też na nazwę, że jest to suma wszystkich różnic zbiorów.
+
+W przypadku różnicy symetrycznej znajdziemy przeróżne symbole w różnych źródłach. Sam, robiąc przeszukiwanie źródeł do artykułu, widziałem: $$\vartriangle$$, $$\dot{-}$$, $$\oplus$$, $$\ominus$$, $$\triangledown$$, $$+$$. Będę stosować pierwszy z symboli, bo spotykałem się z nim najczęściej, dlatego różnicę symetryczną zbiorów $$A$$ i $$B$$ zapiszę jako $$A \vartriangle B$$.
+
+<Image
+  image={vennXor}
+  alignCenter
+  fullSize
+  maxWidth="400px"
+  alt="2 elipsy w prostokącie z zamalowanymi obiema elipsami z wyjątkiem ich części wspólnej."
+  caption={<>Diagram Venna z zaznaczonym na czerwono wynikiem różnicy symetrycznej zbiorów A i B.</>}
+/>
+
+Jeśli chcielibyśmy zdefiniować jej wynik za pomocą poznanych do tej pory działań, możemy to zrobić, jak wspomniałem wcześniej: jako sumę różnic $$A \setminus B$$ i $$B \setminus A$$. Alternatywnie możemy zapisać to jako różnicę sumy obu zbiorów i ich iloczynu. Zobacz poniżej:
+
+$$
+A \vartriangle B = (A \setminus B) \cup (B \setminus A) = (A \cup B) \setminus (A \cap B)
+$$
+
+Natomiast jak formalnie zdefiniowalibyśmy ten wzór? Odwołajmy się do rachunku zdań — która operacja mówiła nam, że zdania są od siebie różne, nie są takie same? Odpowiadam: jest to alternatywa rozłączna. Możemy ją tutaj wykorzystać:
+
+$$
+\begin{align*}
+A \vartriangle B &= \{ x \in \Omega : (x \notin A \land x \in B) \lor (x \in A \land x \notin B) \} \\
+&= \{ x \in \Omega : (x \in A) \operatorname{\underline{\lor}} (x \in B) \}
+\end{align*}
+$$
+
+W programowaniu znowu możemy się odwołać do angielskiej nazwy tej operacji — np. w Pythonie znajdziemy ją jako `symmetric_difference()` lub pod operatorem `^` (operator alternatywy rozłącznej). Poniżej przykład w kodzie (dostępny na [Replit](https://replit.com/@tswistak/python-xor#main.py)):
+
+```python
+# deklarujemy dwa zbiory
+A = {1, 3, 5}
+B = {2, 4, 5}
+# wypisujemy rezultat użycia funkcji symmetric_difference()
+print(A.symmetric_difference(B))  # {1, 2, 3, 4}
+print(B.symmetric_difference(A))  # {1, 2, 3, 4}
+# uzyskamy to samo, stosując operator ^
+print(A ^ B) # {1, 2, 3, 4}
+print(B ^ A) # {1, 2, 3, 4}
+```
+
+Natomiast w JavaScript z Lodashem znajdziemy funkcję `xor()`, wykonującą dokładnie to samo. Poniżej przykład w kodzie (dostępny na [Replit](https://replit.com/@tswistak/js-xor2#index.js)):
+
+```javascript
+// deklarujemy dwie tablice
+const A = [1, 3, 5];
+const B = [2, 4, 5];
+// wypisujemy rezultat użycia funkcji _.xor()
+console.log(_.xor(A, B));  // [ 1, 3, 2, 4 ]
+console.log(_.xor(B, A));  // [ 2, 4, 1, 3 ]
+```
+
+A poniżej pokazuję, w jaki sposób można by zrobić różnicę symetryczną tablic, gdy nasz język jej nie wspiera (kod w JavaScript):
+
+```javascript
+function symmetricDifference(first, second) {
+  // wyciągamy z pierwszej tablicy elementy,
+  // które nie znajdują się w drugiej
+  const firstDiff = first.filter(x => !second.includes(x));
+  // na odwrót dla drugiej tablicy
+  const secondDiff = second.filter(x => !first.includes(x));
+  // zwracamy złączone obie pośrednie tablice
+  return firstDiff.concat(secondDiff);
+}
+
+// deklarujemy dwie tablice
+const A = [1, 3, 5];
+const B = [2, 4, 5];
+// wypisujemy rezultat użycia funkcji symmetricDifference()
+console.log(symmetricDifference(A, B));  // [ 1, 3, 2, 4 ]
+console.log(symmetricDifference(B, A));  // [ 2, 4, 1, 3 ]
+```
+
+Kod jak zawsze znajdziesz na [Replit](https://replit.com/@tswistak/js-xor#index.js).
+
+### Iloczyn kartezjański
+
+Przejdźmy teraz do ostatniej operacji, czyli do iloczynu kartezjańskiego, nazywanego też produktem zbiorów. Ta operacja znacznie się różni od poprzednich, bo wynikowy zbiór nie jest wyborem elementów z obu zbiorów, tylko jego elementami są wszystkie pary (uporządkowanie, tzn. kolejność elementów ma znaczenie), które możemy ułożyć z elementów obu zbiorów.
+
+Operator iloczynu kartezjańskiego to symbol $$\times$$, więc iloczyn kartezjański zbiorów $$A$$ i $$B$$ to $$A \times B$$. A jak wygląda wynik? Załóżmy na potrzeby przykładu już tradycyjnie zbiory $$A = \{1, 3, 5\}$$ i $$B = \{2, 4, 5\}$$. Od razu zdradzę, że operacja nie jest przemienna, stąd wyniki będą wyglądać następująco:
+
+- $$A \times B = \{ (1, 2), (1, 4), (1, 5), (3, 2), (3, 4), (3, 5), (5, 2), (5, 4), (5, 5) \}$$
+- $$B \times A = \{ (2, 1), (2, 3), (2, 5), (4, 1), (4, 3), (4, 5), (5, 1), (5, 3), (5, 5) \}$$
+
+Z racji tego, że pary są uporządkowane, pamiętaj, że $$(1,2) \neq (2,1)$$, $$(3,5) \neq (5,3)$$ itd.
+
+Formalnie operację moglibyśmy zapisać następująco:
+
+$$
+A \times B = \{ (a, b): a \in A \land b \in B \}
+$$
+
+W językach programowania nie kojarzę, żeby którykolwiek posiadał wbudowaną funkcję zwracającą iloczyn kartezjański. *(Późniejszy dopisek: okazuje się, że C++ posiada taką funkcję: https://en.cppreference.com/w/cpp/ranges/cartesian_product_view. Dzięki Piotr za zwrócenie uwagi!)* To znaczy jest to możliwe bez kombinowania w SQL, jednak nie chcę w tym artykule poruszać tematu baz danych. Na szczęście algorytm zwracający wszystkie uporządkowane pary, działający w czasie $$\Omicron(n^2)$$ jest bardzo prosty do napisania i często znajdziemy go jako jedno z zadań przy nauce iteracji. Poniżej przykład w JavaScript (kod dostępny na [Replit](https://replit.com/@tswistak/js-cartesian#index.js)):
+
+```javascript
+function cartesian(first, second) {
+  // tworzymy tablicę przechowującą wynik
+  const result = [];
+  // iterujemy po elementach pierwszej tablicy
+  for (const a of first) {
+    // i po elementach drugiej tablicy
+    for (const b of second) {
+      // dodajemy do wyniku
+      result.push([a, b]);
+    }
+  }
+  // zwracamy wynik
+  return result;
+}
+
+// deklarujemy dwie tablice
+const A = [1, 3, 5];
+const B = [2, 4, 5];
+// wypisujemy rezultat użycia funkcji cartesian()
+console.log(cartesian(A, B));
+/*
+[
+  [ 1, 2 ], [ 1, 4 ],
+  [ 1, 5 ], [ 3, 2 ],
+  [ 3, 4 ], [ 3, 5 ],
+  [ 5, 2 ], [ 5, 4 ],
+  [ 5, 5 ]
+]
+*/
+console.log(cartesian(B, A));
+/*
+[
+  [ 2, 1 ], [ 2, 3 ],
+  [ 2, 5 ], [ 4, 1 ],
+  [ 4, 3 ], [ 4, 5 ],
+  [ 5, 1 ], [ 5, 3 ],
+  [ 5, 5 ]
+]
+*/
+```
+
+Z racji tego, że zawsze pokazywałem też Pythona, to i tutaj go pokażę. W tym języku może nie ma iloczynu kartezjańskiego, ale korzystając z wbudowanej składni pisania iteracji, możemy zawrzeć tę operację w jednej linijce kodu (kod dostępny na [Replit](https://replit.com/@tswistak/python-cartesian#main.py)):
+
+```python
+def cartesian(first, second):
+  # skrócony zapis dwóch zagnieżdżonych pętli for
+  return {(a, b) for a in first for b in second}
+
+# deklarujemy dwa zbiory
+A = {1, 3, 5}
+B = {2, 4, 5}
+# wypisujemy rezultat użycia funkcji cartesian()
+print(cartesian(A, B))
+# {(1, 2), (5, 5), (3, 4), (1, 5), (5, 4), (1, 4), (3, 2), (3, 5), (5, 2)}
+print(cartesian(B, A))
+# {(5, 5), (2, 1), (4, 3), (5, 1), (2, 3), (4, 5), (5, 3), (2, 5), (4, 1)}
+```
+
+Jeszcze na koniec ciekawostka. Jeśli się zastanawiasz, skąd nazwa *iloczyn kartezjański* i czy ma ona jakiś związek z *kartezjańskim układem współrzędnych*, to tak, jest tutaj powiązanie. Od razu powiem, że iloczynu nie wymyślił Kartezjusz, więc etymologia jest inna. W kartezjańskim układzie współrzędnych (dwuwymiarowym) każdy punkt określamy uporządkowaną parą liczb pochodzących ze zbioru liczb rzeczywistych. Czyli wszystkie punkty na płaszczyźnie moglibyśmy opisać jako $$\R \times \R$$. W nawiązaniu do tego faktu bardziej ogólne pojęcie produktu zbiorów nazwano na cześć Kartezjusza.
+
+## Relacje, ciąg dalszy
+
+### Definicja
+
+Wcześniej w artykule wspomniałem, że wrócę do tematu relacji i wyjaśnię dokładnie, czym są. Poznaliśmy już, czym jest iloczyn kartezjański, więc mogę podać tę definicję.
+
+Najkrócej mówiąc, relacja to dowolny podzbiór iloczynu kartezjańskiego skończonej liczby zbiorów. Najczęściej spotykamy się z relacjami dwuargumentowymi, czyli relacjami między elementami pary zbiorów. W takim przypadku możemy zawęzić definicję: relacją $$R$$ określoną na zbiorach $$A$$ i $$B$$ nazywamy podzbiór $$R$$ iloczynu kartezjańskiego $$A \times B$$. Elementy tych zbiorów, tj. $$a \in A$$ i $$b \in B$$, spełniają relację $$R$$ wtedy i tylko wtedy, gdy para $$(a,b)$$ należy do podzbioru $$R$$ iloczynu kartezjańskiego $$A \times B$$. Tak, zdaję sobie sprawę, że brzmi to bardzo zawile.
+
+A jak to zapisujemy? Jeśli chcemy zapisać definicję relacji, którym podzbiorem iloczynu kartezjańskiego jest, możemy zrobić to zwykłym zapisem definicji zbioru:
+
+$$
+R = \{ (a,b) \in A \times B : \text{ warunek} \}
+$$
+
+Możemy również wskazać, że między elementami $$a$$ i $$b$$ zachodzi relacja $$R$$, co po prostu zapisuje się jako $$a \operatorname{R} b$$.
+
+### Przykład
+
+Żeby zrozumieć intuicyjnie, w czym rzecz, zobacz poniższy przykład. Ponownie na potrzeby przykładu zdefiniujmy zbiory $$A = \{1, 3, 5\}$$ i $$B = \{2, 4, 5\}$$. Chcielibyśmy mieć relację między elementami $$a$$ i $$b$$, gdzie $$b$$ musi być zawsze mniejsze od $$a$$. W takim razie będzie wyglądać to następująco:
+
+$$
+\begin{align*}
+A \times B &= \{ (1, 2), (1, 4), (1, 5), (3, 2), (3, 4), (3, 5), (5, 2), (5, 4), (5, 5) \} \\
+R &= \{ (a,b) \in A \times B : b < a \} = \{ (3, 2), (5, 2), (5, 4) \}
+\end{align*}
+$$
+
+Matematycznym przykładem relacji są funkcje. Ze wszystkich uporządkowanych par liczb wybieramy tylko te, które spełniają wskazany warunek (równanie). W końcu jeśli mamy funkcję $$f: X \to Y$$, to zbiór $$X$$ jest dziedziną, a $$Y$$ przeciwdziedziną, a już z samej definicji funkcji wiemy, że nie może ona być po prostu iloczynem kartezjańskim $$X \times Y$$, ponieważ każdemu $$x \in X$$ możemy przyporządkować jedynie jedno $$y \in Y$$.
+
+### Relacje w informatyce
+
+Z punktu widzenia informatyki, nawiązując do tego, co wcześniej pokazałem, możesz od razu dostrzec, że relacja to tylko nałożenie dodatkowego warunku do pętli tworzącej pary z iloczynu kartezjańskiego. Stąd moglibyśmy zdefiniować bardzo prostą funkcję tworzącą dowolne relacje w następujący sposób (kod w JavaScript, dostępny na [Replit](https://replit.com/@tswistak/js-relation#index.js)):
+
+```javascript
+function relation(first, second, predicate) {
+  // tworzymy tablicę przechowującą wynik
+  const result = [];
+  // iterujemy po elementach pierwszej tablicy
+  for (const a of first) {
+    // i po elementach drugiej tablicy
+    for (const b of second) {
+      // sprawdzamy, czy elementy spełniają warunek
+      if (predicate(a, b)) {
+        // jeśli tak, dodajemy do wyniku
+        result.push([a, b]);
+      }
+    }
+  }
+  // zwracamy wynik
+  return result;
+}
+
+// deklarujemy dwie tablice
+const A = [1, 3, 5];
+const B = [2, 4, 5];
+// deklarujemy relację między dwoma elementami
+const R = (a, b) => b < a;
+// wypisujemy rezultat użycia funkcji relation()
+console.log(relation(A, B, R)); // [ [ 3, 2 ], [ 5, 2 ], [ 5, 4 ] ]
+console.log(relation(B, A, R)); // [ [ 2, 1 ], [ 4, 1 ], [ 4, 3 ], [ 5, 1 ], [ 5, 3 ] ]
+```
+
+Pośród wbudowanych w wiele języków operacji na strukturach danych najprostszą z relacji jest funkcja `zip()`. Polega ona na tym, że tworzy uporządkowane pary z elementów podanych kolekcji znajdujących się na tych samych pozycjach (zakładamy, że są uporządkowane). Poniżej możesz zobaczyć przykład użycia w języku Python, który wskaże, na czym to polega:
+
+```python
+# deklarujemy dwa zbiory
+A = {1, 3, 5}
+B = {2, 4, 5}
+# otrzymujemy relację R z funkcji zip
+R = zip(A, B)
+# wypisujemy wynik
+print(set(R)) # {(1, 2), (3, 4), (5, 5)}
+```
+
+Jak zawsze kod jest dostępny na [Replit](https://replit.com/@tswistak/python-zip#main.py).
+
+Oczywiście w kontekście informatyki relacje najbardziej kojarzą się z relacyjnymi bazami danych. Temat ten jest jednak na tyle szeroki i powiązany ogólnie z całą algebrą zbiorów, że bardziej zasługuje na cały odrębny artykuł, a nie dopowiedzenie w tym.
+
+## Podstawowe prawa teorii zbiorów
+
+Rachunek zbiorów, podobnie jak rachunek zdań i kwantyfikatorów, również ma swoje prawa. W dużej mierze prawa te są identyczne z tymi z rachunku zdań. Moim zdaniem, w zakresie zastosowań w informatyce, które omówiliśmy w ramach tego artykułu, nie mają aż tak ważnych zastosowań, ale z samego punktu widzenia znajomości logiki należy przynajmniej o nich wspomnieć.
+
+Te, które powielają się z rachunku zdań, to:
+
+- Prawa łączności:
+  - $$A \cap (B \cap C) = (A \cap B) \cap C$$
+  - $$A \cup (B \cup C) = (A \cup B) \cup C$$
+- Prawa rozdzielności:
+  - $$A \cap (B \cup C) = (A \cap B) \cup (A \cap C)$$
+  - $$A \cup (B \cap C) = (A \cup B) \cap (A \cup C)$$
+- Prawa de Morgana:
+  - $$(A \cap B)' = A' \cup B'$$
+  - $$(A \cup B)' = A' \cap B'$$
+
+Mamy jeszcze prawa związane ze zbiorami pustymi:
+
+- $$A \cup \varnothing = A$$
+- $$A \cap \varnothing = \varnothing$$
+- $$A \times \varnothing = \varnothing$$
+- $$\forall A : \varnothing \subseteq A$$
+- $$A \subseteq \varnothing \implies A = \varnothing$$
+
+Jak widzisz, nie są to rzeczy trudne do zapamiętania. Aczkolwiek nie są raczej zbyt przydatne przy operacjach na kolekcjach, więc pominę przykłady programistyczne.
+
+## Podsumowanie
+
+Jeśli czytasz od początku moją serię o logice, powinieneś/powinnaś już znać rachunki: zdań, kwantyfikatorów oraz zbiorów. Mimo że poruszyłem jedynie podstawy tych zagadnień logiki, już w tym momencie jest to wystarczająca wiedza, by bez problemu radzić sobie z codziennymi zadaniami programistycznymi i widzieć ich powiązanie ze światem matematyki. Oczywiście logika w informatyce ma szersze zastosowania i na pewno jeszcze o nich opowiem, ale te trzy są zdecydowanie najważniejsze.
+
+## Literatura
+
+- Elementy logiki i rachunku zbiorów – Skrypty dla studentów Ekonofizyki UPGOW, https://el.us.edu.pl/ekonofizyka/index.php?title=Elementy_logiki_i_rachunku_zbior%C3%B3w&oldid=7950 (ostatni dostęp lip. 15, 2023).
+- Set theory, https://en.wikipedia.org/w/index.php?title=Set_theory&oldid=1160479697 (ostatni dostęp lip. 15, 2023).
+- Venn diagram, https://en.wikipedia.org/w/index.php?title=Venn_diagram&oldid=1151809896 (ostatni dostęp lip. 15, 2023).
+- Zbiór, https://pl.wikipedia.org/w/index.php?title=Zbi%C3%B3r&oldid=67153925 (ostatni dostęp lip. 15, 2023).
+- Podzbiór, https://pl.wikipedia.org/w/index.php?title=Podzbi%C3%B3r&oldid=69293001 (ostatni dostęp lip. 15, 2023).
+- Union (set theory), https://en.wikipedia.org/w/index.php?title=Union_(set_theory)&oldid=1147287879 (ostatni dostęp lip. 15, 2023).
+- Intersection (set theory), https://en.wikipedia.org/w/index.php?title=Intersection_(set_theory)&oldid=1146242664 (ostatni dostęp lip. 15, 2023).
+- Complement (set theory), https://en.wikipedia.org/w/index.php?title=Complement_(set_theory)&oldid=1158246442 (ostatni dostęp lip. 15, 2023).
+- Symmetric difference, https://en.wikipedia.org/w/index.php?title=Symmetric_difference&oldid=1164687525 (ostatni dostęp lip. 15, 2023).
+- Cartesian product, https://en.wikipedia.org/w/index.php?title=Cartesian_product&oldid=1153352463 (ostatni dostęp lip. 15, 2023).
+- Lodash Documentation, https://lodash.com/docs/4.17.15 (ostatni dostęp lip. 15, 2023).
+- `class set([iterable])`, Built-in Types — Python 3.11.4 documentation, https://docs.python.org/3/library/stdtypes.html?highlight=set#set (ostatni dostęp lip. 15, 2023).
+
+<small>Zdjęcie na okładce wygenerowane przez DALL-E.</small>

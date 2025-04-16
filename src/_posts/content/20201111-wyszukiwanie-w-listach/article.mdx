@@ -1,0 +1,234 @@
+import Link from 'next/link';
+import {Image, Iframe} from '@swistak-codes/components';
+import cover from './psy-ratownicze.jpg';
+import result1 from './result1.png';
+import result2 from './result2.png';
+import result3 from './result3.png';
+import result4 from './result4.png';
+import result5 from './result5.png';
+import result6 from './result6.png';
+import result7 from './result7.png';
+
+export const meta = {
+  title: 'Wyszukiwanie w listach',
+  abstract:
+    'W artykule poruszam tematykę podstawowych algorytmów obsług list — algorytmów wyszukiwania. Omawiam: liniowe, binarne i interpolacyjne.',
+  firstParagraph: (
+    <>
+      Ponad pół roku temu napisałem serię artykułów poświęconych <Link href="/category/listy">listom</Link>. Przedstawiałem tam zarówno <Link href="/post/tablice-i-listy-tablicowe">tablice, listy
+      tablicowe</Link>, jak i <Link href="/post/listy-z-dowiazaniami">listy wiązane</Link>. Teraz naturalnie chciałbym przejść dalej z tego tematu do podstawowych algorytmów
+      wykorzystujących listy — algorytmów wyszukiwania w listach.
+    </>
+  ),
+  keyword: 'wyszukiwanie',
+  categories: ['Algorytmy', 'Listy'],
+  tags: [
+    'dziel i zwyciężaj',
+    'wyszukiwanie liniowe',
+    'wyszukiwanie binarne',
+    'wyszukiwanie',
+    'wyszukiwanie interpolacyjne',
+    'list',
+    'c#',
+    'javascript',
+    'java',
+    'c++'
+  ],
+  slug: 'wyszukiwanie-w-listach',
+  updateTime: '2020-11-11T11:08:40+00:00',
+  publishTime: '2020-11-11T09:00:28+00:00',
+  cover,
+};
+
+## Drobna uwaga na początek
+
+Poniższy artykuł zawiera dość dużo elementów, które zostały sprawdzone doświadczalnie, jednak pomijam umieszczanie w artykule fragmentów kodu. Jeżeli chcesz przejrzeć kod, który wykorzystałem do napisania tego artykułu, zapraszam do repozytorium na GitHubie: [https://github.com/swistak-codes/binary-search](https://github.com/swistak-codes/binary-search). Całość została napisana w JavaScript, jednak opatrzyłem kod dość bogato w komentarze (po polsku), abyś w razie potrzeby nie miał problemu ze zrozumieniem, co się dzieje w danym miejscu w kodzie.
+
+## Wyszukiwanie
+
+Zapewne się domyślasz, czym jest wyszukiwanie, jednak dla formalności przypomnę. Wyszukiwanie elementów w liście to nic innego jak znalezienie, gdzie w liście znajduje się element spełniający nasze kryteria. Wynikiem takiego wyszukiwania może być albo pozycja elementu, albo sam element. Jest to na tyle popularna operacja, że zapewne nawet nie zdajesz sobie sprawy, jak często ją używasz w języku, w którym programujesz. Wymieniając tylko kilka:
+
+- W C# znajdziesz takie metody jak `List.Find()`, czy `List.IndexOf()` (takie same znajdziemy też dla typu Array). Oprócz tego, w popularnym LINQ mamy takie metody, jak `Where()`, `Single()`, `First()`.
+- W JavaScript znajdziemy w tablicach metody `find()`, `findIndex()` oraz `indexOf()`.
+- W Java wykorzystując Stream, możemy wyszukiwać elementy przez użycie metody `filter()`. Oprócz tego mamy także tradycyjne podejścia `contains()` oraz `indexOf()`.
+- W C++ znajdziemy wiele metod w bibliotece standardowej do wyszukiwania, z których wyróżniłbym tutaj `find()` oraz `find_if()`.
+
+## Wyszukiwanie liniowe
+
+Skoro wiemy, czym jest wyszukiwanie, czas przejść do konkretnych algorytmów. A najbardziej podstawowym jest wyszukiwanie liniowe. Jest to najprostsze możliwe podejście. Na czym polega? Otóż przechodzimy po kolei po liście, i gdy trafimy na właściwy element, to przerywamy iterację.
+
+Jak możemy domyśleć się z opisu, w najgorszym wypadku musimy sprawdzić dokładnie tyle elementów ile jest w naszej kolekcji. Oznacza to, że algorytm ma złożoność liniową $$O(n)$$. Nie jest to źle, lecz idealnie też nie. Niewątpliwie zaletą jest jednak to, że algorytm ten nie ogranicza nas w żaden sposób. Elementy mogą być ułożone w dowolny sposób i także one same mogą być dowolne.
+
+Co warto dodać, wszystkie wspomniane powyżej metody wyszukiwania po kolekcjach wykorzystują właśnie algorytm wyszukiwania liniowego.
+
+## Wyszukiwanie binarne
+
+### Dziel i zwyciężaj
+
+Zanim opowiemy o kolejnym algorytmie wyszukiwania, chciałbym najpierw opowiedzieć o strategii „dziel i zwyciężaj”. Jest to metoda projektowania algorytmów, według której powinniśmy dzielić problem na mniejsze problemy tego samego typu tak długo, aż rozwiązanie będzie wystarczająco proste. Najczęściej rekurencyjnie dzielimy na dwa, potem każdy kolejny na dwa, i tak dalej. Bardzo proste zastosowanie tej strategii znajdziesz w poniższej grze, gdzie komputer próbuje zgadnąć liczbę, którą masz na myśli. Zapraszam na chwilę oderwania się przy tej prostej grze:
+
+<Iframe src="/iframe-content/number-guess/index.html" minHeight={450} />
+
+Zasada działania jest bardzo prosta. Komputer ma przedział liczb i za każdym razem bierze liczbę, która jest pośrodku przedziału. Na zamieszczonym wykresie możemy zobaczyć, jak duży zakres liczb jest aktualnie brany pod uwagę. Co ciekawe, mimo że liczb jest 100, jestem absolutnie pewien, że w najgorszym wypadku nie będzie koniecznych 100 prób, aby odgadnąć liczbę, a jedynie… 7. Osiągamy to właśnie dzięki dzieleniu problemu na coraz to mniejsze elementy.
+
+### Zastosowanie w wyszukiwaniu
+
+Ta gra jest tak naprawdę niczym innym jak wyszukiwaniem binarnym. Różnica jest jedynie taka, że my staliśmy się nieodłączną częścią algorytmu. Oczywiście w praktyce komputer sam potrafi określić, czego szuka i w którą stronę pokierować dalsze zawężanie przedziału. Jednakże wiąże się to z pewnymi ograniczeniami…
+
+Pierwsze ograniczenie jest takie, że nasza kolekcja musi być posortowana, z czego też wynika, że nasze elementy musi dać się posortować. Jest to dość mocne ograniczenie, bo nie jesteśmy w stanie zawsze zapewnić, że nasze dane są posortowane. Kolejny problem jest taki, że nie idziemy tutaj po kolei po liście, więc musimy mieć pewność, że odczyt losowych elementów nie będzie nas kosztować. Innymi słowy, nie możemy tego algorytmu używać w listach wiązanych, natomiast nie ma z tym problemu w tablicach.
+
+### Wydajność
+
+Mimo ograniczeń warto zwrócić uwagę na to, jak wydajne jest takie podejście do wyszukiwania. Przy grze w zgadywanie napisałem, że odgadnięcie zajmie nam co najwyżej 7 prób. Sprawdźmy to. Postanowiłem napisać prostą aplikację, która próbowała wyszukać binarnie po tablicy elementy od 1 do 100. Aplikację znajdziecie w [repozytorium GitHubowym](https://github.com/swistak-codes/binary-search) wspomnianym na początku artykułu. A oto rezultaty:
+
+<Image
+  image={result1}
+  alignCenter
+  fullSize
+  alt="Wykres przedstawiający wymaganą liczbę powtórzeń algorytmu w celu znalezienia wartości. Na osi Y są wartości od 0 do 7; na osi X od 1 do 100"
+  caption={<>
+    Liczba powtórzeń wymagana, by znaleźć każdy z elementów. Na osi X znajdziemy szukany element, natomiast na osi Y ilość porównań potrzebną do odnalezienia elementu.
+  </>}
+/>
+
+W ten sposób udowodniliśmy, że aby znaleźć dowolny element spośród 100, zajmie to maksymalnie 7 porównań. 7 powtarza się nam tutaj dość często, jednak znalezienie elementu na ostatniej pozycji po 7 próbach to zdecydowanie lepszy rezultat niż po 100 próbach (jak by to było w przypadku wyszukiwania liniowego).
+
+Tylko możesz się w takim razie zastanawiać, jak to wygląda dla większej liczby elementów? To też postanowiłem sprawdzić. Na następnym wykresie pokazuję, w jaki sposób, w zależności od liczby elementów w tablicy, zmienia się nam maksymalna potrzebna liczba prób, jak i ich średnia:
+
+<Image
+  image={result2}
+  alignCenter
+  fullSize
+  alt="Wykres przedstawiający wymaganą liczbę powtórzeń algorytmu w celu znalezienia wartości w zależności od długości listy. Narysowane są dwie krzywe — niebieska, prezentująca średnią liczbę powtorzeń oraz pomarańczowa reprezentująca maksymalną liczbę powtórzeń. Obie wartości rosną logarytmicznie."
+  caption={<>
+    Średnia i maksymalna liczba powtórzeń potrzebne, aby znaleźć element na liście. Na osi X znajdziemy liczbę elementów tablicy, a na osi Y liczbę powtórzeń
+  </>}
+/>
+
+Jak możemy zobaczyć, wyniki są niesamowicie małe. Przy 10 tysiącach elementów potrzebujemy jedynie 14 prób w najgorszym wypadku, zaś średnio 12. Także po tym wykresie jesteśmy w stanie określić złożoność algorytmu. Zarówno wykres średniej, jak i maksymalnej liczby porównań przypominają nam wykres funkcji logarytmicznej, dlatego też mówimy, że wyszukiwanie binarne ma złożoność logarytmiczną $$O(log n)$$.
+
+### Implementacje
+
+Widząc te wszystkie zalety, mógłbyś sobie zadać pytanie — czy jest to już zaimplementowane i nie muszę tego robić samodzielnie? Na szczęście tak. Sporo języków programowania posiada metody odpowiedzialne za wyszukiwanie binarne. Przykładowo:
+
+- C# — zarówno Array, jak i List posiadają metodę `BinarySearch()`.
+- Java — znajdziemy tutaj `Arrays.binarySearch()` oraz `Collections.binarySearch()`.
+- C++ — biblioteka standardowa posiada `binary_search()`.
+- Nawiązując do poprzedniej listy, JavaScript niestety domyślnie nie posiada funkcji wyszukiwania binarnego. Znajdziemy ją natomiast w bardzo popularnej bibliotece Lodash, między innymi pod takimi funkcjami, jak `_.sortedIndexOf()` czy `_.sortedIndexBy()`.
+
+Warto też zauważyć, że mamy struktury danych, które implementują założenia wyszukiwania binarnego. Pierwszą z nich jest BST (z ang. Binary Search Tree — binarne drzewo poszukiwań). Nie chcę tutaj jej bardziej opisywać, ponieważ dzisiejszy temat nie jest poświęcony strukturom drzewiastym. Drugą jest lista z przeskokami. Jest to odmiana listy wiązanej, w której każdy element ma powiązania z tyloma, aby móc bez problemu wyszukiwać po niej binarnie.
+
+Inną ciekawą implementację wyszukiwania binarnego programiści mogą znać z… systemu kontroli wersji GIT. Zdarzyło Ci się kiedyś mieć sytuację, gdzie coś przestało działać, czego jesteś na 100% pewien, że jakiś czas temu działało? Cóż, zdarza się, to jest coś całkowicie normalnego. W tym przypadku mógłbyś oczywiście cofać się ręcznie wersja po wersji, jednak GIT zawiera wbudowane narzędzie do tego celu — bisect. Bisect w GIT jest niczym innym jak implementacją wyszukiwania binarnego. Początek przedziału to obecna wersja, koniec to ostatnia działająca wersja wskazana przez nas. Następnie idziemy wersja po wersji i określamy, czy trafiliśmy w moment, kiedy jeszcze działało, czy już przestało. W zasadzie, niczym nie różni się to od gry w zgadywanie, którą pokazałem wcześniej.
+
+### Pułapki implementacyjne
+
+Oddam w tym miejscu głos ekspertowi:
+
+> Chociaż podstawowa idea wyszukiwania binarnego jest stosunkowo prosta, szczegóły są zaskakująco złożone i wielu dobrych programistów nie radzi sobie z nimi za pierwszym razem.
+>
+> <cite>Donald E. Knuth</cite>
+
+Najczęściej popełnianym błędem przy pisaniu wyszukiwania binarnego jest przekroczenie zakresu liczb całkowitych przy obliczaniu środkowego elementu. Bierze się to z faktu, że najłatwiej jest to obliczyć, stosując średnią arytmetyczną, czyli dodajemy początek i koniec zakresu, po czym dzielimy tę sumę na dwa. Problem pojawia się przy bardzo dużych listach. Listy zwykle są indeksowane liczbami naturalnymi (czyli nie musimy poświęcać bitu na znak), natomiast przy obliczaniu najczęściej stosujemy liczby całkowite (zapisane kodowaniem U2 — czyli mamy o połowę mniejszy przedział). Wówczas przy obliczaniu dosłownie „przekręca” nam się licznik i otrzymujemy liczbę ujemną. Ale jeżeli popełniłeś ten błąd (w zasadzie w tym artykule również go powielałem!), to absolutnie nie masz czym się przejmować — zdarza się to nawet najlepszym. W implementacji dostępnej w Javie błąd ten znajdował się przez wiele lat.
+
+A jak można to naprawić? Najprościej — stosując poniższy wzór do obliczania środkowego elementu:
+
+$$
+L + \frac{R - L}{2}
+$$
+
+gdzie L to początek przedziału, a R to koniec przedziału. Jednak aby wzór ten działał poprawnie, obie te liczby nie mogą być ujemne. W przypadku list nie jest to problemem.
+
+## Wyszukiwanie interpolacyjne
+
+Czy można polepszyć wyszukiwanie binarne, aby wyszukiwać jeszcze szybciej? Tak, jest to możliwe. Jedną z propozycji wysunął w 1957 roku Wesley Peterson. Zamiast dzielić listę w pół, postanowił odgadnąć pozycję elementu, wykorzystując do tego celu interpolację liniową. W przypadku nieodnalezienia, analogicznie jak w wyszukiwaniu binarnym, zawężamy przedział i zgadujemy ponownie.
+
+Aby znaleźć pozycję elementu, wykorzystujemy poniższy wzór:
+
+$$
+c = \lfloor a + \frac{X-X_a}{X_b-X_a} \cdot (b - a) \rfloor
+$$
+
+gdzie $$X_a$$ i $$X_b$$ to krańce przedziału ($$a$$ i $$b$$ to indeksy tych elementów), a $$X$$ to szukany przez nas element.
+
+Algorytm ten ma złożoność obliczeniową $$O(log log n)$$, więc lepszą niż wyszukiwanie binarne. Aby osiągnąć tak dobrą złożoność, nasza lista musiałaby zawierać elementy mające rozkład jednostajny. W najgorszym przypadku złożoność może być liniowa, czyli $$O(n)$$. Do tego należy też wziąć pod uwagę, że obliczenie indeksu jest tutaj bardziej skomplikowane, więc w przypadku małych struktur możemy nie odczuć dużej różnicy czasowej w porównaniu do wyszukiwania binarnego.
+
+### Badanie wyszukiwania interpolacyjnego
+
+Podobnie kiedy badaliśmy wydajność wyszukiwania binarnego, tak też przyjrzyjmy się wyszukiwaniu interpolacyjnemu. Tym razem jednak poświęcimy temu nieco więcej wykresów, gdyż wydajność algorytmu różni się od tego, z jakimi danymi mamy do czynienia.
+
+Na początku postanowiłem sprawdzić, ile porównań jest potrzebnych, aby odczytać każdy z elementów w przypadku najprostszego możliwego ciągu arytmetycznego, czyli kolejnych liczb naturalnych od 0 do 100. Dodatkowo, na kolejnym wykresie zobaczymy nieco bardziej skomplikowany ciąg arytmetyczny, który można by zapisać wzorem $$a_n = 2 + (n - 1) \cdot 3$$
+
+<Image
+  image={result3}
+  alignCenter
+  fullSize
+  alt="Wykres przedstawiający wymaganą liczbę powtórzeń algorytmu w celu znalezienia wartości. Na osi Y są wartości od 0 do 2; na osi X od 1 do 100"
+  caption={<>
+  </>}
+/>
+
+<Image
+  image={result4}
+  alignCenter
+  fullSize
+  alt="Wykres przedstawiający wymaganą liczbę powtórzeń algorytmu w celu znalezienia wartości. Na osi Y są wartości od 0 do 2; na osi X od 2 do 300"
+  caption={<>
+  </>}
+/>
+
+Jak widzimy na powyższych wykresach, algorytm działa w tym przypadku wręcz idealnie, znajdujemy element praktycznie zawsze za pierwszym razem. Czasem potrzebne były 2 porównania i, co ciekawe, dotyczyło to elementów znajdujących się na pozycjach 28, 55 i 60, więc można założyć, że jest to zapewne kwestia zaokrąglania pozycji po obliczeniu.
+
+Spójrzmy jednak na inny rodzaj ciągu — ciąg geometryczny. Rozpatrzmy dość prosty, określony wzorem $$a_n = 2 \cdot a_{n-1}$$:
+
+<Image
+  image={result5}
+  alignCenter
+  fullSize
+  alt="Wykres przedstawiający wymaganą liczbę powtórzeń algorytmu w celu znalezienia wartości. Na osi Y są wartości od 0 do 44; na osi X od 1 do 2,81 * 10 do potęgi 14"
+  caption={<>
+  </>}
+/>
+
+Na tym wykresie widzimy, że w przypadku ciągu geometrycznego tracimy już magiczne własności interpolacji liniowej. W najgorszym przypadku, aby odnaleźć 44 element, musieliśmy wykonać 44 porównania, więc wydajność jest taka sama jak przy wyszukiwaniu liniowym.
+
+Sprawdźmy jednak jeszcze, jak algorytm radzi sobie z wyszukiwaniem losowych liczb w liście. Liczby zostały wylosowane z rozkładu jednostajnego oraz rozkładu Gaussa.
+
+<Image
+  image={result6}
+  alignCenter
+  fullSize
+  alt="Wykres przedstawiający wymaganą liczbę powtórzeń algorytmu w celu znalezienia wartości. Na osi Y są wartości od 0 do 5; na osi X od 1442 do 99271"
+  caption={<>
+  </>}
+/>
+
+<Image
+  image={result7}
+  alignCenter
+  fullSize
+  alt="Wykres przedstawiający wymaganą liczbę powtórzeń algorytmu w celu znalezienia wartości. Na osi Y są wartości od 0 do 9; na osi X od 120811 do 673540"
+  caption={<>
+  </>}
+/>
+
+Tutaj widzimy to, o czym wspomniałem na samym początku, czyli że algorytm najlepiej radzi sobie z rozkładem jednostajnym. W najgorszym przypadku potrzebowaliśmy 5 porównań, co jest lepszym wynikiem niż w przypadku wyszukiwania binarnego. Natomiast posiadając inny rodzaj rozkładu, już nie wygląda to tak dobrze. Wziąłem jako przykład rozkład Gaussa i o ile nie jest tak źle jak w przypadku ciągu geometrycznego, to wciąż w wielu przypadkach musieliśmy wykonać więcej porównań niż przy wyszukiwaniu binarnym.
+
+## Podsumowanie
+
+Jak możesz zobaczyć na przykładzie tego artykułu, nawet coś tak prostego jak wyszukiwanie można zrealizować na przeróżne sposoby. O ile przez zdecydowaną większość czasu zapewne używałeś lub będziesz używać wyszukiwanie liniowe, warto znać założenia i działanie wyszukiwania binarnego. Szczególnie że zasada „dziel i zwyciężaj” jest bardzo powszechna i przydatna, nie tylko w informatyce.
+
+## Literatura
+
+Pozycje podstawowe:
+
+- Knuth D. E., „Wyszukiwanie liniowe” oraz „Wyszukiwanie w tablicy uporządkowanej” w *Sztuka programowania Tom 3 Sortowanie i wyszukiwanie.* Warszawa: Wydawnictwa Naukowo-Techniczne, 2002, s. 421-457
+- Cormen T. H., Leiserson C. E., Rivest R.L., „Projektowanie algorytmów” w *Wprowadzenie do algorytmów*. Warszawa: Wydawnictwa Naukowo-Techniczne, 2001, s. 32-36
+- Cormen T. H., „Wyszukiwanie binarne” w *Algorytmy bez tajemnic*. Gliwice: Helion, 2013, s. 39-43
+- Perl, Y., Itai, A., Avni, H. (1978). Interpolation search—a log log N search. *Communications of the ACM, 21(7)*, 550-553.
+
+Pozycje dodatkowe:
+
+- Bloch J. (2 czerwca 2006). “Extra, extra – read all about it: nearly all binary searches and mergesorts are broken”. *Google Research Blog*. (ostatnio odwiedzone 8 listopada 2020).
+- git-bisect, [https://git-scm.com/docs/git-bisect](https://git-scm.com/docs/git-bisect) (ostatnio odwiedzone 8 listopada 2020).
+
+<small>(oryginał zdjęcia na okładce: [DFID – UK Department for International Development](https://commons.wikimedia.org/wiki/File:UK_search_and_rescue_dogs_in_Nepal_(17298939831).jpg), CC BY 2.0 [https://creativecommons.org/licenses/by/2.0](https://creativecommons.org/licenses/by/2.0), via Wikimedia Commons)</small>

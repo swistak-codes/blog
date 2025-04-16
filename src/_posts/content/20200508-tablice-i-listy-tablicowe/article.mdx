@@ -1,0 +1,284 @@
+import Link from 'next/link';
+import { Image } from '@swistak-codes/components';
+import cover from './kozy.jpg';
+import tablica from './tablica.png';
+import tablicaNieskonczona from './tablica-nieskonczona.png';
+import zlozonoscObliczeniowa from './zlozonosc-obliczeniowa.png';
+
+export const meta = {
+  title: 'Tablice i listy tablicowe',
+  abstract:
+    'Ostatnio dość ogólnie omówiłem listy. Tym razem powiedzmy sobie nieco więcej o tablicach oraz o bazujących na nich listach tablicowych.',
+  firstParagraph: (
+    <>
+      <Link href="/post/listy-najpopularniejsze-zlozone-typy-danych">W poprzednim artykule</Link> przedstawiłem ogólnie
+      pojęcie list i przedstawiłem różne ich rodzaje. Nie wchodziłem wówczas
+      mocno w szczegóły na temat każdej z przedstawionych struktur, dlatego tym razem powiemy sobie nieco więcej o
+      tablicach, a także o bazujących na nich listach tablicowych.
+    </>
+  ),
+  keyword: 'tablice',
+  categories: ['Listy', 'Programowanie', 'Struktury danych'],
+  tags: [
+    'tablice',
+    'wektory',
+    'c',
+    'listy tablicowe',
+    'tablice dynamiczne',
+    'c++',
+    'java',
+    'c#',
+    'wskaźniki',
+    'złożoność obliczeniowa',
+    'arraylist'
+  ],
+  slug: 'tablice-i-listy-tablicowe',
+  updateTime: '2020-06-27T09:26:54+00:00',
+  publishTime: '2020-05-08T10:00:02+00:00',
+  cover,
+};
+
+## Tablice
+
+Przejdźmy od razu do meritum, czyli tablic. Dla przypomnienia napiszę jedynie, że tablice (w dużym uproszczeniu) to wiele elementów ułożonych w pamięci jeden po drugim. Daje to dość prostą zaletę — znając liczbę elementów oraz ich rozmiar, jesteśmy w stanie bezpośrednio się do nich odwoływać, znając jedynie położenie pierwszego (zerowego).
+
+<Image
+  image={tablica}
+  alignRight
+  fullSize
+  alt="Reprezentacja pamięci komputera, gdzie elementy 0, 1, 2, 3, 4, 5 są zapisane jeden po drugim."
+  caption="Reprezentacja tablicy w pamięci komputera"
+  forceWhiteBackground
+/>
+
+Rozpatrzmy prosty przykład ilustrujący tę zasadę. Mamy tablicę elementów zajmujących 1 bajt każdy. Element zerowy znajduje się w pamięci na pozycji 21 (nazywamy to adresem). Chcemy otrzymać 16 element tablicy. W tym celu nie musimy przechodzić po kolei po adresach 21, 22, 23, itd. Z racji, że znajdują się po kolei, możemy od razu odwołać się do adresu 37.
+
+Dlaczego tak? Prosta arytmetyka:
+
+$$
+21 + 16 = 37
+$$
+
+Uogólniając, możemy to sprowadzić do wzoru:
+
+$$
+n_i = n_0 + i
+$$
+
+, gdzie $$n_0$$ to adres w pamięci pierwszego (zerowego) elementu, $$i$$ to pozycja w tablicy szukanego elementu.
+
+
+### Sprawdźmy to!
+
+Wiem, że jak na razie to sama sucha teoria, więc sprawdźmy to w praktyce. W tym celu napisałem bardzo prosty program w języku C. Wybrałem ten język, ponieważ pozwala nam operować na bardzo niskim poziomie (w tym odwoływać się bezpośrednio do wybranych adresów w pamięci), jednocześnie zachowując czytelność rozwiązania. Kod opisany komentarzami znajduje się poniżej, a zaraz za nim pokazuję efekt jego wykonania.
+
+```c
+#include <stdio.h>
+
+int main(void) {
+  char array[3] = { 0, 1, 2 };
+  // deklarujemy tablicę trzyelementową od razu z wartościami
+  // wykorzystujemy typ char, ponieważ zajmuje tylko 1 bajt
+
+  printf("Adres w pamięci pierwszego elementu: %p \n", array);
+  // printf używamy aby wypisać tekst w konsoli
+  // pod %p zostaje podstawiona zmienna którą podajemy po przecinku
+  // w tym przypadku będzie to wskaźnik na adres tablicy w pamięci
+
+  printf("Zerowy element: %d \n", *(array + 0));
+  // aby wyświetlić to co się kryje pod danym adresem pamięci musimy dopisać *
+  // tym razem wartość będzie podstawiona pod %d
+  // dla ciekawych, czemu raz %d a raz %p, odsyłam do artykułu:
+  // https://pl.wikibooks.org/wiki/C/printf
+
+  printf("Pierwszy element: %d (adres: %p) \n", *(array + 1), array + 1);
+  // tutaj wyświetlimy zarówno element jak i jego adres
+
+  printf("Drugi element: %d (adres: %p) \n", array[2], array + 2);
+  // oczywiście nikt nie każe nam odwoływać się do elementow tablicy w taki sposób
+  // tradycyjny sposób odwołania się do elementu tablicy jest przez użycie []
+  // array[2] daje ten sam rezultat co *(array + 2)
+
+  return 0;
+  // kończymy program przez zwrócenie wartości 0
+}
+```
+
+```
+Adres w pamięci pierwszego elementu: 0x7fff9bb6b609
+Zerowy element: 0
+Pierwszy element: 1 (adres: 0x7fff9bb6b60a)
+Drugi element: 2 (adres: 0x7fff9bb6b60b)
+```
+
+Jeżeli chcecie sami pokombinować, zapraszam do serwisu [repl.it](https://repl.it/@tswistak/Tablice). Możecie tam modyfikować kod i uruchamiać go bez potrzeby ściągania kompilatora na komputer.
+
+Jak możecie sami zobaczyć, byłem w stanie odwoływać się do kolejnych elementów tablicy, korzystając dokładnie ze wzoru, który podałem wyżej. Chciałem dostać się do drugiego elementu, dlatego do początkowego adresu dodałem 2. Adresy, które wypisałem w konsoli, również się zgadzają. Wygląda to dziwnie, że jest 9, potem „a”, a następnie „b”. Wynika to z faktu, że adresy są zapisane w systemie szesnastkowym. W takim zapisie, po 9 mamy jeszcze jako cyfry litery od a do f.
+
+## Listy tablicowe
+
+Skoro zajrzeliśmy bardziej szczegółowo w tablice, to możemy przejść do najważniejszej, bazującej na nich strukturze danych — list tablicowych (znanych też jako tablice dynamiczne/nieskończone). Jak omawiałem w poprzednim artykule, podstawową różnicą jest to, że tablice mają skończony rozmiar, zaś listy są nieskończone. Oczywiście to nie wszystko. Z racji, że są to pełnoprawne struktury danych, to mają również określone podstawowe operacje.
+
+Programiści mogą znać listy tablicowe pod wieloma różnymi nazwami. Najpowszechniejsze z nich to ArrayList (Java, Kotlin), List (C#), Array (JavaScript), Vector (C++). Jeżeli miałeś/aś okazję pisać w jednym z tych języków, na pewno się z nimi spotkałeś. Z tego też powodu raczej nikt nie implementuje ich własnoręcznie. Aczkolwiek jestem zdania, że jeśli chcemy coś poprawnie używać, warto zaznajomić się z tym, jak to działa, i wyciągnąć samemu wnioski, czy to jest to, czego potrzebuję.
+
+### Pobieranie elementu
+
+Jest to podstawowa operacja, jaką wykonuje się na różnego rodzaju listach. W tym przypadku sytuacja jest prosta – lista tablicowa to wciąż tablica. Znamy pozycję w pamięci pierwszego elementu i wiemy, że elementy są zapisane po kolei. Stąd też dostęp do dowolnego elementu zawsze zajmuje tyle samo czasu — jedyne co musimy zrobić to policzyć adres elementu w pamięci, dokładnie w taki sam sposób jak dla zwykłych tablic.
+
+### Wstawianie/usuwanie elementu
+
+Oczywiście pobieranie to nie wszystko. Listy pozwalają także na modyfikację swojej zawartości. Takimi operacjami modyfikacji są wstawianie elementów oraz ich usuwanie. To właśnie te operacje w dużej mierze odróżniają tablice od list na nich bazujących. Omawiając struktury danych, wyróżniamy trzy rodzaje tej operacji: na początku, w środku oraz na końcu. Dlaczego akurat tak? Ponieważ ze względu na różne konstrukcje, coś tak prostego jak dodanie bądź usunięcie może być bardzo czasochłonne, a równie dobrze może się wykonać natychmiastowo.
+
+Różnice wynikają z faktu, że musimy zachować ciągłość tablicy. Nie możemy zostawiać luk. Jeżeli usuwamy element ze środka, to wszystkie za nim musimy przesunąć do tyłu. Analogicznie jest w przypadku dodawania – musimy przesunąć wszystkie do przodu.
+
+Kolejna rzecz – tablice mają określony rozmiar i elementy są zapisane jeden po drugim. W takim razie, jak jest stworzona ta nieskończoność? Otóż kryje się za tym bardzo prosty trick — gdy trzeba, tworzymy nową, większą tablicę, do której przenosimy zawartość aktualnej. Zaprezentowałem to na rysunku w poprzednim artykule, który przytaczam też poniżej.
+
+<Image
+  image={tablicaNieskonczona}
+  alignCenter
+  fullSize
+  alt="Diagram przedstawiający dodawanie elementów do tablicy nieskończonej. Składa się z trzech etapów.
+1. W pamięci są zapisane po sobie elementy 0, 1, 2. Chcemy dodać element numer 3.
+2. Kopiujemy istniejącą tablicę w nowe miejsce w pamięci i na jej końcu umieszczamy element 3. Wizualnie mamy dalej starą tablicę 0, 1, 2, a kawałek dalej znajduje się tablica 0, 1, 2, 3.
+3. W pamięci pozostała jedynie tablica z zapisanymi po sobie elementami 0, 1, 2, 3."
+  caption={<>1. Chcemy dodać element.<br/>
+    2. Tworzymy nową tablicę, przenosimy do niej zawartość starej, a także dodajemy nowy element.<br/>
+    3. Starą tablicę kasujemy i zostaje jedynie nowa.</>}
+  forceWhiteBackground
+/>
+
+Tylko czy to się dzieje zawsze? Oczywiście, że nie! W każdej porządnej implementacji tablicy dynamicznej zakłada się, że tablicę trzeba zawsze utworzyć odpowiednio większą. Przykładowo, jeżeli potrzebujemy w danej chwili 10 elementów, to nowo utworzona tablica będzie mogła pomieścić 15 pozycji. Niestety wiąże się to z tym, że wraz z rozrostem listy tracimy coraz więcej miejsca w pamięci. Z drugiej strony pomaga to przyspieszyć działanie przez unikanie częstego przepisywania danych.
+
+#### Wstawianie i usuwanie na końcu listy
+
+Przejdźmy więc do meritum i zacznijmy od końca. A robimy tak dlatego, ponieważ jest to najprostsza z operacji wstawiania. Dlaczego? Ponieważ ostatni element możemy bezpiecznie skasować i nic z pozostałymi robić nie trzeba. W przypadku dodawania mamy już dwa warianty:
+
+1. Optymistyczny — tablica ma jeszcze miejsce. W tym przypadku nie ma większej filozofii. Znamy liczbę elementów, więc zapisujemy nowy element w pierwszym wolnym miejscu. Jest to operacja natychmiastowa, czyli jej złożoność jest stała. Fachowo oznaczamy to jako O(1). Jest to tak zwana notacja dużego O, o której możliwe, że kiedyś napiszę coś więcej.
+2. Pesymistyczny — brakuje miejsca i musimy utworzyć nową tablicę. Jak to się dzieje, zaprezentowałem już wcześniej. W kwestii złożoności musimy tutaj przepisać całą tablicę, więc złożoność tej operacji jest liniowa (dla dwóch elementów dwie operacje, dla trzech trzy, dla ośmiu osiem, dla stu sto, itd.), czyli O(n).
+
+Na szczęście dzięki temu, że zwykle tworzymy tablice większe niż potrzeba, wariant optymistyczny jest częstszy.
+
+<Image
+  image={zlozonoscObliczeniowa}
+  alignCenter
+  fullSize
+  alt="Wykres przedstawiający orientacyjne przebiegi asymptotycznego tempa wzrostu. O(1) to linia pozioma. O(log n) jest funkcją rosnącą, jednak powoli. O(n) rośnie liniowo. O(n log n) rośnie w nieco szybszym tempie niż liniowym. O(n kwadrat) rośnie w bardzo szybkim tempie."
+  caption="Orientacyjne przedstawienie zależności liczby operacji od liczby elementów przy różnych złożonościach obliczeniowych. W naszych rozważaniach na temat list możemy mówić tylko o złożonościach O(1) (zielona linia) i O(n) (niebieska linia)"
+  forceWhiteBackground
+/>
+
+#### Wstawianie i usuwanie na początku lub w środku
+
+Dla początku i środka sytuacja jest taka sama, więc łączę je w jedno. Mamy elementy przed sobą, więc trzeba je przesunąć. Tak więc niezależnie, czy mamy jeszcze miejsce, czy go nie mamy, musimy przejść przez elementy i je przepisać o jedną pozycję do przodu (lub wstecz w przypadku usuwania). Jedyną otwartą kwestią pozostaje, ile ich musimy przepisać — dodając trzeci element od końca, musimy przepisać tylko dwa, a jeśli na początek, to wszystkie. Jednak w kontekście wydajności uznaje się to za szczegół i przyjmuje się, że złożoność tych operacji jest po prostu liniowa.
+
+Tutaj nie traktujmy tego jakoś źle. Złożoność liniowa nie jest najgorszą, jaką możemy sobie wyobrazić w informatyce. Wręcz przeciwnie, dla algorytmów jest ona często pożądana. Jednakże w przypadku dodawania do kolekcji jest to najgorszy możliwy przypadek.
+
+### Zwiększanie rozmiaru tablicy
+
+Jak wspomniałem wcześniej, co jakiś czas tworzymy nową, większą tablicę. Jest to konieczna operacja (wykonująca się w tle, bez wiedzy użytkownika), którą wykonuje się w dwóch celach. Z jednej strony, w ten sposób zapewniamy “nieskończoność” naszej tablicy. Natomiast z drugiej, dzięki temu, że zawsze tworzymy większą nie o tyle, ile potrzeba, lecz z zapasem, to zwiększa się wydajność operacji wstawiania. Oczywiście ma to niestety wadę — marnujemy pamięć.
+
+#### C\#
+
+Aby nie pozostać gołosłownym, postanowiłem napisać prostą aplikację, która to sprawdzi. Jej sposób działania jest bardzo prosty — tworzymy na początku pustą listę tablicową oraz sprawdzamy rozmiar tablicy skrywającej się pod nią. Następnie dodajemy nowy element na koniec i ponownie sprawdzamy, i tak powtarzamy kilkanaście razy. Oto kod w języku C# i wynik wykonania:
+
+```cs
+using System;
+using System.Collections.Generic;
+
+class MainClass
+{
+  public static void Main (string[] args)
+  {
+    var list = new List<int>();
+    // Tworzymy nową listę tablicową
+    var size = list.Capacity;
+    // W zmiennej size będziemy trzymać aktualny rozmiar tablicy
+    // W List w C# kryje się on pod zmienną Capacity
+    Console.WriteLine($"Początkowy rozmiar listy: {size}");
+    for (var i = 0; i < 200; i++)
+    {
+      // Robimy pętlę, która wykona się 200 razy
+      // Zaczynamy od 0, będzie trwać tak długo aż licznik jest mniejszy od 200
+      // I na koniec każdej iteracji zwiększamy licznik o 1
+      // i++ to skrócony zapis dla i = i + 1
+      list.Add(i);
+      // Dodajemy licznik na koniec listy
+      if (list.Capacity != size)
+      {
+        // Sprawdzamy czy wielkość tablicy się zmieniła w stosunku do ostatniej
+        // Jeżeli jest różna, wtedy wchodzimy w warunek
+        size = list.Capacity;
+        // Zapisujemy aktualny rozmiar tablicy
+        Console.WriteLine($"Zmiana rozmiaru na: {size} przy {list.Count} elementach");
+      }
+    }
+  }
+}
+```
+
+```
+Początkowy rozmiar listy: 0
+Zmiana rozmiaru na: 4 przy 1 elementach
+Zmiana rozmiaru na: 8 przy 5 elementach
+Zmiana rozmiaru na: 16 przy 9 elementach
+Zmiana rozmiaru na: 32 przy 17 elementach
+Zmiana rozmiaru na: 64 przy 33 elementach
+Zmiana rozmiaru na: 128 przy 65 elementach
+Zmiana rozmiaru na: 256 przy 129 elementach
+```
+
+Możemy zauważyć, że w przypadku implementacji tablicy dynamicznej w tym języku, rozmiar z każdą iteracją zwiększa się dwukrotnie. Początkowo, aby nie marnować miejsca, tablica jest pusta, a później zaczynamy od rozmiaru 4. Ponownie zachęcam do własnych eksperymentów z tym kodem na platformie [repl.it](https://repl.it/@tswistak/Rozmiar-listy-C).
+
+#### C++
+
+Analogicznie sprawa wygląda w C++. [Pod tym linkiem](https://repl.it/@tswistak/Rozmiar-listy-CPP) znajdziecie kod do programu napisanego w tym języku, robiący dokładnie to samo. Po uruchomieniu możemy zobaczyć, że vector (bo tak nazywa się tablica dynamiczna w C++) również dwukrotnie zwiększa rozmiar. Różnica jest jedynie taka, że ta implementacja nie zaczyna od pojemności 4, lecz 1, po czym zwiększa do 2, a dopiero potem do 4.
+
+#### Java
+
+Sprawdźmy jeszcze, jak sytuacja ma się w Javie, ponieważ tutaj jest nieco inaczej. Kod znajdziecie [pod tym linkiem](https://repl.it/@tswistak/Rozmiar-listy-Java), gdzie również możecie na nim poeksperymentować. Niestety, w Javie nie było to tak proste jak w C# czy C++, ale nie ma rzeczy niemożliwych. Rezultat wykonania jest następujący:
+
+```
+Początkowy rozmiar listy: 0
+Zmiana rozmiaru na: 10 przy 1 elementach
+Zmiana rozmiaru na: 15 przy 11 elementach
+Zmiana rozmiaru na: 22 przy 16 elementach
+Zmiana rozmiaru na: 33 przy 23 elementach
+Zmiana rozmiaru na: 49 przy 34 elementach
+Zmiana rozmiaru na: 73 przy 50 elementach
+Zmiana rozmiaru na: 109 przy 74 elementach
+Zmiana rozmiaru na: 163 przy 110 elementach
+Zmiana rozmiaru na: 244 przy 164 elementach
+```
+
+Jak widzimy, w tym przypadku lista nie zwiększa się dwukrotnie, lecz o 50%. Ma to zalety i wady. Z jednej strony, częściej musimy przepisywać listę, zaś z drugiej marnujemy mniej pamięci na puste elementy. Co ciekawe, Java od razu zaczyna od rozmiaru 10 po dodaniu pierwszego elementu, podczas gdy C# opiera się na kolejnych potęgach liczby 2 (4, 8, 16, 32 itd.)
+
+Moglibyśmy też rozpatrywać inne języki, ale zwykle przyrost jest albo taki jak w C# i C++ (podwajanie rozmiaru), albo taki jak w Javie (zwiększanie o 50%). Naturalnie są wyjątki, np. Python, ale w tej kwestii polecam już doczytać na własną rękę.
+
+### Inne operacje
+
+Oczywiście to nie jedyne operacje, jakie są wykonywane na listach tablicowych. Są też inne, rzadziej stosowane, także nie zawsze implementowane. Wymieńmy sobie ich kilka:
+
+- Wstawianie zakresu — działa na analogicznej zasadzie jak wstawianie. Różnica polega na tym, że zamiast jednego, wstawiamy wiele elementów.
+- Odwrócenie kolejności
+- Przekształcenie w zwykłą tablicę
+- Rozszerzenie pojemności tablicy — jeżeli ktoś chce odgórnie ustalić pojemność tablicy znajdującej się wewnątrz listy
+- Optymalizacja zajmowanej pamięci — służy pomniejszeniu pojemności tablicy, aby ta zajmowała dokładnie tyle miejsca, ile lista posiada zapisanych elementów
+
+Do tych operacji nie zaliczyłem algorytmów, które możemy wykonywać na strukturach danych, takich jak algorytmy przeszukiwania czy sortowania. Są one ważne i na tyle warte uwagi, że warto poświęcić im więcej miejsca.
+
+## Podsumujmy
+
+Listy tablicowe to najpopularniejsza struktura danych, implementująca założenia listy. Jest bardzo duża szansa, że będą one pasować pod większość zastosowań. Wśród zalet warto wskazać natychmiastowy odczyt danych, niezależnie czy bierzemy elementy skrajne, czy środkowe. Oczywiście są też wady, jak kosztowne operacje dodawania i usuwania, oraz fakt marnowania pamięci. Pomijając to, prawdopodobnie to właśnie one będą zwykle najlepszym wyborem, gdy potrzebujemy przechować wiele danych.
+
+## Literatura
+
+- Pozycje podstawowe:
+  - Harris S., Ross J., „Listy” w *Od podstaw Algorytmy*. Gliwice: Helion, 2006, s. 71–104
+  - Wirth N., „Podstawowe struktury danych” w *Algorytmy + struktury danych = programy*. Warszawa: Wydawnictwa Naukowo-Techniczne, 2002, s. 17–72
+- Pozycje uzupełniające:
+  - Dynamic array, [https://en.wikipedia.org/w/index.php?title=Dynamic_array&oldid=946944693](https://en.wikipedia.org/w/index.php?title=Dynamic_array&oldid=946944693) (ostatnio odwiedzone: 25. kwietnia 2020)
+  - List\<T\> Class, [https://docs.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1?view=netcore-3.1](https://docs.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1?view=netcore-3.1) (ostatnio odwiedzone: 25. kwietnia 2020)
+  - std::vector, [https://en.cppreference.com/w/cpp/container/vector](https://en.cppreference.com/w/cpp/container/vector) (ostatnio odwiedzone: 25. kwietnia 2020)
+  - Class ArrayList\<E\>, [https://docs.oracle.com/en/java/javase/14/docs/api/java.base/java/util/ArrayList.html](https://docs.oracle.com/en/java/javase/14/docs/api/java.base/java/util/ArrayList.html) (ostatnio odwiedzone: 25. kwietnia 2020)
+
+<small>(oryginał zdjęcia na okładce autorstwa Oregon State University, opublikowany na licencji [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0/) w serwisie [Flickr](https://www.flickr.com/photos/oregonstateuniversity/42628137511)) </small>

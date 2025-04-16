@@ -1,0 +1,295 @@
+import Link from 'next/link';
+import {Image, Iframe, VideoPlayer} from '@swistak-codes/components';
+import cover from './zolw_lotos.jpg';
+
+export const meta = {
+  title: 'Algorytmiczne rysowanie roślin',
+  abstract:
+    'Artykuł opowiada o tym, jak za pomocą L-systemów i grafiki żółwiowej możemy rysować proste, dwuwymiarowe rośliny.',
+  firstParagraph: (
+    <>
+      Przez półtora roku pisania bloga zazwyczaj pokazywałem algorytmy, które pozwalały nam na wykonywanie dość podstawowych czynności, często i tak już gdzieś głębiej schowanych w bibliotekach standardowych języków programowania. Tym razem jednak zabiorę Was w podróż w te piękniejsze i mniej standardowe rejony algorytmów. Mianowicie opowiemy sobie o rysowaniu algorytmicznie. A dokładniej — o algorytmicznym rysowaniu roślin.
+    </>
+  ),
+  keyword: 'l-systemy',
+  categories: ['Grafika komputerowa'],
+  tags: [
+    'l-systemy',
+    'grafika żółwiowa',
+    'fraktale',
+    'krzywe Kocha',
+    'smok Heighwaya',
+    'rośliny',
+    '2d'
+  ],
+  slug: 'algorytmiczne-rysowanie-roslin',
+  updateTime: '2021-12-19T10:34:45+00:00',
+  publishTime: '2021-12-22T06:00:57+00:00',
+  cover,
+};
+
+## Uwaga wstępna
+
+Wszystkie pokazane poniżej prezentacje zostały napisane w JavaScript z wykorzystaniem biblioteki [Lindenmayer](https://github.com/nylki/lindenmayer). Ich kod źródłowy znajdziesz [na moim GitHubie](https://github.com/swistak-codes/lsystems).
+
+## L-systemy
+
+### Wstęp
+
+Wszystko, co opisuję w tym artykule, opiera się na idei zwanej L-systemami, czy też systemami Lindenmayera od nazwiska pomysłodawcy — węgierskiego biologa Aristida Lindenmayera.
+
+L-systemy to, w skrócie mówiąc, zestaw reguł opisujący, jak wraz z kolejnymi iteracjami generować kolejne ciągi symboli. Pomijając wszystkie formalne zawiłości, możemy wyróżnić:
+
+- alfabet ($$V$$) — zestaw symboli wykorzystywanych w L-systemie
+- aksjomat, inicjator ($$\omega$$) — ciąg symboli opisujący początkowy stan systemu
+- reguły, zbiór produkcji ($$P$$) —  definiują, jak należy zastępować symbole ciągiem innych
+
+Pewnie się zastanawiasz, dlaczego piszę o ciągach symboli, a nie o grafice. Otóż początkowo L-systemy nie służyły do generowania grafiki, tylko do formalnego opisu procesów biologicznych.
+
+### Przykładowy L-system
+
+Rozpatrzmy, jak to działa, na przykładowym L-systemie zdefiniowanym przez Lindenmayera, który służył modelowaniu rozwoju alg:
+
+- alfabet: A B
+- aksjomat: A
+- reguły: (A → AB), (B → A)
+
+Wtedy wraz z kolejnymi iteracjami dostajemy następujące ciągi:
+
+- 0: A — zaczynamy od aksjomatu
+- 1: AB — mamy regułę, że A produkuje AB
+- 2: ABA — ponownie według reguły — A produkuje nam AB, natomiast działa też druga reguła, która zamienia B na A
+- 3: ABAAB
+- 4: ABAABABA
+- 5: ABAABABAABAAB
+
+### L-systemy w grafice komputerowej
+
+L-systemy znalazły swoje zastosowanie w grafice komputerowej. Otóż zauważono, że owe symbole mogą być tak naprawdę poleceniami, co ma być w danym momencie rysowane, i tym samym można tworzyć twory graficzne o iteracyjnej strukturze, takie jak na przykład fraktale.
+
+Tylko jakie tutaj można stosować polecenia? Na to odpowiada nam zagadnienie grafiki komputerowej nazywane grafiką żółwiową (z ang. turtle graphics).
+
+### Grafika żółwiowa
+
+Grafika żółwiowa to technika rysowania grafiki wektorowej, gdzie rysuje się, wydając polecenia, co powinien zrobić w danym momencie kursor (powszechnie reprezentowany jako żółw wzorowany na edukacyjnych robotach-żółwiach, stąd nazwa). Są to polecenia typu „idź do przodu o 10 pikseli”, „obróć się w prawo o 90 stopni”. Aby polecenia miały sens i nie były od siebie niezależne, żółw przechowuje w swoim stanie następujące informacje:
+
+- Pozycję w układzie współrzędnych.
+- Kąt, pod którym żółw się przesuwa; można go rozumieć jako kierunek przesuwania.
+- Może też opcjonalnie posiadać inne informacje związane stricte ze stylem rysowania, jak kolor linii czy jej grubość. Nas w kontekście tego artykułu nie będzie to interesować.
+
+Ideę rysowania w taki sposób możesz kojarzyć z edukacyjnego języka programowania Logo, który jeszcze kilka(naście) lat temu był nauczany na lekcjach informatyki w takich środowiskach, jak Logomocja czy Logo Komeniusz. W dość podobny sposób tworzone są też ścieżki w formacie plików wektorowych SVG.
+
+### Grafika żółwiowa w L-systemach
+
+Nas grafika żółwiowa interesuje dlatego, że przez swoją ideę wydawania poleceń do rysowania idealnie pasuje do wykorzystania w L-systemach.
+
+W tym kontekście najczęściej spotkamy się z następującymi poleceniami, które później stanowią alfabet wykorzystywany w L-systemach:
+
+- F — idź do przodu o długość d. Nową pozycję możemy wyliczyć jako $$x' = x + d \cos{\alpha}\text{ , }  y' = y + d\sin{\alpha}$$.
+- f — idź do przodu o długość d, ale bez rysowania.
+- \+ — obróć w lewo (przeciwnie do ruchu wskazówek zegara) o kąt $$\delta$$.
+- \- — obróć w prawo (zgodnie z ruchem wskazówek zegara) o kąt $$\delta$$.
+
+Przykładowo, narysowanie sekwencji FFF-FF-F-F+F+FF-F-FFF (zakładając, że $$\delta = 90^{\circ}$$) będzie wyglądać następująco:
+
+<VideoPlayer
+  url="/videos/lsystem.mp4"
+  muted
+  controls
+  width={500}
+  height={500}
+  caption={<></>}
+/>
+
+## Fraktale jako L-systemy
+
+Bez wchodzenia w matematyczne detale, fraktale to obiekty, które można określić jako samopodobne, bądź też nieskończenie złożone. Ze względu na swoje właściwości L-systemy nadają się bardzo dobrze do tego, żeby opisać pewne fraktale. Do tego te, które chcę tu pokazać, są na tyle proste, że idealnie wprowadzą w temat wykorzystania praktycznego L-systemów w grafice komputerowej.
+
+Omówię każdy z fraktali, jak można go zapisać w postaci L-systemu. Oprócz tego pod każdym z nich znajdziesz interaktywną prezentację, gdzie możesz zobaczyć, jak wraz z liczbą iteracji aksjomat jest przekształcany i jaki rezultat graficzny nam to daje. L-system dla uproszczenia będę opisywać symbolami pokazanymi wcześniej, analogicznie jak jest to w fachowej literaturze.
+
+### Krzywe Kocha
+
+Krzywe Kocha to jedne z najprostszych fraktali, jakie możemy stworzyć. Mimo że krzywa ta jest nieskończenie długa, to mieści się na skończonej powierzchni. Istnieje wiele wariantów krzywych Kocha, z czego najpopularniejsza jest śnieżynka. My jednak zacznijmy od tzw. wyspy Kocha. Definiujemy ją następującym L-systemem:
+
+$$
+\begin{align*}
+\omega&: F - F - F - F\\
+p&: F \rightarrow F-F+F+FF-F-F+F\\
+\delta &=90^{\circ}
+\end{align*}
+$$
+
+<Iframe src="/iframe-content/lsystems/index.html?data=island" minHeight={700} />
+
+Śnieżynkę natomiast możemy opisać następująco:
+
+$$
+\begin{align*}
+\omega&: F--F--F\\
+p&: F \rightarrow F+F--F+F\\
+\delta &=60^{\circ}
+\end{align*}
+$$
+
+<Iframe src="/iframe-content/lsystems/index.html?data=snowflake" minHeight={700} />
+
+W porównaniu do poprzedniego L-systemu nowością tutaj jest użycie innego kąta niż 90 stopni.
+
+### Smok Heighwaya
+
+Innym znanym fraktalem jest smok Heighwaya. Charakteryzuje się tym, że wraz z kolejnymi iteracjami sprawia wrażenie „rozkładania się”. Ma ciekawą właściwość — kilka takich krzywych wychodzących z jednego punktu, lecz pod innym kątem, będzie się zazębiać ze sobą, tym samym wypełniając przestrzeń. Fraktal ten jako L-system możemy zapisać tak:
+
+$$
+\begin{align*}
+\omega&: FX\\
+p_1&: X \rightarrow X+YF+\\
+p_2&: Y \rightarrow -FX-Y\\
+\delta &=90^{\circ}
+\end{align*}
+$$
+
+<Iframe src="/iframe-content/lsystems/index.html?data=dragon" minHeight={700} />
+
+Tutaj natomiast widzimy kolejną nowość — możemy wprowadzać dowolne dodatkowe litery do alfabetu. Same X i Y nie mają żadnego działania w kontekście grafiki żółwiowej, jednak służą do generowania bardziej skomplikowanych ciągów znaków. W teorii L-systemów nazywamy to formułami rekursywnymi.
+
+## Proste rośliny
+
+Przejdźmy teraz do tego, co zapowiedziałem w tytule artykułu, czyli do generowania roślin. Tutaj, niestety, musimy rozbudować alfabet naszych L-systemów o dodatkowy element — rozgałęzienia.
+
+### Rozgałęzienia
+
+Rozgałęzienia możemy sobie wyobrazić jako utworzenie nowego żółwia w danej pozycji i wydawanie mu poleceń. Odbywa się to tylko na pewien wybrany okres, po czym wracamy do naszego poprzedniego żółwia. Bardziej fachowo — zapamiętalibyśmy gdzieś (np. na stosie) stan żółwia, a następnie wykonali rzeczy w rozgałęzieniu i po jego zakończeniu przywrócili stary stan.
+
+Aby obsłużyć rozgałęzienia, otrzymujemy dwa dodatkowe znaki w alfabecie:
+
+- [ — rozpoczęcie rozgałęzienia
+- ] — zakończenie rozgałęzienia
+
+### Przykłady roślin
+
+Dzięki wszystkim wprowadzonym elementom alfabetu jesteśmy w stanie wygenerować bardzo proste rośliny. Poniżej widać 6 przykładowych, dwuwymiarowych roślin, które możemy znaleźć w książce *The Algorithmic Beauty of Plants*.
+
+$$
+\begin{align*}
+\omega&: F\\
+p&: F \rightarrow F[+F]F[-F]F\\
+\delta &=25,7^{\circ}
+\end{align*}
+$$
+
+<Iframe src="/iframe-content/lsystems/index.html?data=plant1" minHeight={700} />
+
+$$
+\begin{align*}
+\omega&: F\\
+p&: F \rightarrow F[+F]F[-F][F]\\
+\delta &=20^{\circ}
+\end{align*}
+$$
+
+<Iframe src="/iframe-content/lsystems/index.html?data=plant2" minHeight={700} />
+
+$$
+\begin{align*}
+\omega&: F\\
+p&: F \rightarrow FF-[-F+F+F]+[+F-F-F]\\
+\delta &=22,5^{\circ}
+\end{align*}
+$$
+
+<Iframe src="/iframe-content/lsystems/index.html?data=plant3" minHeight={700} />
+
+$$
+\begin{align*}
+\omega&: X\\
+p_1&: X \rightarrow F[+X]F[-X]+X\\
+p_2&: F \rightarrow FF\\
+\delta &=20^{\circ}
+\end{align*}
+$$
+
+<Iframe src="/iframe-content/lsystems/index.html?data=plant4" minHeight={700} />
+
+$$
+\begin{align*}
+\omega&: X\\
+p_1&: X \rightarrow F[+X][-X]FX\\
+p_2&: F \rightarrow FF\\
+\delta &=25,7^{\circ}
+\end{align*}
+$$
+
+<Iframe src="/iframe-content/lsystems/index.html?data=plant5" minHeight={700} />
+
+$$
+\begin{align*}
+\omega&: X\\
+p_1&: X \rightarrow F-[[X]+X]+F[+FX]-X\\
+p_2&: F \rightarrow FF\\
+\delta &=22,5^{\circ}
+\end{align*}
+$$
+
+<Iframe src="/iframe-content/lsystems/index.html?data=plant6" minHeight={700} />
+
+## Wprowadzenie losowości
+
+Pokazane wyżej L-systemy generują całkiem nieźle wyglądające rośliny, jednak mają jedną cechę, którą można postrzegać zarówno jako wadę, jak i zaletę — zawsze generują to samo. A w naturze nie ma dwóch takich samych organizmów, każdy różni się na swój sposób. W takim razie, jak dodać do L-systemów losowość?
+
+### Stochastyczne L-systemy
+
+To, co widzieliśmy do tej pory, nazywamy deterministycznymi L-systemami (DOL-systemy), ponieważ zawsze jesteśmy w stanie określić dokładny wynik każdej iteracji. Nie ma w nich miejsca na losowość. Przeciwieństwem tego są stochastyczne L-systemy.
+
+Już samo słowo stochastyczny powinno nam sugerować, że zmieniamy podejście do generowania. Według słownika *stochastyczny* oznacza „taki, którym rządzi przypadek”. W kontekście L-systemów polega to na tym, że definiujemy, z jakim prawdopodobieństwem może zajść wygenerowanie danego ciągu znaków. Jeśli chcemy zanotować, że mamy 33% szans na zastosowanie reguły, zapiszemy to tak:
+
+$$
+F \xrightarrow{.33}  F-F
+$$
+
+### Proste, losowe rośliny
+
+Korzystając z tej nowej rzeczy, sprawdźmy, jakie rośliny jesteśmy teraz w stanie wygenerować. Na prezentacjach znajdziesz dodatkowo przycisk Narysuj ponownie, abyś mógł/mogła zobaczyć, że faktycznie zachodzą procesy losowe. Pierwszy przykład pochodzi z wcześniej wspomnianej przeze mnie książki, natomiast drugi znalazłem w Internecie, szukając innych stochastycznych L-systemów.
+
+$$
+\begin{align*}
+\omega&: F\\
+p_1&: F \xrightarrow{.33} F[+F]F[-F]F\\
+p_2&: F \xrightarrow{.33} F[+F]F\\
+p_3&: F \xrightarrow{.34} F[-F]F\\
+\delta &=25,7^{\circ}
+\end{align*}
+$$
+
+<Iframe src="/iframe-content/lsystems/index.html?data=stochastic1" minHeight={750} />
+
+$$
+\begin{align*}
+\omega&: X\\
+p_1&: X \xrightarrow{.7} FF-[[X]+X]+F[+FX]-X\\
+p_2&: X \xrightarrow{.3} FF-[X+]+FF[-FX]-XF\\
+p_3&: F \xrightarrow{.75} F\\
+p_4&: F \xrightarrow{.15} FF\\
+p_5&: F \xrightarrow{.1} FF+\\
+\delta &=22,5^{\circ}
+\end{align*}
+$$
+
+<Iframe src="/iframe-content/lsystems/index.html?data=stochastic2" minHeight={750} />
+
+Polecam też pokombinować na własną rękę, chociażby przerabiając wcześniej pokazane deterministyczne L-systemy na stochastyczne. Można osiągnąć niewielkim kosztem bardzo ciekawe efekty.
+
+## Podsumowanie
+
+L-systemy to potężne narzędzie umożliwiające opisywanie przeróżnych graficznych tworów w formalny sposób, prosty do przełożenia na kod. Tutaj przeszliśmy tylko przez bardzo proste przypadki, do tego w przestrzeni dwuwymiarowej, jednak myślę, że już tutaj widać jak wiele możemy osiągnąć.
+
+Jeżeli temat Cię zaciekawił, to w tym temacie warto zapoznać się z pracą Przemysława Prusinkiewicza, polskiego profesora z uniwersytetu w Calgary, który prowadzi grupę badawczą zajmującą się algorytmiczną botaniką. [Na ich stronie internetowej](http://algorithmicbotany.org/papers/) możemy znaleźć udostępnione za darmo publikacje opisujące wykorzystania L-systemów, w tym najważniejszą, na podstawie której powstał w dużej mierze ten artykuł: książkę *The Algorithmic Beauty of Plants* napisaną wspólnie przez Prusinkiewicza i Lindenmayera. Serdecznie polecam zapoznać się z nią. Ma tylko 240 stron, a do tego jest bogato ilustrowana.
+
+## Literatura
+
+- Prusinkiewicz, P., Lindenmayer A. *The Algorithmic Beauty of Plants*. Springer-Verlag, 1996.
+- Prusinkiewicz, P., Hanan, J. *Lindenmayer Systems, Fractals, and Plants*. Springer-Verlag, 1989.
+- L-system, [https://en.wikipedia.org/w/index.php?title=L-system&oldid=1048113784](https://en.wikipedia.org/w/index.php?title=L-system&oldid=1048113784) (ostatnie odwiedziny 4.12.2021).
+- stochastyczny, [https://pl.wiktionary.org/w/index.php?title=stochastyczny&oldid=7745049](https://pl.wiktionary.org/w/index.php?title=stochastyczny&oldid=7745049) (ostatnie odwiedziny 11.12.2021).
+- Lindenmayer, [https://github.com/nylki/lindenmayer](https://github.com/nylki/lindenmayer) (ostatnie odwiedziny 11.12.2021).
+
+<small>(zdjęcie na okładce: [Image](https://pixabay.com/photos/lotus-flower-white-lily-pad-turtle-2135742/) by [Rob Slaven](https://pixabay.com/users/4753994-4753994/?utm_source=link-attribution&utm_medium=referral&utm_campaign=image&utm_content=2135742) from [Pixabay](https://pixabay.com/?utm_source=link-attribution&utm_medium=referral&utm_campaign=image&utm_content=2135742))</small>

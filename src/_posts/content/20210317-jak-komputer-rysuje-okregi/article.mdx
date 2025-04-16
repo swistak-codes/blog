@@ -1,0 +1,350 @@
+import Link from 'next/link';
+import {Image, Iframe} from '@swistak-codes/components';
+import cover from './futro-geparda.jpg';
+import okrag from './okrag.png';
+import punktyOkregu from './punkty-okregu.png';
+
+export const meta = {
+  title: 'Jak komputer rysuje okręgi?',
+  abstract:
+    'W artykule opisuję, jaka algorytmika stoi za rysowaniem okręgów. Omawiam, jak zrobić to m.in. za pomocą algorytmu Bresenhama.',
+  firstParagraph: (
+    <>
+      <Link href="/post/jak-komputer-rysuje-linie">W poprzednim artykule</Link> pokazałem, jaka algorytmika stoi za
+      rysowaniem linii na ekranie. Zaczęliśmy od znanego wszystkim wzoru na funkcję liniową, aby przejść do optymalnego
+      algorytmu, który na pierwszy rzut oka nie ma z nim nic wspólnego. Tym razem chciałbym kontynuować tematykę grafiki
+      komputerowej i pokazać, jaka algorytmika stoi tym razem za rysowaniem okręgów.
+    </>
+  ),
+  keyword: 'okrąg',
+  categories: ['Algorytmy', 'Grafika komputerowa'],
+  tags: [
+    'Bresenham',
+    'grafika',
+    'okrąg',
+    'rysowanie',
+    'algorytm punktu środkowego',
+    'matematyka',
+    'równanie okręgu',
+    'javascript',
+    '2d',
+  ],
+  slug: 'jak-komputer-rysuje-okregi',
+  updateTime: '2021-08-17T16:37:56+00:00',
+  publishTime: '2021-03-17T10:00:03+00:00',
+  cover,
+};
+
+## Uwagi wstępne
+
+Pierwsza uwaga jest taka, że w tym artykule nie robię wstępu teoretyczno-historycznego. Jeżeli nie znasz takich pojęć, jak piksel, bufor ramki czy za co odpowiada karta graficzna, zapraszam do poprzedniego artykułu: „<Link href="/post/jak-komputer-rysuje-linie">Jak komputer rysuje linie?</Link>”
+
+Druga uwaga jest taka, że podobnie jak ostatnio, dla prostego zobrazowania dalszych przykładów, będę pokazywać wszystkie operacje na tablicy symulującej bufor ramki. Oczywiście kod wszystkich zamieszczonych niżej prezentacji znajdziesz [w repozytorium na moim GitHubie](https://github.com/swistak-codes/circle-drawing). Zostały one napisane w TypeScript z wykorzystaniem frameworka Svelte.
+
+## Zacznijmy od matematyki
+
+Tradycyjnie dla naszych rozważań zacznijmy od wzoru, który możesz pamiętać z lekcji geometrii, czyli równania okręgu:
+
+$$
+(x-a)^2+(y-b)^2=R^2
+$$
+
+gdzie $$(a,b)$$ to punkt określający środek okręgu, a $$R$$ to jego promień.
+
+Z lekcji matematyki możemy pamiętać też drugi wzór wykorzystujący funkcje trygonometryczne:
+
+$$
+\begin{cases} x =a + R \cos \alpha \\ y = b + R \sin \alpha \end{cases} \\
+\text{gdzie: }0\degree \leqslant \alpha < 360\degree
+$$
+
+Z tego wzoru jednak nie będziemy korzystać w naszych algorytmach, ponieważ obliczanie funkcji trygonometrycznych jest bardzo kosztowne obliczeniowo. Mimo to wspominam o nim, gdyż przyda się nam na później.
+
+Wróćmy do pierwszego ze wzorów. Często można się spotkać z jego uproszczoną wersją zakładającą, że punkt środkowy to $$(0,0)$$:
+
+$$
+x^2+y^2=R^2
+$$
+
+Jednak z punktu widzenia matematyki napotykamy tutaj problem. Jeśli przekształcimy ten wzór do postaci, gdzie wyliczamy $$y$$ dla znanego $$x$$ (czyli tak, jak to robimy dla funkcji), otrzymamy:
+
+$$
+y=\pm\sqrt{R^2-x^2}
+$$
+
+Oznacza to, że dla każdego $$x$$ mamy dwie wartości $$y$$. Problem polega na tym, że nie jest to już funkcja. Z definicji funkcja dla każdej wartości $$x$$ może przypisywać tylko jedną wartość $$y$$.
+
+## Wykorzystanie symetryczności okręgu
+
+Problem ten możemy jednak wykorzystać na naszą korzyść. Spójrzmy na to tak — robimy obliczenie raz, a dostajemy od razu dwa punkty, które są symetryczne względem osi X (zakładając, że środek to punkt $$(0,0)$$). Jednak to nie jedyna symetria, jaką znajdziemy w okręgu. Przede wszystkim mamy symetrię względem punktu środkowego, a do tego mamy też symetrię względem osi Y. Co więcej, możemy nawet wyznaczyć linie ze wzorów $$y=x$$ oraz $$y=-x$$, i również względem nich mamy symetrię.
+
+<Image
+  image={okrag}
+  alignCenter
+  fullSize
+  alt="Symetria punktów na okręgu"
+  caption={<>
+    Zaprezentowanie symetrii punktów na okręgu. Na powyższym rysunku zakładamy, że wyliczyliśmy punkt (x, y) dla fragmentu okręgu oznaczonego I.
+  </>}
+/>
+
+Na rysunku zaznaczyłem punkt przecięcia okręgu z linią $$y=x$$. Został on wyliczony ze wzoru na punkty okręgu, wykorzystujący funkcje trygonometryczne. Obliczenie to wygląda następująco:
+
+$$
+x = R \cos{(45\degree)} = R\cdot\frac{1}{\sqrt{2}} = \frac{R}{\sqrt{2}}
+$$
+
+### Zastosowanie
+
+Na potrzeby przykładu załóżmy, że nasz okrąg zawiera punkt $$(x,y)=(1,5)$$. Z równania okręgu możemy wyliczyć, że: $$R^2 = 1^2 + 5^2 = 1 + 25 = 26$$. Dzięki symetryczności jesteśmy w stanie od razu wyznaczyć 7 innych punktów:
+
+- $$(y,x)=(5,1)$$. Dowód: $$5^2+1^2 = 25 + 1 = 26$$
+- $$(y,-x)=(5,-1)$$. Dowód: $$5^2+(-1)^2 = 25 + 1 = 26$$
+- $$(x,-y)=(1,-5)$$. Dowód: $$1^2+(-5)^2 = 1 + 25 = 26$$
+- $$(-x,-y)=(-1,-5)$$. Dowód: $$(-1)^2+(-5)^2 = 1 + 25 = 26$$
+- $$(-y,-x)=(-5,-1)$$. Dowód: $$(-5)^2+(-1)^2 = 25 + 1 = 26$$
+- $$(-y,x)=(-5,1)$$. Dowód: $$(-5)^2+1^2 = 25 + 1 = 26$$
+- $$(-x,y)=(-1,5)$$. Dowód: $$(-1)^2 + 5^2 = 1 + 25 = 26$$
+
+Jeżeli punkt środkowy znajdowałby się w innym miejscu niż $$(0,0)$$, to do współrzędnych wystarczy dodać położenie środka.
+
+Przekładając to na język programowania, otrzymamy następujący kod:
+
+```javascript
+function drawPoints(x, y, x0, y0) {
+    frameBuffer[x + x0][y + y0] = COLOR;
+    frameBuffer[y + x0][x + y0] = COLOR;
+    frameBuffer[y + x0][-x + y0] = COLOR;
+    frameBuffer[x + x0][-y + y0] = COLOR;
+    frameBuffer[-x + x0][-y + y0] = COLOR;
+    frameBuffer[-y + x0][-x + y0] = COLOR;
+    frameBuffer[-y + x0][x + y0] = COLOR;
+    frameBuffer[-x + x0][y + y0] = COLOR;
+}
+```
+
+Oczywiście są przypadki, kiedy nie musimy wykonywać rysowania aż osiem razy. Gdy $$x=y$$ lub jedna ze współrzędnych jest równa $$0$$, to wystarczy rysować tylko cztery razy. Jednak zanim usiądziemy do pisania optymalizacji przez dodanie warunku, należy sprawdzić, czy na pewno na tym zyskamy. Co prawda czas dostępu do pamięci jest dłuższy niż porównanie dwóch liczb, jednak te sytuacje mogą zajść raz bądź dwa razy w trakcie rysowania (na początku oraz na końcu). Stąd zanim byśmy mieli optymalizować, trzeba sprawdzić, czy koniec końców nie spowolnilibyśmy wykonania algorytmu. Pamiętajmy zarazem, że jest to optymalizacja bardzo niskopoziomowa, więc przy „zwyczajnej” implementacji nie odczujemy różnicy.
+
+## Wykorzystanie wzoru bezpośrednio
+
+W takim razie przejdźmy już wprost do wykorzystania wzoru na równanie okręgu do narysowania go. Posiadając wzór na $$y$$, najłatwiej będzie nam iterować po $$x$$. Załóżmy, że obliczamy wartości dla części okręgu, którą na powyższym rysunku oznaczyłem cyfrą $$I$$. Wtedy $$y$$ wyliczamy ze wzoru:
+
+$$
+y=\sqrt{R^2-x^2}
+$$
+
+W kontekście programowania nie ma tutaj większej filozofii. Iterujemy po kolejnych wartościach $$x$$. Teoretycznie moglibyśmy to robić tak długo, dopóki $$y$$ jest od niego większy, jednak dzięki rysowaniu ośmiu punktów na raz wystarczy, że będziemy iterować tak długo, jak $$x < \frac{R}{\sqrt{2}}$$. Kod prezentuje się następująco:
+
+```javascript
+var x = 0;
+var y = R;
+while(x < R / Math.sqrt(2)) {
+    y = Math.round(Math.sqrt(R ** 2 - x ** 2));
+    drawPoints(x, y, x0, y0);
+    x++;
+}
+```
+
+Algorytm możesz przetestować na poniższej prezentacji. Za pomocą narzędzi na dole wybierz, jaki promień powinien mieć rysowany okrąg, i włącz rysowanie. W trybie z włączoną animacją możesz zobaczyć, jak z każdym kolejnym krokiem iteracji przybywa nam osiem nowych punktów.
+
+<Iframe src="/iframe-content/circle-drawing/index.html?algorithm=simple" minHeight={950} />
+
+## Algorytm punktu środkowego
+
+Analogicznie jak przy <Link href="/post/jak-komputer-rysuje-linie">rysowaniu linii</Link> tak i tutaj możemy wykorzystać algorytm punktu środkowego. Z góry zaznaczę, żeby nie mylić tego z punktem znajdującym się w środku okręgu, ponieważ są to dwie różne rzeczy. Podejście to również zostało opracowane przez J. E. Bresenhama, który opisał je w 1977 r., a następnie w patencie [US4371933A](https://patents.google.com/patent/US4371933) z 1983 r. Patent wygasł w 2000 r., więc możemy spokojnie korzystać z jego osiągnięcia bez ponoszenia opłat.
+
+Dla przypomnienia: algorytm punktu środkowego polega na tym, że nie obliczamy dokładnie ze wzoru piksela, na którym rysujemy. Zamiast tego sprawdzamy punkt znajdujący się pomiędzy dwoma pikselami (stąd nazwa). Z funkcji w postaci uwikłanej jesteśmy w stanie stwierdzić, czy sprawdzany punkt należy do okręgu, czy też znajduje się nad bądź pod nim. A skoro sprawdzamy punkt pomiędzy dwoma pikselami, to wiemy wówczas, czy zamalujemy górny piksel (tutaj zwany E), czy dolny (tutaj zwany SE).
+
+<Image
+  image={punktyOkregu}
+  alignCenter
+  fullSize
+  alt="Położenie piksela wg algorytmu punktu środkowego"
+  caption={<>
+    Na obrazku została pokazana siatka wykorzystywana przy obliczaniu położenia pikseli algorytmem punktu środkowego. Okręgami zaznaczono piksele na ekranie, literą M punkt środkowy.
+  </>}
+/>
+
+Celem wykorzystania tego algorytmu jest zrezygnowanie z jakichkolwiek obliczeń zmiennoprzecinkowych tak, aby korzystać jedynie z operacji na liczbach całkowitych. Dokładniej mówiąc, rezygnujemy z zaokrągleń, pierwiastkowania i dzielenia, które używaliśmy w poprzednim podejściu. Jednak tutaj nie jest to na tyle „proste i oczywiste” jak w przypadku linii, dlatego będziemy krok po kroku przechodzić przez trzy wersje algorytmu. Najpierw wersja, w której wciąż mamy obliczenia zmiennoprzecinkowe, następnie przeniesienie jej na obliczenia całkowitoliczbowe, by skończyć na algorytmie, który maksymalnie upraszcza obliczenia, sprowadzając je do prostego dodawania.
+
+### Wersja 1: zmiennoprzecinkowa
+
+Jak pamiętamy z rysowania linii, potrzebujemy równanie okręgu jako funkcję uwikłaną. Wówczas wiemy, że gdy funkcja jest równa 0, to punkt znajduje się na okręgu, gdy wynik jest dodatni, to na zewnątrz, a gdy ujemny, to wewnątrz. Postać uwikłana równania okręgu wygląda następująco:
+
+$$
+\begin{align*}
+x^2 + y^2 &= R^2 \\
+x^2 + y^2 - R^2 &= 0\\
+F(x,y) &= x^2 + y^2 - R^2
+\end{align*}
+$$
+
+Jak pamiętamy z rysowania odcinków, obliczaliśmy zmienne decyzyjne $$d_{old}$$ oraz $$d_{new}$$, których wartość była wartością powyższej funkcji uwikłanej. Potem na ich podstawie obliczaliśmy przyrost oznaczany tutaj jako $$\Delta_E$$ lub $$\Delta_{SE}$$.
+
+Najpierw sprawdzamy zmienną decyzyjną dla poprzedniego punktu:
+
+$$
+d_{old}=F\bigg(x_p+1,y_p-\frac{1}{2}\bigg) = (x_p+1)^2+\bigg(y_p-\frac{1}{2}\bigg)^2-R^2
+$$
+
+Teraz mamy dwie możliwości, w jaki sposób obliczać następny punkt. Jeżeli $$d_{old}<0$$, wybieramy górny piksel ($$E$$). Wówczas:
+
+$$
+\begin{align*}
+d_{new}&=F\bigg(x_p+2,y_p-\frac{1}{2}\bigg) = (x_p+2)^2+\bigg(y_p-\frac{1}{2}\bigg)^2-R^2\\
+d_{new}&=d_{old} + (2x_p+3)\\
+\Delta_E&=2x_p+3
+\end{align*}
+$$
+
+Natomiast dla $$d_{old}\geqslant0$$ wybieramy dolny piksel ($$SE$$). Wtedy, jak możesz też zobaczyć na wcześniej pokazanym rysunku, musimy przenieść nasze obliczenia „w dół”, stąd musimy od $$y_p$$ dodatkowo odjąć 1.
+
+$$
+\begin{align*}
+d_{new}&=F\bigg(x_p+2,y_p-\frac{3}{2}\bigg) = (x_p+2)^2+\bigg(y_p-\frac{3}{2}\bigg)^2-R^2\\
+d_{new}&=d_{old} + (2x_p-2y_p+5)\\
+\Delta_{SE}&=2x_p-2y_p+5
+\end{align*}
+$$
+
+W ten sposób wiemy, jak obliczać kolejne przyrosty w zależności od położenia poprzedniego punktu, zwanego punktem odniesienia. Jednak musimy od czegoś zacząć.
+
+Pierwszy punkt, który rysujemy, to $$(0,R)$$. Stąd możemy obliczyć położenie następnego punktu środkowego jako $$(1, R-\frac{1}{2})$$. W takim przypadku pierwsza wartość zmiennej decyzyjnej wynosi:
+
+$$
+d=F\bigg(1, R-\frac{1}{2}\bigg) = 1+\bigg(R^2-R+\frac{1}{4}\bigg) - R^2 = \frac{5}{4}-R
+$$
+
+Tutaj właśnie otrzymujemy odpowiedź na to, dlaczego ta wersja jest zmiennoprzecinkowa. Niestety musimy użyć wartości $$\frac{5}{4}$$. Jednak przenieśmy tę wersję na następujący kod:
+
+```javascript
+var x = 0;
+var y = radius;
+var d = 5 / 4 - radius;
+drawPoints(x, y, x0, y0);
+while(y > x) {
+    if (d < 0) {
+        d += x * 2 + 3;
+        x++;
+    } else {
+        d += (x - y) * 2 + 5;
+        x++;
+        y--;
+    }
+    drawPoints(x, y, x0, y0);
+}
+```
+
+A poniżej możesz zobaczyć prezentację działania. Zwróć uwagę na to, że okręgi nie zawsze są rysowane tak samo jak w poprzednim podejściu (np. dla promienia 11).
+
+<Iframe src="/iframe-content/circle-drawing/index.html?algorithm=midpointFloat" minHeight={950} />
+
+### Wersja 2: całkowitoliczbowa
+
+Teraz spróbujmy wyeliminować ułamek z początkowej wartości zmiennej decyzyjnej, ponieważ jest to jedyne miejsce, gdzie zachodzi jakakolwiek operacja zmiennoprzecinkowa. Dlatego że przyrost jest zawsze całkowitoliczbowy, możemy po prostu zastąpić $$\frac{5}{4}$$ jego zaokrągleniem, czyli $$1$$.
+
+Jednak żeby nie być gołosłownym, wyprowadźmy to matematycznie. Zacznijmy od zdefiniowania nowej zmiennej decyzyjnej, bazującej na tej, którą znamy z poprzedniej wersji:
+
+$$
+d^\prime = d - \frac{1}{4}  = 1 - R
+$$
+
+Teraz, aby wszystko się zgadzało, to w warunku, zamiast robić porównanie $$d < 0$$, musimy wziąć pod uwagę przesunięcie, czyli porównamy $$d^\prime < -\frac{1}{4}$$. Zauważmy jednak jedną rzecz. $$d^\prime$$ przyjmuje na początku wartość całkowitą, a w wyniku dalszych zmian dalej mamy liczbę całkowitą. Oznacza to, że przyrównanie do ułamka nie ma najmniejszego sensu i możemy spokojnie je zastąpić porównaniem $$d^\prime < 0$$. Dzięki temu otrzymujemy następujący algorytm:
+
+```javascript
+var x = 0;
+var y = radius;
+var d = 1 - radius;
+drawPoints(x, y, x0, y0);
+while(y > x) {
+    if (d < 0) {
+        d += x * 2 + 3;
+        x++;
+    } else {
+        d += (x - y) * 2 + 5;
+        x++;
+        y--;
+    }
+    drawPoints(x, y, x0, y0);
+}
+```
+
+Możesz przetestować działanie poniżej. Zauważ, że mimo tego, że wartości $$d$$ są teraz inne niż w poprzedniej wersji, to jednak algorytm działa dokładnie tak samo.
+
+<Iframe src="/iframe-content/circle-drawing/index.html?algorithm=midpointInteger" minHeight={950} />
+
+### Wersja 3: całkowitoliczbowa, przyrostowa
+
+To, co do tej pory pokazałem, jest już bardzo mocno uproszczone i opiera się tylko na liczbach całkowitych. Jednak możemy dalej optymalizować te obliczenia, a więc skupmy się na tym, że do obliczenia zmiennej decyzyjnej cały czas wykorzystujemy wartości $$x$$ i $$y$$. Jak pamiętasz, przy rysowaniu odcinka zmienna decyzyjna cały czas przyrastała o stałą wartość.
+
+Obecnie zmienne decyzyjne obliczamy prostymi równaniami liniowymi, jednak każdy wielomian możemy obliczyć metodą przyrostową. W zasadzie już to robiliśmy, tylko z różnicami pierwszego rzędu. Teraz dołóżmy do tego różnice drugiego rzędu. Innymi słowy, obliczamy bezpośrednio funkcję w dwóch sąsiednich punktach, różnicę, a potem wykorzystujemy ją co iterację.
+
+Zacznijmy od przypadku, kiedy w aktualnej iteracji wybierzemy piksel $$E$$. Pamiętamy, że przesunięcie wówczas wynosiło 1 po $$x$$. Jak pamiętamy, przyrost mogliśmy wtedy określić wzorem $$\Delta_{E_{old}}=2x_p+3$$. Stąd przyrost dla kolejnego punktu, a potem różnicę drugiego rzędu, moglibyśmy określić następująco:
+
+$$
+\begin{align*}
+\Delta_{E_{new}}&=2(x_p + 1)+3 \\
+\Delta_{E_{new}}-\Delta_{E_{old}} &= 2(x_p + 1)+3 - (2x_p+3)=2
+\end{align*}
+$$
+
+Analogicznie jest w tym przypadku dla $$\Delta_{SE_{old}}=2x_p-2y_p+5$$:
+
+$$
+\begin{align*}
+\Delta_{SE_{new}}&=2(x_p + 1)-2y_p+5 \\
+\Delta_{E_{new}}-\Delta_{E_{old}} &= 2(x_p + 1)-2y_p+5 - (2x_p-2y_p+5)=2
+\end{align*}
+$$
+
+Mamy jednak jeszcze drugi przypadek, czyli ten, gdy w aktualnej iteracji wybraliśmy piksel $$SE$$. Wtedy przesuwamy punkt zarówno po $$x$$ (zwiększamy o $$1$$), jak i po $$y$$ (zmniejszamy o $$1$$). W tym przypadku przyrosty wyglądają następująco:
+
+$$
+\begin{align*}
+\Delta_{E_{new}}&=2(x_p + 1)+3 \\
+\Delta_{E_{new}}-\Delta_{E_{old}} &= 2(x_p + 1)+3 - (2x_p+3)=2
+\\{}\\
+\Delta_{SE_{new}}&=2(x_p + 1)-2(y_p-1)+5 \\
+\Delta_{E_{new}}-\Delta_{E_{old}} &= 2(x_p + 1)-2(y_p-1)+5 - (2x_p-2y_p+5)=4
+\end{align*}
+$$
+
+Podsumowując, teraz w każdej iteracji do zmiennej decyzyjnej $$d$$ będziemy dodawać wartość przyrostu $$\Delta_E$$ lub $$\Delta_{SE}$$, zależnie od tego, który piksel właśnie wyrysowaliśmy. Oprócz tego wartości przyrostów będziemy zwiększać o podany wyżej zestaw wartości. Kod takiego algorytmu wygląda następująco:
+
+```javascript
+var x = 0;
+var y = radius;
+var d = 1 - radius;
+var deltaE = 3;
+var deltaSE = 5 - radius * 2;
+drawPoints(x, y, x0, y0);
+while(y > x) {
+    if (d < 0) {
+        d += deltaE;
+        deltaE += 2;
+        deltaSE += 2;
+        x++;
+    } else {
+        d += deltaSE;
+        deltaE += 2;
+        deltaSE += 4;
+        x++;
+        y--;
+    }
+    drawPoints(x, y, x0, y0);
+}
+```
+
+Natomiast w praktyce działa to następująco:
+
+<Iframe src="/iframe-content/circle-drawing/index.html?algorithm=midpointIncremental" minHeight={950} />
+
+## Podsumowanie
+
+Powyżej przekonaliśmy się, że techniki, które wykorzystujemy w algorytmice w jednym celu, mogą się też po drobnych modyfikacjach sprawdzić w innych celach. Cały mechanizm matematyczny, który wykorzystaliśmy do tego, aby w optymalny sposób obliczać kolejne punkty znajdujące się na linii, tutaj wykorzystaliśmy do wyliczania punktów na okręgu. Tak więc po raz kolejny mogliśmy zobaczyć, że chcąc niechcąc matematyka w informatyce jest obecna, i stosując warsztat matematyczny, możemy udoskonalać pisane przez nas algorytmy.
+
+## Literatura
+
+- Foley J. D. i inni, „Konwersja okręgów” w *Wprowadzenie do grafiki komputerowej*. Warszawa: Wydawnictwa Naukowo-Techniczne, 1995, s. 118-124
+
+<small>(oryginał zdjęcia na okładce z serwisu [pixy.org](https://pixy.org/6413672/))</small>

@@ -1,0 +1,33 @@
+.container {
+  > div,
+  form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+  }
+}
+
+.error {
+  color: red;
+  display: none;
+
+  &.visibleError {
+    display: block;
+  }
+}
+
+.solution {
+  display: none;
+  border: 0 !important;
+  width: initial !important;
+
+  th,
+  td {
+    text-align: center;
+  }
+
+  &.visibleSolution {
+    display: block;
+  }
+}

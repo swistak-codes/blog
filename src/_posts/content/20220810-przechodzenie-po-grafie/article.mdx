@@ -1,0 +1,370 @@
+import Link from 'next/link';
+import {Image} from '@swistak-codes/components';
+import {Presentation} from './presentation';
+import cover from './planszowe-konie.jpg';
+import dfs from './dfs.png';
+import bfs from './bfs.png';
+import drzewaPrzechodzenie from './drzewa-przechodzenie.png';
+
+export const meta = {
+  title: 'Przechodzenie po grafie',
+  abstract:
+    'Najbardziej podstawowym zagadnieniem algorytmicznym w grafach jest ich przechodzenie. W artykule pokazuję, jak się to robi.',
+  firstParagraph: (
+    <>
+      Wiemy, <Link href="/post/grafy-wprowadzenie">czym są grafy</Link>, a także <Link href="/post/sposoby-reprezentacji-grafow/">jak zapisujemy je w pamięci komputera</Link>. Przejdźmy w takim razie do najbardziej podstawowych algorytmów grafowych — przechodzenie po ich wierzchołkach i krawędziach. Jest to zdecydowanie najprostszy i najbardziej podstawowy temat algorytmiczny związany z grafami, więc opiszę go dość zwięźle.
+    </>
+  ),
+  keyword: 'grafy',
+  categories: ['Grafy', 'Programowanie', 'Algorytmy'],
+  tags: [
+    'grafy',
+    'struktury danych',
+    'dfs',
+    'bfs',
+    'przeszukiwanie',
+    'przechodzenie',
+    'przechodzenie w głąb',
+    'przechodzenie wszerz',
+    'javascript',
+    'kolejki',
+    'LIFO',
+    'FIFO',
+    'stos',
+    'drzewa',
+    'pre-order',
+    'post-order',
+    'in-order',
+    'level-order'
+  ],
+  slug: 'przechodzenie-po-grafie',
+  updateTime: '2022-08-10T07:00:00+00:00',
+  publishTime: '2022-08-10T07:00:00+00:00',
+  cover,
+};
+
+## O co chodzi?
+
+Przechodzenie po grafie (ang. *graph traversal*), inaczej przeszukiwanie grafu (*graph search*), to sposób na przejście po wierzchołkach grafu w pewien usystematyzowany sposób. Wykonuje się je albo w celu zebrania informacji znajdujących się w grafie, albo jest ono częścią innego algorytmu rozwiązującego jakiś problem grafowy. Wyróżniamy dwa podstawowe sposoby przechodzenia po grafie:
+
+- przeszukiwanie w głąb (DFS, od ang. *depth-first search*)
+- przeszukiwanie wszerz (BFS, od ang. *breadth-first search*)
+
+W algorytmach przechodzących po grafie wejściem jest graf oraz wierzchołek, od którego zaczynamy spacer. Wyjście zależy od tego, co chcemy, aby algorytm wykonał. Najczęściej po prostu wypisujemy wierzchołki, które odwiedziliśmy oraz ewentualnie krawędzie. Z racji tego, że odwiedzamy zawsze wszystkie wierzchołki i krawędzie, złożoność obliczeniowa przeszukiwania wynosi $$\Omicron(|V|+|E|)$$ (suma liczby wierzchołków i krawędzi).
+
+W tym momencie warto też dodać, że w podręcznikach do algorytmiki pojawia się przy tym kolorowanie wierzchołków. Jest ono całkowicie wirtualne i pomaga zrozumieć, jaki jest aktualny stan wierzchołka. Oznaczenie to wygląda następująco:
+
+- Początkowo wszystkie wierzchołki są białe, czyli nieodwiedzone.
+- Odwiedzając wierzchołek po raz pierwszy, kolorujemy go na szaro.
+- Kiedy wierzchołek przetworzyliśmy w całości, czyli odwiedziliśmy wszystkich jego sąsiadów, kolorujemy go na czarno.
+
+Przy przeszukiwaniu warto pamiętać, że algorytmy tego typu mogą wpaść w nieskończoną pętlę, jeśli graf jest cykliczny. Dlatego też, aby uniknąć zapętleń, stosuje się zapamiętywanie odwiedzonych wierzchołków w celu ich późniejszego pominięcia. Z drugiej strony, możemy mieć także do czynienia z grafami nieskończonymi — wówczas ogranicza się głębokość przeszukiwania.
+
+## Przeszukiwanie w głąb
+
+Przeszukując graf w głąb (DFS), wybieramy pierwszą z dróg, którą pójdziemy z danego wierzchołka, i eksplorujemy ją, aż dojdziemy do końca. Gdy dojdziemy do końca, cofamy się do nieodwiedzonego ostatniego rozgałęzienia i eksplorujemy je. Kolejność przechodzenia możesz zobaczyć na poniższym rysunku.
+
+<Image
+  image={dfs}
+  alignCenter
+  fullSize
+  alt="Kolejność przechodzenia wierzchołków w algorytmie DFS"
+  caption={<>Kolejność przechodzenia wierzchołków w algorytmie DFS. Numery zapisane w wierzchołkach opisują kolejność, w której algorytm je odwiedził.</>}
+/>
+
+### Algorytm
+
+Tradycyjna wersja algorytmu DFS jest <Link href="/post/rekurencja-co-to-jest/">rekurencyjna</Link>. Możemy ją zapisać następującym kodem w JavaScript (oczywiście nie ma w nim struktury grafu, ale na potrzeby przykładu zakładamy, że taka istnieje), biorącym pod uwagę kolorowanie grafu. Jest on wzorowany na podejściu przedstawionym przez T. Cormena we *Wprowadzeniu do algorytmów*.
+
+```javascript
+/*
+    Na potrzeby przykładu zakładamy, że obiekt grafu
+    posiada metody:
+    - vertices() - lista wszystkich wierzchołków
+    - neighbors(v) - lista sąsiadów wierzchołka 'v'
+
+    Ponadto, wierzchołki posiadają pole 'color',
+    które możemy edytować i przechowuje kolor.
+
+    Warte wspomnienia: w oryginalnej wersji u Cormena
+    wierzchołki są liczbami i do przechowania kolorów
+    jest używana tablica, gdzie indeks elementu odpowiada
+    wierzchołkowi o danej liczbie.
+ */
+
+// G - graf
+function dfs(G) {
+    // iterujemy po wszystkich wierzchołkach v grafu G
+    for (let v of G.vertices()) {
+        // ustawiamy kolor wierzchołka na biały — nieodwiedzony
+        v.color = 'white';
+    }
+    // ponownie iterujemy po wszystkich wierzchołkach v grafu G
+    for (let v of G.vertices()) {
+        // interesują nas jedynie nieodwiedzone wierzchołki
+        if (v.color === 'white') {
+            dfsVisit(G, v);
+        }
+    }
+}
+
+// G - graf; v - wierzchołek, od którego zaczynamy przechodzenie
+function dfsVisit(G, v) {
+    // ustawiamy kolor wierzchołka na szary — odwiedzony
+    v.color = 'gray';
+    // możemy w tym miejscu wykonać dowolną akcję na wierzchołku,
+    // np. wypisać go do konsoli
+    console.log(v);
+    // iterujemy wszystkie wierzchołki 'w', z którymi v sąsiaduje
+    for (let w of G.neighbors(v)) {
+        // interesują nas jedynie nieodwiedzone wierzchołki
+        if (w.color === 'white') {
+            // wywołujemy przechodzenie rekurencyjnie
+            dfsVisit(G, w);
+        }
+    }
+    // ustawiamy kolor wierzchołka na czarny — przetworzony
+    v.color = 'black';
+}
+```
+
+Podejście to jednak niekoniecznie sprawdza się w praktycznych zastosowaniach. Nie dość, że wymaga od nas iteracji po wszystkich wierzchołkach, to jeszcze zakłada, że mamy dostęp do nich wszystkich. W praktyce pomija się kolorowanie, a jedynie oznacza, że wierzchołek został odwiedzony. Zwykle stosuje się oddzielne struktury danych, gdzie przechowujemy to, co sprawdziliśmy do tej pory (najczęściej zbiory ze względu na dostęp w czasie $$\Omicron(1)$$). Do tego zakłada się, że zaczynamy od wskazanego wierzchołka bez konieczności znajomości całego grafu. Uproszczona, bardziej praktyczna wersja wygląda następująco:
+
+```javascript
+/*
+    Tym razem wystarczy, że obiekt grafu będzie mógł
+    zwrócić nam listę sąsiadów wierzchołka.
+
+    Same wierzchołki nie muszą być edytowalne.
+ */
+
+// zbiór odwiedzonych wierzchołków; ustawiony jako zmienna globalna,
+// aby mieć do niego dostęp w każdym wywołaniu rekursywnym
+let visited = new Set();
+
+// G - graf; v - wierzchołek, od którego zaczynamy przechodzenie
+function dfs(G, v) {
+    // ustawiamy wierzchołek v jako odwiedzony
+    visited.add(v);
+    // możemy w tym miejscu wykonać dowolną akcję na wierzchołku,
+    // np. wypisać go do konsoli
+    console.log(v);
+    // iterujemy wszystkie wierzchołki 'w', z którymi v sąsiaduje
+    for (let w of G.neighbors(v)) {
+        // interesują nas jedynie nieodwiedzone wierzchołki
+        if (!visited.has(w)) {
+            // wywołujemy przechodzenie rekurencyjnie
+            dfs(G, w);
+        }
+    }
+}
+```
+
+Jeśli chcielibyśmy zapisać algorytm w sposób iteracyjny, możemy zrobić następującą <Link href="/post/derekursywacja/">derekursywację</Link> z użyciem stosu, czyli kolejki LIFO (od ang. *last in, first out* — ostatni wchodzący pierwszym wychodzącym). Kolejka tego typu polega na tym, że ostatnio dodany element jest pierwszym ściąganym z niej. Obrazowo możemy sobie to wyobrazić jako (nomen omen) stos kartek, gdzie gdy na wierzchu położymy nową, to pierwsza, którą ściągniemy, będzie tą ostatnio położoną.
+
+```javascript
+// G - graf; v - wierzchołek, od którego zaczynamy przeszukiwanie
+function dfs(G, v) {
+    // zbiór odwiedzonych wierzchołków
+    let visited = new Set();
+    // tworzymy stos; w JavaScript taka struktura nie istnieje,
+    // więc zasymulujemy ją listą tablicową
+    let S = [];
+    // dodajemy do stosu aktualny wierzchołek
+    // w JS 'push' dodaje element na koniec tablicy
+    S.push(v);
+    // wchodzimy w pętlę, którą wykonujemy aż do opróżnienia stosu
+    while (S.length > 0) {
+        // ściągamy wierzchołek ze stosu
+        // w JS 'pop' ściąga ostatni element z tablicy
+        let v = S.pop();
+        // interesują nas jedynie nieodwiedzone wierzchołki
+        if (!visited.has(v)) {
+            // ustawiamy wierzchołek v jako odwiedzony
+            visited.add(v);
+            // możemy w tym miejscu wykonać dowolną akcję
+            // na wierzchołku, np. wypisać go do konsoli
+            console.log(v);
+            // iterujemy wszystkie wierzchołki 'w',
+            // z którymi v sąsiaduje
+            for (let w of G.neighbors(v)) {
+                // dodajemy wierzchołek na stos
+                S.push(w);
+            }
+        }
+    }
+}
+```
+
+Warto zwrócić uwagę, że kolejność odwiedzenia wierzchołków w wersji iteracyjnej będzie nieco inna. Wynika to z faktu, że dodając sąsiadów do stosu, następnie ściągniemy ze stosu ostatniego z nich, a w wersji rekurencyjnej odwiedzamy pierwszego. Jeśli chcielibyśmy zachować tą samą kolejność, musielibyśmy odwrócić kierunek iteracji sąsiadujących wierzchołków (najbardziej zagnieżdżona pętla `for`).
+
+### Wypróbuj to
+
+Poniżej możesz przetestować działanie algorytmu. Wybierz węzeł startowy, naciskając na niego. Pod diagramem znajdziesz przyciski do sterowania animacją przechodzenia. Jeśli chcesz zmienić graf, na górze kliknij przycisk Edytuj, dzięki czemu wejdziesz w tryb edycji analogiczny do prezentacji z poprzedniego artykułu o zapisie grafów w pamięci.
+
+<Presentation type="DFS" />
+
+Prezentacja została napisana w języku TypeScript z wykorzystaniem React oraz [Cytoscape.js](https://js.cytoscape.org/). Jej kod źródłowy znajdziesz [na moim GitHubie](https://github.com/swistak-codes/graph-traversal).
+
+## Przeszukiwanie wszerz
+
+Przeszukiwanie grafu wszerz (BFS) opiera się na zupełnie innej zasadzie. Tutaj nie eksplorujemy do końca jednej drogi, tylko od razu odwiedzamy wszystkich sąsiadów wskazanego wierzchołka. Równocześnie zapamiętujemy też ich sąsiadów, po czym odwiedzamy ich po kolei i wykonujemy tę operację tak długo, aż odwiedzimy cały graf bądź osiągniemy inny warunek końcowy. Najłatwiej jest to sobie zobrazować, jeśli potraktujemy nasz graf jako ułożony warstwami — wówczas przechodzimy po kolei po każdej z warstw.
+
+<Image
+  image={bfs}
+  alignCenter
+  fullSize
+  alt="Kolejność przechodzenia wierzchołków w algorytmie BFS"
+  caption={<>Kolejność przechodzenia wierzchołków w algorytmie BFS. Możesz zauważyć, że przy takim warstwowym ułożeniu doskonale widać przechodzenie po kolei po każdym poziomie.</>}
+/>
+
+
+### Algorytm
+
+Tym razem nie mamy do czynienia z algorytmem rekurencyjnym, a tradycyjnie iteracyjnym. Wygląda on bardzo podobnie do iteracyjnej wersji DFS, tylko z tą podstawową różnicą, że zamiast ze stosem mamy do czynienia z kolejką typu FIFO (od ang. *first in, first out* — pierwszy wchodzący pierwszym wychodzącym). Kolejki typu FIFO charakteryzują się tym, że ściągamy z nich elementy w kolejności dodawania. FIFO są najpowszechniej spotykane w życiu — np. kolejka do kasy w sklepie to typowe FIFO (pomijając sytuacje, że komuś się ustępuje miejsca). Kolejkę wykorzystamy do przechowania odwiedzonych wierzchołków, czyli szarych.
+
+Podobnie jak wcześniej, najpierw pokażę wersję z kolorowaniem wierzchołków wzorowaną na *Wprowadzeniu do algorytmów* Cormena. Tak samo język to JavaScript i zakładam taką samą strukturę grafu jak ostatnio.
+
+```javascript
+// G - graf; s - wierzchołek, od którego zaczynamy przeszukiwanie
+function bfs(G, s) {
+    // iterujemy po wszystkich wierzchołkach v grafu G
+    for (let v of G.vertices()) {
+        // ustawiamy kolor wierzchołka na biały — nieodwiedzony
+        w.color = 'white';
+    }
+    // ustawiamy kolor wierzchołka na szary — odwiedzony
+    s.color = 'gray';
+    // tworzymy kolejkę FIFO; takiej struktury nie ma w JavaScript,
+    // więc zasymulujemy ją listą tablicową
+    let Q = [];
+    // dodajemy wierzchołek do kolejki
+    // w JS 'push' dodaje element na koniec tablicy
+    Q.push(s);
+    // wchodzimy w pętlę, którą wykonujemy aż do opróżnienia kolejki
+    while (Q.length > 0) {
+        // pobieramy wierzchołek z kolejki, nie usuwając go z niej
+        let v = Q[0];
+        // możemy w tym miejscu wykonać dowolną akcję na wierzchołku,
+        // np. wypisać go do konsoli
+        console.log(v);
+        // iterujemy wszystkie wierzchołki 'w',
+        // z którymi v sąsiaduje
+        for (let w of G.neighbors(v)) {
+            // interesują nas jedynie nieodwiedzone wierzchołki
+            if (w.color === 'white') {
+                // ustawiamy kolor wierzchołka na szary — odwiedzony
+                w.color = 'gray';
+                // dodajemy wierzchołek do kolejki
+                Q.push(w);
+            }
+        }
+        // ściągamy wierzchołek z kolejki
+        // w JS 'shift' ściąga pierwszy element z tablicy
+        Q.shift();
+        // ustawiamy kolor wierzchołka na czarny — przetworzony
+        v.color = 'black';
+    }
+}
+```
+
+Ponownie, w praktyce grafu nie kolorujemy, więc możemy algorytm uprościć do poniższego kodu. Dla uproszczenia zmienimy również regułę przechowywania wierzchołków w kolejce — zamiast pobierać wierzchołek bez usuwania go z niej, po prostu od razu ściągniemy go z kolejki. W praktyce wychodzi na to samo, a różnica jest tylko logiczna — kolejka przestanie już przechowywać wszystkie aktualnie „szare” wierzchołki.
+
+```javascript
+// G - graf; s - wierzchołek, od którego zaczynamy przeszukiwanie
+function bfs(G, s) {
+    // zbiór odwiedzonych wierzchołków
+    let visited = new Set();
+    // tworzymy kolejkę FIFO; takiej struktury nie ma w JavaScript,
+    // więc zasymulujemy ją listą tablicową
+    let Q = [];
+    // dodajemy wierzchołek do kolejki
+    // w JS 'push' dodaje element na koniec tablicy
+    Q.push(s);
+    // wchodzimy w pętlę, którą wykonujemy aż do opróżnienia kolejki
+    while (Q.length > 0) {
+        // ściągamy wierzchołek z kolejki
+        // w JS 'shift' ściąga pierwszy element z tablicy
+        let v = Q.shift();
+        // ustawiamy wierzchołek v jako odwiedzony
+        visited.add(v);
+        // możemy w tym miejscu wykonać dowolną akcję
+        // na wierzchołku, np. wypisać go do konsoli
+        console.log(v);
+        // iterujemy wszystkie wierzchołki 'w',
+        // z którymi v sąsiaduje
+        for (let w of G.neighbors(v)) {
+            // interesują nas tylko nieodwiedzone wierzchołki
+            if (!visited.has(w)) {
+              // dodajemy wierzchołek do kolejki
+              Q.push(w);
+            }
+        }
+    }
+}
+```
+
+### Wypróbuj to
+
+Tutaj możesz przetestować algorytm BFS analogicznie, jak miało to miejsce wcześniej w przypadku DFS. Po prostu wybierz wierzchołek, od którego chcesz zacząć przechodzenie, i uruchom algorytm przyciskami pod diagramem.
+
+<Presentation type="BFS" />
+
+## Przechodzenie po grafie a drzewa
+
+Jak wspomniałem we wcześniejszych artykułach, szczególnym przypadkiem grafów są drzewa. Co prawda drzewami się w tej serii nie zajmujemy, jednak mimo wszystko warto wspomnieć o nich w kontekście przechodzenia po grafie. Przede wszystkim dlatego, że przechodzenie po drzewie w praktyce nie różni się od przechodzenia po grafie. Algorytm w swojej istocie jest w zasadzie taki sam. Różnice odbywają się natomiast w jednym szczególe — kolejności wywołań rekurencyjnych.
+
+Możemy wyróżnić trzy podstawowe sposoby przechodzenia dowolnych drzew:
+
+- **Pre-order**. Jest to w praktyce czysty DFS. Najpierw wypisujemy wartość aktualnego wierzchołka, a potem wywołujemy rekurencyjnie pre-order dla wszystkich sąsiadujących wierzchołków (w nomenklaturze drzew: dla wszystkich dzieci).
+- **Post-order**. Odwracamy kolejność wykonywania operacji względem pre-order. Najpierw wywołujemy rekurencyjnie post-order dla wszystkich dzieci, a dopiero potem wypisujemy wartość aktualnego wierzchołka.
+- **Level-order**. Jest to zwykły BFS.
+
+W przypadku drzew binarnych (drzewa, których wierzchołki posiadają zawsze tylko dwójkę dzieci, tzw. lewe i prawe) możemy wyróżnić jeszcze jeden, najczęściej spotykany sposób przechodzenia:
+
+- **In-order**. Najpierw wywołujemy przeszukiwanie in-order rekurencyjnie dla lewego dziecka, następnie wypisujemy aktualny wierzchołek, po czym wywołujemy in-order dla prawego dziecka. Nazwa pochodzi stąd, że jeśli zastosujemy to przechodzenie w binarnym drzewie przeszukiwań (BST), wówczas wypiszemy wierzchołki w kolejności, w jakiej drzewo je posortowało.
+
+<Image
+  image={drzewaPrzechodzenie}
+  alignCenter
+  fullSize
+  alt="Cztery diagramy przedstawiające przechodzenie po drzewach"
+  caption={<>Kolejność przechodzenia wierzchołków drzewa w zależności od wybranego sposobu. Sposób 1 to pre-order, 2 to post-order, 3 to level-order a 4 to in-order.</>}
+/>
+
+## Praktyczne zastosowania
+
+Opowiedziałem dość dużo o tym, jak wykonujemy przechodzenie po grafie, ale możesz zadać pytanie — skoro i tak widzimy w pamięci jego budowę, to po co przechodzić po nim? Nie wystarczy po prostu przeiterować po kolekcji wierzchołków? Aby rozwiać tą wątpliwość, podsumuję tutaj, jakie zastosowania znajdują te algorytmy.
+
+### Ogólne zastosowania przeszukiwania
+
+Niezależnie od tego, który algorytm wybierzemy, są pewne uniwersalne zastosowania przechodzenia po grafie. Z mojego doświadczenia mogę wymienić następujące:
+
+- **Odkrywanie właściwości grafu**. Za pomocą tych algorytmów możemy sprawdzić, czy graf jest cykliczny. Przykład sprawdzenia cykliczności jest o tyle istotny, że niektórych algorytmów nie da się wykonać na grafie cyklicznym, np. sortowania topologicznego czy ułożenia wierzchołków w przestrzeni algorytmem Sugiyamy.
+- **Eksploracja grafu**. Nie zawsze mamy natychmiastowy dostęp do pełnego grafu i musimy go odkrywać kawałek po kawałku. Przykładem tego może być struktura strony internetowej. Crawlery (automatyczne narzędzia przeglądające strony internetowe) wyszukiwarek, wchodząc na stronę, traktują ją jako startowy wierzchołek grafu i następnie wykonują przechodzenie po grafie polegające na odwiedzaniu podstron, do których odnośniki znajdują na stronie (sąsiadujące wierzchołki). W ten sposób generują mapę witryny.
+- **Odkrywanie ścieżek w grafie**. Przykładem zastosowania jest odnajdywanie pochodzenia danych (ang. *data lineage*). W problemie tym, mówiąc w skrócie, mamy graf obrazujący, w jaki sposób były transformowane dane od ich źródła (np. bazy transakcyjne, arkusze Excela, zewnętrzne serwisy) do ich docelowej postaci (np. hurtownie danych, bazy analityczne). W procesie analizy danych w celu odnalezienia źródeł błędów istotne jest przeanalizowanie, jaką ścieżkę przeszła konkretna dana od źródła do celu, bądź na odwrót, aby zobaczyć, jakie transformacje po kolei zachodziły.
+
+### Zastosowania przeszukiwania w głąb
+
+Pomijając powyższe ogólne zastosowania, konkretne metody przechodzenia stały się podstawą bardziej specyficznych algorytmów. Zacznijmy od przykładowych zastosowań charakterystycznych dla DFS:
+
+- **Sortowanie topologiczne**. Polega na takim ułożeniu wierzchołków, że każdy wierzchołek poprzedza te, do których prowadzą wszystkie wychodzące od niego krawędzie. W praktyce stosuje się to np. do ustalenia kolejności wykonywania operacji. Podstawowa implementacja sortowania topologicznego opiera się na przeszukiwaniu grafu w głąb.
+- **Rozwiązywanie labiryntów**. Jako ciekawostkę można podać, że pierwszy opis DFS dotyczył właśnie tego zagadnienia (w XIX w. zajął się tym francuski matematyk C.P. Trémaux).
+- **Znajdowanie mostów**. Most w teorii grafów to krawędź grafu spójnego, której usunięcie rozspójnia go. Na algorytmie DFS bazuje algorytm Tarjana do znajdowania krawędzi tego typu.
+
+### Zastosowania przeszukiwania wszerz
+
+Tym razem zobaczmy, gdzie zastosowanie znalazł BFS. Warto zwrócić uwagę, że większość wymienionych tu przypadków to nie jest wprost użycie BFS do rozwiązania danego problemu, tylko BFS jest częścią składową większego algorytmu.
+
+- **Szukanie najkrótszej ścieżki w grafie nieważonym**. BFS ma tą właściwość, że zawsze pokonuje najkrótszą drogę z jednego wierzchołka do drugiego. Jeśli zapamiętamy, do i z którego wierzchołka przeszliśmy, możemy wówczas na podstawie tych danych zbudować najkrótsze ścieżki między dowolnymi wierzchołkami. Należy tylko pamiętać, że jest to prawdziwe jedynie w przypadku grafów nieważonych.
+- **Problem maksymalnego przepływu**. Mówiąc w dużym skrócie: możemy wyróżnić grafy reprezentujące sieci przepływowe — wówczas krawędzie będą opisywać pojemność kanału przepływowego, a wierzchołki mogą być źródłem bądź ujściem, ale też mogą łączyć ze sobą „kanały”. Natomiast problem maksymalnego przepływu polega na znalezieniu największej szybkości, z jaką odbędzie się przepływ ze źródła do ujścia. Podstawowym algorytmem do rozwiązywania tego problemu jest algorytm Edmondsa-Karpa wykorzystujący BFS do znajdowania najkrótszej ścieżki między źródłem i ujściem. Praktycznym zastosowaniem tego problemu jest np. tworzenie optymalnych harmonogramów przydzielania załóg do samolotów.
+- **Wyszukiwanie wzorców w tekście**. BFS jest częścią algorytmu Aho-Corasick będącego jednym z najszybszych sposobów wyszukiwania w tekście słów z zadanego wcześniej słownika (zbioru wzorców). Wykorzystany jest do tworzenia tzw. ścieżek *fail*, czyli przeskoków między wierzchołkami drzewa eliminujących potrzebę cofania się (backtrackingu).
+
+## Literatura
+
+- Cormen, T. H.; Leiserson, C. E.; Rivest R. L.; Stein C. “Breadth-first search” w *Introduction to algorithms, 3rd ed.*. MIT Press, Cambridge, MA, U.S.A., s. 594-602.
+- Cormen, T. H.; Leiserson, C. E.; Rivest R. L.; Stein C. “Depth-first search” w *Introduction to algorithms, 3rd ed.*. MIT Press, Cambridge, MA, U.S.A., s. 603-612.
+- Graph traversal, [https://en.wikipedia.org/w/index.php?title=Graph_traversal&oldid=1066656007](https://en.wikipedia.org/w/index.php?title=Graph_traversal&oldid=1066656007) (last visited June 8, 2022).
+- Max Franz, Christian T. Lopes, Gerardo Huck, Yue Dong, Onur Sumer, Gary D. Bader, “Cytoscape.js: a graph theory library for visualisation and analysis“, *Bioinformatics*, Volume 32, Issue 2, 15 January 2016, Pages 309–311, [https://doi.org/10.1093/bioinformatics/btv557](https://doi.org/10.1093/bioinformatics/btv557)
+
+<small>(zdjęcie na okładce: Image by <a href="https://pixabay.com/users/pcdazero-2615/?utm_source=link-attribution&amp;utm_medium=referral&amp;utm_campaign=image&amp;utm_content=1556211">Gianni Crestani</a> from <a href="https://pixabay.com/?utm_source=link-attribution&amp;utm_medium=referral&amp;utm_campaign=image&amp;utm_content=1556211">Pixabay</a>)</small>

@@ -1,0 +1,62 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  gap: 10px;
+}
+
+.actionsContainer {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+
+  button {
+    cursor: pointer;
+  }
+}
+
+.diagramWrapper {
+  width: 100%;
+  max-width: 622px;
+  height: 400px;
+  display: flex;
+}
+
+.diagramContainer {
+  flex: 1;
+
+  canvas {
+    outline: none;
+  }
+}
+
+.traversalContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.controlsContainer {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  align-items: center;
+
+  button {
+    cursor: pointer;
+  }
+}
+
+.speedControl {
+  display: flex;
+  flex-direction: column;
+
+  label,
+  input {
+    display: block;
+  }
+}

@@ -1,0 +1,64 @@
+html {
+  scroll-behavior: smooth;
+
+  @media screen and (prefers-reduced-motion: reduce) {
+    scroll-behavior: auto;
+  }
+}
+
+body {
+  background: var(--sc__header--background);
+  color: var(--sc--text);
+  font-family: 'Noto Sans', sans-serif;
+  font-size: 16px;
+  box-sizing: border-box;
+  margin: 0;
+}
+
+* {
+  transition-property: background, transform, filter, opacity, box-shadow,
+    border;
+  transition-duration: 0.5s;
+  transition-timing-function: ease-in-out;
+
+  @media screen and (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
+
+h2,
+h3,
+h4,
+h5,
+h6 {
+  //display: flex;
+  font-family: 'Noto Serif', serif;
+}
+
+a {
+  &:link,
+  &:visited,
+  &:hover,
+  &:active {
+    color: var(--sc--text);
+  }
+
+  &:hover,
+  &:active {
+    filter: var(--sc--textHighlight);
+  }
+}
+
+p,
+ul,
+ol {
+  line-height: 1.75;
+}
+
+.ReactModal__Overlay--after-open {
+  opacity: 1 !important;
+}
+
+.ReactModal__Overlay--before-close {
+  opacity: 0 !important;
+}

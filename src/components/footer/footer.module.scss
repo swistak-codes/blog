@@ -1,0 +1,22 @@
+.container {
+  background: var(--sc__footer--background);
+  color: var(--sc__footer--color);
+  padding: 1rem;
+  text-align: center;
+  font-size: 0.8rem;
+}
+
+.link {
+  color: var(--sc__footer--color);
+
+  &:active,
+  &:hover,
+  &:visited,
+  &:link {
+    color: var(--sc__footer--color);
+  }
+
+  + a {
+    margin-left: 1em;
+  }
+}

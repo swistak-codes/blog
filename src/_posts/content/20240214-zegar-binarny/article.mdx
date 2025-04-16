@@ -1,0 +1,537 @@
+import Link from 'next/link';
+import {Image} from '@swistak-codes/components';
+import {Presentation} from './presentation';
+import cover from './cyberswistak.jpg';
+import zegarBinarny60 from './zegar-binarny-60.png';
+import zegarBinarnyBcd from './zegar-binarny-bcd.png';
+import siatkaZegar from './siatka_zegar.png';
+import kolka from './kolka.png';
+import siatkaBcd from './siatka_bcd.png';
+import c13 from './c13.jpg';
+
+export const meta = {
+  title: 'Zegar binarny',
+  abstract:
+    'Artykuł omawia, jak działa zegar binarny i jak zaprogramować jego wyświetlanie.',
+  firstParagraph: (
+    <>
+      Na łamach bloga miałem już okazję pokazywać, <Link href="/post/jak-narysowac-zegar-analogowy"> jak narysować zegar analogowy</Link>, wykorzystując do tego celu prostą matematykę. Dzisiaj przedstawię inny rodzaj zegara, który traktuje się raczej jako ciekawostkę — zegar binarny. Na początek jak odczytujemy na nim godzinę (w zależności od rodzaju), a następnie spróbujemy wspólnie zaprogramować wyświetlanie czasu w taki sposób.
+    </>
+  ),
+  keyword: 'zegar binarny',
+  categories: ['Data i czas', 'Programowanie', 'Grafika komputerowa'],
+  tags: [
+      'javascript',
+      'canvas',
+      'rysowanie',
+      'grafika komputerowa',
+      'zegar binarny',
+      'bcd',
+      'system dwójkowy',
+      'czas'
+  ],
+  slug: 'zegar-binarny',
+  updateTime: '2024-02-14T07:00:00+00:00',
+  publishTime: '2024-02-14T07:00:00+00:00',
+  cover,
+};
+
+## Uwaga wstępna
+
+W części programistycznej artykułu implementację pokażę w przeglądarkowym JavaScript, wykorzystując HTML-owy element `<canvas>`. W artykule <Link href="/post/jak-narysowac-zegar-analogowy">o zegarze analogowym</Link> tłumaczyłem już, jak się rysuje w ten sposób grafikę, więc możesz chcieć wrócić do tego. Najważniejsze rzeczy jednak powtórzę.
+
+Natomiast do części teoretycznej, jeśli chcesz poszerzyć uprzednio wiedzę, może przydać Ci się wiedza na temat systemu binarnego, którą opisałem w artykule *<Link href="/post/matematyka-zero-jedynkowa">1 0 0 0? 0 1 0 1! 1 0 0 1 – czyli matematyka zero-jedynkowa</Link>*. Jednak tak jak w przypadku części programistycznej, najważniejsze rzeczy wyjaśnię ponownie.
+
+## Zegar binarny
+
+Zegar binarny wbrew temu, co niektórzy mogliby podejrzewać, nie jest zwykłym zegarem elektronicznym z cyfrowym wyświetlaczem. Również jest elektroniczny, tylko czas jest wyświetlany w systemie binarnym za pomocą diod lub innego rodzaju źródła światła (dla uproszczenia będę dalej pisać po prostu *diody*).
+
+Tylko jak to wygląda, jak działa i jak odczytać? Mamy dwie wersje takich zegarów, omówmy sobie obie.
+
+### Zegar binarny sześćdziesiątkowy
+
+Najprostszy typ zegara binarnego to zegar binarny sześćdziesiątkowy. Jego działanie polega na tym, że wyświetla jako oddzielne liczby binarne godziny, minuty i sekundy. Zwykle jest to realizowane przez diody umieszczone obok siebie, gdzie zapalona oznacza cyfrę 1, a zgaszona cyfrę 0. Zazwyczaj szereguje się to tak, że pierwszy rząd to godziny, drugi minuty, a trzeci sekundy. Wygląda to mniej więcej następująco:
+
+<Image
+  image={zegarBinarny60}
+  alignCenter
+  fullSize
+  maxWidth="400px"
+  alt="3 rzędy diod ułożonych w 6 kolumn. Kolumny od lewej są podpisane 32, 16, 8, 4, 2, 1. W pierwszym rzędzie zapalone są diody pod liczbami 1 i 8, w drugim rzędzie pod liczbami 1, 4 i 32, w trzecim rzędzie pod 1, 4 i 16."
+  caption={<>Zegar binarny przedstawiający godzinę 9:37:21.</>}
+/>
+
+Z racji tego, że są to liczby zapisane w systemie binarnym, musimy sumować ze sobą kolejne „zapalone” potęgi dwójki. Najprościej jest po prostu zapamiętać, że od prawej do lewej mamy kolejno: 1, 2, 4, 8, 16, 32. Największą możliwą liczbą jest 59 (dla minut i sekund), więc nigdy nie będzie więcej niż 6 diod. Dla uproszczenia dla godzin często wykorzystuje się tylko 5 diod (23 jako najwyższa wartość; ewentualnie w systemie 12-godzinnym 4 diody do wskazania liczby i dodatkowa dla pory dnia).
+
+Jako ciekawostkę dodam, że zegar binarny tego typu stanowi jedną z bardziej nietypowych atrakcji Wrocławia. Znajdziecie go na terenie kampusu Politechniki Wrocławskiej, gdzie część okien budynku C-13 została udekorowana światłami, aby wyświetlać czas właśnie w ten sposób.
+
+<Image
+  image={c13}
+  alignCenter
+  fullSize
+  alt="Zdjęcie budynku z oknami przerobionymi na zegar binarny. Wskazuje godzinę 9:35:19."
+  caption={<>Zegar binarny na elewacji budynku C-13 Politechniki Wrocławskiej.</>}
+/>
+
+### Zegar binarny dziesiętny
+
+Inny typ zegara binarnego to zegar binarny dziesiętny. Różni się od sześćdziesiątkowego tym, że zamiast wyświetlać godziny, minuty i sekundy jako liczby w systemie binarnym, wykorzystuje do tego celu <Link href="/post/sposoby-zapisywania-liczb-przez-komputery">kodowanie BCD</Link>.
+
+Kodowanie BCD polega na tym, że binarnie zapisujemy kolejne cyfry zapisu dziesiętnego, stąd 37 zapiszemy jako $$0011 \; 0111$$, a nie jak byśmy zrobili to zwyczajnie, czyli jako $$100101$$.
+
+Czas w takim przypadku wyświetlimy analogicznie, tylko przy innym ułożeniu diod. Może to wyglądać następująco:
+
+<Image
+  image={zegarBinarnyBcd}
+  alignCenter
+  fullSize
+  maxWidth="400px"
+  alt="3 segmenty po 2 kolumny diod w 4 rzędach. Rzędy podpisane są od góry: 8, 4, 2, 1. W pierwszym segmencie w pierwszej kolumnie żadna dioda nie jest zapalona, a w drugiej 1 i 8. W drugim segmencie w pierwszej kolumnie zapalone są diody 1 i 2, a w drugiej  1, 2 i 4. W trzecim segmencie w pierwszej kolumnie zapalona jest dioda 2, a w drugiej dioda 1."
+  caption={<>Zegar binarny dziesiętny przedstawiający godzinę 9:37:21.</>}
+/>
+
+Zasada odczytu jest analogiczna, tylko pamiętajmy, że tutaj odczytujemy pojedyncze cyfry, a nie całe liczby. Tym razem od dołu mamy: 1, 2, 4, 8, które sumujemy ze sobą w zależności od tego, które diody są zapalone.
+
+Przyznam, że dla mnie osobiście ta wersja jest mniej intuicyjna, chociaż ciężko jest mi powiedzieć, jak to się sprawdza w praktyce. Miałem swego czasu na co dzień do czynienia jedynie z wersją sześćdziesiątkową, którą nauczyłem się odczytywać dość sprawnie i szybko. Dziesiętną znam jedynie z opisów i zdjęć w Internecie.
+
+## Przygotowanie środowiska programistycznego
+
+Tak jak zapowiadałem, zegar binarny będziemy rysować analogicznie jak wcześniej analogowy (hehe), czyli korzystając z przeglądarkowego JavaScriptu. Jeśli chcesz podążać za mną, załóż sobie pliki `index.html` i `script.js` obok siebie w jakimś folderze i edytuj ulubionym edytorem. Ewentualnie użyj któregoś edytora on-line, np. [CodePen](https://codepen.io/) albo [CodeSandbox](https://codesandbox.io) (z wykorzystaniem szablonu *Vanilla JavaScript*). Ja sam pisząc ten i poprzedni artykuł, korzystałem z CodePena, bo do prostych zastosowań jest to najwygodniejsze.
+
+### HTML
+
+Podobnie jak ostatnio, zaczniemy od pliku HTML z elementem `<canvas>` (płótnem). Możemy go zrobić następująco:
+
+```html
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>Zegar analogowy</title>
+</head>
+
+<body>
+  <canvas id="canvas" width="600" height="300">
+    Twoja przeglądarka nie wspiera Canvas
+  </canvas>
+  <script src="script.js"></script>
+</body>
+
+</html>
+```
+
+W przypadku korzystania z CodePen, aby nie zaburzyć jego działania, w zupełności wystarczy tylko najważniejsza część z powyższego kodu:
+
+```html
+<canvas id="canvas" width="600" height="300">
+  Twoja przeglądarka nie wspiera Canvas
+</canvas>
+```
+
+### Przygotowanie do rysowania animacji
+
+Etap ten jest identyczny jak w poprzednim artykule, więc nie będę go szczegółowo rozpisywać. Przygotujemy sobie trzy rzeczy.
+
+Najpierw wyciągniemy kontekst do rysowania z płótna:
+
+```javascript
+const canvas = document.getElementById("canvas");
+const context = canvas.getContext("2d");
+```
+
+Następnie utworzymy funkcję, która wyczyści płótno:
+
+```javascript
+function clear() {
+  context.clearRect(0, 0, canvas.width, canvas.height);
+}
+```
+
+Napiszmy też podstawową pętlę rysowania. Będzie to funkcja wywołująca się rekurencyjnie z częstotliwością odświeżania się ekranu (zwykle 60 Hz). Na razie jedyne co będzie robić, to czyszczenie płótna, stąd za bardzo działania nie zobaczymy. Od razu też wywołamy pierwsze jej uruchomienie:
+
+```javascript
+function draw() {
+  clear();
+
+  window.requestAnimationFrame(() => {
+    draw();
+  });
+}
+
+draw();
+```
+
+Warto dodać, że zegar binarny nie będzie obsługiwać milisekund, więc moglibyśmy odświeżać ekran rzadziej (np. raz na sekundę). Jeśli chcesz w ten sposób przerobić kod, zachęcam do poszukania na własną rękę jak to zrobić.
+
+## Konwersja systemu dziesiętnego na binarny
+
+Zanim cokolwiek narysujemy, musimy napisać konwerter liczb na system binarny. Jednak nie taki zwykły, który zwróci nam ciąg zer i jedynek. Wygodniejszym wynikiem będzie dla nas tablica wartości logicznych, gdzie liczba zostanie zapisana od końca.
+
+Jak pokazywałem w artykule o <Link href="/post/matematyka-zero-jedynkowa">systemie binarnym</Link>, najprostszym sposobem konwersji jest dzielenie liczby przez 2, spisując resztę z dzielenia dla uzyskania wyniku. Z racji tego, że i tak interesują nas wartości logiczne, to z programistycznego punktu widzenia zrobimy coś następującego: zapiszemy w wyniku, czy liczba jest nieparzysta, po czym podzielimy ją całkowitoliczbowo przez 2. Operację powtarzamy tak długo, aż dojdziemy do zera.
+
+Po przełożeniu na kod wygląda to tak:
+
+```javascript
+function toBinary(number) {
+  // tablica, w której przechowamy wynik
+  const result = [];
+  // powtarzamy obliczenia, jeśli liczba jest większa od 0
+  while (number > 0) {
+    // dodajemy na końcu tablicy informację, czy liczba jest nieparzysta
+    result.push(number % 2 === 1);
+    // dzielimy liczbę całkowitoliczbowo przez 2
+    // niestety w JavaScript nie ma takiego dzielenia,
+    // więc po prostu obetniemy część dziesiętną
+    number = Math.trunc(number / 2);
+  }
+  // zwracamy wynik
+  return result;
+}
+```
+
+Na tym kończy się na dobrą sprawę część algorytmiczna rysowania zegara binarnego. Teraz zostanie tylko napisanie kodu rysowania diod.
+
+## Rysujemy zegar binarny sześćdziesiątkowy
+
+### Ustalenie położenia diod
+
+Przejdźmy do rysowania. Aby jednak je zacząć, warto rozplanować sobie w przestrzeni, jak chcemy umieścić diody zegara. W kodzie HTML zdefiniowaliśmy `<canvas>` o wymiarach 600×300, co zrobiliśmy nieprzypadkowo, bo musimy podzielić go na 6 kolumn i 3 wiersze.
+
+Skoro mamy siatkę 6×3, a płótno ma wymiar 600×300 pikseli, to oczywiste jest, że każda dioda może mieć maksymalnie 100 pikseli średnicy. Jednak nie chcemy rysować ich tak dużych, bo wtedy będą stykać się ze sobą. Dodajmy każdej ze stron margines 10 pikseli. Zapiszmy to wszystko w kodzie jako stałe:
+
+```javascript
+const GRID_SIZE = 100;
+const MARGIN = 10;
+```
+
+Wyliczmy od razu promień rysowanej diody. Zrobimy to, wyliczając średnicę przez odjęcie od wielkości komórki dwukrotności marginesu (będzie ze wszystkich stron), a następnie dzieląc całość przez dwa:
+
+```javascript
+const RADIUS = (GRID_SIZE - MARGIN * 2) / 2;
+```
+
+Jeśli chcesz, możesz uzależnić wielkość komórki od rozmiaru płótna. Ja użyłem prostszego sposobu, wybierając również odpowiednie wymiary, aby uniknąć niepotrzebnej matematyki.
+
+### Rysowanie pojedynczej diody
+
+#### Założenia
+
+Napiszmy funkcję, która narysuje pojedynczą diodę. Zrobię to z następującymi założeniami:
+
+- W argumentach przekażemy numer wiersza i kolumny, gdzie będziemy rysować.
+  - Z naszego punktu widzenia najprościej będzie numerować od zera.
+  - Wiersze będziemy numerować od góry do dołu.
+  - Natomiast kolumny będziemy numerować od prawej do lewej, zgodnie z tym, jak odczytujemy kolejne potęgi dwójki w liczbie zapisanej binarnie.
+- Przekażemy także kolor i informację, czy dioda jest zapalona.
+  - W przypadku gdy jest zapalona, narysujemy wypełnione kolorem koło.
+  - W przeciwnym razie narysujemy tylko okrąg w danym kolorze.
+- Nie będziemy się tutaj wysilać na jakieś ładne gradienty, animacje czy cokolwiek takiego. Zrobimy najprostsze wypełnienie kolorem, jakie się da. Zachęcam natomiast do pokombinowania na własną rękę z upiększeniem wyglądu.
+
+<Image
+  image={siatkaZegar}
+  alignCenter
+  fullSize
+  maxWidth="400px"
+  alt="Siatka z trzema wierszami i sześcioma kolumnami. Wiersze numerowane są od zera, od góry do dołu. Kolumny numerowane są od zera, od prawej do lewej. W każdej komórce siatki znajduje się niezapalona dioda z wyjątkiem komórki w lewym górnym rogu, która jest pusta."
+  caption={<>Rozmieszczenie diod na ekranie</>}
+/>
+
+#### Implementacja
+
+Pokażę teraz implementację, a następnie po kolei wyjaśnię, co się dzieje:
+
+```javascript
+const COLUMNS = 6;
+
+function drawDiode(column, row, color, isFilled) {
+  const centerY = (row * GRID_SIZE + (row + 1) * GRID_SIZE) / 2;
+  const centerX =
+    ((COLUMNS - column) * GRID_SIZE + (COLUMNS - column - 1) * GRID_SIZE) / 2;
+
+  context.beginPath();
+  context.strokeStyle = color;
+  context.fillStyle = color;
+  context.arc(centerX, centerY, RADIUS, 0, 2 * Math.PI);
+  if (isFilled) {
+    context.fill();
+  } else {
+    context.stroke();
+  }
+}
+```
+
+Idąc po kolei:
+
+- Maksymalną liczbę kolumn definiujemy jako stałą, aby nie mieć później w kodzie *magicznych wartości*.
+- Aby narysować koło w JavaScript, musimy wskazać położenie jego środka. Znamy rozmiar komórki, wiemy też, w której chcemy rysować. Jedyne co musimy zrobić, to wyznaczyć, gdzie znajduje się jej środek. Aby to zrobić, musimy wyznaczyć położenie jej dwóch równoległych brzegów, a następnie wyliczyć średnią arytmetyczną.
+  - Najbardziej oczywiste jest położenie na osi OY, bo tutaj robimy dokładnie to, co opisałem wyżej. Z racji tego, że idziemy od góry do dołu, to górny brzeg będzie na pozycji `row * GRID_SIZE`, a dolny na pozycji `(row + 1) * GRID_SIZE`.
+  - W przypadku OX miesza trochę fakt, że nie odliczamy od lewej do prawej, tylko odwrotnie. Jednak właśnie po to wyciągnęliśmy sobie liczbę kolumn do stałej. Wystarczy odjąć od niej numer kolumny, aby obliczenie było prawidłowe. Tutaj tylko należy pamiętać, że lewy bok to będzie `column + 1`, stąd gdy odejmujemy, to będzie `COLUMNS - column - 1`.
+- `beginPath()` inicjuje rysowanie kształtu, dzięki czemu kontekst wie, że wszystkie dalsze polecenia będą się tyczyć jednej konkretnej figury.
+- `strokeStyle` i `fillStyle` ustawiają kolor, kolejno konturu i wypełnienia. Warto zaznaczyć, że jeśli nie wywołamy funkcji wypełnienia figury, to mimo tego ustawienia nie zostanie nic wypełnione.
+- W JavaScript nie ma funkcji dedykowanej rysowaniu okręgów, ale możemy to wykonać przy użyciu `arc()`. Jest to funkcja rysująca łuk. Dwoma pierwszymi argumentami są współrzędne środka, następnie wskazujemy promień okręgu, na którym wyznaczamy łuk. Kolejne dwa argumenty to wartości w radianach: kąta, od którego zaczynamy rysowanie łuku i na którym kończymy. Jeśli chcemy narysować cały okrąg, oczywiście zaczynamy od 0 rad, a kończymy na $$2\pi$$ rad ($$360^{\circ}$$).
+- Następnie w zależności od tego, czy dioda ma być zapalona, wypełniamy ją kolorem (`fill()`) lub tylko rysujemy kontur (`stroke()`).
+
+Jeśli chcesz przetestować, czy rysowanie działa dobrze, dodaj użycie tej funkcji w `draw()` poniżej `clear()`. Powinieneś/powinnaś zobaczyć wtedy mniej więcej coś takiego:
+
+<Image
+  image={kolka}
+  alignCenter
+  fullSize
+  maxWidth="100px"
+  alt="Dwa koła narysowane jedno pod drugim. Górne jest wypełnione zielonym kolorem i nie ma widocznego konturu. Dolne ma pomarańczowy kontur i brak wypełnienia."
+  caption={<></>}
+/>
+
+### Rysowanie wiersza diod
+
+Wykorzystajmy napisaną przed chwilą funkcję do tego, aby narysować cały wiersz diod o konkretnym kolorze, wyświetlających konkretną liczbę. Pamiętajmy tylko, że wiersz z godzinami ma mniej diod, więc warto do funkcji przekazać także liczbę rysowanych diod.
+
+Ponownie pokażę najpierw implementację, a następnie wytłumaczę:
+
+```javascript
+function drawRow(row, diodesCount, number, color) {
+  for (let i = 0; i < diodesCount; i++) {
+    const isFilled = number.length > i && number[i];
+    drawDiode(i, row, color, isFilled);
+  }
+}
+```
+
+Jak widzisz, mamy prostą pętlę, gdzie rysujemy po kolei diody. Jedyna *trudność* to sprawdzenie, czy dioda powinna być zapalona. Aczkolwiek jest to jak widać warunek sprowadzający się do sprawdzenia, czy element w tablicy istnieje, a jeśli istnieje, to czy jest prawdą.
+
+Dodam, że w JavaScript warunek mogliśmy uprościć do:
+
+```javascript
+const isFilled = !!number[i];
+```
+
+Bierze się to z dwóch rzeczy: w JS, jeśli pobieramy element spoza zakresu tablicy, otrzymamy wartość `undefined` (brak wartości), która odpowiada fałszowi, więc jej podwójna negacja zwróci prawidłową wartość logiczną. Jednak pisząc w ten sposób w większości innych języków programowania, aplikacja rzuciłaby wyjątek, więc wolałem przedstawić bardziej uniwersalną wersję.
+
+### Wskazywanie czasu
+
+Mamy już wszystko, aby narysować zegar binarny od strony graficznej. Jedyne co nam zostało, to dodanie logiki działania, czyli faktyczne wskazywanie czasu. Aby to zrobić, najpierw pobierzmy aktualny czas i zamieńmy go na liczby binarne. Kod, który umieścimy w funkcji `draw()`, pokazuję poniżej:
+
+```javascript
+const currentTime = new Date();
+const hours = currentTime.getHours();
+const minutes = currentTime.getMinutes();
+const seconds = currentTime.getSeconds();
+
+const binaryHours = toBinary(hours);
+const binaryMinutes = toBinary(minutes);
+const binarySeconds = toBinary(seconds);
+```
+
+Następnie jedyne co nam zostaje, to wywołać trzy razy funkcję `drawRow()`. Mogłoby to wyglądać następująco:
+
+```javascript
+function draw() {
+  const currentTime = new Date();
+  const hours = currentTime.getHours();
+  const minutes = currentTime.getMinutes();
+  const seconds = currentTime.getSeconds();
+
+  const binaryHours = toBinary(hours);
+  const binaryMinutes = toBinary(minutes);
+  const binarySeconds = toBinary(seconds);
+
+  clear();
+
+  drawRow(0, 5, binaryHours, "green");
+  drawRow(1, 6, binaryMinutes, "orange");
+  drawRow(2, 6, binarySeconds, "red");
+
+  window.requestAnimationFrame(() => {
+    draw();
+  });
+}
+```
+
+### Koniec implementacji (gotowce tutaj)
+
+Oto skończyliśmy implementację. Jeśli podążałeś(-aś) za moimi instrukcjami, na Twoim ekranie powinno być widoczne mniej więcej coś takiego jak poniżej:
+
+<Presentation type="binary" />
+
+Cały kod wraz z możliwością edycji znajdziesz na [CodePen](https://codepen.io/tswistak/pen/poYgxzB).
+
+## Przerabiamy implementację na zegar binarny dziesiętny
+
+Spróbujmy teraz przerobić implementację, żeby zamiast zegara sześćdziesiątkowego pokazywała zegar binarny dziesiętny. W tym celu musimy napisać inaczej kilka rzeczy związanych z rysowaniem.
+
+### Rozplanowanie pracy
+
+Zacznijmy od rozplanowania tego, co mamy do zmiany. Musimy zrobić następujące rzeczy:
+
+- Zmienić rozmiar płótna, ponieważ tym razem będziemy mieć 4 wiersze przy 6 kolumnach.
+- Przerobić konwersję liczby dziesiętnej na binarną, aby otrzymywać kod BCD.
+- Rysować kolumny diod zamiast wierszy.
+  - Dla wygody możemy odwrócić numerowanie wierszy i kolumn. Tym razem wiersze numerujmy od dołu do góry, a kolumny od lewej do prawej.
+
+<Image
+  image={siatkaBcd}
+  alignCenter
+  fullSize
+  maxWidth="400px"
+  alt="Siatka z czerema wierszami i sześcioma kolumnami. Wiersze numerowane są od zera, od dołu do góry. Kolumny numerowane są od zera, od lewej do prawej. W każdej komórce siatki znajduje się niezapalona dioda, z wyjątkiem komórek: 2,0, 3,0, 3,2, 4,2 - one są puste."
+  caption={<>Nowe rozmieszczenie diod na ekranie.</>}
+/>
+
+### Przerobienie płótna
+
+Najpierw najprostsza ze zmian, czyli dopasowanie rozmiaru płótna. Żeby nie kombinować, po prostu zwiększymy wysokość z 300 na 400. Dzięki temu nie będziemy musieli modyfikować naszych obliczeń.
+
+```html
+<canvas id="canvas" width="600" height="400">
+  Twoja przeglądarka nie wspiera Canvas
+</canvas>
+```
+
+Dzięki temu, jak napisaliśmy dalej kod, nie musimy nic więcej zmieniać w tym momencie.
+
+### Obliczanie kodu BCD
+
+Następnie dopiszmy funkcję, która obliczy kod BCD. Załóżmy od razu dwie rzeczy:
+
+- Liczba jest zawsze dwucyfrowa.
+- Rezultatem będzie dwuelementowa tablica zawierająca tablice wartości logicznych.
+  - Cyfry zapiszemy od lewej do prawej.
+  - Same kody BCD od prawej do lewej, żeby nie zmieniać aktualnej implementacji.
+
+Z racji tego, że kod BCD to przetłumaczenie kolejnych cyfr systemu dziesiętnego na liczbę binarną, wykorzystamy ponownie funkcję `toBinary()`. Wywołamy ją podwójnie — dla obu cyfr. Implementacja mogłaby wyglądać następująco:
+
+```javascript
+// zamiana liczby dziesiętnej (max 99) na kod BCD
+function toBcd(number) {
+  // wyciągamy pierwszą cyfrę, stosując całkowitoliczbowe dzielenie przez 10
+  const first = Math.trunc(number / 10);
+  // wyciągamy drugą cyfrę, licząc resztę z dzielenia przez 10
+  const second = Math.trunc(number % 10);
+  // zwracamy tablicę, która zawiera obie cyfry zamienione na liczbę binarną
+  return [toBinary(first), toBinary(second)];
+}
+```
+
+### Przerobienie rysowania wiersza na rysowanie kolumn
+
+W tym przypadku podzieliłbym implementację na trzy części:
+
+- Przerobienie rysowania diody — żeby wziąć pod uwagę zmianę numeracji kolumn i wierszy.
+- Rysowanie kolumny — dosłowne przerobienie `drawRow`, aby rysowało w pionie zamiast w poziomie.
+- Rysowanie liczby — funkcja, która wyrysuje obie kolumny reprezentujące liczbę.
+
+#### Przerobienie rysowania diody
+
+W tym przypadku musimy przerobić jedynie obliczanie środka okręgu. Tutaj na obu osiach dokonaliśmy zmiany — tym razem kolumny są numerowane „normalnie”, a wiersze na odwrót. W takim razie musimy dosłownie obrócić obliczenia. To, jak liczyliśmy współrzędną X (przez odejmowanie od całości), teraz znajdzie się w obliczaniu współrzędnej Y; i na odwrót.
+
+Całość kodu wygląda następująco:
+
+```javascript
+const ROWS = 4;
+
+function drawDiode(column, row, color, isFilled) {
+  const centerY = ((ROWS - row) * GRID_SIZE + (ROWS - row - 1) * GRID_SIZE) / 2;
+  const centerX = (column * GRID_SIZE + (column + 1) * GRID_SIZE) / 2;
+
+  context.beginPath();
+  context.strokeStyle = color;
+  context.fillStyle = color;
+  context.arc(centerX, centerY, RADIUS, 0, 2 * Math.PI);
+  if (isFilled) {
+    context.fill();
+  } else {
+    context.stroke();
+  }
+}
+```
+
+Jedyne zmienione rzeczy to:
+
+- Zamiast stałej z liczbą kolumn mamy stałą z liczbą wierszy.
+- Zmieniliśmy sposób liczenia `centerY` i `centerX`, ale jak wspomniałem wcześniej, odbywa się to analogicznie jak poprzednio.
+
+#### Rysowanie kolumny
+
+Tutaj za dużo przerabiania nie mamy. Jedynie zmienimy dwie rzeczy:
+
+- Nazwę argumentu funkcji, żeby pokazać, że przyjmuje kolumnę, a nie wiersz.
+- Wywołanie funkcji `drawDiode()`, żeby tym razem przekazywać z pętli wiersz, a nie kolumnę.
+
+Bez dalszego rozpisywania się, kod po zmianach to po prostu:
+
+```javascript
+function drawColumn(column, diodesCount, number, color) {
+  for (let i = 0; i < diodesCount; i++) {
+    const isFilled = number.length > i && number[i];
+    drawDiode(column, i, color, isFilled);
+  }
+}
+```
+
+#### Rysowanie liczby
+
+Teraz napiszmy całkiem nową funkcję, czyli rysowanie liczby. Będzie to po prostu podwójne wywołanie `drawColumn()`, ale rozplanujmy sobie, czego dokładnie potrzebujemy.
+
+Przede wszystkim funkcja powinna przyjmować:
+
+- Kolumnę, od której zaczynamy rysowanie. Przy użyciu będziemy musieli pamiętać, że funkcja zajmuje dwie kolumny.
+- Liczbę diod w pierwszej kolumnie. Ta jest zmienna w zależności od tego, czy wyświetlamy godziny, minuty czy sekundy. Druga kolumna zawsze będzie mieć maksymalną możliwą liczbę diod.
+- Liczbę do wyświetlenia jako tablicę zawierającą kod BCD.
+- Kolor diod.
+
+Implementacja wygląda następująco:
+
+```javascript
+function drawNumber(startCol, firstColDiodesCount, number, color) {
+  drawColumn(startCol, firstColDiodesCount, number[0], color);
+  drawColumn(startCol + 1, ROWS, number[1], color);
+}
+```
+
+Pierwszym `drawColumn` rysujemy pierwszą kolumnę, więc bierze ona pierwszą (zerowy element) cyfrę z tablicy number. Natomiast przy drugim wywołaniu przesuwamy się z kolumną o 1 pozycję w prawo (stąd `+ 1`) i wyświetlimy maksymalną liczbę diod (stała `ROWS`, którą definiowaliśmy przy rysowaniu pojedynczej diody).
+
+### Efekt końcowy
+
+Złączmy teraz wszystko w całość. W funkcji rysującej zamiast `toBinary()` użyjemy `toBcd()`, a zamiast `drawRow()` — `drawNumber()`. Nowa implementacja funkcji `draw()` wygląda tak:
+
+```javascript
+function draw() {
+  const currentTime = new Date();
+  const hours = currentTime.getHours();
+  const minutes = currentTime.getMinutes();
+  const seconds = currentTime.getSeconds();
+
+  const binaryHours = toBcd(hours);
+  const binaryMinutes = toBcd(minutes);
+  const binarySeconds = toBcd(seconds);
+
+  clear();
+
+  drawNumber(0, 2, binaryHours, "green");
+  drawNumber(2, 3, binaryMinutes, "orange");
+  drawNumber(4, 3, binarySeconds, "red");
+
+  window.requestAnimationFrame(() => {
+    draw();
+  });
+}
+```
+
+A sam zegar wygląda tak:
+
+<Presentation type="bcd" />
+
+Pełen kod implementacji znajdziesz na [CodePen](https://codepen.io/tswistak/pen/VwRjeLO).
+
+## Podsumowanie
+
+Tak oto niedużym nakładem pracy narysowaliśmy za pomocą JavaScriptu dwa różne rodzaje zegarów binarnych. Mam nadzieję, że zainspiruje Cię to do dalszego eksperymentowania z rysowaniem (w tym animacji) za pomocą kodu.
+
+Jeśli spodobało Ci się rysowanie rzeczy za pomocą kodu, a nie czytałeś(-aś) mojego artykułu o <Link href="/post/jak-narysowac-zegar-analogowy">rysowaniu zegara analogowego</Link>, to polecam nadrobić zaległości. Tamten przypadek jest nieco trudniejszy, bo musimy więcej rzeczy obliczać matematycznie, ale efekt pracy jest równie ciekawy.
+
+## Literatura
+
+- Binary clock, https://en.wikipedia.org/w/index.php?title=Binary_clock&oldid=1189398026 (ostatnie odwiedziny 08.01.2024).
+
+<small>Zdjęcie na okładce wygenerowane przez DALL-E.</small>

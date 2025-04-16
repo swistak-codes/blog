@@ -1,0 +1,86 @@
+$overlay-margin: 40px;
+
+.modal {
+  .modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: color-mix(
+      in srgb,
+      var(--sc--background) 65%,
+      transparent
+    );
+    cursor: pointer;
+    opacity: 0;
+  }
+
+  .modalContent {
+    outline: none;
+  }
+}
+
+.modalContent {
+  margin: auto;
+  width: 100%;
+  height: 100%;
+  background: white;
+}
+
+.modalContentWrapper {
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+  display: flex;
+  position: relative;
+}
+
+.x {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  font-size: 1.5rem;
+}
+
+.caption {
+  text-align: center;
+  font-size: 0.75rem;
+}
+
+.figure {
+  margin: 0 1rem;
+  max-width: 100%;
+
+  span {
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  &.forceWhiteBackground {
+    img {
+      background: white;
+    }
+  }
+
+  &.alignCenter {
+    margin: 0 auto;
+  }
+
+  &.alignRight {
+    float: right;
+  }
+
+  &.alignLeft {
+    float: left;
+  }
+}
+
+.image {
+  border-radius: 0;
+  cursor: pointer;
+
+  .notClickable {
+    cursor: default;
+  }
+}

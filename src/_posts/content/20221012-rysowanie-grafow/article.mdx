@@ -1,0 +1,295 @@
+import Link from 'next/link';
+import {Image} from '@swistak-codes/components';
+import cover from './profesor-swistak.jpg';
+import karateClub from './KarateClubCuneyt_Akcora.png';
+import graphDb from './GraphDatabase_PropertyGraph.png';
+import emr from './EMR_process_flow.jpg';
+import mediaWiki from './MediaWiki_1.10_dbschema.svg.png';
+import grafRandom from './graf-random.png';
+import grafGrid from './graf-grid.png';
+import grafCircle from './graf-circle.png';
+import grafForce from './graf-force.png';
+import grafDigraph from './graf-digraph.png';
+import { Presentation, Layouts } from './presentation';
+
+export const meta = {
+  title: 'Rysowanie grafów — algorytmy',
+  abstract:
+    'Artykuł przedstawia zagadnienia algorytmiczne związane z rysowaniem grafów, przede wszystkim z rozmieszczaniem wierzchołków.',
+  firstParagraph: (
+    <>
+      Mówiąc o grafach w kontekście algorytmiki, zwykle przywodzi na myśl rozwiązywanie za ich pomocą różnych problemów, np. poruszanego przeze mnie już w <Link href="/post/praktyczne-zastosowania-przechodzenia-po-grafie">trzech</Link> <Link href="/post/szukanie-najkrotszych-sciezek-w-grafie">artykułach</Link> <Link href="/post/szybkie-wyszukiwanie-sciezek">szukania ścieżek</Link>. Rzadziej jednak porusza się temat tego, że jeśli chcemy graf narysować, należałoby rozmieścić jego wierzchołki w przestrzeni w pewien sensowny i uporządkowany sposób tak, aby jak najlepiej przedstawić jego charakterystykę. Znajomość przynajmniej rodzajów i właściwości algorytmów do tego służących to obowiązkowa wiedza dla osób zajmujących się wizualizacją danych. W artykule przedstawiam wszystko, co potrzebujesz wiedzieć na ten temat.
+    </>
+  ),
+  keyword: 'grafy',
+  categories: ['Grafy', 'Algorytmy'],
+  tags: [
+    '2d',
+    'grafy',
+    'grafy skierowane',
+    'digrafy',
+    'fizyka',
+    'layouting',
+    'geometria',
+    'rysowanie',
+    'grafika komputerowa',
+    'layered digraph',
+    'force directed',
+    'circle layout',
+    'grid',
+    'CoLA',
+    'CoSE',
+    'CiSE',
+    'Dagre',
+    'Klay',
+    'algorytm Sugiyamy',
+    'AVSDF'
+  ],
+  slug: 'rysowanie-grafow-algorytmy',
+  updateTime: '2022-10-12T07:00:00+00:00',
+  publishTime: '2022-10-12T07:00:00+00:00',
+  cover,
+};
+
+## Wizualizacja grafów
+
+### Po co?
+
+Zacznijmy od tego, po co właściwie to robimy i dlaczego wizualizacja danych w postaci grafu jest istotna. Mógłbym w tym momencie zaprosić do lektury mojego starszego artykułu <Link href="/post/grafy-wprowadzenie">„Grafy — wprowadzenie”</Link>, gdzie opowiadam o praktycznych zastosowaniach grafów i dlaczego są tak istotne, ale w przedstawionym tu kontekście interesuje nas tylko jedno: diagramy. Diagramy możemy zapisać w pamięci komputera jako graf. Dla jasności — w tym momencie nie poruszamy tematu diagramów ilościowych, zwanych też wykresami, bo nie przedstawiają powiązań między danymi (tym samym dane nie zawierają ich).
+
+Teraz możesz jednak pomyśleć — diagramy to przecież rysunki. Ktoś umiejscowi w przestrzeni figury, połączenia między nimi i robota zrobiona, po co tu jakieś algorytmy (chyba że jakieś z dziedziny <Link href="/category/grafika-komputerowa">grafiki komputerowej</Link>). Cała rzecz jest jednak w tym, że w praktycznych zastosowaniach dane, które wizualizujemy jako diagram, nie mają informacji o położeniu figur w przestrzeni. Jedyne, co dostajemy, to zbiór danych prezentujący zazwyczaj pewne encje (wierzchołki grafu) i powiązania między nimi (krawędzie), i to dopiero my jako programiści musimy wygenerować z nich diagram.
+
+### Przykłady
+
+A co mogą reprezentować takie zbiory danych, które może nam przyjść wizualizować? Przykładowo:
+
+- Z tematów bliskich programistom, dane mogą zawierać np. strukturę kodu źródłowego: klasy, funkcje, pakiety, tabele bazy danych i informacje, jak nawzajem się wykorzystują. Możemy na tej podstawie tworzyć diagramy: klas, związków encji, komponentów, pakietów itd. W zasadzie na bazie automatycznej analizy kodu źródłowego aplikacji moglibyśmy wygenerować większość rodzajów diagramów języka UML.
+
+<Image
+  image={mediaWiki}
+  alignCenter
+  maxWidth="400px"
+  alt=""
+  caption={<>Przykładowy diagram prezentujący schemat bazy danych, w tym przypadku CMS-a MediaWiki.
+    <br />(źródło: <a href="https://commons.wikimedia.org/wiki/File:MediaWiki_1.10_dbschema.svg">Wise Coders Solutions</a>, <a href="http://creativecommons.org/licenses/by-sa/3.0/">CC BY-SA 3.0</a>, via Wikimedia Commons)</>}
+/>
+
+- Przechodząc bardziej do tematyki biznesowej, przede wszystkim kojarzą nam się tutaj diagramy prezentujące strukturę organizacyjną firmy. Również procesy mogą być wizualizowane na diagramach. W szczególności na myśl przychodzi notacja BPMN, ale w kontekście automatycznego generowania diagramów możemy też wspomnieć o zagadnieniu eksploracji procesów (process mining). Do tego mamy oczywiście schematy blokowe — programistom mogą się kojarzyć głównie z nauką algorytmów, ale mają również zastosowania w wielu branżach.
+
+<Image
+  image={emr}
+  alignCenter
+  maxWidth="400px"
+  alt=""
+  caption={<>Przykład schematu blokowego przedstawiającego proces.
+    <br />(źródło: <a href="https://commons.wikimedia.org/wiki/File:EMR_process_flow.jpg">Derek Holden</a>, Public domain, via Wikimedia Commons)</>}
+/>
+
+- Grafy wiedzy. Dla prostszego znajdowania powiązań między danymi dane zapisuje się w grafowych bazach danych. Są one o wiele bardziej elastyczne pod kątem relacji niż bardziej tradycyjne rozwiązania, a tym samym prościej pisze się zapytania polegające na nich. Jednak co to ma do wizualizacji? Otóż dane pobrane z grafowej bazy danych najczytelniej jest przedstawić właśnie w formie diagramu.
+
+<Image
+  image={graphDb}
+  alignCenter
+  maxWidth="400px"
+  alt=""
+  caption={<>Przykład grafu wiedzy z danymi i relacjami pochodzącymi z grafowej bazy danych.
+    <br />(źródło: <a href="https://commons.wikimedia.org/wiki/File:GraphDatabase_PropertyGraph.png">Originally uploaded by Ahzf (Transferred by Obersachse)</a>, CC0, via Wikimedia Commons)</>}
+/>
+
+- Naukowcy z wielu dziedzin również stosują diagramy, które mogą być zapisane w formie grafu. Pomijając matematyków czy informatyków badających grafy, grafy sprawdzają się idealnie w wizualizacjach sieci społecznych (socjologia), interakcji genów (biotechnologia), relacji genetycznych (biologia) itd. Podejrzewam, że przykładów znalazłoby się jeszcze więcej.
+
+<Image
+  image={karateClub}
+  alignCenter
+  maxWidth="400px"
+  alt=""
+  caption={<>Jedna z popularniejszych sieci społecznych, czyli klub karate Zacharego. Zbiór danych został opublikowany w 1977 r. (<a href="https://doi.org/10.1086%2Fjar.33.4.3629752">doi:10.1073/pnas.122653799</a>) i przedstawia członków klubu karate oraz ich relacje poza klubem.
+    <br />(źródło: <a href="https://commons.wikimedia.org/wiki/File:KarateClubCuneyt_Akcora.png">Cuneytgurcan</a>, <a href="https://creativecommons.org/licenses/by-sa/4.0">CC BY-SA 4.0</a>, via Wikimedia Commons)</>}
+/>
+
+Pamiętaj, że często to właśnie dobra wizualizacja pozwala dostrzec interesujące właściwości danych zapisanych w grafie. Dlatego warto wiedzieć, w jakich przypadkach która klasa algorytmów pozycjonujących sprawdzi się najlepiej, i wizualizować z ich pomocą. W artykule nie będę wyjątkowo wchodzić w szczegóły implementacyjne. Jedynie opowiem, jakie mamy opcje, czym się charakteryzują i kiedy które stosować.
+
+## Najprostsze sposoby rozmieszczenia
+
+Przygodę z algorytmami wizualizacji grafów zacznijmy od dwóch zdecydowanie najprostszych podejść. Są one na tyle proste, że nawet jeśli wybrane przez Ciebie rozwiązanie wspomagające wizualizację nie posiada ich, to nie powinieneś/powinnaś mieć problemów z napisaniem ich na własną rękę.
+
+### Losowe
+
+<Image
+  image={grafRandom}
+  alignCenter
+  maxWidth="400px"
+  alt="Wierzchołki grafu rozmieszczone losowo"
+  caption={<></>}
+/>
+
+Już na samym początku proponuję coś, co zdaje się nie mieć większego sensu. W końcu we wstępie napisałem: „jeśli chcemy graf narysować, należałoby rozmieścić jego wierzchołki w przestrzeni w pewien sensowny i uporządkowany sposób tak, aby jak najlepiej przedstawić jego charakterystykę”. Pewnie się zastanawiasz, jakim cudem słowo *losowe* pasuje pod te kryteria...
+
+Losowe rozmieszczanie wierzchołków ma sens. Najprostsze zastosowania to:
+
+- Może stanowić bazę do animacji, która przeniesie wierzchołki na właściwe pozycje (czy to obliczone algorytmem, czy też ustawione w danych).
+- Gdy nie mamy żadnych informacji o grafie, który rysujemy. Inne układy mogą narzucać pewien sposób interpretacji danych, co nie zawsze jest pożądane.
+- Gdy graf jest zbyt duży, by inne algorytmy zadziałały poprawnie.
+- Dla danych, które z użyciem innych algorytmów nie pozycjonują się w żaden interesujący sposób. Losowanie pozycji będzie o wiele szybsze niż ich obliczanie na podstawie właściwości grafu.
+
+Myślę, że zarówno pokazanie algorytmu, jak i wizualne zobrazowanie jego działania nie są potrzebne. Tylko dopowiem, że podczas implementacji warto pamiętać o losowaniu pozycji tak, aby wierzchołki nie nachodziły na siebie.
+
+### Siatka (grid)
+
+<Image
+  image={grafGrid}
+  alignCenter
+  maxWidth="400px"
+  alt="Wierzchołki grafu rozmieszczone na siatce"
+  caption={<></>}
+/>
+
+Układ siatki (ang. grid layout) jest już bardziej uporządkowanym podejściem. Zasada działania wygląda następująco:
+
+1. Sortujemy wierzchołki według pożądanej kolejności. Jeśli tego nie zrobimy, powinniśmy je wziąć w takiej kolejności, w jakiej są zapisane w danych, aby algorytm był deterministyczny.
+2. Definiujemy siatkę, na której rozłożymy wierzchołki. Jeśli będziemy rozkładać je wiersz po wierszu, definiujemy odgórnie liczbę kolumn. Natomiast w odwrotnej sytuacji definiujemy liczbę wierszy. Oprócz tego powinniśmy zdefiniować również rozmiar pojedynczej komórki — zwykle jest to rozmiar wierzchołka z pewnym dodatkowym marginesem.
+3. Rozkładamy wierzchołki po kolei po siatce. Zwykle stawiamy je pośrodku komórki, ale to już są szczegóły implementacyjne.
+
+Kiedy taki układ się przydaje? Na przykład:
+
+- Mamy dużo wierzchołków niepołączonych żadnymi krawędziami.
+- Dane prezentują sekwencję, gdzie zawsze z jednego wierzchołka dojdziemy tylko do jednego innego. Możemy wówczas dla lepszej czytelności tak posortować wierzchołki, aby krawędzie tworzyły serpentynę (tym samym nie przecinały się).
+- Gdy nie mamy żadnych informacji o grafie, ale zarazem chcemy, aby ten sam zbiór danych był wyświetlany zawsze tak samo.
+
+Poniżej możesz zobaczyć, jak układ siatki wygląda w praktyce. Za pomocą przycisków na górze możesz dodawać wierzchołki, a na diagramie łączyć je ze sobą krawędziami przez naciśnięcie na wierzchołek i przeciągnięcie myszką na inny. Nad prezentacją znajdują się też generatory danych, aczkolwiek w tym przypadku raczej nie będą zbyt przydatne.
+
+<Presentation availableLayouts={[Layouts.Grid]} />
+
+Prezentacja została napisana z użyciem [Cytoscape](https://js.cytoscape.org/) i jej kod źródłowy znajdziesz [na moim GitHubie](https://github.com/swistak-codes/graph-layouts).
+
+## Układy okrągłe (circular)
+
+<Image
+  image={grafCircle}
+  alignCenter
+  maxWidth="400px"
+  alt="Wierzchołki grafu rozmieszczone na okręgu"
+  caption={<></>}
+/>
+
+Prostym, ale bardzo przydatnym układem jest rozmieszczanie wierzchołków na okręgu. Sprawdza się przede wszystkim tam, gdzie mamy wiele połączeń między wierzchołkami, czasem nawet połączony jest każdy z każdym.
+
+Oprócz rozmieszczania na jednym okręgu (klasyczne podejście, spotykane pod angielską nazwą *circle layout*) możemy też rozbijać wierzchołki na mniejsze okręgi i umieszczać jeden w drugim (układ koncentryczny, ang. concentric layout). Przydatne jest to wtedy, gdy dodatkowo musimy przedstawić hierarchię.
+
+W kwestii algorytmiki teoretycznie moglibyśmy podejść do tematu podobnie jak z siatką, tylko rozmieszczając wierzchołki na okręgu. Musielibyśmy wyliczyć promień okręgu, aby był na tyle duży, żeby wszystkie wierzchołki się pomieściły, a następnie obliczać pozycję ze wzoru okręgu. Podejście takie jednak niekoniecznie może skutkować ładnie wyglądającym diagramem.
+
+Aby graf ładnie wyglądał, powinniśmy mieć jak najmniejszą liczbę przecięć krawędzi. Jednak jak się okazuje, nie jest to proste zadanie i znalezienie minimalnej liczby przecięć należy do klasy problemów NP-trudnych (mówiąc prosto: takich, które wymagają bardzo dużej liczby obliczeń, żeby sprawdzić poprawność rozwiązania). Zostały opracowane różne algorytmy, które tak rozmieszczają wierzchołki na okręgu, aby dążyć do tego minimum, aczkolwiek nie zapewniając go. Spośród podejść opisanych w literaturze naukowej możemy wyróżnić (w kolejności od najstarszego podejścia):
+
+- algorytm Mäkinena, opisany w [doi:10.1080/00207168808803629](https://doi.org/10.1080/00207168808803629)
+- CIRCULAR, opisany w [doi:10.1007/3-540-46648-7_11](https://doi.org/10.1007/3-540-46648-7_11)
+- algorytm Baura-Brandesa, opisany w [doi:10.1007/978-3-540-30559-0_28](https://doi.org/10.1007/978-3-540-30559-0_28)
+- Adjacent Vertex with Smallest Degree First (AVSDF, po ang. najpierw sąsiadujący węzeł o najmniejszym stopniu), opisany przez H. He i O. Sykorę w 2004 r.
+
+Z tego, co udało mi się dowiedzieć, obecnie najwydajniejszym i dającym najlepsze efekty wizualne podejściem jest AVSDF. W poniższej prezentacji możesz sprawdzić jego działanie i porównać do algorytmu wbudowanego w Cytoscape, który nie minimalizuje liczby przecięć.
+
+<Presentation availableLayouts={[Layouts.Circle, Layouts.Avsdf]} />
+
+## Rysowanie ukierunkowane siłą (force-directed)
+
+<Image
+  image={grafForce}
+  alignCenter
+  maxWidth="400px"
+  alt="Wierzchołki grafu rozmieszczone za pomocą sposobu force-directed"
+  caption={<></>}
+/>
+
+Klasyką algorytmiki rozmieszczania wierzchołków w przestrzeni jest rysowanie ukierunkowane siłą, lepiej znane pod jego angielską nazwą *force-directed*. Algorytmy te charakteryzują się tym, że wizualizacje powstałe z ich pomocą potrafią bardzo celnie odwzorować różne właściwości grafu. Dobrze sparametryzowany algorytm zbije w bliskie sąsiedztwo wierzchołki, które mają dużo połączeń ze sobą, umieszczając w centrum ten, który jest najczęściej łączony z innymi. Właśnie rozmieszczanie wierzchołków przez swego rodzaju „klasteryzację” danych jest bardzo charakterystyczne. Często oddaje najlepiej naturę danych, stąd zwykle jest to pierwszy sposób, jak próbuje się wizualizować grafy. Na pewno jest wyborem numer 1, gdy wizualizujemy sieci społeczne, grafy wiedzy, a także może się świetnie sprawdzić w diagramach baz danych.
+
+A na jakiej zasadzie to działa? Algorytmy wykonujące rozmieszczenie wierzchołków ukierunkowane siłą wykonują na grafie symulację fizyczną. Wierzchołkom i krawędziom przypisuje się różne właściwości i iteracyjnie sprowadza układ do stanu równowagi. Natomiast w kwestii, które siły i w jaki sposób symulować, to zależy już od konkretnego algorytmu. Popularne jest podejście, gdzie z jednej strony przyciągamy połączone wierzchołki ze sobą tak, jakby były połączone sprężyną (może zostać tu wykorzystane prawo Hooke'a); z drugiej zaś odpychane są od siebie, traktując je jako cząstki naładowane elektrostatycznie (tutaj wykorzystuje się prawo Coulomba). Mogą też być stosowane idee pochodzące z zasad działania magnetyzmu czy grawitacji.
+
+Z racji tego, że jest to najpopularniejszy sposób wizualizacji grafów, praktycznie każde rozwiązanie do ich wizualizacji posiada wbudowany jakiś algorytm tego typu, sprawujący się lepiej lub gorzej. Jednak jakbyś chciał(a) bardziej szczegółowo wejść w temat, to spośród algorytmów wymienić możemy (dwa klasyczne i dwa współczesne podejścia):
+
+- Algorytm Tutte'a, opisany w [doi:10.1112/plms/s3-13.1.743](https://doi.org/10.1112/plms/s3-13.1.743) — najbardziej podstawowe podejście korzystające z symulacji fizycznej.
+- Algorytm Kamady-Kawaia, opisany w [doi:10.1016/0020-0190(89)90102-6](https://doi.org/10.1016%2F0020-0190%2889%2990102-6) — o tyle specyficzny, że dystans między wierzchołkami, dla ich najlepszego rozsunięcia, nie jest obliczany geometrycznie, ale jako długość ścieżki.
+- CoSE, opisany w [doi:10.1016/j.ins.2008.11.017](https://doi.org/10.1016/j.ins.2008.11.017) — w szczególności przystosowany pod grafy złożone, czyli takie, gdzie jeden wierzchołek może być grupą zawierającą w sobie inne wierzchołki (nieraz połączone z wierzchołkami spoza grupy).
+- CoLa, opisany w [doi:10.1007/978-3-642-00219-9_22](https://doi.org/10.1007/978-3-642-00219-9_22) — mój osobisty faworyt, bardzo konfigurowalny i dający bardzo dobre efekty wizualne, w tym także w czasie rzeczywistym (używałem go np. w wizualizacjach do artykułów o <Link href="/post/sposoby-reprezentacji-grafow">reprezentacji grafów</Link> i <Link href="/post/przechodzenie-po-grafie">przechodzeniu po nich</Link>).
+
+O ile jest to sposób rysowania grafów niemal idealny, jest niestety słabo wypadający pod kątem obliczeniowym. Świetnie wygląda przy działaniu w czasie rzeczywistym, ale im więcej danych, tym będzie się gorzej sprawować. W przypadku, gdy chcemy rezultaty mieć natychmiastowo, większość algorytmów działa dobrze do ok. 100 wierzchołków. Warto jednak zauważyć, że nawet jeśli algorytm jest na tyle wydajny, że jest nam w stanie wyliczyć pozycje dla większych grafów, wizualizacja może nie być już zbyt czytelna.
+
+Poniżej możesz sprawdzić, jak działa kilka współczesnych algorytmów typu force-directed, w tym wspomniane przeze mnie CoSE i CoLa.
+
+<Presentation availableLayouts={[Layouts.Cose, Layouts.Cola, Layouts.Fcose, Layouts.Euler]} />
+
+## Warstwowe grafy skierowane (layered digraph)
+
+<Image
+  image={grafDigraph}
+  alignCenter
+  maxWidth="400px"
+  alt="Wierzchołki grafu rozmieszczone jako warstwowy graf skierowany"
+  caption={<></>}
+/>
+
+Kolejną istotną grupą algorytmów rysujących grafy jest taka, która potrafi wiernie odwzorować hierarchię zapisaną w danych. Algorytmy pozycjonujące wierzchołki w ten sposób skrywają się zwykle pod nazwą *layered digraph*, co oznacza po prostu warstwowy graf skierowany. I jest to nazwa o tyle celna, że aby mówić o hierarchii, musimy mieć graf skierowany, a żeby ową hierarchię widzieć, wierzchołki są układane warstwami.
+
+Właśnie w tej kategorii znajdziemy metody rysowania drzew (oczywiście w rozumieniu struktury danych) i wszelkich innych danych hierarchicznych. Poza wizualizacją drzew (jako struktur danych) algorytmy te są wykorzystywane przy wizualizacji przepływów danych (np. przy zagadnieniu *data lineage*, czyli badanie pochodzenia danych), struktur organizacyjnych, drzew genealogicznych, a także automatycznego rozmieszczania schematów blokowych. Należy jednak uważać z tym ostatnim przypadkiem, bo często takie schematy posiadają pętle, których algorytmy mogą nie obsługiwać.
+
+Najważniejszą pracą na ten temat jest metoda Sugiyamy ([doi:10.1109/TSMC.1981.4308636](https://doi.org/10.1109/TSMC.1981.4308636)), ponieważ wszystkie dzisiejsze podejścia bazują na niej. Jedyne, co zmienia się między implementacjami, to optymalizacje poszczególnych etapów rysowania bądź większa/mniejsza konfigurowywalność algorytmu. A etapy te są następujące:
+
+1. Układana jest hierarchia wierzchołków. Dodatkowo w algorytmie Sugiyamy, jeśli zostaną wykryte długie krawędzie (które przechodziłyby przez warstwy), tworzone są dodatkowe, sztuczne wierzchołki.
+2. Zamienia się kolejność wierzchołków w warstwach, aby zminimalizować liczbę przecięć.
+3. Ustalane są pozycje wierzchołków.
+4. Usuwane są sztuczne wierzchołki, a tym samym przywraca się długie krawędzie.
+
+Na poniższej prezentacji możesz sprawdzić, jak zachowują się różne ze współczesnych implementacji metody Sugiyamy (Dagre i Klay):
+
+<Presentation availableLayouts={[Layouts.Dagre, Layouts.Klay]} />
+
+## Inne podejścia
+
+Powyżej opisane przeze mnie sposoby rysowania grafów są najpopularniejsze i potrafią pokryć większość przypadków grafów, które mamy do narysowania. Są jednak przypadki, gdzie naukowcy bądź twórcy oprogramowania do wizualizacji tworzą nowe algorytmy będące wariacjami na temat aktualnych, ich hybrydami albo w ogóle czymś zupełnie nowym.
+
+Przeglądając dokumentacje bibliotek do wizualizacji, natknąłem się na następujące, mniej typowe podejścia:
+
+- Połączenie podejść force-directed i circle, gdzie połączone ze sobą węzły są grupowane w okręgi, a te rozmieszczane między sobą za pomocą sił fizycznych. Algorytm działający w ten sposób to np. CiSE opisany w [doi:10.1109/TVCG.2012.178](https://doi.org/10.1109/TVCG.2012.178). W przypadku CiSE możemy mówić o połączeniu algorytmów CoSE oraz AVSDF.
+- Force-directed zajmujący całą dostępną powierzchnię. Takie podejście jest dostępne w algorytmie [Spread](https://github.com/cytoscape/cytoscape.js-spread) stworzonym przez twórców Cytoscape. Algorytm najpierw wykonuje force-directed z pomocą CoSE, po czym wykonuje teselację Woronoja w celu rozmieszczenia wierzchołków po ekranie tak, aby równomiernie zajmowały przestrzeń.
+- Popularnym sposobem wizualizacji dużych drzew jest tzw. drzewo hiperboliczne. Charakteryzuje się tym, że drzewo zawiera się w kole i całość jest rozmieszczona tak, aby zasymulować efekt rybiego oka. Takie podejście zostało np. opisane w [doi:10.1145/223904.223956](https://doi.org/10.1145/223904.223956) i opatentowane przez Xeroxa w 1996 r.
+- W dziedzinie zarządzania znane są diagramy Ishikawy (przyczyn i skutków) charakteryzujące się tym, że krawędzie i wierzchołki wyglądają tak, jakby tworzyły szkielet ryby (stąd alternatywna nazwa *diagram rybiej ości*, po ang. fishbone diagram). Algorytm, który automatycznie rozmieszcza wierzchołki w taki sposób, możemy znaleźć, np. jako dodatek do biblioteki GoJS (https://gojs.net/latest/extensions/Fishbone.html).
+- Omawiając siatkę, pisałem, że aby pokazać sekwencję, możemy wierzchołki posortować tak, aby tworzyły serpentynę. Analogicznym podejściem byłoby ułożenie wierzchołków w spiralę, co również możemy znaleźć w GoJS (https://gojs.net/latest/extensions/Spiral.html).
+- Twórcy bibliotek dla przyciągnięcia uwagi potrafią tworzyć bardzo wymyślne wizualizacje, które wykorzystane w odpowiedni sposób mogą stworzyć unikalne diagramy. Moim faworytem pośród takich jest Cactus Group Layout z yFiles (https://live.yworks.com/demos/04-tutorial-layout-features/cactus/) układający hierarchiczne dane w okręgi, tym samym przedstawiając hierarchię w zupełnie odmienny sposób niż klasyczne metody warstwowe.
+
+## Podsumowanie
+
+W artykule postarałem się przedstawić w pigułce najważniejsze zagadnienia związane z algorytmiką wizualizacji grafów. Sposobów jest wiele, algorytmów je implementujących jeszcze więcej. Są one rozbudowane, ale na szczęście często już zaimplementowane, bardziej lub mniej wydajnie, w gotowych rozwiązaniach do wizualizacji danych. A jeśli chcesz się doszkolić na temat wizualizacji danych, to gorąco polecam monografię: *Handbook of Graph Drawing and Visualization* pod redakcją Roberto Tamassiego. Cała książka jest dostępna w wersji e-book za darmo i legalnie tutaj: https://cs.brown.edu/people/rtamassi/gdhandbook/.
+
+Natomiast poniżej w jednej prezentacji możesz przetestować wszystkie pokazane powyżej podejścia i kilka innych:
+
+<Presentation availableLayouts={[Layouts.Random, Layouts.Grid, Layouts.Circle, Layouts.Avsdf, Layouts.Cose, Layouts.Cola, Layouts.Fcose, Layouts.CoseBilkent, Layouts.Euler, Layouts.Dagre, Layouts.Klay, Layouts.Breadthfirst]} />
+
+## Literatura
+
+- Wstęp teoretyczny
+    - Eick S.G. ”Graph Drawing for Data Analytics” w *Handbook of Graph Drawing and Visualization*, CRC Press, 2013, s. 681-696
+    - Brandes U.; Freeman L.C.; Wagner D. ”Social Networks” w *Handbook of Graph Drawing and Visualization*, CRC Press, 2013, s. 805-828
+    - Kondratowicz P. *Industry-Specific Diagrams – Specifications, Use, and Context*, https://synergycodes.com/blog/industry-specific-diagrams-specifications-use-and-context/ (ostatni dostęp 03.10.2022)
+- Układy okrągłe
+    - Six J.M., Tollis I.G. ”Circular Drawing Algorithms” w *Handbook of Graph Drawing and Visualization*, CRC Press, 2013, s. 285-314
+    - Erkki Mäkinen (1988) *On circular layouts*, International Journal of Computer Mathematics, 24:1, 29-37, [doi:10.1080/00207168808803629](https://doi.org/10.1080/00207168808803629)
+    - Six, J.M., Tollis, I.G. (1999). *A Framework for Circular Drawings of Networks*. In: Kratochvíyl, J. (eds) Graph Drawing. GD 1999. Lecture Notes in Computer Science, vol 1731. Springer, Berlin, Heidelberg. [doi:10.1007/3-540-46648-7_11](https://doi.org/10.1007/3-540-46648-7_11)
+    - Baur, M., Brandes, U. (2004). *Crossing Reduction in Circular Layouts*. In: Hromkovič, J., Nagl, M., Westfechtel, B. (eds) Graph-Theoretic Concepts in Computer Science. WG 2004. Lecture Notes in Computer Science, vol 3353. Springer, Berlin, Heidelberg. [doi:10.1007/978-3-540-30559-0_28](https://doi.org/10.1007/978-3-540-30559-0_28)
+    - He, Hongmei & Skora, Ondrej. (2022). *New circular drawing algorithms*.
+    - Gansner E.R., Koren Y. *Improved Circular Layouts*, AT&T Labs — Research
+- Rysowanie ukierunkowane siłą
+    - Kobourov S.G. ”Force-directed Drawing Algorithms” w *Handbook of Graph Drawing and Visualization*, CRC Press, 2013, s. 383-404
+    - Kamada T., Kawai S. *An Algorithm for drawing general undirected graphs*. In: Information Processing Letters, Volume 31, Issue 1, 1989, pages 7-15. [doi:10.1016/0020-0190(89)90102-6](https://doi.org/10.1016/0020-0190(89)90102-6)
+    - Dogrusoz U., Giral E., Cetintas A., Civril A., Demir E. *A layout algorithm for undirected compound graphs*. In: Information Sciences, Volume 179, Issue 7, 2009, pages 980-994. [doi:10.1016/j.ins.2008.11.017](https://doi.org/10.1016/j.ins.2008.11.017)
+    - Dwyer, T., Marriott, K., Wybrow, M. (2009). *Topology Preserving Constrained Graph Layout*. In: Tollis, I.G., Patrignani, M. (eds) Graph Drawing. GD 2008. Lecture Notes in Computer Science, vol 5417. Springer, Berlin, Heidelberg. [doi:10.1007/978-3-642-00219-9_22](https://doi.org/10.1007/978-3-642-00219-9_22)
+- Warstwowe grafy skierowane
+    - Healy P., Nikolov N.S. ”Hierarchical Drawing Algorithms” w *Handbook of Graph Drawing and Visualization*, CRC Press, 2013, s. 409-446
+    - K. Sugiyama, S. Tagawa and M. Toda, "Methods for Visual Understanding of Hierarchical System Structures," in IEEE Transactions on Systems, Man, and Cybernetics, vol. 11, no. 2, pp. 109-125, Feb. 1981, [doi:10.1109/TSMC.1981.4308636](https://doi.org/10.1109/TSMC.1981.4308636).
+- Inne podejścia
+    - U. Dogrusoz, M. E. Belviranli and A. Dilek, "CiSE: A Circular Spring Embedder Layout Algorithm," in IEEE Transactions on Visualization and Computer Graphics, vol. 19, no. 6, pp. 953-966, June 2013, [doi:10.1109/TVCG.2012.178](https://doi.org/10.1109/TVCG.2012.178).
+    - [Weisstein, Eric W.](https://mathworld.wolfram.com/about/author.html) "Voronoi Diagram." From [MathWorld](https://mathworld.wolfram.com/)--A Wolfram Web Resource. https://mathworld.wolfram.com/VoronoiDiagram.html
+    - Rusu A. ”Tree Drawing Algorithms” w *Handbook of Graph Drawing and Visualization*, CRC Press, 2013, s. 155-188
+    - John Lamping, Ramana Rao, and Peter Pirolli. 1995. *A focus+context technique based on hyperbolic geometry for visualizing large hierarchies*. In Proceedings of the SIGCHI Conference on Human Factors in Computing Systems (CHI '95). ACM Press/Addison-Wesley Publishing Co., USA, 401–408. [doi:10.1145/223904.223956](https://doi.org/10.1145/223904.223956)
+    - *Using layouts · Cytoscape.js*, https://blog.js.cytoscape.org/2020/05/11/layouts/ (ostatni dostęp: 03.10.2022)
+    - *GoJS Samples*, https://gojs.net/latest/samples/ (ostatni dostęp: 03.10.2022)
+    - *yFiles interactive demos*, https://www.yworks.com/products/yfiles/demos#layout (ostatni dostęp: 03.10.2022)
+
+<small>Zdjęcie na okładce wygenerowane przez DALL-E. Oryginał znajduje się [tutaj](https://labs.openai.com/s/rvEhktpsCCDAOdT0RSYGDxcT).</small>

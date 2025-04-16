@@ -1,0 +1,434 @@
+import Link from 'next/link';
+import {Image} from '@swistak-codes/components';
+import {Jupyter} from "./jupyter";
+import cover from './swistak-naukowiec.jpg';
+import ffProfiler from './firefox_profiler.png';
+import linuxTime from './linux_time.png';
+import macosTime from './macos_time.png';
+import windowsMeasure from './windows_measure.png';
+import hrtime from './hrtime.png';
+import jupyter from './jupyter.png';
+
+export const meta = {
+  title: 'Mierzenie czasu wykonania',
+  abstract:
+    'Artykuł poświęcony jest tematowi mierzenia czasu wykonywania aplikacji lub jej fragmentów.',
+  firstParagraph: (
+    <>
+      W codziennej pracy programisty może się zdarzyć przypadek, że konieczne jest przyspieszenie działania aplikacji. Trzeba wówczas namierzyć spowalniające obszary, a najlepiej jest to zrobić, mierząc czas ich wykonywania. Z innej perspektywy, możemy musieć z jakiegoś powodu przedstawić czas wykonywania aplikacji — czy to dla celów marketingu, czy po prostu potrzebujemy tego do sprawozdania do szkoły albo na studia. Zderzmy się z tym tematem — w jaki sposób mierzy się czas wykonania, jakie są podejścia w zależności od potrzeb i jak to robić na konkretnych przykładach.
+    </>
+  ),
+  keyword: 'mierzenie czasu',
+  categories: ['Data i czas', 'Programowanie'],
+  tags: [
+    'czas',
+    'c',
+    'c#',
+    'javascript',
+    'python',
+    'profiler',
+    'time',
+    'powershell'
+  ],
+  slug: 'mierzenie-czasu-wykonania',
+  updateTime: '2024-01-10T07:00:00+00:00',
+  publishTime: '2024-01-10T07:00:00+00:00',
+  english: 'https://4markdown.com/measuring-execution-time/',
+  cover,
+};
+
+## Zanim przejdziemy do meritum...
+
+...chciałem wspomnieć, że temat ten na blogu poruszyłem już od strony tego, w jaki sposób w ogóle odbywa się w komputerze mierzenie czasu na poziomie sprzętu. Został temu poświęcony artykuł *<Link href="/post/jak-komputer-mierzy-czas">Jak komputer mierzy czas?</Link>*. Nie będę tutaj powielać jego treści, dlatego dalej nie opiszę, jak to wszystko odbywa się sprzętowo. Jedynie przedstawię temat od jednego, konkretnego, praktycznego zastosowania.
+
+## Profilery
+
+Jeśli jesteś profesjonalnym programistą, to najlepszym sposobem, jak możesz mierzyć wydajność aplikacji, a tym samym namierzać problematyczne obszary, jest wykorzystywanie profilerów. Są to narzędzia, często dołączane do środowisk programistycznych, które służą dokładnie temu.
+
+Te, z których ja korzystam (lub korzystałem), działają na zasadzie nagrywania tego, co aplikacja wykonuje. Naciskamy przycisk nagrywania w narzędziu i wykonujemy w aplikacji problematyczną czynność. Zatrzymujemy, po czym narzędzie po przeanalizowaniu surowych danych zwraca linię czasową, co po kolei się działo. Możemy zwykle badać to wszystko bardzo szczegółowo i sprawdzać, co wywoływało co oraz ile czasu to zajmowało.
+
+Poniżej możesz zobaczyć najczęściej wykorzystywane przeze mnie narzędzie, czyli profiler wbudowany w Firefoksa (dokładniej nagrywanie w nim, bo wizualizacja wyników jest na specjalnej stronie internetowej), dzięki któremu mogę wyszukiwać problematyczne miejsca w aplikacjach wykonywanych w przeglądarce.
+
+<Image
+  image={ffProfiler}
+  alignCenter
+  fullSize
+  alt="Zrzut ekranu z profiler.firefox.com."
+  caption={<>
+    Wyniki profilowania uruchamiania bloga świstak.codes zwizualizowane za pomocą <a href="https://profiler.firefox.com/" target="_blank" rel="noopener">profiler.firefox.com</a>.
+  </>}
+/>
+
+Warto jednak wiedzieć, że różne profilery mają różny sposób działania, a niektóre mogą nawet skupiać się na różnych aspektach wydajności. Dlatego jeśli programujesz w innym środowisku, możesz mieć do czynienia z zupełnie inaczej wyglądającymi pomiarami. Jednak idea jest zwykle analogiczna.
+
+O ile zachęcam do korzystania z profilerów w profesjonalnym zastosowaniu, tak jestem w stanie zrozumieć, że niekoniecznie chcemy to robić. Dlaczego?
+
+- Profilery zwracają ogrom informacji, a nie zawsze potrzebujemy aż tyle.
+- Jeśli namierzymy problematyczne miejsce, możemy chcieć sprawdzać tylko je.
+- Potrafią spowolnić wykonanie całej aplikacji, więc nie sprawdzą się, jeśli chcemy np. pokazać, jak szybko coś działa.
+
+## Ręczne odmierzanie czasu
+
+Przejdźmy w takim razie do ręcznego odmierzania czasu wykonania. Sprowadza się to przede wszystkim do wywołania odpowiednich funkcji, które zapamiętają czas przed wykonaniem funkcji i po jej wykonaniu. Następnie odejmujemy te czasy od siebie i wynik jest czasem wykonania. Po prostu tyle.
+
+Jednak to, na co warto zwrócić uwagę, to jak taki czas mierzyć. Czas możemy uzyskać z różnych źródeł. Najprościej jest wyciągnąć czas kalendarzowy, ale ten jest o niskiej rozdzielczości — dokładność do sekund lub milisekund. O ile milisekundy w wielu przypadkach są akceptowalne, to sekundy już niezbyt. Jednak, jak pisałem w *<Link href="/post/jak-komputer-mierzy-czas">artykule o sprzętowym mierzeniu czasu</Link>*, komputery mają na to różne sposoby. Podałem tam nawet prosty kod asemblerowy wykonywany w C, który pobierał dane z jednego z liczników. My jednak skupmy się na rozwiązaniach oferowanych przez języki czy nawet systemy operacyjne. Później opiszę, dlaczego czasu kalendarzowego lepiej do tego celu w ogóle nie używać.
+
+We wszystkich przypadkach dla testu będziemy mierzyć czas wykonywania się <Link href="/post/funkcja-ackermanna">funkcji Ackermanna</Link> w zoptymalizowanej iteracyjnej wersji. Kod przerabiałem zawsze na język, w którym aktualnie operujemy. W przypadku systemów przepisałem kod na języki skryptowe dostępne w ich liniach poleceń, aby nie trzeba było kompilować ani doinstalowywać nic dodatkowego.
+
+### Systemy operacyjne
+
+Zacznijmy od systemów, bo to jest najbardziej uniwersalny sposób, gdyż nie musimy mieć dostępu do kodu. Również najprościej jest tak mierzyć całkowity czas wykonywania się aplikacji.
+
+Rozpatrzymy dwa przypadki pokrywające trzy najpopularniejsze systemy — Windows, Linux i macOS.
+
+#### Linux i macOS
+
+Zarówno na Linuksie, jak i macOS dysponujemy poleceniem [`time`](https://linux.die.net/man/1/time). Podajemy je przed wywoływaną przez nas komendą (skryptem, aplikacją, cokolwiek chcemy mierzyć) i po wykonaniu się w całości aplikacji na sam koniec zostaną zwrócone dane o czasie, ile zajęło wykonanie.
+
+Na potrzeby testów przepisałem algorytm na skrypt bashowy. Znajdziesz go na [Replit](https://replit.com/@tswistak/script-for-testing#main.sh). Jeśli nie masz Linuksa ani macOS, możesz na Replit sforkować ten skrypt, po czym uruchamiać go w zakładce *Shell*. Musisz tylko pamiętać o nadaniu uprawnień do wykonywania (`chmod +x ./main.sh`). Ewentualnie możesz skorzystać na Windowsie z [WSL](https://learn.microsoft.com/en-us/windows/wsl/).
+
+Wynik działania polecenia na Linuksie wygląda następująco:
+
+<Image
+  image={linuxTime}
+  alignCenter
+  fullSize
+  alt="Zrzut ekranu z terminala linuksowego z wywołanymi poleceniami 'time ./main.sh 3 4' oraz 'time ./main.sh 4 1'."
+  caption={<></>}
+/>
+
+Natomiast na macOS tak:
+
+<Image
+  image={macosTime}
+  alignCenter
+  fullSize
+  alt="Zrzut ekranu z terminala macOS z wywołanymi poleceniami 'time ./main.sh 3 4' oraz 'time ./main.sh 4 1'."
+  caption={<></>}
+/>
+
+Drobne wyjaśnienie, czym są pokazane wyżej czasy:
+
+- `real` / `total` — czas od rozpoczęcia do zakończenia wykonywania polecenia
+- `user` — czas spędzony na wykonaniu kodu polecenia bezpośrednio na procesorze
+- `sys` — czas spędzony na wykonywaniu operacji systemowych na procesorze w trakcie polecenia
+- `cpu` — ile procentowo dostępnej mocy obliczeniowej procesora wykorzystało polecenie w trakcie wykonywania
+
+Warto zauważyć, że mimo iż wydawać by się mogło, że `user` i `sys` sumarycznie powinny dać `real`, to w praktyce niekoniecznie tak jest. Zachęcam do poszukania na własną rękę, dlaczego tak się dzieje.
+
+#### Windows
+
+Na Windowsie korzystając z PowerShella, możemy użyć [`Measure-Command`](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/measure-command?view=powershell-7.4), które działa na podobnej zasadzie co `time`.
+
+Tutaj na potrzeby testów przepisałem algorytm na skrypt PowerShellowy. Znajdziesz go na [Replit](https://replit.com/@tswistak/script-for-testing-ps#main.ps1). Możemy go odpalić na Linuksie (także na Replit) i macOS po zainstalowaniu na nich [PowerShella](https://github.com/PowerShell/PowerShell) w taki sam sposób, jak pokażę to niżej na Windowsie. Jedyne co musicie zrobić uprzednio, to wejść do niego za pomocą polecenia `pwsh`. Natomiast na Windowsie, jeśli nigdy nie uruchamiałeś(-aś) żadnego skryptu PowerShellowego, możliwe, że będziesz musiał(a) wywołać z poziomu administratora polecenie `Set-ExecutionPolicy unrestricted`, aby zezwolić na uruchamianie skryptów z dowolnych źródeł. Warto potem, dla bezpieczeństwa, przywrócić oryginalne ustawienie przez `Set-ExecutionPolicy default`.
+
+Przejdźmy do rzeczy. Wywołanie polecenia i jego rezultat możesz zobaczyć poniżej:
+
+<Image
+  image={windowsMeasure}
+  alignCenter
+  fullSize
+  alt="Zrzut ekranu z PowerShella na Windowsie z wywołanymi poleceniami 'Measure-Command { \main.ps1 3 4 }' oraz 'Measure-Command { \main.ps1 4 1 }'."
+  caption={<></>}
+/>
+
+Wyniki odczytujemy następująco:
+
+- `Days`, `Hours`, `Minutes`, `Seconds`, `Milliseconds` — czas, jaki zajęło wykonanie polecenia, rozdzielony na podane jednostki. Warto zwrócić uwagę, że jest zaokrąglany do wartości całkowitych.
+- `Ticks` — najdokładniejsza dostępna jednostka czasu, w której zostało zmierzone wykonanie polecenia. 1 tick to 100 nanosekund (0,1 mikrosekund), stąd na powyższym przykładzie 851907 ticków odpowiada 85,1907 milisekundom.
+- `TotalDays`, `TotalHours`, `TotalMinutes`, `TotalSeconds`, `TotalMilliseconds` — całkowity czas w danej jednostce, tym razem bez zaokrągleń (stąd takie niskie wartości, szczególnie przy dniach i godzinach).
+
+### Języki programowania
+
+Jeśli chcemy zmierzyć czas wykonywania się pojedynczej funkcji, zdecydowanie prościej będzie nam zaprogramować odmierzanie czasu w kodzie.
+
+W tym przypadku pokażę, jak napisać funkcję, która zmierzy czas wykonywania innej funkcji. Jako jej argumenty przekażemy samą funkcję i argumenty, z którymi należy ją wywołać. Postanowiłem zrobić tak, aby pokazać, jak w językach, szczególnie tych silnie typowanych, zrobić przekazywanie argumentów, ponieważ prościej będzie przerobić Ci to na wersję bezargumentową. Ponadto czas będziemy zawsze mierzyć w najdokładniejszej dostępnej jednostce.
+
+Języki, które tu pokażę, to wybór wynikający tylko i wyłącznie z faktu, że miałem okazję w nich pisać jakieś algorytmy, których czas wykonania musiałem mierzyć. Myślę, że wybór tych języków pokryje najpopularniejsze przypadki, a sama ich kolejność jest alfabetyczna.
+
+#### C
+
+Zaczniemy od najtrudniejszego przypadku, bo język C nie słynie z rozwiązań wygodnych dla programistów. Też mylnie można stwierdzić, że w języku tym nie da się przekazać funkcji jako argumentu funkcji. Otóż jest to nieprawda i jak najbardziej da się to zrobić, odpowiednio definiując typ.
+
+Poniżej zamieszczam kod funkcji mierzącej czas wykonania wybranej funkcji. Warto zaznaczyć, że zlicza jedynie czas, kiedy zajęty jest procesor (czyli coś na wzór `user` z `time`), więc nie weźmie pod uwagę czasu, gdy wykonanie jest blokowane przez urządzenia wejścia/wyjścia.
+
+```c
+#include <time.h>
+
+// pierwszy argument to wskaźnik na funkcję, pozostałe to jej argumenty
+// int (*func)(int, int) czyli funkcja zwracająca int, przyjmująca dwa inty
+void measure(int (*func)(int, int), int m, int n) {
+  // ts1 i ts2 są typu struktury timespec
+  // przechowuje czas rozbity na sekundy i nanosekundy
+  struct timespec ts1, ts2;
+  // w time przechowamy obliczony przez nas wynik
+  // zmienna przechowa liczbę 64-bitową bez znaku
+  unsigned long long int time;
+  // pobieramy początkowy moment czasu
+  // CLOCK_PROCESS_CPUTIME_ID pobiera czas zajmowania CPU przez proces
+  clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &ts1);
+  // wykonujemy przekazaną funkcję
+  int f_result = func(m, n);
+  // i ściągamy czas po wykonaniu
+  clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &ts2);
+  // obliczamy róznicę czasu
+  time = 1e9 * ts2.tv_sec + ts2.tv_nsec - (1e9 * ts1.tv_sec + ts1.tv_nsec);
+  // tu możesz zrobić z czasem, co chcesz, ja wypisuję w konsoli razem z wynikiem
+  printf("Wynik: %d; czas: %llu ns\n", f_result, time);
+}
+```
+
+Kod wraz z przykładem użycia znajdziesz na [Replit](https://replit.com/@tswistak/time-measure-c#main.c). Zaznaczę tylko, że kod ten na pewno działa na Linuksie i powinien działać też na innych systemach zgodnych z POSIX (Uniksy, BSD, macOS...). Nie testowałem tego na Windowsie, ale zakładam, że z kompilatorem MSVC to nie zadziała, natomiast powinno zadziałać pod MinGW. Jeśli przetestowałeś(-aś), możesz dać mi znać w komentarzu (pod artykułem), czy i jak działa `clock_gettime`.
+
+Jeszcze wspomnę, że zegarem `CLOCK_PROCESS_CPUTIME_ID`, przynajmniej na Linuksie, zarządza jądro systemu i to ono zwraca najdokładniejszy możliwy pomiar. W dawnych czasach (przed Linuksem 2.6) wykorzystywał licznik czasu TSC (czyli dokładnie ten, który pokazałem w poprzednim artykule o mierzeniu czasu), aczkolwiek bezpośredni odczyt licznika mógł zaburzać rezultaty, jeśli kod był odpalany w architekturach wielordzeniowych (czyli w zasadzie wszystkich obecnych).
+
+Jeśli natomiast interesuje Cię pomiar czasu całkowitego wykonania, a nie tylko czasu, gdy funkcja zajmuje procesor, skorzystaj z `CLOCK_MONOTONIC` (ew. jeśli uruchamiasz tylko na Linuksie, to nawet lepiej `CLOCK_MONOTONIC_RAW`). Dostępnych zegarów jest jeszcze więcej i możesz o nich poczytać [w dokumentacji C](https://man7.org/linux/man-pages/man3/clock_gettime.3.html).
+
+#### C#
+
+W C# w przeciwieństwie do C nie musimy wiedzieć, z którego konkretnego licznika pobierać czas i czy na pewno sposób ten jest obsługiwany przez nasz system operacyjny. W `System.Diagnostics` znajdziemy klasę [`Stopwatch`](https://learn.microsoft.com/en-us/dotnet/api/system.diagnostics.stopwatch?view=net-8.0) (po pol. stoper) służącą do odmierzania czasu.
+
+Analogicznie jak dla C tutaj też pokażę, w jaki sposób zaimplementować funkcję (w zasadzie metodę) mierzącą czas wykonania przekazanej do niej funkcji:
+
+```csharp
+using System.Diagnostics;
+
+// ...
+
+// pierwszy argument to funkcja, której czas będziemy mierzyć
+// Func<int,int,int> czyli zwraca int (ostatni argument) i przyjmuje dwa inty
+public static void Measure(Func<int, int, int> func, int m, int n)
+{
+  // tworzymy nowy stoper, od razu go uruchamiając
+  var watch = Stopwatch.StartNew();
+  // wykonujemy przekazaną funkcję
+  var result = func(m, n);
+  // zatrzymujemy stoper
+  watch.Stop();
+  // możemy z obiektu typu TimeSpan znajdującego się w Elapsed pobrać,
+  // ile minęło milisekund, jako typ zmiennoprzecinkowy
+  var timeMs = watch.Elapsed.TotalMilliseconds;
+  // ewentualnie prosto ze stopera odczytać liczbę ticks (1 tick = 100 ns)
+  // sam(a) wybierz, który zapis wolisz, wyniki są te same
+  var timeTicks = watch.ElapsedTicks;
+  // tu możesz zrobić z czasem, co chcesz, ja go wypisuję w konsoli
+  Console.WriteLine($"Wynik: {result}; czas: {timeMs}ms, {timeTicks} ticks");
+}
+```
+
+Kod znajdziesz na [Replit](https://replit.com/@tswistak/time-measure-cs#main.cs), aczkolwiek jeśli uruchamiasz tam, to weź poprawkę na to, że kompilator C# działa tam dość wolno.
+
+Możesz zauważyć w powyższym kodzie, że rezultat bardzo przypomina to, co widzieliśmy w przypadku PowerShella. Jest tak dlatego, że PowerShell jest oparty na platformie .NET tak samo jak C#. Z tego powodu mamy tę samą jednostkę z najwyższą dokładnością (ticks) i obiekt zawierający `TotalMilliseconds`. Obiekt ten jest typu `TimeSpan` i to, co zwracał nam `Measure-Command`, to także była instancja klasy `TimeSpan`.
+
+#### JavaScript
+
+W JavaScript pokażę dwa różne sposoby jak mierzyć czas — uniwersalny dla przeglądarek oraz NodeJS, który jest zalecany w większości źródeł i unikalny dla NodeJS.
+
+##### Web Performance APIs
+
+Pierwszy sposób to wykorzystanie [Web Performance APIs](https://w3c.github.io/perf-timing-primer/), czyli standardów zdefiniowanych przez W3c jak prawidłowo mierzyć wydajność aplikacji JavaScriptowych. Nas interesuje obiekt `performance`, a dokładniej jego funkcja `now()`, która zwraca pomiar z licznika o wysokiej rozdzielczości i dokładności. Czas jest w milisekundach.
+
+W kodzie wygląda to następująco:
+
+```javascript
+// zaimportowanie jest potrzebne tylko wtedy, gdy jesteśmy w NodeJS
+// przeglądarki mają dostępny `window.performance`
+const { performance } = require("node:perf_hooks");
+
+// funkcja przyjmuje jako argument dowolną funkcję i dowolną liczbę argumentów
+function measure(func, ...args) {
+  // pobieramy wskazanie czasu z odpowiedniego licznika
+  const start = performance.now();
+  // wykonujemy funkcję
+  const result = func(...args);
+  // ponownie pobieramy wskazanie czasu
+  const end = performance.now();
+  // odejmujemy czas końcowy od początkowego
+  const time = end - start;
+  // w tym momencie możesz zrobić co chcesz z pomiarem
+  // ja go wypisuję w konsoli
+  console.log(`Wynik: ${result}; czas: ${time} ms`);
+}
+```
+
+Kod znajdziesz na [Replit](https://replit.com/@tswistak/time-measure-js#index.js) w wersji uruchamianej w NodeJS, aczkolwiek w przeglądarce też zadziała. Warto dodać, że jeśli pracujesz na wielu wątkach, to aby mieć dokładne pomiary, w obliczeniach weź pod uwagę [`performance.timeOrigin`](https://developer.mozilla.org/en-US/docs/Web/API/Performance/timeOrigin), dzięki któremu zsynchronizujesz pomiary. Alternatywnie, jeśli chcesz zmierzyć czasy w wielu miejscach i różnych konfiguracjach, wygodniejsze może być użycie funkcji [`performance.mark()`](https://developer.mozilla.org/en-US/docs/Web/API/Performance/mark), a następnie zmierzenie interesujących Cię rzeczy za pomocą [`performance.measure()`](https://developer.mozilla.org/en-US/docs/Web/API/Performance/measure).
+
+Warto dodać, że w zależności od środowiska pomiary mogą mieć różną dokładność. W przypadku uruchamiania w NodeJS pomiary odbywają się w nanosekundach, więc zmierzona wartość jest z częścią dziesiętną, natomiast w przeglądarkach wynik jest zaokrąglony do milisekund.
+
+##### process.hrtime
+
+Jeśli pracujemy w NodeJS, czas do mierzenia wydajności możemy też pobierać, wykorzystując `proces.hrtime`. Jest to starszy sposób, dostępny niemal od początków NodeJS, ale dalej można na nim polegać. Zwracany przez niego czas jest w nanosekundach.
+
+Poniżej możesz zobaczyć, jak używać tej funkcji od NodeJS 10, gdy wprowadzono jej nową wersję bazującą na `BigInt`, czyli [`process.hrtime.bigint()`](https://nodejs.org/api/process.html#processhrtimebigint):
+
+```javascript
+// importujemy hrtime z modułu process
+const { hrtime } = require("node:process");
+
+// funkcja przyjmuje jako argument dowolną funkcję i dowolną liczbę argumentów
+function measure(func, ...args) {
+  // pobieramy wskazanie czasu z odpowiedniego licznika
+  const start = hrtime.bigint();
+  // wykonujemy funkcję
+  const result = func(...args);
+  // ponownie pobieramy wskazanie czasu
+  const end = hrtime.bigint();
+  // odejmujemy czas końcowy od początkowego
+  const time = end - start;
+  // w tym momencie możesz zrobić co chcesz z pomiarem
+  // ja go wypisuję w konsoli
+  console.log(`Wynik: ${result}; czas: ${time} ns`);
+}
+```
+
+Kod jak zwykle znajdziesz na [Replit](https://replit.com/@tswistak/time-measure-js2#index.js). Jak widzisz, użycie jest analogiczne, różni się jedynie tym, którą funkcję wywołujemy. Warto tylko pamiętać o tym, że tutaj wynik jest typu `BigInt`.
+
+Starsza wersja, czyli [`process.hrtime()`](https://nodejs.org/api/process.html#processhrtimetime), bazująca na zwykłym typie liczbowym, jest oznaczona jako *deprecated*, więc z czasem może zostać usunięta. Można ją jednak wciąż znaleźć w projektach. Warto zwrócić uwagę, że można do niej jako argument przekazać poprzedni pomiar czasu, wówczas zwróci różnicę między nimi, co upraszcza pracę (wynik to tablica, więc nie trzeba kombinować z obliczeniami).
+
+#### Python
+
+##### time
+
+Python, analogicznie jak poprzednie języki, pozwala mierzyć czas z dokładnością do nanosekund. Służą do tego funkcje:
+
+- [`time.perf_counter_ns()`](https://docs.python.org/3/library/time.html#time.perf_counter_ns) — zwraca pomiar czasu biorący pod uwagę wszystko, co działo się na komputerze. Jest jeszcze wersja bez sufiksu `_ns`, która zwraca czas w sekundach (ale z dokładnością do nanosekund).
+- [`time.process_time_ns()`](https://docs.python.org/3/library/time.html#time.process_time_ns) — działa analogicznie do pomiaru czasu, który wykonywaliśmy w C, czyli mierzy czas, gdy procesor był zajęty przez naszą aplikację. Podobnie jak wyżej, jest również wersja bez `_ns`.
+
+W poniższym kodzie użyjemy tego drugiego sposobu, aby mieć działanie analogiczne do tego, które zaprogramowaliśmy w C:
+
+```python
+import time
+
+
+# funkcja przyjmuje jako argument funkcję i jej argumenty
+def measure(func, *args):
+  # pobieramy czas początkowy z licznika process_time
+  start = time.process_time_ns()
+  # wykonujemy funkcję
+  result = func(*args)
+  # pobieramy czas końcowy
+  end = time.process_time_ns()
+  # obliczamy czas wykonania
+  total_time = end - start
+  # możesz tutaj zrobić cokolwiek chcesz z total_time
+  # ja go wypisuję w konsoli
+  print(f"Wynik: {result}; czas: {total_time} ns")
+```
+
+Kod w całości znajdziesz na [Replit](https://replit.com/@tswistak/time-measure-python#main.py).
+
+##### timeit
+
+W Pythonie możemy też mierzyć czas za pomocą [`timeit`](https://docs.python.org/3/library/timeit.html). Wykorzystuje on pod spodem `time.perf_counter` i wykonuje za nas pomiary wydajności wybranego fragmentu kodu przez wielokrotne uruchamianie i następnie obliczenie średniego czasu wykonania. Możemy go używać z linii poleceń, z poziomu kodu, a także jako *magic command* w Jupyterze ([`%timeit`](https://ipython.readthedocs.io/en/stable/interactive/magics.html#magic-timeit)). Jest to bardzo wygodne (szczególnie wersja dla Jupytera).
+
+Co prawda tutaj nieco odbiegamy od pokazywanego wcześniej schematu (funkcja mierząca czas pojedynczego wykonania), ale z racji przydatności pokażę, w jaki sposób można użyć tej funkcji w Jupyterze jako *magic command*. Poniżej przykład działania:
+
+[//]: # (<Jupyter />)
+
+<Image
+  image={jupyter}
+  alignCenter
+  fullSize
+  alt="Zrzut ekranu z notatnika Jupyter w języku polskim, przedstawiający implementację i pomiar czasu wykonania funkcji Ackermanna. Notatnik zaczyna się od kodu w Pythonie definiującego funkcję `a(m, n)` za pomocą algorytmu opartego na pętli z użyciem zmiennych `next`, `goal` i `value`. Instrukcje wyjaśniają, jak zmierzyć średni czas wykonania funkcji dla różnych argumentów za pomocą `%timeit`. Wyniki dla różnych wejść (np. `a(1, 4)`, `a(2, 4)`, `a(3, 4)`, `a(4, 1)`) zawierają czas wykonania na pętlę, średnią, odchylenie standardowe i liczbę powtórzeń. Notatnik pokazuje również, jak wymusić pojedyncze wykonanie funkcji za pomocą `%timeit -r 1`. Instrukcje i komentarze są w języku polskim."
+  caption={<></>}
+/>
+
+Notebook w całości znajdziesz na [Google Colab](https://colab.research.google.com/drive/1JRmKVilairnpGLg6wNRd8VLX6pAocf0l?usp=sharing), gdzie możesz go uruchomić i sprawdzić na własną rękę, jak to wygląda.
+
+Metoda ta jest o tyle dobra, że podaje nam już gotową statystykę — oprócz średniego czasu wykonania w nano-/mikro-/mili- sekundach otrzymujemy także odchylenie standardowe. Dalej nieco więcej o tym.
+
+## Dlaczego nie odejmujemy czasu kalendarzowego?
+
+Patrząc na powyższe fragmenty kodu, możesz zadać trafne pytanie — dlaczego po prostu nie odejmiemy od siebie daty po wykonaniu funkcji i przed wykonaniem? W końcu zwykle mamy dostęp do daty w postaci <Link href="/post/jak-komputer-przechowuje-date-i-skad-zna-aktualna/#czas-uniksowy">czasu uniksowego</Link> w sekundach, a nawet milisekundach. Może to też być dla Ciebie o tyle zastanawiające, że często w artykułach skierowanych do początkujących programistów właśnie tak się odmierza czas.
+
+Od razu zaznaczę wprost — jeśli tak robisz, to nie znaczy, że jest to złe podejście. Jeśli nie interesują Cię dokładne pomiary, a tylko na zasadzie *mniej więcej*, to całkowicie wystarczy. Jednak gdy chcemy pisać np. sprawozdania, gdzie porównujemy wydajność, lepiej stosować rozwiązania miarodajne, przeznaczone wprost do pomiarów tego typu.
+
+A dlaczego czas kalendarzowy się nie nadaje? W skrócie mówiąc, czas ten nie rośnie monotonicznie. Nie dość, że może się cofać, to także jednostka czasu niekoniecznie może zawsze trwać tyle samo. A dzieje się tak, ponieważ system operacyjny synchronizuje czas zegara za pomocą protokołu NTP. Co taka synchronizacja powoduje?
+
+- Występują przez nią przeskoki w czasie — do przodu lub do tyłu. Z punktu widzenia zwykłego użytkownika nie są to drastyczne zmiany, zwykle są one w zakresie kilku milisekund. Jednak mierząc czas wykonania, operujemy w takich właśnie jednostkach.
+- Mówiąc o przeskokach w czasie, musimy pamiętać, że czas kalendarzowy zawiera dwa stałe przeskoki — zmiana czasu z zimowego na letni i w drugą stronę. Do tego jest trzeci, rzadszy, czyli wzięcie pod uwagę sekund przestępnych. Jeśli uruchomilibyśmy pomiary na noc złego dnia, moglibyśmy dostać bardzo zaburzone wyniki, a aplikacje powinny być pisane tak, aby działały zawsze dobrze, niezależnie od tego, kiedy są uruchamiane.
+- Synchronizacja niekoniecznie może spowodować przeskok czasu. Niektóre systemy działają tak, że jeśli różnica w czasie jest odpowiednio niewielka, to zamiast ustawiać nowy czas na sztywno, przyspieszają lub zwalniają zegar. Działa tak np. linuksowy `ntpd`, który robi w ten sposób w przypadku różnic poniżej 128 ms.
+- Mówiąc o przyspieszaniu lub zwalnianiu zegara, podobnie czasami są obsługiwane sekundy przestępne (tzw. leap smear). Oczywiście jest to skrajny przypadek, zwykle mamy z nim do czynienia w chmurach, do tego tyczy się to tylko jednego dnia, ale jest to kolejna rzecz wpływająca na to, że czas kalendarzowy nie jest miarodajny przy mierzeniu czasu wykonywania.
+
+A jak często synchronizacja się odbywa? Dla przykładu na Linuksie działający w tle `ntpd` synchronizuje czas co 64-1024 sekundy (częstotliwość jest zmienna).
+
+W przeciwieństwie do czasu kalendarzowego czas, który pobieramy z innych liczników, jest monotoniczny. Przyrost czasu jest stały (albo go nie ma) i nie jest w żaden sposób korygowany. Czas ten nie ma żadnego powiązania z czasem kalendarzowym.
+
+<Image
+  image={hrtime}
+  alignCenter
+  fullSize
+  alt="Rezultaty wykonania dwóch poleceń w konsoli NodeJS 18. Pierwsza polecenie to `new Date()`, a wynik to `2023-12-26T18:56:51.448Z`. Drugie polecenie to `new Date(Number(process.hrtime.bigint() / 1000000n))`, a wynik to `1970-01-01T11:26:30.785Z`."
+  caption={<>
+    Różnica między czasem kalendarzowym a odczytem z licznika wysokiej precyzji w NodeJS przekonwertowanym na datę kalendarzową. W tym przypadku licznik hrtime odmierzył dopiero 11 godzin od początku epoki uniksowej, więc ma się to bardzo daleko do daty, kiedy wykonywałem polecenie.
+  </>}
+/>
+
+## Jak poprawnie interpretować wyniki?
+
+Gdy już zmierzyliśmy czas wykonania programu czy algorytmu, możemy go wykorzystać do dowolnego celu. Warto jednak wiedzieć, jak poprawnie interpretować wyniki, jeśli mierzymy na potrzeby np. sprawozdania.
+
+Podam zaraz wskazówki, jednak użyję w nich trochę terminów ze statystyki. Wyjaśnię je dalej razem ze wzorami.
+
+### Wskazówki
+
+Poniżej kilka moich wskazówek, w jaki sposób wyciągnąć z pomiarów czasu jak najwięcej:
+
+- Powtórz pomiary wielokrotnie, przynajmniej 10 razy. Im więcej razy, tym lepiej.
+- Mając pomiar czasu z wielokrotnych powtórzeń, warto go jakoś sensownie określić. Jak najlepiej?
+  - Wygodną reprezentacją graficzną są wykresy pudełkowe, ponieważ do tej wizualizacji nie potrzebujemy w żaden sposób obrabiać danych. Sam wykres natomiast wskaże skrajne wartości (*wąsy* lub kropki nad/pod nimi, zależnie od ustawienia), zakres między 1 i 3 kwartylem (pudełko), medianę (kreska wewnątrz pudełka).
+  - Jeśli chcemy pokazać wartość tekstowo, możemy obliczyć średnią arytmetyczną i odchylenie standardowe (jego estymację). To drugie najczęściej oblicza się ze wzoru na pierwiastek estymatora nieobciążonego wariancji ze względu na prosty wzór i niewielkie błędy estymacji.
+  - Jeśli chcemy pokazać wartości na wykresie, jednak będzie ich na tyle dużo, że wykres pudełkowy będzie nieczytelny, wówczas na potrzeby innych wykresów (np. punktowego) obliczamy średnią arytmetyczną. Jednak wtedy warto zapobiec temu, że skrajne wartości mogą wpływać na wynik (szczególnie gdy pomiarów nie było dużo). Najprościej jest do tego podejść jak przy notach w skokach narciarskich, czyli odrzucając najmniejszą i największą wartość. Nieco bardziej zaawansowanym podejściem byłoby wyznaczyć, które wartości znajdują się między 1 i 3 kwartylem, i tylko je wziąć pod uwagę.
+- Staraj się uruchamiać pomiary w podobnych warunkach, czyli na takim samym sprzęcie, przy podobnym obciążeniu.
+- Pisząc porównanie, nie sugeruj się konkretnymi wartościami czasu, bo te są zależne od wielu czynników. Zamiast tego obserwuj, jak wartości rosną lub jakie są różnice w procentach.
+  - Jeśli mierzysz czasy wykonania jednego algorytmu dla różnych argumentów, to najlepiej sprawdzić, jak wartości rosną, np. na wykresie punktowym czy liniowym. Wówczas wyciągnij wniosek, czy czas rośnie liniowo, logarytmicznie, wykładniczo itd. Można się przy tym posiłkować, np. przestawieniem, aby na osi wskazującej pomiary czasu, czasy rosły logarytmicznie, a nie liniowo.
+  - W przypadku porównywania różnych algorytmów mamy dwa podejścia. Jeśli możemy podawać argumenty, mierzymy czasy wykonania dla takich samych argumentów dla obu algorytmów, korzystamy z powyżej opisanego sposobu i porównujemy sposób przyrostu. Warto nawet porównać to na tym samym wykresie. Jeśli natomiast argumentów nie ma albo rodzaj przyrostu jest taki sam, porównajmy na zasadzie, jak bardzo czasy wykonania się różnią, np. algorytm X jest średnio dwukrotnie szybszy od algorytmu Y.
+
+Świetnym przykładem dobrze zrobionych pomiarów wraz z ich przedstawieniem jest pokazany przeze mnie wyżej `timeit` z Pythona. Wykonanie algorytmu jest powtarzane wielokrotnie, a w wyniku dostajemy średni czas wykonania razem z odchyleniem standardowym.
+
+### Wyjaśnienie terminów
+
+Teraz na szybko wyjaśnię podane wyżej terminy statystyczne w kolejności ich wystąpienia. Definicje nie będą encyklopedyczne, a intuicyjne, jak ja dane terminy rozumiem na co dzień. Oczywiście tam, gdzie trzeba podać wzór, podam go.
+
+- Kwartyle — wyobraź sobie, że wszystkie pomiary (których jest $$n$$) masz posortowane. Oblicz następnie $$\lfloor\frac{1}{4}n\rfloor$$, $$\lfloor\frac{1}{2}n\rfloor$$, $$\lfloor\frac{3}{4}n\rfloor$$ i sprawdź, które pomiary są na tych pozycjach (liczymy od 1). Pomiar z $$\frac{1}{4}$$ to pierwszy kwartyl ($$Q_1$$), z $$\frac{1}{2}$$ to drugi kwartyl ($$Q_2$$), a z pozycji $$\frac{3}{4}$$ to trzeci kwartyl ($$Q_3$$).
+  - Pozycje, które tutaj podałem, nie są jakąś uniwersalną definicją. Istnieją różne metody wyznaczania wartości będących kwartylami i wówczas pozycje, czy nawet wartości, mogą się delikatnie różnić.
+  - W niektórych miejscach (np. w Excelu) spotkamy się też z kwartylem zerowym i czwartym. Zerowy to wartość minimalna, a czwarty to maksymalna.
+  - Uwaga! Jest jeszcze bardzo podobne pojęcie *kwantyl*, ale nie jest to dokładnie to samo. Kwantyl to liczba znajdująca się na konkretnej pozycji określonej ułamkiem, np. kwantyl rzędu 1/4 jest tym samym, co pierwszy kwartyl, ale już kwantyl rzędu 1/100 nie ma przełożenia na kwartyle.
+- Mediana — wartość znajdująca się dosłownie pośrodku posortowanej listy pomiarów, czyli drugi kwartyl.
+  - Warto dodać, że jeśli mamy parzystą liczbę elementów, to zwykle liczymy średnią arytmetyczną dwóch środkowych elementów.
+- Średnia arytmetyczna — najbardziej znana średnia, czyli suma liczb podzielona przez ich liczbę:
+
+$$
+\overline{x} = \frac{1}{n}\left(\sum_{i=1}^{n}{x_{i}}\right)
+$$
+
+- Odchylenie standardowe — mówi nam, jak szeroko wartości są rozrzucone wokół średniej. Z racji tego, że akurat w tym przypadku mierzymy je z próby statystycznej (czyli wybranych wyników, a nie wszystkich możliwych, które istnieją), to odchylenie standardowe będzie przybliżone, stąd obliczamy je za pomocą estymatorów. Znajdziemy różne wzory służące do tego celu.
+- Pierwiastek estymatora nieobciążonego wariancji — moim zdaniem najprostszy z estymatorów odchylenia standardowego. Obliczymy go wzorem:
+
+$$
+\sigma = \sqrt{\frac{1}{n} \sum_{i=1}^{n}\left( x_i - \overline{x} \right)^2}
+$$
+
+## Podsumowanie
+
+Tak oto doszliśmy do końca tego, co chciałem napisać na temat mierzenia czasu wykonywania aplikacji czy też algorytmów. To, co moim zdaniem najważniejsze, to wykorzystać odpowiednie narzędzie do celu, po co pomiar robimy. Jeśli tylko chcemy znaleźć problematyczne miejsca w aplikacji, korzystamy z profilerów. Jednak jeśli problematyczne miejsca już znamy i tylko chcemy sprawdzać, czy je poprawiamy, albo chcemy po prostu mierzyć czasy na potrzeby badania wydajności, to korzystamy ze specjalnych zegarów udostępniających monotoniczny czas. Pamiętajmy, że czas kalendarzowy może być tutaj niemiarodajny.
+
+## Literatura
+
+- Profiling (computer programming), https://en.wikipedia.org/w/index.php?title=Profiling_(computer_programming)&oldid=1154740224 (ostatnie odwiedziny 26.12.2023).
+- time(1) - Linux man page, https://linux.die.net/man/1/time (ostatnie odwiedziny 26.12.2023).
+- Measure-Command (Microsoft.PowerShell.Utility) - PowerShell | Microsoft Learn, https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/measure-command?view=powershell-7.4 (ostatnie odwiedziny 26.12.2023).
+- clock_gettime(3) - Linux manual page, https://man7.org/linux/man-pages/man3/clock_gettime.3.html (ostatnie odwiedziny 26.12.2023).
+- Stopwatch Class (System.Diagnostics) | Microsoft Learn, https://learn.microsoft.com/en-us/dotnet/api/system.diagnostics.stopwatch?view=net-8.0 (ostatnie odwiedziny 26.12.2023).
+- A Primer for Web Performance Timing APIs, https://w3c.github.io/perf-timing-primer/ (ostatnie odwiedziny 26.12.2023).
+- Performance measurement APIs | Node.js v21.5.0 Documentation, https://nodejs.org/api/perf_hooks.html (ostatnie odwiedziny 26.12.2023).
+- Process | Node.js v21.5.0 Documentation, https://nodejs.org/api/process.html (ostatnie odwiedziny 26.12.2023).
+- time — Time access and conversions — Python 3.12.1 documentation, https://docs.python.org/3.12/library/time.html (ostatnie odwiedziny 26.12.2023).
+- timeit — Measure execution time of small code snippets — Python 3.12.1 documentation, https://docs.python.org/3.12/library/timeit.html (ostatnie odwiedziny 26.12.2023).
+- Built-in magic commands — IPython 8.19.0 documentation, https://ipython.readthedocs.io/en/stable/interactive/magics.html (ostatnie odwiedziny 26.12.2023).
+- High precision timing - Web APIs | MDN, https://developer.mozilla.org/en-US/docs/Web/API/Performance_API/High_precision_timing (ostatnie odwiedziny 26.12.2023).
+- Pandzic I., Clock Synchronization and Monotonic Clocks, https://inelpandzic.com/articles/clock-synchronization-and-monotonic-clocks/ (ostatnie odwiedziny 26.12.2023).
+- ntpd(8): Network Time Protocol daemon - Linux man page, https://linux.die.net/man/8/ntpd (ostatnie odwiedziny 26.12.2023).
+- Odchylenie standardowe, https://pl.wikipedia.org/w/index.php?title=Odchylenie_standardowe&oldid=70712303 (ostatnie odwiedziny 26.12.2023).
+
+<small>Zdjęcie na okładce wygenerowane przez DALL-E.</small>

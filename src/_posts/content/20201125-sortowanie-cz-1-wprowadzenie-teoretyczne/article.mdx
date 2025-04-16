@@ -1,0 +1,123 @@
+import Link from 'next/link';
+import {Image, Iframe} from '@swistak-codes/components';
+import cover from './konie-wyscigowe.jpg';
+import karty from './karty.png';
+
+export const meta = {
+  title: 'Sortowanie, cz. 1 — wprowadzenie teoretyczne',
+  abstract:
+    'Sortowanie — najpopularniejszy z podstawowych tematów informatyki i programowania. Na samym początku przybliżmy sobie jego teorię.',
+  firstParagraph: (
+    <>
+      Sortowanie — najpopularniejszy z podstawowych tematów informatyki i programowania. Podstawa każdego kursu,
+      książki, serii wykładów itd., poświęconych algorytmice. Tak więc i tutaj nie mogło tego zabraknąć. Jednak nie będę
+      tutaj rozpisywać kodu i omawiać, co się dzieje krok po kroku. Zamiast patrzeć na surowe implementacje, spróbujemy
+      zrozumieć mechanizmy i jaki kryje się za nimi sens. Na samym początku jednak przybliżmy sobie teorię.
+    </>
+  ),
+  keyword: 'sortowanie',
+  categories: ['Sortowanie'],
+  tags: [
+    'sortowanie',
+    'funkcja porządkująca',
+    'sortowanie stabilne',
+    'sortowanie bąbelkowe',
+    'sortowanie przez wstawianie',
+    'sortowanie szybkie',
+    'sortowanie przez scalanie',
+    'bubble sort',
+    'insert sort',
+    'quick sort',
+    'merge sort'
+  ],
+  slug: 'sortowanie-cz-1-wprowadzenie-teoretyczne',
+  updateTime: '2021-08-17T16:33:52+00:00',
+  publishTime: '2020-11-25T10:00:17+00:00',
+  cover,
+};
+
+## Wprowadzenie do sortowania
+
+Myślę, że operacja sortowania nie jest niczym szczególnym czy nietypowym dla każdego z nas w codziennym życiu. Nie raz zdarza się ułożyć, przykładowo, książki alfabetycznie na półce czy karty w ręce od najniższej do najwyższej wartości. A dlaczego to robimy? Bo w posortowanych rzeczach łatwiej jest się odnaleźć. Spójrzmy chociażby na przykład książek na półce, ale może niekoniecznie takiej domowej, lecz w bibliotece czy księgarni. Bez posortowania po nazwiskach autorów ciężko byłoby nam znaleźć interesujące nas pozycje. Jedyne, co musimy znać oprócz danych książki, to kolejność liter w alfabecie, ale to nie powinno stanowić trudności.
+
+W zasadzie z podobnych powodów potrzebujemy mieć sortowanie w oprogramowaniu. Wygodniej pracuje się z posortowanymi danymi. Przykłady? Pewnie nie raz miałeś okazję sortować produkty w sklepie od najniższej ceny do najwyższej. W różnych tabelach z danymi zwykle możemy sortować alfabetycznie po dowolnej kolumnie. Sortowanie jest wszędzie, dlatego powinniśmy sobie zadać jedno proste pytanie — jak sortować?
+
+## Algorytmy sortowania
+
+Oczywiście nie będziemy wymyślać koła na nowo. Przez to, jak problem sortowania jest powszechny, doczekaliśmy się sporej liczby algorytmów, których część przytoczę w kolejnych artykułach. Z najpopularniejszych można wymienić:
+
+- Sortowanie bąbelkowe (bubble sort) — najprostsze do zaprogramowania, ale zarazem także bardzo mało wydajne. Będziemy je omawiać w następnej części artykułu.
+- Sortowanie przez wstawianie (insert sort) — algorytm, który prawdopodobnie najlepiej oddaje ręczny mechanizm sortowania.
+- Sortowanie szybkie (quick sort) — powszechnie używany algorytm sortowania bazujący na metodzie „<Link href="/post/wyszukiwanie-w-listach">dziel i zwyciężaj</Link>”. Popularny ze względu na wysoką wydajność oraz prostą implementację.
+- Sortowanie przez scalanie (merge sort) — inne podejście do wykorzystania metody „dziel i zwyciężaj” w sortowaniu, wydajny przy sortowaniu innych kolekcji niż tablice.
+
+Oczywiście to tylko kilka najpopularniejszych algorytmów. Algorytmów tego typu jest zdecydowanie więcej, nawet mamy algorytmy-żarty.
+
+Warto też wspomnieć na samym początku, że w bibliotekach standardowych wielu języków programowania znajdziemy metody służące do sortowania kolekcji. Nie będę ich tutaj wymieniać, bo zazwyczaj znajdziemy je pod słowami kluczowymi sort lub order. Mimo to warto poznać, co się tak naprawdę pod nimi kryje i jak podchodzi się do rozwiązywania zagadnień algorytmicznych.
+
+## Terminologia sortowania
+
+Chciałbym teraz poświęcić chwilę na opowiedzeniu dość szybko podstawowej terminologii związanej z sortowaniem. Może się wydawać nieco zawiła, ale postaram się opisać ją najprościej, jak się tylko da.
+
+### Formalna definicja sortowania
+
+Wiem, że dosłownie w poprzednim zdaniu obiecałem „najprościej, jak się tylko da”, ale w przypadku takich dziedzin jak informatyka, które mocno opierają się na matematycznych i logicznych formalizmach, nie da się nie wtrącić nic z tego świata. Ogólnie, ta definicja raczej nie wprowadzi Ci nic nowego, ale może Ci się przydać na jakiś egzamin czy inny test. W nawiasach dodaję własne dopowiedzenia, które nieco dodatkowo tłumaczą, o co chodzi.
+
+Dane są obiekty (nazywaliśmy je do tej pory elementami kolekcji):
+
+$$
+a_1, a_2, …, a_n
+$$
+
+Sortowanie to permutowanie tych obiektów, aż do osiągnięcia uporządkowania (czyli, innymi słowy, zamieniamy je kolejnością tak długo, dopóki nie będą uporządkowane):
+
+$$
+a_{k_1}, a_{k_2}, ..., a_{k_n}
+$$
+
+Uporządkowanie to charakteryzuje się tym, że dla zadanej funkcji porządkującej f zachodzi (o funkcji porządkującej piszę w następnym akapicie):
+
+$$
+f(a_{k_1}) \leqslant f(a_{k_2}) \leqslant … \leqslant f(a_{k_n})
+$$
+
+### Funkcja porządkująca
+
+Funkcja porządkująca określa nam sposób sortowania elementów. W skrócie mówiąc, to ona określa, po czym sortujemy oraz w jakim kierunku. Spotyka się ją także pod nazwą komparator. Schodząc całkowicie w techniczny poziom, zazwyczaj przyjmuje ona dwa elementy (bądź jeden, zależnie od miejsca, w którym jest zaimplemetowana). Natomiast co zwraca, to już zależy od implementacji. Najczęściej zwraca informację (prawda/fałsz), czy elementy powinniśmy zamienić, czy nie, ale może też zwracać wartość, która wyznacza kolejność. Tę definicję zazwyczaj znajdziesz w praktycznych zastosowaniach.
+
+Warto jednak zaznaczyć, że w pewnych zastosowaniach nie oblicza się wartości funkcji porządkującej, tylko przechowuje się ją jako składową obiektu (jest to przypadek, kiedy funkcja zwraca wartość wyznaczającą kolejność). Nazywa się ją wówczas kluczem obiektu. Ta definicja zaś jest najczęściej spotykana w podręcznikach do algorytmiki i tekstach naukowych.
+
+### Stabilność algorytmu
+
+Ostatnia rzecz, o jakiej chciałbym wspomnieć z terminologii sortowania, jest stabilność. Opisuje ona zachowanie algorytmu w przypadku elementów równych sobie (czyli o takich samych kluczach). Algorytm jest stabilny, jeżeli elementy takie same pozostają w oryginalnej kolejności, natomiast niestabilny jest wtedy, gdy może dojść do ich zamiany.
+
+Żeby sobie to najłatwiej zobrazować, pomyślmy o kartach do gry, które sortujemy od największej do najwyższej i nie zwracamy uwagi na kolory. Zobaczmy poniższy obrazek.
+
+<Image
+  image={karty}
+  alignCenter
+  fullSize
+  alt="Trzy rzędy kart do gry. Pierwszy rząd: 4 kier, 2 pik, król pik, 9 trefl, król karo, 2 kier. Drugi rząd: 2 pik, 2 kier, 4 kier, 9 trefl, król pik, król karo. Trzeci rząd: 2 pik, 2 kier, 4 kier, 9 trefl, król karo, król pik"
+  caption={<>
+    (wizerunki kart pochodzą z serwisu <a href="https://tekeye.uk/playing_cards/svg-playing-cards" target="_blank">https://tekeye.uk/playing_cards/svg-playing-cards</a>)
+  </>}
+/>
+
+Na samej górze mamy nieposortowany zestaw kart. Następnie mamy dwa sposoby ich posortowania. W pierwszym przypadku mamy do czynienia z sortowaniem stabilnym — nie zamieniliśmy ani razu kolejności kolorów w przypadku dwójki i króla. Natomiast w drugim przypadku, o ile kolejność dwójek jest zachowana, o tyle król pik i karo są zamienieni, co wskazuje, że posortowaliśmy karty algorytmem niestabilnym.
+
+## Jak sortować?
+
+W tym momencie chciałbym zaproponować Ci małe ćwiczenie. Jeżeli znasz mechanikę działania algorytmów sortujących, zapomnij o tym na chwilę. Zastanów się, jak podszedłbyś do posortowania dowolnych obiektów, mając zadane ograniczenia wynikające z budowy struktur danych. Mianowicie:
+
+- W przypadku tablic możemy odczytać bez problemu dowolny element. W przypadku list wiązanych mamy bezproblemowy dostęp do pierwszego i ostatniego, a dostęp do każdego kolejnego wiąże się z kosztem odczytu.
+- Porównać możemy tylko dwa elementy jednocześnie.
+- W przypadku tablic nie mamy problemu z zamienianiem elementów. W przypadku list wiązanych jest to operacja kosztowna i bardziej może się opłacić stworzenie nowej listy i wstawianie w nią elementów na dowolne pozycje.
+
+W kolejnych artykułach przejdziemy do omówienia różnych algorytmów sortowania, gdzie będziesz mógł się przekonać, czy miałeś dobre pomysły.
+
+## Literatura
+
+- Wirth N., „Sortowanie” w *Algorytmy + struktury danych = programy*. Warszawa: Wydawnictwa Naukowo-Techniczne, 2002, s. 73–144
+- Harris S., Ross J., „Sortowanie — proste algorytmy” w *Od podstaw Algorytmy*. Gliwice: Helion, 2006, s. 151–181
+
+<small>(oryginał zdjęcia na okładce pochodzi z serwisu [Pixabay](https://pixabay.com/photos/horse-horse-race-race-animal-3880450/))</small>

@@ -1,0 +1,203 @@
+import Link from 'next/link';
+import {Image, Iframe} from '@swistak-codes/components';
+import cover from './Therizinosaurus_size.png';
+import bledy from './bledy.png';
+import czas from './czas.png';
+import czasFermat from './czas-fermat.png';
+import czasLog from './czas-log.png';
+import czasSzybkie from './czas-szybkie.png';
+
+export const meta = {
+  title: 'Porównanie szybkich testów pierwszości',
+  abstract:
+    'Porównajmy szybkie testy pierwszości i sprawdźmy, jak wypadają one w porównaniu do metody naiwnej.',
+  firstParagraph: (
+    <>
+      <Link href="/post/szybkie-szukanie-duzych-liczb-pierwszych">W poprzednim artykule</Link> dość szczegółowo opisałem test Millera-Rabina służący do szybkiego sprawdzania pierwszości liczb. Tym razem porównajmy sobie jego działanie z innymi szybkimi, probabilistycznymi testami pierwszości i sprawdźmy, jak wypadają one w porównaniu do bezbłędnej metody naiwnej.
+    </>
+  ),
+  keyword: 'liczby pierwsze',
+  categories: ['Liczby pierwsze', 'Algorytmy'],
+  tags: [
+    'matematyka',
+    'liczby pierwsze',
+    'test Fermata',
+    'test Millera-Rabina',
+    'test Solovaya-Strassena',
+  ],
+  slug: 'porownanie-szybkich-testow-pierwszosci',
+  updateTime: '2022-03-16T07:17:52+00:00',
+  publishTime: '2022-03-16T07:00:36+00:00',
+  cover,
+};
+
+## Uwagi wstępne
+
+Podobnie jak w poprzednich artykułach, tak i tutaj cały kod znajduje się [na moim GitHubie](https://github.com/swistak-codes/prime-numbers). Jednak do każdego miejsca, gdzie warto wskazać konkretny fragment kodu, będę dawać bardziej szczegółowe odnośniki.
+
+Z racji tego, że artykuł będzie składać się w większości z testów, od razu w punktach podsumuję najważniejsze rzeczy:
+
+- Całość jest napisana w JavaScripcie, a testy były uruchamiane na MacBooku Pro z 2018 r. z 6-rdzeniowym Intel Core i7 2,6GHz. Nie była to żadna dedykowana maszyna do testów i w tle działały też inne aplikacje. Należy wziąć to pod uwagę w kontekście szybkości wykonania algorytmów, a także ewentualnych nieoczekiwanych pików.
+- Każdy pojedynczy test był uruchamiany 100 razy, a wyniki następnie w odpowiedni sposób agregowane w zależności od tego, co było testowane.
+- Nie będę zagłębiać się w szczegóły implementacji i działania każdego z testów. W kodzie w postaci komentarzy opisałem mniej więcej, co jest wykonywane w każdym momencie, ale po szczegóły warto odnieść się albo do moich poprzednich artykułów, albo do fachowej literatury.
+
+## Sprawdzane testy pierwszości
+
+W ramach artykułu wziąłem pod lupę następujące testy pierwszości. Opiszę je tutaj krótko, bez wchodzenia w detale, wraz z odnośnikami do kodu źródłowego. Do tego w ramach testów wykonana została dla każdej z liczb metoda naiwna: z jednej strony dla porównania szybkości wykonania, z drugiej dla weryfikacji wyników (zawsze poprawnie wyznacza pierwszość).
+
+### Test Fermata
+
+Jest to test opierający się na małym twierdzeniu Fermata, a algorytm opisałem w artykule *<Link href="/post/duze-liczby-pierwsze">Duże liczby pierwsze</Link>*. Kod źródłowy znajdziesz tutaj: [https://github.com/swistak-codes/prime-numbers/blob/main/tests/fermat.js](https://github.com/swistak-codes/prime-numbers/blob/main/tests/fermat.js).
+
+Z racji tego, że skuteczność testu zależy od liczby powtórzeń, wykonałem go wielokrotnie z: 1, 5, 10 i 100 powtórzeniami.
+
+### Test Millera-Rabina
+
+Test ten bazuje na nieco zmodyfikowanym podejściu do małego twierdzenia Fermata i poświęciłem mu <Link href="/post/szybkie-szukanie-duzych-liczb-pierwszych">cały artykuł</Link> z pełnym wytłumaczeniem działania, do którego serdecznie zapraszam. Kod źródłowy znajdziesz tutaj: [https://github.com/swistak-codes/prime-numbers/blob/main/tests/miller-rabin.js](https://github.com/swistak-codes/prime-numbers/blob/main/tests/miller-rabin.js).
+
+Podobnie jak w przypadku testu Fermata, tutaj skuteczność również jest zależna od liczby powtórzeń i także wykonuję go z: 1, 5, 10 i 100 powtórzeniami.
+
+### Test Millera-Rabina (deterministyczny)
+
+Jest to wariant testu Millera-Rabina, gdzie dla wybranych zakresów liczb mamy odgórnie ustalone podstawy zamiast losowych. Tym samym test zawsze zwraca te same wyniki, niezależnie od ilości uruchomień. Kod źródłowy znajdziesz tutaj: [https://github.com/swistak-codes/prime-numbers/blob/main/tests/miller-rabin-deterministic.js](https://github.com/swistak-codes/prime-numbers/blob/main/tests/miller-rabin-deterministic.js).
+
+### Test Solovaya-Strassena
+
+Tego testu nie miałem okazji omawiać na swoim blogu, ponieważ stoi za nim nieco bardziej skomplikowana matematyka. Bazuje na warunku:
+
+$$
+a^{(n-1)/2}\equiv \left({\frac {a}{n}}\right){\pmod {n}}
+$$
+
+Prawa strona kongruencji nie jest tradycyjnym dzieleniem, ale symbolem Jacobiego. Więcej szczegółów znajdziesz np. na [Wikipedii](https://en.wikipedia.org/wiki/Solovay%E2%80%93Strassen_primality_test). Natomiast kod źródłowy mojej implementacji znajdziesz tutaj: [https://github.com/swistak-codes/prime-numbers/blob/main/tests/solovay-strassen.js](https://github.com/swistak-codes/prime-numbers/blob/main/tests/solovay-strassen.js).
+
+Podobnie jak w testach Millera-Rabina i Fermata, tutaj skuteczność również zależy od liczby powtórzeń algorytmu i wykonuję taki sam zestaw powtórzeń jak w poprzednich przypadkach.
+
+## Szybkość działania
+
+Jako pierwszą wziąłem na tapet szybkość działania. Możemy przewidywać, że gdy przy metodzie naiwnej sprawdzanie coraz większych liczb było coraz wolniejsze ze względu na coraz większą liczbę operacji do wykonania, tak tutaj czas wykonania powinien cały czas być mniej więcej taki sam. Czy tak jest?
+
+Test szybkości działania wykonałem na wybranych 10 tysiącach liczb pierwszych, w kolejności rosnącej. Zrobiłem tak, ponieważ wykrycie liczb złożonych jest najszybsze, a nas interesują te przypadki, które zajmują więcej czasu.
+
+### Różnice między metodą naiwną a szybkimi testami
+
+Zobaczmy najpierw wykres porównujący metodę naiwną z szybkimi testami uruchomionymi z jednym powtórzeniem. Na pierwszym wykresie wyniki pokazuję w skali liniowej, a na drugim w logarytmicznej.
+
+<Image
+  image={czas}
+  alignCenter
+  fullSize
+  alt="Wykres czasu wykonania w nanosekundach do sprawdzanej liczby"
+  caption={<></>}
+/>
+
+<Image
+  image={czasLog}
+  alignCenter
+  fullSize
+  alt="Wykres czasu wykonania w nanosekundach (w skali logarytmicznej) do sprawdzanej liczby"
+  caption={<></>}
+/>
+
+Jak widzimy, gdy w metodzie naiwnej czas wykonania rósł wraz z wielkością liczby, tak w szybkich testach czas jest mniej więcej stały. Jedynie przy deterministycznej wersji testu Millera-Rabina możemy dostrzec w pewnym momencie skok w czasie wykonywania, jednak wciąż nieznaczny. Dlaczego tak jest? Otóż w przypadku metody naiwnej w pętli wykonujemy wiele operacji modulo. W szybkich testach wykonujemy ją tylko raz. Oczywiście czas wykonania szybkich testów nie jest stały. Również rośnie i zależy równocześnie od wielkości sprawdzanej liczby oraz tego, jakie wartości podstawy wylosowaliśmy.
+
+A dlaczego mamy taki niewielki wzrost czasu wykonywania się testu Millera-Rabina w wersji deterministycznej? Otóż w miejscu tym zaczęliśmy korzystać z innego zestawu liczb do wykonywania testu — zamiast dwóch baz sprawdzamy już trzy. Jednak różnica jest minimalna, w zasadzie pomijalna.
+
+### Różnice między czasem wykonania szybkich testów
+
+Jeszcze zobaczmy ten sam wykresy co powyżej, ale już bez metody naiwnej:
+
+<Image
+  image={czasSzybkie}
+  alignCenter
+  fullSize
+  alt="Wykres czasu wykonania w nanosekundach do sprawdzanej liczby. Jedynie szybkie testy są wzięte pod uwagę."
+  caption={<></>}
+/>
+
+Możemy tutaj jeszcze lepiej zauważyć przeskok w czasie wykonania dla deterministycznej wersji testu Millera-Rabina i który z tych testów jest najszybszy.
+
+W przypadku pojedynczego powtórzenia czasy wykonania testów Fermata oraz Millera-Rabina są niemal takie same i wyniki na wykresie się pokrywają. Nieco wolniejszy jest test Solovoya-Strassena, gdzie na początku jego czas wykonywania pokrywa się z deterministyczną wersją testu Millera-Rabina.
+
+### Różnice między czasem wykonania tego samego testu z różną liczbą powtórzeń
+
+Wykres, który widzieliśmy wcześniej, wygląda bardzo optymistycznie — czas wykonywania jest znacząco mniejszy od metody naiwnej. Jednak w praktyce nie stosuje się pojedynczego powtórzenia testu, tylko wiele. Możemy założyć, że czas wykonywania powinien wciąż być stały, ale np. 100 powtórzeń wykona się 100 razy wolniej niż pojedyncze powtórzenie. Czy tak jest? Zobaczmy na przykładzie testu Fermata.
+
+<Image
+  image={czasFermat}
+  alignCenter
+  fullSize
+  alt="Wykres czasu wykonania w nanosekundach do sprawdzanej liczby. Jedynie test Fermata został wzięty pod uwagę."
+  caption={<></>}
+/>
+
+Wykres wygląda tak samo dla pozostałych testów, więc pominę pokazywanie go dla nich. Potwierdza on wizualnie dokładnie to, co podejrzewaliśmy.
+
+Spójrzmy jeszcze w poniższej tabeli na średnie czasy wykonania (w nanosekundach):
+
+| | 1 | 5 | 10 | 100 |
+|-|--:|--:|---:|----:|
+| Test Fermata | 462 ns | 1546 ns | 2924 ns | 27890 ns |
+| Test Millera-Rabina | 471 ns | 1604 ns | 3022 ns | 28765 ns |
+| Test Solovaya-Strassena | 709 ns | 2639 ns | 5061 ns | 47563 ns |
+
+Średnie czasy odwzorowują to, co podejrzewaliśmy. Test powtórzony 100 razy zajmuje mniej więcej 10 razy tyle, co test z 10 powtórzeniami. Jednak w porównaniu do pojedynczego powtórzenia nie mamy zachowanej tej proporcji. Mimo to nie mamy się czym przejmować, bo wynika to z faktu, że mierzymy wykonanie całej funkcji testującej, a nie tylko pętli powtarzającej test. Ponadto czas jest mierzony w nanosekundach, co jest bardzo wysoką rozdzielczością.
+
+## Jak często testy się mylą?
+
+Każdy z opisywanych tutaj testów, zwracając wartość *prawda*, informuje nas, że liczba jest **prawdopodobnie pierwsza**. Innymi słowy, czasem liczby złożone może uznać za liczby pierwsze. Są to tak zwane liczby pseudopierwsze, o których opowiadałem w artykule o dużych liczbach pierwszych.
+
+Postanowiłem sprawdzić doświadczalnie, jak często test się pomylił dla liczb w zakresie od 3 do 999999 (pomijając parzyste). Nie są to duże liczby i nie powinno być wśród nich wiele pomyłek, jednak sprawdźmy to.
+
+Zanim przejdę do rezultatów, dodam tylko, że podobnie jak poprzednio, każdy test uruchamiałem po 100 razy. Jedynym wyjątkiem jest deterministyczna wersja testu Millera-Rabina, która ze względu na swój charakter zawsze zwróci ten sam rezultat, dlatego uruchamiam go tylko raz.
+
+### Liczba błędów przy pojedynczym powtórzeniu
+
+Zobaczmy najpierw wizualnie na wykresie, ile razy który test pomylił się dla której liczby przy pojedynczym powtórzeniu:
+
+<Image
+  image={bledy}
+  alignCenter
+  fullSize
+  alt="Wykres liczby błędów do sprawdzanej liczby."
+  caption={<>
+    Prawdopodobnie wykres słupkowy bardziej by tutaj pasował, jednak przy tak dużej liczbie danych Excel był niemal nieużywalny, więc zrobiłem pierwszy lepszy wykres.
+  </>}
+/>
+
+To, co tutaj widzimy, zdaje się potwierdzać to, o czym pisałem w artykule o dużych liczbach pierwszych — na teście Fermata możemy polegać najmniej. Patrząc na powyższe wyniki widać, że najczęściej się mylił. Natomiast testy Millera-Rabina i Solovaya-Strassena zdają się uzyskiwać podobny wynik. Deterministyczna wersja testu Millera-Rabina w pokazanym zakresie jest za to bezbłędna — wynika to z faktu, że podstawy zostały tak dobrane, aby maksymalnie wyeliminować ryzyko pomyłki.
+
+Agregując rezultaty, dla pojedynczego powtórzenia:
+
+- Dla testu Fermata było 41719 pomyłek, czyli prawdopodobieństwo pomyłki wynosi ok. 0,083%.
+- Przy teście Millera-Rabina pomyłek było 9183 — prawdopodobieństwo: 0,018%.
+- Test Solovaya-Strassena pomylił się 15887 razy, czyli prawdopodobieństwo wyniosło 0,032%.
+- Deterministyczna wersja testu Millera-Rabina nie pomyliła się ani razu.
+
+### Liczba błędów przy wielu powtórzeniach
+
+Pamiętamy jednak, że aby test był jak najbardziej wiarygodny, zwiększamy liczbę powtórzeń. Tutaj już nie będę pokazywać wykresów, tylko od razu liczbę błędów:
+
+| | 1 | 5 | 10 | 100 |
+|-|--:|--:|---:|----:|
+| Test Fermata | 41719 | 1738 | 861 | 4 |
+| Test Millera-Rabina | 9183 | 0 | 0 | 0 |
+| Test Solovaya-Strassena | 15887 | 14 | 0 | 0 |
+
+Oraz prawdopodobieństwo popełnienia błędu:
+
+| | 1 | 5 | 10 | 100 |
+|-|--:|--:|---:|----:|
+| Test Fermata | 0,08344% | 0,00348% | 0,00172% | 0,00001% |
+| Test Millera-Rabina | 0,01837% | 0% | 0% | 0% |
+| Test Solovaya-Strassena | 0,03177% | 0,00003% | 0% | 0% |
+
+Wyraźnie widać, że im więcej powtórzeń, tym bardziej wiarygodny jest test. Wynika to oczywiście z losowej natury tych testów — możemy trafić na idealny zestaw podstaw (takie jak np. w deterministycznej wersji testu Millera-Rabina) albo na takie, które będą fałszywymi świadkami pierwszości. Do tego warto wziąć pod uwagę fakt, że w przypadku losowania liczb możemy wylosować kilkukrotnie tę samą liczbę, a więc tym samym możemy kilka razy sprawdzać fałszywym świadkiem pierwszości. Jest to jednak skrajny przypadek.
+
+## Podsumowanie
+
+Na sam koniec artykułu mogę w zasadzie powtórzyć to, co pisałem we wnioskach do każdego z badań. Szybkie testy pierwszości są faktycznie szybkie, wzrost czasu wykonywania dla małych liczb jest niemal niezauważalny w przeciwieństwie do tradycyjnej metody naiwnej. Warto jednak pamiętać o tym, że są to testy probabilistyczne — bazują na losowych liczbach i wynikiem jest stwierdzenie prawdopodobnej pierwszości. Jak mogliśmy zaobserwować, im więcej powtórzeń wykonujemy, tym otrzymujemy celniejsze wyniki, aczkolwiek pamiętajmy, że błędy mogą się zdarzyć — na szczęście bardzo rzadko, prawdopodobieństwo błędu zmierzone doświadczalnie nigdy nie przekroczyło nawet 0,1%.
+
+Tym samym doszliśmy już do planowanego końca mojej serii artykułów na temat liczb pierwszych. Powtórzę się ponownie — jest to w dzisiejszych czasach bardzo ważne pojęcie matematyczne mające związek z informatyką i myślę, że warto wiedzieć, że temat ten jest dużo szerszy niż szkolna definicja liczby pierwszej. Jeżeli jednak jeszcze nie miałeś(-aś) okazji przeczytać pozostałych części, które były bardziej opisowe, a mniej badawcze, to zapraszam do nadrobienia zaległości. Całą serię znajdziesz <Link href="/post/liczby-pierwsze-i-proste-sposoby-na-ich-sprawdzanie">tutaj</Link>.
+
+<small>(zdjęcie na okładce: [PaleoNeolitic](https://commons.wikimedia.org/wiki/File:Therizinosaurus_size.png), CC0, via Wikimedia Commons)</small>

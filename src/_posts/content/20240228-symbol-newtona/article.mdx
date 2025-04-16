@@ -1,0 +1,415 @@
+import Link from 'next/link';
+import {Image} from '@swistak-codes/components';
+import cover from './swistak_newton.jpg';
+
+export const meta = {
+  title: 'Symbol Newtona i trójkąt Pascala',
+  abstract:
+    'Artykuł opisuje, w jaki sposób możemy implementować obliczanie symbolu Newtona i co z tym wspólnego ma trójkąt Pascala.',
+  firstParagraph: (
+    <>
+      Każdy, kto na matematyce dotarł do kombinatoryki, trafił na dziwną operację matematyczną, gdzie w nawiasie zapisywało się dwie liczby jedna pod drugą bez kreski ułamkowej. Jest to symbol Newtona, znany też jako współczynnik dwumianowy Newtona. Tutaj jednak nie chcę się skupiać na jego zastosowaniu w matematyce, tylko na tym, jak go obliczać. Przejdziemy krok po kroku przez różne podejścia, tym samym eksplorując na konkretnym przykładzie, w jaki sposób można optymalizować algorytmy. A na dokładkę opowiemy sobie o powiązanym z symbolem Newtona trójkącie Pascala, którego tworzenie jest popularnym ćwiczeniem dla początkujących programistów.
+    </>
+  ),
+  keyword: 'symbol Newtona',
+  categories: ['Matematyka', 'Algorytmy'],
+  tags: [
+    'symbol Newtona',
+    'trójkąt Pascala',
+    'javascript',
+    'rekurencja',
+    'rekursja',
+    'derekursywacja',
+    'silnia',
+    'trójkąt Sierpińskiego'
+  ],
+  slug: 'symbol-newtona',
+  updateTime: '2024-02-28T07:00:00+00:00',
+  publishTime: '2024-02-28T07:00:00+00:00',
+  cover,
+};
+
+## Obliczanie z definicji
+
+### Definicja
+
+Aby zacząć przygodę z symbolem Newtona, znajdźmy najpierw podstawowy wzór z jego definicji. Ja w tym celu sięgnąłem do najbardziej podstawowego, szkolnego źródła wiedzy, czyli maturalnej karty wzorów. Tam znajdziemy definicję, że dla liczb całkowitych $$n, k$$ spełniających $$0 \leqslant k \leqslant n$$ współczynnik dwumianowy definiujemy następująco:
+
+$$
+{n \choose k} = \frac {n!}{k!(n-k)!}
+$$
+
+*Wykrzyknik* to oczywiście <Link href="/post/rekurencja-co-to-jest/#silnia">silnia</Link>, która w tym samym źródle (dosłownie nad symbolem Newtona) została zdefiniowana następująco:
+
+$$
+n! = 1 \cdot 2 \cdot ... \cdot n
+$$
+
+### Przełożenie na kod
+
+Mając te dwa wzory, mamy dosłownie wszystko, czego potrzebujemy, aby zaprogramować obliczanie symbolu Newtona.
+
+Przełóżmy je w dosłowny sposób na kod (w przypadku niżej JavaScript, ale w każdym języku będzie analogicznie). Zrobimy dwie funkcję — jedną do obliczania silnii (`factorial()`, od angielskiej nazwy operacji), drugą do obliczania symbolu Newtona (`binom()`, od angielskiej nazwy *binomial coefficient*; nazwa `binom` jest używana m.in. w [SciPy](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.binom.html)).
+
+```javascript
+// funkcja obliczająca n!
+function factorial(n) {
+  let result = 1;
+  for (let i = 2; i <= n; i++) {
+    result *= i;
+  }
+  return result;
+}
+
+// funkcja obliczająca współczynnik dwumianowy Newtona
+function binom(n, k) {
+  return factorial(n) / (factorial(k) * factorial(n - k));
+}
+```
+
+Kod możesz przetestować na [Replit](https://replit.com/@tswistak/from-definition#index.js).
+
+Rozwiązanie to ma dwie wady:
+
+1. Musimy wykonać dużo operacji matematycznych: ok. $$2n$$ mnożeń.
+2. Operujemy na bardzo dużych liczbach, które mogą nie zmieścić się w typach liczbowych.
+
+### Uproszczony wzór iteracyjny
+
+Liczbę mnożeń możemy zmniejszyć jeszcze na poziomie przekształcenia wzoru narzędziami matematycznymi. Wciąż zostając na maturalnej karcie wzorów, na tej samej stronie znajdziemy tożsamość:
+
+$$
+{n \choose k} = \frac {n(n-1)(n-2)\cdot ... \cdot (n-k+1)}{k!}
+$$
+
+Co oznacza, że kod moglibyśmy przerobić następująco:
+
+```javascript
+// funkcja licząca silnię została taka sama
+
+// funkcja obliczająca współczynnik dwumianowy Newtona
+function binom(n, k) {
+  let numerator = 1;
+  for (let i = n - k + 1; i <= n; i++) {
+    numerator *= i;
+  }
+  return numerator / factorial(k);
+}
+```
+
+Kod znajdziesz na [Replit](https://replit.com/@tswistak/from-definition2#index.js).
+
+Tym razem ograniczyliśmy się do $$2k$$ mnożeń, więc jesteśmy zależni od mniejszej z liczb. Niestety wciąż operujemy na dużych liczbach, chociaż te i tak są już mniejsze niż przy poprzedniej metodzie.
+
+### Wykorzystanie tożsamości kombinacji dopełniających
+
+Znajdziemy jeszcze jedną wartą uwagi tożsamość, może dzięki niej bardziej zmniejszymy liczbę mnożeń. Równość ta wygląda następująco:
+
+$$
+{n \choose k} = {n \choose {n-k}}
+$$
+
+Możemy łatwo sprawdzić, że faktycznie są to te same wartości:
+
+$$
+{n \choose {n-k}} = \frac {n!}{(n-k)!(n-(n-k))!} = \frac {n!}{(n-k)!k!} = {n \choose k}
+$$
+
+Czyli jeśli $$n-k < k$$, to mamy szansę nieco zmniejszyć liczbę w mianowniku. W kodzie będzie to wyglądać następująco:
+
+```javascript
+// funkcja licząca silnię została taka sama
+
+// funkcja obliczająca współczynnik dwumianowy Newtona
+function binom(n, k) {
+  let numerator = 1;
+  const newK = Math.min(n - k, k);
+  for (let i = n - newK + 1; i <= n; i++) {
+    numerator *= i;
+  }
+  return numerator / factorial(newK);
+}
+```
+
+Kod znajdziesz na [Replit](https://replit.com/@tswistak/from-definition3#index.js).
+
+Ponownie ograniczyliśmy liczbę mnożeń i zmniejszyliśmy liczby, na których operujemy, aczkolwiek tylko w zależności od przypadku. O ile wcześniej zależność od $$k$$ wyglądała tak, że jeśli $$k$$ było duże, to mieliśmy dużo mnożeń i dużą liczbę w mianowniku, tak tutaj wraz ze wzrostem $$k$$ najpierw liczby rosną, a potem maleją.
+
+### Pozbycie się silni
+
+Ostatni sposób, jak możemy zoptymalizować obliczenia, będzie mieć na celu przede wszystkim znowu zmniejszenie liczb, na których operujemy. Mianowicie, możemy pozbyć się całkowicie operacji liczenia silni.
+
+Zauważmy, że jeśli uproszczony wzór zapisalibyśmy bez silni, wyglądałby tak:
+
+$$
+\frac {n(n-1)(n-2)\cdot ... \cdot (n-k+1)}{1\cdot 2\cdot 3 \cdot ... \cdot k}
+$$
+
+Pamiętając, jak wygląda mnożenie ułamków, możemy zauważyć, że spokojnie możemy rozbić to równanie na wiele dzieleń. Będziemy wówczas mieć wiele dzieleń mniejszych liczb zamiast jednego dużych liczb:
+
+$$
+\frac {n(n-1)(n-2)\cdot ... \cdot (n-k+1)}{1\cdot 2\cdot 3 \cdot ... \cdot k} = \frac{n}{1} \cdot \frac{n-1}{2} \cdot \frac{n-2}{3} \cdot ... \cdot \frac{n-k+1}{k}
+$$
+
+Co możemy sprowadzić do następującego zapisu matematycznego:
+
+$$
+\prod^{k}_{i = 1} \frac{n-i+1}{i}
+$$
+
+A to sprowadza się w kodzie do bardzo prostej pętli z licznikiem. Od razu weźmiemy też pod uwagę drugie uproszczenie, aby zawsze operować na *mniejszym* $$k$$. Kod wygląda wtedy następująco:
+
+```javascript
+// funkcja obliczająca współczynnik dwumianowy Newtona
+function binom(n, k) {
+  let result = 1;
+  const newK = Math.min(n - k, k);
+  for (let i = 1; i <= newK; i++) {
+    result = result * (n - i + 1) / i;
+  }
+  return result;
+}
+```
+
+Kod możesz sprawdzić na [Replit](https://replit.com/@tswistak/from-definition4#index.js).
+
+Mnożeń mamy już tylko $$k$$ (lub $$n-k$$), aczkolwiek dochodzi nam tyle samo dzieleń, więc pod tym kątem nie oszczędziliśmy obliczeń. Jednak liczby nie będą aż tak duże, co jest zaletą.
+
+Od razu dodam, że bardzo ważne jest, żeby w przypadku tej metody nie zastosować operatora przypisania z mnożeniem `*=`. Może on doprowadzić do błędnych wyników, ponieważ najpierw będziemy dzielić, a potem mnożyć. Kolejność wykonywania działań ma tutaj znaczenie i najpierw musimy pomnożyć, a potem dzielić, aby mieć pewność, że iloraz będzie liczbą całkowitą. A będzie, ponieważ odliczamy liczby po kolei, więc wynik pomnożony przez drugą liczbę musi być podzielny przez dwa, pomnożony przez trzecią — przez trzy itd.
+
+## Trójkąt Pascala
+
+### Co to jest?
+
+Następną rzeczą, którą chciałem pokazać, jest trójkąt Pascala. Jest to trójkąt złożony z liczb, gdzie na bokach mamy jedynki, natomiast wszystkie pozostałe wartości powstają przez zsumowanie dwóch sąsiadujących z góry w trójkącie. Wygląda to następująco:
+
+$$
+\begin{array}{c}1\\1\quad 1\\1\quad 2\quad 1\\1\quad 3\quad 3\quad 1\\1\quad 4\quad 6\quad 4\quad 1\\1\quad 5\quad 10\quad 10\quad 5\quad 1\end{array}
+$$
+
+Możesz zadać teraz celne pytanie — jak to się ma do symbolu Newtona? Otóż dokładnie ten sam trójkąt moglibyśmy zapisać następująco:
+
+$$
+\begin{array}{c}{\dbinom {0}{0}}\\{\dbinom {1}{0}}\quad {\dbinom {1}{1}}\\{\dbinom {2}{0}}\quad {\dbinom {2}{1}}\quad {\dbinom {2}{2}}\\{\dbinom {3}{0}}\quad {\dbinom {3}{1}}\quad {\dbinom {3}{2}}\quad {\dbinom {3}{3}}\\{\dbinom {4}{0}}\quad {\dbinom {4}{1}}\quad {\dbinom {4}{2}}\quad {\dbinom {4}{3}}\quad {\dbinom {4}{4}}\\{\dbinom {5}{0}}\quad {\dbinom {5}{1}}\quad {\dbinom {5}{2}}\quad {\dbinom {5}{3}}\quad {\dbinom {5}{4}}\quad {\dbinom {5}{5}}\end{array}
+$$
+
+### Wzór na symbol Newtona z trójkąta Pascala
+
+Skoro możemy ułożyć trójkąt Pascala z symboli Newtona, to znaczy, że możemy skorzystać z tej wiedzy do ułożenia nowego wzoru. A skoro wartości oblicza się tu przez sumowanie, oznacza to, że całkowicie odejdziemy od mnożenia i dzielenia.
+
+Popatrzmy na $$\binom{n}{k}$$ przez pryzmat trójkąta w taki sposób: $$n$$ traktujemy jako numer wiersza, $$k$$ jako numer *kolumny* (struktura bardziej przypomina mapę heksagonalną, ale zostańmy przy takim uproszczeniu). Żeby otrzymać wartość $$\binom {n}{k}$$, musimy zsumować ze sobą wartości $$\binom {n-1}{k}$$ i $$\binom {n-1}{k-1}$$, czyli sąsiadów z góry. Dodatkowo pamiętamy, że brzegi zawsze dają wartość 1 ($$k = 0$$ i $$k = n$$). W ten sposób otrzymujemy rekurencyjny wzór:
+
+$$
+\binom {n}{k} =
+\begin{cases}
+1 & \text{ dla } k = 0 \text{ lub } k = n \\
+\binom {n-1}{k} + \binom {n-1}{k-1} & \text{ w przeciwnym przypadku }
+\end{cases}
+$$
+
+Otrzymamy z tego w kodzie dość prostą <Link href="/post/rekurencja-co-to-jest">funkcję rekurencyjną</Link>:
+
+```javascript
+// funkcja obliczająca współczynnik dwumianowy Newtona
+function binom(n, k) {
+  if (k === 0 || k === n) {
+    return 1;
+  }
+  return binom(n - 1, k) + binom(n - 1, k - 1);
+}
+```
+
+Kod do przetestowania znajdziesz na [Replit](https://replit.com/@tswistak/from-pascal#index.js).
+
+Tym samym pozbyliśmy się niemal natychmiastowo dwóch wad poprzednich podejść — dużej liczby mnożeń i operacji na dużych liczbach. Niestety kosztem wielu wywołań rekurencyjnych. Złożoność obliczeniową tego podejścia określa się jako $$\Omicron(2^k)$$, więc może i wykonujemy prostszą operację, ale o wiele więcej razy niż w poprzednich podejściach. Do tego wcześniej mieliśmy stałą złożoność pamięciową $$\Omicron(1)$$, a tutaj ze względu na wywołania rekurencyjne mamy $$\Omicron(n)$$.
+
+### Iteracyjne wyliczanie z trójkąta Pascala
+
+Rekurencja daje bardzo ładny i czytelny zapis, ale podstawowym odruchem przy optymalizacji kodu jest <Link href="/post/derekursywacja">derekursywacja</Link>, czy to do <Link href="/post/iteracja-co-to-jest">zwykłej iteracji</Link>, czy do rekursji ogonowej. My zajmijmy się tym pierwszym sposobem.
+
+#### Idea derekursywacji
+
+Najprostszym podejściem do pozbycia się rekurencji jest obliczanie po kolei trójkąta Pascala, zachowując go w pamięci. Do tego celu potrzebujemy mieć tablicę dwuwymiarową o wymiarach $$n \times n$$.
+
+Problemem, który można zauważyć, jest fakt, że tablica to nie trójkąt. Co w takim razie zrobimy? Po prostu zapiszemy trójkąt od lewej do prawej, uzyskując trójkąt prostokątny. W kontekście zapisu w pamięci nie ma to znaczenia, ważne, żebyśmy umieli odnieść się do odpowiednich elementów.
+
+Poniżej możesz zobaczyć ponownie przykład trójkąta Newtona o wysokości 6 wraz z jego zapisem w postaci tablicy:
+
+$$
+\begin{array}{c}1\\1\quad 1\\1\quad 2\quad 1\\1\quad 3\quad 3\quad 1\\1\quad 4\quad 6\quad 4\quad 1\\1\quad 5\quad 10\quad 10\quad 5\quad 1\end{array}
+$$
+
+```json
+[
+  [1],
+  [1, 1],
+  [1, 2, 1],
+  [1, 3, 3, 1],
+  [1, 4, 6, 4, 1],
+  [1, 5, 10, 10, 5, 1]
+]
+```
+
+Wyznaczając elementy, będziemy musieli najpierw na sztywno przypisać wartości 1 dla pierwszego i ostatniego elementu w każdym wierszu. Pozostałe natomiast bez problemu wyliczymy, odnosząc się do elementów `[n-1][k-1]` oraz `[n-1][k]`.
+
+#### Implementacja
+
+Zróbmy implementację wprost, wyznaczając kolejne elementy trójkąta Pascala po kolei. Na razie ominiemy wszelkie możliwe optymalizacje. Jedyna, którą zrobimy, to przerwanie iteracji, gdy dotrzemy do szukanego przez nas `[n][k]`.
+
+W JavaScript będzie wyglądać to następująco:
+
+```javascript
+// funkcja obliczająca współczynnik dwumianowy Newtona
+function binom(n, k) {
+  const triangle = [];
+  for (let i = 0; i <= n; i++) {
+    // dodajemy nowy wiersz do trójkąta
+    triangle.push([]);
+    for (let j = 0; j <= i; j++) {
+      if (j === 0 || j === i) {
+        triangle[i][j] = 1;
+      } else {
+        triangle[i][j] = triangle[i - 1][j - 1] + triangle[i - 1][j];
+      }
+      if (i === n && j === k) {
+        // przerywamy pętlę i zwracamy wynik
+        return triangle[n][k];
+      }
+    }
+  }
+  // do tej sytuacji nie powinno dojść dla prawidłowych n i k
+  throw new Error("Błędne n lub k");
+}
+```
+
+Kod znajdziesz na [Replit](https://replit.com/@tswistak/from-pascal2#index.js).
+
+Podejście to jest lepsze od rekurencyjnego pod kątem złożoności obliczeniowej — z $$\Omicron(2^k)$$ zeszliśmy do $$\Omicron(n^2)$$. Dalej nie jest idealnie, ale asymptotyczne tempo wzrostu jest jednak zdecydowanie mniejsze. Niestety, jest to kosztem jeszcze wyższej złożoności pamięciowej — również $$\Omicron(n^2)$$.
+
+### Wypisanie trójkąta Pascala
+
+Napisaną przed chwilą funkcję możemy z powodzeniem wykorzystać do wypisania trójkąta Pascala. Wystarczy jedynie przerobić kod, aby funkcja przyjmowała tylko `n`, i nie przerywać wykonania pętli, a w zamian za to po jej zakończeniu zwrócić całość trójkąta. Nie będę podawać implementacji (znajdziesz ją pod zalinkowanym niżej Replit) — założę jedynie, że funkcja ma zmienioną nazwę na `pascal()`.
+
+Podchwytliwe jest tutaj wypisanie tego trójkąta w konsoli. W końcu chcielibyśmy, aby nie był prostokątny. Propozycję, jak ja bym to zrobił w JavaScript, zamieszczam poniżej wraz z komentarzami opisującymi, co robię:
+
+```javascript
+// funkcja wypisująca w konsoli trójkąt Pascala
+function printPascal(n) {
+  // obliczamy trójkąt Pascala
+  const triangle = pascal(n);
+  // znajdujemy najdłuższą liczbę w trójkącie
+  // dzięki temu będziemy wiedzieć, jak bardzo musimy rozsuwać krótsze liczby
+  let maxLength = 0;
+  for (let i = 0; i < triangle.length; i++) {
+    for (let j = 0; j < triangle[i].length; j++) {
+      maxLength = Math.max(maxLength, triangle[i][j].toString().length);
+    }
+  }
+  // maksymalny odstęp między liczbami
+  // mnożę przez 2 dla lepszego rezultatu wizualnego
+  const space = maxLength * 2;
+  // rozpoczynamy wypisywanie wiersz po wierszu
+  for (let i = 0; i < triangle.length; i++) {
+    // wiersz, który wypiszemy, przechowamy w zmiennej row
+    // od razu dodajemy odpowiednią liczbę spacji w zależności od wiersza
+    let row = " ".repeat(((n - i) * space) / 2);
+    // wypisujemy każdą liczbę w wierszu do zmiennej row
+    for (let j = 0; j < triangle[i].length; j++) {
+      // dodajemy liczbę do wiersza z odpowiednim odstępem
+      row +=
+        triangle[i][j].toString().padStart(maxLength, " ") +
+        " ".repeat(maxLength);
+      // co się tu dzieje po kolei:
+      // toString() <- zamieniamy liczbę na string
+      // padStart() <- dodajemy tyle spacji na początku,
+      // aby liczba razem ze spacjami miała długość równą maxLength
+      // repeat() <- na koniec dodajemy tyle spacji, co długość najdłuższej liczby
+    }
+    // wypisujemy wiersz w konsoli
+    console.log(row);
+  }
+}
+```
+
+Kod znajdziesz jak zwykle na [Replit](https://replit.com/@tswistak/pascal#index.js).
+
+Jako ciekawostkę dodam, że jeśli zrezygnujemy z wypisania liczb podzielnych przez 3, uzyskamy inny znany trójkąt — trójkąt Sierpińskiego. Zobacz poniżej efekt, który uzyskałem, jednocześnie zastępując pozostałe liczby gwiazdkami:
+
+```
+                 *
+                * *
+               * * *
+              *     *
+             * *   * *
+            * * * * * *
+           *     *     *
+          * *   * *   * *
+         * * * * * * * * *
+        *                 *
+       * *               * *
+      * * *             * * *
+     *     *           *     *
+    * *   * *         * *   * *
+   * * * * * *       * * * * * *
+  *     *     *     *     *     *
+ * *   * *   * *   * *   * *   * *
+* * * * * * * * * * * * * * * * * *
+```
+
+Kod, którym to uzyskałem, również znajdziesz na [Replit](https://replit.com/@tswistak/sierpniski#index.js). Tutaj mogłem zdecydowanie uprościć wypisywanie, bo i tak wypisujemy pojedyncze znaki, a nie całe liczby.
+
+### Optymalizacja podejścia
+
+Porysowaliśmy nieco, ale wróćmy do symbolu Newtona. Powiedzmy sobie szczerze, kwadratowa złożoność obliczeniowa nie jest idealna. Pytanie brzmi, czy możemy coś poprawić? Otóż tak.
+
+Zauważmy dwie rzeczy:
+
+- W poprzedniej implementacji zapomnieliśmy o fakcie, że wartości rozkładają się symetrycznie. Stąd zamiast $$k$$ możemy obliczać $$n-k$$.
+- Tak naprawdę nie potrzebujemy liczyć całego trójkąta, aby znaleźć wartość $${n \choose k}$$. Wystarczy, że w każdym wierszu będziemy liczyć maksymalnie $$k$$ wartości, pozostałe są nadmiarowe.
+
+Możemy teraz przerobić algorytm dla zredukowania obliczeń. Kod będzie wyglądać następująco:
+
+```javascript
+// funkcja obliczająca współczynnik dwumianowy Newtona
+function binom(n, k) {
+  const triangle = [];
+  const newK = Math.min(k, n - k);
+  for (let i = 0; i <= n; i++) {
+    // dodajemy nowy wiersz do trójkąta
+    triangle.push([]);
+    for (let j = 0; j <= Math.min(i, newK); j++) {
+      if (j === 0 || j === i) {
+        triangle[i][j] = 1;
+      } else {
+        triangle[i][j] = triangle[i - 1][j - 1] + triangle[i - 1][j];
+      }
+    }
+  }
+  return triangle[n][newK];
+}
+```
+
+Kod jak zawsze znajdziesz na [Replit](https://replit.com/@tswistak/from-pascal3#index.js).
+
+Dzięki tym dwóm prostym zabiegom zmniejszyliśmy złożoność obliczeniową i pamięciową do $$\Omicron(n \cdot \min(n, n-k))$$. Dla porównania, gdy przy poprzedniej metodzie aby obliczyć $${15 \choose 11}$$, potrzebowaliśmy iterować 132 razy, teraz wystarczy jedynie 70 razy.
+
+A czy można jeszcze bardziej usprawnić kod? Jak najbardziej. Możemy zdecydowanie zmniejszyć złożoność pamięciową. Dość oczywiste jest, że nie potrzebujemy trzymać w pamięci całego trójkąta Pascala, a jedynie poprzedni i aktualny wiersz, tym samym zmniejszając złożoność do $$\Omicron(2 \cdot \min(n, n-k))$$. Myślę, że jest to dość proste do zrobienia, więc nie będę pokazywać, jak to zrobić. Co więcej, moglibyśmy zejść do tylko jednej tablicy, ale tutaj polecam pokombinować lub poszukać na własną rękę.
+
+## Podsumowanie
+
+Tak oto doszliśmy do końca *przygody* z optymalizacją obliczania symbolu Newtona. Od najprostszej implementacji bazującej na mnożeniu dużych liczb, przez rekurencyjną opartą tylko na dodawaniu, aż do bardzo prostej iteracyjnej. Mam nadzieję, że takie przejście przez sztuczki matematyczne, a potem algorytmiczne pokazało Ci, że optymalizować algorytmy możemy na bardzo różne sposoby.
+
+A czy liczenie współczynnika wielomianowego Newtona może się przydać w praktyce? Jak najbardziej. Przykładowo:
+
+- W matematyce liczymy dwumiany Newtona. Najsłynniejszymi z nich są wzory skróconego mnożenia.
+- Bardziej specyficznie, w kombinatoryce stosujemy symbol Newtona do liczenia kombinacji: zarówno bez powtórzeń, jak i z powtórzeniami.
+- Z podobnej tematyki: w statystyce wykorzystujemy go np. w funkcji rozkładu prawdopodobieństwa dwumianowego.
+- W informatyce możemy go wykorzystać do liczenia <Link href="/post/krzywe-beziera">krzywych Béziera</Link>.
+
+## Literatura
+
+- *Wybrane wzory matematyczne na egzamin maturalny z matematyki*, Warszawa: Centralna Komisja Egzaminacyjna, 2023, s. 6, [\[PDF\]](https://cke.gov.pl/images/_EGZAMIN_MATURALNY_OD_2023/Informatory/wybrane_wzory_matematyczne_EM2023.pdf)
+- Weisstein, Eric W. "Binomial Coefficient." From MathWorld--A Wolfram Web Resource. https://mathworld.wolfram.com/BinomialCoefficient.html
+- Stover, Christopher and Weisstein, Eric W. "Pascal's Triangle." From MathWorld--A Wolfram Web Resource. https://mathworld.wolfram.com/PascalsTriangle.html
+
+<small>Zdjęcie na okładce wygenerowane przez DALL-E.</small>

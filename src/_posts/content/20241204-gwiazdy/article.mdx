@@ -1,0 +1,340 @@
+import Link from 'next/link';
+import {Image} from '@swistak-codes/components';
+import cover from './swistak_do_gwiazd.webp';
+import gwiazdy from './gwiazdy.webp';
+import {Presentation} from "./presentation";
+import {Presentation2} from "./presentation2";
+
+export const meta = {
+  title: 'Jak narysować gwiazdę?',
+  abstract:
+    'W artykule opisuję, jak podejść algorytmicznie do rysowania gwiazd, czyli wielokątów gwiaździstych foremnych.',
+  firstParagraph: (
+    <>
+      Już dawno niczego nie rysowaliśmy na blogu, czyż nie? Powróćmy więc do tej przyjemnej serii i zobaczmy, w jaki sposób algorytmicznie rysować kolejną rzecz. Tym razem częściowo w klimacie zbliżających się świąt — porysujmy gwiazdy. A to dlatego, że kryje się za tym prosta, ale ciekawa matematyka i algorytmika.
+    </>
+  ),
+  keyword: 'gwiazda',
+  categories: ['Matematyka', 'Programowanie', 'Grafika komputerowa'],
+  tags: [
+    'javascript',
+    'canvas',
+    'grafika komputerowa',
+    'geometria',
+    'gwiazdy',
+    'wielokąt gwiaździsty',
+  ],
+  slug: 'jak-narysowac-gwiazde',
+  updateTime: '2024-12-04T07:00:00+00:00',
+  publishTime: '2024-12-04T07:00:00+00:00',
+  cover,
+};
+
+## Gwiazdy a matematyka
+
+Zanim przejdziemy do programowania, zróbmy sobie krótkie wprowadzenie matematyczne, bo jakkolwiek na to nie spojrzeć, to żeby narysować coś algorytmicznie, warto to poznać od strony matematycznej.
+
+To, co dla zwykłego śmiertelnika jest gwiazdą, dla matematyków jest wielokątem gwiaździstym. Najczęściej przez tę nazwę rozumie się wielokąt gwiaździsty foremny. Powstaje on przez połączenie przekątnymi (wszystkimi o tej samej długości) wierzchołków między sobą. Aby było to możliwe, wierzchołków musi być co najmniej 5. Połączenie to może być albo ciągłą linią łamaną — wówczas mówimy o wielokącie gwiaździstym właściwym, albo składać się z kilku łamanych — wielokąt gwiaździsty niewłaściwy.
+
+Aby nie pisać ciągle *wielokąt gwiaździsty foremny*, wprowadziło się zarówno proste oznaczenie matematyczne, jak i słowne. Słowne to połączenie greckiego słowa określającego liczbę wierzchołków z sufiksem *-gram* (z greckiego linia). Stąd gwiazda pięcioramienna to pentagram (*pente* — pięć), sześcioramienna to heksagram (*hex* — sześć), siedmioramienna to heptagram (*hepta* — siedem) itd. Oznaczenie bardziej matematyczne to symbol Schläfliego, czyli $$\{ n / x \}$$. W zapisie tym $$n$$ to liczba wierzchołków, a $$x$$ możemy rozumieć jako liczbę „przeskoków”, czyli odliczając po kolei wierzchołki, z którym następnym łączymy aktualny. Liczba ta musi być większa od 1 i mniejsza od $$n-1$$. Warto dodać, że jeśli $$n$$ i $$x$$ są względnie pierwsze, to otrzymamy wielokąt gwiaździsty właściwy. Jeśli natomiast $$x$$ byłby równy 1, otrzymalibyśmy najzwyklejszy wielokąt foremny.
+
+Tutaj dodam nawet więcej — możemy rozpatrywać jedynie $$x < \frac{n}{2}$$. Dzieje się tak dlatego, że powyżej $$\frac{n}{2}$$ dostaniemy te same rezultaty co dla wcześniejszych, tylko w odwrotnej kolejności (np. $$x = n-1$$ da ten sam rezultat co $$x=1$$, stąd je wykluczamy). Natomiast, w przypadku parzystego $$n$$, $$\frac{n}{2}$$ po prostu połączy ze sobą przeciwległe wierzchołki odcinkami.
+
+<Image
+  image={gwiazdy}
+  alignCenter
+  fullSize
+  maxWidth="500px"
+  alt="Po lewej stronie znajduje się pentagram, po prawej heksagram."
+  caption={<>Dwa najpopularniejsze wielokąty gwiaździste — pentagram (z lewej) i heksagram (z prawej). Pentagram zapiszemy jako &#123;5/2&#125;, ponieważ jak widać ma pięć wierzchołków i łączymy ze sobą co drugi. Z racji tego, że robimy to ciągłą linią, jest to wielokąt gwiaździsty właściwy. Heksagram zapiszemy jako &#123;6/2&#125; i, jak widzimy, składa się z dwóch łamanych — dwóch trójkątów, gdzie też przeskoki są co 2.</>}
+/>
+
+Gwiazdy będziemy rysować w takiej postaci, a nie jako figury zamknięte (więc pięcioramienna gwiazda miałaby wtedy 10 wierzchołków), ponieważ jest to ciekawsze z algorytmicznego punktu widzenia i też bardziej „klasyczne” z matematycznego. Natomiast na sam koniec artykułu, jako bonus, pokażę, jak prosto jest narysować „zwykłą” gwiazdę.
+
+## Przygotowanie środowiska programistycznego
+
+Rysowanie programistycznie zrobimy w przeglądarkowym JavaScripcie, wykorzystując element `<canvas>` (płótno) do rysowania. Jednak algorytmy, które tu pokażę, są uniwersalne dla wszelkich języków programowania, jedynie musiałbyś/musiałabyś znaleźć odpowiedniki funkcji do rysowania (a w zasadzie jednej — rysowania linii z punktu do punktu). Jeśli potrzebujesz szczegółowych wyjaśnień, jak „rysować” za pomocą JavaScriptu, to rozpisałem się o tym w artykule o <Link href="/post/jak-narysowac-zegar-analogowy">rysowaniu zegara</Link>. Tutaj tylko w skrócie napiszę, że potrzebujemy mieć następujący tag:
+
+```html
+<canvas id="canvas" width="500" height="500">
+  Twoja przeglądarka nie wspiera Canvas
+</canvas>
+```
+
+Kod możesz w wygodny sposób napisać np. w serwisie [CodePen](https://codepen.io/) bez potrzeby robienia czegokolwiek na własnym komputerze (chociaż nie ma tutaj nic, co wymagałoby skomplikowanych instalacji i obciążania systemu).
+
+W kwestii części javascriptowej potrzebujemy dostać się do płótna i jego kontekstu rysowania w dwóch wymiarach, co zrobimy następująco:
+
+```javascript
+const canvas = document.getElementById("canvas");
+const context = canvas.getContext("2d");
+```
+
+Teraz możemy przejść do części algorytmicznej.
+
+## Obliczanie pozycji wierzchołków
+
+Najprostszym sposobem na wyznaczenie pozycji wierzchołków wielokąta foremnego jest opisanie go na okręgu. Wtedy wystarczy okrąg o wybranym promieniu podzielić na $$n$$ równych łuków, gdzie $$n$$ to liczba wierzchołków. Punkty, w których łuki się zaczynają, będą naszymi wierzchołkami. Jednak oczywiście musimy wyznaczyć konkretne położenie punktu w przestrzeni, a nie tylko kąt na okręgu. Coś bardzo analogicznego robiliśmy przy <Link href="/post/jak-narysowac-zegar-analogowy">rysowaniu zegara</Link> do rysowania wskazówek czy oznaczenia godzin. Żebyś jednak nie musiał(a) się tam wracać, dam po prostu gotowy wzór:
+
+$$
+\begin{align*}
+x &= x_0 + r \cdot \cos \alpha \\
+y &= y_0 + r \cdot \sin \alpha
+\end{align*}
+$$
+
+$$x_0,y_0$$ to położenie środka okręgu, na którym opiszemy gwiazdę.
+
+W kodzie wszystko, co musimy zrobić, to pętla, która zwróci położenie każdego z wierzchołków, korzystając z opisanej wyżej metody. Można to zrobić następująco:
+
+```javascript
+// określamy parametry okregu na podstawie rozmiaru płótna
+const centerX = canvas.width / 2;
+const centerY = canvas.height / 2;
+const radius = canvas.width / 2 - 10;
+
+// funkcja obliczająca położenie wierzchołków
+// count - liczba wierzchołków
+function getVertices(count) {
+  // wynikowa tablica
+  const result = [];
+  // odliczamy po kolei wierzchołki
+  for (let i = 0; i < count; i++) {
+    // obliczamy położenie na okręgu wierzchołka
+    // robimy to przez obliczenie długości każdego łuku,
+    // a następnie pomnożenie, który wierzchołek nas interesuje
+    // dodatkowo obracamy o 90 stopni (pi/2), aby czubek był na samej górze
+    const angle = ((Math.PI * 2) / count) * i - Math.PI / 2;
+    // przekształcamy położenie na okręgu we współrzędne
+    const x = centerX + Math.cos(angle) * radius;
+    const y = centerY + Math.sin(angle) * radius;
+    // dodajemy do wynikowej tablicy
+    result.push({ x, y });
+  }
+  // zwracamy wynik
+  return result;
+}
+```
+
+## Łączenie wierzchołków
+
+Mamy obliczone pozycje wierzchołków, więc jedyne, co nam pozostało, to połączyć je ze sobą. Proste? Nie do końca.
+
+### Wielokąt gwiaździsty właściwy
+
+Rozpatrując rysowanie wielokąta gwiaździstego, musimy wziąć pod uwagę, że wielokąty są zarówno właściwe, jak i niewłaściwe. Przypadek właściwy jest prostszy, dlatego zacznijmy od niego.
+
+W tym przypadku jedyne, co musimy zrobić, to startując od pierwszego wierzchołka, rysować po kolei odcinki łączące kolejne wierzchołki, biorąc oczywiście pod uwagę konieczność robienia „przeskoków” (czyli $$x$$ z symbolu Schläfliego). Robimy to tak długo, aż trafimy z powrotem na wierzchołek początkowy. Musimy tylko pamiętać, że możemy parę razy przeskoczyć za pierwszy wierzchołek, zanim do niego wrócimy, stąd co przeskok trzeba liczyć resztę z dzielenia przez liczbę wierzchołków.
+
+W kwestii samego rysowania, co już typowe dla pokazywanego tutaj JavaScript, wykorzystamy dwie funkcje:
+
+- `context.moveTo(x, y)` — przeniesie na wskazaną pozycję. Jest to o tyle istotne, że w JavaScript rysując linie, nie podajemy dwóch punktów, a tylko jeden — docelowy, a rysowanie odbywa się z ostatniej pozycji, na której byliśmy.
+- `context.lineTo(x, y)` — rysuje linie do wskazanej pozycji. Pozycja ta jest potem zapamiętana, więc nie musimy znowu używać `moveTo`.
+
+W kodzie wyglądałoby to następująco:
+
+```javascript
+// funkcja łącząca ze sobą wierzchołki
+// vertices - tablica współrzędnych wierzchołków
+// step - co który wierzchołek ze sobą łączymy
+function connectVertices(vertices, step) {
+  // przenosimy się na pozycję pierwszego wierzchołka
+  context.moveTo(vertices[0].x, vertices[0].y);
+  // zmienna, która przechowa indeks aktualnego wierzchołka
+  let current = 0;
+  // pętla rysująca linie; musi wykonać się co najmniej raz
+  // wykonujemy ją tak długo, aż aktualny wierzchołek znowu będzie początkowym
+  do {
+    // zmieniamy indeks aktualnego wierzchołka, robiąc przeskok o `step`
+    // robimy modulo liczbę wierzchołków, aby zagwarantować przejście za pierwszy wierzchołek
+    current = (current + step) % vertices.length;
+    // rysujemy linię z aktualnego punktu do aktualnego wierzchołka
+    // przeniesie to od razu naszą pozycję na to miejsce, więc nie musimy znowu robić `moveTo`
+    context.lineTo(vertices[current].x, vertices[current].y);
+  } while (current !== 0);
+}
+```
+
+Dodam tylko, że kod ten jeszcze nic nam fizycznie nie narysuje. Musielibyśmy wywołać na końcu `context.stroke()`, aby po wytyczonym śladzie JavaScript narysował linię łamaną. Jednak na razie się wstrzymajmy, bo nie jest to ostateczna implementacja. Aczkolwiek, jeśli zależy Ci tylko na rysowaniu wielokątów gwiaździstych właściwych, możesz w tym momencie się zatrzymać.
+
+### Obsługa wielokątów niewłaściwych
+
+Problem z wielokątami gwiaździstymi niewłaściwymi jest taki, że składają się z wielu łamanych. Kod, który napisaliśmy powyżej, narysuje tylko jedną, więc na przykład zamiast heksagramu otrzymamy trójkąt równoboczny. Jak więc temu zaradzić?
+
+Otóż rozwiązaniem jest przerobienie powyższej funkcji, aby mogła zaczynać od dowolnego wierzchołka. Dodatkowo damy też zapamiętywanie odwiedzonych wierzchołków, aby później przy wywołaniach nie wywoływać niepotrzebnie rysowania w miejscach, gdzie są już połączenia. Przerobienie takie jest bardzo proste i wygląda następująco:
+
+```javascript
+// zbiór odwiedzonych wierzchołków
+const visited = new Set();
+
+// funkcja łącząca ze sobą wierzchołki
+// startIndex - indeks wierzchołka, od którego zaczynamy rysować
+// vertices - tablica współrzędnych wierzchołków
+// step - co który wierzchołek ze sobą łączymy
+function connectVertices(startIndex, vertices, step) {
+  // przenosimy się na pozycję pierwszego wierzchołka
+  context.moveTo(vertices[startIndex].x, vertices[startIndex].y);
+  // zmienna, która przechowa indeks aktualnego wierzchołka
+  let current = startIndex;
+  // pętla rysująca linie; musi wykonać się co najmniej raz
+  // wykonujemy ją tak długo, aż aktualny wierzchołek znowu będzie początkowym
+  do {
+    // zmieniamy indeks aktualnego wierzchołka, robiąc przeskok o `step`
+    // robimy modulo liczbę wierzchołków, aby zagwarantować przejście za pierwszy wierzchołek
+    current = (current + step) % vertices.length;
+    // rysujemy linię z aktualnego punktu do aktualnego wierzchołka
+    // przeniesie to od razu naszą pozycję na to miejsce, więc nie musimy znowu robić `moveTo`
+    context.lineTo(vertices[current].x, vertices[current].y);
+    // dodajemy wierzchołek do listy odwiedzonych
+    visited.add(current);
+  } while (current !== startIndex);
+}
+```
+
+Oczywiście jeszcze będziemy musieli odpowiednio wywoływać tę funkcję. Do tego przejdziemy dalej.
+
+### Połączenie wszystkiego w całość
+
+A dokładniej przejdziemy do tego teraz. Dokończmy wszystko przez napisanie funkcji, po której wywołaniu narysujemy gwiazdę.
+
+Musimy tutaj wykonać następujące rzeczy:
+
+- Obliczyć pozycje wierzchołków, korzystając z `getVertices()`.
+- Wywołać `connectVertices` dla każdego nieodwiedzonego wierzchołka.
+- Zakończyć rysowanie gwiazdy, bo jak wspomniałem, javascriptowe `lineTo` jedynie wyznacza ścieżkę, ale nie rysuje nic.
+
+Kod będzie wyglądać następująco:
+
+```javascript
+// funkcja rysująca gwiazdę
+// verticesCount - liczba wierzchołków
+// step - co który wierzchołek łączymy ze sobą
+function drawStar(verticesCount, step) {
+  // obliczamy pozycje wierzchołków
+  const vertices = getVertices(verticesCount);
+  // czyścimy zbiór odwiedzonych wierzchołków
+  visited.clear();
+  // zaczynamy rysować ciągłą ścieżkę
+  context.beginPath();
+  // iterujemy od 0 do połowy liczby wierzchołków, aby mieć pewność, że narysujemy wszystkie połączenia
+  for (let i = 0; i < verticesCount / 2; i++) {
+    // jeśli wierzchołek był już wykorzystany przy rysowaniu, pomijamy
+    if (visited.has(i)) {
+      continue;
+    }
+    // wywołujemy funkcję rysującą, aby zaczynała od aktualnego wierzchołka
+    connectVertices(i, vertices, step);
+  }
+  // zamykamy ścieżkę
+  context.closePath();
+  // ustalamy kolor pędzla na czarny
+  context.strokeStyle = "black";
+  // rysujemy kontur wzdłuż wyznaczonej ścieżki
+  context.stroke();
+  // możemy też ją wypełnić, wówczas uzyskamy zwykłą gwiazdę
+  // context.fillStyle = "yellow";
+  // context.fill();
+}
+```
+
+Zauważ, że w pętli for odwiedzającej wierzchołki przechodzimy tylko do połowy ich liczby. O ile wiem, nie musimy dalej iterować, bo do tego momentu wszystkie powinny być już ze sobą połączone, ale nie szukałem na to konkretnego potwierdzenia. Nie stracimy jednak jakoś szczególnie na wydajności, jeśli odliczymy do `verticesCount` — i tak nie wywołamy wyznaczania ścieżki, a sprawdzenie istnienia elementu w zbiorze ma złożoność $$\Omicron(1)$$.
+
+## Koniec implementacji
+
+Oto skończyliśmy implementację. Cały kod wraz z możliwością edycji znajdziesz na poniższych platformach. Wybierz, którą wolisz:
+
+- [CodePen](https://codepen.io/tswistak/pen/YzmmoyG?editors=0010)
+- [repl.it](https://replit.com/@tswistak/gwiazdy1#script.js)
+
+A jeśli po prostu interesuje Cię rezultat, a także jak parametry wpływają na rysowanie, to poniżej możesz to przetestować.
+
+<Presentation />
+
+## A jak rysować gwiazdy jako figury zamknięte?
+
+Jak zapowiadałem, bonusowo pokażę także, w jaki sposób rysować gwiazdy w postaci figur zamkniętych. Tym razem wszystko pokażę naraz, przez przerobienie poprzedniego kodu, bo jest to dużo prostszy przypadek.
+
+A co dokładnie trzeba zrobić? Trzeba wygenerować dwa zestawy wierzchołków — jedne tak jak obecnie, a drugie na mniejszym promieniu, przesunięte o połowę długości łuku wytyczanego przez wierzchołki. Następnie jedyne co trzeba zrobić, to połączyć ze sobą kolejne wierzchołki z obu zestawów na przemian.
+
+Kod będzie wyglądać następująco:
+
+```javascript
+// określamy parametry okregu na podstawie rozmiaru płótna
+const centerX = canvas.width / 2;
+const centerY = canvas.height / 2;
+const radius = canvas.width / 2 - 10;
+const innerRadius = (radius * 2) / 4;
+
+// funkcja obliczająca położenie wierzchołków
+// count - liczba wierzchołków
+// radius - promień okregu
+// shift - przesunięcie kąta
+function getVertices(count, radius, shift) {
+  // wynikowa tablica
+  const result = [];
+  // odliczamy po kolei wierzchołki
+  for (let i = 0; i < count; i++) {
+    // obliczamy położenie na okręgu wierzchołka
+    // robimy to przez obliczenie długości każdego łuku,
+    // a następnie pomnożenie, który wierzchołek nas interesuje
+    // dodatkowo obracamy o 90 stopni (pi/2), aby czubek był na samej górze,
+    // a na końcu dodajemy przesunięcie
+    const angle = ((Math.PI * 2) / count) * i - Math.PI / 2 + shift;
+    // przekształcamy położenie na okręgu we współrzędne
+    const x = centerX + Math.cos(angle) * radius;
+    const y = centerY + Math.sin(angle) * radius;
+    // dodajemy do wynikowej tablicy
+    result.push({ x, y });
+  }
+  // zwracamy wynik
+  return result;
+}
+
+// funkcja rysująca gwiazdę
+// verticesCount - liczba wierzchołków
+function drawStar(verticesCount) {
+  // obliczamy pozycje zewnętrznych wierzchołków
+  const vertices = getVertices(verticesCount, radius, 0);
+  // obliczamy przesunięcie wewnętrznych wierzchołków jako połowę długości łuku
+  // ((Math.PI * 2) / verticesCount) / 2 == Math.PI / verticesCount
+  const shift = Math.PI / verticesCount;
+  // obliczamy pozycje wewnętrznych wierzchołków
+  const verticesInner = getVertices(verticesCount, innerRadius, shift);
+  // zaczynamy rysować ciągłą ścieżkę
+  context.beginPath();
+  // przesuwamy kursor na pozycję ostatniego wierzchołka zewnętrznego
+  context.moveTo(verticesInner.at(-1).x, verticesInner.at(-1).y);
+  // łączymy ze sobą kolejne wierzchołki
+  for (let i = 0; i < verticesCount; i++) {
+    context.lineTo(vertices[i].x, vertices[i].y);
+    context.lineTo(verticesInner[i].x, verticesInner[i].y);
+  }
+  // zamykamy ścieżkę
+  context.closePath();
+  // ustalamy kolor pędzla na czarny
+  context.strokeStyle = "black";
+  // rysujemy kontur wzdłuż wyznaczonej ścieżki
+  context.stroke();
+  // możemy też ją wypełnić
+  // context.fillStyle = "yellow";
+  // context.fill();
+}
+```
+
+Możesz go sprawdzić zarówno na [CodePen](https://codepen.io/tswistak/pen/ZYzzmXP?editors=0010), jak i na [repl.it](https://replit.com/@tswistak/gwiazdy2#script.js), a poniżej przetestować w analogiczny sposób jak poprzednią wersję:
+
+<Presentation2 />
+
+## Podsumowanie
+
+Tak oto doszliśmy do końca. Jak widać, rysowanie gwiazdy nie jest trudnym algorytmicznie zadaniem, ale było nieco podchwytliwe, szczególnie w przypadku obsługi dowolnych wartości $$x$$. Natomiast rysowanie klasycznych gwiazd w postaci figur zamkniętych jest jeszcze prostszym zadaniem i ograniczyło się tylko do odpowiedniego wyznaczenia wierzchołków.
+
+Jeśli chciałbyś/chciałabyś porysować algorytmicznie nieco więcej, a nie czytałeś(-aś) wcześniej mojego bloga, to podobnie rysowaliśmy <Link href="/post/jak-narysowac-zegar-analogowy">zegar</Link>, <Link href="/post/zegar-binarny">zegar binarny</Link> i <Link href="/post/jak-narysowac-spirale">spirale</Link>. Do tego eksplorowaliśmy też od strony matematycznej tematy <Link href="/post/algorytmiczne-rysowanie-roslin">rysowania roślin</Link> (również <Link href="/post/algorytmiczne-rysowanie-roslin-w-3d">w 3D</Link>), <Link href="/post/gradienty">gradientów</Link> i <Link href="/post/krzywe-beziera">krzywych Béziera</Link>.
+
+## Literatura
+
+- Wielokąt gwiaździsty, https://pl.wikipedia.org/w/index.php?title=Wielok%C4%85t_gwia%C5%BAdzisty&oldid=67829062 (ostatni dostęp lis. 26, 2024).
+- Weisstein, Eric W. "Star Polygon." From MathWorld--A Wolfram Web Resource. https://mathworld.wolfram.com/StarPolygon.html
+- Star polygon, https://en.wikipedia.org/w/index.php?title=Star_polygon&oldid=1247003004 (ostatni dostęp lis. 26, 2024).
+
+<small>Zdjęcie na okładce wygenerowane przez DALL-E.</small>

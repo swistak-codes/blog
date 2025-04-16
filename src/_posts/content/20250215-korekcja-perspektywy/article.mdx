@@ -1,0 +1,631 @@
+import Link from 'next/link';
+import { Grid, Image } from '@swistak-codes/components';
+import cover from './swistak_fotograf.webp';
+import {PresentationSimple} from './presentation-simple';
+import {PresentationFull} from './presentation-full';
+import bezpunkt from './korekcja_bezpunkt.webp';
+import wynik from './korekcja_wynik.webp';
+import punkt from './korekcja_punkty.webp';
+import opencv from './korekta_opencv.webp';
+import bilinear from './Bilinear_interpolation.png';
+
+export const meta = {
+  title: 'Korekcja perspektywy — algorytmiczne podejście',
+  abstract:
+    'Artykuł przedstawia algorytmiczne podejście do korekcji perspektywy w grafice komputerowej. Rozpatrzymy problem z punktu widzenia matematyki i zaimplementujemy wszystko od zera.',
+  firstParagraph: (
+    <>
+      W aplikacjach graficznych jedną z dostępnych funkcji jest możliwość skorygowania perspektywy wykonanego zdjęcia. Zwykle jest to w bardzo prostej formie, gdzie korygujemy perspektywę do „wyprostowania” zdjęcia. Możliwe, że spotkałeś(-aś) się z tym w aplikacjach mobilnych, gdzie po zrobieniu zdjęcia kartki z tekstem aplikacja sama wyprostuje zdjęcie. Robienie czegoś takiego (aczkolwiek bez wykrycia położenia kartki) jest przedmiotem tego artykułu. Zrozummy temat z punktu widzenia matematyki, a następnie zaimplementujmy wszystko od zera. Aczkolwiek po drodze wskażę też, gdzie można znaleźć gotowe rozwiązania.
+    </>
+  ),
+  keyword: 'korekcja perspektywy',
+  categories: ['Matematyka', 'Grafika komputerowa'],
+  tags: [
+    'grafika',
+    'macierze',
+    'transformacje afiniczne',
+    'geometria',
+    'matematyka',
+    'przekształcenia geometryczne',
+    'przekształcenie perspektywiczne',
+    'interpolacja dwuliniowa',
+    'algorytm najbliższego sąsiada',
+    'css',
+    'javascript',
+    'python',
+    'opencv',
+    'macierz odwrotna',
+    'rozwiązywanie układów równań',
+  ],
+  slug: 'korekcja-perspektywy',
+  updateTime: '2025-02-12T07:00:00+00:00',
+  publishTime: '2025-02-12T07:00:00+00:00',
+  cover,
+};
+
+## Uwaga wstępna
+
+Aby pokazać i wytłumaczyć algorytmikę stojącą za korekcją perspektywy, będę musiał w ramach tego artykułu posługiwać się dość dużą ilością matematyki. Wszystkie tematy jednak tłumaczyłem już na blogu.
+
+Oto co musisz znać przed przeczytaniem tego artykułu:
+
+- Zapis macierzowy i podstawowe operacje na nich. Opisane w *<Link href="/post/macierze-podstawy">Macierze — podstawowe operacje</Link>*.
+- Obliczanie macierzy odwrotnej. Opisane w *<Link href="/post/macierze-wyznacznik">Macierze — obliczanie wyznacznika</Link>*.
+- Macierze transformacji w grafice 2D. Opisane w *<Link href="/post/przeksztalcenia-grafiki-2d">Przekształcenia grafiki 2D — matematyczny punkt widzenia</Link>*.
+
+## Co musimy zrobić?
+
+Dla prostszego wyobrażenia sobie problemu wróćmy do przykładu ze wstępu. Załóżmy, że mamy zdjęcie kartki i chcemy je „wyprostować” tak, aby kartka była prosto — wyglądało to jak skan. Czyli chcemy osiągnąć efekt taki, jak pokazałem poniżej, który osiągnąłem w programie do obróbki grafiki (Affinity Photo):
+
+<Grid minWidth={300}>
+  <Image
+    image={bezpunkt}
+    alignCenter
+    fullSize
+    alt="Zdjęcie kartki pokazanej pod kątem."
+    caption={<>Oryginalne zdjęcie.</>}
+  />
+  <Image
+    image={wynik}
+    alignCenter
+    fullSize
+    alt="Wyprostowane zdjęcie kartki."
+    caption={<>Zdjęcie po wyprostowaniu w programie graficznym.</>}
+  />
+</Grid>
+
+Aby to zrobić w programie graficznym, musiałem wybrać narzędzie korekcji perspektywy, po czym zaznaczyłem czterema punktami obszar pokryty przez kartkę. Wówczas program pod spodem oblicza, jaka transformacja perspektywiczna musi zostać wykonana, aby każdy z tych punktów przenieść na rogi obrazu.
+
+<Image
+  image={punkt}
+  alignCenter
+  fullSize
+  alt="Zdjęcie kartki pokazanej pod kątem z zaznaczonymi punktami P1, P2, P3, P4 na rogach kartki. Od nich są pokazane strzałki, które wskazują, gdzie te punkty zostaną przeniesione po korekcji perspektywy."
+  caption={<>Punkty definiujące kształt, na podstawie którego określimy transformację.</>}
+/>
+
+Patrząc na powyższy przykład, musimy P1 przenieść na pozycję `(0, 0)` obrazu, P2 na `(szerokość, 0)`, P3 na `(0, wysokość)` i P4 na `(szerokość, wysokość)`. Wówczas transformacja perspektywiczna, która przeniesie te punkty na odpowiednie miejsca, spowoduje, że cała kartka zostanie „wyprostowana”.
+
+## Użycie gotowego rozwiązania
+
+Już sama ta wiedza wystarczy, aby użyć gotowych rozwiązań. Jedyne co trzeba wiedzieć, żeby takie rozwiązania znaleźć, to fakt, że mamy do czynienia z transformacją perspektywiczną.
+
+Popularną biblioteką do operacji na obrazach jest [OpenCV](https://opencv.org/). Oryginalnie napisano ją dla języka C, ale została też przeportowana na inne języki programowania, m.in. Pythona i Javę. Pośród wielu funkcji zawiera to, czego potrzebujemy — znalezienie transformacji perspektywicznej na podstawie punktów: [`getPerspectiveTransform()`](https://docs.opencv.org/4.x/da/d54/group__imgproc__transform.html#gae66ba39ba2e47dd0750555c7e986ab85). Następnie można użyć [`warpPerspective()`](https://docs.opencv.org/4.x/da/d54/group__imgproc__transform.html#gaf73673a7e8e18ec6963e3774e6a94b87), aby zastosować tę transformację na obrazie.
+
+Przykładowe użycie tego w Pythonie wyglądałoby tak:
+
+```python
+# punkty wyznaczające obszar
+points_src = np.array([
+    [x0, y0],
+    [x1, y1],
+    [x2, y2],
+    [x3, y3]
+], dtype=np.float32)
+
+# punkty docelowe na rogach obrazu
+points_dst = np.array([
+    [0, 0],
+    [width, 0],
+    [0, height],
+    [width, height]
+], dtype=np.float32)
+
+# obliczamy macierz transformacji
+M = cv2.getPerspectiveTransform(points_src, points_dst)
+
+# transformujemy obraz
+transformed_image = cv2.warpPerspective(image, M, (width, height))
+```
+
+Całość kodu wraz z instrukcją uruchomienia znajdziesz na [Githubie](https://github.com/swistak-codes/perspective-correction) (folder `opencv-example`). Po uruchomieniu programu zobaczysz następujący efekt wskazujący, że transformacja została wykonana prawidłowo:
+
+<Image
+  image={opencv}
+  alignCenter
+  fullSize
+  alt="Zdjęcie kartki pokazanej pod kątem, a obok wyprostowane zdjęcie kartki."
+  caption={<></>}
+/>
+
+## Znalezienie wzoru na transformację
+
+Jeśli zostałeś(-aś) ze mną dalej, to się cieszę, że chcesz zgłębić temat. Przejdźmy zatem do matematyki stojącej za tym wszystkim. A dokładniej, na razie przypatrzymy się tylko matematyce znalezienia macierzy transformacji, czyli temu, co OpenCV wykonuje w funkcji `getPerspectiveTransform()`.
+
+### Utworzenie układu równań
+
+Zacznijmy od tego, że transformację perspektywiczną możemy zapisać za pomocą następującej macierzy:
+
+$$
+\begin{bmatrix}
+x' \\
+y' \\
+1
+\end{bmatrix}
+=
+\begin{bmatrix}
+a & b & c \\
+d & e & f \\
+g & h & 1
+\end{bmatrix}
+\begin{bmatrix}
+x \\
+y \\
+1
+\end{bmatrix}
+$$
+
+gdzie $$(x, y)$$ to współrzędne punktu na obrazie, a $$(x', y')$$ to współrzędne punktu po transformacji. Czynnik normalizujący zakładamy z góry, że jest równy 1, tak samo jak ostatnia wartość w macierzy.
+
+Ostatecznie zostajemy z ośmioma niewiadomymi (zmienne od $$a$$ do $$h$$), których wartości musimy znaleźć. Na szczęście mamy 4 punkty, każdy z dwoma współrzędnymi, co da nam ostatecznie układ ośmiu równań. Równanie dla każdego punktu będzie wyglądać tak:
+
+$$
+\begin{align*}
+x' &= \frac{a \cdot x + b \cdot y + c}{g \cdot x + h \cdot y + 1} \\
+y' &= \frac{d \cdot x + e \cdot y + f}{g \cdot x + h \cdot y + 1}
+\end{align*}
+$$
+
+Pamiętając, dokąd chcemy przesunąć znane nam cztery punkty (dla uproszczenia załóżmy, że P1 to 0, P2 to 1 itd.), otrzymujemy taki oto układ równań:
+
+$$
+\begin{cases}
+0 = \frac{a \cdot x_0 + b \cdot y_0 + c}{g \cdot x_0 + h \cdot y_0 + 1} \\
+0 = \frac{d \cdot x_0 + e \cdot y_0 + f}{g \cdot x_0 + h \cdot y_0 + 1} \\ \\
+W = \frac{a \cdot x_1 + b \cdot y_1 + c}{g \cdot x_1 + h \cdot y_1 + 1} \\
+0 = \frac{d \cdot x_1 + e \cdot y_1 + f}{g \cdot x_1 + h \cdot y_1 + 1} \\ \\
+0 = \frac{a \cdot x_2 + b \cdot y_2 + c}{g \cdot x_2 + h \cdot y_2 + 1} \\
+H = \frac{d \cdot x_2 + e \cdot y_2 + f}{g \cdot x_2 + h \cdot y_2 + 1} \\ \\
+W = \frac{a \cdot x_3 + b \cdot y_3 + c}{g \cdot x_3 + h \cdot y_3 + 1} \\
+H = \frac{d \cdot x_3 + e \cdot y_3 + f}{g \cdot x_3 + h \cdot y_3 + 1}
+\end{cases}
+$$
+
+### Rozwiązanie układu równań
+
+Nie oszukujmy się, ten układ równań wygląda strasznie. Teoretycznie moglibyśmy go albo rozwiązać szkolnymi metodami, albo np. bardziej zaawansowanymi sztuczkami jak wzorami Cramera. Nie chcę tego artykułu poświęcać na rozpisywanie krok po kroku rozwiązywania tego układu równań.
+
+Zamiast tego, zastosujemy bardziej programistyczne podejście i napiszemy algorytm rozwiązywania układów równań. Wykorzystamy do tego nieopisywaną przeze mnie do tej pory metodę eliminacji Gaussa. Jest to metoda, która polega na przekształcaniu układu równań w taki sposób, aby otrzymać macierz trójkątną, a następnie rozwiązać ją wstecz. W ten sposób otrzymamy wartości zmiennych $$a$$ do $$h$$. Nie chcę tutaj wdawać się w szczegóły algorytmu, więc od razu podam kod w JavaScript.
+
+Od teraz w artykule będę używać tego języka zamiast Pythona, bo jednak jest to język o powszechniejszej składni niż Python, a do tego wykorzystam ten sam kod do zamieszczonych dalej prezentacji.
+
+```javascript
+// funkcja rozwiązująca układ równań metodą Gaussa
+// A to macierz współczynników, b to wektor wyrazów wolnych
+function solveLinearSystem(A, b) {
+  const n = A.length;
+  // tworzymy macierz rozszerzoną [A|b]
+  for (let i = 0; i < n; i++) {
+    A[i] = A[i].slice(); // kopiujemy wiersz macierzy A
+    A[i].push(b[i]); // dodajemy element wektora b do wiersza macierzy A
+  }
+  for (let i = 0; i < n; i++) {
+    let maxRow = i;
+    // szukamy wiersza z największym elementem w kolumnie i
+    for (let k = i + 1; k < n; k++) {
+      if (Math.abs(A[k][i]) > Math.abs(A[maxRow][i])) {
+        maxRow = k;
+      }
+    }
+    // zamiana wierszy
+    [A[i], A[maxRow]] = [A[maxRow], A[i]];
+    const pivot = A[i][i];
+    if (Math.abs(pivot) < Number.EPSILON) {
+      throw new Error('Macierz osobliwa - nie można rozwiązać układu');
+    }
+    // normalizacja wiersza
+    for (let j = i; j <= n; j++) {
+      A[i][j] /= pivot;
+    }
+    // eliminacja Gaussa
+    for (let k = 0; k < n; k++) {
+      if (k === i) continue;
+      const factor = A[k][i];
+      for (let j = i; j <= n; j++) {
+        A[k][j] -= factor * A[i][j];
+      }
+    }
+  }
+  // wyciągamy rozwiązanie z macierzy rozszerzonej
+  const x: number[] = new Array(n);
+  for (let i = 0; i < n; i++) {
+    x[i] = A[i][n];
+  }
+  return x;
+}
+```
+
+Układ równań musimy przekazać w formie macierzy współczynników $$\mathbf{A}$$ i wektora wyrazów wolnych $$\mathbf{b}$$. Możemy je rozumieć w taki sposób, że macierz $$\mathbf{A}$$ to współczynniki przy zmiennych $$a$$ do $$h$$, a wektor $$\mathbf{b}$$ to wartości po prawej stronie równań. Funkcja zwraca tablicę z wartościami zmiennych $$a$$ do $$h$$.
+
+W przypadku naszego układu równań w formie macierzowej będzie on wyglądać następująco:
+
+$$
+\mathbf{A} = \begin{bmatrix}
+x_0 & y_0 & 1 & 0 & 0 & 0 & 0 & 0 \\
+0 & 0 & 0 & x_0 & y_0 & 1 & 0 & 0 \\
+x_1 & y_1 & 1 & 0 & 0 & 0 & -W \cdot x_1 & -W \cdot y_1 \\
+0 & 0 & 0 & x_1 & y_1 & 1 & 0 & 0 \\
+x_2 & y_2 & 1 & 0 & 0 & 0 & 0 & 0 \\
+0 & 0 & 0 & x_2 & y_2 & 1 & -H \cdot x_2 & -H \cdot y_2 \\
+x_3 & y_3 & 1 & 0 & 0 & 0 & -W \cdot x_3 & -W \cdot y_3 \\
+0 & 0 & 0 & x_3 & y_3 & 1 & -H \cdot x_3 & -H \cdot y_3
+\end{bmatrix}
+$$
+
+$$
+\mathbf{b}^T = \begin{bmatrix}
+0 & 0 & W & 0 & 0 & H & W & H
+\end{bmatrix}
+$$
+
+### Implementacja
+
+Wykorzystując funkcję `solveLinearSystem()`, możemy teraz znaleźć macierz transformacji.
+
+Przykładowa implementacja znalezienia macierzy transformacji perspektywicznej mogłaby wyglądać tak:
+
+```javascript
+// funkcja zwraca macierz transformacji perspektywicznej
+// pointsSrc to tablica z punktami P1, P2, P3, P4; analogiczna jak w implementacji w Pythonie
+// W i H to wysokość i szerokość obrazu; zastosowałem to nazewnictwo, aby mieć te same nazwy zmiennych co we wzorze
+function getPerspectiveTransform(pointsSrc, W, H) {
+    const [pt0, pt1, pt2, pt3] = pointsSrc;
+
+  // współrzędne punktów źródłowych
+  const [x0, y0] = pt0;
+  const [x1, y1] = pt1;
+  const [x2, y2] = pt2;
+  const [x3, y3] = pt3;
+
+  // tworzymy układ równań w postaci macierzy
+  const A: number[][] = [
+    [x0, y0, 1, 0, 0, 0, 0, 0],
+    [0, 0, 0, x0, y0, 1, 0, 0],
+    [x1, y1, 1, 0, 0, 0, -W * x1, -W * y1],
+    [0, 0, 0, x1, y1, 1, 0, 0],
+    [x2, y2, 1, 0, 0, 0, 0, 0],
+    [0, 0, 0, x2, y2, 1, -H * x2, -H * y2],
+    [x3, y3, 1, 0, 0, 0, -W * x3, -W * y3],
+    [0, 0, 0, x3, y3, 1, -H * x3, -H * y3],
+  ];
+  // wektor B z docelowymi współrzędnymi, czyli wartościami po znaku równości
+  const b: number[] = [0, 0, W, 0, 0, H, W, H];
+  // rozwiązujemy układ równań
+  const r = solveLinearSystem(A, b);
+
+  // zwracamy wynik, który będzie dla uproszczenia tablicą jednowymiarową
+  return r;
+}
+```
+
+## Czy to działa?
+
+Sprawdźmy teraz, czy to działa. Poniżej znajdziesz prostą prezentację, gdzie dla dowolnego wrzuconego obrazka (nic nie jest wysyłane na żaden serwer, wszystko wykonywane jest w Twojej przeglądarce) możesz przesunąć cztery punkty definiujące obszar, który chcesz „wyprostować”. Po zaznaczeniu punktów obrazek zostanie przetransformowany i wyświetlony, a dodatkowo też zobaczysz, jaka wyszła macierz transformacji (z zaokrągleniem do drugiego miejsca po przecinku).
+
+<PresentationSimple />
+
+Prezentacja została napisana w TypeScript z użyciem [Reakta](https://react.dev/) oraz [ReactFlow](https://reactflow.dev/) i jej kod znajdziesz na [Githubie](https://github.com/swistak-codes/perspective-correction) (folder `react-matrix3d`).
+
+Jako że do tej pory nie implementowaliśmy jeszcze zastosowania macierzy transformacji, to do zaprezentowania wynikowego obrazka wykorzystałem funkcję CSS [`matrix3d()`](https://developer.mozilla.org/en-US/docs/Web/CSS/transform-function/matrix3d), która jest przeglądarkowym odpowiednikiem `warpPerspective()` z OpenCV. Funkcje aplikujące macierz transformacji są powszechne w bibliotekach do grafiki 2D i na pewno znajdziesz odpowiednik w swoim języku programowania. Warto tylko zwrócić uwagę na to, względem jakiego punktu jest wykonywana transformacja, bo różne biblioteki mogą to robić inaczej, a powyższy wzór zakłada transformację względem punktu $$(0,0)$$. W przypadku CSS domyślnie jest to środek obrazu, dlatego musiałem dodatkowo ustawić `transform-origin: 0 0`.
+
+Dodam też, że w prezentacji skupiłem się przede wszystkim na korekcji perspektywy, dlatego też nie ma kadrowania obrazu do odpowiednich wymiarów, tak jak to robi OpenCV. Wynika to tylko z tego, że chciałem uprościć prezentację i nie chciałem poświęcać czasu na odpowiednie ustawienie styli CSS.
+
+## Transformacja grafiki rastrowej
+
+Załóżmy, że nasza biblioteka graficzna nie potrafi transformować na podstawie macierzy. W takim razie musimy napisać własny odpowiednik `warpPerspective()`. To jednak nie jest takie oczywiste.
+
+### Co trzeba zrobić?
+
+Jak opisałem w artykule poświęconym przekształceniom grafiki 2D, sytuacja jest bardzo prosta, jeśli chcemy transformować konkretne punkty. Wówczas jedyne co robimy, to po prostu używamy macierzy transformacji na każdym z punktów. Cały problem polega jednak na tym, że taką sytuację mamy tylko w grafice wektorowej, która jest w całości opisana matematycznie. W przypadku grafiki rastrowej mamy do czynienia z pikselami i przenoszenie ich według macierzy transformacji pozostawiłoby dziury w obrazie. Dlatego musimy podejść do tematu inaczej.
+
+Co także opisałem w artykule o przekształceniach grafiki 2D, to aby transformować grafikę rastrową, musimy podejść do tematu dosłownie odwrotnie. Zamiast transformować punkty z oryginalnego obrazu na nowy, sprawdzamy, gdzie punkty nowego obrazu znajdują się na oryginalnym. Innymi słowy, mamy sytuację, gdzie dla znanych $$x$$, $$y$$ oraz parametrów macierzy musimy znaleźć $$x'$$ i $$y'$$:
+
+$$
+\begin{bmatrix}
+x \\
+y \\
+1
+\end{bmatrix}
+=
+\begin{bmatrix}
+a & b & c \\
+d & e & f \\
+g & h & 1
+\end{bmatrix}
+\begin{bmatrix}
+x' \\
+y' \\
+1
+\end{bmatrix}
+$$
+
+Jednak $$x'$$ i $$y'$$ znajdują się nie po tej stronie równania, co należy. Przekształćmy więc:
+
+$$
+\begin{bmatrix}
+a & b & c \\
+d & e & f \\
+g & h & 1
+\end{bmatrix}^{-1}
+\begin{bmatrix}
+x \\
+y \\
+1
+\end{bmatrix}
+=
+\begin{bmatrix}
+x' \\
+y' \\
+w'
+\end{bmatrix}
+$$
+
+Stąd widzimy, że naszym celem jest znalezienie macierzy odwrotnej do macierzy transformacji. Dzięki niej będziemy w stanie określić, gdzie na oryginalnym obrazie znajduje się piksel, który w danym momencie rozpatrujemy.
+
+### Macierz odwrotna do macierzy transformacji
+
+Sposób obliczania macierzy odwrotnej pokazałem w artykule *<Link href="/post/macierze-wyznacznik">Macierze — obliczanie wyznacznika</Link>*. Zróbmy to tutaj krok po kroku.
+
+Mamy następującą macierz:
+
+$$
+\mathbf{A} = \begin{bmatrix}
+a & b & c \\
+d & e & f \\
+g & h & 1
+\end{bmatrix}
+$$
+
+Natomiast macierz odwrotną obliczamy z następującego wzoru:
+
+$$
+\mathbf{A}^{-1} = \mathbf{A}^D \cdot \frac{1}{\det\mathbf{A}}
+$$
+
+Obliczmy najpierw wyznacznik. W przypadku macierzy 3×3 jest to bardzo proste, dlatego od razu wypiszmy wzór:
+
+$$
+\det\mathbf{A} = a \cdot e \cdot 1 + b \cdot f \cdot g + c \cdot d \cdot h - c \cdot e \cdot g - b \cdot d \cdot 1 - a \cdot f \cdot h
+$$
+
+W tym momencie warunkiem koniecznym jest, aby $$\det\mathbf{A} \neq 0$$. Inaczej nie znajdziemy macierzy odwrotnej.
+
+Następny krok nieco przyśpieszę, aby pominąć wyznaczanie wszystkich minorów, ich mnożenie, a następnie transpozycję. Dam od razu wzór na macierz dołączoną:
+
+$$
+\mathbf{A}^D = \begin{bmatrix}
+e - fh & ch - b & bf - ce \\
+fg - d & a - cg & cd - af \\
+dh - eg & bg - ah & ae - bd
+\end{bmatrix}
+$$
+
+Możemy już obliczyć macierz odwrotną transformacji. Dla uproszczenia zapisu nie przedstawię jej jako macierz, tylko wartości poszczególnych komórek. Zastosuję następujący schemat nazewnictwa:
+
+$$
+\begin{bmatrix}
+a & b & c \\
+d & e & f \\
+g & h & 1
+\end{bmatrix}^{-1} = \begin{bmatrix}
+a' & b' & c' \\
+d' & e' & f' \\
+g' & h' & i'
+\end{bmatrix}
+$$
+
+W takim razie po kolei wartości możemy wyznaczyć następującymi wzorami:
+
+$$
+\begin{align*}
+a' &= \frac{e - fh}{\det\mathbf{A}} \\ \\
+b' &= \frac{ch - b}{\det\mathbf{A}} \\ \\
+c' &= \frac{bf - ce}{\det\mathbf{A}} \\ \\
+d' &= \frac{fg - d}{\det\mathbf{A}} \\ \\
+e' &= \frac{a - cg}{\det\mathbf{A}} \\ \\
+f' &= \frac{cd - af}{\det\mathbf{A}} \\ \\
+g' &= \frac{dh - eg}{\det\mathbf{A}} \\ \\
+h' &= \frac{bg - ah}{\det\mathbf{A}} \\ \\
+i' &= \frac{ae - bd}{\det\mathbf{A}}
+\end{align*}
+$$
+
+Nie pozostaje już nic innego, jak użyć tych wzorów.
+
+### Znajdowanie punktów na obrazie
+
+#### Podstawowe wzory
+
+Wróćmy teraz do naszego wyjściowego wzoru na wyznaczanie położenia punktu po transformacji, tylko podstawmy do niego macierz odwrotną:
+
+$$
+\begin{bmatrix}
+x' \\
+y' \\
+w'
+\end{bmatrix}
+=
+\begin{bmatrix}
+a' & b' & c' \\
+d' & e' & f' \\
+g' & h' & i'
+\end{bmatrix}
+\begin{bmatrix}
+x \\
+y \\
+1
+\end{bmatrix}
+$$
+
+Z czego otrzymujemy:
+
+$$
+\begin{align*}
+w' &= g' \cdot x + h' \cdot y + i' \\ \\
+x' &= \frac{a' \cdot x + b' \cdot y + c'}{w'} \\ \\
+y' &= \frac{d' \cdot x + e' \cdot y + f'}{w'}
+\end{align*}
+$$
+
+Czyli po podstawieniu wartości całość wygląda następująco:
+
+$$
+\begin{align*}
+\det\mathbf{A} &= a \cdot e \cdot 1 + b \cdot f \cdot g + c \cdot d \cdot h - c \cdot e \cdot g - b \cdot d \cdot 1 - a \cdot f \cdot h \\ \\
+w' &= \frac{dh - eg}{\det\mathbf{A}} \cdot x + \frac{bg - ah}{\det\mathbf{A}} \cdot y + \frac{ae - bd}{\det\mathbf{A}} \\ \\
+x' &= \frac{\frac{e - fh}{\det\mathbf{A}} \cdot x + \frac{ch - b}{\det\mathbf{A}} \cdot y + \frac{bf - ce}{\det\mathbf{A}}}{w'} \\ \\
+y' &= \frac{\frac{fg - d}{\det\mathbf{A}} \cdot x + \frac{a - cg}{\det\mathbf{A}} \cdot y + \frac{cd - af}{\det\mathbf{A}}}{w'}
+\end{align*}
+$$
+
+Korzystamy z tego tak, że podstawiamy za $$x$$ i $$y$$ współrzędne piksela, a otrzymane $$x'$$ i $$y'$$ są współrzędnymi piksela na oryginalnym obrazie.
+
+#### Implementacja
+
+Wzory matematyczne wzorami matematycznymi, ale domyślam się, że niektórzy wolą to po prostu zobaczyć w kodzie. W takim razie ponownie przenieśmy wzory wprost na JavaScript:
+
+```javascript
+// funkcja zwraca macierz odwrotną do macierzy transformacji
+// macierz transformacji to tablica z wartościami a, b, c, d, e, f, g, h
+function getInversePerspectiveTransform([a, b, c, d, e, f, g, h]) {
+  // obliczamy wyznacznik; usunąłem z niego mnożenie przez 1
+  const detA = a * e + b * f * g + c * d * h - c * e * g - b * d - a * f * h;
+
+  // a teraz obliczamy wartości poszczególnych elementów macierzy
+  const a_ = (e - f * h) / detA;
+  const b_ = (c * h - b) / detA;
+  const c_ = (b * f - c * e) / detA;
+  const d_ = (f * g - d) / detA;
+  const e_ = (a - c * g) / detA;
+  const f_ = (c * d - a * f) / detA;
+  const g_ = (d * h - e * g) / detA;
+  const h_ = (b * g - a * h) / detA;
+  const i_ = (a * e - b * d) / detA;
+
+  // ponownie zwracamy wartości jako tablicę jednowymiarową
+  return [a_, b_, c_, d_, e_, f_, g_, h_, i_];
+}
+
+// funkcja zwraca współrzędne punktu na obrazie po transformacji
+function getTransformedPoint(x, y, inverseMatrix) {
+  // pobieramy wartości z macierzy odwrotnej
+  const [a, b, c, d, e, f, g, h, i] = inverseMatrix;
+
+  // obliczamy wartości współrzędnych
+  const w_ = g * x + h * y + i;
+  const x_ = (a * x + b * y + c) / w_;
+  const y_ = (d * x + e * y + f) / w_;
+
+  // zwracamy jako tablicę
+  return [x_, y_];
+}
+```
+
+#### Znajdowanie punktów na obrazie jako liczb całkowitych
+
+Myślę, że już na pierwszy rzut oka widać pewien problem z tym, co napisaliśmy. Mianowicie, w większości przypadków wartości te nie będą liczbami całkowitymi, a my chcemy znaleźć piksel na obrazie, który jest zawsze liczbą całkowitą. Co w takim razie zrobić? Zaokrąglać? A może jakoś przewidywać wartość piksela? Zobaczmy, jakie opcje mamy do wyboru.
+
+Pierwsza możliwość, którą mamy, to metoda najbliższego sąsiada. Pod tą fachową nazwą kryje się... zaokrąglanie do najbliższej liczby całkowitej.
+
+Jest to metoda dająca bardzo słabe rezultaty, ale za to jest najprostsza obliczeniowo. W naszym przypadku, gdy chcemy korygować perspektywę, jest w zasadzie bezużyteczna. Aczkolwiek ma swoje zastosowania. Przykładowo, jeśli skalujemy grafikę, gdzie istotne są pojedyncze piksele, np. pixel-arty, to metoda najbliższego sąsiada da najlepsze rezultaty. Dzieje się tak dlatego, że podczas skalowania metodą tą po prostu powiększamy każdy piksel do odpowiedniej wielkości.
+
+Inną prostą metodą, aczkolwiek dającą już znacznie lepsze rezultaty, więc tym samym stosowaną w praktyce, jest metoda interpolacji dwuliniowej. W skrócie polega na tym, że zamiast zaokrąglać do najbliższej liczby całkowitej, interpolujemy wartości pikseli z otoczenia. W ten sposób uzyskujemy znacznie lepsze rezultaty, a jednocześnie nie jest to zbyt skomplikowane obliczeniowo. Mimo swojej prostoty jest powszechnie stosowana w grafice komputerowej. Także tę metodę zaimplementujemy za chwilę.
+
+Mamy też inne sposoby, na przykład interpolację dwusześcienną. W skrócie polega na interpolacji wartości pikseli z otoczenia, uwzględniając nie tylko wartości pikseli, ale także ich pochodne. W ten sposób uzyskujemy znacznie lepsze rezultaty jednak większym kosztem obliczeniowym.
+
+Pominę opisy pozostałych metod, bo byłyby zbyt skomplikowane. Im metoda jest bardziej skomplikowana w wytłumaczeniu, tym daje lepsze wizualnie rezultaty, aczkolwiek jak sam(a) się przekonasz później, interpolacja dwuliniowa jest całkowicie wystarczająca.
+
+#### Metoda interpolacji dwuliniowej
+
+Metodę interpolacji dwuliniowej delikatnie zaznaczyłem w artykule *<Link href="/post/przeksztalcenia-grafiki-2d">Przekształcenia grafiki 2D — matematyczny punkt widzenia</Link>*, ale tam podałem jedynie wzory. Tutaj pokażę, jak to zapisać w kodzie.
+
+Najpierw jednak przypomnijmy sobie te wzory wraz z prostym zobrazowaniem graficznym, co obliczamy:
+
+<Image
+  image={bilinear}
+  alignCenter
+  fullSize
+  alt=""
+  caption={<>
+    Autorstwa Jitse Niesen z angielskiej Wikipedii - Na Commons przeniesiono z en.wikipedia., Domena publiczna, <a href="https://commons.wikimedia.org/w/index.php?curid=1899952" target="_blank">https://commons.wikimedia.org/w/index.php?curid=1899952</a>.
+  </>}
+/>
+
+$$
+\begin{align*}
+\alpha &= x - \lfloor x \rfloor \\
+\beta &= y - \lfloor y \rfloor \\
+f(x, y_1) &= (1-\alpha)\cdot f(Q_{11}) + \alpha \cdot f(Q_{21}) \\
+f(x, y_2) &= (1-\alpha)\cdot f(Q_{12}) + \alpha \cdot f(Q_{22}) \\
+f(x,y) &= (1 - \beta) \cdot f(x,y_1) + \beta \cdot f(x,y_2)
+\end{align*}
+$$
+
+W powyższych wzorach:
+
+- $$\alpha$$ i $$\beta$$ — współczynniki interpolacji na osiach $$x$$ i $$y$$;  dokładniej, jest to część ułamkowa współrzędnych piksela
+- $$f(Q_{11})$$, $$f(Q_{21})$$, $$f(Q_{12})$$, $$f(Q_{22})$$ — wartości pikseli (kolor) w otoczeniu piksela, którego wartość chcemy obliczyć
+- $$f(x, y_1)$$ i $$f(x, y_2)$$ — interpolowane wartości pikseli na osi $$x$$; wykonywana jest interpolacja liniowa
+- $$f(x, y)$$ — wartość piksela, którą otrzymujemy po interpolacji przez zastosowanie liniowej interpolacji na obliczonych wcześniej wartościach
+
+Czyli przekładając na kod (w JavaScript), będzie to wyglądać tak:
+
+```javascript
+// funkcja znajdująca wartość piksela metodą interpolacji dwuliniowej
+// zakładamy dla uproszczenia, że image to tablica dwuwymiarowa z wartościami pikseli (kolor jako pojedyńczy int)
+function bilinearInterpolation(image, x, y) {
+  // pobieramy sąsiadujące punkty
+  const x1 = Math.floor(x);
+  const y1 = Math.floor(y);
+  const x2 = x1 + 1;
+  const y2 = y1 + 1;
+
+  // obliczamy współczynniki
+  const alpha = x - x1;
+  const beta = y - y1;
+
+  // pobieramy wartości pikseli z otoczenia
+  const fQ11 = image[x1][y1];
+  const fQ21 = image[x2][y1];
+  const fQ12 = image[x1][y2];
+  const fQ22 = image[x2][y2];
+
+  // obliczamy wartości pikseli na osi x
+  const fXy1 = (1 - alpha) * fQ11 + alpha * fQ21;
+  const fXy2 = (1 - alpha) * fQ12 + alpha * fQ22;
+
+  // obliczamy wartość piksela po interpolacji
+  return (1 - beta) * fXy1 + beta * fXy2;
+}
+
+// (GRATIS) funkcja znajdująca wartość piksela metodą najbliższego sąsiada
+function nearestNeighbor(image, x, y) {
+  // zaokrąglamy do najbliższych pikseli
+  const x1 = Math.round(x);
+  const y1 = Math.round(y);
+
+  // zwracamy wartość piksela
+  return image[x1][y1];
+}
+```
+
+## Finalna prezentacja
+
+Poniżej możesz zobaczyć ostateczną prezentację, gdzie wszystko zostało obliczone od zera za pomocą powyższych wzorów. Prezentacja działa analogicznie jak poprzednia z tą różnicą, że tym razem dodałem możliwość przełączenia między metodą interpolacji dwuliniowej a metodą najbliższego sąsiada.
+
+<PresentationFull />
+
+Kod tej prezentacji także znajdziesz na [Githubie](https://github.com/swistak-codes/perspective-correction) (folder `react-full`).
+
+## Podsumowanie
+
+Jak przedstawiłem w całym artykule, znajomość przekształceń grafiki 2D za pomocą macierzy transformacji jest kluczowa w grafice komputerowej. W oryginalnym tekście sprzed 4 lat pokazywałem stosunkowo proste operacje przesuwania, obrotu czy skalowania, do tego zawsze w przypadku grafiki wektorowej, tak tutaj poczuliśmy pełną moc możliwości. Nie dość, że przekształcaliśmy grafikę rastrową, to jeszcze robiliśmy to w sposób, który pozwalał na korekcję perspektywy.
+
+Doskonale jednak zdaję sobie sprawę z faktu, że istnieją gotowce, stąd też w praktyce nie będziesz musiał(a) implementować tego od zera, tak jak ostatecznie zrobiliśmy tutaj. Mimo to, jeśli z czegoś korzystamy, warto wiedzieć, co dzieje się pod spodem. Mam nadzieję, że ten artykuł pozwolił Ci zrozumieć, jak to działa.
+
+## Literatura
+
+- Hughes, J. F., Van Dam, A., McGuire, M., Sklar, D. F., Foley, J. D., Feiner, S. K., & Akeley, K. (2014). Transformations in two dimensions. In Computer graphics: Principles and practice (3rd ed., pp. 10-1 to 10-45). Pearson Education.
+- OpenCV: Geometric Image Transformations, https://docs.opencv.org/4.x/da/d54/group__imgproc__transform.html (ostatni dostęp: 11.02.2025)
+
+<small>Zdjęcie na okładce wygenerowane przez Midjourney.</small>

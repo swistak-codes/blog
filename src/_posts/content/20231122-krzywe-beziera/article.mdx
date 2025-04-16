@@ -1,0 +1,464 @@
+import Link from 'next/link';
+import {Image, VideoPlayer} from '@swistak-codes/components';
+import {Presentation} from './presentation';
+import cover from './tanczacy_swistak.jpg';
+import stozkowe from './Conic_Sections.svg.png';
+import wymierne from './1006px-Rational_Bezier_curve-conic_sections.svg.png';
+
+export const meta = {
+  title: 'Krzywe Béziera',
+  abstract:
+    'Artykuł omawia matematykę stojącą za krzywymi Béziera, a także jak zaimplementować rysowanie ich w kodzie.',
+  firstParagraph: (
+    <>
+      W świecie grafiki komputerowej, szczególnie tej wektorowej, chcemy móc opisać jak najwięcej rzeczy językiem matematyki. Dzięki temu możemy wykonywać <Link href="/post/przeksztalcenia-grafiki-2d">różne przekształcenia bez utraty jakości</Link>. Tylko o ile oczywiste jest rysowanie odcinków, a co za tym idzie typowych figur geometrycznych, bardziej rozbudowane kształty wymagają już nieco bardziej zaawansowanych narzędzi matematycznych. O ile koła ktoś może jeszcze wyznaczyć szkolnymi wzorami, <Link href="/post/jak-narysowac-spirale">spirale</Link> niewiele trudniejszymi, to jak opisać dowolną krzywą? Poznajmy dziś najprostsze i zarazem najpopularniejsze z matematycznie zdefiniowanych krzywych — krzywe Béziera.
+    </>
+  ),
+  keyword: 'bézier',
+  categories: ['Grafika komputerowa', 'Matematyka'],
+  tags: [
+    'krzywe Béziera',
+    'wzór parametryczny',
+    'dwumian Newtona',
+    'symbol Newtona',
+    'wielomian Bernsteina',
+    'trójkąt Pascala',
+    'javascript',
+    'interpolacja liniowa',
+    'algorytm de Casteljau'
+  ],
+  slug: 'krzywe-beziera',
+  updateTime: '2023-11-22T07:00:00+00:00',
+  publishTime: '2023-11-22T07:00:00+00:00',
+  cover,
+};
+
+## Wstęp
+
+Zanim przedstawimy sobie krzywe Béziera, najpierw nieco historii. Wbrew pozorom nie są one starym wynalazkiem. Swoją nazwę wzięły od nazwiska Pierre'a Béziera, który opracował je w latach 60. XX wieku na potrzeby projektów samochodów firmy Renault. Warto jednak wspomnieć, że w podobnym czasie bardzo podobny pomysł opracował Paul de Casteljau pracujący dla Citroëna. Bardziej popularny stał się natomiast wynalazek tego pierwszego, gdyż został opublikowany pod koniec lat 60., gdy metoda de Casteljau była objęta ochroną patentową i została opublikowana dopiero w latach 80.
+
+Myślę, że samo pochodzenie tych krzywych, że zostały opracowane na potrzeby projektowania samochodów, już wiele mówi o ich zastosowaniach. My jednak poznajmy ten temat od strony matematycznej i informatycznej.
+
+## Strona matematyczna
+
+### Podstawowe definicje
+
+Najpierw rozpatrzmy temat krzywych Béziera od strony matematycznej, bo to wzory będziemy implementować algorytmicznie. Jednak żebyśmy się nawzajem dobrze rozumieli, muszę najpierw wprowadzić parę definicji. Możliwe, że je znasz, ale warto sobie odkurzyć wiedzę.
+
+#### Równanie parametryczne
+
+Krzywe Béziera definiujemy w postaci równania parametrycznego. Równanie parametryczne określa położenie punktu na wykresie funkcji w danym *momencie* (stąd zwykle parametr określa się literką $$t$$ jak czas).
+
+Na przykład wyobraź sobie, że idziesz po okręgu o promieniu $$r$$. Wtedy Twoje położenie w dowolnym czasie $$t$$ (który w tym przypadku przyjmuje wartości od $$0$$ do $$2\pi$$) można by określić równaniem parametrycznym:
+
+$$
+\begin{align*}
+x(t) &= r \cdot \cos(t) \\
+y(t) &= r \cdot \sin(t)
+\end{align*}
+$$
+
+Dokładnie ten sposób, czyli równania parametryczne, stosowaliśmy w moich wcześniejszych artykułach do rysowania <Link href="/post/jak-narysowac-spirale">spirali</Link> (parametrem był kąt) czy też <Link href="/post/jak-narysowac-zegar-analogowy">wskazówek zegara</Link> (obliczenie punktu wskazywanego przez wskazówkę). Nieco bardziej skomplikowane równanie parametryczne, które niedługo poznasz, wykorzystamy do narysowania krzywych Béziera.
+
+#### Dwumian Newtona
+
+Teraz przejdźmy do rzeczy nie tyle przydatnych nam do zrozumienia krzywych Béziera, a do uproszczenia wzoru do postaci nierekurencyjnej, którą wykorzystamy w implementacji.
+
+Wzór dwumianowy Newtona to wzór, z którego wywodzą się słynne wzory skróconego mnożenia. Można go rozumieć jako uogólnienie wzorów skróconego mnożenia na dwumiany podniesione do dowolnej potęgi.
+
+Wzór wygląda następująco:
+
+$$
+(x + y)^n = \binom {n}{0} \cdot x^{n} + \binom {n}{1} \cdot x^{n-1} \cdot y + \binom {n}{2} \cdot x^{n-2} \cdot y^{2} + \ldots + \binom {n}{n} \cdot y^{n}
+$$
+
+$$\binom{n}{k}$$ to symbol Newtona (inaczej: współczynnik dwumianowy Newtona), który zapisujemy wzorem:
+
+$$
+\binom{n}{k} = \frac{n!}{k! \cdot (n-k)!}
+$$
+
+$$n!$$ w tym wzorze to silnia. Jeśli nie znasz tego pojęcia, zapraszam do <Link href="/post/rekurencja-co-to-jest/#silnia">mojego artykułu o rekurencji</Link>.
+
+Wracając do dwumianu Newtona, wygodniejszy dla nas będzie zapis z operatorem sumy (którą jako programiści możemy sobie wyobrazić jako zwykłą <Link href="/post/iteracja-co-to-jest/#for-jako-pętla-z-licznikiem">pętlę for</Link>):
+
+$$
+(x + y)^n = \sum^{n}_{k=0} \binom {n}{k} \cdot x^{n-k} \cdot y^k = \sum^{n}_{k=0} \binom {n}{k} \cdot x^{k} \cdot y^{n-k}
+$$
+
+#### Wielomiany Bernsteina
+
+Teraz już wejdziemy w mniej szkolną matematykę, mianowicie musimy poznać wielomiany Bernsteina. W matematyce znalazły swoje zastosowanie do udowodnienia twierdzenia Weierstrassa (o przybliżaniu funkcji ciągłych wielomianami), ale my je zastosujemy w konstrukcji krzywych Béziera. A dokładniej wykorzystamy wielomiany bazowe Bernsteina, z których to wielomian Bernsteina się składa.
+
+Wzór na wielomiany bazowe Bernsteina możemy uzyskać z dwumianu Newtona przez podstawienie za $$a$$ i $$b$$ wartości $$t$$ oraz $$(1-t)$$. Otrzymamy wówczas:
+
+$$
+1 = \sum^{n}_{k=0} \binom {n}{k} \cdot t^k \cdot (1-t)^{n-k}
+$$
+
+Sumowany wyżej jednomian to wzór na wielomian bazowy Bernsteina $$b_{n,k}(t)$$:
+
+$$
+b_{n,k}(t) = \binom {n}{k} \cdot t^k \cdot (1-t)^{n-k} \text{, dla } 0 \leqslant k \leqslant n
+$$
+
+Jak widzieliśmy wcześniej, wielomiany bazowe Bernsteina mają tą właściwość, że sumują się do $$1$$. Inną ciekawą własnością, którą wykorzystamy w obliczeniach krzywych Béziera, jest to, że dla $$0 \leqslant t \leqslant 1$$ wartość wielomianu jest dodatnia lub równa $$0$$.
+
+### Wielomianowe krzywe Béziera
+
+Zacznijmy od najbardziej podstawowego rodzaju krzywych Béziera, w zasadzie też najpowszechniejszego, czyli wielomianowych krzywych Béziera.
+
+#### Definicja
+
+Krzywą określamy za pomocą punktów kontrolnych od $$P_0$$ do $$P_n$$, gdzie $$n$$ stanowi stopień krzywej (1 — liniowa, 2 — kwadratowa, 3 — sześcienna...). Punkt $$P_0$$ będzie stanowić początek krzywej, $$P_n$$ jej koniec, natomiast pozostałe mają na celu określenie kształtu i krzywa nie musi przez nie przechodzić (ale jest taka możliwość). Tutaj należy dodać, że ze zbioru wszystkich punktów kontrolnych możemy znaleźć <Link href="/post/otoczka-wypukla">otoczkę wypukłą</Link> (czyli punkty, które utworzą wielokąt wypukły). Krzywa Béziera będzie zawsze zawarta wewnątrz tego wielokąta.
+
+Możesz się teraz spytać — ale w jaki sposób punkty kontrolne wpływają na kształt? Zaraz to zaprezentuję. Na razie zobaczmy, jak definiujemy wzór na krzywą. Jest to wzór parametryczny, który definiujemy rekurencyjnie w następujący sposób:
+
+$$
+\begin{align*}
+B_{P_0}(t) &= P_0 \\
+B(t) = B_{P_0 P_1 ... P_n}(t) &= (1-t) \cdot B_{P_0 P_1 ... P_{n-1}}(t) + t \cdot B_{P_1 P_2 ... P_{n}}(t)
+\end{align*}
+$$
+
+Wygodniejszy w użyciu jest jednak wzór nierekurencyjny wykorzystujący opisane wcześniej przeze mnie wielomiany bazowe Bernsteina. Nie chcę przechodzić przez całą <Link href="/post/derekursywacja">derekursywację</Link>, dlatego od razu podaję gotowy:
+
+$$
+B(t) = \sum^n_{i=0} P_i \cdot b_{n, i}(t)\text{, dla } 0 \leqslant t \leqslant 1
+$$
+
+Czyli w przypadku płaszczyzny dwuwymiarowej (na takiej się dziś skupimy) wzór na punkt $$(x,y)$$ będzie wyglądać następująco:
+
+$$
+\begin{align*}
+x(t) &= \sum^n_{i=0} x_i \cdot b_{n, i}(t) \\
+y(t) &= \sum^n_{i=0} y_i \cdot b_{n, i}(t)
+\end{align*}
+$$
+
+Wzór iteracyjny możemy rozumieć tak, że wielomian Bernsteina określa, jaką wagę (wpływ) na końcowe położenie na rysunku krzywej ma punkt $$P_i$$. Jednak niewiele to mówi w kontekście zrozumienia, skąd dokładnie bierze się kształt.
+
+#### Liniowe krzywe Béziera
+
+Teraz, żeby zrozumieć wpływ punktów kontrolnych na kształt, rozpatrzmy po kolei przypadki krzywych różnego stopnia. Zacznijmy od stopnia 1, ponieważ jest to najbardziej podstawowy przypadek (zerowy pominiemy, gdyż z samego wzoru widać, że wówczas jedyny punkt krzywej to jedyny punkt kontrolny).
+
+W przypadku liniowej krzywej Béziera wzór łatwo wyprowadzimy z równania rekurencyjnego. Będzie wyglądać następująco:
+
+$$
+\begin{align*}
+B(t) &= (1-t) \cdot P_0 + t \cdot P_1 \\
+x(t) &= (1-t) \cdot x_0 + t \cdot x_1 \\
+y(t) &= (1-t) \cdot y_0 + t \cdot y_1
+\end{align*}
+$$
+
+Wzór ten to nic innego jak wzór na interpolację liniową między punktami $$P_0$$ i $$P_1$$, co oznacza, że w wyniku otrzymamy odcinek prowadzący z jednego punktu do drugiego.
+
+Proces rysowania takiej krzywej (w zasadzie odcinka) w zależności od wartości $$t$$ możesz zobaczyć na animacji poniżej:
+
+<VideoPlayer
+  url="/videos/Bezier_1_big.mp4"
+  muted
+  controls
+  width={360}
+  height={150}
+  caption={
+    <>(źródło: <a href="https://commons.wikimedia.org/wiki/File:B%C3%A9zier_1_big.gif">Phil Tregoning</a>, Public domain, via Wikimedia Commons)</>
+  }
+/>
+
+Oczywiście nikt nie rysuje odcinków w taki sposób, bo są na to <Link href="/post/jak-komputer-rysuje-linie">wydajniejsze sposoby</Link>. Warto jednak zapamiętać, że rysowanie krzywych Béziera sprowadza się do interpolacji liniowej, ponieważ dzięki temu zrozumiemy wpływ punktów kontrolnych na finalny kształt.
+
+#### Kwadratowe krzywe Béziera
+
+W przypadku kwadratowych krzywych Béziera mamy już jeden punkt więcej niż początkowy i końcowy, co pozwoli nam zobrazować, jaki ma wpływ na kształt.
+
+Dla formalności zacznijmy od wyprowadzenia wzoru (pomijam wersję dla konkretnych współrzędnych $$x$$ i $$y$$, będziemy operować na $$P$$). Zrobimy to ponownie ze wzoru rekurencyjnego, bo wskazuje, skąd się bierze zachowanie, które zaraz zaobserwujemy:
+
+$$
+\begin{align*}
+B(t) &= (1-t) \cdot B_{P_0 P_1} + t \cdot B_{P_1 P_2} \\
+B(t) &= (1-t) \cdot \left( (1-t) \cdot P_0 + t \cdot P_1 \right) + t \cdot \left( (1-t) \cdot P_1 + t \cdot P_2 \right) \\
+B(t) &= (1-t)^2 \cdot P_0 + 2 \cdot (1-t) \cdot t P_1 + t^2 \cdot P_2
+\end{align*}
+$$
+
+Jak przebiega tutaj rysowanie? W każdym kroku obliczamy, którą pozycję miałyby punkty wyznaczane dla krzywych $$B_{P_0 P_1}$$ i $$B_{P_1 P_2}$$. Następnie rysujemy punkt na liniowej krzywej Béziera wyznaczonej przez te dwa punkty. Oczywiście wszystkie te punkty zmieniają się wraz z kolejnymi wartościami $$t$$, stąd koniec końców otrzymujemy charakterystyczny zaokrąglony kształt.
+
+Zdaję sobie sprawę, że powyższy opis może wydawać się nieco skomplikowany, dlatego poniżej zamieszczam animację przedstawiającą to dla kolejnych wartości $$t$$. Przeanalizuj sobie na spokojnie to, co napisałem wyżej, razem ze wzorem i z animacją. Wbrew pozorom jest to dość proste.
+
+<VideoPlayer
+  url="/videos/Bezier_2_big.mp4"
+  muted
+  controls
+  width={360}
+  height={150}
+  caption={
+    <>(źródło: <a href="https://commons.wikimedia.org/wiki/File:B%C3%A9zier_2_big.gif">Phil Tregoning</a>, Public domain, via Wikimedia Commons)</>
+  }
+/>
+
+Warto zwrócić uwagę, że w przypadku trzech punktów zawsze możemy łatwo ułożyć wielokąt wypukły — trójkąt. Krzywa Béziera będzie zawsze zawierać się wewnątrz tego trójkąta. Krzywa też nigdy nie przetnie punktu $$P_1$$, chyba że wszystkie trzy punkty są ułożone w jednej linii.
+
+#### Krzywe wyższego stopnia
+
+W przypadku krzywych wyższego stopnia nie będę już wysilać się na wyprowadzanie wzorów ani też opisywanie, jak przebiega rysowanie, odnosząc się do rekurencji. Zasada jest ciągle ta sama, tylko tyle, że po drodze wyliczamy punkty dla coraz większej liczby krzywych. Stąd w praktyce bardzo przydatny jest wzór iteracyjny, bo o ile rekurencyjny pozwala zrozumieć ideę i jak zachodzi rysowanie, tak już w obliczaniu konkretnych pozycji jest niepraktyczny wraz z tym, im mamy wyższy stopień krzywej.
+
+Poniżej zamieszczam animacje pokazujące konstruowanie krzywych Béziera 3, 4 i 5 stopnia. Warto przeanalizować je sobie po kolei, porównując zawsze do poprzedniego.
+
+<VideoPlayer
+  url="/videos/Bezier_3_big.mp4"
+  muted
+  controls
+  width={360}
+  height={150}
+  caption={
+    <>Konstrukcja krzywej Béziera 3 stopnia.
+      <br />(źródło: <a href="https://commons.wikimedia.org/wiki/File:B%C3%A9zier_3_big.gif">Phil Tregoning</a>, Public domain, via Wikimedia Commons)</>
+  }
+/>
+
+<VideoPlayer
+  url="/videos/Bezier_4_big.mp4"
+  muted
+  controls
+  width={360}
+  height={150}
+  caption={
+    <>Konstrukcja krzywej Béziera 4 stopnia.
+      <br />(źródło: <a href="https://commons.wikimedia.org/wiki/File:B%C3%A9zier_4_big.gif">Phil Tregoning</a>, Public domain, via Wikimedia Commons)</>
+  }
+/>
+
+<VideoPlayer
+  url="/videos/BezierCurve.mp4"
+  muted
+  controls
+  width={473}
+  height={378}
+  caption={
+    <>Konstrukcja krzywej Béziera 5 stopnia.
+      <br />(źródło: <a href="https://commons.wikimedia.org/wiki/File:BezierCurve.gif">Sam Derbyshire at the English-language Wikipedia</a>, <a href="http://creativecommons.org/licenses/by-sa/3.0/">CC BY-SA 3.0</a>, via Wikimedia Commons)</>
+  }
+/>
+
+Na szczęście w praktyce zwykle spotykamy się z krzywymi kwadratowymi lub sześciennymi, ponieważ są jeszcze stosunkowo proste obliczeniowo, a także proste do zrozumienia. Do tego są zupełnie wystarczające w większości przypadków.
+
+### Własności wielomianowych krzywych Béziera
+
+Opisując krzywe Béziera do tej pory, przemyciłem kilka ich właściwości. Zbierzmy je w jedno miejsce:
+
+- Krzywa zaczyna się w punkcie $$P_0$$, a kończy w $$P_n$$.
+  - W przypadku gdy jest tylko jeden punkt kontrolny, krzywa składa się tylko i wyłącznie z niego.
+- W przypadku dwóch punktów kontrolnych krzywa jest odcinkiem, który jest interpolacją liniową między tymi dwoma punktami.
+- Krzywa zawiera się w otoczce wypukłej punktów kontrolnych.
+- Jeśli punkty kontrolne zawierają się w jednej prostej, to krzywa jest odcinkiem.
+
+Oprócz nich warto też wspomnieć o innych, dość istotnych własnościach:
+
+- Krzywe Béziera możemy dzielić w dowolnych miejscach na mniejsze, które również możemy opisać jako krzywe Béziera.
+- Wielomianowymi krzywymi Béziera nie jesteśmy w stanie opisać dowolnej krzywej. Przykładem może być okrąg, który możemy jedynie przybliżyć, złączając ze sobą kilka krzywych Béziera.
+- Krzywe stopnia wyższego niż 2 mogą przecinać same siebie.
+- Zmiana dowolnego punktu kontrolnego wpływa na kształt całej krzywej. Z jednej strony utrudnia to kontrolę nad kształtem i może być mało intuicyjne przy projektowaniu, a z drugiej wymaga wykonywania za każdym razem wszystkich obliczeń od nowa, nawet przy niewielkich zmianach.
+- Można aplikować <Link href="/post/przeksztalcenia-grafiki-2d">transformacje afiniczne</Link> na punkty kontrolne w celu transformowania krzywej. Zostanie zachowany jej odpowiedni kształt.
+
+### Wymierne krzywe Béziera
+
+Pośród własności wielomianowych krzywych Béziera napisałem, że nie da się za ich pomocą opisać dowolnych krzywych. Aby rozwiązać ten problem, zaproponowano wymierne krzywe Béziera. Za ich pomocą można opisać wszystkie krzywe stożkowe, czyli: okręgi, elipsy, parabole i hiperbole.
+
+<Image
+  image={stozkowe}
+  alignCenter
+  maxWidth="300px"
+  alt="Okrąg, elipsa, parabola i hiperbola zaznaczone jako przecięcia stożka."
+  caption={<>Krzywe stożkowe.<br/>
+  (źródło: <a href="https://commons.wikimedia.org/wiki/File:Conic_Sections.svg">Magister_Mathematicae</a>, <a href="https://creativecommons.org/licenses/by-sa/3.0">CC BY-SA 3.0</a>, via Wikimedia Commons)</>}
+/>
+
+Tą możliwość osiągnięto przez dodanie wag ($$w_i$$) do poszczególnych punktów kontrolnych. Wzór na krzywą wygląda wówczas następująco:
+
+$$
+B(t) = \frac{\sum^n_{i=0} P_i \cdot b_{n, i}(t) \cdot w_i}{\sum^n_{i=0} b_{n, i}(t) \cdot w_i}
+$$
+
+Wpływ wag dla krzywej drugiego stopnia możesz zobaczyć poniżej. Podane na obrazku wagi zostały nadane dla punktu $$P_1$$, pozostałe mają wagę $$1$$.
+
+<Image
+  image={wymierne}
+  alignCenter
+  maxWidth="300px"
+  alt="Wymierne krzywe Béziera dla wag w1: 2, 1, 0.5, 0, -0.5"
+  caption={<>
+    (źródło: <a href="https://commons.wikimedia.org/wiki/File:Rational_Bezier_curve-conic_sections.svg">Wojciech Muła</a>, <a href="https://creativecommons.org/licenses/by-sa/1.0">CC BY-SA 1.0</a>, via Wikimedia Commons</>}
+/>
+
+W zależności od wartości $$w_1$$ otrzymujemy:
+
+- parabolę dla $$w_1 = 1$$ (czyli dla wielomianowej krzywej)
+- hiperbolę dla $$w_1 > 1$$
+- krótszy łuk elipsy dla $$1 > w_1 > 0$$
+- dłuższy łuk elipsy dla $$0 > w_1 > -1$$
+- odcinek dla $$w_1 = 0$$
+
+O ile warto znać wymierne krzywe, tak w dalszej części artykułu dla uproszczenia pominiemy je i skupimy się jedynie na wielomianowych.
+
+## Strona informatyczna
+
+Algorytmicznie do obliczania punktów krzywej Béziera możemy podejść na wiele różnych sposobów. Zaprezentuję dwa wybrane przeze mnie podejścia, a także na koniec zamieszczam prezentację korzystającą z jednego z tych algorytmów, gdzie możesz pobawić się w tworzenie i modyfikowanie krzywych, aby móc zrozumieć ich działanie.
+
+### Obliczanie ze wzoru iteracyjnego
+
+Najbardziej oczywistym i najprostszym podejściem jest skorzystanie z pokazanego przeze mnie wzoru iteracyjnego na krzywe Béziera. W literaturze algorytm ten znajdziemy pod nazwami „naiwnego” obliczania krzywych lub po prostu jako obliczanie wielomianu Bernsteina (po ang. Bernstein Polynomial Formulation).
+
+Aby zrealizować to podejście, musimy zaimplementować funkcję, która obliczy nam:
+
+$$
+B(t) = \sum^n_{i=0} P_i \cdot \binom {n}{i} \cdot t^i \cdot (1-t)^{n-i}
+$$
+
+Oczywiście obliczenia będą musiały zostać wykonane dla tylu wymiarów, w ilu rysujemy naszą krzywą, czyli najczęściej dla dwóch ($$x$$ i $$y$$).
+
+#### Algorytm obliczania symbolu Newtona
+
+To, co jako pierwsze rzuca się w oczy, to jak wydajnie obliczyć wartość symbolu Newtona. Będziemy musieli wykonać to wielokrotnie, a jak pamiętasz, wg wzoru musielibyśmy obliczyć silnie dla wszystkich liczb od 1 do $$n$$ i od 1 do $$k$$, co nie będzie szybkie. Do tego możemy przekroczyć rozmiar typu liczbowego ze względu na mnożenie przez siebie dużych liczb.
+
+Ja też nie zaproponuję tutaj optymalnego sposobu obliczania, bo szkoda czasu na ich tłumaczenie. W sposobie, który ja użyję, posłużymy się trójkątem Pascala. Jest to trójkąt składający się z liczb, gdzie na bokach mamy wartości 1, natomiast wszystkie pozostałe powstają przez zsumowanie dwóch wartości znajdujących się nad aktualną pozycją. Tak się szczęśliwie składa, że wartości te są takie same jak dla kolejnych symboli Newtona, co możesz zobaczyć poniżej:
+
+$$
+\begin{array}{c}1\\1\quad 1\\1\quad 2\quad 1\\1\quad 3\quad 3\quad 1\\1\quad 4\quad 6\quad 4\quad 1\\1\quad 5\quad 10\quad 10\quad 5\quad 1\end{array}
+$$
+
+$$
+\begin{array}{c}{\dbinom {0}{0}}\\{\dbinom {1}{0}}\quad {\dbinom {1}{1}}\\{\dbinom {2}{0}}\quad {\dbinom {2}{1}}\quad {\dbinom {2}{2}}\\{\dbinom {3}{0}}\quad {\dbinom {3}{1}}\quad {\dbinom {3}{2}}\quad {\dbinom {3}{3}}\\{\dbinom {4}{0}}\quad {\dbinom {4}{1}}\quad {\dbinom {4}{2}}\quad {\dbinom {4}{3}}\quad {\dbinom {4}{4}}\\{\dbinom {5}{0}}\quad {\dbinom {5}{1}}\quad {\dbinom {5}{2}}\quad {\dbinom {5}{3}}\quad {\dbinom {5}{4}}\quad {\dbinom {5}{5}}\end{array}
+$$
+
+Łącząc w jedno powyższą wiedzę, możemy uzyskać prosty rekurencyjny wzór. $$n$$ traktujemy jako numer wiersza, $$k$$ jako numer kolumny (chociaż ciężko tu mówić o kolumnach, bo struktura bardziej przypomina mapę heksagonalną). Czyli żeby uzyskać wartość $$\binom {n}{k}$$, musimy zsumować ze sobą wartości $$\binom {n-1}{k}$$ i $$\binom {n-1}{k-1}$$. Dodatkowo pamiętamy, że brzegi zawsze dają wartość 1 (brzegi są dla $$k = 0$$ i $$k = n$$). Zbierając wszystko w całość:
+
+$$
+\binom {n}{k} =
+\begin{cases}
+1 & \text{ dla } k = 0 \text{ lub } k = n \\
+\binom {n-1}{k} + \binom {n-1}{k-1} & \text{ w przeciwnym przypadku }
+\end{cases}
+$$
+
+W kodzie (JavaScript) będzie to bardzo prosta funkcja rekurencyjna:
+
+```javascript
+function newton(n, k) {
+  if (k === 0 || k === n) {
+    return 1;
+  }
+  return newton(n - 1, k) + newton(n - 1, k - 1);
+}
+```
+
+Taka rekurencja nie będzie najwydajniejszym sposobem obliczania, jednak będzie sprawiać mniej problemów niż podejście wprost ze wzoru. Jak wspomniałem wcześniej, są lepsze sposoby, które również wykorzystują trójkąt Pascala, ale obliczają wartości iteracyjnie. Nie chciałem wchodzić w głębszy opis, bo tekst nie jest poświęcony symbolowi Newtona. Może kiedyś poświęcę temu tematowi cały artykuł.
+
+Jeśli ciekawi Cię złożoność czasowa tego podejścia, które tutaj pokazałem, to wyniesie ona $$\Omicron(2^k)$$ (każde wywołanie funkcji powoduje 2 wywołania rekursywne i maksymalnie będzie $$k$$ poziomów rekurencji). Moglibyśmy wziąć jeszcze pod uwagę warunek $$k=n$$. Wtedy możemy powiedzieć, że wywołań będzie co najmniej $$\min(k, n-k)$$, więc złożoność możemy też zapisać jako $$\Omega(2^{\min(k, n-k)})$$.
+
+#### Obliczanie punktów krzywej
+
+Mając gotowy sposób na obliczenie najbardziej *nietypowej* części wzoru, możemy podjąć się napisania algorytmu, który obliczy punkt (dwuwymiarowy) krzywej Béziera dla wskazanego $$t$$ (oczywiście pamiętając, że: $$0 \leqslant t \leqslant 1$$) i dowolnej liczby punktów kontrolnych.
+
+Kod takiego algorytmu (w JavaScript) mógłby wyglądać następująco:
+
+```javascript
+// funkcja obliczająca punkt na krzywej Béziera
+// dla wskazanego t i punktów kontrolnych `points`
+// zakładam, że każdy punkt to dwuelementowa tablica
+function bezier(t, points) {
+  // zmienne przechowujące sumę dla poszczególnych współrzędnych
+  let resultX = 0;
+  let resultY = 0;
+  // dla uproszczenia wyciągamy n
+  const n = points.length - 1;
+  // obliczamy punkt wg wzoru
+  for (let i = 0; i <= n; i++) {
+    // wyciągamy współrzędne punktu kontrolnego
+    const x = points[i][0];
+    const y = points[i][1];
+    // obliczamy wspólną część dla X i Y
+    const coefficient = newton(n, i) * (t ** i) * ((1 - t) ** (n - i));
+    // zwiększamy odpowiednio wyniki
+    resultX += x * coefficient;
+    resultY += y * coefficient;
+  }
+  // zwracamy rezultat jako tablicę dwuelementową
+  return [resultX, resultY];
+}
+```
+
+Wersję do przetestowania znajdziesz na [Replit](https://replit.com/@tswistak/bezier-basic#index.js). Przy okazji nieco zoptymalizowałem obliczenia przez zapamiętywanie wyników wielomianu Newtona.
+
+Jak widzisz, tutaj obliczamy tylko jeden punkt. Oczywiście gdybyśmy rysowali krzywą, musielibyśmy funkcję wywołać wielokrotnie dla kolejnych wartości $$t$$. Ten kod jednak, o ile oblicza, co należy, to nie jest optymalnym podejściem. Po pierwsze, problemem jest obliczanie symbolu Newtona (ale oczywiście algorytm możemy podmienić na inny). Po drugie, wykonujemy sporo operacji mnożenia będących kosztownymi obliczeniowo. Do tego, mówiąc o mnożeniu, dochodzi jeszcze do potęgowania, które oczywiście będzie obliczone wydajnie, jeśli korzystamy z metod wbudowanych w język programowania (zwykle wykorzystują one <Link href="/post/szybkie-potegowanie">algorytm szybkiego potęgowania</Link>), ale to wciąż jest wyraźny narzut obliczeniowy. Szczególnie biorąc pod uwagę fakt, że punktów możemy musieć wyliczyć bardzo dużo, aby narysować krzywą w odpowiedniej rozdzielczości. Przy rysowaniu grafiki często zależy nam na wysokiej wydajności obliczeń, tym bardziej, aby zachować płynność rysowania obrazu.
+
+### Algorytm de Casteljau
+
+Innym podejściem, które chcę przedstawić, które jest prostsze obliczeniowo (chociaż istnieją wydajniejsze), jest algorytm de Casteljau, czyli dokładnie to, co powstało na potrzeby Citroëna.
+
+W tym podejściu musimy jednak cofnąć się do rekurencyjnej definicji krzywych Béziera. Jak pamiętamy, całość sprowadza się do tego, że zachodzi interpolacja liniowa między punktami kontrolnymi. Najpierw między sąsiadującymi punktami, potem między wyliczonymi punktami i powtarza się to tak długo, aż uzyskamy jeden punkt. Dokładnie to samo robimy w algorytmie de Casteljau, przy czym jego implementacje programistyczne zwykle uzyskują ten efekt w sposób iteracyjny.
+
+Z racji tego, że jest to bardzo prosty algorytm, od razu pokażę go w kodzie wraz z odpowiednimi komentarzami:
+
+```javascript
+// funkcja obliczająca punkt na krzywej Béziera
+// dla wskazanego t i punktów kontrolnych `points`
+// zakładam, że każdy punkt to dwuelementowa tablica
+function deCasteljau(t, points) {
+  // iterujemy tak długo, jak mamy więcej niż 1 punkt kontrolny
+  // będziemy nadpisywać tablicę punktów nową, zmniejszając za każdym razem jej rozmiar
+  while (points.length > 1) {
+    // tworzymy tablicę, w której zapiszemy zestaw nowych punktów
+    const midpoints = [];
+    // odliczamy kolejne punkty, aby obliczać nowe z dwóch sąsiadujących ze sobą
+    for (let i = 0; i < points.length - 1; i++) {
+      // wyciągamy sąsiadujące ze sobą punkty kontrolne
+      const [point1X, point1Y] = points[i];
+      const [point2X, point2Y] = points[i + 1];
+      // obliczamy interpolację liniową między tymi punktami
+      const x = point1X + (point2X - point1X) * t;
+      const y = point1Y + (point2Y - point1Y) * t;
+      // dodajemy nowy punkt do tymczasowej tablicy
+      midpoints.push([x, y]);
+    }
+    // podmieniamy tablicę punktów na nowo utworzoną
+    points = midpoints;
+  }
+  // w tym momencie został nam już tylko jeden punkt, który jest przez nas szukanym
+  return points[0];
+}
+```
+
+Kod znajdziesz w wersji do przetestowania na [Replit](https://replit.com/@tswistak/bezier-casteljau#index.js). Obliczenia są tutaj o wiele prostsze niż w poprzedniej metodzie, bo zredukowaliśmy znacznie liczbę mnożeń i przede wszystkim pozbyliśmy się obliczania symbolu Newtona. Warto jednak wiedzieć o istnieniu jeszcze innych sposobów, które są szybsze obliczeniowo, ale o tym później.
+
+Zwróć również uwagę, że obliczenia zwracały momentami nieco inne wartości niż poprzednia metoda i są dokładniejsze. Dzieje się tak dlatego, że w poprzednim algorytmie musieliśmy polegać na operacjach takich jak $$(1-t)^n$$, gdzie mogliśmy wchodzić w przybliżenia wartości i tym samym gromadził się błąd. Tutaj takiej sytuacji już nie ma, dlatego algorytm de Casteljau uznaje się za metodę numerycznie stabilną.
+
+### Prezentacja
+
+Poniżej możesz sprawdzić, w jaki sposób rysują się krzywe Béziera w zależności od ułożenia punktów i ich liczby. Na starcie jest losowo utworzona krzywa składająca się z czterech punktów kontrolnych. Punkty kontrolne możesz następnie przesuwać, aby sprawdzić, jaki ma to wpływ na kształt. Można je dodawać, używając przycisku **Dodaj punkt** pod prezentacją, a usuwać przez zaznaczenie i naciśnięcie na klawiaturze Backspace lub przycisku **Usuń**. Możesz też manewrować liczbą obliczanych punktów krzywej, aby sprawdzić, jak często warto wykonywać obliczenia w celu uzyskania płynnie wyglądającej krzywej (między punktami rysuję odcinki).
+
+<Presentation />
+
+Prezentacja została napisana z użyciem biblioteki [React Flow](https://reactflow.dev/) i wykorzystałem w niej algorytm de Casteljau. Kod źródłowy znajdziesz [na moim GitHubie](https://github.com/swistak-codes/bezier-curve).
+
+### Inne podejścia
+
+Jak wspomniałem, powyższe podejścia nie są jedynymi znanymi, a nawet są jeszcze wydajniejsze obliczeniowo, szczególnie stosowane tam, gdzie zależy nam na szybkości obliczeń (czyli zwykle w grafice komputerowej).
+
+Wyróżniłbym przede wszystkim obliczanie wartości punktów z reprezentacji macierzowej. Ten sposób zapisu krzywej Béziera pominąłem, ale wyliczanie punktów w ten sposób warto użyć, gdy mamy do dyspozycji sprzętowe wsparcie obliczeń macierzowych, np. wykonujemy obliczenia na procesorze karty graficznej.
+
+W literaturze naukowej i na różnych stronach internetowych znajdziemy też sposoby bazujące na przybliżaniu kształtu, dzieląc krzywe na mniejsze kawałki, lub zapamiętujące części obliczeń. Warto się rozejrzeć za różnymi sposobami, zanim zaimplementujesz obliczanie krzywych Béziera na własną rękę.
+
+## Podsumowanie
+
+Krzywe Béziera to zdecydowanie jedne z najprostszych krzywych, które możemy zdefiniować matematycznie, a także do obliczenia algorytmicznie. Mimo że potrafią nie być zbyt intuicyjne przez fakt, że zmiana jednego punktu zmienia kształt całej krzywej, to znalazły sporo zastosowań praktycznych w grafice komputerowej, dlatego warto wiedzieć, jak są konstruowane i skąd się wywodzi ich kształt.
+
+## Literatura
+
+- Pomax, *A Primer on Bézier Curves*, https://pomax.github.io/bezierinfo/ (ostatni dostęp: 14.11.2023).
+- Bézier curve, https://en.wikipedia.org/w/index.php?title=B%C3%A9zier_curve&oldid=1173340645 (ostatni dostęp: 14.11.2023).
+- Bernstein polynomial, https://en.wikipedia.org/w/index.php?title=Bernstein_polynomial&oldid=1181533570 (ostatni dostęp: 14.11.2023).
+- Pascal's triangle, https://en.wikipedia.org/w/index.php?title=Pascal%27s_triangle&oldid=1183669385 (ostatni dostęp: 14.11.2023).
+
+<small>Zdjęcie na okładce wygenerowane przez Stable Diffusion.</small>

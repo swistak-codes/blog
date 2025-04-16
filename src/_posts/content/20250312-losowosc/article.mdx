@@ -1,0 +1,478 @@
+import Link from 'next/link';
+import { Image } from '@swistak-codes/components';
+import cover from './swistak_cyberpunk.webp';
+import middlesq from './Middle_square_method_2_digits.svg.png';
+
+export const meta = {
+  title: 'Losowość w informatyce',
+  abstract:
+    'Artykuł omawia temat losowości w informatyce. Opisuje, dlaczego losowość jest ważna w informatyce i jak ją osiągamy.',
+  firstParagraph: (
+    <>
+      W informatyce bardzo często spotykamy się z pojęciem losowości. Generujemy losowe liczby <Link href="/post/szybkie-szukanie-duzych-liczb-pierwszych">(w tym pierwsze)</Link>, losowe dane. Wymieniając bardziej szczegółowo, mamy <Link href="/post/unikalne-identyfikatory">losowe identyfikatory</Link>, losowy stan gier, <Link href="/post/problem-komiwojazera-metaheurystyki">losowe przeszukiwanie przestrzeni rozwiązań</Link>. Przykładów można wymieniać wiele, tylko odpowiedzmy sobie na kluczowe pytanie — jak w ogóle komputer losuje? Czy komputer jest w stanie wygenerować coś, co jest naprawdę losowe?
+    </>
+  ),
+  keyword: 'Losowość',
+  categories: ['Teoria informatyki', 'Algorytmy'],
+  tags: [
+    'rng',
+    'losowość',
+    'pseudolosowość',
+    'metoda środka kwadratu',
+    'prng',
+    'lcg',
+    'xorshift',
+    'pcg',
+    'csprng',
+    'kryptografia',
+    'blum blum shub',
+    'nist sp 800-90a',
+    'hash_drbg',
+    'hmac_drbg',
+    'ctr_drbg',
+    'ziarno',
+    'javascript',
+  ],
+  slug: 'losowosc',
+  updateTime: '2025-03-12T07:00:00+00:00',
+  publishTime: '2025-03-12T07:00:00+00:00',
+  cover,
+};
+
+## Losowość
+
+Skoro mowa o losowości w informatyce, zacznijmy najpierw od tego, czym tak naprawdę jest losowość. Intuicyjnie raczej rozumiemy to pojęcie, ale jak jest ono definiowane?
+
+Losowość definiujemy jako brak celu, planu czy wzorca, brak przewidywalnego zachowania. W matematyce natomiast losowość jest związana z pojęciem prawdopodobieństwa. W skrócie losowość to zdarzenie opisywane pojęciem zmiennej losowej, które nie jest przewidywalne i jest pozbawione korelacji z innymi zdarzeniami.
+
+Powiązane jest tutaj pojęcie *procesu stochastycznego*, czyli innymi słowy *procesu losowego*. Jego wyników nie jesteśmy w stanie dokładnie przewidzieć, ale możemy określić rozkład prawdopodobieństwa. Są to funkcje zależne od czasu, których wartości są zmiennymi losowymi, np. proces rzutu monetą, gdzie dziedziną funkcji są odliczane kolejne rzuty, a wartościami orzeł lub reszka. W praktyce jednak procesy stochastyczne są zazwyczaj bardziej skomplikowane. Możemy wymienić np. procesy Bernoulliego, Poissona, Wienera czy Markowa.
+
+Istotną rzeczą, którą warto wiedzieć, jest fakt, że losowość z punktu widzenia matematyki jest cechą obiektywną. Oznacza to, że nie zależy od obserwatora, a jedynie od zdarzenia. W praktyce jednak jest zazwyczaj subiektywna. Wiele zdarzeń, które uważamy za losowe, tak naprawdę jest deterministycznych, ale np. zbyt skomplikowanych, byśmy byli w stanie przewidzieć ich wynik — mowa wówczas o *pseudolosowości*. Z drugiej strony mamy przypadki, gdzie mimo że coś jest losowe, to doszukujemy się tam wzorców — możemy tutaj wymienić np. paradoks hazardzisty czy bardziej ogólnie powstawanie przesądów.
+
+Temat losowości jest dużo szerszy zarówno z punktu widzenia matematyki, jak i filozofii. Dlatego skończmy na tym to ogólne podejście, przejdźmy teraz do losowości w informatyce.
+
+## Losowość w informatyce
+
+Jak wspomniałem we wstępie, losowość w informatyce spotykamy dość powszechnie. Pomijając tamte przykłady, istotne są też zastosowania losowości w kryptografii czy w uczeniu maszynowym. Ma także znaczenie w fizyce obliczeniowej ze względu choćby na <Link href="/post/obliczanie-calek-oznaczonych/#metoda-monte-carlo">metodę Monte Carlo</Link>.
+
+Losowość w informatyce możemy osiągać na dwa podstawowe sposoby:
+
+- Za pomocą **generatorów liczb pseudolosowych** (ang. *pseudo-random number generators*, PRNG), które wykorzystując deterministyczne algorytmy, pozwalają na generowanie ciągów liczb wyglądających na losowe.
+- Za pomocą **generatorów prawdziwie losowych liczb** (ang. *true random number generators*, TRNG), które wykorzystują różne zjawiska fizyczne, np. szumy elektryczne bądź rozpad radioaktywny, aby generować losowe liczby.
+
+Te drugie produkują bardziej nieprzewidywalne rezultaty, więc są lepsze. Niestety są też droższe i wolniejsze, dlatego w praktyce często korzysta się z generatorów pseudolosowych. Stąd gdy mówimy o losowości w informatyce, najczęściej mamy na myśli generowanie liczb pseudolosowych.
+
+## Uwagi przed dalszą częścią artykułu
+
+W dalszej części artykułu będę pokazywać implementacje różnych podejść do generowania liczb pseudolosowych. Należy jednak pamiętać, że nie są to implementacje, które powinny być stosowane w praktyce. Warto znać je, aby zrozumieć, jak generatory liczb pseudolosowych działają, ale w praktyce zawsze powinniśmy korzystać z gotowych, sprawdzonych i przetestowanych implementacji dostępnych w językach programowania.
+
+Pokazane przeze mnie implementacje będą wykorzystywać mechanizm generatorów. Jeśli nie wiesz, co to jest, to polecam zapoznać się z moim artykułem o <Link href="/post/iteracja-co-to-jest/#generatory">iteracji</Link>.
+
+Ostatnia rzeczą jest nazewnictwo. Inicjując algorytmy, przekazujemy im wartość zwaną *ziarnem* (ang. *seed*) lub wartością początkową. Jak nazwa wskazuje, to od niej zaczynamy generować kolejne liczby. Jest kluczowa, ponieważ determinuje cały dalszy ciąg liczb.
+
+## Generatory liczb pseudolosowych
+
+Zacznijmy od poznania najważniejszych generatorów, czyli generatorów liczb pseudolosowych. Zobaczmy kilka przykładowych podejść, które są (albo były) stosowane w praktyce. Pamiętajmy, że generatory te są deterministyczne, a więc ich wyniki są przewidywalne, jeśli znamy wszystkie dane wejściowe. Jednak mamy kryteria, które generatory powinny spełniać, aby ich wyniki były trudne do przewidzenia dla obserwatora nieposiadającego tych danych:
+
+- **Długość okresu** — generator powinien generować ciąg liczb, który pojawia się w określonym okresie, a po nim zaczyna się powtarzać. Im dłuższy okres, tym lepiej. W idealnym przypadku okres powinien być równy liczbie możliwych wartości, czyli np. dla 32-bitowych liczb — $$2^{32}$$.
+- **Jednorodność** — generator powinien generować liczby równomiernie, czyli każda liczba powinna mieć takie samo prawdopodobieństwo wystąpienia.
+- **Nieprzewidywalność** — generator powinien generować liczby, które są trudne do przewidzenia, czyli nie powinno być możliwe przewidzenie kolejnej liczby na podstawie poprzednich.
+
+W zależności od zastosowań mogą być dla nas też istotne inne kryteria, np. szybkość generowania liczb czy wymagania dotyczące pamięci.
+
+### Metoda środka kwadratu
+
+Zacznijmy od metody opracowanej przez Johna von Neumanna w 1949 r. podczas prac w projekcie Manhattan, gdzie potrzebny był sposób na szybkie generowanie losowych liczb na potrzeby symulacji Monte Carlo.
+
+Metoda generowania liczb metodą środka kwadratu wygląda następująco:
+
+1. Zaczynamy od n-cyfrowego ziarna. Jedyne wymaganie jest takie, że $$n$$ musi być parzyste.
+2. Podnosimy tę liczbę do kwadratu, uzyskując tym samym rezultat o długości co najmniej $$2n$$ cyfr. Jeśli ma mniej cyfr, dodajemy zera z przodu.
+3. Bierzemy $$n$$ środkowych cyfr jako wynik.
+4. Wynik ten staje się nowym ziarnem i wracamy do punktu 2.
+
+W JavaScript moglibyśmy zaimplementować to następująco:
+
+```javascript
+// generator zwracający pseudolosowe liczby według metody środka kwadratu
+// seed to wartość początkowa generatora (ziarno)
+function* middleSquareGenerator(seed) {
+  // zapsiujemy liczbę cyfr początkowej wartości
+  // najprościej jest to zrobić przez konwersję na typ znakowy
+  const digits = String(seed).length;
+  // jeśli nie ma parzystej liczby cyfr, rzucamy błąd - wymóg algorytmu
+  if (digits % 2 !== 0) {
+    throw new Error("Ziarno musi mieć parzystą liczbę cyfr");
+  }
+  // zmienna pomocnicza do przechowywania kolejnych wartości
+  // rozpoczynamy od ziarna
+  let state = seed;
+  // generujemy kolejne wartości w nieskończonej pętli
+  while (true) {
+    // podnosimy aktualny stan do kwadratu
+    // uwaga - w przypadku większych wartości początkowych warto skorzystać z typu BigInt
+    const squared = state ** 2;
+    // konwertujemy liczbę na ciąg znaków, aby dopisać zera na przodzie, jeśli trzeba
+    let result = squared.toString().padStart(digits * 2, "0");
+    // wyciągamy środkowe n cyfr
+    // najpierw znajdujemy, gdzie się one znajdują
+    const start = Math.floor(result.length / 2 - digits / 2);
+    const end = start + digits;
+    // a tutaj wyciągamy je i konwertujemy z powrotem na liczbę
+    state = parseInt(result.substring(start, end));
+    // zwracamy wartość
+    yield state;
+  }
+}
+```
+
+Kod wraz z testami pokazującymi jak działa ten generator i uwydatniającymi jego wady znajdziesz na [Replit](https://replit.com/@tswistak/middle-square#index.js).
+
+Metoda ta, jak widzimy, jest dość prosta. Niestety, ma znaczne wady, które możesz zauważyć na zalinkowanym wyżej Replicie:
+
+- **Krótki okres** — po kilku iteracjach zaczynają powtarzać się te same liczby. Co więcej, jest to zależne od wartości ziarna — niektóre będą generować cykle szybciej, inne wolniej.
+- **Przewidywalność** — generator wpada w cykle, zaczynając powtarzać te same sekwencje liczb. Do tego jest skrajny przypadek, gdy jak generator raz wygeneruje 0, to potem będzie zawsze generować już same 0.
+
+<Image
+  image={middlesq}
+  alignCenter
+  fullSize
+  maxWidth="400px"
+  alt="Schemat drzewa przedstawiający sekwencję liczb pośrednich generowanych metodą środka kwadratu dla 2-cyfrowych liczb. Każdy węzeł zawiera liczbę i wskazuje na kolejną liczbę w sekwencji strzałką, tworząc strukturę drzewa."
+  caption={<>
+    Działanie metody środka kwadratu dla wszystkich możliwych ziaren przy n = 2.<br/>
+    <a href="https://commons.wikimedia.org/wiki/File:Middle_square_method_2_digits.svg">Cmglee</a>, <a href="https://creativecommons.org/licenses/by-sa/3.0">CC BY-SA 3.0</a>, via Wikimedia Commons
+  </>}
+/>
+
+Ze względu na te wady nie jest to metoda, którą byśmy chcieli stosować w praktyce, jednak warto ją znać ze względu na jej historyczne znaczenie.
+
+### Liniowy generator kongruencyjny (LCG)
+
+Kolejny sposób, który opiszę, jest niewiele młodszy od poprzedniego, jednak mimo to na tyle dobry, że wciąż wykorzystywany w praktyce. Jest to **liniowy generator kongruencyjny** (ang. *linear congruential generator*, LCG) opisany przez W. E. Thomsona i A. Rotenberga w 1958 r., bazując na wcześniejszej pracy D. H. Lehmera z 1951 r.
+
+W kwestii algorytmu prawdę mówiąc niewiele jest tu do tłumaczenia. Liczby są generowane za pomocą prostej rekurencji:
+
+$$
+X_{n+1} = (a \cdot X_n + c) \mod m
+$$
+
+gdzie:
+
+- $$X_n$$ — poprzednia liczba w ciągu
+- $$a$$, $$c$$, $$m$$ — parametry generatora:
+  - $$a$$ — mnożnik, $$0 < a < m$$
+  - $$c$$ — przyrost, $$0 \leq c < m$$
+  - $$m$$ — moduł, $$0 < m$$. W praktyce najczęściej $$m = 2^b$$, gdzie $$b$$ to liczba bitów w rejestrze (np. 32 dla 32-bitowego typu całkowitoliczbowego bez znaku)
+
+Pytanie brzmi, jak dobrać prawidłowo te parametry, aby generator spełniał opisane wcześniej kryteria? Według twierdzenia Hull-Dobell'a generator spełnia te kryteria, jeśli:
+
+- $$c$$ jest różne od 0
+- $$m$$ i $$c$$ są względnie pierwsze
+- dla każdego $$p$$, który jest liczbą pierwszą dzielącą $$m$$, $$a - 1$$ jest podzielne przez $$p$$
+- jeśli $$m$$ jest podzielne przez 4, to $$a - 1$$ też musi być podzielne przez 4
+
+Przykładowe parametry spełniające te warunki to: $$m = 2^{32}$$, $$a = 1664525$$, $$c = 1013904223$$ (podane w *Numerical Recipes in C*, edycja druga; od edycji trzeciej generator jest 64-bitowy).
+
+W JavaScript możemy zaimplementować generator LCG w następujący sposób:
+
+```javascript
+// generator zwracający pseudolosowe liczby według liniowego generatora kongruencyjnego
+// seed to wartość początkowa generatora (ziarno)
+// a, c, m to parametry generatora
+function* lcgGenerator(seed, a = 1664525, c = 1013904223, m = 2 ** 32) {
+  // zmienna pomocnicza do przechowywania kolejnych wartości
+  // rozpoczynamy od ziarna
+  let state = seed;
+  // generujemy kolejne wartości w nieskończonej pętli
+  while (true) {
+    // obliczamy nową wartość
+    state = (a * state + c) % m;
+    // zwracamy wartość
+    yield state;
+  }
+}
+```
+
+Kod wraz z testami pokazującymi działanie tego generatora znajdziesz na [Replit](https://replit.com/@tswistak/lcg#index.js).
+
+Generator ten jest znacznie lepszy od metody środka kwadratu. Ma dłuższy okres, jest szybszy, a także bardziej losowy. Jednak nadal nie jest tak losowy, jakbyśmy chcieli — można go łatwo złamać, jeśli znamy kilka kolejnych liczb, dlatego w praktyce nie jest stosowany wtedy, gdy losowość jest kluczowa.
+
+### Xorshift
+
+Kolejny sposób to nie tyle jeden algorytm, a cała rodzina algorytmów opublikowanych przez G. Marsaglię w 2003 r. W przeciwieństwie do obu wcześniej pokazanych przeze mnie Xorshift nie bazują na typowych operacjach matematycznych. W zamian za to generowanie odbywa się całkowicie za pomocą operacji bitowych — <Link href="/post/matematyka-zero-jedynkowa/#przesuni%C4%99cia-bitowe">przesunięć</Link> i operacji <Link href="/post/podstawy-logiki/#alternatywa-roz%C5%82%C4%85czna-xor">XOR</Link>. Dzięki temu są bardzo szybkie i proste w implementacji.
+
+Z racji tego, że operacje bitowe są czytelniejsze w kodzie, od razu pokażę implementację. W przypadku 32-bitowej wersji algorytm wygląda następująco:
+
+```javascript
+// generator zwracający pseudolosowe liczby według algorytmu xorshift32
+// seed to wartość początkowa generatora (ziarno)
+function* xorshift32Generator(seed) {
+  // zmienna pomocnicza do przechowywania kolejnych wartości
+  // rozpoczynamy od ziarna
+  let state = seed;
+  // generujemy kolejne wartości w nieskończonej pętli
+  while (true) {
+    // przesuwamy bity w lewo o 13 i xorujemy
+    let x = state ^ (state << 13);
+    // przesuwamy bity w prawo o 17 i xorujemy
+    // w JavaScript >>> to przesunięcie bitowe w prawo bez znaku
+    x = x ^ (x >>> 17);
+    // przesuwamy bity w lewo o 5 i xorujemy
+    state = x ^ (x << 5);
+    // zwracamy wartość jako liczbę całkowitą bez znaku
+    // (>>> 0 to sposób w JS pozwalający na wymuszenie liczb całkowitych)
+    yield state >>> 0;
+  }
+}
+```
+
+Kod wraz z testami pokazującymi jak działa ten generator znajdziesz na [Replit](https://replit.com/@tswistak/xorshift#index.js).
+
+W swojej podstawowej, pokazanej powyżej wersji, generator ten nie jest zbyt dobry. Ma krótki okres. Do tego niektóre wartości ziarna mogą prowadzić do generowania samych zer (skrajny przypadek — zerowe ziarno). Jednak wersje tego algorytmu z odpowiednio dobranymi parametrami mogą być bardzo dobre.
+
+### Permutowany generator kongruencyjny (PCG)
+
+PCG to również cała rodzina różnych generatorów. Zostały zaprojektowane przez M. E. O'Neila w 2014 r. jako ulepszenie generatorów kongruencyjnych. Działają na takiej zasadzie, że generują stan z użyciem LCG (zalecany 64- lub 128-bitowy), a następnie przekształcają go za pomocą operacji bitowych. W zależności od konkretnego wariantu operacje te są różne.
+
+Najczęściej pokazywany jest wariant PCG-XSH-RR, który po wygenerowaniu wartości przez LCG przekształca ją za pomocą przesunięcia z XORem (analogicznie do Xorshift), a następnie rotacji bitów. Wersja ta jest bardzo szybka i daje dobre wyniki. Poniżej możesz zobaczyć implementację w JavaScript wersji 32-bitowej:
+
+```javascript
+// generator zwracający pseudolosowe liczby według permutowanego generatora kongruencyjnego
+// seed to wartość początkowa generatora (ziarno)
+// a, c to parametry generatora LCG
+function* pcgXshRrGenerator(seed, a, c) {
+  // zmienna pomocnicza do przechowywania kolejnych wartości
+  // rozpoczynamy od ziarna
+  let state = BigInt(seed);
+  // generujemy kolejne wartości w nieskończonej pętli
+  while (true) {
+    // zapisujemy poprzedni stan
+    const oldState = state;
+    // obliczamy nowy stan z 64-bitowego LCG
+    state = (oldState * BigInt(a) + BigInt(c)) & 0xffffffffffffffffn;
+    // wykonujemy xorshift
+    const xorShifted = ((oldState >> 18n) ^ oldState) >> 27n;
+    const rot = Number(oldState >> 59n);
+    // obliczamy wartość po rotacji
+    const result = (Number(xorShifted) >>> rot) | (Number(xorShifted) << (-rot & 31));
+    // zwracamy wartość
+    yield result >>> 0;
+  }
+}
+```
+
+W kwestii parametrów LCG zwykle spotkamy się z następującymi: $$a = 6364136223846793005$$, $$c = 1442695040888963407$$. Natomiast kod wraz z testami pokazującymi jak działa ten generator znajdziesz na [Replit](https://replit.com/@tswistak/pcg#index.js).
+
+PCG jest jednym z najlepszych generatorów, które możemy znaleźć. Jest szybki, ma długi okres, a także jest bardzo losowy — znacznie ciężej jest go złamać niż poprzednie generatory. Mimo tego nie jest uznawany za generator wystarczająco bezpieczny do zastosowań kryptograficznych.
+
+## Kryptograficznie bezpieczne generatory liczb pseudolosowych (CSPRNG)
+
+Mimo że wcześniej napisałem tylko o dwóch podstawowych sposobach generowania liczb, chciałbym oddzielnie wspomnieć o całej klasie generatorów pseudolosowych. Mianowicie chodzi o **kryptograficznie bezpieczne generatory liczb pseudolosowych** (ang. *cryptographically secure pseudorandom number generators*, CSPRNG). Są to generatory, które spełniają dodatkowe kryteria, aby ich wyniki były bezpieczne do zastosowań kryptograficznych.
+
+Możemy wymienić następujące kryteria:
+
+- **Przechodzą statystyczne testy losowości** — w szczególności mówi się tutaj o tzw. next-bit test, gdzie w skrócie mówiąc, jeśli znamy $$n$$ bitów z ciągu, to nie jesteśmy w stanie przewidzieć $$n+1$$ bitu jakimkolwiek algorytmem wykonującym się w czasie wielomianowym z prawdopodobieństwem wyższym niż 50%.
+- **Odporne na wyciek stanu** — nawet jeśli wycieknie początkowy lub późniejszy stan generatora, to nie powinno to ułatwić przewidzenia kolejnych liczb ani dać się zrekonstruować wcześniejszych wartości.
+
+Pośród tych generatorów możemy wymienić dwie architektury:
+
+- **Bazujące na trudnych problemach matematycznych** — np. generator Blum Blum Shub bazujący na problemie faktoryzacji liczb. Są to generatory, które są bardzo bezpieczne, ale niestety też bardzo wolne.
+- **Bazujące na algorytmach kryptograficznych** — warto wyróżnić przede wszystkim algorytmy opisane w dokumencie [*NIST SP 800-90A*](https://doi.org/10.6028%2FNIST.SP.800-90Ar1).
+
+### Blum Blum Shub
+
+Poznajmy na początku generator Blum Blum Shub, bo algorytmicznie jest bardzo prosty, chociaż w szczegółach dość zawiły. Został opisany po raz pierwszy przez L. Bluma, M. Bluma i M. Shuba w 1986 r.
+
+Jak wspomniałem wcześniej, bazuje na problemie faktoryzacji liczb, czyli problemie znalezienia czynników pierwszych danej liczby. Cały algorytm (w dużym uproszczeniu) sprowadzić można do bardzo prostego równania:
+
+$$
+x_{n+1} = x_n^2 \mod M
+$$
+
+To równanie wygląda bardzo prosto. Jak w takim razie możemy osiągnąć tutaj znacznie lepszą losowość niż przy wcześniej opisanych algorytmach? Otóż musimy wykonać kilka dodatkowych kroków:
+
+1. Wybieramy dwie duże liczby pierwsze $$p$$ i $$q$$ takie, że $$p \equiv q \equiv 3 \mod 4$$. W prawdziwych zastosowaniach $$p$$ i $$q$$ powinny być bardzo duże, np. 512-bitowe.
+2. Obliczamy $$M = p \cdot q$$.
+3. Wybieramy liczbę $$x_0$$, która jest względnie pierwsza z $$M$$. Jednocześnie musi być różna od 0 i 1.
+4. Generujemy kolejne liczby według powyższego równania.
+5. Z wygenerowanej liczby wybieramy $$k$$ najmłodszych bitów jako wynik (zwykle jeden) albo <Link href="/post/sumy-kontrolne/#bit-parzystości">bit parzystości</Link>. Aby ułożyć liczbę o zadanej przez użytkownika liczbie bitów, musimy wygenerować kilka liczb z równania i połączyć je w jedną.
+
+W JavaScript możemy zaimplementować generator Blum Blum Shub biorący ostatni bit w następujący sposób:
+
+```javascript
+// generator zwracający pseudolosowe liczby według algorytmu Blum Blum Shub
+// seed to wartość początkowa generatora (ziarno)
+// p, q to liczby pierwsze
+// bits to liczba bitów wyniku
+function* blumBlumShubGenerator(seed, p, q, bits) {
+  // obliczamy M
+  const M = BigInt(p) * BigInt(q);
+  // zmienna pomocnicza do przechowywania kolejnych wartości
+  // rozpoczynamy od ziarna
+  let state = BigInt(seed);
+  // zmienna, w której przechowamy bity składające się na wynik do zwrócenia
+  let result = [];
+  // generujemy kolejne wartości w nieskończonej pętli
+  while (true) {
+    // obliczamy nową wartość
+    state = (state ** 2n) % M;
+    // dodajemy najmłodszy bit do wyniku jako zwykłą liczbę
+    result.push(Number(state & 1n));
+    // jeśli uzbieraliśmy już odpowiednią liczbę bitów, zwracamy wynik
+    if (result.length >= bits) {
+      // zmienna, w której przechowamy wynik
+      let num = 0;
+      // iterujemy po kolejnych przechowanych bitach
+      for (const bit of result) {
+        // aby dodać bit na końcu, przesuwamy liczbę w lewo i dodajemy bit za pomocą operacji OR
+        num = (num << 1) | bit;
+      }
+      // zwracamy wynik
+      yield num;
+      // czyścimy tablicę przechowującą bity
+      result = [];
+    }
+  }
+}
+```
+
+Kod wraz z testami pokazującymi jak działa ten generator znajdziesz na [Replit](https://replit.com/@tswistak/blum-blum-shub#index.js). Dodatkowo na [tym Replit](https://replit.com/@tswistak/blum-blum-shub-parity#index.js) znajdziesz implementację generatora, który generuje bit parzystości zamiast ostatniego bitu.
+
+Blum Blum Shub jest bardzo bezpiecznym generatorem. Zakłada się, że dopóki nie zostanie znaleziony algorytm faktoryzujący w czasie wielomianowym, generator ten jest bezpieczny (dla odpowiednio dużych $$p$$ i $$q$$). Niestety jest bardzo wolny, dlatego nie nadaje się tam, gdzie liczby musimy generować szybko.
+
+### NIST SP 800-90A
+
+*NIST SP 800-90A* to publikacja amerykańskiego *National Institute of Standards and Technology* (po pol. Narodowy Instytut Norm i Technologii) opisująca algorytmy generowania liczb pseudolosowych, które są bezpieczne do zastosowań kryptograficznych. W obecnej wersji są trzy algorytmy: *Hash_DRBG*, *HMAC_DRBG* i *CTR_DRBG*. Oryginalnie zawierała także *Dual-EC-DRBG*, ale ten algorytm został wycofany z powodu podejrzeń o umieszczenie w nim backdoora przez NSA.
+
+W tym przypadku pominę zamieszczanie implementacji i rozbudowanych opisów, ponieważ byłyby już nieco zbyt skomplikowane. W zamian za to zachęcam do zapoznania się z dokumentem, jeśli jesteś zainteresowany(-a) — opisy są tam bardzo szczegółowe.
+
+#### Krótkie opisy algorytmów
+
+Mocno generalizując, algorytmy te działają następująco:
+
+- **Hash_DRBG** — generuje liczby, wykorzystując <Link href="/post/sumy-kontrolne/#funkcje-skr%C3%B3tu">kryptograficzne funkcje skrótu</Link> (np. SHA-256). Funkcje te są stosowane wielokrotnie, zarówno w procesie inicjalizacji stanu, jak i generowania wartości. Jest to najwolniejszy z tych trzech algorytmów, stąd też obecnie rzadko używany.
+- **HMAC_DRBG** — działa podobnie jak *Hash_DRBG*, ale zamiast funkcji skrótu używa HMAC (ang. *hash-based message authentication code*), czyli funkcji skrótu z kluczem. Należy jednak uważać przy użyciu i implementacji, ponieważ jeśli generatorowi nie poda się tzw. dodatkowych danych (ang. *additional input*), to w przypadku wycieku stanu możemy przewidzieć przyszłe wartości.
+- **CTR_DRBG** — działa analogicznie do powyższych, ale generuje liczby z wykorzystaniem szyfrów blokowych (np. AES) w trybie CTR (ang. *counter mode*). Jest to najszybsza z tych trzech metod. Należy jednak uważać, bo jeśli będziemy chcieli generować zbyt duże liczby, to jest on podatny na ataki tzw. side-channel (czyli zbieranie informacji ze źródeł niezależnych od algorytmu, np. analiza różnic czasu wykonania).
+
+#### Hash_DRBG
+
+Jako że wszystkie te algorytmy działają analogicznie, zamieszczę opis w postaci listy kroków, w jaki mniej więcej sposób działa *Hash_DRBG*. Po więcej szczegółów zapraszam do przeczytania *NIST SP 800-90A*.
+
+Pojawią nam się tutaj następujące pojęcia:
+
+- **Entropia** — przez entropię mamy na myśli losową wartość z dowolnego źródła, która będzie częścią początkowej wartości generatora.
+- **Nonce** — (z ang. *number used once*) wartość liczbowa użyta tylko raz do zainicjowania generatora. Różnica między nią a entropią polega na tym, że nonce jest wartością, która nie musi być tajna ani losowa, ale musi być unikalna dla każdego uruchomienia generatora.
+- **Personalizacja** — dodatkowe dane, które mogą zostać użyte do zainicjowania generatora. Może to być, np. identyfikator urządzenia, na którym generator jest uruchamiany. Wartość ta nie jest wymagana.
+- **Dodatkowe dane** — dodatkowe dane, które mogą zostać użyte do generowania wartości. Może to być, np. czas uruchomienia generatora. Wartość ta również nie jest wymagana.
+- $$\mathbin\|$$ — operator konkatenacji, czyli łączenia dwóch wartości w jedną.
+
+Stan generatora składa się z trzech wartości:
+
+- $$V$$ — wartość, która jest aktualnym stanem generatora.
+- $$C$$ — stała zależna od początkowej wartości $$V$$.
+- $$reseed$$ — wartość określająca, ile bitów zostało już wygenerowanych. Po przekroczeniu określonej wartości generator musi zostać zainicjowany ponownie.
+
+Wykorzystywane są dwie funkcje zewnętrzne:
+
+- $$hash(wartość)$$ — funkcja skrótu.
+- $$hash\_df(wartość, długość)$$ — funkcja bazująca na funkcji skrótu, która generuje określoną długość bitów przez jej wielokrotne uruchamianie z lekko zmienionymi parametrami.
+
+Możemy wyróżnić trzy etapy działania generatora:
+
+1. Inicjalizacja:
+    - $$V = hash\_df(\text{entropia} \mathbin\| \text{nonce} \mathbin\| \text{personalizacja}, \text{długość entropii})$$
+    - $$C = hash\_df(0 \mathbin\| V, \text{długość entropii})$$
+    - $$reseed = 1$$
+2. Generowanie wartości:
+    - Jeśli są podane dodatkowe dane, to:
+        - $$w = hash(2 \mathbin\| V \mathbin\| \text{dodatkowe dane})$$
+        - $$V = (V + w) \mod 2^{\text{długość entropii}}$$
+    - Wartość jest generowana przez wielokrotne powtórzenie operacji (początkowa wartość $$data$$ to $$V$$):
+        - $$w = hash(data)$$
+        - $$W = W \mathbin\| w$$
+        - $$data = (data + 1) \mod 2^{\text{długość entropii}}$$
+    - Następnie wartość $$W$$ jest obcinana do określonej odgórnie liczby bitów i zwracana jako wynik.
+    - Aktualizowany jest stan generatora:
+        - $$H = hash(3 \mathbin\| V)$$
+        - $$V = (V + H + C) \mod 2^{\text{długość entropii}}$$
+        - $$reseed = reseed + 1$$
+3. Ponowna inicjalizacja:
+    - Proces ten zachodzi przed generowaniem wartości, jeśli $$reseed$$ przekroczy określoną wartość.
+    - Działanie jest analogiczne do inicjalizacji. Różnica polega jedynie w sposobie obliczenia wartości $$V$$:
+        - $$V = hash\_df(1 \mathbin\| V \mathbin\| \text{entropia} \mathbin\| \text{dodatkowe dane}, \text{długość entropii})$$.
+
+Jak widzisz, jest to zdecydowanie bardziej zawiłe niż pokazywane wcześniej w kodzie sposoby. O ile nie polecam korzystania z generatorów liczb pseudolosowych pisanych na własną rękę, tak szczerze odradzam implementowanie generatorów kryptograficznie bezpiecznych. W przypadku generatorów kryptograficznych błędy mogą prowadzić do poważnych konsekwencji, dlatego lepiej jest skorzystać z gotowych implementacji.
+
+## Skąd brać ziarno?
+
+Wszystkie wyżej opisane generatory, niezależnie od algorytmu i od tego, jak są bezpieczne, musieliśmy zainicjować jakąś liczbą zwaną ziarnem. Użytkownikowi nie nakazujemy podać takiej liczby (z wyjątkami, np. konfigurowalne generatywne AI, gry zależne od losowości), a wybór złej może prowadzić do złych wyników. W związku z tym skąd wziąć takie liczby?
+
+Najprostszy, aczkolwiek niekoniecznie bezpieczny sposób to wykorzystanie czasu systemowego. W większości języków programowania mamy dostęp do funkcji zwracającej aktualny czas w postaci liczby sekund od jakiegoś ustalonego momentu (np. 1 stycznia 1970 r.). Możemy wykorzystać tę liczbę jako ziarno generatora. Niestety, jest to bardzo przewidywalne, a co za tym idzie, bardzo słabe ziarno. Aczkolwiek do prostych zastosowań zazwyczaj wystarcza. Przykładowo w JavaScript moglibyśmy to zrobić tak:
+
+```javascript
+function generateSeed() {
+  return Math.trunc(Date.now() / 1000);
+}
+```
+
+Jeśli zależy nam na pewniejszym ziarnie, możemy je wygenerować, korzystając ze źródeł entropii użytkownika. Przykładowo, możemy wykorzystać dane z ruchów myszką czy naciśnięć klawiszy na klawiaturze. Taki sposób możesz zobaczyć np. w generatorze kluczy SSH wbudowanym w [PuTTY](https://www.putty.org/). Nie jest to jednak bardzo bezpieczny sposób, ponieważ wbrew pozorom ruchy użytkownika mogą nie być wystarczająco losowe.
+
+Bardziej zaawansowany sposób, wykorzystywany w generatorach kryptograficznych, to wykorzystanie sprzętowych źródeł entropii. Mogą to być zarówno czujniki temperatury, jak i ruchu, czy nawet szumy kwantowe. W przypadku generatorów kryptograficznych jest to zdecydowanie najlepszy sposób, ponieważ zapewnia on największą losowość.
+
+## Generatory prawdziwie losowych liczb
+
+Odejdźmy teraz od algorytmów — omówmy generatory prawdziwie losowych liczb. Są to generatory, które nie bazują na żadnych algorytmach, a jedynie na prawdziwych zjawiskach losowych. Spośród wielu różnych wymieniłbym takie przykładowe podejścia:
+
+- **Kwantowe generatory** — wykorzystują zjawiska kwantowe do generowania losowych liczb. Przykładem mogą być generatory firmy [ID Quantique](https://www.idquantique.com/) bazujące na detekcji fotonów przechodzących lub odbijających się od półprzezroczystego lustra.
+- **Generatory oparte na szumach** — wykorzystują szumy elektryczne do generowania losowych liczb. Przykładem może być generator [ChaosKey](https://altusmetrum.org/ChaosKey/).
+- **Generatory oparte na zjawiskach fizycznych** — np. generator firmy [HotBits](https://www.fourmilab.ch/hotbits/) bazujący na rozpadzie radioaktywnym.
+    - Warto też wspomnieć o systemie [Lavarand](https://en.wikipedia.org/wiki/Lavarand), który wykorzystuje popularne lampy lava (a dokładniej ich fotografowanie) do generowania losowych liczb. Najbardziej znane z użycia tego sposobu jest Cloudflare używające go do [generowania kluczy SSL](https://www.cloudflare.com/learning/ssl/lava-lamp-encryption/). Co ciekawe, częścią losowości jest fakt, że lampy te są ustawione w korytarzu i nieraz zdarzają się sytuacje, że ludzie przechodzą przed nimi, zasłaniając je.
+
+Każdy z tych generatorów to zewnętrzne urządzenie, które musimy podłączyć do naszego komputera. Stąd rzadko są stosowane w praktyce, jedynie tam, gdzie losowość jest bardzo istotna. Warto jednak zwrócić uwagę, że są usługi zwracające prawdziwie losowe liczby bazujące na takich generatorach, np. [Random.org](https://www.random.org/) (wykorzystuje radioodbiorniki do odczytu szumu otoczenia) albo [msQRNG](https://aws.amazon.com/marketplace/pp/prodview-57mpntroadkzm) (korzysta z generatorów od ID Quantique).
+
+Generatory sprzętowe mogą także być wbudowane w procesory. Przykładowo, procesory Intela posiadają instrukcję [RDRAND](https://en.wikipedia.org/wiki/RDRAND), VIA zestaw instrukcji [PadLock](https://en.wikipedia.org/wiki/VIA_PadLock), a urządzenia Apple posiadają [Secure Enclave](https://support.apple.com/pl-pl/guide/security/sec59b0b31ff/web) zawierający między innymi generator liczb losowych. Warto jednak zwrócić uwagę, że są podejrzenia (szczególnie w kierunku RDRAND), że mogą one być podatne na ataki typu side-channel lub zawierać backdoory.
+
+## Generowanie losowych liczb w językach programowania
+
+Skoro poznaliśmy różne podejścia do generowania liczb pseudolosowych, przejrzyjmy na szybko, które algorytmy są wykorzystywane przez popularne języki programowania (albo raczej jest to mój subiektywny wybór):
+
+- **C/C++** — `rand()` zgodnie ze standardem ISO/IEC 9899:1999 korzysta z LCG o parametrach $$a = 1103515245$$, $$c = 12345$$, $$m = 2^{31}$$. Warto jednak zwrócić uwagę, że kompilatory mogą mieć nieco inne implementacje, np. MSVC korzysta z LCG o parametrach $$a = 214013$$, $$c = 2531011$$, $$m = 2^{31}$$. W C++ dostępny jest także nieopisany wyżej algorytm Mersenne Twister pod `std::mt19937`. Jest bardziej rozbudowany i wykorzystuje więcej pamięci (624 liczby), ale za to jest bezpieczniejszy niż LCG.
+- **Java** — `java.util.random` od JDK 17 operuje na algorytmach z grupy LXM, które są połączeniem LCG i generatorów bazujących na XOR. Wcześniejsze wersje korzystały z LCG wciąż dostępnego do użycia. Więcej informacji znajdziesz w [dokumentacji `java.util.random`](https://docs.oracle.com/en/java/javase/23/docs/api/java.base/java/util/random/package-summary.html).
+- **JavaScript** — `Math.random()` w silniku V8 generuje liczby, korzystając z Xorshift128+, czyli wariantu pokazanego wyżej przeze mnie Xorshift, ale bazującego na dwóch 64-bitowych wartościach. Kod tego generatora znajdziesz na [GitHubie V8](https://github.com/v8/v8/blob/f7b1658a85a8ef03b6088ab13e988f3fca5c8954/src/base/utils/random-number-generator.h#L121-L130).
+- **.NET** (C#, F#, Visual Basic) — najnowsze wersje .NET wykorzystują algorytm **Xoshiro256\*\***, który jest modyfikacją Xorshift dodającą do niego operację rotacji. Możesz zobaczyć implementację [w źródłach .NET](https://github.com/dotnet/runtime/blob/aba4de871061b82361f9d91886f2db7f41ff72d0/src/libraries/System.Private.CoreLib/src/System/Random.Xoshiro256StarStarImpl.cs).
+- **Python** — `random` korzysta z Mersenne Twister. Jego implementację możesz podejrzeć [w źródłach CPythona](https://github.com/python/cpython/blob/6c6600f6831aec15b2acbd7a9bb9c275bd5f4a32/Modules/_randommodule.c#L134-L166).
+
+W przypadku generatorów kryptograficznie bezpiecznych oferowanych przez języki programowania polegają one najczęściej na tym, co oferuje system operacyjny:
+
+- **Windows** (od Visty i Server 2008) — używa się [BCryptGenRandom](https://learn.microsoft.com/en-us/windows/win32/api/bcrypt/nf-bcrypt-bcryptgenrandom), który jest implementacją CTR_DRBG bazującą na AES.
+- **Linux** — korzysta się z [getrandom](https://man7.org/linux/man-pages/man2/getrandom.2.html) albo odczytuje wartości bezpośrednio z `/dev/urandom`. Wykorzystują one (od Linuksa 5.6) Linux-DRBG łączącego w sobie haszowanie BLAKE2 i szyfrowanie ChaCha20.
+- **Systemy od Apple** — używa się [SecRandomCopyBytes](https://developer.apple.com/documentation/security/secrandomcopybytes(_:_:_:)) albo odczytuje wartości bezpośrednio z `/dev/urandom`. Niestety nie znalazłem informacji, który konkretnie algorytm ta funkcja wykorzystuje. Aczkolwiek w [kodzie źródłowym jądra](https://github.com/apple-oss-distributions/xnu/blob/4f1223e81cd707a65cc109d0b8ad6653699da3c4/osfmk/corecrypto/ccdrbg_internal.h) i opisie Secure Enclave znajduje się informacja o wykorzystaniu CTR_DRBG, więc `/dev/urandom` powinien z niego korzystać.
+
+## Podsumowanie
+
+Temat losowości w informatyce jest bardzo ciekawy i jednocześnie obszerny. Liczę, że dzięki temu, co tu przedstawiłem, będziesz wiedzieć, że zwykle nie pracujemy z prawdziwie losowymi liczbami i trzeba bardzo uważać na to, kiedy którego generatora używamy. Z jednej strony, żeby generować losowane dane do testów, nie potrzebujesz mieć bardzo mocnej losowości, ale gdy już generujesz klucze kryptograficzne czy nawet identyfikatory, to lepiej pomyśleć o kryptograficznie bezpiecznych generatorach. Do tego w jakichś prostych grach, gdzie losowość jest ważna, ale nie krytyczna, także wystarczą proste sposoby; jednak przy grach hazardowych raczej bym się zastanowił nad mniej przewidywalnymi sposobami. Sam(a) zdecyduj, co będzie najlepiej pasować do Twojego projektu — ważne, żebyś wiedział(a), co robisz.
+
+## Literatura
+
+- Randomness, https://en.wikipedia.org/w/index.php?title=Randomness&oldid=1275150482 (ostatnie odwiedziny 07.03.2025).
+- List of random number generators, https://en.wikipedia.org/w/index.php?title=List_of_random_number_generators&oldid=1279170096 (ostatnie odwiedziny 07.03.2025).
+Pseudorandom number generator, https://en.wikipedia.org/w/index.php?title=Pseudorandom_number_generator&oldid=1277150261 (ostatnie odwiedziny 07.03.2025).
+- Middle-square method, https://en.wikipedia.org/w/index.php?title=Middle-square_method&oldid=1254615417 (ostatnie odwiedziny 07.03.2025).
+- Knuth, D. E. (1998). Generating uniform random numbers. W *The art of computer programming: Seminumerical algorithms* (Vol. 2, 3rd ed., s. 10-40). Addison-Wesley.
+- Press, W. H., Teukolsky, S. A., Vetterling, W. T., & Flannery, B. P. (2007). Uniform deviates. W *Numerical recipes: The art of scientific computing* (3rd ed., s. 341-351). Cambridge University Press.
+- Press, W. H., Teukolsky, S. A., Vetterling, W. T., & Flannery, B. P. (1992). Uniform deviates. W *Numerical recipes in C: The art of scientific computing* (2nd ed., s. 275-287). Cambridge University Press.
+- Xorshift, https://en.wikipedia.org/w/index.php?title=Xorshift&oldid=1277788865 (ostatnie odwiedziny 07.03.2025).
+- Bouillaguet, C., Martinez, F., & Sauvage, J. (2020). Practical seed-recovery for the PCG pseudo-random number generator. *IACR Transactions on Symmetric Cryptology*, *2020*(3), 175–196. [doi:10.13154/tosc.v2020.i3.175-196](https://doi.org/10.13154/tosc.v2020.i3.175-196)
+- Cryptographically secure pseudorandom number generator, https://en.wikipedia.org/w/index.php?title=Cryptographically_secure_pseudorandom_number_generator&oldid=1273142951 (ostatnie odwiedziny 07.03.2025).
+- Blum Blum Shub, https://en.wikipedia.org/w/index.php?title=Blum_Blum_Shub&oldid=1270422915 (ostatnie odwiedziny 07.03.2025).
+- Barker, E., & Kelsey, J. (2007). DRBG algorithm specifications. W *Recommendation for random number generation using deterministic random bit generators* (s. 35-57). NIST Special Publication 800-90. National Institute of Standards and Technology. Dostępne na: https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-90.pdf
+- Woodage, J., & Shumow, D. (2018). An analysis of NIST SP 800-90A. Royal Holloway, University of London. Dostępne na: https://pure.royalholloway.ac.uk/ws/portalfiles/portal/34003095/main.pdf
+- Hurley-Smith, D., & Hernandez-Castro, J. (2017). Quam bene non quantum: Bias in a family of quantum random number generators. *Cryptology ePrint Archive*. Dostępne na: https://eprint.iacr.org/2017/842.pdf
+- Lavarand, https://en.wikipedia.org/w/index.php?title=Lavarand&oldid=1277979582 (ostatnie odwiedziny 07.03.2025).
+- How do lava lamps help with Internet encryption? | Cloudflare, https://www.cloudflare.com/learning/ssl/lava-lamp-encryption/  (ostatnie odwiedziny 07.03.2025).
+- RDRAND, https://en.wikipedia.org/w/index.php?title=RDRAND&oldid=1277039124 (ostatnie odwiedziny 07.03.2025).
+- Secure Enclave - Wsparcie Apple (PL), https://support.apple.com/pl-pl/guide/security/sec59b0b31ff/web (ostatnie odwiedziny 07.03.2025).
+- Chung, W., Kim, H., Lee, J., & Lee, Y. (2024). Provable security of Linux-DRBG in the seedless robustness model. IACR. Dostępne na: https://eprint.iacr.org/2024/1421.pdf
+
+<small>Zdjęcie na okładce wygenerowane przez Midjourney.</small>

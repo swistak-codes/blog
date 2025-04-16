@@ -1,0 +1,399 @@
+import Link from 'next/link';
+import {Image} from '@swistak-codes/components';
+import cover from './swistak_dali.jpg';
+import newton from './newton.png';
+import sqrta from './sqrt_a.png';
+import sqrta_start from './sqrt_a_start.png';
+import sqrt5_1 from './sqrt5_1.png';
+import sqrt5_2 from './sqrt5_2.png';
+import sqrt5_3 from './sqrt5_3.png';
+
+export const meta = {
+  title: 'Pierwiastkowanie',
+  abstract:
+    'Algorytm opisuje, jak algorytmicznie możemy podejść do tematu pierwiastkowania, wykorzystując metodę Newtona-Raphsona.',
+  firstParagraph: (
+    <>
+      Ostatnio zapoznaliśmy się ze względnie prostą operacją <Link href="/post/szybkie-potegowanie">potęgowania</Link>. Prostą, bo w końcu to tylko powtarzanie jednego z najbardziej podstawowych działań aż do uzyskania wyniku. Zainteresujmy się teraz, jak algorytmicznie podejść do operacji odwrotnej do potęgowania, która już do tak prostych nie należy. Porozmawiajmy o pierwiastkowaniu.
+    </>
+  ),
+  keyword: 'potęgowanie',
+  categories: ['Matematyka', 'Algorytmy'],
+  tags: [
+    'matematyka',
+    'pierwiastkowanie',
+    'metoda Newtona',
+    'metoda Newtona-Raphsona',
+    'metoda stycznych',
+    'javascript'
+  ],
+  slug: 'pierwiastkowanie',
+  updateTime: '2023-01-25T07:00:00+00:00',
+  publishTime: '2023-01-25T07:00:00+00:00',
+  cover,
+};
+
+## Pierwiastkowanie
+
+### Operacja pierwiastkowania
+
+Najpierw, żeby mieć to samo rozumienie wszystkiego, ustalmy sobie, czym jest operacja pierwiastkowania. Jak już wspomniałem na wstępie, jest to operacja odwrotna do potęgowania. Oznacza to, że jeśli mamy pierwiastek $$\sqrt[n]{x} = r$$, to jego operacją odwrotną jest $$r^n=x$$. Dla przykładu: $$5^2 = 25$$, stąd $$\sqrt[2]{25} = 5$$.
+
+Dodajmy, że $$n$$ stanowią liczby całkowite dodatnie zwane stopniem pierwiastka. Tak samo (w rozpatrywanym przez nas przypadku) $$x$$, czyli pierwiastkowana liczba, musi należeć do liczb rzeczywistych nieujemnych, jeśli chcemy otrzymać wynik należący do liczb rzeczywistych*.
+
+Tutaj od razu można zaznaczyć, że w przypadku gdy pierwiastek jest drugiego stopnia (kwadratowy), zapis stopnia oczywiście pomijamy, więc zapiszemy $$\sqrt{25} = 5$$.
+
+Pierwiastki można również zapisać jako potęgowanie. Wygląda to wówczas następująco:
+
+$$
+\sqrt[n]{x} = x^{\frac{1}{n}}
+$$
+
+\* Pierwiastkować możemy też liczby ujemne, ale wtedy wynik otrzymamy w postaci liczb zespolonych, a w ten obszar matematyki nie chcę wkraczać w ramach tego artykułu.
+
+### Pierwiastek funkcji
+
+W tym momencie należy wspomnieć o pojęciu pierwiastka funkcji. Jest to inaczej miejsce zerowe funkcji, czyli argument, dla którego przyjmuje ona wartość zerową. Czy ma to jakieś powiązanie z operacją pierwiastkowania? W zasadzie tak, ale nie chcę tu wchodzić w definicje matematyczne. Zapamiętajmy tylko, co będzie potrzebne nam dalej, czyli że każdą operację pierwiastkowania możemy zapisać jako wielomian (gdzie zmienną jest $$r$$):
+
+$$
+\begin{align*}
+r = \sqrt[n]{x} &\qquad \bigg/ \phantom{x}^n \\
+r^n = x &\qquad \bigg/ -x \\
+r^n - x  = 0
+\end{align*}
+$$
+
+Wówczas operację pierwiastkowania sprowadzamy do zadania znalezienia pierwiastka funkcji, czyli jej miejsca zerowego. Oczywiście liczenie tego ręcznie z dobrze znanych wzorów nie ma większego sensu. W przypadku pierwiastka kwadratowego i tak będziemy obliczać pierwiastek z delty, do tego jeszcze większy niż poprzedni (np. dla $$\sqrt{25}$$ delta będzie wynosić $$100$$).
+
+### Pierwiastek arytmetyczny
+
+Zauważ, że powyżej pokazane równanie będzie mieć wiele rozwiązań. Przykładowo, dla $$r^2 - 25 = 0$$ (czyli $$\sqrt{25}$$) otrzymamy miejsca zerowe $$5$$ oraz $$-5$$. Jest to jak najbardziej poprawne, bo zarówno $$5^2 = 25$$, jak i $$(-5)^2 = 25$$. Co więcej, gdybyśmy liczyli pierwiastki wyższych stopni, otrzymalibyśmy jeszcze więcej rozwiązań, w tym wyrażone w liczbach zespolonych. Dlaczego więc widząc $$\sqrt{25}$$, od razu myślimy $$5$$, a nigdy nie podajemy wyniku $$-5$$?
+
+Wszystko sprowadza się do pojęcia pierwiastka arytmetycznego. To właśnie jego zapisujemy za pomocą symbolu $$\sqrt{\phantom{x}}$$. Dla każdej nieujemnej liczby rzeczywistej zwraca jedynie jedną wartość rzeczywistą. Tutaj zaznaczmy, że w ramach tego artykułu będziemy szukać właśnie pierwiastka arytmetycznego.
+
+## Metoda Newtona-Raphsona
+
+### Opis podejścia
+
+Sposób, który wykorzystamy do obliczania dowolnych pierwiastków w tym artykule, to metoda Newtona-Raphsona, znana też jako metoda Newtona lub metoda stycznych. Jest to prosty algorytm iteracyjny, dzięki któremu możemy wyznaczyć przybliżone wartości pierwiastka funkcji, w tym także będącej wielomianem powstałym z operacji pierwiastkowania. Na razie sposób opiszę ogólnie, a potem przejdziemy do zastosowania go w pierwiastkowaniu (wtedy też trochę uprościmy tę definicję).
+
+Metodę rozpoczynamy od ustalenia wartości początkowej będącej naszym „strzałem” na temat tego, ile może w przybliżeniu wynosić wartość zerowa funkcji w szukanym przez nas przedziale. Nazwijmy ją $$x_0$$, a funkcja, dla której szukamy miejsc zerowych, to po prostu $$f(x)$$.
+
+Mając już wartość początkową, wyznaczamy styczną w $$f(x_0)$$. Jest to prosta, która ma wspólny punkt z naszą funkcją w punkcie $$(x_0, f(x_0))$$. Sprawdzamy, w którym punkcie przecina się z osią OX (czyli kiedy $$y = 0$$). Wartość współrzędnej $$x$$ to nasze przybliżone miejsce zerowe funkcji. Jeśli nie jesteśmy zadowoleni z rezultatu i uznajemy go za zbyt mało dokładny, obliczenia powtarzamy, ale tym razem za wartość, od której wyznaczamy styczną, uznajemy nasz ostatni wynik.
+
+Żeby nie było problemów z nazewnictwem wyznaczonych wartości, możemy zapisać, że aktualnie wyliczany punkt to $$x_{n+1}$$, a poprzednio wyznaczony to $$x_n$$.
+
+### Wyznaczenie stycznej do funkcji
+
+Teraz możesz się spytać — tylko jak wyznaczyć wzór na styczną? Tutaj wykorzystamy pochodne funkcji. Nie będę tłumaczyć, czym są pochodne, ale jeśli nie znasz tego pojęcia, to się nie martw. Dla naszego przykładu pierwiastkowania opiszę wszystko dalej w artykule tak, że znajomość pochodnych nie będzie potrzebna. Tu jednak będziemy się na razie trzymać pochodnych, które będę oznaczać jako $$f'(x)$$.
+
+Równanie stycznej do dowolnej funkcji w punkcie $$P(x_0, y_0)$$ wyznaczamy wzorem:
+
+$$
+y - y_0 = f'(x)(x - x_0)
+$$
+
+Wiemy, że nasz punkt styczny możemy oznaczyć jako $$P(x_n, f(x_n))$$. Natomiast interesuje nas, żeby ta styczna przeszła przez oś OX w punkcie $$x_{n+1}$$. Możemy to zapisać poniższym wzorem:
+
+$$
+f(x_n) = f'(x_n)(x_n - x_{n+1})
+$$
+
+Z racji tego, że nie znamy wartości $$x_{n+1}$$, nasze równanie możemy zapisać jako:
+
+$$
+x_{n+1} = x_n - \frac{f(x_n)}{f'(x_n)}
+$$
+
+Dokładnie taki rekurencyjny wzór znajdziemy w każdym opisie metody Newtona-Raphsona. Czyli wyznaczając dowolną (ale z przedziału, który nas interesuje) wartość $$x_0$$, możemy kolejne przybliżenia obliczać dokładnie według tego wzoru.
+
+### Jak długo obliczać?
+
+Możesz zadać teraz pytanie, ile razy powinniśmy powtarzać obliczanie tym wzorem, aby uzyskać jak najlepsze przybliżenie. Najczęściej wygląda to w taki sposób, że przyjmujemy pewną wartość $$\epsilon$$, która jest przyjętą dokładnością obliczeń (np. może wynosić $$\epsilon = 0,01$$, jeśli interesuje nas dokładność do drugiego miejsca po przecinku). Następnie możemy ją porównać do (sam(a) wybierz, co wolisz):
+
+- Wartości funkcji w ostatnim wyliczonym punkcie: $$\left| f(x_n) \right| \leqslant \epsilon$$.
+- Różnicy dwóch ostatnio uzyskanych wyników: $$\left| x_n - x_{n-1} \right| \leqslant \epsilon$$.
+
+Matematycznie moglibyśmy też oszacować błąd i przyrównać go do $$\epsilon$$, ale w tym celu musielibyśmy wykonać dużo więcej obliczeń, a także wyznaczyć drugą pochodną funkcji (co swoją drogą nie jest skomplikowane, tylko brzmi groźnie). Nie komplikujmy sobie życia, tym bardziej, że chciałem poruszyć tę metodę od jej strony wykorzystania w informatyce i programowaniu, a nie w matematyce.
+
+## Obliczanie pierwiastka kwadratowego
+
+### Zastosowanie metody Newtona-Raphsona
+
+Zastosujmy poznaną przez nas metodę do tego, co zapowiedziałem w tytule artykułu, czyli do pierwiastkowania. Zacznijmy od najprostszego i najpopularniejszego, czyli od pierwiastka kwadratowego.
+
+Jak już pokazałem wcześniej, aby obliczyć $$\sqrt{a}$$, musimy znaleźć dodatnie miejsce zerowe funkcji:
+
+$$
+f(x) = x^2 - a
+$$
+
+Wyznaczamy pochodną tej funkcji. Wiemy z dowolnych kart wzorów, że:
+
+$$
+\begin{align*}
+(f(x) - g(x))' &= f'(x) - g'(x) \\
+(C)' &= 0 \\
+(x^n)' &= nx^{n-1}
+\end{align*}
+$$
+
+Więc pochodną naszej funkcji obliczymy w taki sposób:
+
+$$
+f'(x) = (x^2)' - (a)' = 2x
+$$
+
+Stąd wynika, że nasz wzór na obliczanie przybliżonej wartości pierwiastka kwadratowego metodą Newtona-Raphsona to:
+
+$$
+\begin{align*}
+x_{n+1} &= x_{n} - \frac{x_n^2-a}{2x_n} \\
+x_{n+1} &= \frac{1}{2} \left( x_n + \frac{a}{x_n} \right)
+\end{align*}
+$$
+
+Załóżmy, że chcemy obliczyć, ile wynosi $$\sqrt{5}$$. Zacznijmy od $$x_0=1$$.
+
+$$
+\begin{align*}
+x_0 &= 1 \\
+x_1 &= \frac{1}{2} \left( 1 + \frac{5}{1} \right) = \frac{1}{2} \cdot 6 = 3 \\
+x_2 &= \frac{1}{2} \left( 3 + \frac{5}{3} \right) = \frac{1}{2} \cdot \frac{14}{3} = \frac{7}{3} \approx 2,3333 \\
+x_3 &= \frac{1}{2} \left( 2,3333 + \frac{5}{2,3333} \right) \approx 2,2381 \\
+x_4 &= \frac{1}{2} \left( 2,2381 + \frac{5}{2,2381} \right) \approx 2,2361
+\end{align*}
+$$
+
+W ten sposób po 4 powtórzeniach osiągnęliśmy bardzo dobre przybliżenie wartości $$\sqrt{5}$$. Pokazując wizualnie metodę Newtona (tylko do $$x_2$$), wyglądałoby to następująco:
+
+<Image
+  image={newton}
+  alignCenter
+  fullSize
+  alt="Wykres funkcji f(x)=x^2-5 wraz z jego stycznymi w dwóch punktach."
+  caption={<>
+    Na czerwono zaznaczono funkcję kwadratową, na niebiesko styczną przechodzącą w punkcie x<sub>1</sub>, a na zielono w punkcie x<sub>2</sub>. Możemy zobaczyć, że obliczenie każdej kolejnej stycznej coraz bardziej przybliża nas do miejsca zerowego funkcji.<br />
+    (wygenerowano z użyciem desmos.com)
+  </>}
+/>
+
+Tak zupełnie na marginesie: wzór, który uzyskaliśmy z metody Newtona, był znany już dużo wcześniej. Jego inna nazwa to metoda babilońska, bo prawdopodobnie została wymyślona przez Babilończyków (wskazuje na to znane przez nich przybliżenie $$\sqrt{2}$$). Natomiast najwcześniej opisał ją Heron z Aleksandrii, stąd inna nazwa — metoda Herona.
+
+### Wyznaczenie pierwszej wartości
+
+#### Dla pierwiastkowania liczb większych bądź równych 1
+
+Dając przykład obliczenia $$\sqrt{5}$$, jako wartość początkową dałem 1. Nie był to zły strzał, bo ostateczny wynik okazał się niewiele wyższy, jednak niekoniecznie zawsze może to być dobra wartość. Ogólnie rzecz biorąc, dla obliczenia $$\sqrt{a}$$, na razie dla $$a \geqslant 1$$, możemy wybrać dowolną liczbę rzeczywistą z przedziału $$[1,a]$$. Aczkolwiek wybierając skrajne liczby, tj. $$1$$ lub $$a$$, będziemy potrzebować około $$\frac{1}{2}\left| \log[2]{a} \right|$$ iteracji, aby w ogóle zbliżyć się do prawidłowych wartości.
+
+Tak więc jaką wartość wybrać na start? Podejść jest wiele. Najbardziej intuicyjnym wydaje się wybranie wartości, która jest rozwiązaniem najbliższego pierwiastka dającego całkowite rozwiązanie, np. dla $$\sqrt{5}$$ byłoby to $$\sqrt{4} = 2$$. Jest to dobre podejście, jeśli wykonywalibyśmy tę metodę ręcznie, ale zdecydowanie niewygodne do zaprogramowania.
+
+Innym, celniejszym strzałem może się okazać podzielenie liczby przez 2. Zmniejszy liczbę potrzebnych iteracji bardziej niż wybór 1, ale wciąż nie będzie to dobre przybliżenie.
+
+Ciekawy sposób jest opisany na polskiej Wikipedii. Najpierw zliczamy liczbę cyfr całkowitej części liczby, którą oznaczymy jako $$D$$. Następnie wartość początkową wyliczamy z następującego wzoru:
+
+$$
+\begin{cases}
+x_0 = 2 \cdot 10^{\frac{D-1}{2}} & \text{jeśli } D \text{ jest nieparzyste} \\
+x_0 = 6 \cdot 10^{\frac{D-2}{2}} & \text{jeśli } D \text{ jest parzyste}
+\end{cases}
+$$
+
+Inne, jeszcze dokładniejsze sposoby można znaleźć na [angielskiej Wikipedii](https://en.wikipedia.org/wiki/Methods_of_computing_square_roots#Initial_estimate).
+
+#### Dla liczb mniejszych od 1
+
+A co zrobić, gdy chcemy znaleźć pierwiastek liczby z przedziału $$[0, 1)$$? Tutaj zbyt dużej straty, jeśli wybierzemy 1, nie będzie, ale możemy również przybliżyć wartość z pokazanego wyżej wzoru zaczerpniętego z Wikipedii. Po prostu jako D policzmy nie liczbę cyfr w całkowitej części liczby, tylko liczbę zer bezpośrednio na prawo od przecinka i pomnożoną przez -1. Przykładowo, dla $$0,1$$ będzie to zero (brak zer), a dla $$0,00009$$ minus cztery. Oczywiście dla przypadku $$0,1$$ nie damy rady użyć wzoru (0 nie jest ani parzyste, ani nieparzyste), więc wstępną estymację dajmy po prostu 1.
+
+### Uproszczona definicja metody Newtona-Raphsona
+
+Obiecałem wcześniej, że wytłumaczę tę metodę w taki sposób, aby nie trzeba było znać w ogóle pojęcia pochodnej. Tak się składa, że na stronach z materiałami dla uczniów szkół podstawowych znalazłem opis tego algorytmu opierający się na podstawach geometrii. Nie wiem niestety, skąd ta idea pochodzi oryginalnie (jeśli wiesz, napisz do mnie; z chęcią doczytam u źródła).
+
+Wyobraźmy sobie, że $$\sqrt{a}$$ można wizualnie przedstawić jako bok kwadratu o polu $$a$$. Jest to poprawne założenie, bo wzór na pole kwadratu to $$P=a^2$$.
+
+<Image
+  image={sqrta}
+  alignCenter
+  fullSize
+  maxWidth="200px"
+  alt="Kwadrat o polu a, z bokami o długości pierwiastek z a."
+  caption={<></>}
+/>
+
+Z racji tego, że nie znamy wartości $$\sqrt{a}$$, spróbujemy znaleźć tę wartość. Każdy kwadrat jest prostokątem, więc zróbmy tak, że aktualnie mamy prostokąt o polu $$a$$. Wzór na pole prostokąta to iloczyn długości obu jego boków. Znamy jeden bok — jest nim nasza wartość początkowa $$x_0$$. A jak wyznaczyć drugi bok? Skoro znamy pole ($$a$$) i jeden z boków ($$x_0$$), to drugi bok możemy wyznaczyć ze wzoru ($$\frac{a}{x_0}$$). Następnie tworzymy nowy prostokąt — tym razem znanym bokiem będzie średnia arytmetyczna boków poprzedniego prostokąta ($$x_1 = \frac{1}{2}\left(x_0 + \frac{a}{x_0} \right)$$), i powtarzamy procedurę tak długo, aż nasz prostokąt będzie coraz bardziej „kwadratowy”. Jak już stwierdzimy, że kończymy obliczenia, ostatecznym wynikiem będzie długość znanego boku. Sposób ten zadziała, ponieważ wyliczając średnią arytmetyczną, coraz bardziej będziemy się zbliżać do prawidłowego wymiaru boków. Ostatecznie, gdy nasz prostokąt stanie się kwadratem, obliczenie to nie zmieni już długości boku.
+
+<Image
+  image={sqrta_start}
+  alignCenter
+  fullSize
+  maxWidth="350px"
+  alt="Prostokąt o polu a, z jednym bokiem o długości x0, drugim o długości a/x0."
+  caption={<></>}
+/>
+
+Obrazując wizualnie przykład z obliczaniem $$\sqrt{5}$$, wyglądałoby to jak poniżej.
+
+Zaczynamy od prostokąta, którego znanym bokiem jest 1 ($$x_0$$), a pole to 5. Obliczamy nasz nieznany bok: $$x_1 = \frac{1}{2} \left( 1 + \frac{5}{1} \right) = \frac{1}{2} \cdot 6 = 3$$.
+
+<Image
+  image={sqrt5_1}
+  alignCenter
+  fullSize
+  maxWidth="400px"
+  alt="Prostokąt o polu 5, z jednym bokiem o długości 5, drugim o długości 1. Powstaje z tego drugi prostokąt o znanym boku 3."
+  caption={<></>}
+/>
+
+Następnie, skoro znany bok ma długość 3, a pole wciąż jest takie same, drugi bok obliczymy jako: $$x_2 = \frac{1}{2} \left( 3 + \frac{5}{3} \right) \approx 2,3333$$.
+
+<Image
+  image={sqrt5_2}
+  alignCenter
+  fullSize
+  maxWidth="350px"
+  alt="Prostokąt o polu 5, z jednym bokiem o długości 3, drugim o długości 2,3333."
+  caption={<></>}
+/>
+
+
+Nasz prostokąt wciąż mógłby być bardziej „kwadratowy”. Powtórzmy obliczenie. Tym razem nowy bok obliczymy jako: $$x_3 = \frac{1}{2} \left( 2,3333 + \frac{5}{2,3333} \right) \approx 2,2381$$.
+
+<Image
+  image={sqrt5_3}
+  alignCenter
+  fullSize
+  maxWidth="350px"
+  alt="Prostokąt o polu 5, z jednym bokiem o długości 2,2381. Drugi jest nieznany."
+  caption={<></>}
+/>
+
+Nie będę kontynuować, bo jak już tutaj widać, obliczenia są dokładnie takie same jak we wcześniej opisanej metodzie. Zmienia się jedynie wizualna reprezentacja — zamiast schodzić liniami stycznymi do funkcji coraz bliżej miejsca zerowego, przekształcamy prostokąt w kwadrat. Myślę, że intuicyjnie jest to prostsze do zrozumienia, jeśli nie miałeś(-aś) jeszcze okazji poznać pochodnych.
+
+### Kod algorytmu
+
+Poniżej możesz zobaczyć moją propozycję implementacji metody Newtona-Raphsona w języku JavaScript. Na potrzeby przykładu przyjmuję, że początkowe przybliżenie $$x_0$$ jest zwracane przez zewnętrzną funkcję `getInitialSeed(liczba)`.
+
+```javascript
+// a - pierwiastkowana liczba
+// epsilon - dokładność (domyślna wartość: 0.0000000001)
+function sqrt(a, epsilon = 0.0000000001) {
+  // aby sprawdzać dokładność, przechowujemy dwie wartości:
+  // starą, której nadajemy odpowiednio wysoką wartość
+  let old = Number.POSITIVE_INFINITY;
+  // aktualną, czyli teraz wartość początkową
+  let current = getInitialSeed(a);
+
+  // wykonujemy obliczenia tak długo,
+  // jak różnica między dwoma wartościami
+  // jest większa od zadanej dokładności
+  while (Math.abs(old - current) > epsilon) {
+    // aktualna wartość staje się "starą"
+    old = current;
+    // nową wartość wyliczamy ze wzoru z metody Newtona
+    current = (old + a / old) / 2;
+  }
+
+  // zwracamy obliczoną wartość
+  return current;
+}
+```
+
+Kod wraz z przykładową implementacją `getInitialSeed` i testami znajdziesz na [repl.it](https://replit.com/@tswistak/sqrt#index.js). W zamieszczonej tam implementacji dodałem również licznik iteracji, dzięki któremu możemy się dowiedzieć, ile razy trzeba było powtórzyć metodę, żeby uzyskać satysfakcjonujący wynik. Zwróć uwagę, że przy opisanej przeze mnie metodzie wyliczania wartości początkowej zwykle trzeba było wykonać ok. 6 iteracji, aby otrzymać wynik z dokładnością do 10 miejsca po przecinku.
+
+## Uogólnienie na pierwiastki dowolnego stopnia
+
+Pierwiastek kwadratowy to podstawowy przypadek, ale czemu mamy się do niego ograniczać? Mamy uniwersalną metodę do znajdowania miejsc zerowych funkcji, więc wykorzystajmy to. Zróbmy algorytm, który obliczy rzeczywisty pierwiastek dowolnego stopnia dla dodatnich liczb rzeczywistych.
+
+### Zastosowanie metody Newtona-Raphsona
+
+Ponownie zastosujemy metodę Newtona-Raphsona. Tym razem jednak nie będziemy się wysilać na uproszczenia w postaci sprowadzania prostokąta do kwadratu (chociaż moglibyśmy podobnie to przedstawić dla pierwiastka trzeciego stopnia).
+
+Zacznijmy od funkcji, której miejsc zerowych będziemy szukać. Tutaj sprawa jest dość oczywista i wzór przedstawiłem już na początku artykułu:
+
+$$
+x = \sqrt[k]{a} \implies f(x) = x^k - a
+$$
+
+Natomiast jak będzie wyglądać pochodna tej funkcji? Tego nie przedstawiłem dokładnie, ale jest to wprost przepisanie wzoru na pochodną funkcji, gdzie zmienną podnosimy do dowolnej potęgi:
+
+$$
+f'(x) = kx^{k-1}
+$$
+
+Wyznaczmy w takim razie wzór rekurencyjny na n-tą iterację:
+
+$$
+\begin{align*}
+x_{n+1} &= x_n - \frac{f(x_n)}{f'(x_n)} \\
+x_{n+1} &= x_n - \frac{x_n^k - a}{kx_n^{k-1}} \\
+x_{n+1} &= \frac{1}{k} \left( \left( k-1 \right) x_n + \frac{a}{x_n^{k-1}} \right)
+\end{align*}
+$$
+
+Jak można zauważyć, dla $$k=2$$ wzór jest identyczny jak poprzednio. W takim razie jesteśmy gotowi do przerobienia naszego poprzedniego algorytmu, aby liczył według nowego wzoru.
+
+### Wybór wartości początkowej
+
+Poprzednio przedstawiłem, w jaki sposób znaleźć najlepszą wartość początkową dla obliczania pierwiastka kwadratowego, wykorzystując prosty wzór zliczający liczbę cyfr. Tylko jak wyliczyć $$x_0$$ w bardziej ogólnym przypadku?
+
+Nie podam żadnego prostego i oczywistego sposobu. Można poczytać o różnych podejściach w pracach naukowych, np. [doi:10.1016/j.tcs.2005.09.056](https://doi.org/10.1016/j.tcs.2005.09.056). Ja jednak w kodzie, który pokażę, zamiast szukać jakichś wartości początkowych dających jak najlepsze przybliżenie do prawdziwej wartości, po prostu dam 1. O ile w przypadku pierwiastka kwadratowego obliczenia te miały sens, o tyle przy wyższych stopniach dość często i tak mamy do czynienia z niskimi wartościami i nie stracimy bardzo na wydajności, jeśli będziemy zaczynać od $$x_0=1$$.
+
+### Kod algorytmu
+
+Opisany powyżej wzór możemy zapisać w kodzie (JavaScript) następująco:
+
+```javascript
+// a - pierwiastkowana liczba
+// k = stopień potęgi
+// epsilon - dokładność (domyślna wartość 0.0000000001)
+function root(a, k, epsilon = 0.0000000001) {
+  // aby sprawdzać dokładność, przechowujemy dwie wartości:
+  // starą, której nadajemy odpowiednio wysoką wartość
+  let old = Number.POSITIVE_INFINITY;
+  // aktualną, czyli teraz wartość początkową
+  let current = 1;
+
+  // wykonujemy obliczenia tak długo,
+  // jak różnica między dwoma wartościami
+  // jest większa od zadanej dokładności
+  while (Math.abs(old - current) > epsilon) {
+    // aktualna wartość staje się "starą"
+    old = current;
+    // nową wartość wyliczamy ze wzoru z metody Newtona
+    current = ((k - 1) * old + a / Math.pow(old, k - 1)) / k;
+  }
+
+  // zwracamy obliczoną wartość i licznik iteracji
+  return result;
+}
+```
+
+Możesz go przetestować na [repl.it](https://replit.com/@tswistak/root#index.js).
+
+## Alternatywne podejścia
+
+Metoda Newtona-Raphsona jest bardzo prosta, ale niekoniecznie najwydajniejsza obliczeniowo. Możemy znaleźć także inne metody obliczania pierwiastków, między innymi:
+
+- Inną starą metodą obliczania pierwiastka kwadratowego jest aproksymacja Bakhshali. Można ją uogólnić do pierwiastków dowolnego stopnia.
+- Istnieje metoda wyznaczania wartości pierwiastka kwadratowego cyfra po cyfrze. Znajdziemy zarówno jej wersję dla systemu dziesiętnego (do ręcznych obliczeń), jak i wersję dla systemu dwójkowego.
+- Algorytm Goldschmidta. Za jego pomocą możemy znaleźć równocześnie $$\sqrt{a}$$ oraz $$1/\sqrt{a}$$.
+- Ogólnym sposobem w matematyce do przybliżania za pomocą podstawowych operacji wartości różnych funkcji jest korzystanie z szeregów Taylora. Możemy je użyć również do pierwiastkowania.
+- Podobną do metody Newtona-Raphsona jest metoda Halleya. Tutaj też iteracyjnie szukamy miejsc zerowych funkcji i również wykorzystujemy w tym celu pochodne.
+- Z czysto informatycznego punktu widzenia znajdziemy różne sposoby wykorzystujące operacje bitowe na zapisie <Link href="/post/liczby-wymierne-i-rzeczywiste-w-zero-jedynkowym-swiecie/">liczb zmiennoprzecinkowych zgodnym z IEEE-754</Link>. Przykładowe algorytmy znajdziesz pod następującymi linkami: [pierwiastek kwadratowy (Wikipedia)](https://en.wikipedia.org/wiki/Methods_of_computing_square_roots#Approximations_that_depend_on_the_floating_point_representation), [pierwiastki trzeciego stopnia (K. Turkowski)](https://people.freebsd.org/~lstewart/references/apple_tr_kt32_cuberoot.pdf), [pierwiastki trzeciego i n-tego stopnia (podsumowanie od metamerist)](http://web.archive.org/web/20131227144655/http://metamerist.com/cbrt/cbrt.htm).
+
+## Podsumowanie
+
+W artykule przedstawiłem jedno z podstawowych narzędzi matematycznych, dzięki któremu możemy obliczać przybliżone wartości funkcji, w tym przypadku pierwiastkowanie. Mimo że wykorzystuje „trudniejsze” narzędzie, którym są pochodne funkcji, to jednak jest bardzo proste w zastosowaniu i jak pokazałem wyżej, aby obliczyć wartość pierwiastka, nawet nie musimy wiedzieć, co to jest.
+
+## Literatura
+
+- Pierwiastkowanie, https://pl.wikipedia.org/w/index.php?title=Pierwiastkowanie&oldid=66196134 (ostatni dostęp sty. 7, 2023).
+- Metoda Newtona, https://pl.wikipedia.org/w/index.php?title=Metoda_Newtona&oldid=67348066 (ostatni dostęp sty. 7, 2023).
+- Metody obliczania pierwiastka kwadratowego, https://pl.wikipedia.org/w/index.php?title=Metody_obliczania_pierwiastka_kwadratowego&oldid=69185068 (ostatni dostęp sty. 7, 2023).
+- Methods of computing square roots, https://en.wikipedia.org/w/index.php?title=Methods_of_computing_square_roots&oldid=1130151808 (ostatni dostęp sty. 7, 2023).
+- Algorytm pierwiastkowania (algorytm Newtona-Raphsona), https://www.afizyka.pl/informatyka-algorytm-pierwiastkowania (ostatni dostęp sty. 7, 2023).
+- Kornerup P., Muller J.-M., *Choosing starting values for certain Newton-Raphson iterations*, (2006) Theoretical Computer Science, 351 (1), pp. 101-110. [doi:10.1016/j.tcs.2005.09.056](https://doi.org/10.1016/j.tcs.2005.09.056)
+- Turkowski K., *Computing the Cube Root*, Apple Computer Technical Report #KT-32 10 February 1998 ([PDF](http://web.archive.org/web/20131227144655/http://metamerist.com/cbrt/cbrt.htm))
+- In Search of a Fast Cube Root, http://web.archive.org/web/20131227144655/http://metamerist.com/cbrt/cbrt.htm (wersja zarchiwizowana z dnia gru. 27, 2013).
+
+<small>Zdjęcie na okładce wygenerowane przez DALL-E. Oryginał znajduje się [tutaj](https://labs.openai.com/s/N0M2VMoQbFEj7LdqW0mnOfE1).</small>

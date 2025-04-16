@@ -1,0 +1,280 @@
+export const redirects = [
+  {
+    source: '/author/admin2137',
+    destination: '/author/tomasz-swistak',
+    permanent: true,
+  },
+  {
+    source: '/:year(\\d{4})/:month',
+    destination: '/archive/:year/:month',
+    permanent: true,
+  },
+  {
+    source: '/page/1',
+    destination: '/',
+    permanent: true,
+  },
+  {
+    source: '/:anything*/page/1',
+    destination: '/:anything*',
+    permanent: true,
+  },
+  {
+    source: '/feed',
+    destination: '/rss-all/feed.xml',
+    permanent: true,
+  },
+  {
+    source: '/sitemap_index.xml',
+    destination: '/sitemap.xml',
+    permanent: true,
+  },
+  {
+    source: '/ogloszenie-techniczne',
+    destination: '/offtopic/swistak-codes-powraca/',
+    permanent: true,
+  },
+  {
+    source: '/listy-najpopularniejsze-zlozone-typy-danych',
+    destination: '/post/listy-najpopularniejsze-zlozone-typy-danych',
+    permanent: true,
+  },
+  {
+    source: '/tablice-i-listy-tablicowe',
+    destination: '/post/tablice-i-listy-tablicowe',
+    permanent: true,
+  },
+  {
+    source: '/listy-z-dowiazaniami',
+    destination: '/post/listy-z-dowiazaniami',
+    permanent: true,
+  },
+  {
+    source: '/sztuczna-inteligencja-a-co-to-a-komu-to-potrzebne',
+    destination: '/post/sztuczna-inteligencja-a-co-to-a-komu-to-potrzebne',
+    permanent: true,
+  },
+  {
+    source: '/testowanie-i-wykrywanie-sztucznej-inteligencji',
+    destination: '/post/testowanie-i-wykrywanie-sztucznej-inteligencji',
+    permanent: true,
+  },
+  {
+    source: '/matematyka-zero-jedynkowa',
+    destination: '/post/matematyka-zero-jedynkowa',
+    permanent: true,
+  },
+  {
+    source: '/sposoby-zapisywania-liczb-przez-komputery',
+    destination: '/post/sposoby-zapisywania-liczb-przez-komputery',
+    permanent: true,
+  },
+  {
+    source: '/liczby-wymierne-i-rzeczywiste-w-zero-jedynkowym-swiecie',
+    destination:
+      '/post/liczby-wymierne-i-rzeczywiste-w-zero-jedynkowym-swiecie',
+    permanent: true,
+  },
+  {
+    source: '/nie-liczby-jako-liczby-czyli-zapis-danych-cyfrowych',
+    destination: '/post/nie-liczby-jako-liczby-czyli-zapis-danych-cyfrowych',
+    permanent: true,
+  },
+  {
+    source: '/systemy-liczbowe-uzupelnienie',
+    destination: '/post/systemy-liczbowe-uzupelnienie',
+    permanent: true,
+  },
+  {
+    source: '/przetwarzanie-plikow-w-praktyce-obrazy-bmp',
+    destination: '/post/przetwarzanie-plikow-w-praktyce-obrazy-bmp',
+    permanent: true,
+  },
+  {
+    source: '/tekstowy-zapis-danych-cyfrowych',
+    destination: '/post/tekstowy-zapis-danych-cyfrowych',
+    permanent: true,
+  },
+  {
+    source: '/wyszukiwanie-w-listach',
+    destination: '/post/wyszukiwanie-w-listach',
+    permanent: true,
+  },
+  {
+    source: '/sortowanie-cz-1-wprowadzenie-teoretyczne',
+    destination: '/post/sortowanie-cz-1-wprowadzenie-teoretyczne',
+    permanent: true,
+  },
+  {
+    source: '/sortowanie-cz-2-sortowanie-babelkowe',
+    destination: '/post/sortowanie-cz-2-sortowanie-babelkowe',
+    permanent: true,
+  },
+  {
+    source: '/sortowanie-cz-3-sortowanie-przez-wstawianie',
+    destination: '/post/sortowanie-cz-3-sortowanie-przez-wstawianie',
+    permanent: true,
+  },
+  {
+    source: '/sortowanie-cz-4-sortowanie-przez-wybieranie',
+    destination: '/post/sortowanie-cz-4-sortowanie-przez-wybieranie',
+    permanent: true,
+  },
+  {
+    source: '/sortowanie-cz-5-dziel-i-zwyciezaj',
+    destination: '/post/sortowanie-cz-5-dziel-i-zwyciezaj',
+    permanent: true,
+  },
+  {
+    source: '/sortowanie-cz-6-teraz-bez-porownywania',
+    destination: '/post/sortowanie-cz-6-teraz-bez-porownywania',
+    permanent: true,
+  },
+  {
+    source: '/sortowanie-cz-7-inne-podejscia',
+    destination: '/post/sortowanie-cz-7-inne-podejscia',
+    permanent: true,
+  },
+  {
+    source: '/rekurencja-co-to-jest',
+    destination: '/post/rekurencja-co-to-jest',
+    permanent: true,
+  },
+  {
+    source: '/derekursywacja',
+    destination: '/post/derekursywacja',
+    permanent: true,
+  },
+  {
+    source: '/jak-komputer-rysuje-linie',
+    destination: '/post/jak-komputer-rysuje-linie',
+    permanent: true,
+  },
+  {
+    source: '/jak-komputer-rysuje-okregi',
+    destination: '/post/jak-komputer-rysuje-okregi',
+    permanent: true,
+  },
+  {
+    source: '/algorytmy-zarty-czyli-o-sortowaniu-cz-9',
+    destination: '/post/algorytmy-zarty-czyli-o-sortowaniu-cz-9',
+    permanent: true,
+  },
+  {
+    source: '/algorytmika-gier-saper',
+    destination: '/post/algorytmika-gier-saper',
+    permanent: true,
+  },
+  {
+    source:
+      '/komputer-w-komputerze-czyli-emulacja-wirtualizacja-i-konteneryzacja',
+    destination:
+      '/post/komputer-w-komputerze-czyli-emulacja-wirtualizacja-i-konteneryzacja',
+    permanent: true,
+  },
+  {
+    source: '/jak-komputer-zapisuje-dzwiek',
+    destination: '/post/jak-komputer-zapisuje-dzwiek',
+    permanent: true,
+  },
+  {
+    source: '/przeksztalcenia-grafiki-2d',
+    destination: '/post/przeksztalcenia-grafiki-2d',
+    permanent: true,
+  },
+  {
+    source: '/przeksztalcenia-grafiki-3d',
+    destination: '/post/przeksztalcenia-grafiki-3d',
+    permanent: true,
+  },
+  {
+    source: '/jak-komputer-mierzy-czas',
+    destination: '/post/jak-komputer-mierzy-czas',
+    permanent: true,
+  },
+  {
+    source: '/jak-komputer-przechowuje-date-i-skad-zna-aktualna',
+    destination: '/post/jak-komputer-przechowuje-date-i-skad-zna-aktualna',
+    permanent: true,
+  },
+  {
+    source: '/dlaczego-mierzenie-i-przetwarzanie-czasu-jest-trudne-czesc-1',
+    destination:
+      '/post/dlaczego-mierzenie-i-przetwarzanie-czasu-jest-trudne-czesc-1',
+    permanent: true,
+  },
+  {
+    source: '/dlaczego-mierzenie-i-przetwarzanie-czasu-jest-trudne-czesc-2',
+    destination:
+      '/post/dlaczego-mierzenie-i-przetwarzanie-czasu-jest-trudne-czesc-2',
+    permanent: true,
+  },
+  {
+    source: '/okreslanie-dnia-tygodnia-dla-dowolnej-daty',
+    destination: '/post/okreslanie-dnia-tygodnia-dla-dowolnej-daty',
+    permanent: true,
+  },
+  {
+    source: '/dziwny-przypadek-reszty-z-dzielenia',
+    destination: '/post/dziwny-przypadek-reszty-z-dzielenia',
+    permanent: true,
+  },
+  {
+    source: '/algorytmika-gier-kolko-i-krzyzyk',
+    destination: '/post/algorytmika-gier-kolko-i-krzyzyk',
+    permanent: true,
+  },
+  { source: '/wieze-hanoi', destination: '/post/wieze-hanoi', permanent: true },
+  { source: '/kryptarytmy', destination: '/post/kryptarytmy', permanent: true },
+  { source: '/sudoku', destination: '/post/sudoku', permanent: true },
+  {
+    source: '/obliczanie-calek-oznaczonych',
+    destination: '/post/obliczanie-calek-oznaczonych',
+    permanent: true,
+  },
+  {
+    source: '/jak-komputer-zapisuje-kolory',
+    destination: '/post/jak-komputer-zapisuje-kolory',
+    permanent: true,
+  },
+  {
+    source: '/podstawowe-operacje-na-barwach',
+    destination: '/post/podstawowe-operacje-na-barwach',
+    permanent: true,
+  },
+  {
+    source: '/algorytmiczne-rysowanie-roslin',
+    destination: '/post/algorytmiczne-rysowanie-roslin',
+    permanent: true,
+  },
+  {
+    source: '/algorytmiczne-rysowanie-roslin-w-3d',
+    destination: '/post/algorytmiczne-rysowanie-roslin-w-3d',
+    permanent: true,
+  },
+  {
+    source: '/liczby-pierwsze-i-proste-sposoby-na-ich-sprawdzanie',
+    destination: '/post/liczby-pierwsze-i-proste-sposoby-na-ich-sprawdzanie',
+    permanent: true,
+  },
+  {
+    source: '/proste-sposoby-na-znajdowanie-liczb-pierwszych',
+    destination: '/post/proste-sposoby-na-znajdowanie-liczb-pierwszych',
+    permanent: true,
+  },
+  {
+    source: '/duze-liczby-pierwsze',
+    destination: '/post/duze-liczby-pierwsze',
+    permanent: true,
+  },
+  {
+    source: '/szybkie-szukanie-duzych-liczb-pierwszych',
+    destination: '/post/szybkie-szukanie-duzych-liczb-pierwszych',
+    permanent: true,
+  },
+  {
+    source: '/porownanie-szybkich-testow-pierwszosci',
+    destination: '/post/porownanie-szybkich-testow-pierwszosci',
+    permanent: true,
+  },
+];

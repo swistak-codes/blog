@@ -1,0 +1,223 @@
+import Link from 'next/link';
+import {Image, Iframe} from '@swistak-codes/components';
+import cover from './koty.jpg';
+import docker from './docker.png';
+import dockerMac from './docker-mac.png';
+import dosbox from './dosbox.png';
+import hipernadzorcy from './hipernadzorcy.png';
+import terminal from './terminal.png';
+import ubuntu from './ubuntu.jpg';
+import windows from './windows-xbox.png';
+
+export const meta = {
+  title: 'Komputer w komputerze, czyli emulacja, wirtualizacja i konteneryzacja',
+  abstract:
+    'Emulacja, wirtualizacja i konteneryzacja. Każda z nich służy uruchamianiu „komputera w komputerze". Czym się różnią i jak je wykorzystujemy?',
+  firstParagraph: (
+    <>
+      Jedną ze wspaniałych rzeczy, jakie możemy robić na współczesnych komputerach, co jest bardzo szeroko stosowane,
+      jest możliwość uruchamiana „komputera w komputerze” lub w zasadzie dowolnego sprzętu elektronicznego. Innymi
+      słowy, możemy uruchomić Windowsa na Linuksie, gry z PlayStation na komputerze albo na jednym fizycznym serwerze
+      uruchomić kilkanaście różnych aplikacji serwerowych, odseparowanych od siebie. Zawdzięczamy to trzem technikom,
+      które omawiam w tym artykule — emulacji, wirtualizacji i konteneryzacji.
+    </>
+  ),
+  keyword: 'wirtualizacja',
+  categories: ['Teoria informatyki'],
+  tags: [
+    'emulacja',
+    'wirtualizacja',
+    'konteneryzacja',
+    'docker',
+    'hipernadzorca',
+    'pełna wirtualizacja',
+    'terminal',
+    'maszyna wirtualna',
+    'kryteria Popka-Goldberga',
+    'hyper-v',
+  ],
+  slug: 'komputer-w-komputerze-czyli-emulacja-wirtualizacja-i-konteneryzacja',
+  updateTime: '2021-12-07T13:52:57+00:00',
+  publishTime: '2021-04-28T09:00:41+00:00',
+  cover,
+  youtube: 'https://www.youtube.com/watch?v=WtHqbgtCBn8'
+};
+
+## Po co uruchamiać „komputer w komputerze”?
+
+Zanim omówimy konkretne techniki, warto odpowiedzieć sobie na pytanie, po co to robimy. W zasadzie wstęp odpowiedział już trochę na to pytanie, jednak rozwińmy myśl.
+
+Przez uruchamianie komputera w komputerze mam na myśli zestaw technik, jak i różne oprogramowanie, którym przyświeca jeden cel — uruchomić oprogramowanie, w pewien sposób, oddzielnie od systemu operacyjnego, na którym aktualnie jesteś (tzw. host). Możemy to robić w celach:
+
+- Uruchomienia oprogramowania stworzonego pod inne systemy operacyjne.<br />Przykłady:
+  - Uruchamianie oprogramowania windowsowego na Linuksie i macOSie.
+  - Uruchamianie starszych gier i programów pisanych pod MS-DOS na współczesnych komputerach.
+  - Uruchamianie oprogramowania pisanego pod starsze wersje systemów operacyjnych, np. uruchamianie na Windows 10 aplikacji pisanych z myślą o Windows XP i starszych.
+- Uruchomienia oprogramowania stworzonego pod inne sprzęty.<br />Przykłady:
+  - Uruchamianie gier konsolowych na komputerze, np. gier z Pegasusa (NES) czy GameBoya.
+  - Testowanie aplikacji pisanych pod inne sprzęty, np. na smartfony.
+- Uruchomienia wielu różnych aplikacji serwerowych na jednej fizycznej maszynie.
+  - Jest to sposób, w jaki działają w zasadzie wszystkie współczesne usługi chmurowe. Najbardziej kojarzy się z tym te spod znaku IaaS (infrastruktura jako serwis), ale pozostałe *aaS działają analogicznie.
+- Uruchomienia aplikacji w odseparowaniu od systemu operacyjnego hosta.
+  - Robi się to na przykład w celu analizy złośliwego oprogramowania.
+- Uruchomienia środowiska, w szczególności serwerów, z odgórnie ustaloną konfiguracją.
+
+<Image
+  image={ubuntu}
+  alignCenter
+  fullSize
+  alt="Zrzut ekranu z macOS z uruchomionym Parallels, a wewnątrz niego Ubuntu z włączonym Firefoksem pokazującym stronę świstak.codes"
+  caption={<>
+    System Ubuntu Linux 20.04 uruchomiony wewnątrz systemu macOS 11.2.3.
+  </>}
+/>
+
+Jest tego dużo, a zapewne niektórzy wymyśliliby jeszcze inne zastosowania. Dlatego my teraz przejdźmy do omówienia, jakie techniki za tym stoją, kiedy które są stosowane i zobaczymy przykładowe rozwiązania tego typu.
+
+## Emulacja
+
+Pierwszą z technik jest emulacja. Emulacja to zasymulowanie działania sprzętu bądź interfejsów API. Całe działanie jest odwzorowane programowo tak, aby jak najwierniej odwzorować działanie oryginału. Za emulację najczęściej odpowiedzialne są programy zwane emulatorami, jednak zdarza się również emulacja sprzętowa. Co warto podkreślić, nie musi być to w pełni wierne odwzorowane działanie oryginalnego sprzętu.
+
+Zwykle emulatory składają się z 3 modułów:
+
+- Emulator procesora CPU — w najprostszych przypadkach jest to po prostu interpreter kodu maszynowego, symulujący jednocześnie inne funkcje procesora jak obsługa rejestrów.
+- Moduł pamięci — symuluje działanie pamięci RAM oraz ROM. Może sprowadzać się do prostej tablicy udającej pamięć, jednak zwykle potrzebne jest nieco więcej logiki, np. „udawanie” BIOSu wybranego sprzętu.
+- Emulatory urządzeń wejścia/wyjścia (I/O) — symulują działanie urządzeń wejściowych i wyjściowych. Wejściowe, takie jak dżojstiki czy klawiatury, są symulowane przez odpowiednie mapowanie akcji z urządzeń podpiętych do komputera hosta. Wyjściowe to np. monitory czy drukarki, które też trzeba odpowiednio odtworzyć. Pomijając kwestie drukarek, które dziś się mocno różnią, to same monitory też są inne, np. nie był wyświetlany cały obraz jednocześnie, tylko był rysowany linia po linii (tzw. linie skanowania, które omawiałem krótko przy okazji opisu wyzwań programistów konsoli Atari 2600 <Link href="/post/jak-komputer-rysuje-linie">w artykule o rysowaniu linii</Link>).
+
+<Image
+  image={dosbox}
+  alignCenter
+  fullSize
+  alt="Zrzut ekranu z DOSBox z włączoną grą Teenagent"
+  caption={<>
+    DOSBox — jeden z najpopularniejszych emulatorów umożliwiający uruchamianie gier i aplikacji pisanych dla systemu DOS na różnych, nowszych sprzętach i systemach operacyjnych. Stał się w zasadzie standardem emulacji tego systemu — kupując dziś retro gry sprzed ok. 30 lat, zazwyczaj są one wyposażone w odgórnie skonfigurowanego DOSBoksa.<br />
+    Na powyższym zrzucie widzimy uruchomioną w DOSBox grę Teenagent — polską przygodówkę z 1994 r., dostępną do ściągnięcia za darmo w serwisie <a href="https://www.gog.com/game/teenagent" target="_blank">gog.com</a>, którą przy okazji serdecznie polecam.
+  </>}
+  forceWhiteBackground={false}
+/>
+
+Najbardziej znane są wcześniej wspomniane przeze mnie emulatory innych sprzętów. Gracze zapewne znają emulatory konsol do gier, emulatory DOSa; natomiast programiści mogą kojarzyć emulatory Androida czy iOSa.
+
+Innym ciekawym przykładem emulatorów są emulatory terminala — są to wszystkie aplikacje umożliwiające korzystanie z konsoli systemu wewnątrz interfejsu graficznego. Wzięło się to stąd, że tradycyjnie komputery były obsługiwane przez sprzęt nazywany terminalem, który składał się z dalekopisu (klawiatury działającej na odległość) i drukarki (z czasem zastąpionej monitorem). Były to czasy, kiedy komputer zajmował całe pomieszczenia i można w ten sposób było korzystać z niego na odległość. Dziś do zastosowań osobistych takiej potrzeby oczywiście nie ma, stąd wystarczają emulatory terminala. Terminale w nowocześniejszej wersji wciąż się wykorzystuje przy serwerach, często jednak korzysta się z wirtualnych terminali, z którymi można się łączyć z użyciem... emulatora terminala przez np. protokół SSH.
+
+<Image
+  image={terminal}
+  alignCenter
+  fullSize
+  alt="Zrzut ekranu z terminala zsh wbudowanego w macOS"
+  caption={<>
+    Terminale w okienkowej wersji, znane z systemów takich jak Linux czy macOS (pokazany na zrzucie), to też emulatory, aczkolwiek działające na innej zasadzie. Emulują sprzęt zwany terminalem, jednak wszystko, co w nich robimy, faktycznie jest wykonywane w systemie. Możesz zobaczyć na samej górze powyższego zrzutu informację o ostatnim logowaniu na terminalu „ttys001”. „tty” tutaj to skrót od teletypewriter, czyli po polsku dalekopis (klawiatura terminalu).
+  </>}
+  forceWhiteBackground={false}
+/>
+
+Z racji, że emulacja w pełni programowo odwzorowuje inny sprzęt, nie należy do najszybszych rozwiązań. Dobrym przykładem jest wspomniany wcześniej przeze mnie DOSBox. Mimo że odpala on gry z czasów, gdy procesory miały około 40 MHz (np. Intel 80386), to sam wymaga procesora o taktowaniu co najmniej 1 GHz. Nie jest to wyzwanie dla dzisiejszego sprzętu, ale trzeba mieć na uwadze, że taka wydajność właśnie powoduje, że emulatory bardziej współczesnego sprzętu albo nie są go w stanie w pełni odwzorować, albo robią to z bardzo niską wydajnością.
+
+## Wirtualizacja
+
+Jak już zauważyliśmy, emulacja ma znaczną wadę, jaką jest całkowicie programowe odwzorowanie innego sprzętu. Mniejszą, aczkolwiek też istotną wadą jest to, że emulatory nie muszą całkowicie odwzorowywać każdego aspektu działania sprzętu, co sprawia, że nie zawsze są w stanie wszystko wykonać. Odpowiedzią na te wady jest inna technika zwana wirtualizacją. Efektem jej działania są maszyny wirtualne, czyli de facto takie komputery w komputerze. Możemy wyróżnić kilka sposobów wirtualizacji: pełną wirtualizację, parawirtualizację i wirtualizację hybrydową. Zanim jednak przejdziemy do technik, omówmy sobie trochę bardziej podstawowej teorii, czyli jakie są wymagania stawiane przed wirtualizacją.
+
+### Kryteria Popka-Goldberga
+
+W 1974 r. dwaj amerykańscy naukowcy — Gerald J. Popek (nie mylić z polskim Popkiem) i Robert P. Goldberg opublikowali prawdopodobnie jedną z najważniejszych wczesnych prac na temat wirtualizacji — „Formal Requirements for Virtualizable Third Generation Architectures”. Naukowcy opisali tam koncepcje, które do dziś stanowią trzon wirtualizacji. Znane są jako kryteria Popka-Goldberga.
+
+Co najważniejsze w kontekście wirtualizacji, artykuł ten definiuje menedżery maszyn wirtualnych (VMM — Virtual Machine Monitor), obecnie bardziej znane jako hipernadzorcy (z ang. hypervisor).  Ogólnie mówiąc, jest to usługa separująca oprogramowanie od fizycznego sprzętu. Przejmuje pełną kontrolę nad sprzętem i decyduje o tym, jakie zasoby udostępniać jakiemu oprogramowaniu. Popek i Goldberg zdefiniowali, że hipernadzorca powinien tworzyć środowiska (maszyny wirtualne) spełniające 3 konieczne warunki:
+
+- Wydajność (efficiency property) — wszystkie nieszkodliwe instrukcje powinny być wykonywane bezpośrednio przez sprzęt, bez pośrednictwa dodatkowego oprogramowania.
+- Kontrola zasobów (resource control property) — hipernadzorca powinien w pełni kontrolować wirtualizowane zasoby.
+- Odpowiedniość (equivalence property) — nie powinno być różnicy między działaniem aplikacji w maszynie wirtualnej a bezpośrednio na komputerze (z dwoma wyjątkami opisanymi przez autorów artykułu, jednak dla zwięzłości pominiemy je).
+
+Ponadto Popek i Goldberg przedstawili w artykule twierdzenia, jakie warunki komputer musi spełnić, aby można było tworzyć maszyny wirtualne. Pominę je tutaj, ale jeśli jesteś chętny, to ich podsumowanie znajdziesz na [angielskiej Wikipedii](https://en.wikipedia.org/wiki/Popek_and_Goldberg_virtualization_requirements#Virtualization_theorems).
+
+### Klasyfikacja hipernadzorców
+
+Goldberg w swojej pracy doktorskiej z 1972 r. opracował podział hipernadzorców, który jest aktualny i wykorzystywany do dziś. Wyróżnił ich następujące typy:
+
+- Typ 1 — hipernadzorca działający bezpośrednio na sprzęcie i zarządzający nim. Z tego względu często jest spotykany pod nazwą „bare metal hypervisor” (luźne tłumaczenie — hipernadzorca gołego sprzętu). Dzięki bezpośredniemu dostępowi do zasobów oferuje najwyższą wydajność. Niestety nie każdy sprzęt pozwala na uruchomienie tego typu hipernadzorców — zwykle są to serwery przystosowane do wirtualizacji.
+- Typ 2 — hipernadzorca tego typu działa jako uruchomiony w systemie operacyjnym jak każda inna aplikacja. Wszystkie operacje wykonywane przez maszyny wirtualne są oddelegowywane do systemu operacyjnego hosta, co ma wpływ na wydajność. Jednak z drugiej strony dzięki takiemu rozwiązaniu możemy uruchamiać maszyny wirtualne na większej gamie sprzętów.
+
+<Image
+  image={hipernadzorcy}
+  alignCenter
+  fullSize
+  alt="Dwa diagramy drzewiaste przedstawiające rodzaje hipernadzorców. Typ 1 pokazuje relację: Sprzęt, pod nim Hipernadzorca, od niego odchodzi wiele maszyn wirtualnych. Typ 2 pokazuje relację: Sprzęt, pod nim System Operacyjny, pod nim równocześnie Hipernadzorca i Inne Aplikacje, a pod Hipernadzorcą wiele maszyn wirtualnych."
+  caption={<>
+    Rysunek przedstawia schemat, jak wyglądają hipernadzorcy typu 1 i typu 2. Jak widzimy, w przypadku typu 1 nie ma żadnego pośrednictwa między sprzętem a hipernadzorcą, podczas gdy w typie 2 hipernadzorca jest kolejną aplikacją uruchomioną w systemie operacyjnym. Warto zauważyć, że jeden hipernadzorca może sterować wieloma maszynami wirtualnymi. W przypadku typu 2 (co nie zostało pokazane na rysunku) może działać kilku hipernadzorców jednocześnie.
+  </>}
+/>
+
+### Pełna wirtualizacja
+
+Techniką, którą tutaj omówimy, będzie pełna wirtualizacja, z racji tego, że jest najpopularniejsza, najbardziej typowa i moim zdaniem najważniejsza. W przypadku tej techniki oba wymienione we wstępie problemy są rozwiązane, w wydawać by się mogło, prosty sposób — korzystamy z prawdziwego sprzętu.  Oczywiście nie jest to ani proste, ani oczywiste. Problemem jest system operacyjny komputera hosta (czyli komputera, na którym uruchamiamy „komputer”). Ogólnie mówiąc, system przejmuje zarządzanie całym komputerem, więc musimy znaleźć jakiś sposób, by współdzielić z nim sprzęt. Może to być zrobione na 2 sposoby: z translacją binarną (BT — Binary Translation; technika ta jest nazywana również wspieraną programowo) oraz wspieraną sprzętowo (zwykle spotykana pod skrótem VT — Virtualization Technology).
+
+W przypadku translacji binarnej wszystkie wrażliwe instrukcje (np. odwołania do pamięci czy operacje wejścia/wyjścia) są tłumaczone na ich bezpieczne wersje, co jednak wiąże się z obniżeniem wydajności. Natomiast wirtualizacja wspierana sprzętowo wykonuje wszystkie operacje bezpośrednio na procesorze. Co ciekawe, ze wsparciem sprzętowym mogą działać zarówno hipernadzorcy typu 1, jak i 2. Dzieje się to dzięki temu, że współczesne procesory do użytku domowego zazwyczaj wspierają sprzętową wirtualizację za pomocą takich mechanizmów, jak Intel VT-x czy AMD-V, stąd nawet na domowych komputerach jest możliwa pełna wirtualizacja.
+
+„Domowym” oprogramowaniem, które umożliwia tworzenie maszyn wirtualnych (z hipernadzorcą typu 2) są VMware Workstation oraz Player, VirtualBox czy Parallels Desktop (pokazany w artykule na pierwszym zrzucie ekranu). Pośród hipernadzorców typu 1 możemy wymienić Microsoft Hyper-V, Oracle VM Server czy VMware ESXi.
+
+Jako ciekawostkę można powiedzieć, że hipernadzorcy typu 1 to nie tylko domena serwerów. Przykładowo, możemy takiego znaleźć w konsolach Xbox One czy Xbox Series X/S. Posiadają one hipernadzorcę NanoVisor, który jest zmodyfikowaną wersją Hyper-V. Uruchamia on 2 maszyny wirtualne — jedną z Xbox OS odpowiadającą za uruchamianie gier oraz drugą ze zmodyfikowanym Windowsem do uruchamiania aplikacji.
+
+<Image
+  image={windows}
+  alignCenter
+  fullSize
+  alt="Zrzut ekranu z programu Parallels z uruchomionym systemem Windows 10. Uruchomiona jest w nim aplikacja Pomocnik konsoli Xbox odbierająca obraz z konsoli Xbox One z uruchomioną grą Beyond Good & Evil HD"
+  caption={<>
+    Maszyna wirtualna Parallels Desktop (hipernadzorca typu 2) z uruchomionym Windows 10, który odbiera transmisję obrazu z konsoli Xbox One (posiadający hipernadzorcę typu 1). Ponadto, na Xboksie została uruchomiona gra ze starszej konsoli Xbox 360 przez wbudowany emulator, dzięki czemu na jednym zrzucie ekranu widzimy działające równocześnie 2 rodzaje hipernadzorców oraz emulator, czyli w zasadzie wszystko, co do tej pory opisaliśmy w artykule. Swoją drogą, pokazaną tu na ekranie grę również serdecznie polecam fanom przygodówek (jest dostępna również na komputery z Windowsem, tylko w oryginalnej wersji, a nie w remasterze HD).
+  </>}
+  forceWhiteBackground={false}
+/>
+
+## Konteneryzacja
+
+Ostatnim podejściem do uruchamiania „komputera w komputerze”, jakie chciałem omówić, jest konteneryzacja spotykana także pod nazwą wirtualizacja na poziomie systemu operacyjnego (z ang. OS-level virtualization).
+
+Gdy w emulacji udawaliśmy cały sprzęt, a w tradycyjnej wirtualizacji udostępnialiśmy prawdziwy sprzęt, tak w konteneryzacji idziemy o krok dalej. Udostępniamy też system operacyjny, przy czym uruchamiane aplikacje są odseparowane od aplikacji uruchomionych w systemie hosta. Mówimy wówczas nie o uruchamianiu maszyn wirtualnych, tylko o uruchamianiu kontenerów (z ang. containers). Warto jednak zwrócić uwagę, że w zależności od użytego oprogramowania, zamiast nazwy kontenery możemy używać także między innymi (użyję angielskich nazw, ponieważ są powszechniejsze niż polskie): Zones, partitions, virtual kernels, jails.
+
+Z pojęciem konteneryzacji na pewno mogłeś(-aś) spotkać się dzięki Dockerowi, który jest najpopularniejszym rozwiązaniem do konteneryzacji. W zasadzie na tyle popularnym, że niektórzy utożsamiają konteneryzację z Dockerem. Warto jednak wiedzieć o istnieniu innych rozwiązań, takich jak np. Singularity, LXC czy OpenVZ.
+
+<Image
+  image={docker}
+  alignCenter
+  fullSize
+  alt="Zrzut ekranu z terminalu (podłączenie do Debian Linuksa po ssh), z wywołanymi po kolei komendami: 'docker run -d --name my-server nginx:alpine', 'docker top my-server', 'docker exec my-server ps aux', 'ps aux | grep z identyfikatorami wcześniej pokazanych procesów'"
+  caption={<>
+    Na powyższym zrzucie ekranu widzimy kontener Dockerowy z serwerem nginx (na systemie Alpine Linux) uruchomiony w systemie Debian GNU/Linux. Pierwsze polecenie uruchomiło kontener, natomiast drugim (docker top) możemy podejrzeć procesy zarządzane przez Docker i uruchomione w systemie hosta. Trzecim poleceniem wywołaliśmy podejrzenie procesów bezpośrednio uruchomione w uruchomionym kontenerze. Jak widzimy, procesy z kontenera są uruchomione w systemie hosta, aczkolwiek dzięki Dockerowi są od niego odseparowane. Dla potwierdzenia, że procesy te działają na systemie operacyjnym hosta, uruchomiłem polecenie ps aux (z grep, aby odfiltrować wyniki), które wskazują, że procesy istnieją w systemie.
+  </>}
+  forceWhiteBackground={false}
+/>
+
+Jeśli miałeś/aś kiedyś okazję pracować z Dockerem, to możesz się zdziwić, kiedy mówiłem o udostępnianiu systemu operacyjnego. W końcu podstawą pracy z tym programem jest wykorzystywanie gotowych obrazów systemów, dzięki czemu możemy uruchomić Debiana, Alpine, Ubuntu czy dowolną inną dystrybucję Linuksa na dowolnym systemie hosta. Cała magia w tym przypadku polega na tym, że jeśli uruchamiasz Dockera pod Linuksem, to udostępnia on kontenerowi część wspólną, czyli jądro systemu, a to nie różni się między dystrybucjami. Różnice są na poziomie reszty oprogramowania, co jest już zawarte w obrazie. Natomiast jeżeli chodzi o uruchamianie Linuksowych obrazów Dockera pod Windowsem czy macOS, to tutaj dochodzi do małego oszustwa, ponieważ wykorzystywana jest... wirtualizacja (z wyjątkiem, gdy używamy WSL 2). Wirtualizowany jest minimalny potrzebny obraz systemu Linuksa, który jest następnie współdzielony pomiędzy wszystkie uruchamiane kontenery.
+
+<Image
+  image={dockerMac}
+  alignCenter
+  fullSize
+  alt="Zrzut ekranu z terminalu w macOS, gdzie uruchamiam analogiczne polecenia co na poprzednim zrzucie ekranu"
+  caption={<>
+    Na powyższym zrzucie ekranu zrobiłem to samo, co wcześniej, tylko systemem hosta jest tym razem macOS. Z tego powodu Docker wykorzystuje wirtualizację do uruchamiania kontenerów. Jak możemy zobaczyć, uruchamiając ps aux na hoście nie odnajdujemy procesów pod tymi samymi identyfikatorami, które zwraca docker top, gdyż są to identyfikatory procesów na maszynie wirtualnej.
+  </>}
+  forceWhiteBackground={false}
+/>
+
+## Podsumowanie różnic
+
+Uważam, że warto podsumować w skrócie wszystko to, co wyżej opisałem. Czyli idąc od końca:
+
+- Konteneryzacja wykorzystuje sprzęt i system operacyjny komputera, aby uruchamiać aplikacje w oddzieleniu od reszty systemu. Dzięki temu mamy fizycznie jeden system operacyjny, jednak dla samych aplikacji to wygląda tak, jakby były uruchamiane w oddzielnych systemach.
+  - Zalety: wydajność, nie potrzebujemy do tego specjalnego sprzętu.
+  - Wady: możemy odwzorować jedynie tę samą architekturę sprzętową i system co host.
+- Wirtualizacja wykorzystuje bezpośrednio sprzęt, jednak sam system już jest oddzielony. Tym samym na jednym fizycznym sprzęcie możemy uruchomić wiele systemów operacyjnych obok siebie (lub jeden w drugim).
+  - Zalety: wydajność (w przypadku hipernadzorców typu 1), możliwość uruchamiania różnych systemów operacyjnych.
+  - Wady: wymagany jest odpowiedni sprzęt, aby osiągnąć wysoką wydajność; również tutaj ogranicza nas architektura sprzętowa.
+- Emulacja nie wykorzystuje bezpośrednio sprzętu ani systemu operacyjnego. Zamiast tego programowo odwzorowuje sprzęt.
+  - Zalety: można odwzorować działanie dowolnej architektury sprzętowej, mogą też być uruchamiane w zasadzie na dowolnym urządzeniu.
+  - Wady: niska wydajność, nie zawsze docelowy sprzęt jest odwzorowywany w pełni (też nie zawsze jest to możliwe).
+
+## Literatura
+
+- Gerald J. Popek and Robert P. Goldberg. 1974. Formal requirements for virtualizable third generation architectures. Commun. ACM 17, 7 (July 1974), 412–421. DOI:[https://doi.org/10.1145/361011.361073](https://doi.org/10.1145/361011.361073)
+- Goldberg, R.P. Architectural principles for virtual computer systems. Ph.D. Th., Div. of Eng. and Applied Physics, Harvard U., Cambridge, Mass., 1972.
+- Scheepers, M.J., 2014, June. Virtualization and containerization of application infrastructure: A comparison. In 21st twente student conference on IT (Vol. 21).
+- Raina A., *Under the Hood: Demystifying Docker For Mac CE Edition*, 7 maja 2018: [https://collabnix.com/how-docker-for-mac-works-under-the-hood/](https://collabnix.com/how-docker-for-mac-works-under-the-hood/) (ostatnie odwiedziny 20 kwietnia 2021).
+
+<small>(oryginał zdjęcia na okładce: [Rob Marquardt](https://www.flickr.com/photos/sometoast/3170625352), udostępnione na licencji [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0/))</small>

@@ -1,0 +1,768 @@
+import Link from 'next/link';
+import {Image} from '@swistak-codes/components';
+import cover from './swistak_matrix3.webp';
+
+export const meta = {
+  title: 'Macierze rzadkie',
+  abstract:
+    'Artykuł opisuje, czym są macierze rzadkie, jakie wyróżniamy ich rodzaje, a także jak je przechowujemy w pamięci komputera.',
+  firstParagraph: (
+    <>
+      Do tej pory omawiając <Link href="/post/macierze-podstawy">macierze</Link>, zwykle pokazywałem takie o niedużych wymiarach, ładnie wypełnione liczbami. W praktyce algorytmicznej jednak spotykamy się nie dość, że z dużo większymi macierzami, to jeszcze takimi, które mają bardzo dużo zer. Ta ostatnia cecha interesuje nas najbardziej w ramach tego artykułu, bo możemy wtedy mówić o macierzach rzadkich. Zobaczmy, jakie typowe macierze rzadkie możemy wyróżnić i jakie powstały podejścia do ich przechowywania w pamięci.
+    </>
+  ),
+  keyword: 'macierze',
+  categories: ['Matematyka'],
+  tags: [
+    'macierze',
+    'matematyka',
+    'macierze rzadkie',
+    'dodawanie',
+    'mnożenie',
+    'transpozycja',
+    'dia',
+    'diagonal format',
+    'lil',
+    'list of lists',
+    'dok',
+    'dictionary of keys',
+    'coo',
+    'coordinate format',
+    'compressed sparse row',
+    'csr',
+    'compressed sparse column',
+    'csc',
+    'block sparse row',
+    'bsr',
+    'python',
+    'scipy'
+  ],
+  slug: 'macierze-rzadkie',
+  updateTime: '2024-09-11T07:00:00+00:00',
+  publishTime: '2024-09-11T07:00:00+00:00',
+  cover,
+};
+
+## Uwaga wstępna
+
+W artykule zakładam, że wiesz, czym są macierze i jak wykonywać na nich podstawowe operacje. Jeśli nie jesteś zaznajomiony(-a) z tematem, zapraszam do mojego artykułu *<Link href="/post/macierze-podstawy">Macierze — podstawowe operacje</Link>*.
+
+## Macierz rzadka
+
+### Definicja
+
+Na sam początek powiedzmy sobie, czym są macierze rzadkie. Najprościej mówiąc, są to macierze, w których większość elementów ma wartość zero. Przeciwieństwem do tego są macierze gęste. Ot, cała definicja.
+
+Tylko przy jakiej liczbie zer możemy mówić, że macierz jest rzadka? To nie jest jasno zdefiniowane. W kontekście informatyki traktujemy, że macierz jest rzadka wtedy, gdy opłaca się ją przechowywać za pomocą specjalnych struktur, innych niż tablice dwuwymiarowe, które zobaczymy dalej w artykule. Mogę podać przykład, że jakbyśmy wykonywali obliczenia macierzowe na kartach graficznych Nvidii (czyli najpopularniejszy przypadek) z użyciem biblioteki cuSPARSE, to opłaca się ją używać, gdy zera stanowią 70-99,9% wszystkich elementów macierzy.
+
+### Rodzaje macierzy rzadkich
+
+Macierzą rzadką możemy oczywiście nazwać każdą macierz, która ma w większości zera, dowolnie rozłożone w macierzy. Są jednak na tyle szczególne przypadki macierzy rzadkich, że doczekały się swoich nazw i nawet są zoptymalizowane struktury do ich przechowywania, jeszcze lepsze do tego celu niż ogólne dla macierzy rzadkich.
+
+#### Macierze wstęgowe
+
+Najprostszy przypadek to macierze wstęgowe (pasmowe, po ang. *band matrix*). Są to macierze kwadratowe, gdzie elementy niezerowe mamy tylko na przekątnej i wokół niej.
+
+Formalnie definiujemy to tak, że mając macierz $$\mathbf{A} = \begin{bmatrix}a_{ij}\end{bmatrix}$$, element $$a_{ij}$$ jest równy 0, gdy $$j < i-k_1$$ lub $$j > i+k_2$$, gdzie $$k_1$$ i $$k_2$$ są liczbami naturalnymi. Wartości $$k_1$$ i $$k_2$$ nazywamy dolnym i górnym pasmem i określają szerokość wstęgi. Możemy stąd łatwo policzyć, że dzięki temu, nie potrzebujemy przechować macierzy w formie tablicy dwuwymiarowej zajmującej $$n^2$$ miejsca w pamięci ($$n$$ oznacza stopień macierzy), tylko wystarczy zapamiętać $$n \cdot \left( k_1 + k_2 + 1 \right)$$ wartości.
+
+Możemy pośród macierzy wstęgowych wyróżnić ich szczególne przypadki:
+
+- Dla $$k_1 = k_2 = 0$$ otrzymujemy macierz diagonalną, o której pisałem wcześniej w kontekście optymalizacji mnożenia macierzy.
+    - Nazewnictwo możemy kontynuować dla kolejnych wartości. $$k_1 = k_2 = 1$$ daje macierz tridiagonalną (3 pasma wartości — przekątna, pasmo nad nią i pasmo pod nią), $$k_1 = k_2 = 2$$ macierz pentadiagonalną (5 pasm wartości) itd.
+- Macierze trójkątne to szczególny przypadek macierzy, gdzie wartości znajdują się tylko nad lub pod przekątną (i oczywiście na samej przekątnej też), a po drugiej stronie są same zera. Wykorzystuje się je w dekompozycji LU, którą stosuje się np. do obliczania układów równań liniowych, odwracania macierzy czy też obliczania wyznacznika. A będąc przy definicji macierzy wstęgowej, możemy określić je następująco:
+    - $$k_1 = 0$$ i $$k_2 = n-1$$ to górna macierz trójkątna (wartości nad przekątną)
+    - $$k_1 = n-1$$ i $$k_2 = 0$$ to dolna macierz trójkątna (wartości pod przekątną)
+- Nieco nietypowym przypadkiem są diagonalne macierze blokowe. Są to macierze, gdzie wartości możemy zgrupować w bloki będące kolejnymi macierzami kwadratowymi (o dowolnie ustalonym przez nas stopniu, tym samym dla każdego bloku) i bloki te układają się tylko wzdłuż przekątnej, w pozostałych miejscach mamy zera. Trochę szerzej macierze blokowe wyjaśnię w następnym akapicie.
+
+Warto zaznaczyć, że o macierzach rzadkich mówimy wtedy, gdy szerokość wstęgi jest jak najmniejsza. Nie każdą macierz wstęgową będzie opłacało się trzymać w pamięci, stosując ogólne sposoby dla macierzy rzadkich, ale wciąż można wykorzystać regularność jej budowy dla optymalizacji.
+
+#### Macierze blokowo-rzadkie
+
+O kolejnym rodzaju szybko wspomniałem chwilę temu — są to macierze blokowo&#8209;rzadkie. Zacznijmy jednak od tego, czym w ogóle są macierze blokowe (można spotkać się też z nazwą *klatkowe*). Zobaczmy to na przykładzie, żeby już nie przynudzać matematycznymi definicjami. Załóżmy, że mamy następującą macierz kwadratową o wymiarach 4×4 (czyli 4 stopnia):
+
+$$
+\mathbf{A} = \begin{bmatrix}
+1 & 2 & 3 & 4 \\
+2 & 3 & 4 & 1 \\
+3 & 4 & 1 & 2 \\
+4 & 1 & 2 & 3
+\end{bmatrix}
+$$
+
+Moglibyśmy podzielić ją na cztery mniejsze macierze (bloki, klatki) o wymiarach 2×2:
+
+$$
+\begin{align*}
+\mathbf{A}_{1,1} &= \begin{bmatrix}
+1 & 2 \\
+2 & 3
+\end{bmatrix}, \mathbf{A}_{1,2} = \begin{bmatrix}
+3 & 4 \\
+4 & 1
+\end{bmatrix} \\
+\mathbf{A}_{2,1} &= \begin{bmatrix}
+3 & 4 \\
+4 & 1
+\end{bmatrix}, \mathbf{A}_{2,2} = \begin{bmatrix}
+1 & 2 \\
+2 & 3
+\end{bmatrix}
+\end{align*}
+$$
+
+Wtedy oryginalną macierz $$\mathbf{A}$$ możemy prościej zapisać jako:
+
+$$
+\mathbf{A} = \begin{bmatrix}
+\mathbf{A}_{1,1} & \mathbf{A}_{1,2} \\
+\mathbf{A}_{2,1} & \mathbf{A}_{2,2}
+\end{bmatrix}
+$$
+
+Teraz wracając do macierzy blokowo-rzadkich — ich idea jest taka, że przy takim podziale na bloki (o dowolnie ustalonym wcześniej stopniu), możemy optymalizować zajęcie przez nich pamięci, gdy większość bloków składa się z samych zer. Wtedy bloki zapisujemy w sposób tradycyjny, a informację o ich rozmieszczeniu w zoptymalizowany. Co więcej, jeśli same pojedyncze bloki również są macierzami rzadkimi, możemy je też zapisać oszczędniej.
+
+Tutaj szczególnym przypadkiem jest już wcześniej wspomniana przeze mnie macierz blokowo-diagonalna. W tym przypadku bloki z wartościami ułożone są tylko wzdłuż przekątnej macierzy, a pozostałe składają się jedynie z zer.
+
+$$
+\mathbf{A}= \begin{bmatrix}
+\mathbf{A}_1 & 0 & \ldots & 0 \\
+0 & \mathbf{A}_2 & \ldots & 0 \\
+\vdots & \vdots & \ddots & \vdots \\
+0 & 0 & \ldots & \mathbf{A}_n
+\end{bmatrix}
+$$
+
+Pomijając samą kwestię macierzy rzadkich, to przy macierzach blokowych warto dodać, że stosuje się je w algorytmie Strassena, który jest bardzo popularnym, rekurencyjnym sposobem mnożenia macierzy.
+
+## Sposoby przechowywania w pamięci
+
+Dzięki temu, że macierze rzadkie składają się w większości z zer, możemy pod tym kątem optymalizować ich przechowywanie w pamięci komputera. Jest tak dlatego, że nie ma sensu zajmować pamięci samymi zerami i jest to najprostsza możliwa kompresja macierzy, z jaką mamy do czynienia. O temat nieco zahaczyłem, opisując <Link href="/post/kompresja-obrazow/#kwantyzacja">kwantyzację macierzy przy kompresji JPG</Link>, jednak tam był dość szczególny przypadek. Tym razem zobaczmy bardziej ogólne sposoby, które pozwalają, żeby macierz zajęła mniej pamięci. Najpierw opiszę te umożliwiające łatwą konstrukcję macierzy, a potem te, które są przystosowane do wykonywania obliczeń.
+
+Każdy ze sposobów dodatkowo zobrazuję tym, w jaki sposób macierze za ich pomocą konstruujemy w pythonowym [SciPy](https://scipy.org). Przede wszystkim dlatego, że SciPy oferuje mnogość sposobów definiowania macierzy i jest bardzo popularną biblioteką do obliczeń naukowych. Od razu zaznaczę, że z tego też powodu w przykładach pythonowych tablice będę tworzyć przy użyciu `array()` z [NumPy](https://numpy.org/), bo na nim bazuje SciPy. Dodam też, że w kwestii nazewnictwa również wzoruję się na SciPy.
+
+Osoby nieprzepadające za Pythonem i jego charakterystyczną składnią uspokoję — to jest jedyna część tego artykułu, gdzie przykłady napisałem w tym języku.
+
+### DIAgonal format
+
+DIAgonal format to bardzo prosty sposób na przechowanie macierzy wstęgowej. Operujemy w nim na dwóch tablicach. Pierwsza to tablica dwuwymiarowa (nazwijmy ją `data`) przechowująca wartości, które układamy po przekątnej docelowej macierzy wstęgowej (zapamiętaj: jeden wiersz tej macierzy nie jest wierszem macierzy docelowej). Druga natomiast (nazwijmy ją `offsets`) określa przesunięcie danego wiersza względem głównej przekątnej:
+
+- 0 to wartości na głównej przekątnej
+- przesunięcia ujemne to wartości poniżej głównej przekątnej
+- przesunięcia dodatnie to wartości powyżej głównej przekątnej
+
+Jeśli mielibyśmy następujące tablice:
+
+```python
+data = [[1, 2, 3, 4]]
+offsets = [0]
+```
+
+to uzyskamy macierz:
+
+$$
+\begin{bmatrix}
+1 & 0 & 0 & 0 \\
+0 & 2 & 0 & 0 \\
+0 & 0 & 3 & 0 \\
+0 & 0 & 0 & 4
+\end{bmatrix}
+$$
+
+Natomiast dla:
+
+```python
+data = [[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]]
+offsets = [0, -2, 1]
+```
+
+otrzymamy:
+
+$$
+\begin{bmatrix}
+1 & 10 & 0 & 0 \\
+0 & 2 & 11 & 0 \\
+5 & 0 & 3 & 12 \\
+0 & 6 & 0 & 4
+\end{bmatrix}
+$$
+
+W tym przypadku zwróć uwagę, że wartości niemieszczące się w macierzy zostały zignorowane. Teoretycznie moglibyśmy ich nie zapisać, jednak implementacje takie jak np. `dia_matrix` ze SciPy wymagają, żeby wszystkie tablice były tej samej długości, mimo że marnujemy w ten sposób miejsce.
+
+Ostatnia macierz, ale zdefiniowana w SciPy, będzie wyglądać następująco:
+
+```python
+data_dia = np.array([[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]])
+offsets_dia = np.array([0, -2, 1])
+matrix_dia = sparse.dia_matrix((data_dia, offsets_dia), shape=(4, 4))
+print(matrix_dia.todense())
+
+# [[ 1 10  0  0]
+#  [ 0  2 11  0]
+#  [ 5  0  3 12]
+#  [ 0  6  0  4]]
+```
+
+Przykład wraz z innymi dalej opisywanymi macierzami znajdziesz na [tym Replit](https://replit.com/@tswistak/sparse-matrices-scipy#main.py).
+
+### List of Lists (LIL)
+
+Następnie mamy format LIL, czyli listę list. W przypadku SciPy jest ta struktura zorganizowana tak, że przechowywane są dwie tablice, każda zawierająca <Link href="/post/listy-z-dowiazaniami">listy wiązane</Link>. Pierwsza (nazwijmy ją `data`) przechowuje niezerowe wartości w danym wierszu. Jeśli wiersz nie ma niezerowych wartości, trzymamy pustą listę. Druga (nazwijmy ją `rows`) przechowuje informację dla każdego wiersza, w której kolumnie znajduje się niezerowy element o tym samym indeksie z poprzedniej tablicy.
+
+Przykładowo, dla następujących tablic (dla uproszczenia listy zapisałem jako tablice):
+
+```python
+data = [[1], [2], [], [3, 4]]
+rows = [[1], [1], [], [0, 1]]
+```
+
+otrzymamy macierz (pamiętamy, że programując, indeksujemy od 0):
+
+$$
+\begin{bmatrix}
+0 & 1 & 0 & 0 \\
+0 & 2 & 0 & 0 \\
+0 & 0 & 0 & 0 \\
+3 & 4 & 0 & 0
+\end{bmatrix}
+$$
+
+Format ten jest bardzo prosty do tworzenia macierzy i jej modyfikacji, jednak nie nadaje się do wykonywania operacji arytmetycznych. Przykładowo, dokumentacja SciPy poleca, żeby po utworzeniu macierzy w formacie LIL przekonwertować ją do innego formatu dla lepszej wydajności.
+
+A skoro o SciPy mowa, to poniżej umieściłem kod, w jaki sposób utworzyć macierz, korzystając z `lil_matrix`. Warto zauważyć, że nie możemy przekazać zawartości tablic `data` i `rows`, stanowią one wewnętrzną strukturę. Dodajemy wartości ręcznie i, aby zapewnić szybkie działanie, powinniśmy dodawać je po kolei.
+
+```python
+matrix_lil = sparse.lil_matrix((4, 4))
+matrix_lil[0, 1] = 1
+matrix_lil[1, 1] = 2
+matrix_lil[3, 0] = 3
+matrix_lil[3, 1] = 4
+print(matrix_lil.todense())
+# [[0. 1. 0. 0.]
+#  [0. 2. 0. 0.]
+#  [0. 0. 0. 0.]
+#  [3. 4. 0. 0.]]
+print(matrix_lil.data)
+# [list([np.float64(1.0)]) list([np.float64(2.0)]) list([])
+#  list([np.float64(3.0), np.float64(4.0)])]
+print(matrix_lil.rows)
+# [list([1]) list([1]) list([]) list([0, 1])]
+```
+
+Kod znajdziesz na [tym samym Replit](https://replit.com/@tswistak/sparse-matrices-scipy#main.py) co wcześniej.
+
+### Dictionary Of Keys (DOK)
+
+Następnym sposobem na przechowywanie informacji o wartościach macierzy rzadkiej jest słownik kluczy. W tym przypadku mamy jedną strukturę: słownik (mapę), gdzie kluczem jest para wiersz-kolumna, a wartością wartość.
+
+Przykładowo, dla takiego słownika:
+
+```python
+data = {
+  (0, 1): 1,
+  (1, 1): 2,
+  (3, 0): 3,
+  (3, 1): 4
+}
+```
+
+otrzymamy taką samą macierz jak w poprzednim akapicie:
+
+$$
+\begin{bmatrix}
+0 & 1 & 0 & 0 \\
+0 & 2 & 0 & 0 \\
+0 & 0 & 0 & 0 \\
+3 & 4 & 0 & 0
+\end{bmatrix}
+$$
+
+Podobnie jak wcześniej, w SciPy nie mamy możliwości przekazania słownika tego typu, jest on jedynie wewnętrzną strukturą. Tutaj jednak nie musimy już dbać o kolejność dodawania elementów, gdyż jest ona dowolna. Wygląda to następująco:
+
+```python
+matrix_dok = sparse.dok_matrix((4, 4))
+matrix_dok[0, 1] = 1
+matrix_dok[1, 1] = 2
+matrix_dok[3, 0] = 3
+matrix_dok[3, 1] = 4
+print(matrix_dok.todense())
+# [[0. 1. 0. 0.]
+#  [0. 2. 0. 0.]
+#  [0. 0. 0. 0.]
+#  [3. 4. 0. 0.]]
+print(matrix_dok._dict)
+# {
+#     (0, 1): np.float64(1.0),
+#     (1, 1): np.float64(2.0),
+#     (3, 0): np.float64(3.0),
+#     (3, 1): np.float64(4.0)
+# }
+```
+
+Tak jak wcześniej, kod do uruchomienia znajdziesz na [tym samym Replit](https://replit.com/@tswistak/sparse-matrices-scipy#main.py).
+
+### COOrdinate format
+
+Ostatnim z prostych do zrozumienia i tworzenia formatów jest COO, czyli format współrzędnych. Tym razem mamy do czynienia z trzema tablicami:
+
+- `data` — przechowuje wartości
+- `row` — przechowuje, w którym wierszu znajduje się wartość o wskazanym indeksie
+- `col` — analogicznie jak wyżej, ale trzyma informację o kolumnie
+
+Przykładowo, dla następujących tablic:
+
+```python
+data = [1, 2, 3, 4]
+row = [0, 1, 3, 3]
+col = [1, 1, 0, 1]
+```
+
+otrzymamy ponownie tą samą macierz co wcześniej, więc dla zwięzłości odpuszczę jej pokazywanie.
+
+Struktura ta idealnie powinna mieć dane posortowane, najpierw po wierszach, potem po kolumnach, i nie mieć duplikatów. W praktyce jednak, szczególnie przy dodawaniu elementów na bieżąco, możemy już tę cechę utracić. Sama struktura jest bardzo uniwersalna i, o ile nie jest przystosowana do operacji arytmetycznych, najprościej jest konwertować z niej do innych formatów.
+
+A jak to wygląda w SciPy? Tym razem możemy przekazać już tablice, które tworzą macierz, więc nie będę pokazywać dodawania poszczególnych elementów.
+
+```python
+data_coo = np.array([1, 2, 3, 4])
+row_coo = np.array([0, 1, 3, 3])
+col_coo = np.array([1, 1, 0, 1])
+matrix_coo = sparse.coo_matrix((data_coo, (row_coo, col_coo)), (4, 4))
+print(matrix_coo.todense())
+# [[0 1 0 0]
+#  [0 2 0 0]
+#  [0 0 0 0]
+#  [3 4 0 0]]
+```
+
+Kod do uruchomienia znajdziesz na [wspólnym Replit](https://replit.com/@tswistak/sparse-matrices-scipy#main.py).
+
+### Compressed Sparse Row (CSR, CRS)
+
+Tym razem poznajmy format mniej oczywisty, ale za to szeroko stosowany ze względu na to, że jest najwydajniejszy do wykonywania na nim obliczeń. Jest to Compressed Sparse Row (po pol. skompresowany rzadki wiersz), znany też jako Compressed Row Storage (po pol. skompresowany magazyn wiersza) lub format Yale.
+
+Tutaj mamy ponownie do czynienia z trzema tablicami, jednak z jedną znaczącą różnicą w porównaniu do formatu COO:
+
+- `data` — tablica przechowująca wartości.
+- `indices` — odpowiednik `col` z COO.
+- `indptr` — tablica przechowująca zakres indeksów przeznaczony na kolejne wiersze. Odczytujemy to tak, że wiersz ma wartości od `indptr[i]` (włącznie) do `indptr[i + 1]` (niewłącznie). Są to indeksy z `data` zawarte w wierszu `i`. Jeśli `indptr[i] == indptr[i + 1]`, to wiersz nie ma żadnych zapisanych wartości. Wynika też z tego, że tablica ta będzie mieć długość `m + 1`, gdzie `m` to liczba wierszy macierzy.
+
+Z racji tego, że zapis ten jest bardziej skomplikowany, rozpatrzmy dwa przykłady. Najpierw powtarzana przeze mnie ciągle macierz z czterema wartościami:
+
+```python
+data = [1, 2, 3, 4]
+indices = [1, 1, 0, 1]
+indptr = [0, 1, 2, 2, 4]
+```
+
+Przypomnę, że odpowiada to takiej macierzy:
+
+$$
+\begin{bmatrix}
+0 & 1 & 0 & 0 \\
+0 & 2 & 0 & 0 \\
+0 & 0 & 0 & 0 \\
+3 & 4 & 0 & 0
+\end{bmatrix}
+$$
+
+Warto zwrócić uwagę na tablicę `indptr`. Odczytujemy ją tak:
+
+- `i == 0`: indeksy między 0 a 1 (niewłącznie)
+- `i == 1`: indeksy między 1 a 2 (niewłącznie)
+- `i == 2`: indeksy między 2 a 2, czyli wiersz jest pusty
+- `i == 3`: indeksy między 2 a 4 (niewłącznie)
+
+A nieco bardziej skomplikowana macierz, gdzie nie ma pustych wierszy? Na przykład taka:
+
+$$
+\begin{bmatrix}
+1 & 10 & 0 & 0 \\
+0 & 2 & 11 & 0 \\
+5 & 0 & 3 & 12 \\
+0 & 6 & 0 & 4
+\end{bmatrix}
+$$
+
+będzie zdefiniowana następująco:
+
+```python
+data = [1, 10, 2, 11, 5, 3, 12, 6, 4]
+indices = [0, 1, 1, 2, 0, 2, 3, 1, 3]
+indptr = [0, 2, 4, 7, 9]
+```
+
+Format ten najlepiej sprawdza się przy przeprowadzaniu operacji arytmetycznych, co pokażę później w artykule, ale zupełnie nie sprawdza się, gdy chcemy modyfikować zawartość macierzy. A w kwestii wydajności pamięciowej opłaca się go stosować tylko wtedy, gdy wartości zapisanych w `data` mamy mniej niż $$(m(n - 1) - 1) / 2$$, gdzie $$m$$ to liczba wierszy, a $$n$$ to liczba kolumn.
+
+A jak sprawa wygląda w SciPy? Najprościej oczywiście byłoby utworzyć macierz w dowolnym z przedstawionych przeze mnie wcześniej formatów i przekonwertować do CSR, korzystając z funkcji `tocsr()`. Sam konstruktor `csr_matrix`, dla prostszego tworzenia, przyjmuje również macierz w formacie COO. Można też wprost podać trzy pokazane wyżej tablice. Wszystkie trzy sposoby (zakładając istnienie wcześniej pokazywanych przeze mnie zmiennych) będą wyglądać następująco:
+
+```python
+matrix_csr_from_dia = matrix_dia.tocsr()
+print(matrix_csr_from_dia.todense())
+# [[ 1 10  0  0]
+#  [ 0  2 11  0]
+#  [ 5  0  3 12]
+#  [ 0  6  0  4]]
+matrix_csr_from_coo = sparse.csr_matrix((data_coo, (row_coo, col_coo)), (4, 4))
+print(matrix_csr_from_coo.todense())
+# [[0 1 0 0]
+#  [0 2 0 0]
+#  [0 0 0 0]
+#  [3 4 0 0]]
+data_csr = np.array([1, 2, 3, 4])
+indices_csr = np.array([1, 1, 0, 1])
+indptr_csr = np.array([0, 1, 2, 2, 4])
+matrix_csr = sparse.csr_matrix((data_csr, indices_csr, indptr_csr), (4, 4))
+print(matrix_csr.todense())
+# [[0 1 0 0]
+#  [0 2 0 0]
+#  [0 0 0 0]
+#  [3 4 0 0]]
+```
+
+Tak jak wcześniej, wszystko jest dostępne na [tym samym Replit](https://replit.com/@tswistak/sparse-matrices-scipy#main.py).
+
+### Compressed Sparse Column (CSC)
+
+Fomatem bardzo zbliżonym do CSR jest CSC. Jest to praktycznie identyczny format do CSR z zaledwie dwiema różnicami:
+
+- `indices` przechowuje tym razem indeksy wierszy (odpowiednik `rows` z COO)
+- `indptr` to tym razem zakres indeksów przechowujących kolumny
+
+Można sobie wyobrazić, że zapis ten jest czymś na wzór transpozycji CSR. W kwestii wydajności jest również bardzo wydajny dla operacji arytmetycznych, a nienajlepiej się sprawdza przy modyfikacjach. W temacie kiedy wybierać CSR, a kiedy CSC, należy zwracać uwagę, czy będziemy wykonywać operacje typu wyciągnięcie całych wierszy lub całych kolumn. W przypadku operowania na wierszach lepiej sprawdzi się CSR, a dla kolumn CSC.
+
+Warto też oczywiście pamiętać, że mówiąc o wydajnych operacjach arytmetycznych, mamy na myśli sytuację, gdy obie macierze są przechowywane w pamięci w takim samym rodzaju struktury, więc dodajemy lub mnożymy dwie macierze zapisane w CSR lub dwie zapisane w CSC, nigdy nie mieszamy.
+
+Dobra, ale jak wygląda przykładowa macierz zapisana w ten sposób? Korzystając dalej z tej samej czteroelementowej macierzy, zapisalibyśmy ją teraz tak:
+
+```python
+data = [3, 1, 2, 4]
+indices = [3, 0, 1, 3]
+indptr = [0, 1, 4, 4, 4]
+```
+
+Zwróć uwagę, że elementy w tablicy `data` zostały zapisane w innej kolejności. Jest tak dlatego, że poprawnie skonstruowany CSC zapisuje wartości, przechodząc z góry do dołu po kolejnych kolumnach. W przypadku poprzednich formatów patrzyliśmy zawsze na wiersze, stąd macierze zapisywaliśmy, przechodząc od lewej do prawej po kolejnych wierszach.
+
+Obsługa w SciPy jest analogiczna jak dla CSR. Dlatego tym razem krócej:
+
+```python
+data_csc = np.array([3, 1, 2, 4])
+indices_csc = np.array([3, 0, 1, 3])
+indptr_csc = np.array([0, 1, 4, 4, 4])
+matrix_csc = sparse.csc_matrix((data_csc, indices_csc, indptr_csc), (4, 4))
+print(matrix_csc.todense())
+# [[0 1 0 0]
+#  [0 2 0 0]
+#  [0 0 0 0]
+#  [3 4 0 0]]
+```
+
+Dalej wszystko jest dostępne na [tym samym Replit](https://replit.com/@tswistak/sparse-matrices-scipy#main.py).
+
+### Block Sparse Row (BSR)
+
+Ostatni format, który chciałem pokazać (i ostatni z obsługiwanych przez SciPy), to Block Sparse Row. Jest to w zasadzie modyfikacja CSR do przechowywania macierzy blokowo-rzadkich. Różnica jest tylko taka, że tablica `data` tym razem przechowuje kolejne tablice, będące blokami macierzy.
+
+Tym razem dla zwięzłości pokażę tylko przykład w SciPy. Zauważ, że zapis jest ten sam i znaczy to samo. Jedynie tablica `data` zawiera teraz macierze, a nie wartości:
+
+```python
+data_bsr = np.array([[[1, 1], [1, 1]], [[2, 2], [2, 2]], [[3, 3], [3, 3]],
+                     [[4, 4], [4, 4]]])
+indices_bsr = np.array([1, 1, 0, 1])
+indptr_bsr = np.array([0, 1, 2, 2, 4])
+matrix_bsr = sparse.bsr_matrix((data_bsr, indices_bsr, indptr_bsr), (8, 8))
+print(matrix_bsr.todense())
+# [[0 0 1 1 0 0 0 0]
+#  [0 0 1 1 0 0 0 0]
+#  [0 0 2 2 0 0 0 0]
+#  [0 0 2 2 0 0 0 0]
+#  [0 0 0 0 0 0 0 0]
+#  [0 0 0 0 0 0 0 0]
+#  [3 3 4 4 0 0 0 0]
+#  [3 3 4 4 0 0 0 0]]
+```
+
+Również tym razem wszystko jest dostępne na [tym samym Replit](https://replit.com/@tswistak/sparse-matrices-scipy#main.py).
+
+## Różnice między strukturami
+
+Pokazałem 7 różnych struktur, w których możemy przechowywać macierze rzadkie. Pytanie brzmi, kiedy którą powinniśmy stosować? Czym się różnią w kwestii wydajności?
+
+Przede wszystkim zacznijmy od dwóch najbardziej oczywistych, wyspecjalizowanych struktur:
+
+- **DIA** stosujemy dla macierzy wstęgowych, szczególnie tych z jak najmniejszą liczbą przekątnych, ponieważ wtedy zapewnia optymalne zajęcie pamięci. Zapewnia także wydajne operacje arytmetyczne.
+- **BSR** jest najlepszy wtedy, gdy nasza macierz jest blokowo-rzadka. Należy jednak się upewnić, czy na pewno nasza macierz jest tego typu, ponieważ BSR ma duży narzut pamięciowy związany z trzymaniem gęsto zapisanych bloków.
+
+Następnie mamy formaty, które powstały do łatwego definiowania macierzy:
+
+- **LIL** zapewnia szybkie konstruowanie i modyfikowanie macierzy. Istotne jest jednak aby pamiętać o dodawaniu elementów w wierszach po kolei. Format wspiera operacje arytmetyczne, jednak nie są one najszybsze.
+- **DOK** również zapewnia szybkie konstruowanie macierzy i najlepiej sprawdza się, gdy elementy dodajemy w różne miejsca. Do tego zapewnia szybki dostęp do pojedynczych elementów ($$\Omicron(1)$$). Również wspiera operacje arytmetyczne, ale nie są zbyt wydajne.
+- **COO** nie nadaje się do obliczeń, ale konwersja z niego na inne formaty jest najprostsza. Jest najlepszy wtedy, gdy na samym początku znamy kształt macierzy i nie będziemy go już modyfikować.
+
+Z ogólnych formatów do obliczeń najlepsze są **CSR** i **CSC**. W kwestii który z nich wybrać, to już zależy tylko i wyłącznie od tego, czy będziesz wykonywać dużo operacji na wierszach, czy kolumnach. Warto jednak wiedzieć, że formaty te nie są najwygodniejsze do ręcznego konstruowania macierzy i nie nadają się do modyfikacji struktury.
+
+## Przykładowe algorytmy dla macierzy w formacie CSR
+
+Z racji tego, że najpopularniejszą strukturą do przechowywania macierzy rzadkich w celu dalszych obliczeń na nich jest CSR, zobaczmy, jak moglibyśmy od zera zaprogramować bazujące na nim dwa proste algorytmy. Skoro teraz programujemy od zera, to przykłady pokażę w JavaScript, ponieważ jego C-podobna składnia jest zdecydowanie powszechniejsza w różnych językach programowania, więc kod prościej będzie Ci przetłumaczyć na cokolwiek w czym programujesz.
+
+Od razu też założę, że w algorytmach poniżej macierze są zdefiniowane jako obiekty (tutaj w notacji <Link href="/post/teoria-zbiorow-typescript">typescriptowej</Link>) o następującej strukturze:
+
+```typescript
+type CsrMatrix = {
+  data: number[];
+  indices: number[];
+  indptr: number[];
+  cols: number; // liczba kolumn
+}
+```
+
+Oprócz tablic opisujących macierz potrzebujemy też wiedzieć, ile macierz ma kolumn. Jak pamiętasz, liczbę wierszy jesteśmy w stanie określić z długości tablicy `indptr`.
+
+Polecam również, w formie ćwiczenia, przerobić poniższe algorytmy z formatu CSR na CSC. Formaty te są bardzo podobne do siebie, więc nie powinno być z tym większych problemów.
+
+### Konwersja z CSR na tablicę dwuwymiarową
+
+Zacznijmy od najprostszego — konwersji macierzy rzadkiej na zwykłą tablicę dwuwymiarową, czyli odpowiednika `todense()` ze SciPy.
+
+Do tego celu wystarczy bardzo prosta iteracja. Pobieramy po kolei indeksy z `indptr`, które należą do aktualnego wiersza, i wstawiamy wartości w odpowiednie miejsca. Przykładowa implementacja mogłaby wyglądać następująco:
+
+```javascript
+function csrToDense(A) {
+  // pobieramy liczbę wierszy z długości macierzy indptr
+  const rows = A.indptr.length - 1;
+  // tworzymy pustą macierz wynikową o tych samych wymiarach co wejściowa
+  const result = Array.from({ length: rows }, () => Array(A.cols).fill(0));
+  // iterujemy po kolejnych wierszach
+  for (let row = 0; row < rows; row++) {
+    // na podstawie tablicy indptr wyznaczamy, które dane są w aktualnym wierszu
+    for (let i = A.indptr[row]; i < A.indptr[row + 1]; i++) {
+      // pobieramy, w której kolumnie znajdzie się aktualna wartość
+      const col = A.indices[i];
+      // wstawiamy wartość w odpowiednie miejsce
+      result[row][col] = A.data[i];
+    }
+  }
+  // zwracamy tablicę dwuwymiarową
+  return result;
+}
+```
+
+Kod do przetestowania znajdziesz na [Replit](https://replit.com/@tswistak/csr-to-dense#index.js).
+
+### Transpozycja macierzy
+
+Zobaczmy teraz, jak moglibyśmy podejść do transpozycji macierzy w formacie CSR. Jest to bardzo prosta operacja, ale dość podchwytliwa do wykonania, przede wszystkim dlatego, że musimy przekształcić zapis wierszowy do kolumnowego. W zasadzie zdradziłem coś dodatkowego — $$\mathbf{A}^{\mathrm{T}}$$ w CSR jest tym samym co $$\mathbf{A}$$ w CSC. Dlatego też kod ten możesz traktować równocześnie jako kod transpozycji, jak i konwersji z CSR na CSC.
+
+Tutaj musimy podejść do rozwiązania dwuetapowo. Najpierw wyznaczymy nowe `indptr`, co zrobimy na podstawie oryginalnej tabeli `indices`. Następnie, posiłkując się nowym `indptr`, będziemy odczytywać wartości kolumnami i odpowiednio je spisywać do `data`, przypisując odpowiednie indeksy wierszy do `indices`. Oczywiście pamiętamy, że mimo iż wartości są takie same, musimy na nowo ułożyć `data`, aby zachować prawidłową kolejność odczytu.
+
+```javascript
+function transposeCsrMatrix(A) {
+  // liczba wierszy po transpozycji = liczba kolumn aktualnie
+  const rows = A.cols;
+  // liczba kolumn po transpozycji = liczba wierszy aktualnie
+  const cols = A.indptr.length - 1;
+  // tworzymy puste tablice formatu CSR, od razu o odpowiednich długościach
+  const data = Array(A.data.length).fill(0);
+  const indices = Array(cols).fill(0);
+  const indptr = Array(rows + 1).fill(0);
+  // zaczynamy od stworzenia nowej tablicy indptr
+  // zliczamy liczbę elementów w każdej kolumnie macierzy
+  for (let i = 0; i < A.indices.length; i++) {
+    const col = A.indices[i] + 1;
+    indptr[col] = indptr[col] + 1;
+  }
+  // następnie powiększamy wartości w indptr o liczbę elementów w poprzedniej kolumnie
+  for (let i = 0; i < rows; i++) {
+    indptr[i + 1] += indptr[i];
+  }
+  // po ułożeniu indptr możemy przejsć do przepisania odpowiednio wartości
+  // tworzymy kopię indptr, aby śledzić sobie aktualne pozycje
+  const position = [...indptr];
+  // iterujemy po kolejnych wierszach
+  for (let row = 0; row < cols; row++) {
+    // pobieramy początek i koniec wiersza
+    const rowStart = A.indptr[row];
+    const rowEnd = A.indptr[row + 1];
+    // teraz przechodzimy po wszystkich wartościach niezerowych w wierszu
+    for (let i = rowStart; i < rowEnd; i++) {
+      // pobieramy indeks kolumny
+      const col = A.indices[i];
+      // z kopii indptr bierzemy indeks elementu
+      const pos = position[col];
+      // przepisujemy wartość w odpowiednie miejsce tablicy wynikowej
+      data[pos] = A.data[i];
+      // to samo robimy z indeksem wiersza
+      indices[pos] = row;
+      // w kopii indptr zwiększamy indeks dla aktualnej kolumny
+      position[col]++;
+    }
+  }
+  // zwracamy macierz w formacie CSR
+  return {
+    data,
+    indices,
+    indptr,
+    cols,
+  };
+}
+```
+
+Kod do przetestowania możesz znaleźć na [Replit](https://replit.com/@tswistak/csr-transpose#index.js).
+
+### Dodawanie macierzy
+
+Teraz wykonajmy najprostszą z dwuargumentowych operacji arytmetycznych na macierzach, czyli dodawanie. Dla zwięzłości kodu pominę sprawdzanie, czy macierze są tych samych wymiarów, a wynik oczywiście zwrócimy w CSR.
+
+Tutaj ponownie iterujemy po kolejnych wierszach, ale tym razem jednocześnie przechodzimy wiersz dla obu macierzy. Jeśli obie mają element pod tym samym indeksem, dodajemy je, a jeśli tylko jedna z nich, to po prostu przepisujemy wartość. Pamiętamy też, że co iterację do `indptr` dodajemy aktualną liczbę wartości w `data`. W kodzie wygląda to następująco:
+
+```javascript
+function addCsrMatrices(A, B) {
+  // zakładamy, że obie macierze możemy do siebie dodać
+  // tworzymy puste tablice formatu CSR
+  const data = [];
+  const indices = [];
+  // pierwsza wartość w indptr zawsze będzie wynosić 0
+  const indptr = [0];
+  // iterujemy po kolejnych wierszach macierzy
+  for (let row = 0; row < A.indptr.length - 1; row++) {
+    // tworzymy dwa kursory do przechodzenia po tym samym wierszu obu macierzy
+    let i = A.indptr[row];
+    let j = B.indptr[row];
+    // pobieramy, gdzie kończą się wiersze w obu macierzach
+    const rowAEnd = A.indptr[row + 1];
+    const rowBEnd = B.indptr[row + 1];
+    // iterujemy po kolei, po wierszach obu macierzy jednocześnie
+    while (i < rowAEnd || j < rowBEnd) {
+      // pobieramy aktualną kolumnę z obu macierzy
+      // jeśli wyszliśmy poza zakres wiersza, ustawiamy nieskończoność
+      let colA = i < rowAEnd ? A.indices[i] : Infinity;
+      let colB = j < rowBEnd ? B.indices[j] : Infinity;
+      // wykonujemy dodawanie, mamy trzy przypadki do rozpatrzenia
+      if (colA === colB) {
+        // przypadek 1: obie macierze mają element w tej samej kolumnie
+        // dodajemy wartości
+        const sumValue = A.data[i] + B.data[j];
+        // jeśli wartość jest różna od zera, wstawiamy ją do macierzy
+        if (sumValue !== 0) {
+          indices.push(colA);
+          data.push(sumValue);
+        }
+        // inkrementujemy oba kursory
+        i++;
+        j++;
+      } else if (colA < colB) {
+        // przypadek 2: tylko macierz A ma niezerowy element
+        // kopiujemy wartość do macierzy analogicznie jak wyżej
+        indices.push(colA);
+        data.push(A.data[i]);
+        // inkrementujemy jedynie kursor i
+        i++;
+      } else {
+        // przypadek 3: tylko macierz B ma niezerowy element
+        // kod analogiczny jak wyżej
+        indices.push(colB);
+        data.push(B.data[j]);
+        j++;
+      }
+    }
+    // liczba zapisanych wartości to wartość, którą musimy wstawić do indptr
+    indptr.push(data.length);
+  }
+  // zwracamy macierz w formacie CSR
+  return {
+    data,
+    indices,
+    indptr,
+    cols: A.cols,
+  };
+}
+```
+
+Kod do przetestowania znajdziesz na [Replit](https://replit.com/@tswistak/csr-addition#index.js).
+
+Implementację odejmowania pomijam — wystarczy tylko zmienić znak przy wykonywaniu działań we wszystkich trzech przypadkach.
+
+### Mnożenie macierzy
+
+Zakończmy nasze zabawy z programowaniem, pisząc algorytm mnożenia macierzy zapisanych w formacie CSR.
+
+W przypadku mnożenia, jak pamiętamy, jest nieco więcej liczenia, bo musimy wziąć pod uwagę cały wiersz i całą kolumnę. O ile wzięcie całego wiersza w CSR nie jest problemem, tak kolumny już jest. Jednak możemy sprawę sobie ułatwić — transponując drugą z macierzy, wówczas mnożymy wiersz z wierszem. Jeśli nie chcesz zaburzać sobie postrzegania tego, jak mnoży się macierze, możesz potraktować to tak, że przekształcamy macierz $$\mathbf{B}$$ do kolumnowego zapisu CSC. Więcej szczegółów w kodzie poniżej:
+
+```javascript
+function multiplyCsrMatrices(A, B) {
+  // zakładamy, że obie macierze możemy do siebie dodać
+  // tworzymy puste tablice formatu CSR
+  const data = [];
+  const indices = [];
+  // pierwsza wartość w indptr zawsze będzie wynosić 0
+  const indptr = [0];
+  // dla prostszego odczytu kolumn transponujemy macierz B
+  const BT = transposeCsrMatrix(B);
+  // iterujemy po kolejnych wierszach macierzy A
+  for (let rowA = 0; rowA < A.indptr.length - 1; rowA++) {
+    // pobieramy zakres indeksów wiersza
+    const rowAStart = A.indptr[rowA];
+    const rowAEnd = A.indptr[rowA + 1];
+    // zmienne, do których odłożymy wartości, i kolumny, do których należą
+    const rowValues = [];
+    const rowIndices = [];
+    // iterujemy po kolejnych wartościach wiersza
+    for (let i = rowAStart; i < rowAEnd; i++) {
+      // pobieramy aktualną kolumnę i wartość
+      const colA = A.indices[i];
+      const valA = A.data[i];
+      // pobieramy odpowiadającą kolumnę macierzy B (wiersz transponowanej)
+      const rowBStart = BT.indptr[colA];
+      const rowBEnd = BT.indptr[colA + 1];
+      // teraz iterujemy po kolejnych wartościach kolumny z macierzy B
+      for (let j = rowBStart; j < rowBEnd; j++) {
+        // pobieramy wartość i wiersz/kolumnę, do której należy
+        const colB = BT.indices[j];
+        const valB = BT.data[j];
+        // szukamy, czy dla danego wiersza/kolumny z macierzy B już liczyliśmy wartość
+        const indexInRow = rowIndices.indexOf(colB);
+        if (indexInRow === -1) {
+          // jeśli nie (indeks -1), wstawiamy indeks
+          rowIndices.push(colB);
+          // oraz iloczyn wartości z A i B
+          rowValues.push(valA * valB);
+        } else {
+          // jeśli już liczyliśmy, dodajemy do aktualnej wartości iloczyn
+          rowValues[indexInRow] += valA * valB;
+        }
+      }
+    }
+    // teraz wyciągamy wszystkie niezerowe wartości, które obliczyliśmy, i wstawiamy je do wyniku
+    for (let k = 0; k < rowValues.length; k++) {
+      if (rowValues[k] !== 0) {
+        indices.push(rowIndices[k]);
+        data.push(rowValues[k]);
+      }
+    }
+    // do indptr, tak jak wcześniej, wstawiamy, ile danych aktualnie jest w data
+    indptr.push(data.length);
+  }
+  // zwracamy macierz w formacie CSR
+  return {
+    data,
+    indices,
+    indptr,
+    cols: B.cols, // rezultat ma tyle kolumn, ile macierz B
+  };
+}
+```
+
+Kod możesz przetestować na [tym Replit](https://replit.com/@tswistak/csr-multiply#index.js).
+
+## Podsumowanie
+
+W artykule zobaczyliśmy, że wykorzystując sprytnie różne podejścia, możemy zaoszczędzić pamięć przy przechowywaniu macierzy, czyli w zasadzie tablicy dwuwymiarowej. Wiedząc, że większość wartości jest taka sama (w tym przypadku wynosząca `0`), możemy za pomocą specjalnych struktur oszczędzić pamięć. Prawdopodobnie nie będziesz nigdy mieć okazji programować od zera operacji arytmetycznych na tych strukturach, tak jak pokazałem to wyżej (chyba że w ramach nauki programowania), ale jeśli interesują Cię naukowe obliczenia, bardzo prawdopodobne, że spotkasz się z macierzami rzadkimi. A wówczas warto wiedzieć, jak są one przechowywane i kiedy warto stosować który ze sposobów.
+
+## Literatura
+
+- Sparse matrix, https://en.wikipedia.org/w/index.php?title=Sparse_matrix&oldid=1228374306 (ostatnie odwiedziny 19.08.2024).
+- SciPy Lectures, Sparse Matrices, http://scipy-lectures.org/advanced/scipy_sparse/index.html (last visited Aug. 19, 2024).
+- Paulius Micikevicius, Accelerating Matrix Multiplication With Block-Sparse Format and NVIDIA Tensor Cores, NVIDIA Developer Blog (12.05.2021), https://developer.nvidia.com/blog/accelerating-matrix-multiplication-with-block-sparse-format-and-nvidia-tensor-cores/.
+- NVIDIA, cuSPARSE Library: SpMM Generic Function, available at https://docs.nvidia.com/cuda/cusparse/index.html#cusparse-generic-function-spmm (ostatnie odwiedziny 19.08.2024).
+- SciPy Documentation, Sparse Matrices (scipy.sparse), https://docs.scipy.org/doc/scipy/reference/sparse.html (ostatnie odwiedziny 19.08.2024).
+
+<small>Zdjęcie na okładce wygenerowane przez DALL-E.</small>

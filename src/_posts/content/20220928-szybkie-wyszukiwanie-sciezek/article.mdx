@@ -1,0 +1,317 @@
+import Link from 'next/link';
+import {Image} from '@swistak-codes/components';
+import cover from './swistak_samochod.jpg';
+import znieksztalcenieMapa from './znieksztalcenie_mapa.png';
+import manhattan from './Manhattan_distance.svg.png'
+import metryki from './metryki.png';
+import {Presentation} from './presentation';
+
+export const meta = {
+  title: 'Szybkie wyszukiwanie ścieżek',
+  abstract:
+    'Artykuł opisuje algorytm A* umożliwiający szybkie wyszukiwanie ścieżek w grafach.',
+  firstParagraph: (
+    <>
+      Klasyką algorytmiki jest wykorzystywanie takich algorytmów, jak <Link href="/post/praktyczne-zastosowania-przechodzenia-po-grafie">BFS</Link>, <Link href="/post/szukanie-najkrotszych-sciezek-w-grafie">algorytm Dijkstry czy Bellmana-Forda</Link> do wyszukiwania najkrótszych ścieżek. Jednak algorytmy te wykonują bardzo dużo operacji i przy rozbudowanych przypadkach, takich jak znajdowanie tras na mapie albo nawet ścieżki, po której ma przejść postać w grze komputerowej, mogą być zbyt wolne czy też zająć zbyt dużo pamięci. Na szczęście są również inne podejścia do tego problemu, dużo wydajniejsze, jeśli posiadamy nieco więcej informacji o grafie. Czas najwyższy poznać jedno z nich — algorytm A*.
+    </>
+  ),
+  keyword: 'grafy',
+  categories: ['Grafy', 'Programowanie', 'Algorytmy', 'Gry'],
+  tags: [
+    'grafy',
+    'najkrótsza ścieżka',
+    'javascript',
+    'A*',
+    'A Star',
+    'algorytm Dijkstry',
+    'labirynty',
+    'mapy',
+    'geometria euklidesowa',
+    'geometria Manhattan',
+    'metryka Czebyszewa',
+    'haversine',
+    'odwzorowanie walcowe równoodległościowe'
+  ],
+  slug: 'szybkie-wyszukiwanie-sciezek',
+  updateTime: '2022-09-28T07:00:00+00:00',
+  publishTime: '2022-09-28T07:00:00+00:00',
+  cover,
+};
+
+## Problem znalezienia najkrótszej ścieżki
+
+Na blogu poruszyłem już temat <Link href="/post/szukanie-najkrotszych-sciezek-w-grafie">wyszukiwania najkrótszej ścieżki w grafie</Link>. Przedstawione tam algorytmy zapewniają nam znalezienie najkrótszej ścieżki między dwoma dowolnymi wierzchołkami grafu; jeśli jeszcze ich nie poznałeś(-aś), zapraszam do tego artykułu.
+
+Problem klasycznych algorytmów jest taki, że aby znaleźć najkrótszą ścieżkę, muszą przejść cały graf. W wielu teoretycznych zastosowaniach nie jest to kłopot i nawet zupełnie wystarczają do rozwiązywania wyzwań algorytmicznych (np. kiedyś w Advent of Code użyłem nieoptymalnie napisany algorytm Dijkstry do rozwiązania zagadki, co trwało kilkanaście minut, ale wynik otrzymałem poprawny). W praktyce jednak często mamy do czynienia z grafami o bardzo dużej liczbie krawędzi i wierzchołków z tego względu, że graf to tylko wygodna reprezentacja. Pisałem już o tym w <Link href="/post/grafy-wprowadzenie">pierwszym artykule o grafach</Link>, ale przypomnijmy sobie o tym, szczególnie pod kątem tego, gdzie możemy szukać najkrótszych ścieżek:
+
+- Mapy możemy reprezentować jako grafy. Wówczas, zależnie od stopnia szczegółowości, wierzchołkami mogą być całe miasta lub skrzyżowania na drodze. Krawędziami wtedy są oczywiście drogi. To nie jedyne rodzaje ścieżek, które możemy szukać na mapie. Równie dobrze wierzchołkami mogą być przystanki autobusowe, a krawędziami istniejące połączenia między nimi.
+- Jeśli chcielibyśmy rozwiązać labirynt, możemy potraktować go jako graf. Wówczas wierzchołkami byłyby wejście, wyjście, ślepe uliczki oraz rozgałęzienia dróg; krawędziami oczywiście możliwe połączenia między nimi. Mimo że poprawnie skonstruowany labirynt powinien mieć tylko jedną możliwą ścieżkę rozwiązania (bez zapętlania się), to powinno wystarczyć przejście grafu <Link href="/post/przechodzenie-po-grafie">DFS-em</Link>.
+- Skoro labirynt można przedstawić jako graf, to dlaczego nie mapę w grze komputerowej? Każdy kafelek gry (wycinek obszaru o określonej liczbie pikseli, np. 32×32) jest wierzchołkiem grafu, z którego mamy 4 lub 8 krawędzi (zależnie od tego, w ilu kierunkach postać może się poruszać) do sąsiadujących kafelków. Oczywiście jeśli po drodze jest przeszkoda (ściana, krzew bądź cokolwiek), to nie tworzymy krawędzi. Takie wyszukiwanie tras może się przydać do gier, w których sterujemy przez klikanie myszką w docelowe miejsce. Na przykład taką sytuację mamy w grach RTS, gdzie kierowane przez nas oddziały muszą przejść najkrótszą trasą do wskazanego przez nas miejsca, omijając po drodze przeszkody.
+
+## A*
+
+Szybszym podejściem do znajdowania najkrótszych ścieżek w grafie jest algorytm A*. Podobnie jak algorytm Dijkstry, wymaga od grafów wag nieujemnych, ale w przeciwieństwie do niego nie wygeneruje nam wszystkich ścieżek, a jedynie jedną między dwoma wskazanymi punktami.
+
+Jak pamiętamy, algorytm Dijkstry to algorytm zachłanny — co można w skrócie wyjaśnić, że jeśli do danego momentu ścieżka jest najkrótsza, to zakładamy, że możemy na jej podstawie zbudować inną najkrótszą. Jednak algorytm tylko zakładał, skąd zaczynamy, bez określenia celu. W zasadzie moglibyśmy przerwać iterację po osiągnięciu interesującego nas wierzchołka, ale nie zmniejszało to znacząco liczby obliczeń.
+
+W przypadku A* znajomość celu jest potrzebna. Dzięki temu możemy próbować eksplorować najlepiej rokujące ścieżki zamiast wszystkich. Przenosimy tutaj nieco dalej idee znane z algorytmu Dijkstry — jeśli ścieżka jest już dłuższa, niż byśmy się spodziewali, nie ma sensu dalej eksplorować (nie mamy przecież wag ujemnych). Tylko skąd wiemy, czy ścieżka jest za długa i którą warto przechodzić dalej?
+
+### Heurystyka odległości
+
+Oprócz standardowych argumentów, których spodziewalibyśmy się dla algorytmu tej klasy, czyli: dostępu do grafu, wierzchołków początkowego i końcowego, przekazujemy na starcie jeszcze jeden — funkcję heurystyczną do obliczenia odległości między dwoma dowolnymi wierzchołkami.
+
+Zacznijmy jednak od początku. Co to jest heurystyka? Otóż w informatyce jest to algorytm, który nie daje gwarancji znalezienia optymalnego rozwiązania (a czasem nawet i poprawnego). Najczęściej rozwiązanie jest przybliżone: takie, które możemy znaleźć szybciej lub z mniejszą liczbą informacji.
+
+W przypadku A* heurystyka ma służyć określeniu przybliżonej odległości między dwoma wierzchołkami. Wbrew pozorom jest to coś, co w opisanych przeze mnie wcześniej praktycznych zastosowaniach jesteśmy w stanie łatwo osiągnąć, i jednocześnie coś, co sami nieświadomie potrafimy robić. Przykładowo, jeśli chcielibyśmy zmierzyć, ile drogi mielibyśmy do przejechania między Wrocławiem a Warszawą, a do dyspozycji mielibyśmy jedynie mapę papierową, nie mierzylibyśmy linijką długości każdej drogi, którą byśmy jechali. Zamiast tego zmierzylibyśmy odległość w linii prostej — zastosowalibyśmy heurystykę.
+
+Podczas wykonywania algorytmu A* w każdej iteracji obliczamy wartość heurystyki odległości między punktem, w którym aktualnie jesteśmy, a punktem końcowym. Sumujemy to z dotychczas pokonaną drogą i możemy dzięki temu określić, czy warto dalej podążać tą ścieżką. Sposób wydaje się bardzo prosty, ale w praktyce może znacznie zmniejszyć liczbę iteracji.
+
+### Przykładowe heurystyki odległości
+
+Zanim jednak przejdziemy do opisu algorytmu, zobaczmy, które heurystyki odległości moglibyśmy zastosować w rzeczywistych rozwiązaniach. Poniżej kilka moich propozycji.
+
+#### Gry
+
+W przypadku gier (również i labiryntów) mamy do czynienia z układem współrzędnych, więc odległość możemy obliczyć z dobrze znanego z lekcji matematyki wzoru. Nawet jeśli nie znasz go na pamięć, można go łatwo wyprowadzić z twierdzenia Pitagorasa. Wzór ten to oczywiście:
+
+$$
+d = \sqrt{\left( x_2 - x_1  \right)^2 + \left( y_2 - y_1  \right)^2}
+$$
+
+W tym momencie warto zauważyć, że do obliczenia możemy użyć także prostszych sposobów, ponieważ i tak zwykle poruszamy się albo w 4 strony, albo w 8. Może nas tu zainteresować odległość w metryce Manhattan (inaczej metryka miasto). Jest to geometria nieeuklidesowa, w której zakładamy, że możemy się poruszać tylko w cztery strony: wschód-zachód oraz północ-południe. Wynik będzie nieco wyższy niż w tradycyjnej geometrii euklidesowej, jednak interesuje nas jedynie przybliżenie, a ponadto w wielu przypadkach tak zdefiniowany dystans może być bardziej zbliżony do rzeczywistości (np. w labiryncie mamy możliwość ruchu tylko w cztery strony). Wzór na odległość w przestrzeni dwuwymiarowej to:
+
+$$
+d_M = |x_2 - x_1| + |y_2 - y_1|
+$$
+
+<Image
+  image={manhattan}
+  alignCenter
+  fullSize
+  forceWhiteBackground={false}
+  alt="Rysunek pokazujący siatkę i cztery trasy między dwoma przeciwległymi po przekątnej rogami kwadratu. Zielona linia jest prosta, czerwona idzie po krawędziach, niebieska idzie schodkami, natomiast żółta idzie po krawędzi, by odbić nieco wcześniej w górę, a potem wrócić na drugą krawędź."
+  caption={<>Różnica między najkrótszymi ścieżkami w metryce Manhattan i euklidesowej. W tradycyjnej geometrii euklidesowej mamy tylko jedną najkrótszą ścieżkę między dwoma wierzchołkami — została zaznaczona kolorem zielonym i wynosi 6√2. Natomiast w metryce Manhattan najkrótsza trasa ma długość 12 i możemy ją skonstruować na wiele sposobów, a przykłady tego są pokazane kolorami czerwonym, niebieskim i żółtym.
+    <br />(źródło: <a href="https://commons.wikimedia.org/wiki/File:Manhattan_distance.svg">User:Psychonaut</a>, Public domain, via Wikimedia Commons)</>}
+/>
+
+Inną metryką z geometrii nieeuklidesowych mającą zastosowanie w grach jest metryka Czebyszewa. Została stworzona z myślą o obliczaniu, ile ruchów musi wykonać król na szachownicy, aby dojść do wskazanego punktu, co oznacza, że zakłada poruszanie się w 8 stron. Wzór dla przestrzeni dwuwymiarowej wygląda następująco:
+
+$$
+d_C = \max{\left(|x_2-x_1|, |y_2-y_1|\right)}
+$$
+
+<Image
+  image={metryki}
+  alignCenter
+  fullSize
+  alt="Rysunek pokazujący trzy siatki o wymiarach 3x3 z wypisanymi odległościami między środkowym polem a pozostałymi w każdej z metryk. Pierwsza pokazuje wartości pierwiastek z 2 w rogach i 1 w liniach prostych od środka. Druga pokazuje 2 w rogach, 1 w pozostałych. Trzecia ma wszędzie wartość 1"
+  caption={<>Porównanie odległości zwracanych przez metryki. Pod numerem 1 metryka euklidesowa, 2 Manhattan, 3 Czebyszewa.</>}
+/>
+
+#### Mapy
+
+W przypadku map jest nieco ciężej. Po pierwsze położenie określamy za pomocą współrzędnych wyrażonych w stopniach (południki i równoleżniki). Po drugie, wbrew temu, co uważają niektórzy, Ziemia nie jest płaska, stąd odległości nie możemy obliczyć z twierdzenia Pitagorasa. Ziemia swoim kształtem najbardziej zbliżona jest do sfery, więc możemy zastosować wzór haversine (nie znam polskiej nazwy, haversine to połowa versine, co moglibyśmy rozumieć jako *sinus przeciwny*) — odpowiednik wcześniej poznanych przez nas wzorów, ale dla geometrii powierzchni sfery.
+
+Obliczenie rozbijmy na trzy etapy: najpierw obliczymy haversine kąta między dwoma punktami ($$\operatorname{hav}(\theta)$$; dla uproszczenia zastosujemy symbol $$a$$), następnie odległość kątową ($$c$$), a potem odległość mierzoną w metrach ($$d$$). Wygląda to następująco:
+
+$$
+\begin{align*}
+a &= \sin^2{\left( \frac{\varphi_2 - \varphi_1}{2} \right)} + \cos{\varphi_1} \cdot \cos{\varphi_2} \cdot \sin^2{\left( \frac{\lambda_2 - \lambda_1}{2} \right)} \\
+c &= 2 \cdot \operatorname{atan2}\left( \sqrt{a}, \sqrt{1-a} \right)\\
+d &= 6 371 000 \cdot c
+\end{align*}
+$$
+
+W powyższym wzorze zakładamy, że pod $$\varphi$$ znajduje się szerokość geograficzna (w radianach), a pod $$\lambda$$ długość geograficzna (również w radianach). $$6371000$$ to średnia długość promienia Ziemi wyrażona w metrach. Warto też dodać, że dodatnia wartość szerokości oznacza szerokość północną, natomiast dodatnia wartość długości długość wschodnią.
+
+Powyższy wzór nie jest może najszybszy, ale za to bardzo dokładny. Jednak ponownie, mówiąc o heurystyce, może nas zainteresować wartość mniej dokładna. Obliczenia możemy przyspieszyć, redukując liczbę funkcji trygonometrycznych do jedynie jednej. A żeby to zrobić... założymy, że Ziemia jest płaska (zastosujemy odwzorowanie walcowe równoodległościowe), i znowu skorzystamy z twierdzenia Pitagorasa. Wzór wygląda wtedy następująco:
+
+$$
+\begin{align*}
+x &= \left( \lambda_2 - \lambda_1 \right) \cdot \cos{\left( \frac{\varphi_2 + \varphi_1}{2} \right)} \\
+y &= \varphi_2 - \varphi_1 \\
+d &= \sqrt{ x^2 + y^2 } \cdot 6 371 000
+\end{align*}
+$$
+
+<Image
+  image={znieksztalcenieMapa}
+  alignCenter
+  fullSize
+  alt="Rysunek pokazujący błąd generowany przez odwozorowanie walcowe równoodległościowe. Na równiku kształt jest odwzorowany, natomiast im dalej od równika, tym bardziej jest zniekształcony. Dokładniej, zniekształcenie powoduje rozciąganie się wszerz."
+  caption={<>Wizualizacja zniekształcenia spowodowanego odwzorowaniem walcowym równoodległościowym. Jak możemy zauważyć, na równiku wymiary są prawidłowe, jednak im dalej, tym coraz większe zniekształcenie w poziomie.
+    <br />(źródło: <a href="https://commons.wikimedia.org/wiki/File:Plate_Carr%C3%A9e_with_Tissot%27s_Indicatrices_of_Distortion.svg">Justin Kunimune</a>, <a href="https://creativecommons.org/licenses/by-sa/4.0">CC BY-SA 4.0</a>, via Wikimedia Commons)</>}
+/>
+
+### Algorytm
+
+Powiedzieliśmy sobie bardzo dużo o heurystykach odległości, więc przejdźmy do właściwego algorytmu. Możemy podzielić go na dwie części: rekonstrukcję ścieżki oraz wyszukanie ścieżki.
+
+#### Wyszukanie ścieżki
+
+Na wejściu algorytm przyjmuje graf, wierzchołek początkowy, wierzchołek końcowy, funkcję wagową (zwracającą wagę wskazanej krawędzi) i funkcję heurystyczną odległości. Na wyjściu otrzymujemy tablicę poprzedników wierzchołków.
+
+1. Inicjalizujemy algorytm, tworząc następujące zmienne:
+    * Zbiór wierzchołków do sprawdzenia. W najprostszej wersji implementujemy go tablicą haszowaną, ale dla lepszych efektów możemy zastosować kolejkę priorytetową (typu min).
+    * Tablicę poprzedników wierzchołków.
+    * Tablicę poznanych, „prawdziwych” odległości. Na początku wszystkie wierzchołki powinny mieć wartość ustawioną jako $$\infty$$.
+    * Tablicę przewidywanych odległości. Tutaj również zakładamy na początku wartość $$\infty$$ dla wszystkich wierzchołków. W przypadku stosowania kolejki priorytetowej to ta tablica przechowuje priorytety dla wierzchołków.
+2. W tablicy znanych odległości ustawiamy wartość 0 dla wierzchołka początkowego. W tablicy przewidywanych odległości ustawiamy dla wierzchołka początkowego wartość zwróconą przez funkcję heurystyczną (przewidywana odległość od początku do końca). Natomiast do zbioru wierzchołków do sprawdzenia dodajemy wierzchołek początkowy.
+3. Dopóki zbiór wierzchołków nie jest pusty, wykonujemy:
+    1. Pobieramy i usuwamy ze zbioru wierzchołków do sprawdzenia wierzchołek o najniższej przewidywanej odległości.
+    2. Jeśli pobrany wierzchołek to wierzchołek końcowy, przerywamy wykonywanie algorytmu i wywołujemy rekonstrukcję ścieżki.
+    3. Dla każdego sąsiada pobranego wierzchołka:
+        1. Obliczamy prawdziwą odległość od źródła do wierzchołka. W tym celu stosujemy wartość zapisaną w tablicy poznanych odległości (dla wierzchołka pobranego ze zbioru, nie dla pobranego sąsiada), którą sumujemy z wartością zwróconą przez funkcję wagową.
+        2. Jeśli obliczona powyżej odległość jest mniejsza od wartości zapisanej w tablicy poznanych odległości dla aktualnie rozpatrywanego sąsiada, to:
+            1. W tablicy poprzedników dla sąsiada ustawiamy wierzchołek pobrany ze zbioru.
+            2. W tablicy poznanych odległości dla sąsiada ustawiamy wartość wyliczoną w punkcie 3.3.1.
+            3. Wyliczamy przewidywaną odległość od sąsiada do wierzchołka docelowego. Sumujemy ją z wartością wyliczoną w punkcie 3.3.1 i zapisujemy w tablicy przewidywanych odległości.
+            4. Jeśli sąsiada nie ma w zbiorze wierzchołków do sprawdzenia, dodajemy go.
+4. Jeśli algorytm doszedł do tego miejsca, to znaczy, że ścieżka nie istnieje. Możemy zwrócić błąd.
+
+W tym momencie warto zajrzeć do <Link href="/post/szukanie-najkrotszych-sciezek-w-grafie">opisu algorytm Dijkstry z mojego poprzedniego artykułu</Link>. Zauważ, że wszystkie kroki są praktycznie takie same. Jedyne, czego jest więcej, to tablica przewidywanych odległości i poleganie na niej w kolejce priorytetowej, a nie na wyliczonych dotychczas odległościach. Drobna różnica, jednak dzięki niej jesteśmy w stanie znacząco zmniejszyć liczbę iteracji, co zobaczysz w prezentacji, która znajduje się dalej w artykule.
+
+#### Rekonstrukcja ścieżki
+
+Aby zrekonstruować ścieżkę, potrzebujemy na wejściu otrzymać tablicę poprzedników oraz wierzchołek końcowy. Na wyjściu otrzymamy tablicę.
+
+1. Tworzymy tablicę, która przechowa ścieżkę. Wstawmy od razu do niej wierzchołek końcowy.
+2. Ustawiamy, że aktualny wierzchołek to wierzchołek końcowy.
+3. Tak długo, jak aktualny wierzchołek ma poprzednika:
+    1. Ustawiamy jako aktualny wierzchołek poprzednik aktualnego wierzchołka.
+    2. Wstawiamy wierzchołek na początek tablicy ze ścieżką.
+4. Zwracamy ścieżkę.
+
+### Implementacja w JavaScript
+
+Na podstawie powyższego opisu możemy zrobić kod w JavaScript. Tak jak zawsze, nie zakładam konkretnego zapisu grafu w pamięci, implementacja jedynie zakłada istnienie funkcji `getAllNodes(graf)` (zwracającej wszystkie wierzchołki grafu) i `getNeighbors(graf, wierzcholek)` (zwracającej sąsiadów wierzchołka). Wychodzę także z założenia, że posiadamy implementację kopca Fibonacciego (wykorzystuję bibliotekę [ts-fibonacci-heap](https://www.npmjs.com/package/@tyriar/fibonacci-heap)).
+
+```javascript
+function constructShortestPath(previous, end) {
+  // tworzymy tablicę, która przechowa ścieżkę
+  const result = [end];
+  // aktualny wierzchołek to wierzchołek końcowy
+  let current = end;
+  // tak długo, jak aktualny wierzchołek ma poprzednika
+  while (previous[current]) {
+    // ustawiamy poprzednik jako aktualny
+    current = previousNode;
+    // wstawiamy wierzchołek na początek ścieżki
+    result.unshift(current);
+  }
+  // zwracamy ścieżkę
+  return result;
+}
+
+function aStar(graph, start, end, weight, heuristic) {
+  // pobieramy wszystkie wierzchołki, aby zainicjalizować tablicę
+  const vertices = graph.getAllNodes();
+  // inicjalizujemy algorytm
+  const toCheck = new FibonacciHeap();
+  const previous = Array(vertices.length).fill(null);
+  const distance = Array(vertices.length).fill(Number.POSITIVE_INFINITY);
+  const predicted = Array(vertices.length).fill(Number.POSITIVE_INFINITY);
+  // ze względu na implementację kolejki
+  // musimy przechować w niej referencje do wierzchołków;
+  // jeśli napiszesz kolejkę samodzielnie, można tego uniknąć
+  const queueNodes = [];
+  // ustawiamy wartości początkowe
+  distance[start] = 0;
+  predicted[start] = heuristic(start, end);
+  // dodajemy startowy wierzchołek do zbioru wierzchołków
+  queueNodes[start] = toCheck.insert(predicted[start], start);
+  // dopóki zbiór wierzchołków nie jest pusty...
+  while (!toCheck.isEmpty()) {
+    // pobieramy i usuwamy wierzchołek ze zbioru
+    const from = toCheck.extractMinimum().value;
+    queueNodes[from] = null;
+    // jeśli jest końcowy, zwracamy ścieżkę
+    if (from === end) {
+      return constructShortestPath(previous, end)
+    }
+    // dla każdego sąsiada...
+    for (const to of getNeighbors(graph, from)) {
+      // obliczamy prawdziwą odległość
+      const realDistance = distance[from] + weight(from, to);
+      // jeśli jest mniejsza od dotychczasowej...
+      if (realDistance < distance[to]) {
+        // aktualizujemy tablicę poprzedników
+        previous[to] = from;
+        // aktualizujemy tablicę odległości
+        distance[to] = realDistance;
+        // aktualizujemy tablicę przewidywanych odległości
+        predicted[to] = realDistance + heuristic(to, end);
+        if (queueNodes[to]) {
+          // jeśli wierzchołek jest w zbiorze, aktualizujemy jego priorytet
+          toCheck.decreaseKey(queueNodes[to], predicted[to]);
+        } else {
+          // dodajemy, jeśli nie ma go w zbiorze
+          queueNodes.set(to, toCheck.insert(predicted[to], to));
+        }
+      }
+    }
+  }
+  // ścieżki nie znaleziono
+  throw new Error('Brak ścieżki!');
+}
+```
+
+## Prezentacja
+
+Poniżej możesz przetestować, jak A* radzi sobie w porównaniu z innymi algorytmami w różnych praktycznych sytuacjach. Poza A* zaimplementowane są także BFS, algorytm Bellmana-Forda i Dijkstry (zarówno z przerywaniem iteracji po znalezieniu ostatniego wierzchołka, jak i bez). Oprócz tego możesz również zobaczyć wpływ heurystyk na liczbę iteracji. Przetestuj sam(a) różne ustawienia i przekonaj się, kiedy który z algorytmów bardziej się nadaje w danym przypadku. Istnieje też możliwość podejrzenia, które wierzchołki zostały przez algorytm przetworzone i jaką wartość odległości do nich przypisał (uwaga — włączenie tej opcji może spowolnić wykonanie prezentacji).
+
+<Presentation />
+
+Prezentacja została napisana w TypeScript z wykorzystaniem [Reacta](https://reactjs.org/), [Cytoscape](https://js.cytoscape.org/) i [Leaflet](https://leafletjs.com/). Kod prezentacji znajdziesz [na moim GitHubie](https://github.com/swistak-codes/graph-astar).
+
+W przypadku prezentacji pokazującej mapę graf jest tam zbudowany na bazie połączeń komunikacji miejskiej, stąd nie jest zbyt rozbudowany. Niestety nie posiadałem lepszych danych, a ogólnodostępne dane z OpenStreetMap są zbyt rozbudowane (tym samym zajmują zbyt dużo miejsca) na prostą prezentację.
+
+## Odmiany A*
+
+Jak możemy zobaczyć na powyższej prezentacji, A* w wielu przypadkach sprawdza się lepiej niż inne algorytmy do wyszukiwania ścieżek w grafie. Jednak jest tak pod kątem liczby iteracji. Natomiast problemem A*, szczególnie przy dużych grafach, jest jego duża złożoność pamięciowa. Dlatego też powstały warianty tego algorytmu, które są zoptymalizowane pod kątem użycia pamięci. Warto tutaj wymienić chociażby:
+
+- IDA* (Iterative Deepening A*, z ang. iteracyjnie pogłębiany A*) — bazuje na przeszukiwaniu w głąb, co zmniejsza zużycie pamięci.
+- SMA* (Simplified Memory Bounded A*, z ang. uproszczony, ograniczony pamięciowo A*) — aby zaoszczędzić pamięć, nie trzyma w kolejce tych wierzchołków, które mają najwyższą przewidywaną odległość.
+
+Oczywiście są też inne odmiany A* mające inne cele niż optymalizacja zużycia pamięci:
+
+- D* — algorytm przystosowany do przypadku, gdy nie znamy całości grafu (np. może być stosowany w łazikach marsjańskich, które otrzymują na bieżąco informacje o przeszkodach, nie znają ich odgórnie)
+- ALT (inaczej Landmark A*, z ang. A* z punktami orientacyjnymi) — tworzy wierzchołki, które są punktami orientacyjnymi, i oblicza odległości innych wierzchołków do nich. Jest algorytmem bardziej elastycznym i znalazł zastosowanie np. w badaniach sieci społecznościowych.
+
+Poza tym, przez całą treść powyżej, jeśli szukaliśmy ścieżki na czymś, co grafem nie jest (np. na siatce gry), to i tak traktowaliśmy ją jako graf. Założyliśmy wówczas, że wierzchołki (reprezentujące komórki siatki) mają maksymalnie 4 lub 8 krawędzi łączących z innymi komórkami siatki. Natomiast jeśli chcielibyśmy opracowywać ścieżki, gdzie można przemieszczać się pod dowolnym kątem, możemy zastosować jeden z poniższych wariantów A*:
+
+- Theta* — podczas sprawdzania sąsiadów wykonujemy dodatkowe sprawdzenie, czy sąsiad jest w zasięgu wzroku rodzica aktualnie sprawdzanego wierzchołka; jeśli tak, możemy wówczas skrócić ścieżkę.
+- ANYA — aktualnie najszybsza znana technika; charakteryzuje się między innymi tym, że jako wierzchołki traktuje grupę punktów, a nie jeden konkretny.
+
+## Czy w takim razie A* ma zastosowania?
+
+Oczywiście, że tak. A* możemy znaleźć w następujących projektach, gdzie jest wykorzystywany do znajdowania tras na mapach:
+
+- [Organic Maps](https://organicmaps.app/) — szukanie tras na mapach OpenStreetMap. Warte uwagi jest to, że jest to aplikacja mobilna działająca offline, co pokazuje, że dobrze napisany A* może działać dobrze nawet na słabszych urządzeniach (https://github.com/organicmaps/organicmaps/blob/master/routing/base/astar_algorithm.hpp).
+- [GraphHopper](https://www.graphhopper.com/) — analogicznie jak wyżej, przy czym tutaj mamy do czynienia z aplikacją serwerową (https://github.com/opentripplanner/OpenTripPlanner/blob/v2.5.0/src/main/java/org/opentripplanner/astar/AStar.java).
+- [OpenTripPlanner](http://www.opentripplanner.org/) — w tym przypadku jest to wyszukiwarka połączeń komunikacji publicznej w stylu popularnego u nas *jakdojade.pl* (https://github.com/opentripplanner/OpenTripPlanner/blob/dev-2.x/src/main/java/org/opentripplanner/routing/algorithm/astar/AStar.java).
+
+
+Jest także wykorzystywany w grach. Nie ma zbyt wielu gier otwartoźródłowych, natomiast silniki zwykle już są, a wśród nich:
+
+- [Godot](https://godotengine.org/) — darmowy silnik do gier, który można uważać za otwartoźródłowy odpowiednik Unity. Wykorzystuje A* do znajdowania tras między punktami zarówno w przestrzeni 2D, jak i 3D (https://docs.godotengine.org/pl/stable/classes/class_astar.html).
+- [CryEngine](https://www.cryengine.com/) — otwartoźródłowy silnik do gier, znany choćby z gry Far Cry (późniejsze części gry oparte były na już innym silniku, ale bazującym na CryEngine). Również wykorzystuje A* do wyszukiwania ścieżek (https://docs.cryengine.com/display/CEMANUAL/Navmesh+Pathfinding).
+- [Unreal Engine](https://www.unrealengine.com/) — chyba najbardziej znany i rozbudowany silnik do tworzenia trójwymiarowych gier. Jest otwartoźródłowy i również możemy znaleźć w jego kodzie A* (https://docs.unrealengine.com/5.0/en-US/API/Plugins/ZoneGraph/FZoneGraphAStar/).
+
+W przypadku zamkniętoźródłowego oprogramowania nie ma tak łatwo dostępnych informacji, który algorytm jest wykorzystywany pod spodem. Twórcy najpopularniejszych map (Google Maps, Waze, HERE) nie chwalą się publicznie, czego używają. Są artykuły, które podają, że wykorzystują A* lub algorytm Dijkstry, ale nie mają żadnych wiarygodnych źródeł, więc można traktować to jako domysły. Możemy jednak przypuszczać, że jeśli nie jest to czysty A*, to możliwe, że jakiś sposób bazujący na nim.
+
+## Podsumowanie
+
+Jak mogłeś(-aś) zauważyć, algorytmy grafowe to nie tylko teoria bez popularnych zastosowań. Poznany tutaj algorytm A* jest powszechnie używany i prawdopodobnie jeszcze długo będzie do wielu zastosowań wyborem numer jeden w kwestii wyszukiwania najkrótszych ścieżek. Nie jest to typowo szkolny algorytm, aczkolwiek bazuje na znanych ideach (algorytm Dijkstry) i zdecydowanie warto go znać.
+
+## Literatura
+
+- P. E. Hart, N. J. Nilsson and B. Raphael, "A Formal Basis for the Heuristic Determination of Minimum Cost Paths," in IEEE Transactions on Systems Science and Cybernetics, vol. 4, no. 2, pp. 100-107, July 1968, [doi: 10.1109/TSSC.1968.300136](https://doi.org/10.1109/TSSC.1968.300136).
+- Delling, D., Sanders, P., Schultes, D., Wagner, D. (2009). Engineering Route Planning Algorithms. In: Lerner, J., Wagner, D., Zweig, K.A. (eds) Algorithmics of Large and Complex Networks. Lecture Notes in Computer Science, vol 5515. Springer, Berlin, Heidelberg. https://doi.org/10.1007/978-3-642-02094-0_7
+- A* search algorithm, https://en.wikipedia.org/w/index.php?title=A*_search_algorithm&oldid=1105163944 (ostatnie odwiedziny 23.09.2022).
+- Calculate distance, bearing and more between Latitude/Longitude points, https://www.movable-type.co.uk/scripts/latlong.html (ostatnie odwiedziny 23.09.2022).
+-  [Barile, Margherita](https://mathworld.wolfram.com/topics/Barile.html). "Taxicab Metric." From *[MathWorld](https://mathworld.wolfram.com/)*--A Wolfram Web Resource, created by [Eric W. Weisstein](https://mathworld.wolfram.com/about/author.html). https://mathworld.wolfram.com/TaxicabMetric.html
+- Chebyshev distance, https://en.wikipedia.org/w/index.php?title=Chebyshev_distance&oldid=1096748961 (ostatnie odwiedziny 23.09.2022).
+- Peque, G., Urata, J., Iryo, T. (2018). Preprocessing Parallelization for the ALT-Algorithm. In: , et al. Computational Science – ICCS 2018. ICCS 2018. Lecture Notes in Computer Science(), vol 10862. Springer, Cham. https://doi.org/10.1007/978-3-319-93713-7_7
+
+<small>Zdjęcie na okładce wygenerowane przez DALL-E. Nieprzerobiony oryginał znajduje się [tutaj](https://labs.openai.com/s/xTQlZ7tkhfWPYGi0djQfDZLR).</small>

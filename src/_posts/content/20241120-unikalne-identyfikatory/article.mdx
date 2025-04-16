@@ -1,0 +1,653 @@
+import Link from 'next/link';
+import {Image} from '@swistak-codes/components';
+import cover from './swistak_skazaniec.webp';
+import {v4, v7} from "uuid";
+import {Presentation} from "./presentation";
+
+export const meta = {
+  title: 'Unikalne identyfikatory',
+  abstract:
+    'Artykuł omawia, czym są i dlaczego stosujemy unikalne identyfikatory, a także pokazuję popularne algorytmy do ich generowania.',
+  firstParagraph: (
+    <>
+      W rzeczywistym świecie mamy nieraz potrzebę jasnego zidentyfikowania, że coś jest czymś w taki sposób, żeby było to określenie jak najbardziej unikalne jak się da. Stąd mimo że każdy z nas ma imię i nazwisko, to jednak mamy też nadane numery <Link href="/post/sumy-kontrolne">PESEL</Link>, bo same imię i nazwisko nie są wystarczająco unikalne. Z dokładnie taką samą potrzebą spotykamy się w informatyce. Musimy być w stanie jasno zidentyfikować dowolną encję: plik na dysku, wpis w bazie danych, wersję oprogramowania, podzespół w komputerze. Poznajmy przykładowe sposoby, jak takie identyfikatory się generuje.
+    </>
+  ),
+  keyword: 'unikalne identyfikatory',
+  categories: ['Algorytmy', 'Programowanie'],
+  tags: [
+    'uuid',
+    'guid',
+    'universally unique identifier',
+    'globally unique identifier',
+    'snowflake id',
+    'objectid',
+    'nano id',
+    'nanoid',
+    'identyfikatory',
+    'losowość',
+    'pseudolosowość',
+    'paradoks dni urodzin',
+    'unikalność'
+  ],
+  slug: 'unikalne-identyfikatory',
+  updateTime: '2024-11-20T07:00:00+00:00',
+  publishTime: '2024-11-20T07:00:00+00:00',
+  cover,
+};
+
+## Unikalne identyfikatory w informatyce
+
+Myślę, że nie muszę wyjaśniać bardziej szczegółowo, czym są identyfikatory, bo raczej wyjaśniło nam to wprowadzenie. Warto jednak w skrócie powiedzieć o kilku istotnych kwestiach, które należy mieć z tyłu głowy, czytając dalej ten artykuł:
+
+- **Losowość** — dość popularny jest przypadek, gdy nie możemy nadawać identyfikatorów po kolei. Szczególnie jeśli pracujemy tylko w małej części dużego systemu. Wówczas zależy nam na tym, żeby wygenerować identyfikator w losowy sposób, aczkolwiek tak, żeby zapewnić jego unikalność.
+- **Pseudolosowość** — z losowością w systemach informatycznych jest taki problem, że nie możemy dostać prawdziwie losowych ciągów liczb. Dlatego też mówimy tutaj o pseudolosowości, a wszelkie funkcje typu `Math.random()` to generatory liczb pseudolosowych. Najprostsze generatory bazują wprost na zegarze systemowym, co powoduje, że wartości są przewidywalne, a zarazem łatwo wygenerować te same na różnych komputerach. Jednak jeśli zdajemy sobie sprawę z ograniczeń różnych generatorów, będziemy w stanie wiedzieć, kiedy który używać.
+- **Unikalność** — przez unikalność identyfikatora mamy na myśli to, żeby była jak najmniejsza szansa wygenerowania dwóch takich samych identyfikatorów. Możemy w kwestii unikalności myśleć zarówno globalnie, jak i w obrębie jednego systemu informatycznego. Zastosowanie w tym przypadku ma paradoks dni urodzin — liczymy, ile identyfikatorów musielibyśmy wygenerować, żeby było 50% prawdopodobieństwa, że otrzymamy ten sam. Możemy wyliczyć przybliżenie poniższym wzorem (gdzie $$k$$ to liczba wszystkich możliwych identyfikatorów):
+
+$$
+n \approx \frac{1}{2} + \sqrt{\frac{1}{4} + 2 \cdot \ln(2) \cdot k}
+$$
+
+## Uwaga wstępna
+
+Opisując poniżej algorytmy, robię to w najprostszy możliwy sposób, czyli generuję losowe liczby przez zwykły generator liczb pseudolosowych (w tym przypadku javascriptowy [`Math.random()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/random)). Do prawdziwych zastosowań lepiej użyć lepszych generatorów liczb pseudolosowych, np. dostępnych w bibliotekach kryptograficznych dołączonych do języków programowania (przykładowo w JavaScript [`crypto.getRandomValues()`](https://developer.mozilla.org/en-US/docs/Web/API/Crypto/getRandomValues)). Tutaj korzystam z prostszego ze względu na to, że nie będę musiał wchodzić w detale jak poprawnie używać bezpiecznego kryptograficznie generatora. W celach edukacyjnych jest to wystarczające.
+
+A tak swoją drogą, to najlepiej jest użyć gotowych, sprawdzonych implementacji. Powinny korzystać z najlepszych możliwych generatorów liczb, do tego użytych w wydajny sposób. Tutejsze implementacje służą głównie zobrazowaniu, w jaki sposób takie identyfikatory są budowane, aby lepiej zrozumieć, dlaczego są takie, a nie inne.
+
+## Universally/Globally Unique Identifier (UUID/GUID)
+
+Zacznijmy przegląd unikalnych identyfikatorów od UUID (Universally Unique Identifier), znanego też jako GUID (Globally Unique Identifier). Jest to standard zapisu 128-bitowych (16 bajtów) numerów mających na celu jednoznaczną klasyfikację dowolnego elementu dowolnego systemu informatycznego, jednocześnie bez potrzeby posiadania centralnego rejestru generującego owe identyfikatory.
+
+O ile UUID powstały jeszcze w latach 80., to jako niezależny byt zostały ustandaryzowane dopiero w [RFC 4122](https://datatracker.ietf.org/doc/html/rfc4122) z 2005 roku. Najnowszy (w momencie pisania artykułu) standard opisujący UUID to [RFC 9562](https://datatracker.ietf.org/doc/html/rfc9562) z maja 2024.
+
+UUID zapisywane jest w pamięci komputera jako 128-bitowa liczba całkowita. Jednak dla lepszej czytelności prezentuje się je jako 32 cyfry w <Link href="/post/systemy-liczbowe-uzupelnienie/#system-szesnastkowy-heksadecymalny">systemie szesnastkowym</Link> podzielone na 5 grup rozdzielonych łącznikami. Z racji tego, że przez lata pojawiało się wiele różnych definicji jak tworzyć UUID, wyróżniono 16 dostępnych wariantów identyfikatorów. Nas będą interesować warianty określane cyframi 8, 9, A, B\*, czyli warianty zdefiniowane przez Open Software Foundation (OSF DCE). Przede wszystkim dlatego, że to one są najbardziej znane i zostały opisane w wyżej zalinkowanych RFC. Te zaś (stan na 2024 r.) dzielą się na 8 różnych wersji różniących się schematem tworzenia.
+
+<small style={{textAlign: 'left'}}>* Traktuje się to raczej jako jeden wariant, gdzie 4-bitowa liczba zaczyna się od bitów 1 i 0, a następne dwa są dowolne.</small>
+
+### Struktura UUID
+
+Tak jak wspomniałem, UUID trzymamy w pamięci komputera jako 128-bitową liczbę, jednak dla lepszej czytelności zapisuje się je w formacie szesnastkowym w następujący sposób:
+
+```
+[4 bajty]-[2 bajty]-[2 bajty]-[2 bajty]-[8 bajtów]
+```
+
+Jest to zapis o tyle przyjazny do konwersji, że jedna cyfra w zapisie szesnastkowym odpowiada bezpośrednio 4 bitom. Stąd segment 4 bajtowy będzie miał długość 8 cyfr, 2 bajtowy 4 cyfry itd.
+
+W przykładowych implementacjach będziemy generować tablicę bajtów, którą do czytelnej postaci będziemy konwertować tak:
+
+```javascript
+// funkcja konwertująca bajty składające się na UUID
+// do ciągu cyfr w systemie szesnastkowym
+function uuidToString(bytes) {
+  // wynikowy ciąg znaków
+  let result = "";
+  // iterujemy po kolejnych bajtach
+  for (let i = 0; i < bytes.length; i++) {
+    // konwertujemy bajt do formatu szesnastkowego
+    // jeśli jest potrzeba, poprzedzamy cyfrę zerem (padStart)
+    const hex = bytes[i].toString(16).padStart(2, "0");
+    // 4, 6, 8 i 10 bajt poprzedzamy łącznikiem
+    if (i === 4 || i === 6 || i === 8 || i === 10) {
+      result += `-${hex}`;
+    } else {
+      // pozostałe bajty zapisujemy po prostu tak, jak są
+      result += hex;
+    }
+  }
+  return result;
+}
+```
+
+Jeszcze w kwestii zapisu warto dodać, że każde UUID będzie miało następujący schemat:
+
+```
+xxxxxxxx-xxxx-Yxxx-Zxxx-xxxxxxxxxxxxxxxx
+```
+
+`Z` to cztery bity oznaczające wariant, natomiast `Y` to cztery bity oznaczające wersję w wariancie OSF DCE.
+
+### v4
+
+<Presentation algorithm="v4" />
+
+#### Budowa
+
+Wersja 4 UUID w wariancie OSF DCE jest całkowicie losowa z wyjątkiem 6 bitów:
+
+- 4 bitów oznaczających wersję (zawsze zapisane binarnie jako `0100`, co jest zapisem liczby 4 binarnie). Ustawiamy tę liczbę na początku 7 bajtu.
+- 2 bitów oznaczających wariant (`10`). Te ustawiamy na początku 9 bajtu. W zapisie szesnastkowym jest to pierwsza cyfra za trzecim łącznikiem i ze względu na rozpoczęcie się w zapisie binarnym od `10` mogą to być jedyne 8 (`1000`), 9 (`1001`), A (`1010`), B (`1011`).
+
+Cała reszta jest po prostu losowana w dowolny sposób.
+
+#### Implementacja
+
+W kodzie (JavaScript) mogłoby to wyglądać następująco:
+
+```javascript
+// funkcja zwracająca UUID w wersji 4
+function v4() {
+  // tworzymy tablicę bajtów o długości 16
+  const bytes = new Uint8Array(16);
+  // wypełniamy ją losowymi wartościami w zakresie 0-255
+  for (let i = 0; i < bytes.length; i++) {
+    bytes[i] = Math.trunc(Math.random() * 256);
+  }
+  // ustawiamy odpowiednie bity, aby zapewnić zgodność ze standardem
+  // najpierw 0100 (4) oznaczające wersję
+  bytes[6] = (bytes[6] & 0x0f) | 0x40;
+  // następnie 10 oznaczające wariant (8 to 1000)
+  bytes[8] = (bytes[8] & 0x3f) | 0x80;
+  // wyjaśnienie operacji binarnych:
+  // wynikiem iloczynu bytes[8] & 0x0f (lub 0x3f) jest usunięcie początkowych bitów,
+  // 0x0f to 00001111, a 0x3f to 00111111 - zera usuwają aktualną wartość,
+  // natomiast w wyniku sumy | 0x40 wstawiamy tą wartość w miejscu zer
+
+  // zwracamy wynik
+  return bytes;
+}
+```
+
+Kod do przetestowania znajdziesz na [Replit](https://replit.com/@tswistak/uuid4#index.js).
+
+#### Praktyka
+
+UUID w wersji 4 jest zdecydowanie najpopularniejszy i często jego ma się na myśli przez „generowanie UUID”. Istnieje wiele gotowych implementacji zwracających losowy UUID właśnie w tej wersji, przykładowo:
+
+- [`randomUUID()`](https://developer.mozilla.org/en-US/docs/Web/API/Crypto/randomUUID) w JavaScript
+- [`Guid.NewGuid()`](https://learn.microsoft.com/en-us/dotnet/api/system.guid.newguid?view=net-8.0#system-guid-newguid) na platformie .NET
+- [`UUID.randomUUID()`](https://docs.oracle.com/en/java/javase/23/docs/api/java.base/java/util/UUID.html#randomUUID()) w Javie
+- W ten sposób losowe UUID generują systemy zarządzania bazami danych, np. [Postgres](https://www.postgresql.org/docs/current/functions-uuid.html), [SQL Server](https://learn.microsoft.com/en-us/sql/t-sql/functions/newid-transact-sql?view=sql-server-ver16) (`NEWID`), [MariaDB](https://mariadb.com/kb/en/uuidv4/)
+
+Jak natomiast wygląda unikalność takich UUID? Zakładając zapis binarny, losujemy 122 wartości, więc żeby mieć 50% prawdopodobieństwa kolizji, musielibyśmy wygenerować takich UUID:
+
+$$
+n \approx \frac{1}{2} + \sqrt{\frac{1}{4} + 2 \cdot \ln(2) \cdot 2^{122}} \approx 2,71 \cdot 10^{18}
+$$
+
+Zakładając, że jesteśmy w stanie wygenerować miliard UUID na sekundę, 50% prawodopobieństwo kolizji osiągniemy po ok. 86 latach.
+
+### v7
+
+<Presentation algorithm="v7" />
+
+#### Budowa
+
+O ile UUID w wersji 4 bardzo dobrze radzi sobie z generowaniem unikalnych identyfikatorów z bardzo małym prawdopodobieństwem kolizji, to jednak okazało się nie być to wystarczające. W wielu systemach informatycznych jest zapotrzebowanie na identyfikatory, które nie tylko są losowe, ale też umożliwiają sortowanie chronologiczne. W wyniku tego powstały takie identyfikatory, jak np. [ulid](https://github.com/ulid), [LexicalUUID](https://github.com/twitter-archive/cassie?tab=readme-ov-file#generating-unique-ids) czy [OrderedUUID](https://laravel.com/docs/11.x/strings#method-str-ordered-uuid). Ich zasada zwykle była taka sama — na pierwszych bajtach zapisać aktualną datę, a dopiero następnie losową wartość.
+
+Ostatecznie w standardzie RFC 9562 pojawiło się UUID w wersji 7, które łączy te dwie rzeczy — datę wygenerowania i losową liczbę. Zostało to zdefiniowane następująco:
+
+- Pierwsze 6 bajtów (48 bitów) zajmuje znacznik czasu zapisany jako liczba milisekund od 1 stycznia 1970 roku (<Link href="/post/jak-komputer-przechowuje-date-i-skad-zna-aktualna/#czas-uniksowy">czas uniksowy</Link>).
+- Na początku 7 bajtu ustawiamy pierwsze cztery bity na wartość 7 (`0111`), aby oznaczyć, że jest to UUID w wersji 7.
+- Na początku 9 bajtu ustawiamy pierwsze dwa bity na `10`, aby wskazać, że jest to wariant OSF DCE.
+- Pozostałe bity losujemy.
+
+#### Implementacja
+
+Przykładowa implementacja w kodzie mogłaby wyglądać następująco:
+
+```javascript
+// funkcja zwracająca UUID w wersji 7
+function v7() {
+  // tworzymy tablicę bajtów o długości 16
+  const bytes = new Uint8Array(16);
+  // pobieramy aktualną datę (timestamp) jako liczbę milisekund od 01.01.1970
+  // musimy ją trzymać jako BigInt, ponieważ w JS operacje binarne na zwykłym typie liczbowym działają tylko do 32 bitów
+  const timestamp = BigInt(Date.now());
+  // przenosimy timestamp na 6 pierwszych bajtów UUID
+  // jest on zapisany na 48 bitach, więc musimy przesuwać sobie co 8 bitów,
+  // aby kopiować zawsze ostatnie 8 bitów do kolejnych elementów tablicy
+  // `& 0xff` zapewnia, że zostawiamy tylko ostatni bajt (8 bitów)
+  // `n` na końcu każdej z liczb oznacza, że jest to BigInt
+  bytes[0] = Number((timestamp >> 40n) & 0xffn);
+  bytes[1] = Number((timestamp >> 32n) & 0xffn);
+  bytes[2] = Number((timestamp >> 24n) & 0xffn);
+  bytes[3] = Number((timestamp >> 16n) & 0xffn);
+  bytes[4] = Number((timestamp >> 8n) & 0xffn);
+  bytes[5] = Number(timestamp & 0xffn);
+  // bajtom od 6 do 16 przypisujemy losowe wartości
+  for (let i = 6; i < 16; i++) {
+    bytes[i] = Math.trunc(Math.random() * 256);
+  }
+  // na początku 7 bajtu zapisujemy wersję "7"
+  bytes[6] = (bytes[6] & 0x0f) | 0x70;
+  // a na początku 9 bajtu zapisujemy wariant
+  bytes[8] = (bytes[8] & 0x3f) | 0x80;
+  // zwracamy wynik
+  return bytes;
+}
+```
+
+Kod do przetestowania znajdziesz na [Replit](https://replit.com/@tswistak/uuid7#index.js).
+
+#### Praktyka
+
+Niestety, implementacje UUID w wersji 7 są rzadsze. Z wymienionych wcześniej przeze mnie technologii na moment pisania artykułu jedynie MariaDB doczekało się implementacji [UUIDv7](https://mariadb.com/kb/en/uuidv7/).
+
+A jak ma się sprawa unikatowości? Tutaj losujemy nieco mniej wartości — 74 bity. Czyli aby mieć 50% prawdopodobieństwa kolizji, musielibyśmy wygenerować:
+
+$$
+n \approx \frac{1}{2} + \sqrt{\frac{1}{4} + 2 \cdot \ln(2) \cdot 2^{74}} \approx 1,62 \cdot 10^{11}
+$$
+
+Wartości tych jest mniej, ale pamiętajmy, że aby doszło do kolizji, musielibyśmy te 162 miliardy identyfikatorów wygenerować w ciągu 1 milisekundy.
+
+### v1 i v6
+
+<Presentation algorithm="v16" />
+
+#### Budowa
+
+Omówmy teraz dwie wersje jednocześnie, ponieważ różnią się tylko sposobem zapisu bitów. UUID w wersji 1 i 6 używane są do generowania identyfikatorów, które jednocześnie zawierają:
+
+- Czas utworzenia (60 bitów) jako liczba 100 nanosekundowych interwałów liczonych od 15 października 1582 (data wprowadzenia <Link href="/post/dlaczego-mierzenie-i-przetwarzanie-czasu-jest-trudne-czesc-1/#r%C3%B3%C5%BCne-kalendarze">kalendarza gregoriańskiego</Link>).
+- Sekwencję zegarową (14 bitów) mającą zapewnić unikalność identyfikatorów. Mogą to być np. wartości odliczane po kolei przez aktualny proces.
+- Identyfikator urządzenia (48 bitów); według specyfikacji jest to adres MAC karty sieciowej komputera generującego UUID. Specyfikacja zakłada, że jeśli nie można pobrać adresu MAC, możemy wygenerować losową liczbę na jego miejsce.
+
+Różnica między wersjami polega na sposobie zapisu daty. Wersja 1 trzyma najbardziej znaczące bity znacznika czasu przy numerze wersji, natomiast wersja 6 na samym początku. Przez to UUID w wersji 6 możemy w prosty sposób sortować według czasu utworzenia.
+
+#### Implementacja
+
+Żeby się za dużo nie rozpisywać o dokładnej konstrukcji tych dwóch wersji UUID, poniżej zamieszczam przykładową implementację. Wersję 1 generujemy normalnie, bajt po bajcie. Natomiast żeby nie powielać kodu, zamiast generować wersję 6 od zera, po prostu przekonwertujemy UUID w wersji 1 do 6:
+
+```javascript
+// ostatni znacznik czasowy, aby wiedzieć, czy wygenerować nową sekwencję zegarową
+let lastTimestamp = 0;
+// ostatnia sekwencja zegarowa
+let clockSequence = 0;
+
+// funkcja zwracająca UUID w wersji 1
+function v1(nodeId) {
+  // przesunięcie epoki gregoriańskiej względem czasu uniksowego
+  const GREGORIAN_OFFSET = 12219292800000n;
+  // obliczamy znacznik czasowy
+  const timestamp = (BigInt(Date.now()) + GREGORIAN_OFFSET) * 10000n;
+  // jeśli timestamp jest taki sam jak poprzednio, zwiększamy sekwencję zegarową
+  if (timestamp === lastTimestamp) {
+    // 0x3ff, ponieważ interesuje nas tylko znaczące 14 bitów
+    clockSequence = (clockSequence + 1) & 0x3fff;
+  } else {
+    // w przeciwnym wypadku generujemy nową sekwencję zegarową
+    clockSequence = Math.floor(Math.random() * 0x3fff);
+  }
+  // zapamiętujemy aktualny znacznik czasowy
+  lastTimestamp = timestamp;
+  // tworzymy tablicę bajtów o długości 16
+  const bytes = new Uint8Array(16);
+  // time_low: 32 najmniej znaczące bity timestampu
+  bytes[0] = Number((timestamp >> 24n) & 0xffn);
+  bytes[1] = Number((timestamp >> 16n) & 0xffn);
+  bytes[2] = Number((timestamp >> 8n) & 0xffn);
+  bytes[3] = Number(timestamp & 0xffn);
+  // time_mid: środkowe 16 bitów timestampu
+  bytes[4] = Number((timestamp >> 40n) & 0xffn);
+  bytes[5] = Number((timestamp >> 32n) & 0xffn);
+  // ustawienie wersji 1 i time_high
+  bytes[6] = Number((timestamp >> 56n) & 0x0fn) | 0x10;
+  bytes[7] = Number((timestamp >> 48n) & 0xffn);
+  // przenosimy znacznik sekwencji zegarowej i ustawiamy wariant
+  bytes[8] = ((clockSequence >> 8) & 0x3f) | 0x80;
+  bytes[9] = clockSequence & 0xff;
+  // przenosimy nodeId na koniec identyfikatora
+  bytes.set(nodeId, 10);
+  // zwracamy wynik
+  return bytes;
+}
+
+// funkcja zwracająca UUID w wersji 6
+function v6(nodeId) {
+  // utworzymy UUIDv6 na podstawie UUIDv1, bo różnią się tylko wersją i kolejnością bitów
+  const uuidV1 = v1(nodeId);
+  // tworzymy tablicę bajtów o długości 16
+  const bytes = new Uint8Array(16);
+  // kopiujemy znacznik czasowy z końca na początek
+  // pamiętamy, że ze względu na oznaczenie wersji nie kopiujemy całych bajtów,
+  // a jedynie po 4 bity z każdego - stąd przesunięcie
+  bytes[0] = ((uuidV1[6] & 0x0f) << 4) | ((uuidV1[7] >> 4) & 0x0f);
+  bytes[1] = ((uuidV1[7] & 0x0f) << 4) | ((uuidV1[4] & 0xf0) >> 4);
+  bytes[2] = ((uuidV1[4] & 0x0f) << 4) | ((uuidV1[5] & 0xf0) >> 4);
+  bytes[3] = ((uuidV1[5] & 0x0f) << 4) | ((uuidV1[0] & 0xf0) >> 4);
+  bytes[4] = ((uuidV1[0] & 0x0f) << 4) | ((uuidV1[1] & 0xf0) >> 4);
+  bytes[5] = ((uuidV1[1] & 0x0f) << 4) | ((uuidV1[2] & 0xf0) >> 4);
+  // na 7 bajcie poza kopiowaniem musimy też ustawić wersję
+  bytes[6] = (uuidV1[2] & 0x0f) | 0x60;
+  // 4 bajt z UUIDv1 możemy już przekopiować w całości na 8 bajt UUIDv6
+  bytes[7] = uuidV1[3];
+  // reszta bajtów jest bez zmiany, więc po prostu kopiujemy całość tablicy od 8 do 16 pozycji
+  bytes.set(uuidV1.slice(8, 16), 8);
+  // zwracamy wynik
+  return bytes;
+}
+```
+
+Kod z możliwością przetestowania znajdziesz na [Replit](https://replit.com/@tswistak/uuid1-6#index.js).
+
+#### Praktyka
+
+W kwestii gotowych implementacji to właśnie tak domyślnie UUID (w wersji 1) generują [MySQL](https://dev.mysql.com/doc/refman/5.7/en/miscellaneous-functions.html#function_uuid) i [MariaDB](https://mariadb.com/kb/en/uuid/). W bazach danych takie podejście ma najwięcej sensu w szczególności, gdy mamy wiele serwerów przechowujących dane. Identyfikatory mają zapewnioną unikalność, a do tego możemy odczytać, gdzie dane były oryginalnie zapisane i kiedy.
+
+A co do unikalności, to jest ona zapewniona głównie przez sekwencję zegarową, która się składa z 14 bitów. To oznacza, że aby mieć 50% prawdopodobieństwa trafienia na kolizję, musielibyśmy wygenerować identyfikatorów:
+
+$$
+n \approx \frac{1}{2} + \sqrt{\frac{1}{4} + 2 \cdot \ln(2) \cdot 2^{14}} \approx 151
+$$
+
+Jest to bardzo mała liczba, jednak pamiętajmy, że wciąż nie musimy się martwić, ponieważ:
+
+- Musielibyśmy wygenerować to w ciągu 100 nanosekund.
+- Każdy komputer powinien mieć inny adres MAC, więc kolizje w ogóle nie powinny się zdarzyć. A żeby mieć 50% prawdopodobieństwa tego, musielibyśmy korzystać z ok. 20 milionów kart sieciowych.
+- Na jednym komputerze sekwencję zegarową powinniśmy generować, odliczając po kolei, więc mamy dostępne tak naprawdę 16384 identyfikatory na 100 nanosekund, bez powtórzeń.
+
+### Inne wersje i warianty
+
+Jak wcześniej wspomniałem, UUID doczekało się wielu wariantów, a pośród omawianego tutaj wariantu OSF DCE także wielu wersji. Są mniej powszechne w codziennych, programistycznych zastosowaniach, dlatego nie poświęcę im więcej uwagi.
+
+W ramach OSF DCE mamy jeszcze następujące wersje:
+
+- 2 — jest to modyfikacja wersji 1, gdzie czas jest zapisany tylko na 28 bitach (odmierzany w interwałach ok. 7 minutowych), sekwencja zegarowa na 6 bitach, a uzyskane w ten sposób 40 bitów wykorzystuje się do zapisu identyfikatora użytkownika lub grupy w systemie operacyjnym.
+- 3 i 5 — przechowują <Link href="/post/sumy-kontrolne/#funkcje-skr%C3%B3tu">hasz</Link> nazwy zasobu z nałożonymi oczywiście w odpowiednich miejscach wersją i wariantem UUID. W przypadku wersji 3 jest to hasz MD5, natomiast w wersji 5 hasz SHA-1 skrócony do 128 bitów.
+- 8 — daje pełną dowolność, jak wypełniamy wartości. Jedyny wymóg to ustawienie bitów wersji i wariantu.
+- Mogą się z czasem pojawić wersje od 9 do 15, na razie jednak nie zostały zdefiniowane. Natomiast nie ma planów wykorzystania numeru wersji 0.
+
+Inne warianty UUID:
+
+- Jeśli pierwszy bit wariantu jest zerowy (czyli są wartości zapisane dziesiętnie od 0 do 7), to jest to wariant Apollo NCS. Powstał on jeszcze przed ustandaryzowaniem UUID i przy standaryzacji po prostu wykorzystano fakt, że ten jeden konkretny bit był zawsze zerowy.
+- Jeśli trzy pierwsze bity wariantu wynoszą `110`, to jest to wariant stosowany przez Microsoft w modelach COM i DCOM. Od OSF DCE różni się tym, że dane na pierwszych 64 bitach są zapisane cienkokońcówkowo (little endian).
+- Warianty `1110` i `1111` nie są zdefiniowane i mogą zostać wykorzystane w przyszłości
+
+Warto też wspomnieć o dwóch specjalnych przypadkach UUID:
+
+- Zerowy UUID — wszystkie 128 bitów ma ustawione na 0. Oznacza to, że teoretycznie zalicza się do wariantu Apollo NCS.
+- Maksymalny UUID — wszystkie 128 bitów ma ustawione na 1. Mimo że jest prawidłowy, należy do niezdefiniowanego wariantu `1111`.
+
+## Snowflake ID
+
+<Presentation algorithm="snowflake" />
+
+Teraz przejdziemy do identyfikatora, który wygląda bardziej „ludzko”, jak zwykła liczba, a mimo to zawiera podobny zestaw informacji co UUID w wersji 1 i 6. Jest to Snowflake ID zaprezentowany w 2010 r. przez Twittera (dziś X), ale który doczekał się też wielu innych implementacji o nieco zmienionej specyfikacji (o nich później).
+
+### Budowa
+
+Identyfikatory Snowflake ID według specyfikacji Twittera są 64-bitowe i składają się po kolei z następujących danych:
+
+- Pierwszy bit jest zawsze zerowy. Dzięki temu identyfikatory zostaną zapisane jako liczby dodatnie, jeśli korzystamy ze znakowego typu całkowitoliczbowego.
+- Następne 41 bitów zajmuje znacznik czasowy. Odmierza milisekundy od jakiejś wybranej daty — w przypadku Twittera/X od 4 listopada 2010 r. (`1288834974657` w milisekundowo zapisanym czasie uniksowym). Możemy w ten sposób zapisywać daty przez ok. 69 lat.
+- 10-bitowy identyfikator urządzenia. Oznacza to, że w ramach naszego systemu możemy używać 1024 różnych maszyn. Nie jest zdefiniowane, jak identyfikatory nadajemy, w przeciwieństwie do UUID, gdzie maszyny były identyfikowane przez adres MAC.
+- Ostatnie 12 bitów zajmuje numer sekwencji. Są to odliczane liczby po kolei na każdej maszynie, przy czym zapewniamy, żeby w ciągu 1 milisekundy nie doszło do przejścia z 4095 (największa liczba, którą możemy zapisać na 12 bitach) na 0.
+
+Powód ich powstania był taki, że Twitter przechodził wtedy na system rozproszonych baz danych, więc nie mógł zapewnić odliczania identyfikatorów twittów po kolei, jak to robił do 2010 r. Identyfikatory były jednak zapisywane jako 64-bitowa liczba całkowita, więc aby nie namieszać w istniejących systemach, postanowiono zachować tą samą długość identyfikatora. Same identyfikatory miały zachować sekwencyjność, nie być całkowicie losowe, stąd wykorzystanie znacznika czasu. Kolejność może zostać zaburzona tylko na przestrzeni 1 milisekundy (lub kilku, ze względu na różnice w zegarach serwerów).
+
+### Implementacja
+
+Przykładowa implementacja generowania takich identyfikatorów w JavaScript mogłaby wyglądać następująco:
+
+```javascript
+// przesunięcie timestamp
+const EPOCH = 1288834974657;
+// aktualny numer sekwencyjny
+let sequence = 0;
+
+// machineId to liczba, musi być mniejsza od 1024
+function snowflake(machineId) {
+  // inkrementujemy licznik sekwencji
+  // dla uproszczenia ignorujemy zapobieganie przeskokom
+  sequence = (sequence + 1) % 4096;
+  // obliczamy znacznik czasu
+  // używam BigInt, ponieważ domyślny typ liczbowy w JS nie jest 64-bitową liczbą całkowitą
+  const timestamp = BigInt(Date.now() - EPOCH);
+  // łączymy całość w jedną liczbę
+  const result =
+    (timestamp << 22n) | // 22, ponieważ 41 bitów przesuwamy po to, żeby były od 63 bitu
+    (BigInt(machineId) << 12n) | // 12, bo 10 bitów przesuwamy na 21 bit w przód
+    BigInt(sequence); // tu zajmujemy ostatnie 12 bitów
+  // zwracamy rezultat
+  return result;
+}
+```
+
+Kod możesz przetestować na [Replit](https://replit.com/@tswistak/snowflake#index.js).
+
+### Praktyka
+
+Identyfikatory tego typu są zdecydowanie prostsze niż UUID w wersjach 1 i 6, a jednocześnie zachowują ich cechy, czyli sekwencyjność oraz przechowanie identyfikacji maszyny generującej. Kontynuując nasze wyliczenia, 50% prawdopodobieństwa kolizji mielibyśmy, generując na maszynach o tym samym identyfikatorze, w ciągu 1 milisekundy, następującą liczbę identyfikatorów:
+
+$$
+n \approx \frac{1}{2} + \sqrt{\frac{1}{4} + 2 \cdot \ln(2) \cdot 2^{12}} \approx 76
+$$
+
+Jednak w ramach jednego systemu nie powinny nam się powtarzać identyfikatory maszyn, a na jednej powinniśmy generować sekwencyjnie. A generując sekwencyjnie, możemy wygenerować 4096 unikalnych identyfikatorów w ciągu 1 milisekundy. A czy to jest mało, czy dużo, zdecyduj sam(a).
+
+Wspomniałem też wcześniej, że tutaj pokazuję oryginalną wersję od Twittera (X), ale z czasem Snowflake został też zaadoptowany przez inne serwisy z drobnymi modyfikacjami:
+
+- Discord korzysta z takiego samego zapisu, jedynie odlicza czas od początku 2015 r.
+- Instagram zapisuje identyfikator urządzenia na 13 bitach, a numer sekwencyjny jedynie na 10 bitach (1024 możliwe identyfikatory). Odmiana ta nazywa się ShardingID.
+- Mastodon nie zapisuje identyfikatora urządzenia. Pierwsze 48 bitów wykorzystuje na zapisanie znacznika czasu jako czas uniksowy zapisany w milisekundach, a kolejne 16 bitów to numer sekwencyjny (65536 możliwych identyfikatorów). Z racji tego, że nie ma tu identyfikacji maszyny, to jesteśmy bardziej zagrożeni kolizją — musielibyśmy w ciągu 1 milisekundy wygenerować ok. 302 identyfikatory, żeby mieć 50% prawdopodobieństwa istnienia duplikatu.
+- Sony zaproponowało Sonyflake, gdzie znacznik czasu zajmuje 39 bitów i jest w rozdzielczości 10 milisekund, identyfikator urządzenia zajmuje 16 bitów, a numer sekwencyjny jedynie 8 bitów (256 możliwych identyfikatorów). Dzięki temu może pracować na znacznie większej liczbie urządzeń i będzie działać dłużej (174 lata), jednak kosztem małej liczby identyfikatorów.
+
+## ObjectId
+
+<Presentation algorithm="objectid" />
+
+Omawiając algorytmy generujące identyfikatory przechowujące informację o czasie i maszynie, nie sposób nie powiedzieć o bardzo popularnym podejściu tego typu — ObjectId z bazy danych [MongoDB](https://www.mongodb.com/).
+
+### Budowa
+
+Struktura ObjectId jest bardzo zbliżona do tego, co mieliśmy w UUID 6 i Snowflake. Różnica jest tylko taka, że tym razem mamy do czynienia z identyfikatorem 12-bajtowym (96-bitowy). Struktura jest następująca:
+
+- Pierwsze 4 bajty (32 bity) zajmuje znacznik czasowy w sekundach, w postaci czasu uniksowego. Może zostać zastąpiony 32-bitową liczbą całkowitą podaną przez użytkownika. Zapisany jest grubokońcówkowo.
+- Następne 5 bajtów (40 bitów) zajmuje identyfikator procesu (uruchomionej aplikacji serwerowej). Jest losowany na starcie serwera i jest unikalny w obrębie komputera. Warto zwrócić uwagę, że w przeciwieństwie do UUID i Snowflake tutaj identyfikator może ulegać zmianie nawet na tym samym komputerze.
+- Ostatnie 3 bajty (24 bity) zajmuje licznik. Zaczyna się od losowo wygenerowanej wartości, a kolejne są odliczane po kolei. Wartość ta również jest zapisana grubokońcówkowo.
+
+Identyfikator, podobnie jak UUID, wyświetlamy jako liczbę w systemie szesnastkowym. Różnica jest tylko taka, że nie tworzymy grup, co przypomina znowu podejście w Snowflake.
+
+### Implementacja
+
+Przykładowa implementacja w JavaScript razem z konwersją do ciągu znaków mogłaby wyglądać następująco:
+
+```javascript
+let counter = null;
+// przykładowy identyfikator procesu
+const PROCESS_ID = new Uint8Array([0x02, 0x01, 0x03, 0x07, 0xff]);
+
+// funkcja zwracająca ObjectID
+// opcjonalnie można podać wartość (liczba 4-bajtowa), która zastąpi znacznik czasu
+function objectId(value = null) {
+  // tworzymy tablicę bajtów o długości 12
+  const result = new Uint8Array(12);
+  if (value !== null) {
+    // jeśli podana została wartość, wstawiamy ją zamiast znacznika czasu
+    // obcinamy wartość do 4 ostatnich bajtów (w innych językach wystarczy typ 32-bitowy)
+    const properValue = value & 0xffffffff;
+    // ustawiamy wartość na pierwszych 4 bajtach
+    result[0] = (properValue >> 24) & 0xff;
+    result[1] = (properValue >> 16) & 0xff;
+    result[2] = (properValue >> 8) & 0xff;
+    result[3] = properValue & 0xff;
+  } else {
+    // jeśli wartości nie ma, używamy znacznika czasu
+    // pobieramy aktualny czas uniksowy w sekundach
+    const timestamp = Math.trunc(Date.now() / 1000);
+    // ustawiamy czas na pierwszych 4 bajtach
+    result[0] = (timestamp >> 24) & 0xff;
+    result[1] = (timestamp >> 16) & 0xff;
+    result[2] = (timestamp >> 8) & 0xff;
+    result[3] = timestamp & 0xff;
+  }
+  // przepisujemy processId na kolejne 5 bajtów
+  result[4] = PROCESS_ID[0];
+  result[5] = PROCESS_ID[1];
+  result[6] = PROCESS_ID[2];
+  result[7] = PROCESS_ID[3];
+  result[8] = PROCESS_ID[4];
+  // inicjalizujemy licznik, jeśli jeszcze go nie ma
+  if (!counter) {
+    // licznik zajmuje 3 bajty, stąd 0xffffff
+    counter = Math.trunc(Math.random() * 0xffffff);
+  }
+  // inkrementujemy licznik; modulo, aby zapewnić długość 3 bajtów
+  counter = (counter + 1) % 0xffffff;
+  // przepisujemy licznik na kolejne 3 bajty
+  result[9] = (counter >> 16) & 0xff;
+  result[10] = (counter >> 8) & 0xff;
+  result[11] = counter & 0xff;
+  // zwracamy wynik
+  return result;
+}
+
+// funkcja konwertująca bajty składające się na ObjectID
+// do ciągu cyfr w systemie szesnastkowym
+function objectIdToString(bytes) {
+  // wynikowy ciąg znaków
+  let result = "";
+  // iterujemy po kolejnych bitach
+  for (let i = 0; i < bytes.length; i++) {
+    // konwertujemy bajt do formatu szesnastkowego
+    // jeśli jest potrzeba, poprzedzamy cyfrę zerem (padStart)
+    const hex = bytes[i].toString(16).padStart(2, "0");
+    // w przeciwieństwie do UUID tutaj po prostu spisujemy bajty
+    // bez dzielenia łącznikami
+    result += hex;
+  }
+  return result;
+}
+```
+
+Kod możesz przetestować na [Replit](https://replit.com/@tswistak/objectid#index.js).
+
+### Praktyka
+
+Tradycyjnie już zastanówmy się, jak wygląda kwestia unikalności tych identyfikatorów. Tutaj elementami, na które mają wpływ losowość, są identyfikator procesu (40 bitów) i licznik (24 bity), więc je weźmiemy pod uwagę przy obliczeniach. Tak więc 50% prawdopodobieństwa wystąpienia kolizji mielibyśmy, generując w ciągu 1 sekundy (ignorujemy przypadek jawnego podania liczby zamiast znacznika czasu) następującą liczbę identyfikatorów:
+
+$$
+n \approx \frac{1}{2} + \sqrt{\frac{1}{4} + 2 \cdot \ln(2) \cdot 2^{64}} \approx 5 \cdot 10^9
+$$
+
+5 miliardów to jest dużo. Ale nawet jeśli mielibyśmy brać pod uwagę jedynie licznik, to wciąż by mieć 50% prawdopodobieństwa uzyskania kolizji, trzeba by wygenerować identyfikatorów:
+
+$$
+n \approx \frac{1}{2} + \sqrt{\frac{1}{4} + 2 \cdot \ln(2) \cdot 2^{24}} \approx 4823
+$$
+
+Nie ma się tutaj czym przejmować, a tym bardziej w obrębie jednego systemu obsługiwanego przez bazę MongoDB.
+
+## Nano ID
+
+<Presentation algorithm="nanoid" />
+
+Na sam koniec omówmy sobie jeszcze jedno podejście, które jest niesamowicie proste, a równie skuteczne w generowaniu unikalnych, losowych identyfikatorów — Nano ID. Oryginalnie powstało jako biblioteka do JavaScriptu, ale obecnie zostało przeniesione na praktycznie wszystkie popularne języki programowania (i na niektóre mniej popularne też).
+
+### Budowa
+
+Co ciekawe, Nano ID nie ma sztywnej struktury i jest bardzo konfigurowalne. Wygenerowany identyfikator to po prostu ciąg znaków (z zadanego alfabetu) o wybranej długości. Jednak zwykle stosuje się domyślne ustawienia, czyli:
+
+- Alfabet 64-znakowy, na który składają się podstawowe litery alfabetu łacińskiego (`a-z` i `A-Z`), cyfry (`0-9`) oraz podkreślnik (`_`) i łącznik (`-`). Dokładniej mówiąc, jest to zestaw znaków dopuszczalnych w adresach URL.
+- Identyfikatory o długości 21 znaków, co daje 126 losowych bitów (według strony twórców, ponieważ $$21 \cdot 6 = 126$$; chociaż de facto, patrząc na kod ASCII, dostajemy aż 7 różnych bitów przy domyślnym alfabecie). Dla porównania UUID w wersji 4 ma 122 losowe bity.
+
+W przeciwieństwie do wcześniej pokazanych identyfikatorów tutaj nie losujemy bajtów, aby następnie je przedstawić w czytelnej formie. Zamiast tego losujemy znaki z wybranego alfabetu, aż uzyskamy identyfikator o wskazanej długości.
+
+### Implementacja
+
+Nano ID w swojej najprostszej wersji niebazującej na kryptograficznie bezpiecznym generatorze liczb losowych jest bardzo proste i [oryginalny kod](https://github.com/ai/nanoid/blob/main/non-secure/index.js) (łącznie z komentarzami) zajmuje jedynie 32 linijki. Poniżej zamieszczam jednak swoją implementację, działającą identycznie, ale z pominiętymi hackami zastosowanymi przez twórców. Warto jednak zajrzeć do wyżej zalinkowanego oryginalnego kodu i porównać różnice oraz dlaczego zostały wprowadzone.
+
+```javascript
+// alfabet, z którego korzysta domyślnie Nano ID
+// ciekawostka: w oryginale jest zmieniona kolejność znaków, aby zapewnić lepsze skompresowanie przez gzip lub Brotli
+const ALPHABET =
+  "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz-";
+
+// funkcja zwracająca Nano ID
+// opcjonalnie można podać długość identyfikatora
+function nanoid(length = 21) {
+  // tym razem wynik przechowamy jako ciąg znaków
+  let result = "";
+  // odliczamy od 0 do zadanej długości
+  for (let i = 0; i < length; i++) {
+    // obliczamy indeks znaku w alfabecie na podstawie losowej wartości
+    // UWAGA: jeśli generator liczb (pseudo)losowych zwraca nam liczby całkowite,
+    // to lepiej jest zamiast reszty z dzielenia użyć operacji bitowej &,
+    // zapewni to równomierny rozkład liczb losowych
+    const index = Math.trunc(Math.random() * ALPHABET.length);
+    // dodajemy znak z alfabetu do wyniku
+    result += ALPHABET[index];
+  }
+  // zwracamy wynik
+  return result;
+}
+```
+
+Kod możesz przetestować na [Replit](https://replit.com/@tswistak/nanoid#index.js).
+
+### Praktyka
+
+Już po raz ostatni, bez zbędnego rozpisywania się obliczmy, ile identyfikatorów musielibyśmy wygenerować, aby mieć 50% prawdopodobieństwa kolizji. Najpierw ogólny wzór:
+
+$$
+n \approx \frac{1}{2} + \sqrt{\frac{1}{4} + 2 \cdot \ln(2) \cdot a^{d}}
+$$
+
+$$a$$ to wielkość alfabetu, a $$d$$ to długość identyfikatora.
+
+Przy domyślnych parametrach otrzymamy:
+
+$$
+n \approx \frac{1}{2} + \sqrt{\frac{1}{4} + 2 \cdot \ln(2) \cdot 64^{21}} \approx 1.09 \cdot 10^{19}
+$$
+
+Jak widać, matematycznie szanse na kolizję są najmniejsze ze wszystkich rozpatrywanych algorytmów. Należy jednak pamiętać, że jest to podejście całkiem losowe, więc z wyżej pokazanych rodzajów identyfikatorów możemy porównywać go jedynie do UUID w wersji 4. Pozostałe podejścia kodowały w identyfikatorze również dodatkowe dane, które mają na celu zmniejszenie możliwości kolizji.
+
+W kwestii praktyki warto dodać, że Nano ID nie jest wbudowane w żaden język programowania. Oryginalnie powstało jako [biblioteka do JavaScriptu](https://www.npmjs.com/package/nanoid), ale doczekało się implementacji [w wielu innych językach programowania](https://github.com/ai/nanoid/blob/main/README.md#other-programming-languages). Oprócz tego w bardzo podobny sposób identyfikatory generuje [uid](https://github.com/lukeed/uid) (nieco inna implementacja i mniejszy alfabet).
+
+## Inne podejścia
+
+Po przeczytaniu tego artykułu możesz zadać sobie pytanie — czy nie możemy po prostu odliczać liczb po kolei? Przecież tak domyślnie robi większość systemów zarządzania bazami danych. Odpowiedź brzmi: tak, jak najbardziej tak możemy robić. Jest to bardzo dobre podejście, ale tylko pod warunkiem, że mamy jeden centralny system nadający identyfikatory. Pisząc ten artykuł, chciałem bardziej skupić się na podejściach uniwersalnych, gdzie możemy zapewnić sobie wygenerowanie uniwersalnego identyfikatora w systemie bez centralnego licznika (chociaż Snowflake nie do końca spełnia ten wymóg).
+
+Pomijając odliczanie po kolei, jest wiele innych różnych podejść do generowania identyfikatorów, ale nie rozpisywałem się o nich bardziej, bo zwykle wykorzystują te same idee co wyżej opisane. Nieraz są to po prostu nieco inaczej zaimplementowane te same algorytmy. Przykładowe popularne podejścia (ponad 2 tysiące gwiazdek na GitHubie lub używane przez duże serwisy), w losowej kolejności, to:
+
+- [cuid2](https://github.com/paralleldrive/cuid2) — jest tworzony, aby być kryptograficznie najbezpieczniejszym podejściem. Co ciekawe, mimo że aby do utworzenia identyfikatora wykorzystywane są identyfikator urządzenia, czas i licznik, to nie jesteśmy w stanie tych danych odkodować z identyfikatora, ponieważ jest on <Link href="/post/sumy-kontrolne/#funkcje-skr%C3%B3tu">haszowany</Link> z użyciem SHA-3.
+
+<Presentation algorithm="cuid2" />
+
+- [xid](https://github.com/rs/xid) — generuje identyfikatory tak samo, jak generowane są ObjectId, różni się natomiast ich reprezentacja. Zamiast zapisywać je jako liczby szesnastkowe, zapisuje je jako liczby w [base32hex](https://datatracker.ietf.org/doc/html/rfc4648#page-10). Dzięki temu identyfikatory są wizualnie krótsze, ale jednocześnie zachowują swoją sortowalność.
+
+<Presentation algorithm="xid" />
+
+- [ShortUUID](https://github.com/skorokithakis/shortuuid) — podobnie jak wyżej, ale wykorzystywane jest pod spodem UUID w wersji 4 lub 5. Przedstawia je za pomocą 57-znakowego alfabetu (lub 58, zależy od implementacji) zawierającego litery (duże i małe) i cyfry, ale z usuniętymi podobnymi do siebie znakami.
+
+<Presentation algorithm="shortuuid" />
+
+- [PushID](https://firebase.blog/posts/2015/02/the-2120-ways-to-ensure-unique_68) — sposób wykorzystywany przez Firebase, bardzo zbliżony do UUID w wersji 7\*. Zawiera 48-bitowy znacznik czasu i 72 losowe bity, a całość jest zapisana 64 znakowym alfabetem zapewniającym sortowalność.
+
+<Presentation algorithm="pushid" />
+
+- [KSUID](https://github.com/segmentio/ksuid) — kolejny sposób podobny do UUID w wersji 7\*. Mamy tutaj 32-bitowy znacznik czasu (w sekundach, odliczanie rozpoczęte od 13 maja 2014) i 128-bitową losową liczbę. W kwestii reprezentacji tekstowej stosowany jest 62-znakowy alfabet, czyli taki sam, którego używa ShortUUID, ale bez usuniętych podobnych znaków.
+
+<Presentation algorithm="ksuid" />
+
+- [ULID](https://github.com/ulid/spec) — jeszcze jeden popularny format podobny do UUID w wersji 7\*. Tym razem mamy 48-bitowy znacznik czasu (czas uniksowy w milisekundach) i 80 losowych bitów. Do reprezentacji tekstowej wykorzystuje [Base 32](https://www.crockford.com/base32.html), czyli litery (małe lub duże) i cyfry z usuniętymi podobnymi do siebie znakami.
+
+<Presentation algorithm="ulid" />
+
+\* Warto zaznaczyć, że podejścia te są starsze niż UUID w wersji 7, więc nie wzorowały się na nim.
+
+## Podsumowanie
+
+Tak oto przebrnęliśmy przez przeróżne podejścia do generowania unikalnych identyfikatorów. Nie powiem, które podejście jest lepsze, a które gorsze. Musisz samodzielnie wybrać najlepiej pasujące do Twoich zastosowań. W jednym projekcie wystarczy Ci odliczanie po kolei, w innym losowe UUID, a jeszcze gdzieś indziej będziesz potrzebować identyfikatorów, które da się sortować według czasu wygenerowania — nie ma uniwersalnej rady, kiedy co wybrać. Ten artykuł traktuj jako przewodnik, czym algorytmy się od siebie różnią i co z tego wynika.
+
+## Literatura
+
+- Birthday problem, https://en.wikipedia.org/w/index.php?title=Birthday_problem&oldid=1247519966 (ostatnie odwiedziny 18.11.2024).
+- Leach, P. J., Salz, R., & Mealling, M. H. (2005, July). A universally unique identifier (UUID) URN namespace (RFC 4122). RFC Editor. https://doi.org/10.17487/RFC4122
+- Davis, K. R., Peabody, B., & Leach, P. (2024, May). Universally unique identifiers (UUIDs) (RFC 9562). RFC Editor. https://doi.org/10.17487/RFC9562
+- twitter-archive/snowflake at snowflake-2010,
+https://github.com/twitter-archive/snowflake/tree/snowflake-2010?tab=readme-ov-file (ostatnie odwiedziny 18.11.2024).
+- ObjectId() - MongoDB Manual v7.1, https://www.mongodb.com/docs/v7.1/reference/method/ObjectId/ (ostatnie odwiedziny 18.11.2024).
+- ai/nanoid: A tiny (124 bytes), secure, URL-friendly, unique string ID generator for JavaScript, https://github.com/ai/nanoid (ostatnie odwiedziny 18.11.2024).
+- lukeed/uid: A tiny (130B to 205B) and fast utility to generate random IDs of fixed length, https://github.com/lukeed/uid (ostatnie odwiedziny 18.11.2024).
+- paralleldrive/cuid2: Next generation guids. Secure, collision-resistant ids optimized for horizontal scaling and performance, https://github.com/paralleldrive/cuid2 (ostatnie odwiedziny 18.11.2024).
+- rs/xid: xid is a globally unique id generator thought for the web, https://github.com/rs/xid (ostatnie odwiedziny 18.11.2024).
+- skorokithakis/shortuuid: A generator library for concise, unambiguous and URL-safe UUIDs, https://github.com/skorokithakis/shortuuid (ostatnie odwiedziny 18.11.2024).
+- Lehenbauer, M. (2015, February 11). The 2^120 ways to ensure unique identifiers. The Firebase Blog. https://firebase.blog/posts/2015/02/the-2120-ways-to-ensure-unique_68 (ostatnie odwiedziny 18.11.2024).
+- segmentio/ksuid: K-Sortable Globally Unique IDs, https://github.com/segmentio/ksuid (ostatnie odwiedziny 18.11.2024).
+- ulid/spec: The canonical spec for ulid, https://github.com/ulid/spec (ostatnie odwiedziny 18.11.2024).
+
+<small>Zdjęcie na okładce wygenerowane przez DALL-E.</small>

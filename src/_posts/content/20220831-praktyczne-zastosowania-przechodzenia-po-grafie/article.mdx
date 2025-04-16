@@ -1,0 +1,390 @@
+import Link from 'next/link';
+import {Image} from '@swistak-codes/components';
+import cover from './planszowe-konie2.jpg';
+import wieleGrafowListaSasiedztwa from './wiele-grafow-lista-sasiedztwa.png';
+import cykliczny from './cykliczny.png';
+import grafSciezki from './graf-sciezki.png';
+
+export const meta = {
+  title: 'Praktyczne zastosowania przechodzenia po grafie',
+  abstract:
+    'Algorytmy BFS i DFS brzmią bardzo sucho i wydaje się, że nie mają zastosowań praktycznych. Obalmy ten mit.',
+  firstParagraph: (
+    <>
+      W artykule <Link href="/post/przechodzenie-po-grafie">„Przechodzenie po grafie”</Link> przedstawiłem algorytmy służące do przechodzenia po węzłach grafu — DFS (przechodzenie w głąb) oraz BFS (przechodzenie wszerz). Jednak samo odwiedzanie węzłów może wydawać się na pierwszy rzut oka mało przydatne, dlatego przedstawię trzy sposoby, jak można wykorzystać te algorytmy do celów praktycznych. Użyjemy też wszystkie trzy pokazane tam sposoby przechodzenia grafu: rekurencyjny DFS, iteracyjny DFS oraz BFS.
+    </>
+  ),
+  keyword: 'grafy',
+  categories: ['Grafy', 'Programowanie', 'Algorytmy'],
+  tags: [
+    'grafy',
+    'struktury danych',
+    'dfs',
+    'bfs',
+    'przeszukiwanie',
+    'przechodzenie',
+    'przechodzenie w głąb',
+    'przechodzenie wszerz',
+    'javascript',
+    'grafy cykliczne',
+    'najkrótsza ścieżka',
+    'zależność cykliczna',
+  ],
+  slug: 'praktyczne-zastosowania-przechodzenia-po-grafie',
+  updateTime: '2022-08-31T07:00:00+00:00',
+  publishTime: '2022-08-31T07:00:00+00:00',
+  cover,
+};
+
+## Znalezienie grafów w grafowej strukturze danych
+
+W idealnym świecie grafowa struktura danych przechowuje po prostu <Link href="/post/grafy-wprowadzenie">graf</Link>, czyli zbiór wierzchołków połączonych ze sobą krawędziami. W praktyce jednak może się niejednokrotnie zdarzyć, że wewnątrz jednej struktury znajduje się kilka grafów. W zasadzie każdy <Link href="/post/sposoby-reprezentacji-grafow">sposób zapisu grafu w pamięci</Link> na to pozwala i jednocześnie nie zabrania takiej sytuacji.
+
+Wydaje się to niespotykane? Otóż nie. Wbrew pozorom jest to częsty przypadek, szczególnie gdy graf w naszej pamięci ma mało wspólnego z typowo matematycznym grafem, a np. jest diagramem. Zresztą przypomnij sobie interaktywne prezentacje z obu poprzednich artykułów — dopóki nie połączyłeś(-aś) wierzchołków między sobą krawędziami, to de facto struktura w pamięci przechowywała wiele grafów.
+
+<Image
+  image={wieleGrafowListaSasiedztwa}
+  alignCenter
+  fullSize
+  alt="Trzy grafy na jednej wizualizacji z artykułu o sposobach reprezentacji grafu. Pierwszy graf składa się z wierzchołków: 0, 1, 6, 2. Drugi: 3, 4, 5. Trzeci: 7,8. Pod grafami przedstawiona jest ich reprezentacja w postaci listy sąsiedztwa."
+  caption={<>
+    Zrzut ekranu z prezentacji w artykule o sposobach reprezentacji grafu, gdzie zostały utworzone trzy grafy i zapisane w jednej strukturze danych.
+  </>}
+  forceWhiteBackground={false}
+/>
+
+Czy ma to praktyczne użycie? Jak najbardziej. Dokładnie taki algorytm napisałem niedawno w pracy, bo potrzebowałem znaleźć wszystkie widoczne grafy, aby je odsunąć od siebie w trakcie procedury rozmieszczania wierzchołków w przestrzeni podczas wizualizacji danych pochodzących z grafowej bazy danych.
+
+### Idea algorytmu
+
+Na początku musimy założyć, że mamy dostęp do wszystkich wierzchołków i jesteśmy w stanie znaleźć wszystkie inne wierzchołki z nimi połączone. W przypadku grafu nieskierowanego jest to oczywiście proste, bo wystarczy lista sąsiadów, ale w przypadku grafu skierowanego potrzebujemy informację również o wierzchołkach, które prowadzą do aktualnego.
+
+Jeśli nasz sposób zapisu grafu umożliwia nam to, możemy zrobić następującą procedurę:
+
+1. Tworzymy listę zbiorów, w których będziemy trzymać wierzchołki, np. w JavaScript tablicę przechowującą obiekty typu Set.
+2. Tworzymy również zbiór odwiedzonych wierzchołków. I tak musimy go posiadać dla prawidłowego działania algorytmu przechodzenia po grafie, ale podkreślam to w tym miejscu, aby trzymać go „na zewnątrz” algorytmu.
+3. Iterujemy po kolei po wierzchołkach, wykonując dla każdego z nich następujące punkty:
+    1. Jeśli wierzchołek jest na liście odwiedzonych, przechodzimy do kolejnego wierzchołka.
+    2. Tworzymy nowy, pusty zbiór przechowujący aktualny graf.
+    3. Przechodzimy graf dowolnym sposobem, zaczynając od wskazanego wierzchołka. Wszystkie odwiedzone wierzchołki oprócz zapisania w zbiorze wierzchołków odwiedzonych zapiszemy w zbiorze utworzonym w poprzednim podpunkcie.
+    4. Dodajemy zbiór z grafem do listy zbiorów z punktu 1.
+
+Jako rezultat otrzymujemy listę wszystkich grafów zapisanych w naszej grafowej strukturze danych.
+
+### Implementacja w JavaScript
+
+Powyższą ideę możemy przekuć w poniższy kod JavaScriptowy wykorzystujący do przechodzenia algorytm przeszukiwania w głąb. Zakładam, że mamy funkcję `getConnectedNodes(graf, wierzchołek)`, która dla podanego wierzchołka zwróci nam wszystkie inne z nim połączone. Używam tutaj także funkcji `getAllNodes(graf)` zwracającej wszystkie wierzchołki grafu. Nie zamieszczam samej implementacji takich funkcji, ponieważ są one mocno zależne od tego, jak graf trzymamy w pamięci. Jeśli korzystamy z gotowych bibliotek do obsługi grafów, to zwykle oferują one coś w tym stylu, przykładowo do pierwszej funkcji — [`findNodesConnected()` w GoJS](https://gojs.net/latest/api/symbols/Node.html#findNodesConnected) albo [`connectedEdges()` w Cytoscape](https://js.cytoscape.org/#nodes.connectedEdges).
+
+```javascript
+function getSubgraphs(graph) {
+  // lista zbiorów, w których będziemy trzymać wierzchołki
+  const result = [];
+  // zbiór odwiedzonych wierzchołków
+  const visited = new Set();
+  // iterujemy po wszystkich wierzchołkach
+  for (const node of getAllNodes(graph)) {
+    // jeśli odwiedziliśmy wierzchołek, przechodzimy do kolejnego
+    if (visited.has(node)) {
+      continue;
+    }
+    // zbiór z aktualnym grafem
+    const current = new Set();
+    // odkrywamy graf za pomocą iteracyjnego DFS
+    const toVisit = [node];
+    while (toVisit.length > 0) {
+      // ściągamy pierwszy wierzchołek z kolejki
+      const currentNode = toVisit.pop();
+      // dodajemy wierzchołek do aktualnego grafu
+      current.add(currentNode);
+      // dodajemy wierzchołek do odwiedzonych
+      visited.add(currentNode);
+      // sprawdzamy sąsiadów wierzchołka
+      for (const neighbor of getConnectedNodes(graph, currentNode)) {
+        // jeśli sąsiad nie został odwiedzony, dodajemy go do kolejki
+        if (!visited.has(neighbor)) {
+          toVisit.push(neighbor);
+        }
+      }
+    }
+    // dodajemy graf do wyniku
+    result.push(current);
+  }
+  // zwracamy wynik
+  return result;
+}
+```
+
+Przykładową implementację bazującą na macierzy sąsiedztwa, napisaną w JavaScript znajdziesz [pod tym linkiem na serwisie repl.it](https://replit.com/@tswistak/graphs-find#index.js). W przykładzie zapisałem 5 grafów, ale możesz spróbować, jak algorytm zachowa się po zmodyfikowaniu macierzy. Weź jedynie pod uwagę fakt, że algorytm nie jest zabezpieczony na wypadek błędnie skonstruowanej struktury.
+
+## Znajdowanie cykli
+
+W artykule o teorii grafów wspomniałem o istnieniu grafów acyklicznych i cyklicznych. W przypadku tych drugich jesteśmy w stanie znaleźć taką drogę między wierzchołkami, która się nie kończy, zapętla się. Sprawdzenie, czy graf zawiera cykle, jest o tyle przydatne, że część algorytmów grafowych wprost wymaga od nas, żeby graf był acykliczny. Wśród klasycznych algorytmów możemy wymienić sortowanie topologiczne. Pośród mniej klasycznych, gdy chcemy ułożyć w przestrzeni wierzchołki dowolnym algorytmem rozmieszczającym wierzchołki grafu skierowanego warstwowo (po ang. *layered digraph*), np. algorytmem Sugiyamy, musimy mieć graf acykliczny. W przypadku cyklicznego nie jesteśmy w stanie poprawnie wyznaczyć warstw.
+
+<Image
+  image={cykliczny}
+  alignCenter
+  fullSize
+  alt="Graf acykliczny oraz graf z cyklem"
+  caption={<>
+    Grafika z artykułu z wprowadzeniem do tematu grafów. Na rysunku widzimy dwa grafy skierowane. Pod numerem 1 jest graf acykliczny, natomiast pod numerem 2 graf z cyklami.
+  </>}
+/>
+
+Zupełnie innym przykładem zastosowania znajdowania cykli, który na pierwszy rzut oka zdaje się nie mieć nic wspólnego z grafami, jest znajdowanie zależności cyklicznych (ang. *circular dependency*) w kodzie źródłowym. Jest to sytuacja, bardzo ogólnie mówiąc, kiedy rozwijając zależności pliku z kodem źródłowym, dojdziemy w prostej ścieżce do miejsca, od którego zaczęliśmy. Z punktu widzenia projektowania oprogramowania jest to zła praktyka, a w niektórych przypadkach może nawet powodować niemożliwość poprawnego zbudowania projektu (np. w JavaScript z użyciem Webpacka). Przy pisaniu aplikacji wyszukującej takie przypadki za wierzchołki grafu uznamy pliki z kodem, a krawędziami będą „importy” między nimi.
+
+### Idea algorytmu
+
+W tym przypadku naturalnym wyborem będzie algorytm DFS, ponieważ zwiedza on po kolei ścieżkę, a nie wykonuje się „warstwowo”. Tym samym, jeśli idąc ścieżką, trafimy ponownie na odwiedzony przez nas wierzchołek, sygnalizuje to istnienie cyklu. Przydatne tutaj będzie kolorowanie grafu, które opisałem <Link href="/post/przechodzenie-po-grafie">w poprzednim artykule</Link>, pisząc, że zwykle się go nie stosuje. W tym przypadku akurat jest przydatne. Przypomnijmy sobie na szybko te kolory:
+
+- biały — wierzchołek nieodwiedzony,
+- szary — wierzchołek znajduje się na stosie wywołań (odwiedziliśmy go i zaczęliśmy przetwarzać),
+- czarny — wierzchołek został przetworzony.
+
+Warto jednak pamiętać, że jeśli implementujemy ten algorytm w projekcie nieakademickim, to zamiast kolorów warto stosować konkretne nazwy oznaczające stan, w jakim jest wierzchołek, np. `NOT_VISITED` zamiast biały, `IN_STACK` zamiast szary, `PROCESSED` zamiast czarny. W ten sposób ułatwisz życie innym programistom, którzy będą po Tobie pracować w kodzie.
+
+Dla drobnego utrudnienia wersja, którą tutaj opiszę, będzie spisywać istniejące cykle. Warto jednak wiedzieć, że w praktyce często wystarczy informacja, że cykl w ogóle istnieje. Wówczas algorytm można uprościć.
+
+Algorytm podzielimy na trzy procedury: znajdowanie cykli (główna procedura algorytmu), przejście grafu (właściwy DFS) oraz wypisanie cyklu. Założyłem, że wywołując kolejne procedury, przekazujemy do nich referencje na obiekty, a nie kopie. Z punktu widzenia wielu współczesnych języków programowania nie jest to istotne, bo operują one domyślnie na referencjach, ale np. w przypadku C++ ma to znaczenie.
+
+#### Znajdowanie cykli
+
+Procedura na wejściu przyjmuje graf, jako rezultat wypisuje cykle.
+
+1. Tworzymy strukturę, która przechowa kolory wierzchołków. Jeśli nasze wierzchołki identyfikujemy liczbami od 0 do N, to wystarczy tablica; w przeciwnym przypadku słownik. Będę ją dalej nazywać mapą kolorów.
+2. Ustawimy wszystkim wierzchołkom biały kolor.
+3. Iterujemy po wszystkich wierzchołkach grafu, wykonując dla każdego z nich następujące operacje:
+    1. Jeśli wierzchołek ma inny kolor niż biały, bierzemy kolejny.
+    2. Tworzymy stos przechowujący aktualną ścieżkę.
+    3. Dodajemy aktualny wierzchołek do stosu.
+    4. Zmieniamy kolor wierzchołka na szary.
+    5. Wykonujemy przejście grafu. Przekazujemy do procedury DFS graf, stos ze ścieżką oraz mapę kolorów.
+
+#### Przejście grafu
+
+Ta część niewiele różni się od standardowego DFS, jednak mimo wszystko rozpiszę ją ze względu na zawiłości związane z obsługą stosu przechowującego ścieżkę.
+
+Procedura na wejściu przyjmuje graf, stos ze ścieżką oraz mapę kolorów, a jako rezultat wypisuje cykle.
+
+1. Iterujemy wszystkie wierzchołki, z którymi sąsiaduje wierzchołek znajdujący się na szczycie stosu (zostawiając go na nim). Dla każdego z nich:
+    1. Jeśli wierzchołek ma szary kolor, wywołujemy procedurę wypisania cyklu.
+    2. Jeśli wierzchołek ma biały kolor:
+        1. Dodajemy wierzchołek do stosu.
+        2. Zmieniamy kolor wierzchołka na szary.
+        3. Wywołujemy rekurencyjnie przejście grafu.
+2. Zmieniamy kolor wierzchołka na szczycie stosu na czarny.
+3. Ściągamy wierzchołek ze stosu.
+
+#### Wypisanie cyklu
+
+W tym miejscu wykorzystamy tworzony przez nas stos, aby odtworzyć ścieżkę z cyklem. Procedura przyjmuje na wejściu stos oraz wierzchołek, przy którym doszło do cyklu. Rezultatem jest wypisanie cyklu, który został odkryty.
+
+1. Tworzymy dodatkowy stos.
+2. Do dodatkowego stosu dodajemy element ze szczytu oryginalnego stosu. Element usuwamy z oryginalnego stosu.
+3. Dopóki na szczycie dodatkowego stosu nie znajdzie się wierzchołek, przy którym wykryliśmy cykl:
+    1. Do dodatkowego stosu dodajemy element ze szczytu oryginalnego stosu. Element usuwamy z oryginalnego stosu.
+4. Dopóki dodatkowy stos nie jest pusty:
+    1. Wypisujemy wierzchołek ze szczytu dodatkowego stosu.
+    2. Przywracamy na oryginalny stos wierzchołek ze szczytu dodatkowego stosu. Element usuwamy z dodatkowego stosu.
+
+Dzięki wykonaniu operacji w takiej kolejności nie zaburzymy kolejności elementów na oryginalnym stosie. Też dla rozwiania ewentualnych wątpliwości — punkt 2 algorytmu wykonujemy dodatkowo poza pętlą po to, aby być w stanie wypisać cykl spowodowany pętlą, czyli kiedy wierzchołek jest połączony sam ze sobą. Alternatywą byłoby zastosowanie konstrukcji `do...while` z języków programowania, gdzie pierwszy przebieg pętli jest zawsze wykonywany. Jednak zapisałem to w taki sposób, aby nie komplikować listy kroków.
+
+### Implementacja w JavaScript
+
+Tak samo jak przy poprzednim algorytmie, pokazana tutaj implementacja jest niezależna od sposobu, w jaki przechowujesz graf. Wymaga jedynie dwóch dodatkowych funkcji, które obsłużą grafową strukturę danych: `getAllNodes(graf)` (zwracająca wszystkie wierzchołki grafu) oraz `getNeighbors(graf, wierzchołek)` (zwracająca sąsiadów wierzchołka, ale tylko tych, do których dojdziemy z niego bezpośrednio).
+
+```javascript
+// funkcja wypisująca cykl
+function getCyclePath(stack, node) {
+  // tworzymy dodatkowy stos
+  const tempStack = [];
+  // kopiujemy ścieżkę na dodatkowy stos
+  let topNode;
+  do {
+    // ściągamy wierzchołek ze stosu
+    topNode = stack.pop();
+    // dodajemy go na dodatkowy stos
+    tempStack.push(topNode);
+  } while (topNode !== node)
+  // wypisujemy ścieżkę
+  const result = [];
+  while (tempStack.length > 0) {
+    // ściągamy wierzchołek z dodatkowego stosu
+    const tempTopNode = tempStack.pop();
+    // dodajemy wierzchołek do wypisywanej ścieżki
+    result.push(tempTopNode);
+    // przywracamy wierzchołek na oryginalny stos
+    stack.push(tempTopNode);
+  }
+  // zapętlamy ścieżkę dla ładniejszego zobrazowania cyklu
+  result.push(node);
+  // zwracamy ścieżkę
+  return result;
+}
+
+// funkcja przechodząca przez graf
+// dodatkowy argument przechowa nam listę znalezionych cykli
+// między wywołaniami rekurencyjnymi
+function traverse(graph, stack, colors, result) {
+  // pobieramy wierzchołek ze szczytu stosu, zostawiając go na nim
+  const node = stack.at(-1);
+  // iterujemy po wszystkich sąsiadach wierzchołka
+  for (const neighbor of getNeighbors(graph, node)) {
+    if (colors[neighbor] === 'GRAY') {
+      // znaleźliśmy cykl, więc uzyskajmy jego ścieżkę
+      result.push(getCyclePath(stack, neighbor))
+    } else if (colors[neighbor] === 'WHITE') {
+      // dodajemy wierzchołek do stosu
+      stack.push(neighbor);
+      // zmieniamy kolor wierzchołka na szary
+      colors[neighbor] = 'GRAY';
+      // wywołujemy rekurencyjnie DFS
+      traverse(graph, stack, colors, result);
+    }
+  }
+  // zmieniamy kolor wierzchołka na czarny
+  colors[node] = 'BLACK'
+  // ściągamy wierzchołek ze stosu
+  stack.pop();
+}
+
+// właściwa funkcja wyszukująca cykle
+function findCycles(graph) {
+  // pobierzmy wszystkie wierzchołki grafu
+  const nodes = getAllNodes(graph);
+  // utwórzmy tablicę z mapą kolorów
+  // od razu ustawimy wszystkim wierzchołkom biały kolor
+  const colors = Array(nodes.length).fill('WHITE');
+  // tworzymy pomocniczą strukturę na przechowanie wyniku
+  const result = [];
+  // iterujemy po wszystkich wierzchołkach
+  for (const node of nodes) {
+    if (colors[node] !== 'WHITE') {
+      // ignorujemy przetworzone wierzchołki
+      continue;
+    }
+    // tworzymy stos przechowujący eksplorowaną ścieżkę
+    const stack = [node];
+    // zmieniamy kolor wierzchołka na szary
+    colors[node] = 'GRAY';
+    // przechodzimy po grafie
+    traverse(graph, stack, colors, result);
+  }
+  // zwracamy listę cykli
+  return result;
+}
+```
+
+Tak jak i poprzednio, przykładową implementację bazującą na macierzy sąsiedztwa, napisaną w JavaScript znajdziesz [pod tym linkiem na serwisie repl.it](https://replit.com/@tswistak/cycles-find#index.js). Graf, który tam zamieściłem, zawiera trzy cykle (w tym jeden spowodowany pętlą), ale zachęcam do kombinowania z innymi grafami.
+
+## Znajdowanie najkrótszych tras między wierzchołkami
+
+Ostatnim praktycznym zastosowaniem, jakie chciałem pokazać, jest wyszukiwanie najkrótszych tras między dowolnymi wierzchołkami **grafu nieważonego, bez pętli**. Tak się składa, że trasy takie dostajemy przy zwykłym przechodzeniu grafu za pomocą BFS. Jedyne, co musimy zrobić, to zapamiętać kilka dodatkowych informacji w trakcie przechodzenia.
+
+Myślę, że o zastosowaniach takiego znajdowania najkrótszych tras nie muszę pisać. Warto jednak pamiętać, że trasy, które tutaj otrzymamy, nie biorą pod uwagę wag. Należy więc traktować to tylko jako trasę, która przechodzi przez najmniejszą liczbę wierzchołków. Nie przyda się do wyznaczania trasy na mapie, jednak są przypadki, że jest to wystarczające, np. przy szukaniu tras na planszach gier (chociaż przy dużych lepiej stosować bardziej specjalistyczne algorytmy jak A*).
+
+
+### Idea algorytmu
+
+Kroków algorytmu przechodzenia grafu rozpisywać nie będę, ponieważ jest to zwykły BFS, który już opisałem <Link href="/post/przechodzenie-po-grafie/#przeszukiwanie-wszerz">w poprzednim artykule</Link>. Jedyna różnica jest taka, że przed rozpoczęciem algorytmu tworzymy mapę poprzedników wierzchołków. Wtedy w samym algorytmie podczas odwiedzin wierzchołka zapisujemy, z którego wierzchołka trafiliśmy do niego. Warto pamiętać, żeby zapisanie poprzednika wykonać tylko raz. Jeśli trafimy na wierzchołek ponownie z innego, to trafiliśmy tam dłuższą drogą.
+
+Następnie celu rekonstrukcji ścieżki wykonujemy poniższy algorytm.
+
+Na wejściu algorytm przyjmuje listę poprzedników, wierzchołek startowy oraz wierzchołek docelowy. Jako rezultat wypisuje najkrótszą ścieżkę między wierzchołkami.
+
+1. Jeśli wierzchołek startowy i docelowy są takie same, wypisz go i zakończ wykonanie.
+2. Jeśli lista poprzedników nie zawiera poprzednika wierzchołka docelowego, zwróć, że ścieżka nie istnieje.
+3. Wywołaj algorytm rekurencyjnie z tą samą listą poprzedników, tym samym wierzchołkiem startowym, ale jako docelowy podaj poprzednik aktualnego docelowego.
+4. Wypisz wierzchołek docelowy.
+
+Dlaczego to działa? Otóż przypomnij sobie zasadę BFS — przechodzi on graf „warstwa po warstwie”. Oznacza to, że zamiast eksploatując do końca pojedynczą ścieżkę, tak jak robi to DFS, tutaj zawsze otrzymujemy najkrótszą możliwą drogę między dwoma wierzchołkami. Natomiast skoro mamy do czynienia z grafem nieważonym, możemy stwierdzić, że jeśli np. wierzchołek `A` sąsiaduje z `B`, `B` z wierzchołkiem `C`, a jednocześnie `A` nie sąsiaduje z `C`, to najkrótszą drogą z `A` do `C` jest `A->B->C`.
+
+### Implementacja w JavaScript
+
+Wzorując się na kodzie z poprzedniego artykułu i opisanym powyżej algorytmie rekonstrukcji ścieżek, możemy napisać poniższy kod w JavaScript. Analogicznie jak poprzednio, zakładam istnienie funkcji `getAllNodes(graf)` oraz `getNeighbors(graf, wierzchołek)`. Nie napisałem funkcji, która wprost zwraca ścieżkę między dwoma wierzchołkami, z prostego powodu — rezultatu BFS możemy używać ponownie do wyznaczania wszystkich ścieżek z wierzchołka, od którego zaczęliśmy przechodzenie grafu.
+
+```javascript
+// funkcja przechodząca po grafie BFS-em
+// zwraca listę poprzedników wierzchołków
+function traverse(graph, startNode) {
+  // tworzymy zbiór odwiedzonych wierzchołków
+  const visited = new Set();
+  // tworzymy kolejkę przechowującą wierzchołki
+  const queue = [startNode];
+  // tworzymy listę poprzedników
+  const previous = getAllNodes(graph).fill(null);
+  // przechodzimy graf tak długo, aż kolejka będzie pusta
+  while (queue.length > 0) {
+    // ściągamy wierzchołek z kolejki
+    const node = queue.shift();
+    // dodajemy go do listy odwiedzonych
+    visited.add(node);
+    // przechodzimy po sąsiadach
+    for (const neighbor of getNeighbors(graph, node)) {
+      // interesują nas tylko nieodwiedzone
+      if (!visited.has(neighbor)) {
+        // dodajemy wierczhołek do kolejki
+        queue.push(neighbor);
+        // ustawiamy jego poprzednika
+        if (previous[neighbor] === null) {
+          previous[neighbor] = node;
+        }
+      }
+    }
+  }
+  // zwracamy listę poprzedników
+  return previous;
+}
+
+// funkcja wypisująca najkrótszą ścieżkę między dwoma wierzchołkami
+// dodatkowy argument to akumulator wyniku
+function constructShortestPath(previous, startNode, endNode, result = []) {
+  if (startNode === endNode) {
+    // dodajemy wierzchołek do wyniku, jeśli początek i wynik są takie same
+    result.push(startNode);
+  } else if (previous[endNode] === null) {
+    // ścieżka nie istnieje
+    result.push('brak ścieżki');
+  } else {
+    // wywołujemy rekurencyjnie funkcję dla poprzednika
+    constructShortestPath(previous, startNode, previous[endNode], result);
+    // dodajemy węzeł końcowy do wyniku
+    result.push(endNode);
+    // zwracamy wynik
+    return result;
+  }
+}
+```
+
+Ponownie, przykładową implementację bazującą na macierzy sąsiedztwa, napisaną w JavaScript znajdziesz [pod tym linkiem na serwisie repl.it](https://replit.com/@tswistak/bfs-shortest-path#index.js). Implementacja zawiera graf, który możesz zobaczyć na poniższym rysunku, i szuka ścieżek do każdego wierzchołka od wierzchołka 0.
+
+<Image
+  image={grafSciezki}
+  alignCenter
+  fullSize
+  alt="Graf"
+  caption={<>
+    Graf użyty w implementacji algorytmu znajdującej się <a href="https://replit.com/@tswistak/bfs-shortest-path#index.js">tutaj</a>.
+  </>}
+/>
+
+Algorytm zwróci w tym przypadku następujące ścieżki; sprawdź sam(a) z rysunkiem, czy są faktycznie najkrótsze:
+
+- `0->1`
+- `0->1->2`
+- `0->1->3`
+- `0->8->4`
+- `0->5`
+- `0->8->6`
+- `0->8->4->7`
+- `0->8`
+
+Oczywiście są też inne ścieżki tej samej długości, np. do wierzchołka 3 możemy dojść optymalnie również drogą `0->5->3`. W takim przypadku znalezione ścieżki zależą od tego, w jakiej kolejności BFS otrzymał sąsiadów wierzchołka.
+
+## Literatura
+
+- Cormen, T. H.; Leiserson, C. E.; Rivest R. L.; Stein C. “Breadth-first search” w *Introduction to algorithms, 3rd ed.*. MIT Press, Cambridge, MA, U.S.A., s. 594-602.
+- Cormen, T. H.; Leiserson, C. E.; Rivest R. L.; Stein C. “Depth-first search” w *Introduction to algorithms, 3rd ed.*. MIT Press, Cambridge, MA, U.S.A., s. 603-612.
+
+<small>(zdjęcie na okładce:
+  Photo by form [PxHere](https://pxhere.com/en/photo/560162?utm_content=shareClip&utm_medium=referral&utm_source=pxhere)
+)</small>

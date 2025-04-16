@@ -1,0 +1,500 @@
+import Link from 'next/link';
+import {Image, Iframe} from '@swistak-codes/components';
+import cover from './malpy3d.png';
+import obrotZ from './obrot-OZ.png';
+import obrotX from './obrot-x.png';
+import obrotY from './obrot-y.png';
+import perspektywa from './perspektywa.png';
+import perspektywaClass from './perspektywa_classroom.png';
+import rownolegly from './rownolegly.png';
+import rownoleglyClass from './rownolegle_classroom.png';
+import skretnosc from './skretnosc-ukladow.png';
+import rpy from './Yaw_Axis_Corrected.svg.png';
+
+export const meta = {
+  title: 'Przekształcenia grafiki 3D',
+  abstract:
+    'W artykule przedstawiam jak możemy dokonywać transformacji grafiki 3D za pomocą macierzy przekształceń oraz kwaternionów.',
+  firstParagraph: (
+    <>
+      <Link href="/post/przeksztalcenia-grafiki-2d">W ostatnim artykule</Link> poruszałem temat przekształceń grafiki dwuwymiarowej, gdzie zaprezentowałem zarówno przekształcenia afiniczne, jak i perspektywiczne zapisywane w postaci macierzy przekształceń. Teraz pójdźmy o krok dalej i zobaczmy, jak to wygląda w przypadku grafiki trójwymiarowej.
+    </>
+  ),
+  keyword: 'przekształcenia',
+  categories: ['Grafika komputerowa', 'Matematyka'],
+  tags: [
+    'grafika',
+    'macierze',
+    '3d',
+    'kwaterniony',
+    'translacja',
+    'skalowanie',
+    'obrót',
+    'współrzędne jednorodne',
+    'układ współrzędnych',
+    'rpy',
+    'gimbal lock',
+    'transformacje afiniczne',
+    'rzutowanie perspektywiczne',
+    'rzutowanie prostokątne',
+    'rzutowanie',
+    'rzutowanie równoległe',
+    'rzutowanie ortograficzne',
+    'przesunięcie',
+    'skrętność',
+    'css',
+    'opengl',
+    'webgl',
+  ],
+  slug: 'przeksztalcenia-grafiki-3d',
+  updateTime: '2021-08-17T16:39:21+00:00',
+  publishTime: '2021-06-09T09:00:27+00:00',
+  cover,
+};
+
+## Uwaga wstępna
+
+Podobnie jak poprzednio, ten artykuł również będzie wykorzystywał pojęcie macierzy oraz prezentował podstawowe operacje na nich. Jeżeli chcesz dokładnie prześledzić artykuł, warto zapoznać się z tym tematem, jednak nie jest to konieczne, aby wynieść jakąkolwiek wiedzę z tego tekstu.
+
+Tak samo w przypadku, gdy nie czytałeś <Link href="/post/przeksztalcenia-grafiki-2d">poprzedniego artykułu o przekształceniach grafiki 2D</Link>, zacznij lekturę od niego. Ten artykuł jest jedynie kontynuacją i nie będę wyjaśniać jeszcze raz tych samych rzeczy.
+
+## Współrzędne jednorodne dla przestrzeni 3D
+
+Przejdźmy od razu do konkretów. W przestrzeni trójwymiarowej, jak sama nazwa wskazuje, posługujemy się trzema wymiarami, stąd punkt jest oznaczany przez trzy współrzędne: $$(x, y, z)$$. Tylko jak pamiętamy, współrzędne jednorodne dla przestrzeni 2D posiadają już trzy wartości: $$(x, y, w)$$.  Więc w jaki sposób reprezentujemy punkt 3D? Czterema współrzędnymi.
+
+$$
+P = \begin{bmatrix}x\\y\\z\\w\end{bmatrix}
+$$
+
+Przeliczanie na układ kartezjański wygląda tak samo, jak w przypadku 2D, czyli dzielimy wszystkie współrzędne przez czynnik normalizujący $$w$$.
+
+Tym samym macierz przekształceń również się powiększa i tym razem ma wymiary 4×4. Wygląda to następująco:
+
+$$
+\begin{align*}
+\begin{bmatrix} x' \\ y' \\z'\\w'\end{bmatrix} &= \begin{bmatrix} a & b & c & d\\ e & f & g & h\\ i & j &k &l \\m & n & o & 1 \end{bmatrix} \cdot \begin{bmatrix} x \\ y \\z\\w\end{bmatrix}
+\\ \text{} \\
+x' &= ax + by + cz + dw \\
+y' &= ex + fy+gz + hw \\
+z' &= ix + jy + kz + lw \\
+w' &= mx + ny + oz + w
+\end{align*}
+$$
+
+## Przesunięcia i skalowania
+
+Operacje przesunięcia i skalowania w trzech wymiarach praktycznie nie różnią się od tych w dwóch wymiarach. Jedyną różnicą jest dodatkowy wymiar. Stąd translację opiszemy następująco:
+
+$$
+\begin{align*}
+T(d_x,d_y,d_z) &= \begin{bmatrix} 1 & 0 & 0 &d_x \\ 0 & 1 & 0 & d_y \\ 0 & 0 & 1 & d_z \\ 0 & 0 &0 & 1 \end{bmatrix}
+\\ \text{} \\
+x' &= x + d_x \\
+y' &= y + d_y \\
+z' &= z + d_z \\
+w' &= w
+\end{align*}
+$$
+
+Analogicznie jest ze skalowaniem — też rozszerzamy o jeden współczynnik więcej i zasada działania jest identyczna jak w 2D.
+
+$$
+\begin{align*}
+S(s_x,s_y,s_z) &= \begin{bmatrix} s_x & 0 & 0 &0 \\ 0 & s_y & 0 & 0\\ 0 & 0 & s_z & 0 \\ 0 & 0 &0 & 1 \end{bmatrix}
+\\ \text{} \\
+x' &= s_x \cdot x \\
+y' &= s_y \cdot y  \\
+z' &= s_z \cdot z  \\
+w' &= w
+\end{align*}
+$$
+
+## Obroty
+
+Sprawa jednak komplikuje się w przypadku obrotów. W dwóch wymiarach mieliśmy jedynie jedną opcję obrotu. W trzech wymiarach mamy aż trzy możliwości. Jednakże zanim opiszę, czym się one różnią, trzeba trochę pogłębić temat reprezentacji trzeciego wymiaru.
+
+### Skrętność układu współrzędnych
+
+Głównym problemem jest określenie skrętności układu współrzędnych. Jak nie ma wątpliwości, że oś Y wyznacza wysokość (idzie w górę), oś X szerokość (idzie w bok), tak problem pojawia się z osią Z, która ma wyznaczać długość. Problemem jest, w którym kierunku wartości powinny rosnąć. Ze względu na to, że są dwie możliwości, mamy dwie opcje skrętności układu współrzędnych: lewoskrętny i prawoskrętny.
+
+<Image
+  image={skretnosc}
+  alignCenter
+  fullSize
+  alt="Lewoskrętny układ współrzędnych z osią Z biegnącą w kierunku głębi ekranu monitora. Prawoskrętny układ współrzędnych z osią Z biegnącą w kierunku obserwatora"
+  caption={<>
+    Lewoskrętny układ współrzędnych (1) i prawoskrętny układ współrzędnych (2).
+  </>}
+/>
+
+Zakładając, że osie Y i X wyznaczają ramki ekranu, możemy sobie wyobrazić, że im w lewoskrętnym układzie współrzędnych wartości rosną, tym są bardziej wewnątrz ekranu, a w przypadku prawoskrętnym znajdują się bardziej w kierunku obserwatora. Układ prawoskrętny jest częściej spotykany, dlatego też opisując obroty, będę zakładał, że operujemy na takim właśnie układzie.
+
+W razie potrzeby zawsze możemy zmienić skrętność układu współrzędnych. W tym celu stosujemy poniższe przekształcenie:
+
+$$
+M_{L \to R} = M_{R \to L} = \begin{bmatrix} 1 & 0 & 0 &0 \\ 0 & 1 & 0 & 0 \\ 0 & 0 & -1 & 0 \\ 0 & 0 & 0 & 1 \end{bmatrix}
+$$
+
+### Obrót wokół osi Z
+
+Rotacja wokół osi Z jest tym samym, co obrót 2D, czyli wykonujemy obrót w kierunku z osi X na oś Y. Oczywiście mówimy o obrocie dodatnim.
+
+<Image
+  image={obrotZ}
+  alignRight
+  fullSize
+  maxWidth="216px"
+  alt="Obrót wokół osi Z."
+  caption={<>
+    Obrót wokół osi Z.
+  </>}
+/>
+
+Jak możesz się domyśleć, macierz wygląda niemal identycznie jak w przypadku 2D, czyli:
+
+$$
+R_z(\theta)= \begin{bmatrix}\cos\theta & -\sin\theta & 0 & 0\\ \sin\theta & \cos\theta & 0 & 0\\0 & 0 & 1& 0  \\ 0& 0 & 0 & 1\end{bmatrix}
+$$
+
+### Obrót wokół osi X
+
+Wokół osi X obracamy (dodatni kąt), jak pokazałem na rysunku obok, z osi Y na oś Z.
+
+<Image
+  image={obrotX}
+  alignLeft
+  fullSize
+  maxWidth="216px"
+  alt="Obrót wokół osi X."
+  caption={<>
+    Obrót wokół osi X.
+  </>}
+/>
+
+Z matematycznego punktu widzenia możemy łatwo zapamiętać macierz transformacji, ponieważ wygląda tak samo, jak dla osi Z, tylko wartości są „przesunięte” o 1 pozycję w dół i 1 w lewo.
+
+$$
+R_x(\theta)= \begin{bmatrix}1 & 0 & 0& 0  \\0 &\cos\theta & -\sin\theta & 0\\ 0 & \sin\theta & \cos\theta & 0\\ 0& 0 & 0 & 1\end{bmatrix}
+$$
+
+### Obrót wokół osi Y
+
+Rotacja wokół osi Y (również dodatnia) odbywa się w kierunku z osi Z na oś X.
+
+<Image
+  image={obrotY}
+  alignRight
+  fullSize
+  maxWidth="216px"
+  alt="Obrót wokół osi Y."
+  caption={<>
+    Obrót wokół osi Y.
+  </>}
+/>
+
+W kwestii zapisu w postaci macierzy jest już nieco mniej intuicyjnie w porównaniu do poprzednich obrotów. Warto zwrócić uwagę na to, że minus znajduje się tym razem przy drugim sinusie.
+
+$$
+R_y(\theta)= \begin{bmatrix}\cos\theta & 0 & \sin\theta & 0\\ 0 & 1 & 0& 0  \\ -\sin\theta & 0 & \cos\theta & 0\\ 0& 0 & 0 & 1\end{bmatrix}
+$$
+
+### Uproszczony zapis
+
+Warto wspomnieć, że o ile do obliczeń (w układzie współrzędnych jednorodnych) poprawny jest powyższy zapis w postaci macierzy 4x4, to często można spotkać się w literaturze z zapisem obrotów w postaci macierzy 3x3. Jest to wówczas wycinek macierzy 4x4 bez ostatniej kolumny i ostatniego wiersza, i gdy operujemy tylko obrotami, zapis taki wystarcza, np. do składania wielu obrotów w jeden.
+
+$$
+\begin{align*}
+R_z(\theta)&= \begin{bmatrix}\cos\theta & -\sin\theta & 0 & 0\\ \sin\theta & \cos\theta & 0 & 0\\0 & 0 & 1& 0  \\ 0& 0 & 0 & 1\end{bmatrix}
+\\ &\text{jest równoważne:} \\
+R_z(\theta)&= \begin{bmatrix}\cos\theta & -\sin\theta & 0 \\ \sin\theta & \cos\theta & 0 \\0 & 0 & 1\end{bmatrix}
+\end{align*}
+$$
+
+Oczywiście jak się możesz domyślać, jest to sytuacja identyczna jak w 2D — w formie 3x3 obliczamy punkty bez współrzędnej normalizującej $$w$$. Obliczenia są analogiczne do pokazywanych przeze mnie w poprzednim artykule. Jedyna różnica to dojście współrzędnej $$z$$.
+
+### Kąty RPY
+
+W grafice 3D często zamiast mówić o obrotach wokół danej osi posługujemy się nazewnictwem wywodzącym się z kątów RPY.
+
+<Image
+  image={rpy}
+  alignLeft
+  fullSize
+  maxWidth="216px"
+  alt="Samolot z naniesionymi osiami układu współrzędnych i zaznaczonymi rotacjami w nomenklaturze RPY"
+  caption={<>
+    Rotacje RPY<br />
+    (Yaw_Axis.svg: Auawisederivative work: Jrvz, <a href="https://creativecommons.org/licenses/by-sa/3.0">CC BY-SA 3.0</a> via <a href="https://commons.wikimedia.org/wiki/File:Yaw_Axis_Corrected.svg">Wikimedia Commons</a>)
+  </>}
+/>
+
+RPY to system nazewnictwa oryginalnie wykorzystywany do określania kątów obrotu statków powietrznych oraz prędkości kątowych. Mówimy tutaj o kątach:
+
+- Roll (obrót, przechylenie) — rotacja względem osi X.
+- Pitch (nachylenie) — rotacja względem osi Y.
+- Yaw (odchylenie, zboczenie z kursu) — rotacja względem osi Z.
+
+W oryginalnym nazewnictwie nazwy te są też nazwami osi, wokół których wykonuje się obrót (jak widać na obrazku obok). Zwróć uwagę, że osie są tutaj inaczej nałożone niż w grafikach wcześniej przeze mnie przestawianych, ale to też jest kwestia umowna. Najważniejsza jest finalna reprezentacja matematyczna, a ta pokrywa się z opisem, który przedstawiłem w powyższych punktach.
+
+Oprócz nomenklatury RPY w matematyce czasami stosuje się też kąty Eulera, ale tutaj już zachęcam do sprawdzenia na własną rękę, jak one są definiowane. Zwięzłe podsumowanie różnych form zapisu i przeliczeń między nimi znajdziesz na Wikipedii w artykule [„Rotation formalisms in three dimensions”](https://en.wikipedia.org/wiki/Rotation_formalisms_in_three_dimensions).
+
+### Gimbal lock
+
+Wartym wspomnienia jest jeszcze problem, który dotyka obroty 3D, czyli tak zwany gimbal lock. Jest to sytuacja, w której na skutek składania transformacji obrotu dochodzi do tego, że dwie osie obrotu niwelują się. W wyniku tego możemy w praktyce obracać tylko wokół jednej osi.
+
+Posłużę się przykładem zaczerpniętym [z angielskiej Wikipedii](https://en.wikipedia.org/wiki/Gimbal_lock#Loss_of_a_degree_of_freedom_with_Euler_angles), ponieważ bardzo dobrze obrazuje istotę problemu gimbal locka. Wykonajmy złożenie trzech obrotów, gdzie od razu założymy, że $$\theta_y = 90^\circ = \frac{\pi}{2} \text{rad}$$, czyli cosinus tego kąta wynosi 0, a sinus 1.
+
+$$
+\begin{align*}
+R &= \begin{bmatrix}
+1 & 0 & 0 & 0 \\
+0 & \cos \theta_x & -\sin \theta_x & 0\\
+0 & \sin\theta_x  & \cos \theta_x & 0 \\ 0 & 0 & 0 & 1\end{bmatrix} \begin{bmatrix}
+0 & 0 & 1& 0 \\
+0 & 1 & 0& 0 \\
+-1 & 0 & 0& 0\\ 0 & 0& 0& 1 \end{bmatrix} \begin{bmatrix}
+\cos \theta_z & -\sin \theta_z & 0& 0 \\
+\sin \theta_z & \cos \theta_z & 0& 0 \\
+0 & 0 & 1& 0\\
+0& 0& 0& 1 \end{bmatrix} =
+\\
+&= \begin{bmatrix}
+0 & 0 & 1& 0 \\
+\sin \theta_x \cos \theta_z + \cos \theta_x \sin \theta_z & -\sin \theta_x \sin \theta_z + \cos \theta_x \cos \theta_z & 0& 0 \\
+-\cos \theta_x \cos \theta_z + \sin \theta_x \sin \theta_z & \cos \theta_x \sin \theta_z + \sin \theta_x \cos \theta_z & 0& 0
+\\ 0& 0& 0& 1 \end{bmatrix}  = \\
+&= \begin{bmatrix}
+0 & 0 & 1& 0 \\
+\sin ( \theta_x + \theta_z ) & \cos (\theta_x + \theta_z) & 0 & 0\\
+-\cos ( \theta_x + \theta_z ) & \sin (\theta_x + \theta_z) & 0 & 0
+\\ 0& 0& 0& 1\end{bmatrix}
+\end{align*}
+$$
+
+W tym przypadku zmiana wartości kąta obrotu wokół osi X i wokół osi Z da zawsze ten sam rezultat, ponieważ w wyniku mnożenia utraciliśmy zmiany w pierwszym wierszu macierzy oraz przedostatniej kolumnie. Mówiąc technicznym językiem, straciliśmy jeden ze stopni swobody.
+
+## Sprawdź to sam!
+
+Jeżeli chcesz sprawdzić, w jaki sposób działa macierz przekształceń, poniżej możesz przetestować, jak zmienia się sześcian w zależności od różnych wartości elementów. W polu wyboru z prawej strony możesz zmienić aktualnie wyświetlaną figurę na inną, natomiast za pomocą myszki możesz manewrować kamerą w przestrzeni (po kliknięciu obracamy kamerę poruszaniem myszy; kółkiem przybliżamy i oddalamy). Transformacja zawsze wykonywana jest na podstawie pierwotnego kształtu i ułożenia obiektu 3D.
+
+<Iframe src="/iframe-content/transform3d/index.html?mode=matrix" minHeight={400} />
+
+Pokazana wyżej prezentacja została napisana w Svelte i Three.js. Jej kod znajdziesz na moim [GitHubie](https://github.com/swistak-codes/transformations-3d).
+
+## Składanie przekształceń
+
+W kwestii składania przekształceń obowiązują dokładnie takie same zasady jak w przypadku 2D, dlatego ponownie odsyłam do poprzedniego artykułu, jeśli jeszcze nie czytałeś/aś go.
+
+Jedną rzeczą, na którą warto zwrócić uwagę, jest fakt, że w przestrzeni 3D duże znaczenie ma kolejność wykonywania obrotów. Obrót najpierw wokół osi X, potem wokół osi Y da inny rezultat niż wykonanie tych operacji na odwrót.
+
+Przy składaniu przekształceń obliczenia mogą być dość żmudne i kosztowne ze względu na mnożenie macierzy 4x4. Jeżeli jesteś zainteresowany/a, to we wspominanej już książce J. Foleya jest opisane, w jaki sposób, wykorzystując różne sztuczki matematyczne, można sobie uprościć te obliczenia (rozdziały 5.7 i 5.8).
+
+## Inne zastosowania przekształceń 3D
+
+O ile powyższe zastosowania, jakie opisałem, są zdecydowanie najpopularniejsze i najczęściej spotykane, nie oznacza to, że są jedynymi czy też najważniejszymi zastosowaniami. Najważniejszym przekształceniem, do którego wykorzystujemy macierze przekształceń, choć często ukrytym za silnikami renderowania 3D, są rzutowania.
+
+Rzutowanie to bardzo rozległy temat, którego nie da się opisać równocześnie szczegółowo i krótko, dlatego opowiem po prostu krótko. Idea generalnie polega na tym, że mając świat 3D, musimy go wyświetlić na dwuwymiarowej płaszczyźnie (ekran), jednocześnie odwzorowując najlepiej, jak się da, podstawową cechę trzeciego wymiaru, czyli głębię. Aby tego dokonać, z jednej strony pozbywamy się wszystkich informacji na temat osi Z, ale też musimy odpowiednio przetransformować resztę pikseli, aby utrzymać pozory, że głębia wciąż istnieje. W poprzednim artykule pokazywałem możliwość robienia przekształceń perspektywicznych przy transformacjach dwuwymiarowych — tutaj wykorzystujemy dokładnie ten sam mechanizm, żeby zachować głębię.
+
+Jak wspomniałem, temat jest dość rozległy, stąd chętnych odsyłam do literatury w tym temacie (np. rozdział 6 w książce Foleya). Jednak aby nie pozostawić Cię z niczym, zaprezentuję macierze wykorzystywane do najpopularniejszych przekształceń tego typu. Przekształcenia pokażę na dwóch scenach: odsuniętych od siebie sześcianach oraz zaawansowanej [wizualizacji sali lekcyjnej](https://www.blender.org/download/demo-files/) (autorstwa Christophe Seux na licencji CC0). Za każdym razem obserwator (kamera) znajduje się w tym samym miejscu.
+
+### Rzutowanie prostokątne (równoległe, ortograficzne)
+
+Jest najprostsze do obliczenia, ale zarazem dające najsłabszy efekt 3D. W jego przypadku tracimy głębię (brak oddalania się obiektów wraz z odległością), jednak zachowujemy oryginalne kąty i równoległość linii, stąd znajduje zastosowanie przy modelowaniu.
+
+<Image
+  image={rownolegly}
+  alignCenter
+  fullSize
+  alt="Dwa sześciany w rzutowaniu równoległym"
+  caption={<>
+    Mimo że obiekty są odsunięte od siebie, po zastosowaniu rzutu oba są tej samej wielkości, co jest nienaturalne. Z drugiej strony, zachowaliśmy oryginalny wygląd brył.
+  </>}
+/>
+
+<Image
+  image={rownoleglyClass}
+  alignCenter
+  fullSize
+  alt="Scena z salą lekcyjną w rzutowaniu równoległym"
+  caption={<>
+    W przypadku bardziej zaawansowanej sceny wszystkie obiekty naszły na siebie, nawet ściany, przez co nie widzimy kompletnej sceny i wygląda ona nienaturalnie.
+  </>}
+/>
+
+$$
+M_{ort} = \begin{bmatrix}
+1 & 0 & 0 & 0 \\
+0 & 1 & 0 & 0 \\
+0 & 0 & 0 & 0 \\
+0 & 0 & 0 & 1 \\
+\end{bmatrix}
+$$
+
+### Rzutowanie perspektywiczne
+
+To najbardziej naturalne rzutowanie, ponieważ oddaje głębię. Niestety w jego wyniku tracimy część informacji o geometrii.
+
+<Image
+  image={perspektywa}
+  alignCenter
+  fullSize
+  alt="Dwa sześciany w rzutowaniu perspektywicznym"
+  caption={<>
+    Dzięki perspektywie drugi sześcian jest mniejszy, dzięki czemu wiemy, że znajduje się dalej w przestrzeni.
+  </>}
+/>
+
+<Image
+  image={perspektywaClass}
+  alignCenter
+  fullSize
+  alt="Scena z salą lekcyjną w rzutowaniu perspektywicznym"
+  caption={<>
+    Przy zaawansowanej scenie rzut perspektywiczny umożliwia zobaczenie jej w naturalny sposób. Jesteśmy w stanie określić odległość obiektów od siebie, aczkolwiek ze względu na perspektywę nie są zachowane szczegóły geometrii (choć jesteśmy je w stanie dostrzec z powodu przyzwyczajenia mózgu do tego typu widoku).
+  </>}
+/>
+
+$$
+M_{per} = \begin{bmatrix}
+1 & 0 & 0 & 0 \\
+0 & 1 & 0 & 0 \\
+0 & 0 & 0 & 0 \\
+0 & 0 & \frac{1}{d} & 1 \\
+\end{bmatrix}
+$$
+
+We wzorze $$d$$ to odległość obserwatora od miejsca, na które rzutujemy (rzutnia).
+
+## Alternatywny zapis — kwaterniony
+
+Oprócz macierzy w układzie jednorodnym bardzo popularnym sposobem zapisu przekształceń 3D są kwaterniony. Co prawda możemy za ich pomocą zapisać jedynie obroty, jednak wciąż warto o nich wspomnieć ze względu na powszechność zastosowania.
+
+Od razu ostrzegam, że kwaterniony są dość rozległym tematem i potraktuję je tutaj bez odpowiedniej szczegółowości. Na pewno wypadałoby je nieco dokładniej wytłumaczyć od strony matematycznej, jednak musiałbym temu poświęcić więcej miejsca niż pojedynczy akapit. Jest to temat z dziedziny matematyki uniwersyteckiej, dość abstrakcyjnie brzmiący, do tego nie zawsze wykładany na studiach informatycznych. Jeżeli chcesz pominąć tę dziwnie brzmiącą część matematyczną, możesz spokojnie przewinąć w dół do akapitu o przykładowych implementacjach. Aczkolwiek jeżeli chcesz mieć kiedykolwiek do czynienia z grafiką 3D od strony programistycznej, warto przeczytać, jak kwaterniony są w niej wykorzystane.
+
+### Czym są kwaterniony?
+
+Kwaterniony ($$\mathbb{H}$$) to, w skrócie mówiąc, rozszerzenie liczb zespolonych na cztery wymiary. Podczas gdy liczby zespolone składają się z dwóch współrzędnych, gdzie jedna to część rzeczywista, a druga urojona, tak w kwaternionach mamy jedną współrzędną rzeczywistą i trzy urojone. Zwykle zapisuje się je w postaci algebraicznej, analogicznie do liczb zespolonych:
+
+$$
+\begin{align*}
+q&=a+b\cdot i+c \cdot j + d \cdot k, \\
+&\text{gdzie: }\\ q &\in \mathbb{H} \\ a,b,c,d &\in \R \\
+i^2&=j^2=k^2 = -1
+\end{align*}
+$$
+
+Oczywiście jednostki urojone $$(i, j, k)$$ w zapisie zostawiamy, podstawiamy jedynie wartości rzeczywiste $$(a,b,c,d)$$. Tym samym przykładowa liczba w tej formie zapisu wygląda tak: $$1+2i-3j+k$$.
+
+Istnieją również inne formy zapisu kwaternionów, gdzie każda jest lepsza do innego rodzaju zastosowań. W artykule pominę operacje i obliczenia na kwaternionach, dlatego żaden z tych zapisów nie będzie nam bardzo przydatny, jednak możesz traktować to jako przydatna z czasem ciekawostka. Poniżej możesz zobaczyć mały przegląd wybranych przeze mnie różnych form zapisu:
+
+$$
+\begin{align*}
+q&= \begin{bmatrix}a &b &  c & d\end{bmatrix}^T \\
+q &= (a, \vec{v}), \text{ gdzie: } \vec{v} = \begin{bmatrix} b & c & d \end{bmatrix}^T \in \R^3 \\
+q &= \begin{bmatrix}
+a & b & -d & -c \\
+-b &  a & -c &  d \\
+d & c &  a & b \\
+c & -d & -b &  a
+\end{bmatrix}
+\end{align*}
+$$
+
+Dla dodatkowego wyjaśnienia: „macierz do potęgi T” to zapis operacji transpozycji macierzy zastosowany, aby nie rozciągać zapisu wektorem kolumnowym. Często też zamiast $$(a,b,c,d)$$ możemy spotkać się z innymi literami dla zmiennych, np. $$(w,x,y,z)$$, które jest często spotykane w bibliotekach do grafiki 3D. Natomiast w niektórych źródłach matematycznych można znaleźć także $$(q_0, q_1, q_2, q_3)$$. Jest to tylko kwestia konwencji, a sam osobiście wolę stosowanie $$(a,b,c,d)$$ zamiast $$(w,x,y,z)$$, aby nie mieszały się nam ze współrzędnymi w układzie jednorodnym.
+
+Jeszcze jedna uwaga — macierz przedstawiająca zapis kwaternionu nie jest równoważna macierzy transformacji. Nie można stosować tego zamiennie. Tak samo kwaternion w postaci macierzy kolumnowej też nie jest równoważny współrzędnym $$(x,y,z,w)$$. Jest to jedynie konwencja zapisu.
+
+### Definiowanie obrotów kwaternionami
+
+Przejdźmy więc do konkretów, czyli tego, jak definiujemy obroty przy użyciu kwaternionów. Wzór wygląda następująco:
+
+$$
+\begin{align*}
+a &= \cos(\theta / 2) \\
+b &= \sin(\theta/2) \cdot \cos(\beta_x) \\
+c &= \sin(\theta/2) \cdot \cos(\beta_y) \\
+d &= \sin(\theta/2) \cdot \cos(\beta_z)
+\end{align*}
+$$
+
+Kąty $$\beta$$, które można zauważyć we wzorze, to nachylenie osi obrotu wobec wybranej osi układu współrzędnych. W najprostszym przypadku, jaki opisywaliśmy sobie wcześniej, definiowaliśmy, że wykonywaliśmy obrót wokół wybranej osi układu współrzędnych. Oznacza to, że wtedy nachylenie osi obrotu wobec niej wynosi $$0^\circ$$, a do pozostałych $$90^\circ$$. Z racji, że jest to funkcja cosinus, to w tym przypadku będzie przyjmować wartości 1 oraz 0. Przykładowo, wzór na obrót wokół osi Z będzie wyglądać następująco:
+
+$$
+\begin{align*}
+a &= \cos(\theta / 2) \\
+b &= \sin(\theta/2) \cdot 0 \\
+c &= \sin(\theta/2) \cdot 0 \\
+d &= \sin(\theta/2) \cdot 1 \\ \text{} \\
+q_{R_z} &= \cos(\theta / 2) \cdot \sin(\theta/2) k
+\end{align*}
+$$
+
+Oczywiście możliwość zdefiniowania odchylenia osi obrotu od osi układu współrzędnych pozwala nam na jeszcze większą dowolność niż po prostu obrót wokół osi. Dzięki temu możemy niektóre zaawansowane obroty wykonać jednym obliczeniem bez potrzeby składania kilku obrotów, jak miałoby to miejsce przy pokazanym wcześniej zapisie macierzowym.
+
+### Kwaterniony a macierz przekształceń
+
+Kwaterniony są bardzo przyjemne do opisywania obrotów, jednak musimy w jakiś sposób wyliczyć położenia punktów po obrocie. Najprościej jest w tym celu zamienić kwaternion na macierz przekształceń w układzie jednorodnym:
+
+$$
+R = \begin{bmatrix}
+1- 2c^2 - 2d^2 &  2b c -2 a d &  2a c + 2b d & 0 \\
+2b c +2 a d & 1 - 2b^2 - 2d^2  &  2c d - 2a b & 0\\
+2b d - 2a c & 2 a b + 2c d &  1 - 2b^2 - 2c^2 & 0 \\
+0 & 0 & 0 & 1
+\end{bmatrix}
+$$
+
+Znając macierz, możemy już bez problemu obliczyć nowe położenia dla wybranych punktów zgodnie z tym, jak robiliśmy to wcześniej.
+
+### Co z gimbal lock?
+
+W przypadku kwaternionów warto zwrócić uwagę na to, że obroty zapisujemy czterema zmiennymi. Dzięki temu jesteśmy w stanie zapobiec gimbal lockowi. Z tego też powodu kwaterniony są najpowszechniejszym sposobem do zapisu obrotów w przestrzeni 3D.
+
+Jednak aby nie być gołosłownym, sprawdźmy, jak to wygląda. Wykonajmy to samo, co w przypadku macierzy transformacji, czyli złóżmy trzy obroty — wokół osi X, Y i Z, gdzie obrót wokół osi Y będzie wynosić $$\theta_y = 180^\circ = \pi \text{rad}$$ (ponieważ kąt dzielimy przez 2, więc wtedy otrzymamy zerowy cosinus jak ostatnio). Od razu wspomnę, że stosując wektorowy zapis kwaternionów, możemy składać wiele transformacji za pomocą mnożenia tak samo, jak ma to miejsce z zapisem macierzowym.
+
+$$
+\begin{align*}
+q &= \begin{bmatrix} a & b & c & d \end{bmatrix}^T, q\in\mathbb{H}, (a,b,c,d) \in \R \\
+q_{R(\theta_z, \theta_y, \theta_x)} &= \begin{bmatrix} \cos(\theta_z/2) \\ 0 \\ 0 \\ \sin(\theta_z/2) \end{bmatrix} \begin{bmatrix} \cos(\theta_y/2) \\ 0 \\ \sin(\theta_y/2)\\0 \end{bmatrix}\begin{bmatrix} \cos(\theta_x/2)  \\ \sin(\theta_x/2) \\ 0 \\ 0\end{bmatrix} = \\
+&= \begin{bmatrix}
+\cos (\theta_x /2) \cos (\theta_y /2) \cos (\theta_z /2) +  \sin (\theta_x /2) \sin (\theta_y /2) \sin (\theta_z /2) \\
+\sin (\theta_x/2) \cos (\theta_y /2) \cos (\theta_z /2) -  \cos (\theta_x/2) \sin (\theta_y /2) \sin (\theta_z /2) \\
+\cos (\theta_x/2) \sin (\theta_y /2) \cos (\theta_z /2) +  \sin (\theta_x/2) \cos (\theta_y /2) \sin (\theta_z /2) \\
+\cos (\theta_x/2) \cos (\theta_y /2) \sin (\theta_z /2) -  \sin (\theta_x /2) \sin (\theta_y /2) \cos (\theta_z /2) \\
+\end{bmatrix}
+\\
+q_{R(\theta_z, 180^\circ, \theta_x)}  &= \begin{bmatrix}
+\sin(\theta_x/2)\sin(\theta_z/2) \\
+-\cos(\theta_x/2)\sin(\theta_z/2) \\
+\cos(\theta_x/2)\cos(\theta_z/2) \\
+\sin(\theta_x/2)\cos(\theta_z/2)
+\end{bmatrix}
+\end{align*}
+$$
+
+Jak widzimy, w ostatecznym wzorze znajdują się wartości przy każdej ze współrzędnych kwaternionu, co jednocześnie oznacza, że nie straciliśmy żadnego stopnia swobody. Zapis w postaci macierzy przekształceń pomijam, bo byłby zbyt rozwlekły, ale uwierz mi, że nie wyzeruje się żaden wiersz ani kolumna. Analogicznie, jakbyśmy dalej korzystali z wartości 90 stopni, też by do tego nie doszło. Jeżeli chcesz, możesz sprawdzić to na własną rękę, ale ostrzegam, że rozpisanie tego może zająć trochę czasu.
+
+### Sprawdź to sam, ponownie
+
+Poniżej zamieściłem taką samą interaktywną prezentację jak poprzednio, jednak tym razem ograniczamy się jedynie do obrotów i wyrażania ich za pomocą kwaternionów. Popróbuj różnych wartości i zobacz, jaki obrót jest wykonywany. Możesz wybrać, czy chcesz ustawić konkretne wartości kwaternionu, czy też wolisz, aby prezentacja sama wyliczyła kwaternion na bazie podanego kąta (w stopniach).
+
+<Iframe src="/iframe-content/transform3d/index.html?mode=quaternion" minHeight={400} />
+
+## Przykłady implementacji macierzy przekształceń 3D
+
+Na koniec, podobnie jak poprzednio, podam kilka przykładów, gdzie możemy znaleźć implementacje macierzy przekształceń 3D. Nie mam tu na celu pokazać wyczerpującej listy wszelkich implementacji, ale bardziej przykłady, w jak różnych miejscach możemy je znaleźć.
+
+- Poprzednio zacząłem od CSS, tak samo i teraz. Mimo że dokumenty HTML są w pełni dwuwymiarowe, obiekty na nich możemy przekształcać za pomocą [`matrix3d()`](https://developer.mozilla.org/en-US/docs/Web/CSS/transform-function/matrix3d()). Podobnie jak w przypadku 2D, wartości podaje się kolumna po kolumnie.<br />
+Ciekawostka: interaktywna prezentacja w poprzednim artykule, choć dotyczyła przestrzeni 2D, została stworzona przy użyciu funkcji `matrix3d()`, ponieważ jego dwuwymiarowa wersja obsługuje tylko transformacje afiniczne.
+- W niskopoziomowych bibliotekach graficznych znajdziemy wsparcie dla operacji macierzowych. OpenGL posiada bibliotekę GLM, gdzie znajdziemy plik nagłówków [`matrix_transform`](https://glm.g-truc.net/0.9.0/api/a00134.html). Transformacje macierzowe znajdziemy także chociażby w [WebGL](https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/WebGL_model_view_projection) oraz [OpenGL dla Androida](https://developer.android.com/reference/android/opengl/Matrix).
+- Silniki 3D również posiadają funkcje operujące na macierzach. Kilka popularnych to: [`Matrix4x4` w Unity](https://docs.unity3d.com/ScriptReference/Matrix4x4.html), [`Object3D.matrix` w Three.js](https://threejs.org/docs/#api/en/core/Object3D.matrix), [`matrix3x4_t` w Source](https://developer.valvesoftware.com/wiki/Matrix3x4_t).
+- W edytorze grafiki 3D Blender za pomocą skryptów pisanych w języku Python jesteśmy w stanie stosować macierze transformacji na obiektach za pomocą funkcji [`transform()`](https://docs.blender.org/api/current/bpy.types.Mesh.html?highlight=transform#bpy.types.Mesh.transform).
+
+## Literatura
+
+- Foley J. D. i inni, „Przekształcenia geometryczne” w *Wprowadzenie do grafiki komputerowej*. Warszawa: Wydawnictwa Naukowo-Techniczne, 1995, s. 215-252
+- LaValle Steven M, "Yaw, pitch, and roll rotations" [http://planning.cs.uiuc.edu/node102.html](https://web.archive.org/web/20210506190434/http://planning.cs.uiuc.edu/node102.html) (ostatnie odwiedziny 27.05.2021).
+- Gimbal lock, [https://en.wikipedia.org/w/index.php?title=Gimbal_lock&oldid=1000885298](https://en.wikipedia.org/w/index.php?title=Gimbal_lock&oldid=1000885298) (ostatnie odwiedziny 27.05.2021).
+- Foley J. D. i inni, „Płaskie rzuty geometryczne” w *Wprowadzenie do grafiki komputerowej*. Warszawa: Wydawnictwa Naukowo-Techniczne, 1995, s. 274-278
+- [Weisstein, Eric W.](https://mathworld.wolfram.com/about/author.html) "Quaternion." From [*MathWorld*](https://mathworld.wolfram.com/)--A Wolfram Web Resource. [https://mathworld.wolfram.com/Quaternion.html](https://mathworld.wolfram.com/Quaternion.html)
+- Shoemake, K. (1985, July). Animating rotation with quaternion curves. In *Proceedings of the 12th annual conference on Computer graphics and interactive techniques* (pp. 245-254).

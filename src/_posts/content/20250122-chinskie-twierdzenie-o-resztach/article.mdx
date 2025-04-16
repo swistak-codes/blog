@@ -1,0 +1,394 @@
+import Link from 'next/link';
+import {Image} from '@swistak-codes/components';
+import cover from './swistak-z-chin.webp';
+import {Presentation} from './presentation';
+
+export const meta = {
+  title: 'Chińskie twierdzenie o resztach',
+  abstract:
+    'Chińskie twierdzenie o resztach to twierdzenie matematyczne, które pozwala na rozwiązywanie układów równań modularnych. Dowiedz się, jak działa chińskie twierdzenie o resztach i jakie ma zastosowania.',
+  firstParagraph: (
+    <>
+      Piąty rok istnienia bloga świstak.codes trzeba zacząć z przytupem. Czas więc poeksplorować temat matematyczny, który jest na pewno bliski sercom programistów lubującym się w wyzwaniach algorytmicznych typu <i><a href="https://adventofcode.com/" target="_blank" rel="noreferrer">Advent of Code</a></i>. A jest to <strong>chińskie twierdzenie o resztach</strong>. Dowiedzmy się, o co w nim chodzi, jak działa i jakie ma praktyczne zastosowania. Co najważniejsze dla programistów, pokażę także, jak je zaimplementować w kodzie.
+    </>
+  ),
+  keyword: 'chińskie twierdzenie o resztach',
+  categories: ['Matematyka', 'Algorytmy'],
+  tags: [
+    'crt',
+    'algorytm Euklidesa',
+    'rozszerzony algorytm Euklidesa',
+    'arytmetyka modularna',
+    'odwrotność modularna',
+    'advent of code'
+  ],
+  slug: 'chinskie-twierdzenie-o-resztach',
+  updateTime: '2025-01-22T07:00:00+00:00',
+  publishTime: '2025-01-22T07:00:00+00:00',
+  cover,
+};
+
+## Co to jest?
+
+Zacznijmy od tego, czym jest chińskie twierdzenie o resztach (w skrócie **CRT** od ang. *Chinese Remainder Theorem*). Jest to jedno z twierdzeń teorii liczb, które zakłada, że jeśli znamy reszty z dzielenia liczby całkowitej $$n$$ przez kilka liczb pierwszych, to możemy obliczyć resztę z dzielenia $$n$$ przez iloczyn tych liczb, o ile wszystkie dzielniki są względnie pierwsze wobec siebie.
+
+Nazwa twierdzenia wzięła się z faktu, że po raz pierwszy zostało opisane (a w zasadzie pokazano jego użycie) w chińskim traktacie matematycznym Sunzi Suanjing napisanym między III a V wiekiem naszej ery. Pokazano tam bardzo prosty przykład zadania, gdzie trzeba było znaleźć liczbę $$n$$, dla której:
+
+- reszta z dzielenia $$n$$ przez 3 wynosi 2,
+- reszta z dzielenia $$n$$ przez 5 wynosi 3,
+- reszta z dzielenia $$n$$ przez 7 wynosi 2.
+
+Nie było podanego tam rozwiązania, ale w późniejszych dziełach stwierdzono, że reszta z dzielenia $$n$$ przez 105 (iloczyn 3, 5 i 7) wynosi 23 i jest to jedyne możliwe rozwiązanie mniejsze od 105. Tym samym $$n = 23 + 105k$$ jest rozwiązaniem tego układu równań.
+
+Prawdziwość tego sprawdzimy i nawet zwizualizujemy w dalszej części artykułu.
+
+Z czasem sformalizowano to twierdzenie, a także znaleziono dla niego wiele zastosowań, w tym także w informatyce, co szczególnie powinno nas zainteresować.
+
+### Twierdzenie
+
+Skoro mówimy jednak o matematyce, to najpierw sformalizujmy to twierdzenie, co pozwoli nam je lepiej zrozumieć.
+
+Niech $$n$$ będzie liczbą całkowitą, a $$m_1, m_2, \ldots, m_k$$ będą liczbami całkowitymi, które są parami względnie pierwsze. Wtedy dla dowolnych liczb całkowitych $$a_1, a_2, \ldots, a_k$$ istnieje dokładnie jedna liczba całkowita $$n$$ spełniająca układ równań modularnych:
+
+$$
+\begin{align*}
+n &\equiv a_1 \pmod{m_1} \\
+n &\equiv a_2 \pmod{m_2} \\
+&\vdots \\
+n &\equiv a_k \pmod{m_k}
+\end{align*}
+$$
+
+Ponadto, jeśli $$n_1$$ i $$n_2$$ są dwiema liczbami całkowitymi spełniającymi ten układ równań, to $$n_1 \equiv n_2 \pmod{m_1 \cdot m_2 \cdot \ldots \cdot m_k}$$.
+
+Jeśli nie rozumiesz powyższego zapisu z $$\equiv$$ i modulo (czyli arytmetyki modularnej), to omawiałem go w artykule o <Link href="/post/szybkie-szukanie-duzych-liczb-pierwszych/#arytmetyka-modularna">szybkim szukaniu dużych liczb pierwszych</Link>. Warto nadrobić ten krótki opis, który tam zamieściłem, aby lepiej rozumieć, co dzieje się w tym artykule.
+
+### Sposób rozwiązywania
+
+Istnieją różne sposoby na znalezienie $$n$$ spełniającego układ równań modularnych. Najprostszy z nich to po prostu wypisać wszystkie $$n$$ i sprawdzić, które spełniają wszystkie równania jednocześnie. W tym jednak nie ma nic upraszczającego życie, a cały trik związany z używaniem tego twierdzenia w praktyce polega na fakcie, że jesteśmy w stanie znaleźć $$n$$ (na razie mocno upraszczając temat) w czasie liniowym względem liczby równań, a nie wielkości iloczynu wszystkich modułów.
+
+To, co tutaj opiszę, to sposób, który jest najprostszy do późniejszej implementacji w kodzie, stąd też najpopularniejszy pośród informatyków. Jest to metoda bazująca na tzw. dowodzie konstruktywnym chińskiego twierdzenia o resztach. W zasadzie opisując tutaj ten algorytm, jednocześnie też częściowo przytoczę dowód tego twierdzenia (będzie brakować tylko formalizmów).
+
+Najpierw potrzebujemy znać iloczyn wszystkich modułów:
+
+$$
+M = m_1 \cdot m_2 \cdot \ldots \cdot m_k
+$$
+
+Wyprowadźmy też wzór na iloczyn wszystkich modułów bez $$m_i$$:
+
+$$
+M_i = \frac{M}{m_i} \text{ dla } i = 1, 2, \ldots, k
+$$
+
+Wiemy, że wszystkie pary $$m_i$$ są względnie pierwsze, stąd $$M_i$$ również są względnie pierwsze z $$m_i$$. To, że liczby są względnie pierwsze, oczywiście oznacza, że ich największy wspólny dzielnik wynosi 1. Tym samym możemy z [tożsamości Bézouta](https://pl.wikipedia.org/wiki/To%C5%BCsamo%C5%9B%C4%87_B%C3%A9zouta) stwierdzić, że istnieją takie liczby całkowite $$x_i$$ i $$y_i$$, że:
+
+$$
+x_i M_i + y_i m_i = 1
+$$
+
+Wartości $$x_i$$ i $$y_i$$ możemy znaleźć za pomocą rozszerzonego algorytmu Euklidesa, który opiszę później. Jest to o tyle istotne, że potrzebujemy znać odwrotność modularną $$M_i^{-1} \pmod{m_i}$$, czyli taką liczbę $$x_i$$, że $$x_i M_i \equiv 1 \pmod{m_i}$$.
+
+Sprecyzujmy to. Niech $$e_i = x_i M_i$$, wtedy $$e_i$$ spełnia równanie:
+
+$$
+e_i \equiv 1 \pmod{m_i} \text{ dla } 1 \leqslant i \leqslant k
+$$
+
+Wiedząc te wszystkie rzeczy, możemy wyznaczyć $$n$$ za pomocą wzoru:
+
+$$
+n = \sum_{i=1}^{k} a_i e_i \pmod{M}
+$$
+
+## Przykładowe zadanie
+
+Żeby poczuć, w jakich typach zadań sprawdza się chińskie twierdzenie o resztach, zobaczmy przykładowe zadanie, które możemy rozwiązać za jego pomocą. Zadanie to jest inspirowane przykładem z chińskiego traktatu matematycznego Sunzi Suanjing, który opisałem na początku artykułu, aczkolwiek dodam do niego kontekst (inny niż w oryginale) dla lepszego zrozumienia.
+
+Wyobraź sobie, że masz trzy zegary:
+
+- Pierwszy dzwoni co 3 godziny i dzwonił ostatnio o 2:00.
+- Drugi dzwoni co 5 godzin i dzwonił ostatnio o 3:00.
+- Trzeci dzwoni co 7 godzin i dzwonił ostatnio o 2:00.
+
+Pytanie brzmi: o której godzinie zegary zadzwonią jednocześnie?
+
+### Wstępne przygotowanie
+
+Zanim przejdziemy do rozwiązania zadania, od razu warto zauważyć, że 3, 5 i 7 są liczbami pierwszymi, więc są także względnie pierwsze wobec siebie. Często obserwacja tego typu pozwala zauważyć, że jest to rodzaj zadania, gdzie zastosowanie ma chińskie twierdzenie o resztach.
+
+Kolejna rzecz, którą zrobimy, to przeniesiemy zadanie na język matematyki. Wypiszmy sobie znane nam dane.
+
+Pierwszy zegar możemy zapisać równaniem:
+
+$$
+n \equiv 2 \pmod{3}
+$$
+
+Drugi zegar:
+
+$$
+n \equiv 3 \pmod{5}
+$$
+
+Trzeci zegar:
+
+$$
+n \equiv 2 \pmod{7}
+$$
+
+Teraz pozostaje podejść do rozwiązania problemu.
+
+### Rozwiązanie intuicyjne
+
+Najpierw rozwiążmy to intuicyjnie, bez stosowania algorytmu rozwiązywania chińskiego twierdzenia o resztach. Wypiszmy kilka liczb, które spełniają pierwsze równanie:
+
+$$
+n_1 \in \{ 2, 5, 8, 11, 14, 17, 20, 23 \}
+$$
+
+Teraz liczby spełniające drugie równanie:
+
+$$
+n_2 \in \{ 3, 8, 13, 18, 23 \}
+$$
+
+Widzimy, że oba zegary będą bić jednocześnie o godzinach 8 i 23. Mamy jednak jeszcze trzeci zegar:
+
+$$
+n_3 \in \{ 2, 9, 16, 23 \}
+$$
+
+Stąd widzimy, że wszystkie trzy zegary będą bić o godzinie 23, co jest rozwiązaniem naszego zadania. Niestety sposób ten nie pokazuje nam reguły, przynajmniej w tak prostym przypadku. Musielibyśmy o wiele dłużej sprawdzać kolejne liczby, aby znaleźć regułę pozwalającą znaleźć wzór na godzinę, o której zegary zadzwonią jednocześnie.
+
+### Rozwiązanie algorytmem
+
+Teraz zobaczmy, jak powyższe zadanie rozwiązać zgodnie z pokazanym przeze mnie sposobem rozwiązywania zadań z chińskim twierdzeniem o resztach. W tym przypadku wyda się bardziej skomplikowane, jednak przy zadaniach z większymi liczbami będzie szybsze do wykonania.
+
+#### Obliczenie N oraz N<sub>i</sub>
+
+Zacznijmy od obliczenia $$M$$, czyli iloczynu wszystkich modułów:
+
+$$
+M = 3 \cdot 5 \cdot 7 = 105
+$$
+
+Następnie obliczmy $$M_i$$ dla każdego $$m_i$$:
+
+$$
+\begin{align*}
+M_1 = \frac{105}{3} = 35 \\
+M_2 = \frac{105}{5} = 21 \\
+M_3 = \frac{105}{7} = 15
+\end{align*}
+$$
+
+#### Obliczenie odwrotności modularnych
+
+Teraz przejdźmy do obliczenia odwrotności modularnych $$N_i \pmod{n_i}$$. Jeszcze nie będę wnikać w szczegóły, jak dokładnie otrzymujemy wyniki, bo rozszerzony algorytm Euklidesa wolę opisać dopiero przy jego implementacji. Na razie po prostu zobaczmy, jakie wartości otrzymujemy.
+
+Zacznijmy od $$M_1$$, czyli szukamy liczby $$x_1$$, że $$x_1 \cdot 35 \equiv 1 \pmod{3}$$. W tym przypadku będzie to $$x_1 = 2$$. Możemy to sprawdzić następująco: $$2 \cdot 35 = 70 \equiv 1 \pmod{3}$$.
+
+Dla $$M_2$$ szukamy liczby $$x_2$$, że $$x_2 \cdot 21 \equiv 1 \pmod{5}$$. Tutaj będzie to $$x_2 = 1$$. Sprawdzenie poprawności jest dość oczywiste: $$1 \cdot 21 = 21 \equiv 1 \pmod{5}$$.
+
+Jeszcze zostało $$M_3$$, gdzie szukamy liczby $$x_3$$, że $$x_3 \cdot 15 \equiv 1 \pmod{7}$$. Po obliczeniach wychodzi, że liczba ta to $$x_3 = 1$$. Sprawdzenie: $$1 \cdot 15 = 15 \equiv 1 \pmod{7}$$.
+
+Obliczmy w takim razie wartości $$e_i$$:
+
+$$
+\begin{align*}
+e_1 &= 2 \cdot 35 = 70 \\
+e_2 &= 1 \cdot 21 = 21 \\
+e_3 &= 1 \cdot 15 = 15
+\end{align*}
+$$
+
+#### Obliczenie n
+
+Ostatnie co nam pozostało, to obliczenie $$n$$ za pomocą wzoru:
+
+$$
+n = \sum_{i=1}^{3} a_i e_i \pmod{M}
+$$
+
+Podstawmy wartości:
+
+$$
+n = 2 \cdot 70 + 3 \cdot 21 + 2 \cdot 15 = 140 + 63 + 30 = 233 \equiv 23 \pmod{105}
+$$
+
+Stąd wynika, że zegary zadzwonią jednocześnie o godzinie 23. Do tego sytuacja taka będzie następować co 105 godzin, co wynika z modulo 105. Stąd wzór na wszystkie rozwiązania zadania to:
+
+$$
+n = 23 + 105 \cdot k,
+$$
+
+gdzie $$k$$ to liczba całkowita.
+
+### Prezentacja
+
+Poniżej możesz zobaczyć wizualne zobrazowanie wyniku. Na osi X mamy godziny, a na osi Y zegary, które zadzwoniły o danej godzinie. Zegary, które zadzwoniły jednocześnie, są zaznaczone na pomarańczowo. Możesz przewijać wykres, naciskając go i przesuwając w lewo lub prawo — pokazuję wartości aż do 1000 godziny. Zauważ, że zawsze gdy zegary zadzwonią jednocześnie, będą to godziny ze wzoru $$23 + 105 \cdot k$$: 23, 128, 233 i tak dalej.
+
+<Presentation />
+
+## Implementacja w kodzie
+
+Przejdźmy teraz do praktycznej części, czyli do zaimplementowania tego w kodzie. Zaczniemy od algorytmicznych podstaw, żeby potem krok po kroku przejść do kompletnej implementacji w JavaScripcie.
+
+#### Rozszerzony algorytm Euklidesa
+
+Rozszerzony algorytm Euklidesa, co sama nazwa wskazuje, to modyfikacja dobrze znanego wszystkim algorytmu Euklidesa do obliczania największego wspólnego dzielnika dwóch liczb. Jeśli nie znasz oryginalnej wersji, koniecznie poczytaj o niej, np. w moim artykule *<Link href="/post/najwiekszy-wspolny-dzielnik">Podstawy algorytmiki: największy wspólny dzielnik</Link>*.
+
+Rozszerzony algorytm Euklidesa oprócz znalezienia największego wspólnego dzielnika dwóch liczb pozwala też równocześnie znaleźć rozwiązanie równania diofantycznego liniowego, które wygląda następująco:
+
+$$
+a \cdot x + b \cdot y = \text{NWD}(a, b)
+$$
+
+Czyli dokładnie to, o czym mówi tożsamość Bézouta, o której wspominałem wcześniej, i to, czego potrzebujemy do zaimplementowania chińskiego twierdzenia o resztach.
+
+A w jaki sposób to zaimplementować? Otóż tak jak w tradycyjnej implementacji obliczamy rekurencyjnie resztę z dzielenia $$a$$ przez $$b$$, tak tutaj dodatkowo zapamiętujemy także wynik dzielenia (z dodatkowymi działaniami), co pozwala nam znaleźć liczby $$x$$ i $$y$$.
+
+Implementacja w JavaScript wygląda następująco:
+
+```javascript
+// funkcja obliczająca NWD oraz rozwiązanie równania diofantycznego
+// a i b są liczbami całkowitymi
+function extendedGCD(a, b) {
+  if (b === 0) {
+    // jeśli b jest równe 0, to NWD(a, 0) = a
+    // wówczas x = 1, y = 0
+    return [a, 1, 0];
+  }
+  // wywołanie rekurencyjne, takie samo jak w tradycyjnym algorytmie Euklidesa
+  const [gcd, x1, y1] = extendedGCD(b, a % b);
+  // nowy x to y z poprzedniego kroku
+  const x = y1;
+  // natomiast nowy y to:
+  const y = x1 - Math.floor(a / b) * y1;
+  // zwracamy rezultat jako krotkę zawierającą NWD, x i y
+  return [gcd, x, y];
+}
+```
+
+### Znalezienie odwrotności modularnych
+
+Jak pamiętamy, do obliczenia równań z wykorzystaniem chińskiego twierdzenia o resztach potrzebujemy obliczyć odwrotność modularną $$M_i^{-1} \pmod{m_i}$$. Tylko w jaki sposób użyć do tego rozszerzonego algorytmu Euklidesa?
+
+Otóż, jak również pamiętamy, odwrotność modularną możemy zapisać także jako:
+
+$$
+x \cdot M_i \equiv 1 \pmod{m_i},
+$$
+
+co możemy zapisać jako równanie diofantyczne liniowe:
+
+$$
+\begin{align*}
+x \cdot M_i &= y \cdot m_i + 1 \\
+x \cdot M_i &- y \cdot m_i = 1
+\end{align*}
+$$
+
+Skoro rozszerzony algorytm Euklidesa oblicza nam równanie diofantyczne liniowe, czyli:
+
+$$
+a \cdot x + b \cdot y = \text{NWD}(a, b),
+$$
+
+i wiemy, że $$\text{NWD}(M_i, m_i) = 1$$, to wystarczy, że podstawimy $$a = M_i$$, $$b = m_i$$, a następnie zwrócimy $$x$$ z rozszerzonego algorytmu Euklidesa. $$y$$ nie jest nam potrzebny, ale gdybyśmy go potrzebowali, to trzeba pamiętać o pomnożeniu go przez $$-1$$.
+
+Podsumowując, w kodzie zapiszemy to następująco:
+
+```javascript
+// funkcja obliczająca odwrotność modularną
+function modularInverse(a, m) {
+  // pobieramy NWD i rozwiązanie równania diofantycznego
+  const [gcd, x] = extendedGCD(a, m);
+  // sprawdzenie, czy odwrotność modularna istnieje
+  if (gcd !== 1) {
+    throw new Error(`Odwrotność modularna nie istnieje dla a = ${a} i m = ${m}`);
+  }
+  // sprowadzamy x do przedziału [0, m-1]
+  return (x % m + m) % m;
+}
+```
+
+Zastanawiająco może wyglądać zakończenie — po co wykonujemy podwójnie operację modulo? Otóż wynika to z faktu, że wiele języków programowania (w tym JavaScript) nie oblicza reszty z dzielenia zgodnie z matematyczną definicją, co oznacza, że wynik może być ujemny. Dlatego wykonujemy dodatkową operację modulo, aby wynik był zawsze dodatni. Więcej szczegółów na ten temat znajdziesz w moim artykule *<Link href="/post/dziwny-przypadek-reszty-z-dzielenia">Dziwny przypadek reszty z dzielenia</Link>*.
+
+#### Obliczenie wyniku z chińskiego twierdzenia o resztach
+
+W tym momencie znamy już całą algorytmikę potrzebną do obliczenia wyniku układu równań spełniającego założenia chińskiego twierdzenia o resztach. Zaimplementujmy więc funkcję, która to zrobi. Przyjmie tablicę liczb $$a$$ (liczby przed modułem) i tablicę liczb $$m$$ (moduły), a zwróci wynik $$n$$ oraz $$M$$, co pozwoli nam zapisać wynik w postaci $$n + M \cdot k$$.
+
+```javascript
+// funkcja obliczająca wynik z chińskiego twierdzenia o resztach
+// a i m są tablicami liczb całkowitych
+function chineseRemainderTheorem(a, m) {
+  // obliczenie iloczynu wszystkich modułów
+  let M = 1;
+  for (let i = 0; i < m.length; i++) {
+    M *= m[i];
+  }
+  // obliczenie wszystkich M_i
+  const M_i = [];
+  for (let i = 0; i < m.length; i++) {
+    M_i.push(M / m[i]);
+  }
+  // obliczenie e_i
+  const e = [];
+  for (let i = 0; i < m.length; i++) {
+    e.push(modularInverse(M_i[i], m[i]) * M_i[i]);
+  }
+  // obliczenie n, czyli wyniku
+  let n = 0;
+  for (let i = 0; i < a.length; i++) {
+    n = (n + a[i] * e[i]) % M;
+  }
+  // zwrócenie wyniku
+  return [n, M];
+}
+```
+
+Całość wraz z przypadkami testowymi znajdziesz na [Replit](https://replit.com/@tswistak/crt#index.js).
+
+Jak widzimy, złożoność obliczeniowa jest zależna tylko i wyłącznie od liczby równań, a nie wielkości iloczynu modułów (tzn. zależy od niego obliczenie odwrotności modularnej, ale jest to wpływ mniejszy niż liniowy). Dzięki temu jest to bardzo efektywny sposób rozwiązywania układów równań modularnych. W praktycznych zastosowaniach, o których dowiemy się dalej, operujemy na dużych liczbach, ale za to na małej liczbie równań, dzięki czemu metoda ta jest bardzo przydatna.
+
+## Praktyczne zastosowania
+
+Zobaczyliśmy dużo matematyki, przełożyliśmy to na kod, tylko można zadać pytanie — po co? Do czego stosuje się w praktyce chińskie twierdzenie o resztach?
+
+- **Kryptografia** — współczesna kryptografia opiera się na dużych liczbach pierwszych, a chińskie twierdzenie o resztach pozwala na szybkie obliczanie wielu operacji na tych liczbach. To tutaj znajdziemy najważniejsze praktyczne zastosowania chińskiego twierdzenia o resztach. Jest wykorzystywane np. w algorytmie szyfrowania RSA czy w schematach dzielenia sekretów takich jak protokół Mignotte'a.
+- **Szybka transformacja Fouriera** — a dokładniej algorytm Gooda-Thomasa do jej obliczania. Jednak jest to mniej ogólna metoda (ze względu na podział na transformaty o wielkościach, które są względnie pierwsze) niż najpopularniejszy algorytm Cooleya-Tukeya.
+- **Zapis resztowy** (ang. Residue Number System, RNS) — system pozwalający na wykonywanie operacji na liczbach w sposób równoległy, co pozwala na przyspieszenie obliczeń na dużych liczbach, w szczególności dodawania, odejmowania i mnożenia. Polega na rozbiciu dużej liczby całkowitej na wiele mniejszych przez reprezentowanie ich wartości w postaci reszt z dzielenia, a następnie wykonywaniu na nich operacji. Wiemy, że jest to możliwe właśnie dzięki chińskiemu twierdzeniu o resztach, i też wykorzystuje się je do konwersji liczby z zapisu resztowego do naturalnego zapisu binarnego. Tym samym samo RNS znalazło wiele zastosowań, np. w przetwarzaniu sygnałów, kryptografii czy w przetwarzaniu obrazów.
+
+Są to tylko przykładowe zastosowania, ale pokazują, że chińskie twierdzenie o resztach jest bardzo użyteczne w praktyce. Do tego warto zauważyć, że wymieniłem tutaj tylko informatyczne zastosowania, ale w matematyce również znajduje ono wiele zastosowań, np. w teorii liczb.
+
+## Chińskie twierdzenie o resztach a Advent of Code
+
+Przyznam, że inspiracją do napisania tego artykułu było nie tyle przedstawienie chińskiego twierdzenia o resztach z powodu jego szerokich zastosowań np. w kryptografii, a coroczne wyzwanie algorytmiczne [Advent of Code](https://adventofcode.com/). Przede wszystkim dlatego, że pojawiają się tam zadania dające się rozwiązać właśnie z wykorzystaniem chińskiego twierdzenia o resztach. Są zadania, które wręcz krzyczą o zastosowanie tego twierdzenia (np. [część 2 z dnia 13 w roku 2020](https://adventofcode.com/2020/day/13)), ale zdarzają się mniej oczywiste przypadki.
+
+W ramach tego artykułu przedstawię, co zaserwowano [rok temu (2024) jako drugą część w dniu 14](https://adventofcode.com/2024/day/14), bo zastosowanie było zdecydowanie najciekawsze i najmniej oczywiste.
+
+W zadaniu tym mieliśmy układ współrzędnych o wymiarach 101×103, gdzie na podstawie opisanego algorytmu były stawiane punkty (roboty). Wyzwanie polegało na tym, żeby znaleźć, w której iteracji punkty ułożą się na kształt choinki.
+
+Ktoś mógłby pomyśleć, żeby przeglądać ręcznie rozwiązania z każdej iteracji albo podpiąć do tego algorytm rozpoznawania obrazów. Wystarczyło jednak zauważyć dwie rzeczy:
+
+- Nietypowe wymiary planszy, które dziwnym trafem są liczbami pierwszymi (więc są też względnie pierwsze) — to już powinno sugerować zastosowanie CRT.
+- Jeśli punkty układają się na kształt choinki, to znaczy, że wariancja wartości (rozłożenie wokół średniej wartości) na osi X i osi Y będzie wówczas najmniejsza. Dzieje się tak dlatego, że jeśli punkty są rozrzucone losowo po planszy, to wariancja zdecydowanie będzie większa niż przy ułożeniu jeden obok drugiego.
+
+Innymi słowy, wystarczyło w 103 iteracjach (maksimum ze 101 i 103) znaleźć, w której iteracji wariancja na osi X była najmniejsza i w której iteracji wariancja na osi Y była najmniejsza. Były to oczywiście dwie różne liczby, ale tutaj właśnie pojawia się zastosowanie chińskiego twierdzenia o resztach — mieliśmy układ składający się z dwóch równań modularnych i nie pozostaje nic innego, jak go tylko rozwiązać.
+
+W moim przypadku rozwiązanie wyniosło zaledwie 7338, więc dałoby się znaleźć w krótkim czasie, iterując po kolei (10403 iteracje wystarczyłyby do stwierdzenia wyniku, co też wiemy z CRT), ale zastosowanie chińskiego twierdzenia o resztach przyspieszyło to i wbrew pozorom uprościło algorytm (nie trzeba było szukać równocześnie minimum dla dwóch zmiennych). Tak więc twierdzenie to przydałoby się nawet nie tyle do znalezienia rozwiązania, ile do ograniczenia liczby potrzebnych do wykonania iteracji.
+
+## Podsumowanie
+
+Chińskie twierdzenie o resztach to bardzo proste twierdzenie, jednak zostało wykorzystane w wielu praktycznych zastosowaniach, zarówno w matematyce, jak i informatyce. W informatyce jest szczególnie przydatne w kryptografii i innych dziedzinach, gdzie mamy do czynienia z dużymi liczbami i równaniami modularnymi. Jest bardzo prawdopodobne, że w codziennej praktyce wielu programistom nigdy się nie przyda, ale warto je poznać — choćby żeby móc rozwiązać niektóre zadania z wyzwań typu Advent of Code.
+
+## Literatura
+
+- Cormen, T. H., Leiserson, C. E., Rivest, R. L., & Stein, C. (2009). The Chinese Remainder Theorem. W *Introduction to algorithms* (3rd ed., pp. 954–958). MIT Press.
+- Knuth, D. E. (1997). Modular Arithmetic. W *The art of computer programming, Vol. 2: Seminumerical algorithms* (3rd ed., pp. 265–275). Addison-Wesley.
+- Chinese remainder theorem, https://en.wikipedia.org/w/index.php?title=Chinese_remainder_theorem&oldid=1266785314 (ostatnie odwiedziny 16.01.2025).
+- Extended Euclidean algorithm, https://en.wikipedia.org/w/index.php?title=Extended_Euclidean_algorithm&oldid=1255234918 (ostatnie odwiedziny 16.01.2025).
+
+<small>Zdjęcie na okładce wygenerowane przez DALL-E.</small>
