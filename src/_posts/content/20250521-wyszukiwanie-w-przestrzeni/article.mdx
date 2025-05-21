@@ -1,0 +1,637 @@
+import Link from 'next/link';
+import { Image } from '@swistak-codes/components';
+import cover from './swistak_poszukiwacz_skarbow.webp';
+import { Presentation } from './presentation';
+import quadtree from './quadtree.png';
+import octree from './Octree2.png';
+
+export const meta = {
+  title: 'Wyszukiwanie obiektów w przestrzeni',
+  abstract:
+    'Artykuł przedstawia algorytmy wyszukiwania obiektów w przestrzeni, które są wykorzystywane w różnych dziedzinach, takich jak np. gry komputerowe.',
+  firstParagraph: (
+    <>
+      Podczas nauki algorytmiki jednym z pierwszych algorytmów, które poznajemy, jest <Link href="/post/wyszukiwanie-w-listach">wyszukiwanie binarne</Link> pokazujące jak sprytnie szukać danych w posortowanej liście. Później poznajemy <Link href="/post/przechodzenie-po-grafie">algorytmy wyszukiwania w grafach</Link>, z czego naturalnie przechodzi się do <Link href="/post/szukanie-najkrotszych-sciezek-w-grafie">wyszukiwania ścieżek</Link>. Jednak tym razem spójrzmy na jeszcze inny rodzaj wyszukiwania, który może być przydatny przykładowo przy programowaniu gier. A jest to wyszukiwanie obiektów w przestrzeni. W artykule przedstawiam przykładowe podejścia do tego problemu, ograniczając się do przestrzeni dwuwymiarowej.
+    </>
+  ),
+  keyword: 'wyszukiwanie',
+  categories: ['Algorytmy', 'Gry'],
+  tags: [
+  ],
+  slug: 'wyszukiwanie-w-przestrzeni',
+  updateTime: '2025-05-21T07:00:00+00:00',
+  publishTime: '2025-05-21T07:00:00+00:00',
+  cover,
+};
+
+## Wprowadzenie do problemu
+
+### Co nas interesuje?
+
+W problemie, który rozpatrzymy w tym artykule, zakładamy następująco:
+
+- Mamy listę obiektów umieszczonych w przestrzeni dwuwymiarowej.
+- Każdy obiekt zawiera informację o swoim położeniu w przestrzeni i rozmiarze.
+
+To, co chcemy zrobić, to mieć szybki sposób, aby sprawdzić, który obiekt znajduje się w danym miejscu w przestrzeni. Przykładowo, jeśli mamy grę, w której poruszamy się po planszy, chcemy wiedzieć, czy w danym miejscu znajduje się przeszkoda, czy nie.
+
+Co więcej, w przypadku tego problemu interesuje nas nie tylko sprawdzenie konkretnego punktu. Często, w zależności od potrzeb, interesują nas także:
+
+- Wszystkie obiekty znajdujące się w pewnej odległości (promieniu) od danego punktu.
+- Wszystkie obiekty znajdujące się w danym prostokącie. Tutaj możemy rozbić to na dwa problemy:
+    - Znalezienie wszystkich obiektów, które są w całości w danym prostokącie.
+    - Znalezienie wszystkich obiektów, które nawet częściowo zawierają się w danym prostokącie.
+
+### Zastosowania
+
+Zanim przejdziemy do konkretnych struktur i algorytmów, powiedzmy sobie, jakie zastosowania mają te algorytmy. Przykładowe to:
+
+- **Określenie, co rysujemy na ekranie** — aby nie rysować obiektów, które nie zmieszczą się na ekranie użytkownika.
+- **Kolizje** — pozwolą określić, czy dwa obiekty się ze sobą stykają, co jest przydatne w grach.
+- **Wykrywanie kliknięć** — skoro w ten sposób wykryjemy kolizje, to także dzięki temu możemy określić, w który obiekt aktualnie klikamy myszką.
+- **Określenie pola widzenia** — przez wyszukiwanie obiektów w danym promieniu możemy określić, co widzi nasz bohater w grze.
+
+Przykładów zastosowań jest zdecydowanie więcej. Te przedstawione powyżej są typowo ze świata gier komputerowych, ale inne dziedziny również wykorzystują te techniki. Mogą być wykorzystywane np. w przetwarzaniu obrazów, przechowywaniu <Link href="/post/macierze-rzadkie">danych rzadkich</Link> czy w bazach danych (przestrzenne bazy danych).
+
+## Rozgrzewka
+
+Zanim przejdę do opisu struktur, czas na małą rozgrzewkę. Poniżej znajdziesz siatkę o wymiarach 16×16, co daje łącznie 256 pól. Wybierz sobie w głowie jedno z nich. Następnie pozwól komputerowi w prostej zabawie poniżej zgadnąć, które pole masz na myśli. Po rozpoczęciu wybierz przyciskami, czy wybrane przez Ciebie pole jest zamalowane na czerwono, czy też znajduje się w jednym z zakolorowanych pól. Mimo że wszystkich pól jest 256, jestem przekonany, że komputer znajdzie wybrane przez Ciebie pole maksymalnie w 5 ruchach. Sprawdź poniżej, czy miałem rację.
+
+<Presentation />
+
+Jeśli powyższa zabawa skojarzyła Ci się ze <Link href="/post/wyszukiwanie-w-listach/#wyszukiwanie-binarne">strategią „dziel i zwyciężaj” i wyszukiwaniem binarnym</Link>, to bardzo dobrze, bo robimy tutaj dokładnie to samo, tylko na dwóch wymiarach. Z tego też powodu, zamiast dzielić listę na pół, dzielimy obszar na ćwiartki (czyli dzielimy na pół w pionie i poziomie, co daje 4 oddzielne obszary). W ten sposób możemy znaleźć odpowiednie pole w maksymalnie $$log_2(n) + 1$$ ruchach, gdzie $$n$$ to długość boku planszy ($$+ 1$$ wynika z tego, że liczymy liczbę ruchów, a nie iteracji algorytmu).
+
+Niestety, mimo że szukamy tutaj binarnie, używanie tablicy nie jest praktyczne. Dlatego skupimy się w tym artykule na wyspecjalizowanych strukturach danych, które są proste w użyciu, a jednocześnie pozwalają na szybkie przeszukiwanie przestrzeni.
+
+## Drzewo czwórkowe
+
+Pierwszą strukturą, z którą się zapoznamy, jest drzewo czwórkowe (po ang. quadtree). Została opisana w 1974 r. przez R. Finkela i J.L. Bentleya. Od razu zaznaczę, że są różne typy drzew czwórkowych. To, co opiszę poniżej, to drzewo czwórkowe punktowo-obszarowe (po ang. point-region quadtree).
+
+### Idea
+
+Na pewno kojarzysz taką strukturę jak binarne drzewo poszukiwań (w skrócie: BST; nie do końca poprawnie nazywaną też drzewem binarnym). Jeśli jej nie znasz, to opisałem ją <Link href="https://swistak.codes/post/sortowanie-cz-7-inne-podejscia/#binarne-drzewo-poszukiwa%C5%84">w artykule o sortowaniu, gdzie omówiłem wykorzystujące ją sortowanie drzewiaste</Link>.
+
+W skrócie, w BST każdy węzeł ma zawsze co najwyżej dwójkę dzieci, gdzie lewy potomek zawiera wartość mniejszą od aktualnej, a prawy większą. Oddaje to w istocie sposób, jak wykonujemy wyszukiwanie binarne.
+
+Drzewo czwórkowe działa analogicznie. Węzeł drzewa ma co najwyżej czwórkę dzieci i te reprezentują coraz to mniejsze regiony opisywanego obszaru w przestrzeni dwuwymiarowej. Oddaje to w prawie dosłowny sposób pokazywaną przeze mnie w prezentacji ideę. Różnica względem prezentacji jest taka, że węzeł nie reprezentuje pojedynczego elementu, tylko obszar. Oznacza to tyle, że w węźle może być zapisanych wiele elementów albo żaden — wszystko zależy od tego, jak bardzo chcemy dzielić obszary.
+
+### Operacje na drzewie czwórkowym
+
+Z powyższego opisu na razie dowiedzieliśmy się, jaka idea stoi za drzewem czwórkowym. Jednak nie mówi ona o tym, jak dokładnie z tego drzewa korzystać. Zapoznajmy się więc z podejściem do konkretnych operacji.
+
+#### Dodawanie elementów
+
+Zacznijmy od tego, jak dodawać elementy do drzewa. W przypadku binarnego drzewa przeszukiwań sprawa jest prosta, bo jeden węzeł to jedna wartość. Tutaj węzeł reprezentuje obszar. Jak w tym przypadku operujemy?
+
+Idea opisywanego przeze mnie drzewa punktowo-obszarowego jest taka, że drzewo ma odgórnie narzuconą pojemność węzła. Oznacza to tyle, że tak długo, jak nie przekroczymy pojemności, to dodajemy elementy do aktualnego węzła. Jeśli natomiast pojemność została przekroczona, dzielimy węzeł na cztery mniejsze i rozdzielamy elementy na mniejsze obszary. Z zasady, jeśli węzeł jest podzielony na mniejsze, nie trzymamy już w nim żadnych elementów\*. Innymi słowy: elementy zawierają jedynie liście drzewa.
+
+W praktyce wygląda to mniej więcej tak:
+
+1. Sprawdzamy, czy obiekt, który chcemy dodać, przecina obszar aktualnego węzła. Jeśli nie, kończymy wykonanie algorytmu; jeśli tak, kontynuujemy.
+2. Sprawdzamy, czy aktualny węzeł jest podzielony na mniejsze.
+    1. Jeśli nie jest, sprawdzamy, czy aktualna liczba elementów w liście jest poniżej limitu.
+        1. Jeśli jest poniżej limitu, dodajemy element do listy.
+        2. Jeśli liczba elementów jest równa limitowi:
+            1. Dzielimy aktualny obszar na cztery mniejsze, przypisujemy je do nowych węzłów i ustawiamy jako dzieci aktualnego węzła.
+            2. Przekazujemy elementy zapisane w aktualnym węźle i nowo dodawany do wszystkich dzieci (tym samym powtarzamy algorytm od początku, ale na każdym z dzieci).
+            3. Czyścimy listę elementów.
+    2. Jeśli jest podzielony, wykonujemy operację dodawania na wszystkich dzieciach.
+
+W ten prosty, rekurencyjny sposób jesteśmy w stanie dodać elementy do odpowiednich węzłów, a także w razie potrzeby utworzyć nowe węzły.
+
+Przykładowe drzewo czwórkowe zawierające 20 elementów może wyglądać tak:
+
+<Image
+  image={quadtree}
+  alignCenter
+  fullSize
+  alt="Schemat drzewa czwórkowego dla obszaru 512x512. Korzeń dzieli się na 4 regiony, z których NE i SE zawierają dalsze podziały. Węzły opisują współrzędne i liczbę obiektów lub są oznaczone jako puste."
+  caption={<>
+    Przykładowe drzewo czwórkowe z 20 elementami (polecam kliknąć, aby powiększyć).<br />
+    Nazwy wierzchołków wskazują na kierunek, który ćwiartka opisuje, np. SE to ćwiartka południowo-wschodnia. Węzły zawierające elementy są oznaczone na zielono, a puste na szaro. Węzły podzielone na mniejsze są oznaczone na pomarańczowo.
+  </>}
+/>
+
+\* Istnieją przypadki, gdy jednak możemy chcieć trzymać elementy także w innych węzłach niż liście. Przykładowo, jeśli element jest na tyle duży, że trafiłby do wszystkich ćwiartek, nie ma sensu go powielać między nimi — tym samym optymalizujemy złożoność pamięciową struktury. Jednak w artykule pominę ten przypadek, aby uprościć opis.
+
+#### Znajdowanie elementów na obszarze
+
+Kolejną interesującą nas operacją jest sprawdzenie, czy jakieś elementy znajdują się na wskazanym obszarze, i jeśli tak, to które.
+
+Tutaj sprawa wydaje się nieco prostsza niż w przypadku dodawania. Wystarczy po kolei sprawdzać kolejne węzły, czy zawierają wskazany obszar. Jeśli tak, to należy sprawdzić, które elementy zapisane na węźle znajdują się w tym obszarze.
+
+W praktyce wygląda to mniej więcej tak:
+
+1. Sprawdzamy, czy aktualny węzeł zawiera lub przecina zadany obszar. Jeśli nie, kończymy wykonanie algorytmu.
+2. Sprawdzamy, czy aktualny węzeł jest podzielony na mniejsze.
+    1. Jeśli tak, to wykonujemy rekurencyjnie operację wyszukiwania na wszystkich dzieciach.
+    2. Jeśli nie, to iterujemy po wszystkich elementach zapisanych w aktualnym węźle, i dodajemy do wyniku te znajdujące się w zadanym obszarze.
+3. Zwracamy wynik.
+
+Warto pamiętać, że element może być zawarty w kilku węzłach, dlatego trzeba odfiltrować duplikaty z listy wyników (lub uprzednio zastosować strukturę uniemożliwiającą dodawanie duplikatów).
+
+### Implementacja
+
+Zaimplementujmy teraz drzewo czwórkowe. Zrobimy to w języku <Link href="/post/teoria-zbiorow-typescript">TypeScript</Link>, a nie jak zwykle na moim blogu w JavaScript, ponieważ adnotacje typów będą tutaj przydatne.
+
+#### Przygotowanie do implementacji
+
+Zanim zaimplementujemy konkretne algorytmy, musimy najpierw stworzyć „bazę” stanowiącą nasze drzewo. Przyjęło się, że struktury drzewiaste opisuje się przy pomocy programowania obiektowego, i tak też my tutaj zrobimy.
+
+Najpopularniejszym sposobem reprezentacji drzewa jest reprezentacja <Link href="/post/rekurencja-co-to-jest">rekurencyjna</Link>. Oznacza to, że obiekt drzewa zawiera referencję na kolejne poddrzewa, które są jego dziećmi i są tego samego typu. Możemy to rozumieć w taki sposób, że pojedynczy obiekt drzewa to tak naprawdę jego pojedynczy węzeł. Jest to zapis o tyle wygodny, że operujemy cały czas na jednej klasie, a większość algorytmów możemy zapisać w prosty, rekurencyjny sposób (jakkolwiek dziwnie nie brzmią obok siebie słowa „prosty” i „rekurencja”).
+
+Co oprócz dzieci i algorytmów powinien posiadać obiekt drzewa (albo raczej definicja obiektu, czyli klasa)? Na pewno listę elementów przechowywanych przez aktualny węzeł. Potrzebujemy także znać obszar, który dany węzeł pokrywa (najlepiej przekazać go przy tworzeniu obiektu, w konstruktorze). Ponadto, do algorytmów przyda nam się także metoda (czyli funkcja zapisana w obiekcie) pomocnicza sprawdzająca, czy dwa prostokąty się przecinają (dla uproszczenia zawrzemy ją w implementacji drzewa, ale programując na porządnie, raczej powinniśmy ją wydzielić na zewnątrz).
+
+Najpierw jednak zdefiniujmy typ pomocniczy reprezentujący prostokąt, który będzie podstawową jednostką dla określania obszarów węzłów, jak i opisu elementów:
+
+```typescript
+// typ reprezentujący prostokąt
+interface Rectangle {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  // dodatkowa informacja, aby móc zidentyfikować elementy
+  label?: string;
+}
+```
+
+Sama klasa reprezentująca drzewo/węzeł będzie na razie wyglądać tak:
+
+```typescript
+// klasa reprezentująca węzeł drzewa czwórkowego
+class QuadTree {
+  // stała opisująca pojemność każdego z węzłów
+  private static readonly CAPACITY = 4;
+  // obiekty przechowywane w tym węźle
+  private objects: Rectangle[] = [];
+  // dzieci aktualnego węzła
+  private northwest?: QuadTree;
+  private northeast?: QuadTree;
+  private southwest?: QuadTree;
+  private southeast?: QuadTree;
+
+  // tworząc węzeł, musimy podać obszar, który ma reprezentować
+  constructor(private boundary: Rectangle) {}
+
+  // wartość pomocnicza opisująca, czy węzeł jest podzielony
+  private get divided(): boolean {
+    return (
+      this.northwest != null &&
+      this.northeast != null &&
+      this.southwest != null &&
+      this.southeast != null
+    );
+  }
+
+  // metoda pomocnicza do sprawdzania, czy dwa prostokąty się przecinają
+  private intersects(a: Rectangle, b: Rectangle): boolean {
+    return (
+      b.x <= a.x + a.width &&
+      b.x + b.width >= a.x &&
+      b.y <= a.y + a.height &&
+      b.y + b.height >= a.y
+    );
+  }
+}
+```
+
+#### Dodawanie elementów
+
+Najbardziej skomplikowaną operacją jest dodawanie elementów. Jak pamiętasz z opisu wyżej, musimy napisać tutaj obsługę:
+
+- przechodzenia w dół drzewa w celu znalezienia odpowiedniego węzła
+- dodawania elementu do węzła
+- w razie potrzeby, podziału węzła na mniejsze elementy
+
+Zacznijmy od tego, że nasza klasa będzie mieć publiczną metodę do wstawiania elementów. Na razie sama definicja:
+
+```typescript
+// metoda dodająca obiekt do węzła
+public insert(obj: Rectangle): void {
+  // tutaj będzie kod
+}
+```
+
+Często będziemy wywoływać dodawanie rekurencyjnie u wszystkich dzieci. Uprośćmy to sobie prostą metodą pomocniczą, aby za każdym razem nie powielać tego samego:
+
+```typescript
+// metoda pomocnicza próbująca wstawić obiekt do wszystkich dzieci
+private insertToChildren(obj: Rectangle): void {
+  this.northwest!.insert(obj);
+  this.northeast!.insert(obj);
+  this.southwest!.insert(obj);
+  this.southeast!.insert(obj);
+}
+```
+
+Następnie obsłużmy przypadek podziału węzła na mniejsze. Musimy w tym przypadku:
+
+- utworzyć nowe węzły i przypisać im odpowiednie obszary
+- przenieść elementy zapisane na aktualnym węźle na odpowiednie dzieci
+
+Zrobimy to następująco:
+
+```typescript
+// metoda podzielająca węzeł na 4 dzieci
+private subdivide(): void {
+  // wyznaczamy współrzędne i wymiary dzieci
+  const x = this.boundary.x;
+  const y = this.boundary.y;
+  const w = this.boundary.width / 2;
+  const h = this.boundary.height / 2;
+
+  // tworzymy dzieci
+  this.northwest = new QuadTree({ x, y, width: w, height: h });
+  this.northeast = new QuadTree({ x: x + w, y, width: w, height: h });
+  this.southwest = new QuadTree({ x, y: y + h, width: w, height: h });
+  this.southeast = new QuadTree({ x: x + w, y: y + h, width: w, height: h });
+
+  // przenosimy zapisane elementy do dzieci
+  for (const obj of this.objects) {
+    this.insertToChildren(obj);
+  }
+  // na koniec czyścimy tablicę obiektów w tym węźle
+  this.objects = [];
+}
+```
+
+Mając gotowe wszystko dookoła, połączmy to wszystko, implementując metodę publiczną:
+
+```typescript
+// metoda dodająca obiekt do węzła
+public insert(obj: Rectangle): void {
+  // najpierw sprawdzamy, czy obiekt się przecina z obszarem węzła
+  if (!this.intersects(this.boundary, obj)) {
+    // jeśli nie, to nie dodajemy go do węzła
+    return;
+  }
+
+  // następnie sprawdzamy, czy węzeł jest podzielony
+  if (this.divided) {
+    // jeśli tak, to próbujemy dodać obiekt do jego dzieci
+    this.insertToChildren(obj);
+  } else {
+    // jeśli nie, to zostają dwie możliwości
+    if (this.objects.length < QuadTree.CAPACITY) {
+      // jeśli węzeł nie jest przepełniony, to dodajemy obiekt do niego
+      this.objects.push(obj);
+    } else {
+      // jeśli jest przepełniony, to dzielimy go i próbujemy dodać obiekt do jego dzieci
+      this.subdivide();
+      this.insertToChildren(obj);
+    }
+  }
+}
+```
+
+#### Wyszukiwanie elementów
+
+Dużo prostsze jest wyszukiwanie, które elementy znajdują się na wskazanym obszarze. Tutaj jedyne co musimy zrobić, to metodę, która rekurencyjnie przejdzie po wszystkich węzłach i znajdzie pasujące elementy.
+
+Implementację rozbijemy na prywatną metodę rekurencyjną oraz publiczną, która ją w odpowiedni sposób wywoła. Metoda prywatna będzie się różnić tym, że w argumencie przyjmie referencję na zbiór przechowujący znalezione elementy. Zbiór jest strukturą na tyle wygodną, że w przypadku gdy element powtórzył się na kilku obszarach, to zachowa jedynie jedną jego kopię.
+
+W ramach metody wyszukującej należy:
+
+- Zobaczyć, czy jest sens sprawdzać aktualny węzeł bądź też schodzić głębiej w dół.
+- Jeśli węzeł jest podzielony na mniejsze, wywołać metodę rekurencyjnie u wszystkich dzieci.
+- Jeśli węzeł zawiera elementy, sprawdzić, które przecinają się z zadanym obszarem.
+
+W kodzie będzie to wyglądać następująco:
+
+```typescript
+// metoda pomocnicza do wyszukiwania obiektów w danym obszarze
+private queryInternal(range: Rectangle, found: Set<Rectangle>): void {
+  if (!this.intersects(this.boundary, range)) {
+    // jeśli obszar wyszukiwania nie przecina się z obszarem węzła, to kończymy
+    return;
+  }
+
+  if (this.divided) {
+    // jeśli węzeł jest podzielony, to szukamy w jego dzieciach
+    this.northwest!.queryInternal(range, found);
+    this.northeast!.queryInternal(range, found);
+    this.southwest!.queryInternal(range, found);
+    this.southeast!.queryInternal(range, found);
+  } else {
+    // jeśli węzeł nie jest podzielony, to sprawdzamy wszystkie przechowywane w nim obiekty
+    for (const obj of this.objects) {
+      if (this.intersects(range, obj)) {
+        // jeśli obiekt przecina się z obszarem wyszukiwania, to dodajemy go do zbioru
+        found.add(obj);
+      }
+    }
+  }
+}
+```
+
+Natomiast metoda publiczna wywoła ją wraz z przekazaniem referencji na pusty zbiór:
+
+```typescript
+// metoda wyszukująca obiekty w danym obszarze
+public query(range: Rectangle): Rectangle[] {
+  const found = new Set<Rectangle>();
+  // wykonujemy pomocniczą metodę rekurencyjną, która wypełni zbiór found
+  this.queryInternal(range, found);
+  // konwertujemy zbiór na tablicę i ją zwracamy
+  return [...found];
+}
+```
+
+Mając wyszukiwanie i dodawanie elementów, możemy bez problemu używać drzewa czwórkowego w praktyce. Całość kodu wraz z przykładowym użyciem znajdziesz na [Replit](https://replit.com/@tswistak/quadtree#index.ts).
+
+### Zalety, wady, zastosowania
+
+Na podstawie tego, co wyżej zobaczyliśmy, możemy przeanalizować wydajność drzewa czwórkowego, a także w jakich przypadkach najlepiej się ono sprawdza.
+
+Zacznijmy od wydajności. Zaprogramowaliśmy dwie operacje, których wydajność wygląda następująco:
+
+- **Dodawanie elementu** — w przypadku drzew średnio operacja wstawiania ma złożoność czasową $$\Omicron(\log(n))$$ ($$n$$ to liczba elementów). Teoretycznie, w najgorszym przypadku, jeśli drzewo jest źle zbalansowane (jest skierowane w jedną stronę), wydajność może wynosić $$\Omicron(n)$$.
+- **Wyszukiwanie** — tak samo, jak wyżej. Średnio operacja ta ma złożoność $$\Omicron(\log(n))$$, bo zakładamy, że przy równomiernym rozłożeniu elementów taka będzie wysokość drzewa. Aczkolwiek na złożoność wpływają tutaj także wielkość obszaru wyszukiwania (najwydajniejsze jest szukanie pojedynczego punktu), a także konstrukcja drzewa (tak jak przy dodawaniu).
+
+Drzewo czwórkowe szczególnie dobrze sprawdza się w dwóch przypadkach:
+
+- **Dane są rozłożone z nierównomierną gęstością** — to znaczy, że w niektórych miejscach jest ich więcej, a w innych mniej. W takim przypadku drzewo czwórkowe będzie miało mniejsze złożoności czasowe, bo część obszarów nie będzie dzielona na mniejsze, więc i przeszukiwanie ich będzie szybsze.
+- **Zbiór elementów się nie zmienia** (lub tylko dodajemy nowe) — drzewo czwórkowe nie jest drzewem balansującym się, co oznacza, że jeśli usuwamy elementy, to nie rozmieszczamy elementów na nowo. Może to powodować powstawanie niepotrzebnych rozgałęzień i podziałów. Oznacza to, że usuwając elementy lub modyfikując ich pozycję, możemy pogorszyć wydajność struktury. Ponadto zmiana pozycji to tak naprawdę usunięcie i dodanie elementu, co może być kosztowne, bo będziemy musieli najpierw znaleźć wszystkie miejsca w drzewie, gdzie znajduje się element, aby go usunąć.
+
+Sprawia to, że drzewa czwórkowe są szczególnie przydatne w:
+
+- **Zapisie otoczenia w grach komputerowych**, szczególnie tych z otwartym, rozległym światem.
+- **Systemach informacji geograficznej** (GIS), szczególnie opisujących rozległe obszary rzadko zaludnione.
+
+Natomiast drzewa czwórkowe nie nadają się do:
+
+- **Wykrywania kolizji w grach pomiędzy ruchomymi obiektami** — przesuwające się obiekty szybko sprawią, że drzewo stanie się nieoptymalne.
+- **Opis przestrzeni równomiernie zapełnionej** — w takim przypadku tracimy największą zaletę drzewa czwórkowego, czyli brak dzielenia pustych obszarów na mniejsze.
+
+Warto również pamiętać, że drzewa czwórkowe możemy stosować tylko w przestrzeni dwuwymiarowej. Do opisu przestrzeni trójwymiarowej możemy wykorzystać **drzewo ósemkowe** (po ang. octree), które działa na tej samej zasadzie co drzewo czwórkowe, ale zamiast dzielić obszar na ćwiartki, dzieli go na ósemki.
+
+<Image
+  image={octree}
+  alignCenter
+  fullSize
+  alt="Schemat drzewa ósemkowego: trójwymiarowy sześcian dzielony na 8 części, z dalszymi podziałami. Obok drzewo pokazujące hierarchię węzłów, gdzie każdy węzeł może mieć 8 potomków."
+  caption={<>
+    Diagram pokazujący podział przestrzeni w drzewie ósemkowym.<br/>(źródło: <a href="https://commons.wikimedia.org/wiki/File:Octree2.png">Nü</a>, <a href="http://creativecommons.org/licenses/by-sa/3.0/">CC BY-SA 3.0</a>, via Wikimedia Commons)
+  </>}
+/>
+
+## Haszowanie przestrzenne
+
+Przyznam, że na początku artykułu dużo rozpisałem się o zastosowaniu przeszukiwania do gier. Jednak drzewo czwórkowe nie radzi sobie optymalnie z najpowszechniejszym przypadkiem, czyli wykrywaniem kolizji między ruchomymi obiektami. Dlatego przedstawię Ci drugą strukturę, która się lepiej sprawdzi w tym przypadku — haszowanie przestrzenne (po ang. spatial hashing).
+
+### Idea
+
+Gdy w drzewie czwórkowym dzieliliśmy obszar stopniowo na coraz mniejsze, tak w haszowaniu przestrzennym tego nie robimy. Zamiast tego operujemy na odgórnie ustalonym podziale na siatkę, wewnątrz której przechowujemy elementy. Nie dzielimy na mniejsze obszary, gdy przekroczymy pewną liczbę elementów — podział jest stały. Dzięki temu nie musimy się martwić, że przy częstym usuwaniu elementów struktura stanie się nieoptymalna.
+
+Tylko skąd nazwa „haszowanie przestrzenne”? Otóż każda komórka w siatce ma przypisany unikalny klucz, po którym można ją znaleźć i wyciągnąć zapisane w niej elementy. Kieruje nas to w kierunku wykorzystania struktury tablicy haszowanej (po ang. hash table) pozwalającej na szybkie dodawanie i wyszukiwanie elementów po kluczu (złożoność czasowa $$\Omicron(1)$$). Na szczęście struktury tej nie musimy implementować — praktycznie każdy język programowania posiada jej implementację w swojej bibliotece standardowej pod nazwą „mapa” (np. [`Map`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map) w JavaScript) lub „słownik” (np. [`Dictionary`](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.dictionary-2?view=net-9.0) w C#). Jedyne, co nam zostaje do zaprogramowania, to sama logika haszowania przestrzennego.
+
+Dodam, że teoretycznie zamiast tablicy haszowanej możemy użyć tablicy o stałej wielkości. Może się jednak okazać, że w przypadku dużych obszarów tablica zajmie dużo pamięci. Dlatego w praktyce lepiej używać tablic haszowanych, ponieważ nie musimy wtedy odgórnie utworzyć całej siatki, a jedynie dodajemy te komórki, które posiadają elementy — gotowe implementacje potrafią wydajnie zarządzać pamięcią.
+
+### Operacje w haszowaniu przestrzennym
+
+Podobnie jak przy drzewie czwórkowym, tak i tutaj musimy zaimplementować dwie operacje: dodawanie elementów oraz wyszukiwanie ich w danym obszarze. Na razie opowiedzmy sobie, jak one będą działać.
+
+#### Obliczenie klucza docelowej komórki
+
+Operując na siatce o stałych wymiarach, musimy wiedzieć, w jaki sposób dostać się do konkretnej komórki. Skoro te są opisane kluczami, to musimy wiedzieć, jak dany klucz wyznaczyć.
+
+Pierwsze, co jednak musimy wiedzieć, to jaki jest rozmiar siatki. Domyślnie zakłada się, że wszystkie komórki siatki są kwadratami o tym samym rozmiarze. Aby operować na symbolach, przyjmijmy, że rozmiar komórki wynosi $$s$$.
+
+Następnie musimy wziąć pod uwagę dwa scenariusze — znalezienie komórki dla konkretnego punktu i dla wskazanego prostokątnego obszaru.
+
+##### Znalezienie komórki dla punktu
+
+W przypadku pojedynczego punktu jest to bardzo proste. Skoro mamy do czynienia z siatką o stałym rozmiarze, to jedyne, co musimy zrobić, to podzielić współrzędne punktu $$(x_P, y_P)$$ przez rozmiar i zaokrąglić w dół:
+
+$$
+\begin{align*}
+x &= \lfloor \frac{x_P}{s} \rfloor \\
+y &= \lfloor \frac{y_P}{s} \rfloor
+\end{align*}
+$$
+
+W przypadku gdy korzystamy z gotowych tablic haszowanych, tyle wystarczy. Zwykle indeksujemy je dowolnymi typami, więc możemy użyć pary wartości $$x$$ i $$y$$ jako klucza.
+
+Jeśli natomiast chcielibyśmy wartość liczbową, możemy użyć prostego wzoru, który wykorzystuje się do jednowymiarowego indeksowania dwuwymiarowych tablic. Pokazywałem to już kiedyś w artykule o <Link href="/post/sudoku">sudoku</Link> i chętnych do niego odsyłam. Oczywiście pokazanego tam wzoru nie użyjemy wprost, ponieważ musimy obliczyć, ile komórek znajduje się w jednym wierszu, ale pozostawiam tę prostą matematykę dla zainteresowanych.
+
+##### Znalezienie komórki dla prostokątnego obszaru
+
+Z racji tego, że nie operujemy na punktach, tylko na prostokątach, to zdarzą się sytuacje, że zarówno przy dodawaniu, jak i wyszukiwaniu będzie nas interesować więcej niż jedna komórka. Jak do tego podejść?
+
+Najpierw musimy być w stanie obliczyć pierwszą i ostatnią komórkę, w której zawiera się dany obszar. Dla dowolnej jednej współrzędnej (aby nie mieszać, przyjmijmy zmienną $$c$$ — opisuje ona punkt w lewym górnym rogu prostokąta) i wielkości obszaru (przyjmijmy zmienną $$s_c$$ — pamiętajmy, że skoro mówimy o prostokątach, to dla każdej współrzędnej jest inny rozmiar) możemy to zrobić w ten sposób:
+
+$$
+\begin{align*}
+min_c &= \lfloor \frac{c}{s} \rfloor \\
+max_c &= \lfloor \frac{c + s_c}{s} \rfloor
+\end{align*}
+$$
+
+Wyliczając wartości `min` i `max` dla wszystkich współrzędnych, musimy następnie przeiterować po wszystkich możliwych kombinacjach wartości od `min` do `max` i spisać klucze odpowiadających im komórek.
+
+#### Dodawanie elementów
+
+Skoro wiemy już, jak znaleźć komórki, w których będziemy przechowywać elementy, to możemy przejść do ich dodawania.
+
+Tak naprawdę większość logiki opisaliśmy już powyżej. Aby dodać element, musimy:
+
+1. Obliczyć klucze komórek, w których element się znajduje.
+2. Sprawdzić, czy komórki są już utworzone.
+3. Jeśli nie, to je utworzyć.
+4. Dodać element do odpowiednich komórek.
+
+#### Wyszukiwanie elementów
+
+A co z wyszukiwaniem elementów? Dosłownie tak samo jak przy dodawaniu. Musimy:
+
+1. Obliczyć klucze komórek odpowiadające zadanemu obszarowi wyszukiwania.
+2. Wyciągnąć elementy z istniejących komórek.
+
+Należy tylko pamiętać o tym, że jeden element może być zapisany w wielu komórkach. Stąd, tak samo jak przy drzewie czwórkowym, należy pamiętać o odsianiu duplikatów.
+
+### Implementacja
+
+Skoro już wiemy wszystko w teorii, czas przejść do praktyki. Podobnie jak przy drzewie czwórkowym, tutaj również napiszemy wszystko w TypeScript, korzystając z programowania obiektowego.
+
+#### Przygotowanie do implementacji
+
+Tak jak ostatnio, stwórzmy klasę, w której zaimplementujemy naszą strukturę. Jednak tym razem struktura nie będzie rekurencyjna. Pojedyncza instancja klasy przechowa całą siatkę, a nie pojedynczy węzeł.
+
+Stwórzmy więc klasę `SpatialHash`. Przy jej inicjalizacji podamy rozmiar pojedynczej komórki (w teorii powinien odpowiadać średniemu rozmiarowi elementów, które będziemy przechowywać). Od razu utworzymy też mapę, czyli tablicę haszowaną przechowującą komórki. Oprócz tego skorzystamy nieco z napisanego już wcześniej kodu — typu `Rectangle` (pominę pisanie go tutaj) i metody sprawdzającej, czy dwa prostokąty się przecinają.
+
+```typescript
+// klasa reprezentująca siatkę przestrzenną
+class SpatialHash {
+  // mapa przechowująca komórki siatki i obiekty w nich zawarte
+  private hashTable: Map<string, Rectangle[]> = new Map();
+
+  // tworząc siatkę, decydujemy o rozmiarze komórek
+  constructor(private cellSize: number) {}
+
+  // metoda pomocnicza do sprawdzania, czy dwa prostokąty się przecinają
+  private intersects(a: Rectangle, b: Rectangle): boolean {
+    return (
+      b.x <= a.x + a.width &&
+      b.x + b.width >= a.x &&
+      b.y <= a.y + a.height &&
+      b.y + b.height >= a.y
+    );
+  }
+}
+```
+
+#### Obliczanie klucza docelowej komórki
+
+Jak widzieliśmy wcześniej, najbardziej rozbudowanymi operacjami w haszowaniu przestrzennym jest określanie, które komórki siatki interesują nas w danym momencie. Zajmijmy się więc implementacją.
+
+Najpierw określenie klucza komórki. Skoro typ `Map` w JavaScript/TypeScript może mieć klucze będące ciągami znaków, nie będziemy kombinować i generowanie kluczy zrobimy w najprostszy możliwy sposób:
+
+```typescript
+// metoda zwracająca klucz komórki na podstawie jej współrzędnych
+private getCellKey(gridX: number, gridY: number): string {
+  // klucz będzie prostym stringiem zawierającym współrzędne komórki
+  return `${gridX},${gridY}`;
+}
+```
+
+Z racji tego, że przechowujemy prostokąty, pominiemy obliczanie klucza dla pojedynczego punktu. Zamiast tego zajmiemy się obliczaniem kluczy dla prostokątów. Najpierw zacznijmy od znalezienia zakresu komórek na jednej osi:
+
+```typescript
+// metoda zwracająca zakres komórek zajmowanych przez obiekt na jednej osi
+private getCellRange(startPos: number, size: number): [number, number] {
+  // wyznaczamy początek i koniec zakresu komórek
+  const start = Math.floor(startPos / this.cellSize);
+  const end = Math.floor((startPos + size) / this.cellSize);
+  // zwracamy zakres jako parę liczb
+  return [start, end];
+}
+```
+
+Następnie, wykorzystując tę metodę, możemy obliczyć klucze dla wskazanego prostokąta:
+
+```typescript
+// metoda zwracająca komórki zajmowane przez obiekt
+private getObjectCells(obj: Rectangle): string[] {
+  // wyznaczamy zakres komórek zajmowanych przez obiekt na osi X
+  const [minX, maxX] = this.getCellRange(obj.x, obj.width || 0);
+  // oraz na osi Y
+  const [minY, maxY] = this.getCellRange(obj.y, obj.height || 0);
+  // tworzymy tablicę zawierającą klucze wszystkich komórek
+  const cells: string[] = [];
+  // iterujemy po wszystkich komórkach w zakresie
+  for (let x = minX; x <= maxX; x++) {
+    for (let y = minY; y <= maxY; y++) {
+      // dodajemy klucz komórki do tablicy
+      cells.push(this.getCellKey(x, y));
+    }
+  }
+  // zwracamy tablicę kluczy
+  return cells;
+}
+```
+
+Warto zauważyć, że wszystkie metody są prywatne. Nie ma sensu ich udostępniać na zewnątrz, ponieważ nie będą wykorzystywane poza klasą `SpatialHash`.
+
+#### Dodawanie elementów
+
+Przejdźmy teraz do pierwszej operacji, którą „wystawimy” publicznie, czyli dodawania elementów. Jak możesz spodziewać się po wcześniejszym lakonicznym opisie, kodu też tu zbyt wiele nie będzie:
+
+```typescript
+// metoda dodająca obiekt do siatki
+public insert(obj: Rectangle): void {
+  // wyznaczamy komórki zajmowane przez obiekt
+  const cells = this.getObjectCells(obj);
+  // iterujemy po wszystkich komórkach
+  for (const key of cells) {
+    // jeśli komórka nie istnieje, tworzymy ją
+    if (!this.hashTable.has(key)) {
+      this.hashTable.set(key, []);
+    }
+    // dodajemy obiekt do komórki
+    this.hashTable.get(key)!.push(obj);
+  }
+}
+```
+
+#### Wyszukiwanie elementów
+
+Podobnie będzie z wyszukiwaniem elementów — mając już `getObjectCells`, teraz wystarczy tylko przeiterować po wszystkich komórkach i wyciągnąć z nich elementy:
+
+```typescript
+// metoda zwracająca obiekty przecinające się z zadanym prostokątem
+public query(range: Rectangle): Rectangle[] {
+  // tworzymy zbiór wyników
+  const result = new Set<Rectangle>();
+  // wyznaczamy komórki zajmowane przez zadany prostokąt
+  const cells = this.getObjectCells(range);
+  // iterujemy po wszystkich komórkach
+  for (const key of cells) {
+    // pobieramy obiekty z komórki
+    const objects = this.hashTable.get(key);
+    if (objects) {
+      // jeśli komórka istnieje, iterujemy po wszystkich obiektach w niej zawartych
+      for (const obj of objects) {
+        // sprawdzamy, czy obiekt przecina się z zadanym prostokątem
+        if (this.intersects(obj, range)) {
+          // jeśli tak, dodajemy go do zbioru wyników
+          result.add(obj);
+        }
+      }
+    }
+  }
+  // zwracamy tablicę wyników
+  return [...result];
+}
+```
+
+Podobnie jak w drzewie czwórkowym, użyliśmy tutaj zbioru, aby uniknąć duplikatów. Całość implementacji znajdziesz na [Replit](https://replit.com/@tswistak/spatial-hashing#index.ts), gdzie także zamieściłem przykładowe użycie.
+
+### Zalety, wady, zastosowania
+
+Jak zobaczyliśmy, haszowanie przestrzenne jest o wiele prostsze w implementacji niż drzewo czwórkowe. Tylko jak się to przekłada na wydajność?
+
+W ramach interesujących nas dwóch operacji wygląda to następująco:
+
+- **Wstawianie** — w optymistycznym przypadku złożoność tej operacji wynosi $$\Omicron(1)$$, ponieważ dodajemy element do tablicy haszowanej. Jednak element może zawierać się w wielu komórkach, przez co złożoność operacji jest liniowa, zależna od liczby komórek, w których się znajduje: $$\Omicron(m)$$, gdzie $$m$$ to liczba komórek zajmowanych przez element ($$1 \leqslant m \leqslant n$$, gdzie $$n$$ to liczba wszystkich komórek). Dodam tylko, że nie rozpatrujemy tutaj złożoności operacji dodawania do listy tablicowej przechowującej elementy w komórce (więcej w artykule *<Link href="/post/tablice-i-listy-tablicowe">Tablice i listy tablicowe</Link>*).
+- **Wyszukiwanie** — wyszukiwanie niczym się tutaj nie różni od dodawania. Optymistycznie (np. rozpatrując pojedynczy punkt) złożoność wynosi $$\Omicron(1)$$, a w najgorszym przypadku $$\Omicron(m)$$.
+
+Haszowanie przestrzenne szczególnie dobrze sprawdza się w przypadku:
+
+- **Ruchomych obiektów** — ponieważ nie musimy się martwić o podział przestrzeni, haszowanie przestrzenne jest idealne do wykrywania kolizji między ruchomymi obiektami. Usuwając i dodając elementy, nie musimy się martwić o to, że struktura stanie się nieoptymalna. Tym samym idealnie sprawdza się to przy **wykrywaniu kolizji w grach komputerowych**.
+- **Równomiernie zapełnionej przestrzeni** — ponieważ nie dzielimy przestrzeni na mniejsze komórki, haszowanie przestrzenne sprawdzi się w przypadku, gdy elementy są równomiernie rozłożone.
+- **Zapytań punktowych** — ponieważ haszowanie przestrzenne działa na siatce, idealnie nadaje się do zapytań punktowych. Od razu otrzymujemy komórkę, w której znajduje się punkt; nie musimy jej wyszukiwać wgłąb struktury.
+
+Natomiast haszowanie przestrzenne nie najlepiej sprawdza się w przypadkach, gdy:
+
+- **Obiekty mają zróżnicowane rozmiary** — wówczas może się zdarzyć, że obiekt będzie zapisany na wielu komórkach, tym samym zajmując więcej pamięci. Teoretycznie moglibyśmy zwiększyć rozmiar komórki, jednak wówczas stracimy na wydajności, ponieważ niektóre komórki będą mogły przechowywać zbyt dużo elementów (a te są przeszukiwane wewnątrz komórki liniowo).
+- **Mamy nierównomierny rozkład obiektów** — w takim przypadku może się zdarzyć, że niektóre komórki będą przepełnione, a inne puste. Wówczas haszowanie przestrzenne straci na wydajności, ponieważ będziemy musieli przeszukiwać liniowo po przepełnionych komórkach.
+
+Tym samym możesz zauważyć, że obie struktury idealnie się uzupełniają. Drzewo czwórkowe sprawdzi się w przypadku, gdy mamy nierównomierny rozkład obiektów, a haszowanie przestrzenne w przypadku równomiernego. Stąd też w praktyce tworzy się hybrydy tych struktur. Na przykład, możemy obszar dzielić drzewem czwórkowym, a już wewnątrz węzła stosować haszowanie przestrzenne. Ewentualnie część informacji trzymać w drzewie czwórkowym (nieruchome obiekty), a część w haszowaniu przestrzennym (ruchome obiekty). Warto pokombinować, co najlepiej sprawdzi się w Twoim przypadku.
+
+## Inne struktury
+
+Dwie pokazane przeze mnie struktury nie są oczywiście jedynymi dostępnymi. Są za to najprostszymi, a tym samym często stosowanymi. Inne struktury, które mogą się przydać w przypadku przeszukiwania przestrzennego, to:
+
+- **Drzewo R** (po ang. R-tree) — struktura, która dzieli przestrzeń na prostokątne obszary mogące mieć różne rozmiary. Warto tutaj wymienić odmianę R*-Tree — jest to struktura balansująca się, więc dobrze sprawdzi się w przypadku usuwania elementów.
+- **Drzewo BSP** (skrót od Binary Space Partitioning; binarne dzielenie przestrzeni) — struktura, która dzieli rekurencyjnie przestrzeń na <Link href="/post/otoczka-wypukla">zbiory wypukłe</Link>. Dobrze się sprawdzi w przypadku renderowania grafiki 3D, ponieważ pozwala na szybkie określenie, które obiekty są widoczne z danej perspektywy. Z tego też powodu wykorzystuje się ją szeroko w silnikach gier 3D.
+- **Drzewo kd** (drzewo k-wymiarowe, po ang. k-d tree) — struktura, która pozwala zorganizować punkty w przestrzeni k-wymiarowej. Swoją ideą przypomina w pewnym stopniu drzewo czwórkowe, jednak w swojej implementacji jest bardziej ogólna (dowolna liczba wymiarów) i w inny sposób dzieli przestrzeń.
+
+Struktury te są jednak bardziej zaawansowane i jest możliwe, że opisane tutaj drzewa czwórkowe i haszowanie przestrzenne zupełnie wystarczą Ci do większości zastosowań. Warto też pamiętać, że nie wszystko musimy implementować samodzielnie. Wiele silników gier posiada już wbudowane struktury do przeszukiwania przestrzennego. Jeśli nie interesują nas gry, to bazy danych również mogą mieć obsługę przeszukiwania przestrzennego (np. PostgreSQL przez rozszerzenie [PostGIS](https://postgis.net/)).
+
+## Podsumowanie
+
+Jak zobaczyliśmy wyżej, wykorzystując dwie stosunkowo proste struktury, jesteśmy w stanie zaprogramować wydajne przeszukiwanie przestrzenne. Obie sprawdzają się w innych zastosowaniach, można też je łączyć ze sobą. Liczę, że wiedza ta przyda Ci się w przyszłości, aby zoptymalizować swój kod albo po prostu lepiej zrozumieć, jak to działa w gotowcach.
+
+Mała ciekawostka — w literaturze poniżej jeden z autorów jest także twórcą jednego z najpopularniejszych programów do tworzenia gier. Jeśli wiesz, o kogo chodzi i o który program, możesz zostawić odpowiedź w komentarzu 😉
+
+## Literatura
+
+- Hanan Samet. 1984. The Quadtree and Related Hierarchical Data Structures. ACM Comput. Surv. 16, 2 (June 1984), 187–260. [doi:10.1145/356924.356930](https://doi.org/10.1145/356924.356930)
+- de Berg, M., van Kreveld, M., Overmars, M., & Schwarzkopf, O. (2000). **Quadtrees: Non-Uniform Mesh Generation**. In *Computational Geometry: Algorithms and Applications* (2nd rev. ed., pp. 291–306). Springer-Verlag Berlin Heidelberg.
+- Quadtree, https://en.wikipedia.org/w/index.php?title=Quadtree&oldid=1280122514 (ostatnie odwiedziny 10.05.2025).
+- Quadtrees - RonanDoherty.com, https://www.ronandoherty.com/blog/quadtrees (ostatnie odwiedziny 10.05.2025).
+- Spatial Hashing - RonanDoherty.com, https://www.ronandoherty.com/blog/spatial-hashing (ostatnie odwiedziny 10.05.2025).
+- Spatial hashing implementation for fast 2D collisions | The mind of Conkerjo, https://conkerjo.wordpress.com/2009/06/13/spatial-hashing-implementation-for-fast-2d-collisions/ (ostatnie odwiedziny 10.05.2025).
+
+<small>Zdjęcie na okładce wygenerowane przez Midjourney.</small>

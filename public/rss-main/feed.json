@@ -10,6 +10,18 @@
     },
     "items": [
         {
+            "id": "https://swistak.codes/post/wyszukiwanie-w-przestrzeni",
+            "content_html": "Podczas nauki algorytmiki jednym z pierwszych algorytmów, które poznajemy, jest wyszukiwanie binarne pokazujące jak sprytnie szukać danych w posortowanej liście. Później poznajemy algorytmy wyszukiwania w grafach, z czego naturalnie przechodzi się do wyszukiwania ścieżek. Jednak tym razem spójrzmy na jeszcze inny rodzaj wyszukiwania, który może być przydatny przykładowo przy programowaniu gier. A jest to wyszukiwanie obiektów w przestrzeni. W artykule przedstawiam przykładowe podejścia do tego problemu, ograniczając się do przestrzeni dwuwymiarowej.<br /><a href=\"https://swistak.codes/post/wyszukiwanie-w-przestrzeni\">Czytaj więcej na świstak.codes</a>",
+            "url": "https://swistak.codes/post/wyszukiwanie-w-przestrzeni",
+            "title": "Wyszukiwanie obiektów w przestrzeni",
+            "summary": "Artykuł przedstawia algorytmy wyszukiwania obiektów w przestrzeni, które są wykorzystywane w różnych dziedzinach, takich jak np. gry komputerowe.",
+            "date_modified": "2025-05-21T07:00:00.000Z",
+            "author": {
+                "name": "Tomasz Świstak",
+                "url": "https://swistak.codes"
+            }
+        },
+        {
             "id": "https://swistak.codes/post/losowosc",
             "content_html": "W informatyce bardzo często spotykamy się z pojęciem losowości. Generujemy losowe liczby (w tym pierwsze), losowe dane. Wymieniając bardziej szczegółowo, mamy losowe identyfikatory, losowy stan gier, losowe przeszukiwanie przestrzeni rozwiązań. Przykładów można wymieniać wiele, tylko odpowiedzmy sobie na kluczowe pytanie — jak w ogóle komputer losuje? Czy komputer jest w stanie wygenerować coś, co jest naprawdę losowe?<br /><a href=\"https://swistak.codes/post/losowosc\">Czytaj więcej na świstak.codes</a>",
             "url": "https://swistak.codes/post/losowosc",

@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://swistak.codes</id>
     <title>świstak.codes — Wszystkie wpisy</title>
-    <updated>2025-04-17T07:00:00.000Z</updated>
+    <updated>2025-05-21T07:00:00.000Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <author>
         <name>Tomasz Świstak</name>
@@ -14,6 +14,24 @@
     <logo>https://swistak.codes/fav270.png</logo>
     <icon>https://swistak.codes/fav32.png</icon>
     <rights>Wszystkie prawa zastrzeżone 2020-2025, Tomasz Świstak</rights>
+    <entry>
+        <title type="html"><![CDATA[Wyszukiwanie obiektów w przestrzeni]]></title>
+        <id>https://swistak.codes/post/wyszukiwanie-w-przestrzeni</id>
+        <link href="https://swistak.codes/post/wyszukiwanie-w-przestrzeni"/>
+        <updated>2025-05-21T07:00:00.000Z</updated>
+        <summary type="html"><![CDATA[Artykuł przedstawia algorytmy wyszukiwania obiektów w przestrzeni, które są wykorzystywane w różnych dziedzinach, takich jak np. gry komputerowe.]]></summary>
+        <content type="html"><![CDATA[Podczas nauki algorytmiki jednym z pierwszych algorytmów, które poznajemy, jest wyszukiwanie binarne pokazujące jak sprytnie szukać danych w posortowanej liście. Później poznajemy algorytmy wyszukiwania w grafach, z czego naturalnie przechodzi się do wyszukiwania ścieżek. Jednak tym razem spójrzmy na jeszcze inny rodzaj wyszukiwania, który może być przydatny przykładowo przy programowaniu gier. A jest to wyszukiwanie obiektów w przestrzeni. W artykule przedstawiam przykładowe podejścia do tego problemu, ograniczając się do przestrzeni dwuwymiarowej.<br /><a href="https://swistak.codes/post/wyszukiwanie-w-przestrzeni">Czytaj więcej na świstak.codes</a>]]></content>
+        <author>
+            <name>Tomasz Świstak</name>
+            <email>tomasz@swistak.codes</email>
+            <uri>https://swistak.codes</uri>
+        </author>
+        <contributor>
+            <name>Tomasz Świstak</name>
+            <email>tomasz@swistak.codes</email>
+            <uri>https://swistak.codes</uri>
+        </contributor>
+    </entry>
     <entry>
         <title type="html"><![CDATA[świstak.codes staje się open‑source!]]></title>
         <id>https://swistak.codes/offtopic/opensource</id>

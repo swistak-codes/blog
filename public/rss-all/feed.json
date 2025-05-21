@@ -10,6 +10,18 @@
     },
     "items": [
         {
+            "id": "https://swistak.codes/post/wyszukiwanie-w-przestrzeni",
+            "content_html": "Podczas nauki algorytmiki jednym z pierwszych algorytmów, które poznajemy, jest wyszukiwanie binarne pokazujące jak sprytnie szukać danych w posortowanej liście. Później poznajemy algorytmy wyszukiwania w grafach, z czego naturalnie przechodzi się do wyszukiwania ścieżek. Jednak tym razem spójrzmy na jeszcze inny rodzaj wyszukiwania, który może być przydatny przykładowo przy programowaniu gier. A jest to wyszukiwanie obiektów w przestrzeni. W artykule przedstawiam przykładowe podejścia do tego problemu, ograniczając się do przestrzeni dwuwymiarowej.<br /><a href=\"https://swistak.codes/post/wyszukiwanie-w-przestrzeni\">Czytaj więcej na świstak.codes</a>",
+            "url": "https://swistak.codes/post/wyszukiwanie-w-przestrzeni",
+            "title": "Wyszukiwanie obiektów w przestrzeni",
+            "summary": "Artykuł przedstawia algorytmy wyszukiwania obiektów w przestrzeni, które są wykorzystywane w różnych dziedzinach, takich jak np. gry komputerowe.",
+            "date_modified": "2025-05-21T07:00:00.000Z",
+            "author": {
+                "name": "Tomasz Świstak",
+                "url": "https://swistak.codes"
+            }
+        },
+        {
             "id": "https://swistak.codes/offtopic/opensource",
             "content_html": "Jak możesz wiedzieć z artykułu „świstak.codes powraca!”, blog obecnie działa na moim autorskim rozwiązaniu. Jednak nie dzieliłem się do tej pory jego kodem. Z okazji 5-lecia bloga i 3-lecia jego przepisania postanowiłem udostępnić jego źródła na GitHubie. Jeśli jesteś ciekaw(a) więcej szczegółów, a także informacji o tym, dlaczego kod jest napisany tak, a nie inaczej, to zapraszam do lektury.<br /><a href=\"https://swistak.codes/offtopic/opensource\">Czytaj więcej na świstak.codes</a>",
             "url": "https://swistak.codes/offtopic/opensource",

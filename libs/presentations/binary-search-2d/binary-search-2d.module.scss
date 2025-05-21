@@ -1,0 +1,150 @@
+.theme-container {
+  --color-center: red;
+  --color-northwest: #b3d9ff;
+  --color-northeast: #b3ffc9;
+  --color-southwest: #fff3b3;
+  --color-southeast: #d9b3ff;
+}
+
+html[data-theme='dark'] .theme-container {
+  --color-center: red;
+  --color-northwest: #4d6a99;
+  --color-northeast: #4d8a6a;
+  --color-southwest: #99854d;
+  --color-southeast: #7a4d99;
+}
+
+.grid {
+  display: grid;
+  width: 80%;
+  margin: 0 auto;
+  aspect-ratio: 1;
+  grid-template-columns: repeat(var(--grid-size), 1fr);
+  gap: 0;
+
+  .square {
+    background-color: var(--sc--background);
+    border: 1px solid var(--sc--text);
+    aspect-ratio: 1;
+    cursor: default;
+
+    &[role='button'] {
+      cursor: pointer;
+    }
+  }
+}
+
+.header {
+  text-align: center !important;
+
+  &-title {
+    font-size: 2rem;
+    font-weight: bold;
+    margin: 0;
+    text-align: center !important;
+  }
+
+  &-subtitle {
+    font-size: 1.25rem;
+    margin: 0;
+    color: var(--sc--text);
+    text-align: center !important;
+  }
+}
+
+.controls {
+  margin: 20px 0;
+  text-align: center;
+
+  p {
+    margin: 10px 0;
+    font-size: 1.1rem;
+    text-align: center;
+  }
+
+  button {
+    margin: 5px;
+    padding: 10px 20px;
+    font-size: 1rem;
+    cursor: pointer;
+    border: none;
+    border-radius: 5px;
+    background-color: var(--color-northwest);
+    color: white;
+    transition: background-color 0.3s ease;
+
+    &:hover {
+      background-color: var(--color-northeast);
+    }
+  }
+}
+
+.hidden {
+  visibility: hidden;
+}
+
+.group-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 20px 0;
+  gap: 10px;
+
+  button {
+    width: 30px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+
+    &:hover {
+      transform: scale(1.1);
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.5;
+      transform: none;
+    }
+  }
+
+  .northwest {
+    background-color: var(--color-northwest);
+
+    &:hover {
+      background-color: var(--color-northwest);
+    }
+  }
+
+  .northeast {
+    background-color: var(--color-northeast);
+
+    &:hover {
+      background-color: var(--color-northeast);
+    }
+  }
+
+  .southwest {
+    background-color: var(--color-southwest);
+
+    &:hover {
+      background-color: var(--color-southwest);
+    }
+  }
+
+  .southeast {
+    background-color: var(--color-southeast);
+
+    &:hover {
+      background-color: var(--color-southeast);
+    }
+  }
+
+  .center {
+    background-color: var(--color-center);
+
+    &:hover {
+      background-color: var(--color-center);
+    }
+  }
+}

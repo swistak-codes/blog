@@ -4,7 +4,7 @@
         <title>świstak.codes — Wpisy ze strony głównej</title>
         <link>https://swistak.codes</link>
         <description></description>
-        <lastBuildDate>Wed, 12 Mar 2025 07:00:00 GMT</lastBuildDate>
+        <lastBuildDate>Wed, 21 May 2025 07:00:00 GMT</lastBuildDate>
         <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
         <generator>https://github.com/jpmonette/feed</generator>
         <image>
@@ -13,6 +13,15 @@
             <link>https://swistak.codes</link>
         </image>
         <copyright>Wszystkie prawa zastrzeżone 2020-2025, Tomasz Świstak</copyright>
+        <item>
+            <title><![CDATA[Wyszukiwanie obiektów w przestrzeni]]></title>
+            <link>https://swistak.codes/post/wyszukiwanie-w-przestrzeni</link>
+            <guid>https://swistak.codes/post/wyszukiwanie-w-przestrzeni</guid>
+            <pubDate>Wed, 21 May 2025 07:00:00 GMT</pubDate>
+            <description><![CDATA[Artykuł przedstawia algorytmy wyszukiwania obiektów w przestrzeni, które są wykorzystywane w różnych dziedzinach, takich jak np. gry komputerowe.]]></description>
+            <content:encoded><![CDATA[Podczas nauki algorytmiki jednym z pierwszych algorytmów, które poznajemy, jest wyszukiwanie binarne pokazujące jak sprytnie szukać danych w posortowanej liście. Później poznajemy algorytmy wyszukiwania w grafach, z czego naturalnie przechodzi się do wyszukiwania ścieżek. Jednak tym razem spójrzmy na jeszcze inny rodzaj wyszukiwania, który może być przydatny przykładowo przy programowaniu gier. A jest to wyszukiwanie obiektów w przestrzeni. W artykule przedstawiam przykładowe podejścia do tego problemu, ograniczając się do przestrzeni dwuwymiarowej.<br /><a href="https://swistak.codes/post/wyszukiwanie-w-przestrzeni">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
         <item>
             <title><![CDATA[Losowość w informatyce]]></title>
             <link>https://swistak.codes/post/losowosc</link>
