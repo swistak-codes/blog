@@ -111,7 +111,7 @@ Pierwszy element: 1 (adres: 0x7fff9bb6b60a)
 Drugi element: 2 (adres: 0x7fff9bb6b60b)
 ```
 
-Jeżeli chcecie sami pokombinować, zapraszam do serwisu [repl.it](https://repl.it/@tswistak/Tablice). Możecie tam modyfikować kod i uruchamiać go bez potrzeby ściągania kompilatora na komputer.
+Jeżeli chcecie sami pokombinować, zapraszam do serwisu [repl.it](https://replit.com/@tswistak/Tablice). Możecie tam modyfikować kod i uruchamiać go bez potrzeby ściągania kompilatora na komputer.
 
 Jak możecie sami zobaczyć, byłem w stanie odwoływać się do kolejnych elementów tablicy, korzystając dokładnie ze wzoru, który podałem wyżej. Chciałem dostać się do drugiego elementu, dlatego do początkowego adresu dodałem 2. Adresy, które wypisałem w konsoli, również się zgadzają. Wygląda to dziwnie, że jest 9, potem „a”, a następnie „b”. Wynika to z faktu, że adresy są zapisane w systemie szesnastkowym. W takim zapisie, po 9 mamy jeszcze jako cyfry litery od a do f.
 
@@ -227,15 +227,15 @@ Zmiana rozmiaru na: 128 przy 65 elementach
 Zmiana rozmiaru na: 256 przy 129 elementach
 ```
 
-Możemy zauważyć, że w przypadku implementacji tablicy dynamicznej w tym języku, rozmiar z każdą iteracją zwiększa się dwukrotnie. Początkowo, aby nie marnować miejsca, tablica jest pusta, a później zaczynamy od rozmiaru 4. Ponownie zachęcam do własnych eksperymentów z tym kodem na platformie [repl.it](https://repl.it/@tswistak/Rozmiar-listy-C).
+Możemy zauważyć, że w przypadku implementacji tablicy dynamicznej w tym języku, rozmiar z każdą iteracją zwiększa się dwukrotnie. Początkowo, aby nie marnować miejsca, tablica jest pusta, a później zaczynamy od rozmiaru 4. Ponownie zachęcam do własnych eksperymentów z tym kodem na platformie [repl.it](https://replit.com/@tswistak/Rozmiar-listy-C).
 
 #### C++
 
-Analogicznie sprawa wygląda w C++. [Pod tym linkiem](https://repl.it/@tswistak/Rozmiar-listy-CPP) znajdziecie kod do programu napisanego w tym języku, robiący dokładnie to samo. Po uruchomieniu możemy zobaczyć, że vector (bo tak nazywa się tablica dynamiczna w C++) również dwukrotnie zwiększa rozmiar. Różnica jest jedynie taka, że ta implementacja nie zaczyna od pojemności 4, lecz 1, po czym zwiększa do 2, a dopiero potem do 4.
+Analogicznie sprawa wygląda w C++. [Pod tym linkiem](https://replit.com/@tswistak/Rozmiar-listy-CPP) znajdziecie kod do programu napisanego w tym języku, robiący dokładnie to samo. Po uruchomieniu możemy zobaczyć, że vector (bo tak nazywa się tablica dynamiczna w C++) również dwukrotnie zwiększa rozmiar. Różnica jest jedynie taka, że ta implementacja nie zaczyna od pojemności 4, lecz 1, po czym zwiększa do 2, a dopiero potem do 4.
 
 #### Java
 
-Sprawdźmy jeszcze, jak sytuacja ma się w Javie, ponieważ tutaj jest nieco inaczej. Kod znajdziecie [pod tym linkiem](https://repl.it/@tswistak/Rozmiar-listy-Java), gdzie również możecie na nim poeksperymentować. Niestety, w Javie nie było to tak proste jak w C# czy C++, ale nie ma rzeczy niemożliwych. Rezultat wykonania jest następujący:
+Sprawdźmy jeszcze, jak sytuacja ma się w Javie, ponieważ tutaj jest nieco inaczej. Kod znajdziecie [pod tym linkiem](https://replit.com/@tswistak/Rozmiar-listy-Java), gdzie również możecie na nim poeksperymentować. Niestety, w Javie nie było to tak proste jak w C# czy C++, ale nie ma rzeczy niemożliwych. Rezultat wykonania jest następujący:
 
 ```
 Początkowy rozmiar listy: 0

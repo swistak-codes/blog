@@ -100,7 +100,7 @@ int factorial(int n) {
 }
 ```
 
-Kod możesz sprawdzić na platformie [repl.it pod tym linkiem](https://repl.it/@tswistak/iteration-from-tail#main.c). Natomiast porównanie kodu Assemblera dla rekurencji oraz iteracyjnej wersji Fibonacciego, [znajdziesz tutaj](https://godbolt.org/z/9cfrq8).
+Kod możesz sprawdzić na platformie [repl.it pod tym linkiem](https://replit.com/@tswistak/iteration-from-tail#main.c). Natomiast porównanie kodu Assemblera dla rekurencji oraz iteracyjnej wersji Fibonacciego, [znajdziesz tutaj](https://godbolt.org/z/9cfrq8).
 
 Wszystkie zabiegi jakie musieliśmy dokonać, to tak naprawdę przeniesienie dodatkowych argumentów funkcji do jej środka oraz obrócenie warunków. Prawda jest taka, że bardzo podobnie można by te funkcje napisać nierekurencyjnie prosto z definicji. Możliwe, że jedynie zamiast pętli `while`, użyłbyś pętli `for`, która jest bardziej „naturalna” dla odliczania. Dodatkowo, w Fibonaccim warunek dla elementu zerowego umieściłbyś wcześniej w kodzie, jednak nie robi to dużej różnicy.
 
@@ -228,7 +228,7 @@ int factorial(int n) {
 }
 ```
 
-Jeżeli chcesz przetestować tę funkcję w praktyce, to znajdziesz ją [na serwisie repl.it pod tym linkiem](https://repl.it/@tswistak/nonrecursive-stack#main.c). Dodatkowo znajdziesz tam również zderekursywowaną w analogiczny sposób funkcję Fibonacciego. Aby nie przedłużać niepotrzebnie artykułu, nie zamieszczam jej tutaj, bo zaraz przed nami długa przygoda (i to właśnie z Fibonaccim).
+Jeżeli chcesz przetestować tę funkcję w praktyce, to znajdziesz ją [na serwisie repl.it pod tym linkiem](https://replit.com/@tswistak/nonrecursive-stack#main.c). Dodatkowo znajdziesz tam również zderekursywowaną w analogiczny sposób funkcję Fibonacciego. Aby nie przedłużać niepotrzebnie artykułu, nie zamieszczam jej tutaj, bo zaraz przed nami długa przygoda (i to właśnie z Fibonaccim).
 
 Warto jeszcze tylko zadać sobie pytanie — czy jest sens tak robić? Odpowiedź brzmi: to zależy. W takich przypadkach, jak silnia czy ciąg Fibonacciego, możemy napisać znacznie prościej wersje nierekurencyjne. Jednak dla bardziej rozbudowanych algorytmów rekurencyjnych, tak przeprowadzona derekursywacja może być dobrą bazą do dalszych optymalizacji.
 
