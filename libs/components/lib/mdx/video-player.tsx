@@ -2,7 +2,9 @@ import type { BaseReactPlayerProps } from 'react-player/base';
 import styles from './video-player.module.scss';
 import imageStyles from './image.module.scss';
 import clsx from 'clsx';
-import ReactPlayer from 'react-player/lazy';
+import dynamic from 'next/dynamic';
+
+const ReactPlayer = dynamic(() => import('react-player/lazy'), { ssr: false });
 
 type AdditionalProps = {
   caption: JSX.Element;

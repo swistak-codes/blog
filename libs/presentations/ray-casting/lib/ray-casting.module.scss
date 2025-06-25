@@ -1,0 +1,266 @@
+.gameContainer {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+}
+
+.aspectWrapper {
+  position: relative;
+  max-width: 100%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  max-height: 100vh;
+}
+
+.dpadOverlay {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 4px;
+  width: 150px;
+  height: 100px;
+  user-select: none;
+}
+
+.dpadButton {
+  width: 100%;
+  height: 100%;
+  background-color: rgba(255,255,255,0.2);
+  border: 2px solid rgba(255,255,255,0.4);
+  border-radius: 8px;
+  color: #fff;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+  transition: all 0.1s;
+}
+.dpadButtonUp, .dpadButtonDown {
+  font-size: 18px;
+}
+.dpadButtonLeft, .dpadButtonRight {
+  font-size: 28px;
+}
+
+.dpadButton:hover, .dpadButton:active, .dpadButton:focus {
+  background-color: rgba(255,255,255,0.3);
+}
+
+.mapCanvas {
+  image-rendering: pixelated;
+  display: block;
+  width: 100%;
+  height: 50%;
+  background: #1a1a1a;
+}
+
+.gameCanvas {
+  image-rendering: pixelated;
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: #000;
+}
+
+.controlsPanel {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
+  background: #222;
+  border-radius: 8px;
+  padding: 10px 20px;
+  color: #fff;
+  font-family: monospace;
+  font-size: 15px;
+  row-gap: 12px;
+}
+
+.controlsRow {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  flex-wrap: wrap;
+  margin-bottom: 2px;
+}
+
+.controlsGroup {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.resetButton {
+  padding: 6px 18px;
+  font-size: 15px;
+  font-family: monospace;
+  border-radius: 6px;
+  border: none;
+  background: #444;
+  color: #fff;
+  cursor: pointer;
+  font-weight: bold;
+  box-shadow: 0 1px 4px #0006;
+  transition: background 0.2s;
+}
+
+.resetButton:hover, .resetButton:focus {
+  background: #666;
+}
+
+.planeWidthSlider {
+  width: 120px;
+}
+
+.dirLengthSlider {
+  width: 100px;
+}
+
+.rayCountSlider {
+  width: 100px;
+}
+
+.valueDisplay {
+  width: 40px;
+  text-align: right;
+}
+
+.rayCountDisplay {
+  width: 32px;
+  text-align: right;
+}
+
+.fovDisplay {
+  margin-left: 8px;
+  text-align: right;
+  color: #8fd;
+}
+
+.checkbox {
+  width: 20px;
+  height: 20px;
+}
+
+.resetButtonContainer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.perpDistanceLabel {
+  color: #fff;
+
+  &.disabled {
+    color: #888;
+  }
+}
+
+.placeholderWrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.placeholderWrapperAnimating {
+  cursor: default;
+  pointer-events: none;
+}
+
+.placeholderWrapperAnimating .placeholderImg {
+  opacity: 0.95;
+  filter: brightness(1.1);
+  transition: all 0.4s ease;
+}
+
+.placeholderWrapper:hover .placeholderImg {
+  opacity: 0.85;
+  filter: brightness(0.9);
+}
+
+.placeholderWrapper:hover .playButton:not(.playButtonAnimating) {
+  transform: translate(-50%, -50%) scale(1.1);
+  background: rgba(255, 255, 255, 1);
+  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.4);
+}
+
+.placeholderContainer {
+  position: relative;
+  width: 100%;
+  height: 50%;
+}
+
+.placeholderImage {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.placeholderImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.7;
+  filter: brightness(0.8);
+  transition: all 0.3s ease;
+}
+
+.playButton {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.playIcon {
+  font-size: 32px;
+  color: #333;
+  margin-left: 4px;
+  transition: transform 0.4s ease;
+}
+
+.playButtonAnimating {
+  transform: translate(-50%, -50%) scale(1.3);
+  opacity: 0;
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.playButtonAnimating .playIcon {
+  transform: scale(1.2);
+}
+
+.controlsPanel.inactive {
+  opacity: 0.6;
+  pointer-events: none;
+  user-select: none;
+}

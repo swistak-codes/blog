@@ -1,0 +1,712 @@
+import Link from 'next/link';
+import { Image, VideoPlayer } from '@swistak-codes/components';
+import { Presentation } from './presentation';
+import cover from './swistak_wolf3d.webp';
+import wolf3dlogo from './wolf3d_logo.png';
+import wolf3dget from './wolf3d_getpsyched.png';
+import wolf3dscreen from './wolf3d_screen.png';
+import wolf3dmap from './wolf3d_map.png';
+import rzutnia from './rzutnia.png';
+import dda from './dda.png';
+import perpIntuicyjnie from './perp_intuicyjnie.png';
+import perpDist1 from './perp_dist1.png';
+import perpDist2 from './perp_dist2.png';
+
+export const meta = {
+  title: 'Renderowanie grafiki w stylu Wolfenstein 3D',
+  abstract:
+    'Artykuł przedstawia algorytmikę stojącą za renderowaniem grafiki w stylu Wolfenstein 3D. Pomija detale implementacyjne oryginału.',
+  firstParagraph: (
+    <>
+      W maju 1992 r. premierę miała jedna z najważniejszych gier komputerowych w historii — Wolfenstein 3D. Mimo że nie była pierwszą grą z trójwymiarowym światem, z pewnością była pierwszą, która wprowadziła graczy w świat 3D w sposób zarówno innowacyjny, jak i przystępny. Z technicznego punktu widzenia zdecydowanie najciekawszą rzeczą w tej grze jest sposób, w jaki uzyskano widok 3D. Zobaczmy, jak to zrobiono, i spróbujmy zaimplementować te techniki w nowoczesnym środowisku.
+    </>
+  ),
+  keyword: 'renderowanie 3d',
+  categories: ['Gry', 'Grafika komputerowa'],
+  tags: [
+  ],
+  slug: 'renderowanie-wolf-3d',
+  updateTime: '2025-06-18T07:00:00+00:00',
+  publishTime: '2025-06-18T07:00:00+00:00',
+  cover,
+};
+
+<Image
+  image={wolf3dlogo}
+  alignCenter
+  fullSize
+  forceWhiteBackground={false}
+  alt="Ekran tytułowy gry Wolfenstein 3D z logo i tłem przedstawiającym żołnierzy i broń."
+  caption={<>
+    Ekran tytułowy gry Wolfenstein 3D. Grafika w samej grze jednak wyglądała nieco inaczej, ponieważ była renderowana w czasie rzeczywistym, a ówczesny sprzęt nie był w stanie renderować tak wielu detali. Podobieństwo do okładki artykułu nieprzypadkowe.<br />Zrzut ekranu wykonany w wersji gry zakupionej na Steamie. © 1992 id Software
+  </>}
+/>
+
+
+## Uwagi wstępne
+
+W artykule przedstawię algorytmikę, która stoi za renderowaniem grafiki w stylu Wolfenstein 3D, jednak nie będę się skupiać na tym, jak dokładnie implementacja wyglądała w oryginalnej grze. Sztuczki stosowane w celu renderowania grafiki trójwymiarowej na ówczesnym sprzęcie są ciekawe, ale nie im chciałem poświęcić czas. Jeśli Cię interesują, kod źródłowy gry jest publicznie dostępny [na GitHubie](https://github.com/id-Software/wolf3d). Do tego polecam książkę „[Game Engine Black Book Wolfenstein 3D](https://fabiensanglard.net/gebbwolf3d/index.html)”, która bardzo szczegółowo opisuje każdy aspekt silnika Wolfenstein 3D, poświęcając dużo uwagi na opis każdej optymalizacji pod ówcześnie dostępny sprzęt.
+
+Natomiast w kwestii treści tego artykułu — założę, że aparat matematyczny związany z przekształceniami geometrycznymi jest Ci znany. Jeśli nie, poświęciłem temu tematowi dwa artykuły:
+
+- *<Link href="/post/przeksztalcenia-grafiki-2d">Przekształcenia grafiki 2D — matematyczny punkt widzenia</Link>*
+- *<Link href="/post/przeksztalcenia-grafiki-3d">Przekształcenia grafiki 3D</Link>*
+
+O ile nie będziemy stosować macierzowych przekształceń (może z jednym wyjątkiem), to pojawią się tutaj pojęcia tam opisywane.
+
+Chyba też nie muszę dodawać, że jeśli nie grałeś(-aś) w Wolfenstein 3D, to warto to zrobić, aby wiedzieć, o jaki typ grafiki chodzi. Oficjalne wydanie gry znajdziesz w wielu sklepach internetowych, np. na [Steam](https://store.steampowered.com/app/2270/Wolfenstein_3D/). Natomiast za darmo możesz zagrać w przeglądarce np. na [Archive.org](https://archive.org/details/wolfenstein3d_202105). Jeśli szkoda Ci czasu na granie, możesz odpalić pierwszy lepszy gameplay na YouTube.
+
+<Image
+  image={wolf3dget}
+  alignCenter
+  fullSize
+  forceWhiteBackground={false}
+  alt="Ekran ładowania poziomu gry z napisem 'Get Psyched!'"
+  caption={<>
+    © 1992 id Software
+  </>}
+/>
+
+## Budowa świata gry
+
+Zacznijmy od tego, jak w grze są zbudowane poziomy. Otóż mimo że gra oferowała widok trójwymiarowy, poziomy zostały skonstruowane na siatce dwuwymiarowej. Implikuje to dwie rzeczy: wszystko jest ułożone ortogonalnie (czyli prostopadle do siebie, nic nie jest „pod kątem”) i każdy poziom jest płaski. Jeśli ciekawi Cię jak to wygląda, budowę poziomów możemy podejrzeć w nieoficjalnych edytorach poziomów do gry, takich jak np. [WDC (Wolf3D Data Compiler)](https://winwolf3d.dugtrio17.com/).
+
+<Image
+  image={wolf3dscreen}
+  alignCenter
+  fullSize
+  forceWhiteBackground={false}
+  alt="Zrzut ekranu z pierwszego poziomu gry Wolfenstein 3D. Widzimy wyrenderowany trójwymiarowy świat, gdzie widać w perspektywie korytarze i ściany. Na dole ekranu widzimy pasek zdrowia, amunicji i broni."
+  caption={<>
+    To, co widzi gracz.<br />
+    © 1992 id Software
+  </>}
+/>
+
+<Image
+  image={wolf3dmap}
+  alignCenter
+  fullSize
+  forceWhiteBackground={false}
+  alt="Ten sam poziom co na poprzednim zrzucie ekranu, ale widziany z góry. Widzimy siatkę poziomu, gdzie każdy kwadrat odpowiada jednemu kafelkowi w grze. Kafle są oznaczone różnymi kolorami, co odpowiada różnym typom ścian."
+  caption={<>
+    A tu widzimy, jak faktycznie poziom został skonstruowany. Fragment widoczny wcześniej na ekranie gry to sam dół powyższej mapy.<br />
+    Zrzut ekranu wykonany w WDC (autorstwo: Adam Biser). Mapa © 1992 id Software
+  </>}
+/>
+
+Z powodu budowy poziomów na dwuwymiarowej siatce i braku poruszania po jednej osi możemy przeczytać twierdzenia, że Wolfenstein 3D nie jest prawdziwą grą 3D, tylko 2,5D. Osobiście nie do końca się z tym zgadzam, ponieważ mamy złudzenie poruszania się po trójwymiarowym świecie i to dla mnie wystarczy, żeby uznać, że gra jest trójwymiarowa. Biorąc pod uwagę ograniczenia ówczesnego sprzętu i inne wydawane wtedy gry (np. [Sonic CD](https://en.wikipedia.org/wiki/Sonic_CD), [Mortal Kombat](https://en.wikipedia.org/wiki/Mortal_Kombat_(1992_video_game))), było to jak najbardziej 3D. A te uproszczenia są w pełni uzasadnione ze względu na moc obliczeniową dostępnego wówczas sprzętu.
+
+Z punktu widzenia tego artykułu najważniejszym uproszczeniem jest to, że gra w ogóle nie operuje na modelach trójwymiarowych, a także nie poruszamy się góra-dół. Ściany to prostokąty, które podlegają odpowiednim transformacjom geometrycznym. Podobnie pozostałe elementy, takie jak wrogowie, lampy czy apteczki, są zwykłymi dwuwymiarowymi grafikami skalowanymi w razie potrzeby. Dodatkowym uproszczeniem obliczeniowym jest to, że wszystkie elementy są ułożone ortogonalnie.
+
+Co nam to daje? To, że renderując obraz, interesuje nas tylko informacja, gdzie daną rzecz umiejscowić na osi X, a informacje na osi Y wynikają jedynie z transformacji. Do tego sama plansza z racji bycia zbudowanej na siatce może być bardzo prosto reprezentowana w postaci zwykłej tablicy dwuwymiarowej. Tym samym nie dość, że będziemy operować na stosunkowo prostej matematyce, to także nie będziemy musieli wchodzić w szczegóły techniczne budowy modeli trójwymiarowych czy bardziej zaawansowanych struktur danych.
+
+W kwestii planszy gry jako ciekawostkę dodam, że gdy przenoszono Wolfenstein 3D z komputerów na konsolę SNES, korzystanie z tak zapisanej planszy było niewydajne (dużo słabszy procesor). Na potrzeby portu przepisano plansze, aby korzystały z <Link href="/post/wyszukiwanie-w-przestrzeni">drzew BSP</Link>. Rozwiązanie to okazało się na tyle dobre, że twórcy zastosowali je w swojej kolejnej grze, czyli [Doomie](https://pl.wikipedia.org/wiki/Doom_(gra_komputerowa_1993)), i do dziś korzysta się z tego w silnikach 3D.
+
+## Ray casting
+
+Przejdźmy już do renderowania grafiki. W Wolfenstein 3D zastosowanego do tego celu technikę ray castingu (po pol. rzucanie promieni), co z dzisiejszego punktu widzenia jest dość nietypowe. Zobaczmy, o co w tym wszystkim chodzi.
+
+### Co to jest?
+
+Ray casting to technika, gdzie trójwymiarowy obraz generujemy przez rzutowanie promieni z kamery na obiekty w świecie gry. W skrócie, dla każdego piksela na ekranie rzucamy promień i sprawdzamy, co ten promień trafia. Następnie na podstawie tego co trafia, generujemy odpowiedni kolor piksela. Z opisu jest to technika bliźniaczo podobna do ray tracingu, który stosowało się przy renderowaniu grafiki trójwymiarowej w wysokiej jakości (np. na potrzeby filmów; dziś stosuje się lepsze techniki) czy we współczesnych grach na mocnym sprzęcie (nazwa serii Nvidia RTX wzięła się właśnie od możliwości wykonywania ray tracingu w czasie rzeczywistym). Jednakże ray casting jest znacznie prostszy i szybszy, ponieważ nie uwzględnia oświetlenia. Podsumowując, ray casting jest uproszczoną wersją ray tracingu.
+
+Jednak nawet jeśli ray casting jest prostszy, nie oznacza to, że jest na tyle wydajny, że można go bezproblemowo zastosować na sprzęcie sprzed ponad 30 lat. Tutaj właśnie wkraczają uproszczenia, o których pisałem wcześniej. Dzięki temu, że renderujemy w trójwymiarze planszę reprezentowaną przez dwuwymiarową siatkę, a do tego nie mamy poruszania góra-dół, to możemy... wykonać ray casting tylko na jednej osi. Wolfenstein 3D renderował grafikę w oknie o rozdzielczości 304×152 piksele. Dzięki temu uproszczeniu, zamiast wypuszczać 46208 promienie ($$304 \cdot 152$$), wypuszczane są tylko 304. Znacznie przyspiesza to renderowanie, co było kluczowe.
+
+<VideoPlayer
+  url="/videos/raycast.webm"
+  muted
+  controls
+  width={557}
+  height={200}
+  loop
+  caption={
+    <>Przykład działania ray castingu. Po lewej to, co widzi gracz; po prawej faktyczna reprezentacja wraz z pokazanymi „rzuconymi” promieniami.<br />(źródło: <a href="https://commons.wikimedia.org/wiki/File:Simple_raycasting_with_fisheye_correction.gif">Lucas Vieira</a>, Public domain, via Wikimedia Commons)</>
+  }
+/>
+
+Tak na marginesie, skoro nie stosuje się ray castingu w nowoczesnych grach, a ray tracing w czasie rzeczywistym jest możliwy dopiero od niedawna, to możesz się zastanawiać, jak w ogóle renderuje się grafikę 3D w grach? Otóż stosuje się rasteryzację, czyli technikę polegającą na rysowaniu obiektów 3D bezpośrednio na ekranie bez potrzeby rzucania promieni. Upraszczając temat, wykonuje się to przez zastosowanie rzutowania perspektywicznego na trójwymiarowej scenie, które opisałem w artykule o przekształceniach grafiki 3D.
+
+### Proces renderowania
+
+Całą ideę procesu renderowania moglibyśmy streścić do tego, że dla każdego piksela (na szerokość) na ekranie rzucamy promień i sprawdzamy, co ten promień trafia. Na tej podstawie obliczamy wysokość obiektu, w który trafił promień, za pomocą bardzo prostego wzoru:
+
+$$
+h = \frac{X}{d},
+$$
+
+gdzie: $$X$$ to współczynnik skalowania, a $$d$$ to odległość od kamery do obiektu. Mając tę informację, rysujemy kolumnę pikseli o wysokości $$h$$. Taki opis jest jednak zbyt prosty, bo nie uwzględnia wielu rzeczy, które są wykonywane, aby w ogóle narysować pełną klatkę gry.
+
+W takim razie jak wygląda cały proces renderowania? Opiszmy go w krokach:
+
+1. **Czyszczenie ekranu**
+    - Najpierw czyścimy ekran, rysując sufit i podłogę. Robi się to przez podział ekranu na pół — górna połowa ma kolor sufitu, a dolna podłogi. Warto tu podkreślić, że w Wolfenstein 3D oba te elementy nie były oteksturowane (pokryte wzorem graficznym), tylko jednokolorowe. Kolory te jednak się różniły w zależności od mapy.
+2. **Rysowanie kolejnych kolumn**
+    - W tym momencie zachodzi właściwy proces ray castingu. Dla każdego piksela na szerokość ekranu (czyli dla każdego promienia) obliczamy odległość do najbliższego elementu trafionego przez promień. Następnie na podstawie tej odległości obliczamy wysokość kolumny, która będzie rysowana. Warto dodać, że wysokość kolumny jest odwrotnie proporcjonalna do odległości od kamery (patrz wzór wyżej), co daje efekt perspektywy. Znając wysokość, rysujemy element, rysując go od środka w pionie — tyle samo pikseli umieszczamy na częściach sufitu i podłogi.
+    - Sam proces rzucania promieni jest nieco skomplikowany. Zacznijmy od tego, jak w ogóle znaleźć, w który element trafia promień. Otóż znalezienie punktu przecięcia nie jest tak oczywiste, jak mogłoby się wydawać. Elementy mogą być różnie ustawione, a sam promień może zostać puszczony tak, że trafia daleko od kamery. Na szczęście pamiętajmy o uproszczeniu — wszystko odbywa się na kwadratowej siatce; wyklucza to dowolność kształtów. Mając to na uwadze, możemy skorzystać z algorytmu Digital Differential Analyzer (po pol. *cyfrowy analizator różnicowy*, w skrócie *DDA*), który jest bardzo szybki i prosty. Opiszę go szczegółowo później.
+    - Dodam tutaj na marginesie, że w przypadku kwestii obliczania wysokości, aby uzyskać lepszy efekt, odległość zwiększano w przypadku trafienia na drzwi. Dzięki temu sprawiały one wrażenie bycia odrębnymi od ściany.
+3. **Rysowanie sprite'ów**
+    - Sprite'y to grafiki dwuwymiarowe umiejscowione w świecie gry.
+    - W Wolfenstein 3D sprite'y były wykorzystywane do przedstawiania wrogów, przedmiotów, apteczek, lamp (wraz z cieniami) itp. W grze nie istniały modele 3D, a jedynie dwuwymiarowe grafiki, które były odpowiednio skalowane w zależności od pozycji kamery.
+    - Aby wiedzieć, co narysować i jak przeskalować, wykorzystamy informacje, które zwrócił ray caster w poprzednim kroku.
+
+To, co nas nie interesuje już w ramach tego artykułu, to że dalej była rysowana broń trzymana przez gracza i interfejs gry. My skupimy się jedynie na widoku 3D.
+
+<VideoPlayer
+  url="/videos/wolf3d_render.webm"
+  muted
+  controls
+  width={557}
+  height={200}
+  loop
+  caption={
+    <>Renderowanie w Wolfenstein 3D. Zwróć uwagę, jak wyglądają drzwi (na siatce zapisane w tym samym miejscu co ściana), a także w jaki sposób zmienia się sprite (zwłoki na podłodze) w zależności od położenia gracza.<br />© 1992 id Software</>
+  }
+/>
+
+### Rzutnia
+
+Zanim przejdziemy do właściwego ray castingu, najpierw musimy zacząć od tego, że położenie gracza nie jest jedyną rzeczą, którą musimy znać, aby „wypuścić promienie”.
+
+W renderowaniu 3D, gdy obliczamy rzut perspektywiczny, oprócz położenia kamery (w przypadku gier z widokiem pierwszoosobowym — położenie gracza) interesuje nas także rzutnia (po ang. stosuje się nazwę **plane**, czyli płaszczyzna). Jest to płaszczyzna (w naszym przypadku odcinek) będąca odpowiednikiem soczewki obiektywu w fotografii. Położenie gracza traktujemy wówczas jako ognisko, czyli odległość między rzutnią a graczem to ogniskowa.
+
+Rzutnię określamy dwoma parametrami:
+
+- **Ogniskowa** — odległość między rzutnią a kamerą. Ustawimy jej wartość na 1.
+- **Szerokość rzutni** — odległość od środka do krawędzi rzutni. W wielu przykładach znajdziemy ustawianie jej na wartość 0,66, co dobrze wygląda przy małych szerokościach ekranu gry.
+
+Połączenie szerokości i ogniskowej definiuje nam kąt widzenia kamery. Jeśli obie wartości są sobie równe, dostaniemy kąt widzenia $$90\degree$$. Jeśli ogniskowa jest dłuższa, kąt się zmniejsza, a jeśli jest krótsza, to jest na odwrót. Czyli analogicznie jak w fotografii.
+
+A w jaki sposób obliczyć pole widzenia? Do tego celu możemy użyć poniższego wzoru wykorzystującego fakt, że z pozycji gracza i rzutni możemy zbudować trójkąt równoramienny (<Link href="/post/algorytmika-gier-obrot-do-punktu/#wyznaczenie-k%C4%85ta">tutaj wyjaśnienie wzoru</Link>):
+
+$$
+FOV = 2 \cdot \arctg(\text{szerokość rzutni}/\text{ogniskowa})
+$$
+
+<Image
+  image={rzutnia}
+  alignCenter
+  fullSize
+  forceWhiteBackground={false}
+  alt="Schemat rzutu z perspektywy gracza. Gracz znajduje się na dole, na środku podstawy trójkąta skierowanego w górę. Trójkąt symbolizuje obszar widzenia, którego boki rozchodzą się od gracza i kończą na poziomej linii oznaczonej jako Rzutnia. Po bokach rzutni znajdują się punkty: Gracz_x - Szerokość i Gracz_x + Szerokość. Linia środkowa trójkąta podpisana jest jako Ogniskowa."
+  caption={<>
+    Wizualizacja trójkąta wyznaczanego przez gracza i rzutnię (granatowy kolor). Dodatkowo zaznaczyłem na zielono kąt pola widzenia kamery, a na pomarańczowo wypuszczone promienie. W przypadku powyższego rysunku ogniskowa wynosi 3, a szerokość rzutni 2, co daje pole widzenia ok. 67 stopni.
+  <br/>(wygenerowano z użyciem desmos.com)
+  </>}
+/>
+
+Dla podanych wyżej wartości, a więc kolejno 0,66 i 1, otrzymamy ok. 1,16 rad, czyli ok. 66 stopni. Można pokombinować z ustawianiem innych wartości, ale warto uważać, aby nie zaburzyć za bardzo widoku.
+
+### Digital Differential Analyzer
+
+Podstawą działania ray castingu jest algorytm Digital Differential Analyzer (DDA). Jest to algorytm pozwalający na <Link href="/post/jak-komputer-rysuje-linie">szybkie rysowanie linii</Link> na siatce pikseli. W przypadku Wolfenstein 3D jest wykorzystywany do określenia, w który element trafia promień.
+
+W oryginalnej wersji rysowanie linii algorytmem DDA wygląda następująco:
+
+1. **Obliczanie parametrów algorytmu**
+    1. **Różnica współrzędnych** — do określenia długości linii:
+        - $$\Delta x = x_1 - x_0$$
+        - $$\Delta y = y_1 - y_0$$
+    2. **Liczba kroków do pokonania** — długość linii zmierzona w <Link href="/post/szybkie-wyszukiwanie-sciezek/#gry">metryce Czebyszewa</Link>:
+        - $$n = \max(|\Delta x|, |\Delta y|)$$
+    3. **Przyrosty** — określenie, o ile zmieniać współrzędne w każdym kroku:
+        - $$x_{inc} = \frac{\Delta x}{n}$$
+        - $$y_{inc} = \frac{\Delta y}{n}$$
+2. **Rysowanie linii**
+    1. Dla każdego kroku od 0 do $$n$$:
+        1. Zaokrąglamy współrzędne $$(x,y)$$ do najbliższej liczby całkowitej.
+        2. Rysujemy piksel w punkcie $$(x,y)$$.
+        3. Zwiększamy współrzędne o przyrosty $$(x_{inc}, y_{inc})$$.
+
+My jednak nie chcemy rysować linii. Zamiast tego chcemy użyć algorytmu do określenia, w który element trafia promień. W tym celu musimy zmodyfikować algorytm DDA w następujący sposób:
+
+- Zamiast obliczać przyrosty na podstawie różnic współrzędnych, obliczamy je na podstawie kierunku promienia. Wzory są następujące:
+    - $$x_{inc} = \sqrt{1+ \left( \frac{dir_y}{dir_x} \right)^2}$$
+    - $$y_{inc} = \sqrt{1+ \left( \frac{dir_x}{dir_y} \right)^2}$$
+    - Warto dodać, że obliczenia te możemy uprościć. W ray castingu zwykle kierunek promienia jest zapisany jako wektor znormalizowany (o normie, czyli długości równej 1). Wówczas obliczenie upraszcza się do:
+        - $$x_{inc} = \left|\frac{1}{dir_x}\right|$$
+        - $$y_{inc} = \left|\frac{1}{dir_y}\right|$$
+- Przyrosty te stosujemy jednak nie do przemieszczania się po komórkach siatki, tylko do przemieszczania się po promieniu. W celu wykrywania kolizji oddzielnie będziemy poruszać się po komórkach siatki przez proste dodawanie lub odejmowanie jedynki od współrzędnych.
+    - To, czy będziemy dodawać lub odejmować jedynkę, decydujemy jeszcze przed rozpoczęciem algorytmu, na podstawie kierunku promienia. Jeśli kierunek jest dodatni, to dodajemy, a jeśli ujemny, to odejmujemy. Rozpatrujemy to oddzielnie dla obu wartości wektora kierunku.
+- W każdym kroku sprawdzamy, czy promień trafił w ścianę. Jeśli tak, kończymy algorytm i zwracamy informację o tym, w który element trafiliśmy oraz jaką odległość pokonaliśmy. Jeśli nie, przesuwamy się o przyrosty i powtarzamy krok.
+    - Kolizję sprawdzamy przez proste sprawdzenie, czy w danym miejscu siatki znajduje się ściana. Korzystamy ze wspomnianych wcześniej uproszczeń, że plansza jest zbudowana na siatce i każdy element jest kwadratem o boku równym 1.
+
+<Image
+  image={dda}
+  alignCenter
+  fullSize
+  forceWhiteBackground={false}
+  alt="Ilustracja algorytmu rysowania linii DDA. Gracz znajduje się w lewym dolnym rogu, a linia prowadzi ukośnie do zielonego kwadratu w prawym górnym obszarze siatki. Na linii zaznaczone są pośrednie punkty, przez które przechodzi linia, tworząc ciąg pomarańczowych kropek."
+  caption={<>
+    Wizualizacja promienia rzuconego z pozycji gracza. Widać, jak promień przechodzi przez siatkę i trafia w zieloną ścianę. Pomarańczowymi punktami oznaczone są miejsca wyliczone przez przyrosty. Warto tutaj wspomnieć, czego nie wspominałem wcześniej, że gracz nie skacze między kolejnymi polami siatki, tylko jego pozycja jest określona jako konkretny punkt w przestrzeni.
+    <br/>(wygenerowano z użyciem desmos.com)
+  </>}
+/>
+
+### Efekt rybiego oka i jego zniwelowanie
+
+#### O co chodzi?
+
+Jeśli zastosujemy wprost algorytm DDA w ray castingu według powyższego opisu i obliczymy odległości od punktu kolizji do pozycji gracza, otrzymamy następujący efekt:
+
+<VideoPlayer
+  url="/videos/render_fish.webm"
+  muted
+  controls
+  width={1840}
+  height={1034}
+  caption={
+    <></>
+  }
+/>
+
+Jak widzisz, obraz jest zniekształcony — ściany są wygięte, a obiekty na krawędziach ekranu zdeformowane. Jest to tzw. efekt rybiego oka. O ile czasami w fotografii jest to pożądane, to jednak w grach komputerowych chcemy go uniknąć, ponieważ utrudnia rozgrywkę i od długotrwałego oglądania może powodować dyskomfort.
+
+#### Matematyczne rozwiązanie problemu
+
+Problem ten jest spowodowany faktem, że promienie są rzucone w linii prostej do gracza, czyli pod różnymi kątami. Aby to zniwelować, musimy zamiast zwykłej odległości euklidesowej do gracza obliczyć odległość prostopadłą do ekranu. Formalnie, matematycznie możemy to zwizualizować następująco:
+
+<Image
+  image={perpDist1}
+  alignCenter
+  fullSize
+  forceWhiteBackground={false}
+  alt="Schemat obliczania odległości rzutowanej. Gracz oznaczony czerwonym punktem patrzy się pod kątem alfa. Linia d to rzeczywista odległość od gracza do punktu na ścianie, natomiast z to odległość rzutowana prostopadle. Widoczne są również oznaczenia dx i dy jako różnice współrzędnych w poziomie i pionie. Na planszy zaznaczono też siatkę pomocniczą."
+  caption={<>
+    Gracz patrzy się w kierunku oznaczonym zieloną linią. Prawdziwa odległość do ściany to d oznaczone pomarańczową linią. Natomiast odległość rzutowana prostopadle do rzutni to z, czyli odległość, którą chcemy obliczyć. W kontekście obliczeń interesuje nas fakt, że gracz patrzy się pod kątem ⍺, a różnice współrzędnych to dx i dy. Czarna przerywana linia to rzutnia, którą dla uproszczenia położyliśmy na poziomie gracza.
+    <br/>(wygenerowano z użyciem desmos.com)
+  </>}
+/>
+
+<Image
+  image={perpDist2}
+  alignCenter
+  fullSize
+  forceWhiteBackground={false}
+  alt="Schematyczny rysunek geometryczny przedstawiający dwa połączone ramiona (A i B) z zaznaczonymi kątami alfa, przesuwnymi odcinkami dx i dy oraz niebieskim kwadratem w prawym górnym rogu. Na rysunku widoczne są także siatka, linie pomocnicze i punkty połączeń."
+  caption={<>
+    Aby obliczyć odległość rzutowaną, możemy skorzystać z funkcji trygonometrycznych. Widzimy, że odległość rzutowana to suma dwóch ramion A i B prostopadłych do rzutni. Ramiona te są określone przez różnice współrzędnych dx i dy oraz kąt ⍺.
+    <br/>(wygenerowano z użyciem desmos.com)
+  </>}
+/>
+
+Matematycznie możemy odległość tą obliczyć, stosując funkcje trygonometryczne kąta ostrego. Stąd:
+
+$$
+\begin{align*}
+A &= dx \cdot \cos(\alpha) \\
+B &= dy \cdot \sin(\alpha) \\
+z = A + B &= dx \cdot \cos(\alpha) + dy \cdot \sin(\alpha)
+\end{align*}
+$$
+
+Jeśli $$dx$$ i $$dy$$ nie są skalarami, tylko wektorami ze znakiem (taki przypadek mamy w ray castingu), to musimy zmienić układ odniesienia:
+
+$$
+\begin{align*}
+z &= dx \cdot \cos(-\alpha) + dy \cdot \sin(-\alpha) \\
+z &= dx \cdot \cos(\alpha) - dy \cdot \sin(\alpha) \\
+\end{align*}
+$$
+
+Stosując takie obliczenia, otrzymujemy obraz, który wygląda znacznie lepiej:
+
+<VideoPlayer
+  url="/videos/render_bez_fish.webm"
+  muted
+  controls
+  width={1840}
+  height={1034}
+  caption={
+    <></>
+  }
+/>
+
+#### Rozwiązanie intuicyjne
+
+Intuicyjnie możemy to zrozumieć w następujący sposób:
+
+<Image
+  image={perpIntuicyjnie}
+  alignCenter
+  fullSize
+  forceWhiteBackground={false}
+  alt="Intuicyjna ilustracja promieniowania rzutowego. Gracz oznaczony niebieskim punktem na dole wysyła żółte promienie pod różnymi kątami w stronę czerwonych i niebieskich bloków. Promienie przecinają siatkę, tworząc fioletowe linie z punktami przecięcia. Na środku znajduje się zielona linia symbolizująca szerokość pola widzenia gracza."
+  caption={<>
+    Prosta wizualizacja mapy gry, gdzie na żółto (linie przerywane) zaznaczono promienie rzucone z pozycji gracza (duży punkt w kolorze cyjan).
+  </>}
+/>
+
+Gracz patrzy się w kierunku określonym przez grubszą żółtą linię. Z racji tego, że jest to punkt dosłownie na środku ekranu, to promień wychodzący z niego (przerywana linia w kolorze magenta) jest prostopadły do rzutni (zielona linia), a tym samym jako jedyny nie powoduje efektu rybiego oka. Dlatego też w przypadku trafień innymi promieniami wypuszczamy od nich linie prostopadłe do środkowego promienia (na rysunku cieńsze linie w kolorze magenta) i obliczamy odległość od gracza do punktu przecięcia z tymi liniami. W ten sposób uzyskujemy odległość prostopadłą do rzutni, co pozwala na uniknięcie efektu rybiego oka.
+
+Sposób intuicyjny będziemy mogli prościej zastosować podczas implementacji algorytmu DDA. Wykorzystamy fakt, że operujemy cały czas na wektorach i nie posługujemy się kątami. Warto jednak wiedzieć, że oryginalnie w Wolfenstein 3D obliczenia były wykonywane na kątach.
+
+#### Matematyka rozwiązania intuicyjnego
+
+Na rysunku wszystko wygląda fajnie, tylko jak przełożyć to na konkretne obliczenia, których możemy użyć z algorytmem DDA? Co to za obliczenia na wektorach?
+
+Zacznijmy od wzoru parametrycznego na promień, który rzucamy:
+
+$$
+\begin{align*}
+x(t) &= x_0 + t \cdot dir_x \\
+y(t) &= y_0 + t \cdot dir_y
+\end{align*}
+$$
+
+$$x_0$$ i $$y_0$$ to współrzędne pozycji gracza, a $$dir_x$$ i $$dir_y$$ to współrzędne kierunku promienia ($$dir$$ jest znormalizowanym wektorem). Parametr $$t$$ określa położenie punktu wzdłuż promienia, czyli przebytą odległość.
+
+W momencie kolizji z pionową ścianą punkt kolizji musi spełniać warunek:
+
+$$
+x(t) = map_x + offset,
+$$
+
+gdzie $$map_x$$ to współrzędna X ściany na siatce, a $$offset$$ określa, w którą krawędź komórki trafiliśmy (0 dla lewej, 1 dla prawej).
+
+W przypadku kolizji z poziomą ścianą warunek jest następujący:
+
+$$
+y(t) = map_y + offset,
+$$
+
+gdzie $$map_y$$ to współrzędna Y ściany na siatce, a $$offset$$ określa, w którą krawędź komórki trafiliśmy (0 dla dolnej, 1 dla górnej).
+
+Od tego momentu nie interesują nas już dwie funkcje $$x(t)$$ i $$y(t)$$. Na podstawie kolizji ze ścianą wybieramy, którą z nich będziemy rozwiązywać.
+
+W takim razie, skoro mamy dwa różne równania dla $$x(t)$$ i $$y(t)$$, możemy je połączyć w jedno równanie. Dla uproszczenia rozwiążemy je tylko dla $$x(t)$$, $$y(t)$$ będzie analogiczne.
+
+$$
+x_0 + t \cdot dir_x = map_x + offset
+$$
+
+Jedyna niewiadoma to szukane przez nas $$t$$, więc możemy je wyznaczyć:
+
+$$
+t = \frac{map_x + offset - x_0}{dir_x}
+$$
+
+Co ciekawe, podzielenie przez wektor kierunku sprawia, że kompensujemy kąt promienia, a tym samym uzyskujemy odległość prostopadłą do rzutni. Dzieje się tak dlatego, że jest kombinacją liniową wektora kierunku gracza i długości płaszczyzny.
+
+W taki oto sposób uzyskujemy odległość bez funkcji trygonometrycznych, a także bez <Link href="/post/pierwiastkowanie">pierwiastkowania</Link> i <Link href="/post/szybkie-potegowanie">podnoszenia do kwadratu</Link> (odległość Euklidesowa). Jedyną „ciężką” operacją jest dzielenie przez wektor kierunku, ale to i tak jest znacznie prostsze niż pierwiastkowanie.
+
+### Symulowanie oświetlenia
+
+Zanim przejdziemy do implementacji (w wyniku której otrzymamy to, co widać na powyższych filmikach), warto jeszcze wspomnieć o tym, jak w Wolfenstein 3D zasymulowano oświetlenie.
+
+Tworząc trójwymiarowe sceny, możemy umieszczać źródła światła o dowolnych parametrach. Wówczas w procesie renderowania obliczamy, pod jakim kątem światło pada na dany obiekt, i na tej podstawie obliczamy jego jasność. W przypadku ray castingu nie ma jednak mowy o źródłach światła. Mimo tego w jaki sposób w Wolfenstein 3D zasymulowano oświetlenie?
+
+Otóż tekstury ścian były w dwóch wersjach — jasnej i ciemnej. Jeśli w wyniku ray castingu promień trafił w ścianę poziomo (od góry lub dołu), to rysowana była ciemna tekstura. Jeśli pionowo (od lewej lub prawej), to jasna. Sposób bardzo prosty, ale zupełnie wystarczający. Dodatkowo dla zwiększenia „realizmu” zastosowano sprite'y przedstawiające lampę na suficie i jednocześnie rozbłysk na podłodze (zobacz zrzut ekranu w akapicie *Budowa świata gry*).
+
+## Implementacja
+
+Teraz możesz zadać pytanie — jak to zaprogramować? Oczywiście możesz zawsze podejrzeć [implementację renderowania w kodzie źródłowym gry](https://github.com/id-Software/wolf3d/blob/master/WOLFSRC/WL_DR_A.ASM) (dokładniej to jej najważniejszego elementu, czyli algorytmu DDA). Jednak domyślam się, że nie czytasz tego artykułu po to, żeby następnie analizować 739 linii kodu asemblera. Pokażę, jak zaimplementować ray casting w JavaScript, stosując współczesne techniki programowania, bez uproszczeń i optymalizacji, które były potrzebne w 1992 r. Stąd sposób tutaj pokazany będzie się różnić od oryginału w szczegółach implementacyjnych, jednak efekt będzie ten sam.
+
+### Różnice względem oryginału
+
+Jak wspomniałem we wstępie, nie będę się skupiać na tym, jak dokładnie implementacja wyglądała w oryginalnej grze. Chcemy osiągnąć ten sam efekt, ale niekoniecznie tak samo. Najważniejsze różnice to:
+
+- **Język programowania** — w oryginale gra została napisana w C, a obliczenia krytyczne w asemblerze; ja pokażę implementację w JavaScript. Jeśli chcesz podążać za mną, polecam użycie [CodePen](https://codepen.io/) jako wygodnego narzędzia do szybkiego prototypowania w tymże języku.
+- **Sposób obliczeń** — z racji tego, że procesory [i386](https://en.wikipedia.org/wiki/I386), pod które była pisana gra, nie wspierały <Link href="/post/liczby-wymierne-i-rzeczywiste-w-zero-jedynkowym-swiecie">obliczeń zmiennoprzecinkowych, gra korzystała z zapisu stałoprzecinkowego</Link> lub obliczeń na liczbach całkowitych (np. kąty zostały pomnożone przez 10 dla dokładniejszych obliczeń). Dzisiaj nie jest to problem, więc korzystamy z obliczeń zmiennoprzecinkowych. Zresztą [te w JavaScript są domyślne](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number) i to z użyciem liczb całkowitych mielibyśmy problem.
+- **Wykorzystanie wektorów** — z powyższego powodu w oryginale nie upraszczano obliczeń przez wykorzystanie wektorów, np. korekta rybiego oka była wykonywana na podstawie kątów, a dla przyspieszenia obliczeń [gra obliczała na starcie całe tabele wartości funkcji trygonometrycznych](https://github.com/id-Software/wolf3d/blob/05167784ef009d0d0daefe8d012b027f39dc8541/WOLFSRC/WL_MAIN.C#L571-L626). My jednak możemy uprościć sobie algorytmikę.
+- **Optymalizacja** — gra posiadała zaimplementowanych dużo sztuczek optymalizacyjnych, które miały na celu przyspieszenie renderowania. Dziś operujemy na znacznie mocniejszych komputerach, więc nie będziemy się tym przejmować. Szczególnie że ray casting jest na tyle szybki, że nie wymaga optymalizacji.
+
+A co pominiemy w implementacji renderowania?
+
+- **Teksturowanie** — zamiast pełnego teksturowania, czyli rysowania ścian z odpowiednim wzorem, zastosujemy jednokolorowe ściany. Dzięki temu uprościmy sobie implementację.
+- **Sprite'y** — całkowicie pomijam rysowanie sprite'ów, aby nie namieszać dodatkowo w implementacji. Najważniejszy z punktu widzenia artykułu i tak jest ray casting generujący widok trójwymiarowy, a nie ozdobniki.
+
+### Podstawowe właściwości
+
+Zacznijmy od zdefiniowania podstawowych właściwości, które będą nam potrzebne do zaprogramowania ray castingu i podstawowej interakcji.
+
+Na początek zdefiniujmy kilka stałych niezbędnych do obliczeń związanych z interakcją:
+
+```javascript
+const config = {
+  // prędkość ruchu gracza
+  moveSpeed: 0.1,
+  // prędkość obrotu gracza
+  rotationSpeed: 0.02,
+};
+```
+
+Z wcześniej opisanych wzorów możesz jeszcze kojarzyć współczynnik skalowania, ale my po prostu użyjemy wysokości ekranu.
+
+Następnie potrzebujemy definicji stanu gry, który będzie zawierać informacje o pozycji gracza, wektory kierunku i rzutni, a także aktualną planszę gry. W końcowej implementacji będę przechowywać tam także informację o „teksturach” (w naszym przypadku są to kolory) ścian.
+
+```javascript
+const state = {
+  // aktualna pozycja gracza na planszy
+  pos: [11.5, 10.5],
+  // wektor kierunku, w którym patrzy gracz
+  dir: [-1, 0],
+  // wektor rzutni, czyli szerokość pola widzenia
+  plane: [0, 0.66],
+  map: [
+    // tutaj będzie nasza plansza gry jako tablica dwuwymiarowa
+  ],
+  textures: {
+    // tutaj definicje kolorów ścian
+  }
+};
+```
+
+### Funkcja renderująca
+
+Zacznijmy od stworzenia funkcji renderującej, która będzie odpalana co klatkę, aby wyświetlić widok 3D. Składać się będzie z dwóch etapów:
+
+1. **Wyczyszczenie ekranu** — narysowanie sufitu i podłogi.
+2. **Ray casting** — rysowanie kolumn pikseli w zależności od tego, w co trafia promień.
+
+Najpierw jednak musimy mieć w czym renderować. Jesteśmy w przeglądarkowym JavaScript, więc możemy wykorzystać do tego element `<canvas>`. W tym celu dodajmy go do naszego HTML-a:
+
+```html
+<canvas id="gameCanvas" width="1280" height="720"></canvas>
+```
+
+W samym JavaScript musimy jeszcze pobrać ten element i przygotować kontekst renderowania:
+
+```javascript
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+```
+
+Wykorzystujemy kontekst renderowania 2D, ponieważ nie używamy wbudowanego renderowania 3D, tylko piszemy je sami, więc potrzebujemy jedynie dostępu do funkcji rysujących na płótnie.
+
+Przejdźmy więc do samej funkcji renderującej. Będzie wyglądać następująco:
+
+```javascript
+function render() {
+  // pobieramy wymiary płótna
+  const { width, height } = canvas;
+  // czyścimy płótno przez narysowanie sufitu
+  ctx.fillStyle = '#2c3e50';
+  ctx.fillRect(0, 0, width, height/2);
+  // oraz podłogi
+  ctx.fillStyle = '#34495e';
+  ctx.fillRect(0, height/2, width, height/2);
+  // iterujemy przez każdy piksel w szerokości płótna
+  for (let x = 0; x < width; x++) {
+    // rzucamy promień; w wyniku dostajemy odległość, trafiony obiekt i od której strony trafiliśmy
+    const { distance, hit, side } = castRay(x);
+    // obliczamy wysokość linii, która będzie reprezentować trafiony obiekt
+    const lineHeight = height / distance;
+    // na podstawie informacji o trafieniu pobieramy odpowiedni kolor z tekstur
+    const color = state.textures[hit];
+    // w zależności od strony trafienia ustawiamy kolor cienia lub światła
+    ctx.fillStyle = side ? color.light : color.shadow;
+    // rysujemy linię na odpowiedniej pozycji
+    ctx.fillRect(
+      x,
+      (height - lineHeight)/2,
+      1,
+      lineHeight
+    );
+  }
+}
+```
+
+### Ray casting
+
+Przejdźmy teraz do najważniejszej części, czyli ray castingu. Funkcja `castRay` będzie odpowiedzialna za rzutowanie promienia i zwracanie informacji o trafieniu. Będzie wyglądać następująco:
+
+```javascript
+function castRay(x) {
+  // normalizujemy współrzędne kamery do zakresu [-1, 1]
+  const cameraX = 2 * x / canvas.width - 1;
+  // obliczamy kierunek promienia na podstawie pozycji kamery
+  const rayDir = [
+    state.dir[0] + state.plane[0] * cameraX,
+    state.dir[1] + state.plane[1] * cameraX
+  ];
+  // ustalamy współrzędne na mapie, gdzie znajduje się kamera
+  // pamiętajmy, że współrzędne mapy są całkowite, a gracza nie, więc zaokrąglamy
+  let mapX = Math.floor(state.pos[0]);
+  let mapY = Math.floor(state.pos[1]);
+  // obliczamy przyrosty w kierunku osi X i Y według wzorów
+  const deltaDist = [
+    Math.abs(1 / rayDir[0]),
+    Math.abs(1 / rayDir[1])
+  ];
+  // na podstawie kierunku promienia ustalamy krok kierunkowy po mapie
+  // i odległość boczną, czyli odległość do najbliższej krawędzi komórki
+  // najpierw wykonamy to dla osi X
+  let stepX, sideDistX;
+  if (rayDir[0] < 0) {
+    stepX = -1;
+    // odległość boczną obliczamy jako różnicę pozycji kamery i krawędzi komórki
+    // pomnóżoną przez przyrost w kierunku X
+    sideDistX = (state.pos[0] - mapX) * deltaDist[0];
+  } else {
+    stepX = 1;
+    sideDistX = (mapX + 1 - state.pos[0]) * deltaDist[0];
+  }
+  // teraz dla osi Y
+  let stepY, sideDistY;
+  if (rayDir[1] < 0) {
+    stepY = -1;
+    sideDistY = (state.pos[1] - mapY) * deltaDist[1];
+  } else {
+    stepY = 1;
+    sideDistY = (mapY + 1 - state.pos[1]) * deltaDist[1];
+  }
+  // zaczynamy właściwy algorytm DDA
+  // zmienna `hit` będzie oznaczać, czy trafiliśmy w obiekt i w który
+  let hit = 0;
+  // zmienna `side` będzie oznaczać, z której strony trafiliśmy
+  let side;
+  // tak długo, dopóki nie trafimy w obiekt
+  while (hit === 0) {
+    // sprawdzamy, czy trafiliśmy w krawędź komórki w osi X czy Y
+    if (sideDistX < sideDistY) {
+      // jeśli w X, to przesuwamy się w osi X
+      sideDistX += deltaDist[0];
+      mapX += stepX;
+      side = 0;
+    } else {
+      // jeśli w Y, to przesuwamy się w osi Y
+      sideDistY += deltaDist[1];
+      mapY += stepY;
+      side = 1;
+    }
+    // sprawdzamy, czy trafiliśmy w obiekt
+    hit = state.map[mapY][mapX];
+  }
+  // jeśli trafiliśmy, to obliczamy odległość do trafienia
+  // w zależności od tego, z której strony trafiliśmy, obliczamy odległość;
+  // pamiętamy, że nie liczymy odległości euklidesowej, tylko wzdłuż osi X lub Y;
+  // (1-stepX)/2 to matematyczny trik na obliczenie wartości `offset`
+  const distance = side === 0
+    ? (mapX - state.pos[0] + (1 - stepX)/2) / rayDir[0]
+    : (mapY - state.pos[1] + (1 - stepY)/2) / rayDir[1];
+  return { distance, hit, side };
+}
+```
+
+Dwa dodatkowe wyjaśnienia do powyższego kodu:
+
+- **Kierunek promienia** — jak wspomniałem wcześniej, jest kombinacją liniową wektora kierunku gracza i wektora szerokości rzutni, co widzimy z dodawania: `state.dir[0] + state.plane[0] * cameraX`. Pomnożenie przez `cameraX` określa, z którego punktu na szerokości rzutni rzucamy promień. Oba wektory są znormalizowane, a do tego prostopadłe do siebie, więc ich suma poprawnie wyznaczy kierunek promienia.
+- **Trik matematyczny na obliczenie offsetu** — jak pamiętamy, wartość `offset` przyjmowała wartości 0 lub 1. 0 dla `step` równego 1, a 1 dla `step` równego -1. Zamist pisać warunek, który będzie sprawdzać, czy `step` jest równy 1 lub -1, możemy wykorzystać matematyczny trik: `(1 - step) / 2`. Podstaw na własną rękę wartości 1 oraz -1 i zobacz, że otrzymasz 0 lub 1.
+    - Dziś takie optymalizacje nie są już potrzebne, jednak na starszych komputerach upraszczało to kod asemblerowy — likwidowane były porównanie i przeskok, a zamiast tego wykonywane były dwie bardzo proste operacje: odejmowanie i przesunięcie bitowe (dzielenie przez 2 jest tym samym co przesunięcie w prawo o 1 bit).
+
+### Ruch gracza
+
+Mamy już kompletne renderowanie. Tylko co nam po widoku trójwymiarowym, jeśli nie możemy się poruszać? Dodajmy więc jeszcze obsługę ruchu gracza. Wykonamy go przez odpowiednie modyfikacje pozycji gracza, kierunku patrzenia oraz rzutni.
+
+Zacznijmy od poruszania się do przodu i do tyłu. Tutaj sytuacja jest prosta, ponieważ wystarczy zmodyfikować jedynie pozycję gracza, nie musimy ruszać żadnych wektorów. Napiszmy więc do tego funkcję:
+
+```javascript
+// step wskazuje kierunek ruchu gracza
+// 1 - do przodu, -1 - do tyłu
+function move(step) {
+  // wyciągamy aktualną pozycję gracza
+  const [x, y] = state.pos;
+  // obliczamy nową pozycję na podstawie kierunku, w który patrzy gracz, i ustalonej prędkości ruchu
+  const newX = x + state.dir[0] * step * config.moveSpeed;
+  const newY = y + state.dir[1] * step * config.moveSpeed;
+  // sprawdzamy, czy możemy się tam poruszyć (sprawdzenie kolizji ze ścianą)
+  if (state.map[Math.floor(newY)][Math.floor(newX)] === 0) {
+    // jeśli tak, to aktualizujemy pozycję gracza
+    state.pos = [newX, newY];
+  }
+}
+```
+
+Potrzebujemy jeszcze obrotów w lewo i w prawo. Obsłużmy to kolejną funkcją:
+
+```javascript
+// dir wskazuje kierunek obrotu gracza
+// 1 - w lewo, -1 - w prawo
+function rotate(dir) {
+  // wyciągamy aktualny wektor kierunku
+  const [dirX, dirY] = state.dir;
+  // oraz wektor płaszczyzny kamery
+  const [planeX, planeY] = state.plane;
+  // określamy kąt obrotu na podstawie kierunku i ustawionej prędkości rotacji
+  // nazwa wynika z faktu, że jest to de facto szybkość obrotu
+  const speed = dir * config.rotationSpeed;
+  // obracamy wektor kierunku
+  state.dir = [
+    dirX * Math.cos(speed) - dirY * Math.sin(speed),
+    dirX * Math.sin(speed) + dirY * Math.cos(speed)
+  ];
+  // obracamy również wektor płaszczyzny kamery
+  state.plane = [
+    planeX * Math.cos(speed) - planeY * Math.sin(speed),
+    planeX * Math.sin(speed) + planeY * Math.cos(speed)
+  ];
+}
+```
+
+Jeśli nie wiesz, skąd się wzięły wzory na obrót wektora, możesz przeczytać o tym w artykule o <Link href="/post/przeksztalcenia-grafiki-2d/#obr%C3%B3t">przekształcaniu grafiki 2D</Link>. Tak, to właśnie tutaj jest ten moment, o którym wcześniej wspomniałem, że wiedza z tego artykułu się przyda.
+
+Z powodu ograniczeń ray castingu nie mamy obrotów w pionie, więc tą część możemy pominąć. Teoretycznie moglibyśmy dodać strafing (poruszanie się w lewo i w prawo bez obrotów), ale to już pozostawiam chętnym czytelnikom jako ćwiczenie.
+
+### Co dalej?
+
+Żeby mieć kompletny, działający przykład, musimy jeszcze dodać pętlę gry i obsługę naciśnięć klawiszy.
+
+Zacznijmy od obsługi klawiatury. W tym celu dodamy nasłuchiwanie na zdarzenia `keydown` (klawisz naciśnięty) i `keyup` (klawisz puszczony). Jednak naciśnięcie klawisza nie powinno powodować natychmiastowego ruchu, tylko ustawienie flagi, która będzie sprawdzana w pętli gry:
+
+```javascript
+// obiekt keys będzie przechowywać aktualny stan klawiszy
+const keys = {};
+// nasłuchujemy zdarzenia klawiatury, aby aktualizować stan klawiszy
+document.addEventListener('keydown', e => keys[e.key] = true);
+document.addEventListener('keyup', e => keys[e.key] = false);
+// funkcja do obsługi wejścia z klawiatury
+function handleInput() {
+  // w zaleności od stanu klawiszy wywołujemy funkcje ruchu i obrotu
+  if (keys['w'] || keys['ArrowUp']) move(1);
+  if (keys['s'] || keys['ArrowDown']) move(-1);
+  if (keys['a'] || keys['ArrowLeft']) rotate(1);
+  if (keys['d'] || keys['ArrowRight']) rotate(-1);
+}
+```
+
+I na sam koniec dodajmy pętlę gry, która będzie wywoływać funkcję renderującą i obsługującą wejście z klawiatury:
+
+```javascript
+// główna pętla gry
+function gameLoop() {
+  // wywołujemy rysowanie
+  render();
+  // a następnie obsługujemy wejście
+  handleInput();
+  // i wywołujemy rekurencyjnie następną klatkę
+  // requestAnimationFrame wywołuje wskazaną funkcję przy następnym odświeżeniu ekranu
+  requestAnimationFrame(gameLoop);
+}
+
+// rozpoczynamy pętlę gry
+gameLoop();
+```
+
+Kompletny kod znajdziesz na [CodePenie](https://codepen.io/tswistak/pen/jEPZqQK?editors=0010), gdzie możesz go na żywo edytować, aby sprawdzić, jak różne zmiany wpływają na działanie gry.
+
+## Prezentacja
+
+Niezależnie od tego, czy wcześniej podążałeś(-aś) za mną, czy odpaliłeś(-aś) kod na CodePenie, poniżej zamieszczam nieco bardziej rozbudowaną wersję powyższego kodu. O ile sam ray casting jest taki sam, to dodatkowo wyświetlam podgląd na mapę gry, a także dodaję możliwość sterowania podstawowymi parametrami renderowania. Jeśli chcesz pokombinować, naciśnij na poniższy przycisk i testuj algorytm. Ruch odbywa się tylko za pomocą klawiszy widocznych na ekranie, wyłączyłem sterowanie klawiaturą. Możesz nawet wyłączyć korekcję efektu rybiego oka, ale nie polecam zbyt długo na to patrzeć, bo może powodować dyskomfort.
+
+<Presentation />
+
+Jeśli interesuje Cię kod, to znajdziesz go w [kodzie źródłowym bloga na GitHubie](https://github.com/swistak-codes/blog/tree/main/libs/presentations/ray-casting/lib). Logika renderowania jest taka sama jak opisana wcześniej, tylko nieco bardziej rozbita na mniejsze funkcje i dostosowana pod osadzenie wewnątrz kodu [Reaktowego](https://react.dev/).
+
+Swoją drogą, zwróć uwagę, że mapa zdaje się wyświetlać wszystko w odbiciu lustrzanym. Obroty gracza są wykonywane odwrotnie, niż zdajemy się to postrzegać na ekranie gry. Zachęcam do poszukania na własną rękę, dlaczego tak się dzieje.
+
+## Podsumowanie
+
+W momencie pisania tego artykułu minęły 33 lata od premiery Wolfenstein 3D. Mimo że ray casting nie jest już najnowszą technologią, to zdecydowanie warto go poznać, szczególnie jeśli interesujesz się grafiką komputerową. Na przestrzeni całego artykułu zobaczyliśmy, w jaki sposób za pomocą nie najtrudniejszej matematyki i algorytmiki byliśmy w stanie stworzyć trójwymiarowy widok na podstawie prostego dwuwymiarowego opisu.
+
+Warto jednak pamiętać, że to, co tutaj stworzyliśmy, jest wersją ray castingu dostosowaną pod dzisiejsze możliwości obliczeniowe. Oryginalna gra została skonstruowana inaczej, aczkolwiek efekt był bardzo podobny. Jeśli interesują Cię szczegóły techniczne związane z oryginalną grą, polecam przeczytać książkę Fabiena Sanglarda „[Game Engine Black Book Wolfenstein 3D](https://fabiensanglard.net/gebbwolf3d/index.html)”, która w bardzo przystępny sposób opisuje rozwiązania zastosowane w grze, ale jednocześnie bez wchodzenia głęboko w szczegóły związane z oryginalnym kodem źródłowym.
+
+## Literatura
+
+- Sanglard, F. (2019). *Game Engine Black Book: Wolfenstein 3D* (2nd ed.). https://fabiensanglard.net/gebbwolf3d/index.html
+- id Software, wolf3d, GitHub, dostępne na: https://github.com/id-Software/wolf3d (dostęp: 14 czerwca 2025 r.).
+- Lode Vandevenne, Raycasting, Lode's Computer Graphics Tutorial, dostępne na: https://lodev.org/cgtutor/raycasting.html (dostęp: 14 czerwca 2025 r.).
+- Tim Allan Wheeler, Wolfenstein 3D Raycasting in C, TimAllanWheeler.com, 1 kwietnia 2023 r., dostępne na: https://timallanwheeler.com/blog/2023/04/01/wolfenstein-3d-raycasting-in-c/.
+- psydenst, Cub3d, GitHub, dostępne na: https://github.com/psydenst/Cub3d (dostęp: 14 czerwca 2025 r.).
+
+<small>Zdjęcie na okładce wygenerowane przez Sora.</small>

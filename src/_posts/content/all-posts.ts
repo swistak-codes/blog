@@ -103,3 +103,4 @@ export { crt } from './20250122-chinskie-twierdzenie-o-resztach';
 export { perspektywa } from './20250215-korekcja-perspektywy';
 export { losowosc } from './20250312-losowosc';
 export { wyszukiwanieWPrzestrzeni } from './20250521-wyszukiwanie-w-przestrzeni';
+export { wolf3d } from './20250618-renderowanie-wolf-3d';

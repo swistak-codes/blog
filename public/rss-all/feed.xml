@@ -4,7 +4,7 @@
         <title>świstak.codes — Wszystkie wpisy</title>
         <link>https://swistak.codes</link>
         <description></description>
-        <lastBuildDate>Wed, 21 May 2025 07:00:00 GMT</lastBuildDate>
+        <lastBuildDate>Wed, 18 Jun 2025 07:00:00 GMT</lastBuildDate>
         <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
         <generator>https://github.com/jpmonette/feed</generator>
         <image>
@@ -13,6 +13,15 @@
             <link>https://swistak.codes</link>
         </image>
         <copyright>Wszystkie prawa zastrzeżone 2020-2025, Tomasz Świstak</copyright>
+        <item>
+            <title><![CDATA[Renderowanie grafiki w stylu Wolfenstein 3D]]></title>
+            <link>https://swistak.codes/post/renderowanie-wolf-3d</link>
+            <guid>https://swistak.codes/post/renderowanie-wolf-3d</guid>
+            <pubDate>Wed, 18 Jun 2025 07:00:00 GMT</pubDate>
+            <description><![CDATA[Artykuł przedstawia algorytmikę stojącą za renderowaniem grafiki w stylu Wolfenstein 3D. Pomija detale implementacyjne oryginału.]]></description>
+            <content:encoded><![CDATA[W maju 1992 r. premierę miała jedna z najważniejszych gier komputerowych w historii — Wolfenstein 3D. Mimo że nie była pierwszą grą z trójwymiarowym światem, z pewnością była pierwszą, która wprowadziła graczy w świat 3D w sposób zarówno innowacyjny, jak i przystępny. Z technicznego punktu widzenia zdecydowanie najciekawszą rzeczą w tej grze jest sposób, w jaki uzyskano widok 3D. Zobaczmy, jak to zrobiono, i spróbujmy zaimplementować te techniki w nowoczesnym środowisku.<br /><a href="https://swistak.codes/post/renderowanie-wolf-3d">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
         <item>
             <title><![CDATA[Wyszukiwanie obiektów w przestrzeni]]></title>
             <link>https://swistak.codes/post/wyszukiwanie-w-przestrzeni</link>
