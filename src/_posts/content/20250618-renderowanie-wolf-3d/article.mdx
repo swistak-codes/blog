@@ -105,7 +105,7 @@ W kwestii planszy gry jako ciekawostkę dodam, że gdy przenoszono Wolfenstein 3
 
 ## Ray casting
 
-Przejdźmy już do renderowania grafiki. W Wolfenstein 3D zastosowanego do tego celu technikę ray castingu (po pol. rzucanie promieni), co z dzisiejszego punktu widzenia jest dość nietypowe. Zobaczmy, o co w tym wszystkim chodzi.
+Przejdźmy już do renderowania grafiki. W Wolfenstein 3D zastosowano do tego celu technikę ray castingu (po pol. rzucanie promieni), co z dzisiejszego punktu widzenia jest dość nietypowe. Zobaczmy, o co w tym wszystkim chodzi.
 
 ### Co to jest?
 
@@ -396,7 +396,7 @@ Zanim przejdziemy do implementacji (w wyniku której otrzymamy to, co widać na 
 
 Tworząc trójwymiarowe sceny, możemy umieszczać źródła światła o dowolnych parametrach. Wówczas w procesie renderowania obliczamy, pod jakim kątem światło pada na dany obiekt, i na tej podstawie obliczamy jego jasność. W przypadku ray castingu nie ma jednak mowy o źródłach światła. Mimo tego w jaki sposób w Wolfenstein 3D zasymulowano oświetlenie?
 
-Otóż tekstury ścian były w dwóch wersjach — jasnej i ciemnej. Jeśli w wyniku ray castingu promień trafił w ścianę poziomo (od góry lub dołu), to rysowana była ciemna tekstura. Jeśli pionowo (od lewej lub prawej), to jasna. Sposób bardzo prosty, ale zupełnie wystarczający. Dodatkowo dla zwiększenia „realizmu” zastosowano sprite'y przedstawiające lampę na suficie i jednocześnie rozbłysk na podłodze (zobacz zrzut ekranu w akapicie *Budowa świata gry*).
+Otóż tekstury ścian były w dwóch wersjach — jasnej i ciemnej. Jeśli w wyniku ray castingu promień trafił w ścianę na siatce dwuwymiarowej poziomo (od góry lub dołu), to rysowana była ciemna tekstura. Jeśli pionowo (od lewej lub prawej), to jasna. Sposób bardzo prosty, ale zupełnie wystarczający. Dodatkowo dla zwiększenia „realizmu” zastosowano sprite'y przedstawiające lampę na suficie i jednocześnie rozbłysk na podłodze (zobacz zrzut ekranu w akapicie *Budowa świata gry*).
 
 ## Implementacja
 
