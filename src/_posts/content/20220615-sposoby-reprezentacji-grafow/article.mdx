@@ -37,7 +37,7 @@ export const meta = {
 
 ## Graf jako abstrakcyjny typ danych
 
-Na początek rozpatrzmy, czym graf powinien być, czyli opiszmy go jako <Link href="/post/listy-najpopularniejsze-zlozone-typy-danych/#trochę-definicji-na-dobry-początek">abstrakcyjny typ danych</Link>.
+Na początek rozpatrzmy, czym graf powinien być, czyli opiszmy go jako [abstrakcyjny typ danych](/post/listy-najpopularniejsze-zlozone-typy-danych/#trochę-definicji-na-dobry-początek).
 
 Przede wszystkim musimy przechować zbiór wierzchołków i rodzinę krawędzi. Należy pamiętać, że graf może być skierowany lub nieskierowany, więc powinniśmy być w stanie określić, czy para wierzchołków, z której składa się krawędź, jest uporządkowana, czy też nie. Warto dodać, że graf powinien być skończony, aby móc go zapisać w pamięci.
 
@@ -74,7 +74,7 @@ W artykule pomijam sposoby zapisu drzew. W praktyce algorytmicznej traktuje się
 
 Zacznę od sposobu, który w podręcznikach do algorytmiki jest często pomijany, natomiast najczęściej spotkałem się z nim w praktyce przy wizualizacji danych. Sposób ten to lista krawędzi.
 
-Lista krawędzi polega na tym, że mamy listę (zwykle <Link href="/post/tablice-i-listy-tablicowe/">tablica lub lista tablicowa</Link>) zawierającą definicję krawędzi. Definicja krawędzi w najprostszej postaci to para wierzchołków, ale często w praktycznych zastosowaniach stosuje się obiekty.
+Lista krawędzi polega na tym, że mamy listę (zwykle [tablica lub lista tablicowa](/post/tablice-i-listy-tablicowe/)) zawierającą definicję krawędzi. Definicja krawędzi w najprostszej postaci to para wierzchołków, ale często w praktycznych zastosowaniach stosuje się obiekty.
 
 <Image
   image={listaKrawedzi}
@@ -118,7 +118,7 @@ Wydajnościowo struktura ta zależna jest tylko od liczby krawędzi. Niestety, n
 
 Teraz pora na jeden z najbardziej klasycznych sposobów reprezentacji grafu opisany w praktycznie każdym podręczniku algorytmiki, czyli lista sąsiedztwa.
 
-W przypadku listy sąsiedztwa mamy tak naprawdę do czynienia z listą list. Kolejne indeksy w tej liście odpowiadają wierzchołkom grafu (czyli zakładamy, że są numerowane od 0 do $$n$$\*), a pod nimi znajdziemy listę wierzchołków (klasycznie stosuje się <Link href="/post/listy-z-dowiazaniami/#lista-jednokierunkowa">listę jednokierunkową</Link>, ale można też użyć tablicy), do których możemy z niego dostać się bezpośrednio. Naturalnie taka struktura sugeruje użycie do grafu skierowanego (z danej krawędzi dostaniemy się do innej), ale możemy też zastosować ją w grafach nieskierowanych, tylko trzeba będzie powielić krawędź (żeby z obu wierzchołków dało się dojść do siebie nawzajem).
+W przypadku listy sąsiedztwa mamy tak naprawdę do czynienia z listą list. Kolejne indeksy w tej liście odpowiadają wierzchołkom grafu (czyli zakładamy, że są numerowane od 0 do $$n$$\*), a pod nimi znajdziemy listę wierzchołków (klasycznie stosuje się [listę jednokierunkową](/post/listy-z-dowiazaniami/#lista-jednokierunkowa), ale można też użyć tablicy), do których możemy z niego dostać się bezpośrednio. Naturalnie taka struktura sugeruje użycie do grafu skierowanego (z danej krawędzi dostaniemy się do innej), ale możemy też zastosować ją w grafach nieskierowanych, tylko trzeba będzie powielić krawędź (żeby z obu wierzchołków dało się dojść do siebie nawzajem).
 
 \* chyba że korzystamy z tablicy z haszowaniem, to wówczas możemy użyć innego rodzaju identyfikatorów wierzchołków
 

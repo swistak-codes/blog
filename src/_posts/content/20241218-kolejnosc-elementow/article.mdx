@@ -68,11 +68,11 @@ Najprostszym, skutecznym i często wystarczającym sposobem jest nadawanie kolej
 
 ### Limit przesunięć elementów
 
-Oczywiście nie możemy nadawać rankingu jako połowy odległości w nieskończoność. Jeśli ranking trzymamy jako liczbę całkowitą, to możemy tak przesuwać w jedno miejsce maksymalnie $$\lceil \log_2(n) \rceil$$ razy, gdzie $$n$$ to wielkość przeskoku. Stąd dla $$n=1000$$ możemy to zrobić maksymalnie 10 razy. Działa to wówczas analogicznie jak <Link href="/post/wyszukiwanie-w-listach">wyszukiwanie binarne</Link>.
+Oczywiście nie możemy nadawać rankingu jako połowy odległości w nieskończoność. Jeśli ranking trzymamy jako liczbę całkowitą, to możemy tak przesuwać w jedno miejsce maksymalnie $$\lceil \log_2(n) \rceil$$ razy, gdzie $$n$$ to wielkość przeskoku. Stąd dla $$n=1000$$ możemy to zrobić maksymalnie 10 razy. Działa to wówczas analogicznie jak [wyszukiwanie binarne](/post/wyszukiwanie-w-listach).
 
 Tutaj możemy oczywiście sterować wielkością przeskoku, aczkolwiek warto wówczas znać ograniczenia zakresu typu liczbowego, z którego korzystamy, ponieważ zwiększenie $$n$$ zmniejszy możliwą do zapisu liczbę elementów bez przesuwania. W przypadku 32-bitowego całkowitoliczbowego typu znakowego (najpopularniejszy przypadek) i $$n=1000$$ możemy zapisać bez przesuwania $$(2^{31})/1000 \approx 2147483$$ elementów.
 
-Teoretycznie możemy ten problem odsunąć jeszcze bardziej w czasie, stosując <Link href="/post/liczby-wymierne-i-rzeczywiste-w-zero-jedynkowym-swiecie">typy zmiennoprzecinkowe</Link> zamiast całkowitoliczbowych. Wówczas między dwoma sąsiadującymi liczbami całkowitymi (np. 0 i 1), na typie o podwójnej precyzji (`double` w C lub `number` w JavaScript), zyskujemy jeszcze 52 dodatkowe pozycje, aż dojdziemy do granicy utraty precyzji zapisu. Wartość ta bierze się z tego, że mantysa w `double` jest zapisywana na 52 bitach, a dzielenie przez 2 to po prostu przesuwanie się po niej co bit.
+Teoretycznie możemy ten problem odsunąć jeszcze bardziej w czasie, stosując [typy zmiennoprzecinkowe](/post/liczby-wymierne-i-rzeczywiste-w-zero-jedynkowym-swiecie) zamiast całkowitoliczbowych. Wówczas między dwoma sąsiadującymi liczbami całkowitymi (np. 0 i 1), na typie o podwójnej precyzji (`double` w C lub `number` w JavaScript), zyskujemy jeszcze 52 dodatkowe pozycje, aż dojdziemy do granicy utraty precyzji zapisu. Wartość ta bierze się z tego, że mantysa w `double` jest zapisywana na 52 bitach, a dzielenie przez 2 to po prostu przesuwanie się po niej co bit.
 
 ### Rebalans rankingu
 
@@ -243,7 +243,7 @@ Ciekawą sprawą jest oczywiście przenoszenie elementów między wybrane, jak w
 
 Odstęp co zaledwie 8 wydaje się mały. W końcu w poprzedniej metodzie robiliśmy odstępy co 1000. Jak więc w LexoRank zachować się, gdy braknie miejsca? Wówczas wykorzystujemy wspomniany wcześniej dwukropek. Za nim wstawiamy kolejne znaki (dalej według reguły wyznaczania środkowego) tak, aby zachować dalej kolejność alfabetyczną. Czyli między `hzzzzz` a `i00000` wstawiamy element o rankingu `hzzzzz:i`. Między `hzzzzz` a `hzzzzz:i` wstawimy `hzzzzz:9`, potem `hzzzzz:4` i tak dalej. A co między `hzzzzz` a `hzzzzz:1`? Wówczas wydłużamy ranking o kolejny znak i powtarzamy ten cykl od początku, czyli nadajemy wartość `hzzzzz:0i`, potem `hzzzzz:09` itd.
 
-Działa to prawidłowo dzięki temu, że <Link href="/post/kryptarytmy/#leksykograficzne-generowanie-permutacji">sortujemy leksykograficznie</Link>. Mając tablicę `[1, 2, 10, 11, 100]`, w wyniku sortowania leksykograficznego otrzymamy `[1, 10, 100, 11, 2]`. Jest tak dlatego, że cyfry traktujemy jako zwykłe znaki, a nie jako część liczby.
+Działa to prawidłowo dzięki temu, że [sortujemy leksykograficznie](/post/kryptarytmy/#leksykograficzne-generowanie-permutacji). Mając tablicę `[1, 2, 10, 11, 100]`, w wyniku sortowania leksykograficznego otrzymamy `[1, 10, 100, 11, 2]`. Jest tak dlatego, że cyfry traktujemy jako zwykłe znaki, a nie jako część liczby.
 
 <Image
   image={jira4}
@@ -312,7 +312,7 @@ Można rebalans wymusić także ręcznie, co ja robiłem, aby pokazać wyniki na
 
 ### Uproszczona implementacja
 
-Poniżej zamieszczam uproszczoną implementację LexoRanka, która nie obsługuje ani koszyków, ani dodatkowych wartości po dwukropku. Pozwoli Ci ona lepiej zrozumieć opisane tutaj idee. Implementacja ta wykorzysta wbudowane w JavaScript funkcje do konwersji między systemami liczbowymi (konwersja do typu liczbowego: `parseInt(liczba, 36)`; i konwersja na ciąg znaków w base-36: `liczba.toString(36)`). Jeśli Twój język nie posiada takich funkcji (raczej powinien mieć w swojej bibliotece standardowej), to sposoby na konwersje między systemami liczbowymi opisałem w artykule *<Link href="/post/matematyka-zero-jedynkowa">1 0 0 0? 0 1 0 1! 1 0 0 1 – czyli matematyka zero-jedynkowa</Link>* — wystarczy jedynie zamiast podstawy systemu $$2$$ użyć $$36$$.
+Poniżej zamieszczam uproszczoną implementację LexoRanka, która nie obsługuje ani koszyków, ani dodatkowych wartości po dwukropku. Pozwoli Ci ona lepiej zrozumieć opisane tutaj idee. Implementacja ta wykorzysta wbudowane w JavaScript funkcje do konwersji między systemami liczbowymi (konwersja do typu liczbowego: `parseInt(liczba, 36)`; i konwersja na ciąg znaków w base-36: `liczba.toString(36)`). Jeśli Twój język nie posiada takich funkcji (raczej powinien mieć w swojej bibliotece standardowej), to sposoby na konwersje między systemami liczbowymi opisałem w artykule *[1 0 0 0? 0 1 0 1! 1 0 0 1 – czyli matematyka zero-jedynkowa](/post/matematyka-zero-jedynkowa)* — wystarczy jedynie zamiast podstawy systemu $$2$$ użyć $$36$$.
 
 ```javascript
 // pomocnicze funkcje do konwersji między systemami liczbowymi

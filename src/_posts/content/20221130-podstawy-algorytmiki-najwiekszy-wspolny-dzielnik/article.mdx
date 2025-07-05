@@ -168,11 +168,11 @@ function gcd(a, b) {
 
 Działanie możesz przetestować w serwisie [repl.it](https://replit.com/@tswistak/euclid-modulo#index.js).
 
-Obserwując implementację, możesz się zastanawiać, skąd nagle wzięło się branie wartości maksymalnej z $$a$$ i $$-a$$. Otóż wynika ono z definicji reszty z dzielenia. W matematycznej (euklidesowej) definicji operacja modulo zawsze zwraca liczbę dodatnią, niezależnie od znaku liczb biorących udział w operacji. Niestety, większość języków programowania tego nie przestrzega, co opisałem szczegółowo w artykule *<Link href="/post/dziwny-przypadek-reszty-z-dzielenia">Dziwny przypadek reszty z dzielenia</Link>*.
+Obserwując implementację, możesz się zastanawiać, skąd nagle wzięło się branie wartości maksymalnej z $$a$$ i $$-a$$. Otóż wynika ono z definicji reszty z dzielenia. W matematycznej (euklidesowej) definicji operacja modulo zawsze zwraca liczbę dodatnią, niezależnie od znaku liczb biorących udział w operacji. Niestety, większość języków programowania tego nie przestrzega, co opisałem szczegółowo w artykule *[Dziwny przypadek reszty z dzielenia](/post/dziwny-przypadek-reszty-z-dzielenia)*.
 
 ### Wersja rekurencyjna
 
-Połączmy teraz w jedno to, co pokazałem przy obu wersjach, aby uzyskać jeszcze inną wersję — <Link href="/post/rekurencja-co-to-jest">rekurencyjną</Link>. Jak pokazałem przy wersji z odejmowaniem, wersja ta działa dlatego, że odejmując liczbę mniejszą od większej, wartość NWD pozostaje taka sama. Skoro metoda rekurencyjna jest uproszczeniem metody z odejmowaniem, to zachodzi tutaj dosłownie ta sama własność. Powtarzając ten sam przykład, mamy teraz sytuację następującą:
+Połączmy teraz w jedno to, co pokazałem przy obu wersjach, aby uzyskać jeszcze inną wersję — [rekurencyjną](/post/rekurencja-co-to-jest). Jak pokazałem przy wersji z odejmowaniem, wersja ta działa dlatego, że odejmując liczbę mniejszą od większej, wartość NWD pozostaje taka sama. Skoro metoda rekurencyjna jest uproszczeniem metody z odejmowaniem, to zachodzi tutaj dosłownie ta sama własność. Powtarzając ten sam przykład, mamy teraz sytuację następującą:
 
 $$
 \text{NWD}(80,180) = \text{NWD}(180,80) = \text{NWD}(80,20) = \text{NWD}(20,0) = 20
@@ -217,7 +217,7 @@ Algorytm bazuje na wykorzystaniu poniższych obserwacji (zakładamy, że wejści
 2. Jeśli $$a$$ jest parzyste, a $$b$$ nieparzyste, to: $$\text{NWD}(a,b) = \text{NWD}(a/2,b)$$
 3. Jeśli obie liczby są nieparzyste, to: $$\text{NWD}(a,b) = \text{NWD}(|a-b|/2,b)$$
 
-Jak widać powyżej, większość z nich opiera się na mnożeniu lub dzieleniu przez 2, co w systemie binarnym możemy bardzo łatwo zaimplementować za pomocą przesunięć bitowych, co opisałem w artykule *<Link href="/post/matematyka-zero-jedynkowa">1 0 0 0? 0 1 0 1! 1 0 0 1 – czyli matematyka zero-jedynkowa</Link>*. Zresztą od tego przystosowania pod system binarny wywodzi się nazwa algorytmu.
+Jak widać powyżej, większość z nich opiera się na mnożeniu lub dzieleniu przez 2, co w systemie binarnym możemy bardzo łatwo zaimplementować za pomocą przesunięć bitowych, co opisałem w artykule *[1 0 0 0? 0 1 0 1! 1 0 0 1 – czyli matematyka zero-jedynkowa](/post/matematyka-zero-jedynkowa)*. Zresztą od tego przystosowania pod system binarny wywodzi się nazwa algorytmu.
 
 Zanim przejdziemy do implementacji, warto zaznaczyć, że algorytm działa tylko dla dodatnich liczb całkowitych.
 

@@ -224,7 +224,7 @@ $$
 
 Obecnie (luty 2022) znamy tylko 51 wartości $$n$$, które dają nam liczby pierwsze. Pytaniem jest jednak, czy takich liczb jest nieskończenie wiele? Jest to jeden z nierozwiązanych problemów matematycznych.
 
-Jednak jednocześnie to właśnie liczby Mersenne'a są największymi z liczb pierwszych, jakie znamy. Również są stosowane w informatyce (patrz np. algorytm Mersenne Twister). Dlaczego tak jest? Otóż są one najprostsze do przedstawienia <Link href="/post/matematyka-zero-jedynkowa">w formie binarnej</Link>. Każda liczba $$2^n-1$$ to w zapisie binarnym $$n$$ jedynek. Sprawia to też, że obliczenia na nich są stosunkowo proste.
+Jednak jednocześnie to właśnie liczby Mersenne'a są największymi z liczb pierwszych, jakie znamy. Również są stosowane w informatyce (patrz np. algorytm Mersenne Twister). Dlaczego tak jest? Otóż są one najprostsze do przedstawienia [w formie binarnej](/post/matematyka-zero-jedynkowa). Każda liczba $$2^n-1$$ to w zapisie binarnym $$n$$ jedynek. Sprawia to też, że obliczenia na nich są stosunkowo proste.
 
 Obecnie wciąż trwają poszukiwania coraz większych liczb pierwszych spełniających właśnie wzór Mersenne'a. Od 1996 r. działa program [GIMPS](https://www.mersenne.org/) (Great Internet Mersenne Prime Search), który skupia się na znajdowaniu jak największych liczb pierwszych Mersenne'a przez rozproszenie obliczeń na wiele komputerów. Każdy może udostępnić swój komputer i wspomóc znajdowanie kolejnych dużych liczb pierwszych.
 
@@ -321,7 +321,7 @@ W przypadku gdy chcemy wiedzieć, czy liczba jest na pewno pierwsza, potrzebujem
 
 Idea tych testów opiera się na tym, że nie sprawdzimy nimi każdej możliwej liczby, czy jest pierwsza. Stosuje się je tylko na wybrane przypadki. Dlatego teraz przypomnij sobie, kiedy wymieniałem rodzaje liczb pierwszych, albo też zobacz w Internecie dowolną tabelę największych znanych liczb pierwszych. Zwykle mamy tam zapis $$\pm 1$$ inna liczba. W takich przypadkach okazuje się, że liczba o 1 mniejsza/większa od liczby pierwszej jest bardzo prosta do rozbicia na dzielniki. Na tej podstawie, jesteśmy potem w stanie określić pierwszość kolejnej/poprzedniej liczby.
 
-Testy klasyczne możemy podzielić na testy $$n-1$$, czyli te, gdzie sprawdzamy liczbę o 1 mniejszą (a więc liczbę zapisaną jako $$p = \text{coś} + 1$$), oraz przeciwne $$n+1$$ ($$p = \text{coś} - 1$$). Duży udział w opracowaniu obu rodzajów tych testów miał jeszcze inny francuski matematyk — Édouard Lucas, którego możesz kojarzyć z wymyślenia zagadki <Link href="/post/wieze-hanoi">wieży Hanoi</Link>.
+Testy klasyczne możemy podzielić na testy $$n-1$$, czyli te, gdzie sprawdzamy liczbę o 1 mniejszą (a więc liczbę zapisaną jako $$p = \text{coś} + 1$$), oraz przeciwne $$n+1$$ ($$p = \text{coś} - 1$$). Duży udział w opracowaniu obu rodzajów tych testów miał jeszcze inny francuski matematyk — Édouard Lucas, którego możesz kojarzyć z wymyślenia zagadki [wieży Hanoi](/post/wieze-hanoi).
 
 #### n - 1
 

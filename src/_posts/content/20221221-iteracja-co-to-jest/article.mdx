@@ -201,7 +201,7 @@ loop_end:
 
 Kod możesz przetestować na [repl.it](https://replit.com/@tswistak/goto-c#main.c).
 
-Warto jednak zauważyć, że jeśli język programowania pozwala na inne sposoby sterowania przepływem programu (w tym iteracje), instrukcji skoku **nie powinniśmy** używać. Najbardziej znanym z pierwszych przeciwników stosowania `goto` był Edsger W. Dijsktra (znany przede wszystkim z <Link href="/post/szukanie-najkrotszych-sciezek-w-grafie">algorytmu Dijkstry</Link>). Napisał bardzo popularny w środowisku informatycznym list *Go To Statement Considered Harmful* (instrukcja goto uznawana za szkodliwą) i jego treść możecie znaleźć w [doi:10.1145/362929.362947](https://doi.org/10.1145/362929.362947). Opisując w skrócie, jego argumenty przeciwko to:
+Warto jednak zauważyć, że jeśli język programowania pozwala na inne sposoby sterowania przepływem programu (w tym iteracje), instrukcji skoku **nie powinniśmy** używać. Najbardziej znanym z pierwszych przeciwników stosowania `goto` był Edsger W. Dijsktra (znany przede wszystkim z [algorytmu Dijkstry](/post/szukanie-najkrotszych-sciezek-w-grafie)). Napisał bardzo popularny w środowisku informatycznym list *Go To Statement Considered Harmful* (instrukcja goto uznawana za szkodliwą) i jego treść możecie znaleźć w [doi:10.1145/362929.362947](https://doi.org/10.1145/362929.362947). Opisując w skrócie, jego argumenty przeciwko to:
 
 - `goto` sprawia, że śledzenie postępu iteracji jest utrudnione.
 - Jest zbyt prymitywne.
@@ -799,7 +799,7 @@ Ten kod również znajdziesz na [repl.it](https://replit.com/@tswistak/break-ret
 
 Opisując podstawowe pętle z użyciem `goto`, wspomniałem, że znalazło ono w językach programowania inne zastosowanie niż tworzenie pętli. Jednym z nich jest użycie skoku w celu zrobienia wielopoziomowego `break`. O co w tym chodzi?
 
-Zacznijmy od tego, że pętle możemy zagnieżdżać. Jest to podstawowy sposób iteracji po tablicach wielowymiarowych, ale też działa tak sporo algorytmów (np. <Link href="/post/sortowanie-cz-2-sortowanie-babelkowe">sortowanie bąbelkowe</Link>). Jednak zarówno `break`, jak i `continue` działają tylko na jeden poziom pętli. Nie wpłyniemy nimi na całe wyrażenie, aczkolwiek aby ominąć to ograniczenie, możemy z powodzeniem użyć etykiety i `goto`. Jak to wygląda oraz porównanie działania możesz zobaczyć, testując poniższy kod:
+Zacznijmy od tego, że pętle możemy zagnieżdżać. Jest to podstawowy sposób iteracji po tablicach wielowymiarowych, ale też działa tak sporo algorytmów (np. [sortowanie bąbelkowe](/post/sortowanie-cz-2-sortowanie-babelkowe)). Jednak zarówno `break`, jak i `continue` działają tylko na jeden poziom pętli. Nie wpłyniemy nimi na całe wyrażenie, aczkolwiek aby ominąć to ograniczenie, możemy z powodzeniem użyć etykiety i `goto`. Jak to wygląda oraz porównanie działania możesz zobaczyć, testując poniższy kod:
 
 ```c
 #include <stdio.h>
@@ -905,8 +905,8 @@ Mówiąc o iteracjach, nie sposób nie wspomnieć o rekurencjach. Właśnie to t
 
 Jednak tematu rekurencji nie zamierzam poruszać w tym artykule, ponieważ napisałem już o niej dwa teksty:
 
-- *<Link href="/post/rekurencja-co-to-jest">Rekurencja — co to jest?</Link>* — wprowadza w temat, tłumacząc, na czym polega rekurencja, i pokazując ją na prostych, rzeczywistych przykładach. Do tego też omawia temat rekurencji ogonowej.
-- *<Link href="/post/derekursywacja">Derekursywacja</Link>* — artykuł omawiający, jak możemy pozbywać się rekurencji. Oprócz konkretnych technik wspomina także, dlaczego warto tak robić, pokazując różnice w wydajności między tymi samymi algorytmami w wersjach rekurencyjnych i nierekurencyjnych.
+- *[Rekurencja — co to jest?](/post/rekurencja-co-to-jest)* — wprowadza w temat, tłumacząc, na czym polega rekurencja, i pokazując ją na prostych, rzeczywistych przykładach. Do tego też omawia temat rekurencji ogonowej.
+- *[Derekursywacja](/post/derekursywacja)* — artykuł omawiający, jak możemy pozbywać się rekurencji. Oprócz konkretnych technik wspomina także, dlaczego warto tak robić, pokazując różnice w wydajności między tymi samymi algorytmami w wersjach rekurencyjnych i nierekurencyjnych.
 
 Zapraszam do ich lektury w późniejszym czasie 🙂.
 
@@ -1017,7 +1017,7 @@ for (auto it = list.begin(); it < list.end(); it++) {
 
 ### for each
 
-Jeśli kiedykolwiek pisałeś(-aś) w tych językach, to możesz się zastanawiać, od kiedy w ten sposób korzysta się z iteratorów? To znaczy, tak, można w ten sposób, tylko w praktyce robi się to rzadko. Dużo popularniejsze są pętle `for each` wykorzystujące pod spodem iteratory. W zależności od języka nazwane są inaczej. Dla przykładu: `for...of` (np. JavaScript, Ada), `foreach` (np. C#, PHP), `for` z dwukropkiem (np. Java, C++), `for...in` (np. Python, Pascal). Skoro wymieniłem cztery rodzaje składni, to zobaczmy dla czterech różnych języków, jak iterowalibyśmy w każdym z nich po <Link href="/post/tablice-i-listy-tablicowe">liście tablicowej</Link>.
+Jeśli kiedykolwiek pisałeś(-aś) w tych językach, to możesz się zastanawiać, od kiedy w ten sposób korzysta się z iteratorów? To znaczy, tak, można w ten sposób, tylko w praktyce robi się to rzadko. Dużo popularniejsze są pętle `for each` wykorzystujące pod spodem iteratory. W zależności od języka nazwane są inaczej. Dla przykładu: `for...of` (np. JavaScript, Ada), `foreach` (np. C#, PHP), `for` z dwukropkiem (np. Java, C++), `for...in` (np. Python, Pascal). Skoro wymieniłem cztery rodzaje składni, to zobaczmy dla czterech różnych języków, jak iterowalibyśmy w każdym z nich po [liście tablicowej](/post/tablice-i-listy-tablicowe).
 
 JavaScript (kod na [repl.it](https://replit.com/@tswistak/foreach-js#index.js)):
 
@@ -1339,7 +1339,7 @@ Języków zapytań mamy bardzo wiele, każdy do innych zastosowań. Wymieniając
 - SQL — dla wielu jest tożsamy z pojęciem *język zapytań*. Stanowi standardowy sposób obsługi relacyjnych baz danych.
 - Cypher, Gremlin — odpowiedniki SQL dla grafowych baz danych. Są też inne, aczkolwiek z tymi spotkałem się najczęściej.
 - GraphQL — język o strukturze zbliżonej do JSON-a umożliwiający pobieranie danych z serwisów webowych wspierających go. Mocno promowany przez Facebooka (przez nich zresztą został stworzony) i od kilku lat jest czymś, co *każdy chce mieć* w kontekście wytwarzania aplikacji Webowych.
-- XPath, XQuery — umożliwiają nawigację po dokumentach zapisanych w XML. Pierwszy z nich opisałem krótko w artykule *<Link href="/post/tekstowy-zapis-danych-cyfrowych">Tekstowy zapis danych cyfrowych</Link>*.
+- XPath, XQuery — umożliwiają nawigację po dokumentach zapisanych w XML. Pierwszy z nich opisałem krótko w artykule *[Tekstowy zapis danych cyfrowych](/post/tekstowy-zapis-danych-cyfrowych)*.
 - LINQ — język zapytań wbudowany w platformę .NET umożliwiający wykonywanie zapytań na wbudowanych kolekcjach. Bardzo przypomina SQL.
 
 Warto dodać, że tekst wpisywany do wyszukiwarek internetowych też jest językiem zapytań i nawet [posiada specjalne operatory](https://support.google.com/websearch/answer/2466433?hl=pl&ref_topic=3081620). Ostatecznie tu również dochodzi do iteracji — na podstawie tego, co piszemy, są wyciągane elementy z gigantycznej kolekcji i prezentowane jako wyniki wyszukiwania. W zasadzie to pokazuje, na czym polega język zapytań:

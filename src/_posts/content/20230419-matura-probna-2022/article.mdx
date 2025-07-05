@@ -56,7 +56,7 @@ Zanim jednak przejdziemy do rozwiązywania zadań, parę uwag wstępnych ode mni
 Z opisu zadania możemy już dojść do wstępnych założeń związanych z implementacją:
 
 - W pliku mamy jedną linijkę, więc taki też scenariusz odczytu załóżmy.
-- Mamy informację, że tekst składa się z 10000 znaków, ale w Javie czy Pythonie nie będzie nas to interesować. Będziemy po prostu odczytywać string znak po znaku (metodą `charAt(indeks)`). Jedynie, co warto zrobić, to obcięcie białych znaków na przodzie i końcu, aby nie zaburzyły <Link href="/post/iteracja-co-to-jest">iteracji</Link>.
+- Mamy informację, że tekst składa się z 10000 znaków, ale w Javie czy Pythonie nie będzie nas to interesować. Będziemy po prostu odczytywać string znak po znaku (metodą `charAt(indeks)`). Jedynie, co warto zrobić, to obcięcie białych znaków na przodzie i końcu, aby nie zaburzyły [iteracji](/post/iteracja-co-to-jest).
 
 ### Przygotowanie do rozwiązania
 
@@ -251,7 +251,7 @@ Podsumowując, zadanie 1 opierało się w całości na bardzo prostych iteracjac
 W tym zadaniu trzeba od razu zauważyć, że mamy do czynienia z drzewem binarnym. Widać to od razu na przykładzie, ale nie zawsze należy się sugerować przykładami. Na szczęście kod też to pokazuje, i to na dwa sposoby:
 
 - Mamy wewnątrz funkcji dwa wywołania rekurencyjne, więc każde z nich będzie się „dzielić” na dwa. A drzewo binarne to drzewo, gdzie każdy węzeł ma maksymalnie dwójkę dzieci, czyli węzłów wychodzących od niego.
-- Nieco mniej oczywiste, ale można zauważyć, że wzory $$2 \cdot x$$ i $$2 \cdot x + 1$$ to nic innego jak wzory na lewe i prawe dziecko w <Link href="/post/sortowanie-cz-4-sortowanie-przez-wybieranie/#kopce">kopcu binarnym</Link>, który jest szczególnym przypadkiem drzewa binarnego.
+- Nieco mniej oczywiste, ale można zauważyć, że wzory $$2 \cdot x$$ i $$2 \cdot x + 1$$ to nic innego jak wzory na lewe i prawe dziecko w [kopcu binarnym](/post/sortowanie-cz-4-sortowanie-przez-wybieranie/#kopce), który jest szczególnym przypadkiem drzewa binarnego.
 
 ### Zadanie 2.1
 
@@ -287,7 +287,7 @@ Warto dodać, że w zadaniu nigdy nie mielibyśmy do obliczenia przypadku z `rys
 
 To zadanie wymaga od nas już bardziej szczegółowej wiedzy z drzew binarnych, jednak wciąż nie jest to nic niemożliwego. Możemy znać konkretny wzór albo dojść do niego, znając właściwości tego typu struktury.
 
-Załóżmy, że na maturze nie znasz konkretnych wzorów. Jak w takim razie to obliczyć? Otóż przypadek, który tutaj mamy, jest idealnie zbalansowanym drzewem binarnym, czyli takim, gdzie węzły rozkładają się równomiernie. Gdybyśmy mieli do czynienia z <Link href="/post/sortowanie-cz-7-inne-podejscia/#sortowanie-drzewiaste">drzewem przeszukiwań binarnych</Link>, oznaczałoby to, że znalezienie jakiegokolwiek elementu zajmowałoby tyle czasu, co dla idealnego przypadku według złożoności obliczeniowej tej struktury. A tym idealnym przypadkiem jest złożoność logarytmiczna.
+Załóżmy, że na maturze nie znasz konkretnych wzorów. Jak w takim razie to obliczyć? Otóż przypadek, który tutaj mamy, jest idealnie zbalansowanym drzewem binarnym, czyli takim, gdzie węzły rozkładają się równomiernie. Gdybyśmy mieli do czynienia z [drzewem przeszukiwań binarnych](/post/sortowanie-cz-7-inne-podejscia/#sortowanie-drzewiaste), oznaczałoby to, że znalezienie jakiegokolwiek elementu zajmowałoby tyle czasu, co dla idealnego przypadku według złożoności obliczeniowej tej struktury. A tym idealnym przypadkiem jest złożoność logarytmiczna.
 
 Tylko skoro logarytm, to który? Teraz spójrz w ten sposób — drzewo jest binarne, więc wszystko dzieli się na 2. W takim razie możemy śmiało użyć logarytmu o podstawie 2. Obliczmy więc przypadek z przykładu: $$\log_2(5)$$. Niestety, wychodzi $$2,3219...$$, ale możemy to zaokrąglić. W tym przypadku zaokrąglamy w dół, bo liczba, dla której logarytm jest całkowity, zawsze jest pierwszą w wierszu. Potwierdza to przykład z zadania. Możemy też posprawdzać to na rysunku, który sami zrobiliśmy, obliczając logarytm np. dla 8, 9 i 10.
 
@@ -364,8 +364,8 @@ Podsumowując, to zadanie sprowadziło się w dużej mierze do przepisania kodu,
 
 Zadanie jest w całości poświęcone liczbom pierwszym, więc od razu polecam lekturę dwóch z czterech artykułów, które napisałem na ten temat:
 
-- *<Link href="/post/liczby-pierwsze-i-proste-sposoby-na-ich-sprawdzanie">Liczby pierwsze i proste sposoby na ich sprawdzanie</Link>*
-- *<Link href="/post/proste-sposoby-na-znajdowanie-liczb-pierwszych">Proste sposoby na znajdowanie liczb pierwszych</Link>*
+- *[Liczby pierwsze i proste sposoby na ich sprawdzanie](/post/liczby-pierwsze-i-proste-sposoby-na-ich-sprawdzanie)*
+- *[Proste sposoby na znajdowanie liczb pierwszych](/post/proste-sposoby-na-znajdowanie-liczb-pierwszych)*
 
 Tutaj szczególnie przydatny będzie drugi z tych artykułów, gdzie opisałem sito Eratostenesa, któremu jest poświęcone zadanie.
 
@@ -654,7 +654,7 @@ Po pominięciu zadań z Excela i baz danych bardzo płynnie przechodzimy do trze
 
 ### Zadanie 8. Systemy liczbowe
 
-Aby obliczyć działanie zapisane w systemie czwórkowym, najprościej jest po prostu zrobić to pod kreską. Należy jedynie pamiętać, że największa cyfra, którą możemy mieć, to nie 9 (jak w systemie dziesiętnym), tylko 3. Moje przykładowe obliczenie znajdziesz poniżej. Jeśli potrzebujesz wyjaśnień, to sposób obliczania w systemie dwójkowym zaprezentowałem w artykule *<Link href="/post/matematyka-zero-jedynkowa/#dodawanie-i-odejmowanie">1 0 0 0? 0 1 0 1! 1 0 0 1 — czyli matematyka zero-jedynkowa</Link>* — w tym przypadku zamiast 0 i 1 dostępnymi dla Ciebie cyframi są 0, 1, 2 i 3.
+Aby obliczyć działanie zapisane w systemie czwórkowym, najprościej jest po prostu zrobić to pod kreską. Należy jedynie pamiętać, że największa cyfra, którą możemy mieć, to nie 9 (jak w systemie dziesiętnym), tylko 3. Moje przykładowe obliczenie znajdziesz poniżej. Jeśli potrzebujesz wyjaśnień, to sposób obliczania w systemie dwójkowym zaprezentowałem w artykule *[1 0 0 0? 0 1 0 1! 1 0 0 1 — czyli matematyka zero-jedynkowa](/post/matematyka-zero-jedynkowa/#dodawanie-i-odejmowanie)* — w tym przypadku zamiast 0 i 1 dostępnymi dla Ciebie cyframi są 0, 1, 2 i 3.
 
 <Image
   image={zad8}

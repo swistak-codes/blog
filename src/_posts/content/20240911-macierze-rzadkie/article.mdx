@@ -45,7 +45,7 @@ export const meta = {
 
 ## Uwaga wstępna
 
-W artykule zakładam, że wiesz, czym są macierze i jak wykonywać na nich podstawowe operacje. Jeśli nie jesteś zaznajomiony(-a) z tematem, zapraszam do mojego artykułu *<Link href="/post/macierze-podstawy">Macierze — podstawowe operacje</Link>*.
+W artykule zakładam, że wiesz, czym są macierze i jak wykonywać na nich podstawowe operacje. Jeśli nie jesteś zaznajomiony(-a) z tematem, zapraszam do mojego artykułu *[Macierze — podstawowe operacje](/post/macierze-podstawy)*.
 
 ## Macierz rzadka
 
@@ -136,7 +136,7 @@ Pomijając samą kwestię macierzy rzadkich, to przy macierzach blokowych warto 
 
 ## Sposoby przechowywania w pamięci
 
-Dzięki temu, że macierze rzadkie składają się w większości z zer, możemy pod tym kątem optymalizować ich przechowywanie w pamięci komputera. Jest tak dlatego, że nie ma sensu zajmować pamięci samymi zerami i jest to najprostsza możliwa kompresja macierzy, z jaką mamy do czynienia. O temat nieco zahaczyłem, opisując <Link href="/post/kompresja-obrazow/#kwantyzacja">kwantyzację macierzy przy kompresji JPG</Link>, jednak tam był dość szczególny przypadek. Tym razem zobaczmy bardziej ogólne sposoby, które pozwalają, żeby macierz zajęła mniej pamięci. Najpierw opiszę te umożliwiające łatwą konstrukcję macierzy, a potem te, które są przystosowane do wykonywania obliczeń.
+Dzięki temu, że macierze rzadkie składają się w większości z zer, możemy pod tym kątem optymalizować ich przechowywanie w pamięci komputera. Jest tak dlatego, że nie ma sensu zajmować pamięci samymi zerami i jest to najprostsza możliwa kompresja macierzy, z jaką mamy do czynienia. O temat nieco zahaczyłem, opisując [kwantyzację macierzy przy kompresji JPG](/post/kompresja-obrazow/#kwantyzacja), jednak tam był dość szczególny przypadek. Tym razem zobaczmy bardziej ogólne sposoby, które pozwalają, żeby macierz zajęła mniej pamięci. Najpierw opiszę te umożliwiające łatwą konstrukcję macierzy, a potem te, które są przystosowane do wykonywania obliczeń.
 
 Każdy ze sposobów dodatkowo zobrazuję tym, w jaki sposób macierze za ich pomocą konstruujemy w pythonowym [SciPy](https://scipy.org). Przede wszystkim dlatego, że SciPy oferuje mnogość sposobów definiowania macierzy i jest bardzo popularną biblioteką do obliczeń naukowych. Od razu zaznaczę, że z tego też powodu w przykładach pythonowych tablice będę tworzyć przy użyciu `array()` z [NumPy](https://numpy.org/), bo na nim bazuje SciPy. Dodam też, że w kwestii nazewnictwa również wzoruję się na SciPy.
 
@@ -206,7 +206,7 @@ Przykład wraz z innymi dalej opisywanymi macierzami znajdziesz na [tym Replit](
 
 ### List of Lists (LIL)
 
-Następnie mamy format LIL, czyli listę list. W przypadku SciPy jest ta struktura zorganizowana tak, że przechowywane są dwie tablice, każda zawierająca <Link href="/post/listy-z-dowiazaniami">listy wiązane</Link>. Pierwsza (nazwijmy ją `data`) przechowuje niezerowe wartości w danym wierszu. Jeśli wiersz nie ma niezerowych wartości, trzymamy pustą listę. Druga (nazwijmy ją `rows`) przechowuje informację dla każdego wiersza, w której kolumnie znajduje się niezerowy element o tym samym indeksie z poprzedniej tablicy.
+Następnie mamy format LIL, czyli listę list. W przypadku SciPy jest ta struktura zorganizowana tak, że przechowywane są dwie tablice, każda zawierająca [listy wiązane](/post/listy-z-dowiazaniami). Pierwsza (nazwijmy ją `data`) przechowuje niezerowe wartości w danym wierszu. Jeśli wiersz nie ma niezerowych wartości, trzymamy pustą listę. Druga (nazwijmy ją `rows`) przechowuje informację dla każdego wiersza, w której kolumnie znajduje się niezerowy element o tym samym indeksie z poprzedniej tablicy.
 
 Przykładowo, dla następujących tablic (dla uproszczenia listy zapisałem jako tablice):
 
@@ -504,7 +504,7 @@ Z ogólnych formatów do obliczeń najlepsze są **CSR** i **CSC**. W kwestii kt
 
 Z racji tego, że najpopularniejszą strukturą do przechowywania macierzy rzadkich w celu dalszych obliczeń na nich jest CSR, zobaczmy, jak moglibyśmy od zera zaprogramować bazujące na nim dwa proste algorytmy. Skoro teraz programujemy od zera, to przykłady pokażę w JavaScript, ponieważ jego C-podobna składnia jest zdecydowanie powszechniejsza w różnych językach programowania, więc kod prościej będzie Ci przetłumaczyć na cokolwiek w czym programujesz.
 
-Od razu też założę, że w algorytmach poniżej macierze są zdefiniowane jako obiekty (tutaj w notacji <Link href="/post/teoria-zbiorow-typescript">typescriptowej</Link>) o następującej strukturze:
+Od razu też założę, że w algorytmach poniżej macierze są zdefiniowane jako obiekty (tutaj w notacji [typescriptowej](/post/teoria-zbiorow-typescript)) o następującej strukturze:
 
 ```typescript
 type CsrMatrix = {

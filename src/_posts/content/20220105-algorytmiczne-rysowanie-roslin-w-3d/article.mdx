@@ -33,7 +33,7 @@ export const meta = {
 
 ## Uwaga wstępna
 
-Artykuł, który właśnie czytasz, to kontynuacja wpisu <Link href="/post/algorytmiczne-rysowanie-roslin">Algorytmiczne rysowanie roślin</Link>. Będę tutaj zakładać, że tamten artykuł znasz, więc nie będę ponownie tłumaczyć rzeczy tam opisanych. Wprowadziłem tam takie pojęcia, jak L-systemy, grafika żółwiowa i stochastyczne L-systemy. Jeśli są one Ci obce, polecam nadrobić ewentualną zaległość, ponieważ tutaj będziemy je rozwijać o pojęcia związane z grafiką trójwymiarową.
+Artykuł, który właśnie czytasz, to kontynuacja wpisu [Algorytmiczne rysowanie roślin](/post/algorytmiczne-rysowanie-roslin). Będę tutaj zakładać, że tamten artykuł znasz, więc nie będę ponownie tłumaczyć rzeczy tam opisanych. Wprowadziłem tam takie pojęcia, jak L-systemy, grafika żółwiowa i stochastyczne L-systemy. Jeśli są one Ci obce, polecam nadrobić ewentualną zaległość, ponieważ tutaj będziemy je rozwijać o pojęcia związane z grafiką trójwymiarową.
 
 Natomiast wszystkie przedstawione w artykule prezentacje zostały napisane w języku JavaScript z wykorzystaniem bibliotek [Three.js](https://threejs.org/) i [Lindenmayer](https://github.com/nylki/lindenmayer). Ich kod źródłowy znajdziesz [na moim GitHubie](https://github.com/swistak-codes/lsystems-3d).
 
@@ -76,7 +76,7 @@ Problem możemy rozwiązać na dwa sposoby. Z jednej strony, zamiast pikseli mo�
 
 Innym rozwiązaniem jest stawianie bryły o dowolnie wybranym kształcie za każdym razem, gdy wydajemy żółwiowi polecenie pójścia do przodu. Linie możemy zastąpić cienkimi walcami, ale już w przypadku naszego zastosowania, jakim są rośliny, możemy pokusić się o renderowanie modeli, np. liści w odpowiednich momentach. Pamiętajmy też, że nie musimy ograniczać się do znanego nam alfabetu. $$F$$ oznaczało pójście do przodu, ale możemy dodać, np. że symbol $$S$$ rysuje sferę. Ogranicza nas jedynie wyobraźnia.
 
-Jeszcze zostaje techniczna kwestia związana z obrotami. Jest to nic innego jak rotacje wokół wybranej osi, co możemy obliczyć np. za pomocą macierzy transformacji lub kwaternionów, co opisałem w artykule <Link href="/post/przeksztalcenia-grafiki-3d">*Przekształcenia grafiki 3D*</Link>. Obroty w lewo bądź w dół wykonujemy, podając dodatni kąt, natomiast w drugą stronę, mnożąc go przez $$-1$$. Analogicznie, przesunięcia również powinny być wykonywane za pomocą macierzy transformacji. W praktyce, w wielu narzędziach do grafiki trójwymiarowej nie trzeba tego liczyć ręcznie, wystarczy zastosować specjalne funkcje (np. [zobacz tutaj](https://github.com/swistak-codes/lsystems-3d/blob/main/src/3d.js#L68), jak ja to zrobiłem w poniższych prezentacjach).
+Jeszcze zostaje techniczna kwestia związana z obrotami. Jest to nic innego jak rotacje wokół wybranej osi, co możemy obliczyć np. za pomocą macierzy transformacji lub kwaternionów, co opisałem w artykule [*Przekształcenia grafiki 3D*](/post/przeksztalcenia-grafiki-3d). Obroty w lewo bądź w dół wykonujemy, podając dodatni kąt, natomiast w drugą stronę, mnożąc go przez $$-1$$. Analogicznie, przesunięcia również powinny być wykonywane za pomocą macierzy transformacji. W praktyce, w wielu narzędziach do grafiki trójwymiarowej nie trzeba tego liczyć ręcznie, wystarczy zastosować specjalne funkcje (np. [zobacz tutaj](https://github.com/swistak-codes/lsystems-3d/blob/main/src/3d.js#L68), jak ja to zrobiłem w poniższych prezentacjach).
 
 ### Tworzenie wielokątów żółwiem
 
@@ -112,7 +112,7 @@ Jeśli będziesz to implementować u siebie, pamiętaj, że żółw w swojej inf
 
 ### Wyspa Kocha
 
-Podobnie jak <Link href="/post/algorytmiczne-rysowanie-roslin">w poprzednim artykule</Link>, zanim zaczniemy rysować rośliny, zacznijmy od fraktali. Rozpocznijmy od znanej już nam wyspy Kocha. Oczywiście nikt nam nie broni w 3D użyć tego samego L-systemu co przy wersji dwuwymiarowej, jednak możemy pokusić się o dodanie trójwymiarowego efektu przez tworzenie kwadratowych ścian, z których budujemy fraktal. Zdefiniujemy to następująco:
+Podobnie jak [w poprzednim artykule](/post/algorytmiczne-rysowanie-roslin), zanim zaczniemy rysować rośliny, zacznijmy od fraktali. Rozpocznijmy od znanej już nam wyspy Kocha. Oczywiście nikt nam nie broni w 3D użyć tego samego L-systemu co przy wersji dwuwymiarowej, jednak możemy pokusić się o dodanie trójwymiarowego efektu przez tworzenie kwadratowych ścian, z których budujemy fraktal. Zdefiniujemy to następująco:
 
 $$
 \begin{align*}

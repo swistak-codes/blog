@@ -39,7 +39,7 @@ export const meta = {
 
 ## Zanim przejdziemy do meritum...
 
-...chciałem wspomnieć, że temat ten na blogu poruszyłem już od strony tego, w jaki sposób w ogóle odbywa się w komputerze mierzenie czasu na poziomie sprzętu. Został temu poświęcony artykuł *<Link href="/post/jak-komputer-mierzy-czas">Jak komputer mierzy czas?</Link>*. Nie będę tutaj powielać jego treści, dlatego dalej nie opiszę, jak to wszystko odbywa się sprzętowo. Jedynie przedstawię temat od jednego, konkretnego, praktycznego zastosowania.
+...chciałem wspomnieć, że temat ten na blogu poruszyłem już od strony tego, w jaki sposób w ogóle odbywa się w komputerze mierzenie czasu na poziomie sprzętu. Został temu poświęcony artykuł *[Jak komputer mierzy czas?](/post/jak-komputer-mierzy-czas)*. Nie będę tutaj powielać jego treści, dlatego dalej nie opiszę, jak to wszystko odbywa się sprzętowo. Jedynie przedstawię temat od jednego, konkretnego, praktycznego zastosowania.
 
 ## Profilery
 
@@ -71,9 +71,9 @@ O ile zachęcam do korzystania z profilerów w profesjonalnym zastosowaniu, tak 
 
 Przejdźmy w takim razie do ręcznego odmierzania czasu wykonania. Sprowadza się to przede wszystkim do wywołania odpowiednich funkcji, które zapamiętają czas przed wykonaniem funkcji i po jej wykonaniu. Następnie odejmujemy te czasy od siebie i wynik jest czasem wykonania. Po prostu tyle.
 
-Jednak to, na co warto zwrócić uwagę, to jak taki czas mierzyć. Czas możemy uzyskać z różnych źródeł. Najprościej jest wyciągnąć czas kalendarzowy, ale ten jest o niskiej rozdzielczości — dokładność do sekund lub milisekund. O ile milisekundy w wielu przypadkach są akceptowalne, to sekundy już niezbyt. Jednak, jak pisałem w *<Link href="/post/jak-komputer-mierzy-czas">artykule o sprzętowym mierzeniu czasu</Link>*, komputery mają na to różne sposoby. Podałem tam nawet prosty kod asemblerowy wykonywany w C, który pobierał dane z jednego z liczników. My jednak skupmy się na rozwiązaniach oferowanych przez języki czy nawet systemy operacyjne. Później opiszę, dlaczego czasu kalendarzowego lepiej do tego celu w ogóle nie używać.
+Jednak to, na co warto zwrócić uwagę, to jak taki czas mierzyć. Czas możemy uzyskać z różnych źródeł. Najprościej jest wyciągnąć czas kalendarzowy, ale ten jest o niskiej rozdzielczości — dokładność do sekund lub milisekund. O ile milisekundy w wielu przypadkach są akceptowalne, to sekundy już niezbyt. Jednak, jak pisałem w *[artykule o sprzętowym mierzeniu czasu](/post/jak-komputer-mierzy-czas)*, komputery mają na to różne sposoby. Podałem tam nawet prosty kod asemblerowy wykonywany w C, który pobierał dane z jednego z liczników. My jednak skupmy się na rozwiązaniach oferowanych przez języki czy nawet systemy operacyjne. Później opiszę, dlaczego czasu kalendarzowego lepiej do tego celu w ogóle nie używać.
 
-We wszystkich przypadkach dla testu będziemy mierzyć czas wykonywania się <Link href="/post/funkcja-ackermanna">funkcji Ackermanna</Link> w zoptymalizowanej iteracyjnej wersji. Kod przerabiałem zawsze na język, w którym aktualnie operujemy. W przypadku systemów przepisałem kod na języki skryptowe dostępne w ich liniach poleceń, aby nie trzeba było kompilować ani doinstalowywać nic dodatkowego.
+We wszystkich przypadkach dla testu będziemy mierzyć czas wykonywania się [funkcji Ackermanna](/post/funkcja-ackermanna) w zoptymalizowanej iteracyjnej wersji. Kod przerabiałem zawsze na język, w którym aktualnie operujemy. W przypadku systemów przepisałem kod na języki skryptowe dostępne w ich liniach poleceń, aby nie trzeba było kompilować ani doinstalowywać nic dodatkowego.
 
 ### Systemy operacyjne
 
@@ -339,7 +339,7 @@ Metoda ta jest o tyle dobra, że podaje nam już gotową statystykę — oprócz
 
 ## Dlaczego nie odejmujemy czasu kalendarzowego?
 
-Patrząc na powyższe fragmenty kodu, możesz zadać trafne pytanie — dlaczego po prostu nie odejmiemy od siebie daty po wykonaniu funkcji i przed wykonaniem? W końcu zwykle mamy dostęp do daty w postaci <Link href="/post/jak-komputer-przechowuje-date-i-skad-zna-aktualna/#czas-uniksowy">czasu uniksowego</Link> w sekundach, a nawet milisekundach. Może to też być dla Ciebie o tyle zastanawiające, że często w artykułach skierowanych do początkujących programistów właśnie tak się odmierza czas.
+Patrząc na powyższe fragmenty kodu, możesz zadać trafne pytanie — dlaczego po prostu nie odejmiemy od siebie daty po wykonaniu funkcji i przed wykonaniem? W końcu zwykle mamy dostęp do daty w postaci [czasu uniksowego](/post/jak-komputer-przechowuje-date-i-skad-zna-aktualna/#czas-uniksowy) w sekundach, a nawet milisekundach. Może to też być dla Ciebie o tyle zastanawiające, że często w artykułach skierowanych do początkujących programistów właśnie tak się odmierza czas.
 
 Od razu zaznaczę wprost — jeśli tak robisz, to nie znaczy, że jest to złe podejście. Jeśli nie interesują Cię dokładne pomiary, a tylko na zasadzie *mniej więcej*, to całkowicie wystarczy. Jednak gdy chcemy pisać np. sprawozdania, gdzie porównujemy wydajność, lepiej stosować rozwiązania miarodajne, przeznaczone wprost do pomiarów tego typu.
 

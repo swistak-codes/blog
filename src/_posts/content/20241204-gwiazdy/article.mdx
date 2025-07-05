@@ -53,7 +53,7 @@ Gwiazdy będziemy rysować w takiej postaci, a nie jako figury zamknięte (więc
 
 ## Przygotowanie środowiska programistycznego
 
-Rysowanie programistycznie zrobimy w przeglądarkowym JavaScripcie, wykorzystując element `<canvas>` (płótno) do rysowania. Jednak algorytmy, które tu pokażę, są uniwersalne dla wszelkich języków programowania, jedynie musiałbyś/musiałabyś znaleźć odpowiedniki funkcji do rysowania (a w zasadzie jednej — rysowania linii z punktu do punktu). Jeśli potrzebujesz szczegółowych wyjaśnień, jak „rysować” za pomocą JavaScriptu, to rozpisałem się o tym w artykule o <Link href="/post/jak-narysowac-zegar-analogowy">rysowaniu zegara</Link>. Tutaj tylko w skrócie napiszę, że potrzebujemy mieć następujący tag:
+Rysowanie programistycznie zrobimy w przeglądarkowym JavaScripcie, wykorzystując element `<canvas>` (płótno) do rysowania. Jednak algorytmy, które tu pokażę, są uniwersalne dla wszelkich języków programowania, jedynie musiałbyś/musiałabyś znaleźć odpowiedniki funkcji do rysowania (a w zasadzie jednej — rysowania linii z punktu do punktu). Jeśli potrzebujesz szczegółowych wyjaśnień, jak „rysować” za pomocą JavaScriptu, to rozpisałem się o tym w artykule o [rysowaniu zegara](/post/jak-narysowac-zegar-analogowy). Tutaj tylko w skrócie napiszę, że potrzebujemy mieć następujący tag:
 
 ```html
 <canvas id="canvas" width="500" height="500">
@@ -74,7 +74,7 @@ Teraz możemy przejść do części algorytmicznej.
 
 ## Obliczanie pozycji wierzchołków
 
-Najprostszym sposobem na wyznaczenie pozycji wierzchołków wielokąta foremnego jest opisanie go na okręgu. Wtedy wystarczy okrąg o wybranym promieniu podzielić na $$n$$ równych łuków, gdzie $$n$$ to liczba wierzchołków. Punkty, w których łuki się zaczynają, będą naszymi wierzchołkami. Jednak oczywiście musimy wyznaczyć konkretne położenie punktu w przestrzeni, a nie tylko kąt na okręgu. Coś bardzo analogicznego robiliśmy przy <Link href="/post/jak-narysowac-zegar-analogowy">rysowaniu zegara</Link> do rysowania wskazówek czy oznaczenia godzin. Żebyś jednak nie musiał(a) się tam wracać, dam po prostu gotowy wzór:
+Najprostszym sposobem na wyznaczenie pozycji wierzchołków wielokąta foremnego jest opisanie go na okręgu. Wtedy wystarczy okrąg o wybranym promieniu podzielić na $$n$$ równych łuków, gdzie $$n$$ to liczba wierzchołków. Punkty, w których łuki się zaczynają, będą naszymi wierzchołkami. Jednak oczywiście musimy wyznaczyć konkretne położenie punktu w przestrzeni, a nie tylko kąt na okręgu. Coś bardzo analogicznego robiliśmy przy [rysowaniu zegara](/post/jak-narysowac-zegar-analogowy) do rysowania wskazówek czy oznaczenia godzin. Żebyś jednak nie musiał(a) się tam wracać, dam po prostu gotowy wzór:
 
 $$
 \begin{align*}
@@ -329,7 +329,7 @@ Możesz go sprawdzić zarówno na [CodePen](https://codepen.io/tswistak/pen/ZYzz
 
 Tak oto doszliśmy do końca. Jak widać, rysowanie gwiazdy nie jest trudnym algorytmicznie zadaniem, ale było nieco podchwytliwe, szczególnie w przypadku obsługi dowolnych wartości $$x$$. Natomiast rysowanie klasycznych gwiazd w postaci figur zamkniętych jest jeszcze prostszym zadaniem i ograniczyło się tylko do odpowiedniego wyznaczenia wierzchołków.
 
-Jeśli chciałbyś/chciałabyś porysować algorytmicznie nieco więcej, a nie czytałeś(-aś) wcześniej mojego bloga, to podobnie rysowaliśmy <Link href="/post/jak-narysowac-zegar-analogowy">zegar</Link>, <Link href="/post/zegar-binarny">zegar binarny</Link> i <Link href="/post/jak-narysowac-spirale">spirale</Link>. Do tego eksplorowaliśmy też od strony matematycznej tematy <Link href="/post/algorytmiczne-rysowanie-roslin">rysowania roślin</Link> (również <Link href="/post/algorytmiczne-rysowanie-roslin-w-3d">w 3D</Link>), <Link href="/post/gradienty">gradientów</Link> i <Link href="/post/krzywe-beziera">krzywych Béziera</Link>.
+Jeśli chciałbyś/chciałabyś porysować algorytmicznie nieco więcej, a nie czytałeś(-aś) wcześniej mojego bloga, to podobnie rysowaliśmy [zegar](/post/jak-narysowac-zegar-analogowy), [zegar binarny](/post/zegar-binarny) i [spirale](/post/jak-narysowac-spirale). Do tego eksplorowaliśmy też od strony matematycznej tematy [rysowania roślin](/post/algorytmiczne-rysowanie-roslin) (również [w 3D](/post/algorytmiczne-rysowanie-roslin-w-3d)), [gradientów](/post/gradienty) i [krzywych Béziera](/post/krzywe-beziera).
 
 ## Literatura
 

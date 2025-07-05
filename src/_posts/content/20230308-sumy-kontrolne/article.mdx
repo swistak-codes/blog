@@ -101,7 +101,7 @@ Kolejnym powszechnym w Polsce numerem jest numer identyfikacji podatkowej, czyli
 
 1. Przydzielamy kolejnym cyfrom numeru wagi: 6, 5, 7, 2, 3, 4, 5, 6, 7.
 2. Mnożymy każdą cyfrę przez przydzieloną jej wagę i sumujemy iloczyny.
-3. Cyfrę kontrolną obliczamy jako <Link href="/post/dziwny-przypadek-reszty-z-dzielenia">resztę z dzielenia</Link> powyższej sumy przez 11 (modulo 11).
+3. Cyfrę kontrolną obliczamy jako [resztę z dzielenia](/post/dziwny-przypadek-reszty-z-dzielenia) powyższej sumy przez 11 (modulo 11).
 
 Warto zwrócić uwagę, że operacja modulo 11 może zwrócić wynik 10. W tym przypadku jednak nie bierzemy ostatniej cyfry (jak w przypadku PESEL), ponieważ numery dające taki wynik nie są nadawane.
 
@@ -337,7 +337,7 @@ Jeśli jesteś ciekaw(a), jak one wyglądają oraz jak je zaimplementować, zach
 
 ## Sumy kontrolne danych cyfrowych
 
-Poznaliśmy temat cyfr kontrolnych, ale teraz możesz się zastanawiać — jak to przełożyć na dowolne dane, które obsługuje komputer? Przecież na samym początku artykułu wspomniałem, że za pomocą tego sposobu sprawdza się chociażby, czy plik pobrany z Internetu dotarł do nas w całości. Zapoznajmy się z podstawowymi podejściami do obliczania sum kontrolnych dla <Link href="/post/matematyka-zero-jedynkowa">danych binarnych</Link>.
+Poznaliśmy temat cyfr kontrolnych, ale teraz możesz się zastanawiać — jak to przełożyć na dowolne dane, które obsługuje komputer? Przecież na samym początku artykułu wspomniałem, że za pomocą tego sposobu sprawdza się chociażby, czy plik pobrany z Internetu dotarł do nas w całości. Zapoznajmy się z podstawowymi podejściami do obliczania sum kontrolnych dla [danych binarnych](/post/matematyka-zero-jedynkowa).
 
 ### Bit parzystości
 
@@ -371,7 +371,7 @@ Metoda obliczania bitu parzystości jest stosowana na niskim poziomie, gdzie rac
 
 ##### Dzielenie na pół
 
-Pierwsze podejście może nasunąć skojarzenie z <Link href="/post/sortowanie-cz-5-dziel-i-zwyciezaj">sortowaniem przez scalanie</Link>, gdzie rekurencyjnie dzielimy kolejne dane na pół. Tutaj robimy coś podobnego, ale wykonując po drodze obliczenia, aby ostatecznie otrzymać jeden bit. Wygląda to następująco:
+Pierwsze podejście może nasunąć skojarzenie z [sortowaniem przez scalanie](/post/sortowanie-cz-5-dziel-i-zwyciezaj), gdzie rekurencyjnie dzielimy kolejne dane na pół. Tutaj robimy coś podobnego, ale wykonując po drodze obliczenia, aby ostatecznie otrzymać jeden bit. Wygląda to następująco:
 
 1. Dzielimy liczbę na dwie równe części.
 2. Obliczamy XOR (alternatywę rozłączną) obu liczb.

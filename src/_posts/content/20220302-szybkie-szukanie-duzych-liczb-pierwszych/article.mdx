@@ -42,13 +42,13 @@ Jeśli jesteś zainteresowany(-a), to kod źródłowy do tego artykułu, jak i d
 
 ## Test Millera-Rabina
 
-W artykule, w którym omawiałem <Link href="/post/duze-liczby-pierwsze">matematyczne zagadnienia związane z dużymi liczbami pierwszymi</Link>, wspomniałem o teście pseudopierwszości Millera-Rabina. Test ten został opracowany przez dwóch naukowców. Najpierw w 1976 r. G. L. Miller opracował deterministyczny test pierwszości działający w czasie wielomianowym, bazujący na rozszerzonej hipotezie Riemanna. W 1980 r. M. O. Rabin zaproponował modyfikację tego testu, przerabiając go na algorytm probabilistyczny. W taki oto sposób otrzymaliśmy test znany dziś jako test Millera-Rabina, będący jednym z najprostszych i najszybszych testów pseudopierwszości, jednocześnie dającym zadowalające wyniki.
+W artykule, w którym omawiałem [matematyczne zagadnienia związane z dużymi liczbami pierwszymi](/post/duze-liczby-pierwsze), wspomniałem o teście pseudopierwszości Millera-Rabina. Test ten został opracowany przez dwóch naukowców. Najpierw w 1976 r. G. L. Miller opracował deterministyczny test pierwszości działający w czasie wielomianowym, bazujący na rozszerzonej hipotezie Riemanna. W 1980 r. M. O. Rabin zaproponował modyfikację tego testu, przerabiając go na algorytm probabilistyczny. W taki oto sposób otrzymaliśmy test znany dziś jako test Millera-Rabina, będący jednym z najprostszych i najszybszych testów pseudopierwszości, jednocześnie dającym zadowalające wyniki.
 
 Opowiedzmy sobie trochę o podstawach działania tego testu, a następnie, jak tę matematyczną teorię przekuć w algorytm.
 
 ### Probabilistyczny? Pseudopierwszości?
 
-Zacznijmy od tego, dlaczego jest to algorytm probabilistyczny i jest testem pseudopierwszości. Generalnie rzecz ujmując, liczby pseudopierwsze to takie liczby pierwsze, które spełniają pewne własności liczb pierwszych, ale liczbami pierwszymi nie są, np. spełniają warunki małego twierdzenia Fermata. Więcej opowiedziałem o tym <Link href="/post/duze-liczby-pierwsze">w poprzednim artykule</Link>.
+Zacznijmy od tego, dlaczego jest to algorytm probabilistyczny i jest testem pseudopierwszości. Generalnie rzecz ujmując, liczby pseudopierwsze to takie liczby pierwsze, które spełniają pewne własności liczb pierwszych, ale liczbami pierwszymi nie są, np. spełniają warunki małego twierdzenia Fermata. Więcej opowiedziałem o tym [w poprzednim artykule](/post/duze-liczby-pierwsze).
 
 Co warto wiedzieć, test pseudopierwszości nie potrafi ze 100% pewnością ocenić, że liczba jest pierwsza, jednak nie działa to zupełnie losowo. Warunek, który musi zostać spełniony, potrafi odrzucić bardzo dużo liczb i ostatecznie niewiele więcej liczb poza pierwszymi go spełnia.
 
@@ -109,7 +109,7 @@ a^{2^r\cdot d} \mod{n} &= n - 1
 \end{align*}
 $$
 
-Drugie równanie wynika z <Link href="/post/dziwny-przypadek-reszty-z-dzielenia">definicji reszty z dzielenia</Link>, według której $$-1 \mod{n} = n-1$$. Warto o tym pamiętać, ponieważ jak opowiadam w zalinkowanym artykule, języki programowania potrafią zwracać ujemne wartości dla operacji modulo, podczas gdy zgodnie z definicją powinny one być zawsze dodatnie.
+Drugie równanie wynika z [definicji reszty z dzielenia](/post/dziwny-przypadek-reszty-z-dzielenia), według której $$-1 \mod{n} = n-1$$. Warto o tym pamiętać, ponieważ jak opowiadam w zalinkowanym artykule, języki programowania potrafią zwracać ujemne wartości dla operacji modulo, podczas gdy zgodnie z definicją powinny one być zawsze dodatnie.
 
 ### Przykład działania
 
@@ -155,7 +155,7 @@ $$
 b^e = b^{\left(\sum _{i=0}^{n-1}a_{i}2^{i}\right)}=\prod _{i=0}^{n-1}b^{a_{i}2^{i}}
 $$
 
-Idea za rozbiciem wykładnika na sumę jest prosta — zamieniamy go na liczbę binarną i przenosząc z powrotem na dziesiętną, otrzymujemy taką oto sumę. A skoro sumujemy wykładnik, możemy całą potęgę zapisać jako iloczyn wielu liczb. Do tego potęgi liczby 2 mają pewną własność w systemie binarnym — możemy stosować przesunięcia binarne do mnożenia i dzielenia przez nie, o czym więcej piszę w artykule <Link href="/post/matematyka-zero-jedynkowa">poświęconym matematyce zero-jedynkowej</Link>. Znacznie przyspiesza to operacje na liczbach.
+Idea za rozbiciem wykładnika na sumę jest prosta — zamieniamy go na liczbę binarną i przenosząc z powrotem na dziesiętną, otrzymujemy taką oto sumę. A skoro sumujemy wykładnik, możemy całą potęgę zapisać jako iloczyn wielu liczb. Do tego potęgi liczby 2 mają pewną własność w systemie binarnym — możemy stosować przesunięcia binarne do mnożenia i dzielenia przez nie, o czym więcej piszę w artykule [poświęconym matematyce zero-jedynkowej](/post/matematyka-zero-jedynkowa). Znacznie przyspiesza to operacje na liczbach.
 
 Następnie wartość $$c$$, czyli wynik potęgowania modularnego, możemy uzyskać poniższym wzorem:
 
@@ -388,7 +388,7 @@ Według *Wprowadzenia do algorytmów* można spokojnie przyjąć, że 50 powtór
 
 W dwóch pierwszych artykułach poznaliśmy niezawodne, aczkolwiek też nie najszybsze sposoby na testowanie pierwszości oraz generowanie liczb pierwszych. Zapewniają nam nieomylność, jednak wymagają za dużo obliczeń lub zbyt wiele pamięci, aby być wykorzystywane w praktyce, gdzie potrzebujemy szybko i niskim kosztem znaleźć duże liczby pierwsze. Dzięki matematycznym sztuczkom poruszonym w poprzednim artykule dowiedzieliśmy się, że są pewne wspólne własności dla liczb pierwszych, które można z powodzeniem wykorzystać do zmniejszenia liczby obliczeń przy testach. Tutaj przełożyliśmy to na algorytmiczną praktykę.
 
-Jednak możesz zadać pytanie — czy metody probabilistyczne, gdzie nie jesteśmy w 100% pewni rozwiązania, są na pewno dobre? Otóż w większości zastosowań tak. Przypomnij sobie tylko moje wcześniejsze wpisy: <Link href="/post/obliczanie-calek-oznaczonych">o całkach oznaczonych</Link> oraz <Link href="/post/sztuczna-inteligencja-a-co-to-a-komu-to-potrzebne">o sztucznej inteligencji</Link> (dokładniej: akapit o rozwiązywaniu problemów). Zaznaczyłem tam, że w wielu zastosowaniach wystarczy nam przybliżone rozwiązanie problemu, a nie jego dokładny wynik. To samo jest tutaj. Jeśli zależy nam na szybkości, możemy zaryzykować, że wygenerujemy liczbę, która będzie złożona (aczkolwiek będzie silną pseudopierwszą). Z racji tego, jak test Millera-Rabina działa, będzie to mieć zdecydowanie lepszy rezultat, z większą szansą bycia liczbą pierwszą, niż pierwsza lepsza, całkowicie losowa liczba.
+Jednak możesz zadać pytanie — czy metody probabilistyczne, gdzie nie jesteśmy w 100% pewni rozwiązania, są na pewno dobre? Otóż w większości zastosowań tak. Przypomnij sobie tylko moje wcześniejsze wpisy: [o całkach oznaczonych](/post/obliczanie-calek-oznaczonych) oraz [o sztucznej inteligencji](/post/sztuczna-inteligencja-a-co-to-a-komu-to-potrzebne) (dokładniej: akapit o rozwiązywaniu problemów). Zaznaczyłem tam, że w wielu zastosowaniach wystarczy nam przybliżone rozwiązanie problemu, a nie jego dokładny wynik. To samo jest tutaj. Jeśli zależy nam na szybkości, możemy zaryzykować, że wygenerujemy liczbę, która będzie złożona (aczkolwiek będzie silną pseudopierwszą). Z racji tego, jak test Millera-Rabina działa, będzie to mieć zdecydowanie lepszy rezultat, z większą szansą bycia liczbą pierwszą, niż pierwsza lepsza, całkowicie losowa liczba.
 
 ## Literatura
 

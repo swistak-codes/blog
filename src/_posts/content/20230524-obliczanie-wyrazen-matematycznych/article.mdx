@@ -30,7 +30,7 @@ export const meta = {
 
 ## Uwaga wstępna
 
-Artykuł jest bezpośrednią kontynuacją mojego poprzedniego wpisu *<Link href="/post/odwrotna-notacja-polska">Odwrotna notacja polska</Link>*. Jeśli go nie czytałeś(-aś), polecam jego lekturę, bo nie będę powtarzać pokazanych tam pojęć i opisów.
+Artykuł jest bezpośrednią kontynuacją mojego poprzedniego wpisu *[Odwrotna notacja polska](/post/odwrotna-notacja-polska)*. Jeśli go nie czytałeś(-aś), polecam jego lekturę, bo nie będę powtarzać pokazanych tam pojęć i opisów.
 
 Jednak jeśli nie są Ci obce takie pojęcia jak notacja infiksowa, notacja polska i odwrotna notacja polska, a także znasz algorytm obliczania wyrażeń zapisanych w ONP, możesz spokojnie czytać dalej ten artykuł.
 
@@ -44,7 +44,7 @@ Wykorzystajmy to. Tylko jak? Najprościej: zamieniając postać infiksową na po
 
 ## Algorytm stacji rozrządowej
 
-Najpopularniejszym i najprostszym podejściem na konwersję z postaci infiksowej na postfiksową jest algorytm stacji rozrządowej (po ang. shunting yard algorithm). Został opublikowany w 1961 r. przez słynnego E. Dijkstrę, którego możesz kojarzyć choćby z najbardziej znanego <Link href="/post/szukanie-najkrotszych-sciezek-w-grafie">algorytmu szukania najkrótszych ścieżek</Link> nazwanego jego nazwiskiem.
+Najpopularniejszym i najprostszym podejściem na konwersję z postaci infiksowej na postfiksową jest algorytm stacji rozrządowej (po ang. shunting yard algorithm). Został opublikowany w 1961 r. przez słynnego E. Dijkstrę, którego możesz kojarzyć choćby z najbardziej znanego [algorytmu szukania najkrótszych ścieżek](/post/szukanie-najkrotszych-sciezek-w-grafie) nazwanego jego nazwiskiem.
 
 Algorytm, jak zobaczysz dalej, bardzo przypomina w swojej budowie obliczenie wyrażeń zapisanych w ONP. Tutaj również będziemy odczytywać równanie od lewej do prawej i wykonywać operacje w zależności od tego, czy mamy do czynienia z operatorem, czy liczbą. Do tego znowu będziemy posiłkować się stosem w celu otrzymania wyniku.
 
@@ -172,7 +172,7 @@ Kod możesz przetestować na [Replit](https://replit.com/@tswistak/infix-to-rpn#
 
 ## Łączymy algorytmy w jeden
 
-Napisany przed chwilą kod pozwoli nam przekonwertować notację infiksową do postfiksowej (ONP). Natomiast w poprzednim artykule pokazałem <Link href="/post/odwrotna-notacja-polska/#implementacja-onp-w-kodzie">kod umożliwiający obliczenie wartości wyrażeń</Link> zapisanych w ten sposób.
+Napisany przed chwilą kod pozwoli nam przekonwertować notację infiksową do postfiksowej (ONP). Natomiast w poprzednim artykule pokazałem [kod umożliwiający obliczenie wartości wyrażeń](/post/odwrotna-notacja-polska/#implementacja-onp-w-kodzie) zapisanych w ten sposób.
 
 Całości kodu po połączeniu obu algorytmów nie będę tutaj wklejać, ale możesz go znaleźć [na Replit](https://replit.com/@tswistak/infix-solver#index.js).
 

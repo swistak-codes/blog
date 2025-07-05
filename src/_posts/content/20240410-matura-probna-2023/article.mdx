@@ -49,7 +49,7 @@ Zdaję sobie sprawę, że Python ma dość charakterystyczną składnię, znaczn
 
 - W Pythonie nie mamy bloków ograniczonych przez `{` i `}`. Zamiast tego blok otwierany jest dwukropkiem (`:`), a następnie cała zawartość bloku jest wyznaczana wcięciem. Do codziennej pracy w PyCharm polecam wtyczkę [Indent Rainbow](https://plugins.jetbrains.com/plugin/13308-indent-rainbow), która koloruje wcięcia.
 - Na końcu linii nie stawiamy średnika.
-- Python nie ma typowej <Link href="/post/iteracja-co-to-jest/#for-jako-pętla-z-licznikiem">pętli for z licznikiem</Link>. W języku tym `for` iteruje po kolekcji, dlatego generujemy listę kolejnych liczb za pomocą funkcji `range()`. Poniżej znajdziesz parę przykładowych odpowiedników pętli z Javy/C++ w Pythonie:
+- Python nie ma typowej [pętli for z licznikiem](/post/iteracja-co-to-jest/#for-jako-pętla-z-licznikiem). W języku tym `for` iteruje po kolekcji, dlatego generujemy listę kolejnych liczb za pomocą funkcji `range()`. Poniżej znajdziesz parę przykładowych odpowiedników pętli z Javy/C++ w Pythonie:
   - `for (int i = 0; i < N; i++)` → `for i in range(N)`
   - `for (int i = a; i < N; i++)` → `for i in range(a, N)`
   - `for (int i = N; i >= 0; i--)` → `for i in reversed(range(N + 1))`
@@ -240,7 +240,7 @@ Ogólny pomysł na rozwiązanie jest taki, że dla każdej planszy:
 
 Najprostsze co mamy do zrobienia, to znaleźć wszystkie pozycje, na których znajduje się wskazany znak. Tak jak pisałem wcześniej, dzięki temu uprościmy sobie dalsze zadanie sprawdzania stanu gry.
 
-Algorytm to najzwyklejsze <Link href="/post/wyszukiwanie-w-listach">wyszukiwanie liniowe</Link> po dwuwymiarowej tablicy ze spisywaniem współrzędnych do tablicy za każdym razem, gdy trafimy na szukany znak. Kod jest następujący:
+Algorytm to najzwyklejsze [wyszukiwanie liniowe](/post/wyszukiwanie-w-listach) po dwuwymiarowej tablicy ze spisywaniem współrzędnych do tablicy za każdym razem, gdy trafimy na szukany znak. Kod jest następujący:
 
 ```python
 # funkcja pomocnicza do zadania 1.3
@@ -511,9 +511,9 @@ Jeśli masz inne rozwiązanie, możesz w komentarzu podzielić się, w jaki spos
 
 Wstępnie zaznaczę, że tematy związane z potęgowaniem modulo poruszałem już na blogu w artykułach:
 
-- *<Link href="/post/dziwny-przypadek-reszty-z-dzielenia">Dziwny przypadek reszty z dzielenia</Link>* — obliczanie samego modulo (reszty z dzielenia)
-- *<Link href="/post/szybkie-potegowanie">Podstawy algorytmiki: szybkie potęgowanie</Link>* — algorytmiczne podejścia do potęgowania
-- *<Link href="/post/szybkie-szukanie-duzych-liczb-pierwszych/#potęgowanie-modularne">Szybkie szukanie dużych liczb pierwszych</Link>* — algorytm obliczania potęgi modulo
+- *[Dziwny przypadek reszty z dzielenia](/post/dziwny-przypadek-reszty-z-dzielenia)* — obliczanie samego modulo (reszty z dzielenia)
+- *[Podstawy algorytmiki: szybkie potęgowanie](/post/szybkie-potegowanie)* — algorytmiczne podejścia do potęgowania
+- *[Szybkie szukanie dużych liczb pierwszych](/post/szybkie-szukanie-duzych-liczb-pierwszych/#potęgowanie-modularne)* — algorytm obliczania potęgi modulo
 
 ### Zadania teoretyczne
 
@@ -582,7 +582,7 @@ def pow_mod(a, x, M):
 
 Dla osób niepythonowych: `//` to operator dzielenia całkowitoliczbowego.
 
-Po dodatkowe wyjaśnienia, co tu się dzieje, zapraszam jeszcze raz do *<Link href="/post/szybkie-potegowanie">artykułu o szybkim potęgowaniu</Link>*.
+Po dodatkowe wyjaśnienia, co tu się dzieje, zapraszam jeszcze raz do *[artykułu o szybkim potęgowaniu](/post/szybkie-potegowanie)*.
 
 ### Zadania praktyczne
 
@@ -631,7 +631,7 @@ Rozwiązanie zadania w całości znajdziesz na [Replit](https://replit.com/@tswi
 
 #### Zadanie 3.3
 
-W tym miejscu absolutnie nie ma co się wysilać na napisanie jakiegoś wydajnego algorytmu na sprawdzanie pierwszości liczb. W zupełności wystarczy tak zwana metoda naiwna, którą opisałem w artykule *<Link href="/post/liczby-pierwsze-i-proste-sposoby-na-ich-sprawdzanie">Liczby pierwsze i proste sposoby na ich sprawdzanie</Link>*. W skrócie: polega na sprawdzeniu wszystkich liczb naturalnych z przedziału $$(2, \sqrt{n}]$$, gdzie $$n$$ to liczba, której pierwszość sprawdzamy. Jeśli liczba nie była podzielna przez żadną z liczb, oznacza to, że jest pierwsza.
+W tym miejscu absolutnie nie ma co się wysilać na napisanie jakiegoś wydajnego algorytmu na sprawdzanie pierwszości liczb. W zupełności wystarczy tak zwana metoda naiwna, którą opisałem w artykule *[Liczby pierwsze i proste sposoby na ich sprawdzanie](/post/liczby-pierwsze-i-proste-sposoby-na-ich-sprawdzanie)*. W skrócie: polega na sprawdzeniu wszystkich liczb naturalnych z przedziału $$(2, \sqrt{n}]$$, gdzie $$n$$ to liczba, której pierwszość sprawdzamy. Jeśli liczba nie była podzielna przez żadną z liczb, oznacza to, że jest pierwsza.
 
 Kod rozwiązanego zadania wygląda następująco:
 
@@ -665,7 +665,7 @@ Kod możesz sprawdzić na [Replit](https://replit.com/@tswistak/mp2023-zadanie3#
 
 #### Zadanie 3.4
 
-W tym zadaniu musimy przypomnieć sobie jeszcze inny algorytm — algorytm obliczania największego wspólnego dzielnika. Jest kilka metod na to, co opisałem w artykule *<Link href="/post/najwiekszy-wspolny-dzielnik">Podstawy algorytmiki: największy wspólny dzielnik</Link>*. Ja wykorzystam w kodzie algorytm Euklidesa w wersji modulo.
+W tym zadaniu musimy przypomnieć sobie jeszcze inny algorytm — algorytm obliczania największego wspólnego dzielnika. Jest kilka metod na to, co opisałem w artykule *[Podstawy algorytmiki: największy wspólny dzielnik](/post/najwiekszy-wspolny-dzielnik)*. Ja wykorzystam w kodzie algorytm Euklidesa w wersji modulo.
 
 Całe rozwiązanie wygląda następująco:
 
@@ -787,12 +787,12 @@ Swoją drogą, tutaj też karta odpowiedzi ma błędy, a dokładniej literówki 
 - Nie należy przechowywać w bazie danych sklepu w żadnej formie: dane karty kredytowej
   - Ze względu na prawne zawiłości, które są związane z przechowywaniem takich danych, nie róbmy tego. Najlepiej przekazać odpowiedzialność za wszystko, co związane z płatnościami, firmom trzecim, które specjalizują się w obsłudze płatności internetowych.
 - Należy zapisać jedynie skrót (hash) danych, a nie całą oryginalną treść: hasło
-  - Przechowywanie pełnego hasła w bazie (czy jako tekst jawny, czy w formie zaszyfrowanej) jest niebezpiecznie, a nigdy nie potrzebujemy mieć go w całości. Wystarczy jedynie <Link href="/post/sumy-kontrolne/#funkcje-skrótu">hash</Link>, aby porównywać go z hasłem podanym przez użytkownika przy logowaniu. Warto wiedzieć, że nie wszystkie funkcje haszujące są bezpieczne, więc warto trochę bardziej zgłębić temat, zanim zabierzemy się za programowanie tego.
+  - Przechowywanie pełnego hasła w bazie (czy jako tekst jawny, czy w formie zaszyfrowanej) jest niebezpiecznie, a nigdy nie potrzebujemy mieć go w całości. Wystarczy jedynie [hash](/post/sumy-kontrolne/#funkcje-skrótu), aby porównywać go z hasłem podanym przez użytkownika przy logowaniu. Warto wiedzieć, że nie wszystkie funkcje haszujące są bezpieczne, więc warto trochę bardziej zgłębić temat, zanim zabierzemy się za programowanie tego.
 
 ## Słowo na koniec
 
 Tak oto doszliśmy do końca zadań z próbnej matury z informatyki z 2023 roku. Mam nadzieję, że dostałbym za to maks punktów, ale jeśli widzisz jakiś błąd lub że zrobiłem coś niezgodnie z kluczem, daj mi znać w komentarzu.
 
-Jeśli pierwszy raz jesteś na moim blogu, zachęcam Cię do przejrzenia artykułów, które pisałem. Z racji tego, że w większości przypadków poruszają tematy z podstaw programowania, algorytmiki i ogólnie informatyki, wiedza z nich może się przydać na maturze. A nawet jeśli poruszają jakiś mniej potrzebny temat, to zwykle przemycam tam nieco przydatnej, bardziej podstawowej wiedzy teoretycznej. Listę wszystkich artykułów znajdziesz tutaj: <Link href="/spis-artykulow">{'https://swistak.codes/spis-artykulow/'}</Link>.
+Jeśli pierwszy raz jesteś na moim blogu, zachęcam Cię do przejrzenia artykułów, które pisałem. Z racji tego, że w większości przypadków poruszają tematy z podstaw programowania, algorytmiki i ogólnie informatyki, wiedza z nich może się przydać na maturze. A nawet jeśli poruszają jakiś mniej potrzebny temat, to zwykle przemycam tam nieco przydatnej, bardziej podstawowej wiedzy teoretycznej. Listę wszystkich artykułów znajdziesz tutaj: [https://swistak.codes/spis-artykulow/](/spis-artykulow).
 
 <small>Zdjęcie na okładce wygenerowane przez DALL-E.</small>

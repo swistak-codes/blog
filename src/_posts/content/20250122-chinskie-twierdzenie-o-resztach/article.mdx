@@ -61,7 +61,7 @@ $$
 
 Ponadto, jeśli $$n_1$$ i $$n_2$$ są dwiema liczbami całkowitymi spełniającymi ten układ równań, to $$n_1 \equiv n_2 \pmod{m_1 \cdot m_2 \cdot \ldots \cdot m_k}$$.
 
-Jeśli nie rozumiesz powyższego zapisu z $$\equiv$$ i modulo (czyli arytmetyki modularnej), to omawiałem go w artykule o <Link href="/post/szybkie-szukanie-duzych-liczb-pierwszych/#arytmetyka-modularna">szybkim szukaniu dużych liczb pierwszych</Link>. Warto nadrobić ten krótki opis, który tam zamieściłem, aby lepiej rozumieć, co dzieje się w tym artykule.
+Jeśli nie rozumiesz powyższego zapisu z $$\equiv$$ i modulo (czyli arytmetyki modularnej), to omawiałem go w artykule o [szybkim szukaniu dużych liczb pierwszych](/post/szybkie-szukanie-duzych-liczb-pierwszych/#arytmetyka-modularna). Warto nadrobić ten krótki opis, który tam zamieściłem, aby lepiej rozumieć, co dzieje się w tym artykule.
 
 ### Sposób rozwiązywania
 
@@ -237,7 +237,7 @@ Przejdźmy teraz do praktycznej części, czyli do zaimplementowania tego w kodz
 
 #### Rozszerzony algorytm Euklidesa
 
-Rozszerzony algorytm Euklidesa, co sama nazwa wskazuje, to modyfikacja dobrze znanego wszystkim algorytmu Euklidesa do obliczania największego wspólnego dzielnika dwóch liczb. Jeśli nie znasz oryginalnej wersji, koniecznie poczytaj o niej, np. w moim artykule *<Link href="/post/najwiekszy-wspolny-dzielnik">Podstawy algorytmiki: największy wspólny dzielnik</Link>*.
+Rozszerzony algorytm Euklidesa, co sama nazwa wskazuje, to modyfikacja dobrze znanego wszystkim algorytmu Euklidesa do obliczania największego wspólnego dzielnika dwóch liczb. Jeśli nie znasz oryginalnej wersji, koniecznie poczytaj o niej, np. w moim artykule *[Podstawy algorytmiki: największy wspólny dzielnik](/post/najwiekszy-wspolny-dzielnik)*.
 
 Rozszerzony algorytm Euklidesa oprócz znalezienia największego wspólnego dzielnika dwóch liczb pozwala też równocześnie znaleźć rozwiązanie równania diofantycznego liniowego, które wygląda następująco:
 
@@ -314,7 +314,7 @@ function modularInverse(a, m) {
 }
 ```
 
-Zastanawiająco może wyglądać zakończenie — po co wykonujemy podwójnie operację modulo? Otóż wynika to z faktu, że wiele języków programowania (w tym JavaScript) nie oblicza reszty z dzielenia zgodnie z matematyczną definicją, co oznacza, że wynik może być ujemny. Dlatego wykonujemy dodatkową operację modulo, aby wynik był zawsze dodatni. Więcej szczegółów na ten temat znajdziesz w moim artykule *<Link href="/post/dziwny-przypadek-reszty-z-dzielenia">Dziwny przypadek reszty z dzielenia</Link>*.
+Zastanawiająco może wyglądać zakończenie — po co wykonujemy podwójnie operację modulo? Otóż wynika to z faktu, że wiele języków programowania (w tym JavaScript) nie oblicza reszty z dzielenia zgodnie z matematyczną definicją, co oznacza, że wynik może być ujemny. Dlatego wykonujemy dodatkową operację modulo, aby wynik był zawsze dodatni. Więcej szczegółów na ten temat znajdziesz w moim artykule *[Dziwny przypadek reszty z dzielenia](/post/dziwny-przypadek-reszty-z-dzielenia)*.
 
 #### Obliczenie wyniku z chińskiego twierdzenia o resztach
 

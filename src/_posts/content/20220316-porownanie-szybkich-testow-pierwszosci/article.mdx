@@ -47,13 +47,13 @@ W ramach artykułu wziąłem pod lupę następujące testy pierwszości. Opiszę
 
 ### Test Fermata
 
-Jest to test opierający się na małym twierdzeniu Fermata, a algorytm opisałem w artykule *<Link href="/post/duze-liczby-pierwsze">Duże liczby pierwsze</Link>*. Kod źródłowy znajdziesz tutaj: [https://github.com/swistak-codes/prime-numbers/blob/main/tests/fermat.js](https://github.com/swistak-codes/prime-numbers/blob/main/tests/fermat.js).
+Jest to test opierający się na małym twierdzeniu Fermata, a algorytm opisałem w artykule *[Duże liczby pierwsze](/post/duze-liczby-pierwsze)*. Kod źródłowy znajdziesz tutaj: [https://github.com/swistak-codes/prime-numbers/blob/main/tests/fermat.js](https://github.com/swistak-codes/prime-numbers/blob/main/tests/fermat.js).
 
 Z racji tego, że skuteczność testu zależy od liczby powtórzeń, wykonałem go wielokrotnie z: 1, 5, 10 i 100 powtórzeniami.
 
 ### Test Millera-Rabina
 
-Test ten bazuje na nieco zmodyfikowanym podejściu do małego twierdzenia Fermata i poświęciłem mu <Link href="/post/szybkie-szukanie-duzych-liczb-pierwszych">cały artykuł</Link> z pełnym wytłumaczeniem działania, do którego serdecznie zapraszam. Kod źródłowy znajdziesz tutaj: [https://github.com/swistak-codes/prime-numbers/blob/main/tests/miller-rabin.js](https://github.com/swistak-codes/prime-numbers/blob/main/tests/miller-rabin.js).
+Test ten bazuje na nieco zmodyfikowanym podejściu do małego twierdzenia Fermata i poświęciłem mu [cały artykuł](/post/szybkie-szukanie-duzych-liczb-pierwszych) z pełnym wytłumaczeniem działania, do którego serdecznie zapraszam. Kod źródłowy znajdziesz tutaj: [https://github.com/swistak-codes/prime-numbers/blob/main/tests/miller-rabin.js](https://github.com/swistak-codes/prime-numbers/blob/main/tests/miller-rabin.js).
 
 Podobnie jak w przypadku testu Fermata, tutaj skuteczność również jest zależna od liczby powtórzeń i także wykonuję go z: 1, 5, 10 i 100 powtórzeniami.
 
@@ -198,6 +198,6 @@ Wyraźnie widać, że im więcej powtórzeń, tym bardziej wiarygodny jest test.
 
 Na sam koniec artykułu mogę w zasadzie powtórzyć to, co pisałem we wnioskach do każdego z badań. Szybkie testy pierwszości są faktycznie szybkie, wzrost czasu wykonywania dla małych liczb jest niemal niezauważalny w przeciwieństwie do tradycyjnej metody naiwnej. Warto jednak pamiętać o tym, że są to testy probabilistyczne — bazują na losowych liczbach i wynikiem jest stwierdzenie prawdopodobnej pierwszości. Jak mogliśmy zaobserwować, im więcej powtórzeń wykonujemy, tym otrzymujemy celniejsze wyniki, aczkolwiek pamiętajmy, że błędy mogą się zdarzyć — na szczęście bardzo rzadko, prawdopodobieństwo błędu zmierzone doświadczalnie nigdy nie przekroczyło nawet 0,1%.
 
-Tym samym doszliśmy już do planowanego końca mojej serii artykułów na temat liczb pierwszych. Powtórzę się ponownie — jest to w dzisiejszych czasach bardzo ważne pojęcie matematyczne mające związek z informatyką i myślę, że warto wiedzieć, że temat ten jest dużo szerszy niż szkolna definicja liczby pierwszej. Jeżeli jednak jeszcze nie miałeś(-aś) okazji przeczytać pozostałych części, które były bardziej opisowe, a mniej badawcze, to zapraszam do nadrobienia zaległości. Całą serię znajdziesz <Link href="/post/liczby-pierwsze-i-proste-sposoby-na-ich-sprawdzanie">tutaj</Link>.
+Tym samym doszliśmy już do planowanego końca mojej serii artykułów na temat liczb pierwszych. Powtórzę się ponownie — jest to w dzisiejszych czasach bardzo ważne pojęcie matematyczne mające związek z informatyką i myślę, że warto wiedzieć, że temat ten jest dużo szerszy niż szkolna definicja liczby pierwszej. Jeżeli jednak jeszcze nie miałeś(-aś) okazji przeczytać pozostałych części, które były bardziej opisowe, a mniej badawcze, to zapraszam do nadrobienia zaległości. Całą serię znajdziesz [tutaj](/post/liczby-pierwsze-i-proste-sposoby-na-ich-sprawdzanie).
 
 <small>(zdjęcie na okładce: [PaleoNeolitic](https://commons.wikimedia.org/wiki/File:Therizinosaurus_size.png), CC0, via Wikimedia Commons)</small>

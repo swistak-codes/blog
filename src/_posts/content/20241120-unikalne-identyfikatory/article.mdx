@@ -60,7 +60,7 @@ Zacznijmy przegląd unikalnych identyfikatorów od UUID (Universally Unique Iden
 
 O ile UUID powstały jeszcze w latach 80., to jako niezależny byt zostały ustandaryzowane dopiero w [RFC 4122](https://datatracker.ietf.org/doc/html/rfc4122) z 2005 roku. Najnowszy (w momencie pisania artykułu) standard opisujący UUID to [RFC 9562](https://datatracker.ietf.org/doc/html/rfc9562) z maja 2024.
 
-UUID zapisywane jest w pamięci komputera jako 128-bitowa liczba całkowita. Jednak dla lepszej czytelności prezentuje się je jako 32 cyfry w <Link href="/post/systemy-liczbowe-uzupelnienie/#system-szesnastkowy-heksadecymalny">systemie szesnastkowym</Link> podzielone na 5 grup rozdzielonych łącznikami. Z racji tego, że przez lata pojawiało się wiele różnych definicji jak tworzyć UUID, wyróżniono 16 dostępnych wariantów identyfikatorów. Nas będą interesować warianty określane cyframi 8, 9, A, B\*, czyli warianty zdefiniowane przez Open Software Foundation (OSF DCE). Przede wszystkim dlatego, że to one są najbardziej znane i zostały opisane w wyżej zalinkowanych RFC. Te zaś (stan na 2024 r.) dzielą się na 8 różnych wersji różniących się schematem tworzenia.
+UUID zapisywane jest w pamięci komputera jako 128-bitowa liczba całkowita. Jednak dla lepszej czytelności prezentuje się je jako 32 cyfry w [systemie szesnastkowym](/post/systemy-liczbowe-uzupelnienie/#system-szesnastkowy-heksadecymalny) podzielone na 5 grup rozdzielonych łącznikami. Z racji tego, że przez lata pojawiało się wiele różnych definicji jak tworzyć UUID, wyróżniono 16 dostępnych wariantów identyfikatorów. Nas będą interesować warianty określane cyframi 8, 9, A, B\*, czyli warianty zdefiniowane przez Open Software Foundation (OSF DCE). Przede wszystkim dlatego, że to one są najbardziej znane i zostały opisane w wyżej zalinkowanych RFC. Te zaś (stan na 2024 r.) dzielą się na 8 różnych wersji różniących się schematem tworzenia.
 
 <small style={{textAlign: 'left'}}>* Traktuje się to raczej jako jeden wariant, gdzie 4-bitowa liczba zaczyna się od bitów 1 i 0, a następne dwa są dowolne.</small>
 
@@ -177,7 +177,7 @@ O ile UUID w wersji 4 bardzo dobrze radzi sobie z generowaniem unikalnych identy
 
 Ostatecznie w standardzie RFC 9562 pojawiło się UUID w wersji 7, które łączy te dwie rzeczy — datę wygenerowania i losową liczbę. Zostało to zdefiniowane następująco:
 
-- Pierwsze 6 bajtów (48 bitów) zajmuje znacznik czasu zapisany jako liczba milisekund od 1 stycznia 1970 roku (<Link href="/post/jak-komputer-przechowuje-date-i-skad-zna-aktualna/#czas-uniksowy">czas uniksowy</Link>).
+- Pierwsze 6 bajtów (48 bitów) zajmuje znacznik czasu zapisany jako liczba milisekund od 1 stycznia 1970 roku ([czas uniksowy](/post/jak-komputer-przechowuje-date-i-skad-zna-aktualna/#czas-uniksowy)).
 - Na początku 7 bajtu ustawiamy pierwsze cztery bity na wartość 7 (`0111`), aby oznaczyć, że jest to UUID w wersji 7.
 - Na początku 9 bajtu ustawiamy pierwsze dwa bity na `10`, aby wskazać, że jest to wariant OSF DCE.
 - Pozostałe bity losujemy.
@@ -240,7 +240,7 @@ Wartości tych jest mniej, ale pamiętajmy, że aby doszło do kolizji, musielib
 
 Omówmy teraz dwie wersje jednocześnie, ponieważ różnią się tylko sposobem zapisu bitów. UUID w wersji 1 i 6 używane są do generowania identyfikatorów, które jednocześnie zawierają:
 
-- Czas utworzenia (60 bitów) jako liczba 100 nanosekundowych interwałów liczonych od 15 października 1582 (data wprowadzenia <Link href="/post/dlaczego-mierzenie-i-przetwarzanie-czasu-jest-trudne-czesc-1/#r%C3%B3%C5%BCne-kalendarze">kalendarza gregoriańskiego</Link>).
+- Czas utworzenia (60 bitów) jako liczba 100 nanosekundowych interwałów liczonych od 15 października 1582 (data wprowadzenia [kalendarza gregoriańskiego](/post/dlaczego-mierzenie-i-przetwarzanie-czasu-jest-trudne-czesc-1/#r%C3%B3%C5%BCne-kalendarze)).
 - Sekwencję zegarową (14 bitów) mającą zapewnić unikalność identyfikatorów. Mogą to być np. wartości odliczane po kolei przez aktualny proces.
 - Identyfikator urządzenia (48 bitów); według specyfikacji jest to adres MAC karty sieciowej komputera generującego UUID. Specyfikacja zakłada, że jeśli nie można pobrać adresu MAC, możemy wygenerować losową liczbę na jego miejsce.
 
@@ -345,7 +345,7 @@ Jak wcześniej wspomniałem, UUID doczekało się wielu wariantów, a pośród o
 W ramach OSF DCE mamy jeszcze następujące wersje:
 
 - 2 — jest to modyfikacja wersji 1, gdzie czas jest zapisany tylko na 28 bitach (odmierzany w interwałach ok. 7 minutowych), sekwencja zegarowa na 6 bitach, a uzyskane w ten sposób 40 bitów wykorzystuje się do zapisu identyfikatora użytkownika lub grupy w systemie operacyjnym.
-- 3 i 5 — przechowują <Link href="/post/sumy-kontrolne/#funkcje-skr%C3%B3tu">hasz</Link> nazwy zasobu z nałożonymi oczywiście w odpowiednich miejscach wersją i wariantem UUID. W przypadku wersji 3 jest to hasz MD5, natomiast w wersji 5 hasz SHA-1 skrócony do 128 bitów.
+- 3 i 5 — przechowują [hasz](/post/sumy-kontrolne/#funkcje-skr%C3%B3tu) nazwy zasobu z nałożonymi oczywiście w odpowiednich miejscach wersją i wariantem UUID. W przypadku wersji 3 jest to hasz MD5, natomiast w wersji 5 hasz SHA-1 skrócony do 128 bitów.
 - 8 — daje pełną dowolność, jak wypełniamy wartości. Jedyny wymóg to ustawienie bitów wersji i wariantu.
 - Mogą się z czasem pojawić wersje od 9 do 15, na razie jednak nie zostały zdefiniowane. Natomiast nie ma planów wykorzystania numeru wersji 0.
 
@@ -603,7 +603,7 @@ Po przeczytaniu tego artykułu możesz zadać sobie pytanie — czy nie możemy 
 
 Pomijając odliczanie po kolei, jest wiele innych różnych podejść do generowania identyfikatorów, ale nie rozpisywałem się o nich bardziej, bo zwykle wykorzystują te same idee co wyżej opisane. Nieraz są to po prostu nieco inaczej zaimplementowane te same algorytmy. Przykładowe popularne podejścia (ponad 2 tysiące gwiazdek na GitHubie lub używane przez duże serwisy), w losowej kolejności, to:
 
-- [cuid2](https://github.com/paralleldrive/cuid2) — jest tworzony, aby być kryptograficznie najbezpieczniejszym podejściem. Co ciekawe, mimo że aby do utworzenia identyfikatora wykorzystywane są identyfikator urządzenia, czas i licznik, to nie jesteśmy w stanie tych danych odkodować z identyfikatora, ponieważ jest on <Link href="/post/sumy-kontrolne/#funkcje-skr%C3%B3tu">haszowany</Link> z użyciem SHA-3.
+- [cuid2](https://github.com/paralleldrive/cuid2) — jest tworzony, aby być kryptograficznie najbezpieczniejszym podejściem. Co ciekawe, mimo że aby do utworzenia identyfikatora wykorzystywane są identyfikator urządzenia, czas i licznik, to nie jesteśmy w stanie tych danych odkodować z identyfikatora, ponieważ jest on [haszowany](/post/sumy-kontrolne/#funkcje-skr%C3%B3tu) z użyciem SHA-3.
 
 <Presentation algorithm="cuid2" />
 

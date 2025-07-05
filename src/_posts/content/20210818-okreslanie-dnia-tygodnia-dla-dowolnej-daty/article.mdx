@@ -50,7 +50,7 @@ Zaczniemy od podejść matematycznych, które są dość nudne, jednak możemy w
 
 ### Rata Die
 
-Zacznijmy od najprostszego, czyli Rata Die (RD). Samo Rata Die nie jest właściwą nazwą tego algorytmu, ponieważ termin ten to po prostu system numeracji dni kalendarzowych analogiczny do <Link href="/post/dlaczego-mierzenie-i-przetwarzanie-czasu-jest-trudne-czesc-1">opisywanej przeze mnie wcześniej daty juliańskiej</Link> (JD). Różni się od niej natomiast tym, że JD jest bardzo uniwersalny, natomiast RD opiera się na wybranej przez nas dacie początkowej, jest zależny od strefy czasowej i najczęściej bazuje na kalendarzu gregoriańskim (czyli dla dat sprzed wprowadzenia go stosujemy kalendarz proleptyczny).
+Zacznijmy od najprostszego, czyli Rata Die (RD). Samo Rata Die nie jest właściwą nazwą tego algorytmu, ponieważ termin ten to po prostu system numeracji dni kalendarzowych analogiczny do [opisywanej przeze mnie wcześniej daty juliańskiej](/post/dlaczego-mierzenie-i-przetwarzanie-czasu-jest-trudne-czesc-1) (JD). Różni się od niej natomiast tym, że JD jest bardzo uniwersalny, natomiast RD opiera się na wybranej przez nas dacie początkowej, jest zależny od strefy czasowej i najczęściej bazuje na kalendarzu gregoriańskim (czyli dla dat sprzed wprowadzenia go stosujemy kalendarz proleptyczny).
 
 Natomiast na czym polega podejście obliczania dni w ten sposób? Otóż obliczamy liczbę dni $$d$$, jakie minęły od daty znanego dnia tygodnia $$D$$, a następnie, aby obliczyć dzień tygodnia, stosujemy bardzo prosty wzór:
 
@@ -106,7 +106,7 @@ Nikt nam jako programistom nie broni stosowania powyżej opisanych metod matemat
 
 ### RFC 3339
 
-Standard RFC 3339, <Link href="/post/jak-komputer-przechowuje-date-i-skad-zna-aktualna">o którym wspomniałem przy okazji standardu ISO 8601</Link>, definiuje algorytm, jakim powinniśmy obliczać dzień tygodnia dla dowolnej daty od 1 marca 1 r. p.n.e. włącznie. Znajdziemy go w załączniku B standardu. Zdefiniowany jest tam w języku C, jednak tutaj znajdziesz moją interpretację na język JavaScript:
+Standard RFC 3339, [o którym wspomniałem przy okazji standardu ISO 8601](/post/jak-komputer-przechowuje-date-i-skad-zna-aktualna), definiuje algorytm, jakim powinniśmy obliczać dzień tygodnia dla dowolnej daty od 1 marca 1 r. p.n.e. włącznie. Znajdziemy go w załączniku B standardu. Zdefiniowany jest tam w języku C, jednak tutaj znajdziesz moją interpretację na język JavaScript:
 
 ```javascript
 function dayOfWeek(day, month, year) {

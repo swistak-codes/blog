@@ -38,7 +38,7 @@ export const meta = {
 
 ## Uwagi wstępne
 
-Tekst ten jest bezpośrednią kontynuacją artykułów *<Link href="/post/problem-komiwojazera">Problem komiwojażera</Link>* i *<Link href="/post/problem-komiwojazera-heurystyki">Problem komiwojażera — podejścia heurystyczne</Link>*. Przedstawiłem w nich temat od strony teoretycznej, pokazałem sposoby na znalezienie optymalnego rozwiązania i przykładowe podejścia heurystyczne. Nie będę tutaj powtarzać opisanych tam rzeczy, dlatego jeśli nie czytałeś(-aś) ich wcześniej, polecam tam zajrzeć.
+Tekst ten jest bezpośrednią kontynuacją artykułów *[Problem komiwojażera](/post/problem-komiwojazera)* i *[Problem komiwojażera — podejścia heurystyczne](/post/problem-komiwojazera-heurystyki)*. Przedstawiłem w nich temat od strony teoretycznej, pokazałem sposoby na znalezienie optymalnego rozwiązania i przykładowe podejścia heurystyczne. Nie będę tutaj powtarzać opisanych tam rzeczy, dlatego jeśli nie czytałeś(-aś) ich wcześniej, polecam tam zajrzeć.
 
 Jedynie przypomnę, że pokazując kod (wszystkie przykłady są w JavaScript), nie zakładam istnienia żadnego konkretnego sposobu zapisu grafu. Jedynie założę, że istnieje funkcja zwracająca odległość (wagę krawędzi): `distance(A: number, B: number): number`.
 
@@ -129,7 +129,7 @@ Podstawowy opis tej metody brzmi następująco:
 2. Spróbuj ulepszyć to rozwiązanie. Jeśli jest lepsze, zapamiętaj.
 3. Powtarzaj punkt 2 tak długo, aż nie da się już poprawić rozwiązania lub nie trzeba znajdować lepszego.
 
-O sposobie tym mówi się, że jest to *simple hill climbing*, czyli prosta odmiana tej metaheurystyki. Co ciekawe, jej implementację mogłeś(-aś) już widzieć na moim blogu — algorytm Newtona-Raphsona do znajdowania <Link href="/post/pierwiastkowanie">pierwiastka liczby</Link>. Przykład ten pokazuje też, że warunek końcowy nie musi oznaczać braku lepszego rozwiązania. Zakończeniem algorytmu może być znalezienie wystarczająco dobrego rozwiązania (przy pierwiastkowaniu: wynik poniżej pewnego marginesu błędu) albo nawet ograniczenie liczby powtórzeń.
+O sposobie tym mówi się, że jest to *simple hill climbing*, czyli prosta odmiana tej metaheurystyki. Co ciekawe, jej implementację mogłeś(-aś) już widzieć na moim blogu — algorytm Newtona-Raphsona do znajdowania [pierwiastka liczby](/post/pierwiastkowanie). Przykład ten pokazuje też, że warunek końcowy nie musi oznaczać braku lepszego rozwiązania. Zakończeniem algorytmu może być znalezienie wystarczająco dobrego rozwiązania (przy pierwiastkowaniu: wynik poniżej pewnego marginesu błędu) albo nawet ograniczenie liczby powtórzeń.
 
 Często jednak nazwa *hill climbing* kojarzy się z nieco bardziej rozbudowaną wersją, którą fachowo nazywa się *steepest-ascent hill climbing* (po pol. wspinaczka po najbardziej stromym wzgórzu). Tutaj mamy następujące kroki do wykonania:
 

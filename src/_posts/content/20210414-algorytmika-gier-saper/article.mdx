@@ -150,7 +150,7 @@ Odsłanianie pól to zdecydowanie najciekawszy element algorytmiczny w saperze. 
 
 Jak to zrobić? Zauważ następującą zależność — odsłaniamy wszystkich sąsiadów zera, i  jeśli któryś z nich był zerem, to wszystkich jego sąsiadów, a jeśli któryś z sąsiadów sąsiada był zerem, to wyświetlamy wszystkich jego sąsiadów. Brzmi jak typowy przykład rekurencji. Tak też powinniśmy do tego podejść.
 
-Algorytm jest prosty — wyświetlamy aktualne pole. Jeżeli aktualne pole miało wartość 0, to dla każdego z sąsiadów uruchamiamy rekurencyjnie naszą funkcję. Oczywiście nie jest to jedyny warunek, gdy nie chcemy uruchomić <Link href="/post/rekurencja-co-to-jest">rekurencji</Link>. Tak samo nie chcemy w nią wchodzić, kiedy pole znajduje się poza planszą lub zostało już wcześniej odsłonięte.
+Algorytm jest prosty — wyświetlamy aktualne pole. Jeżeli aktualne pole miało wartość 0, to dla każdego z sąsiadów uruchamiamy rekurencyjnie naszą funkcję. Oczywiście nie jest to jedyny warunek, gdy nie chcemy uruchomić [rekurencji](/post/rekurencja-co-to-jest). Tak samo nie chcemy w nią wchodzić, kiedy pole znajduje się poza planszą lub zostało już wcześniej odsłonięte.
 
 Jeżeli implementujesz w zaproponowanym przeze mnie szablonie, to oprócz podanych wcześniej możliwości tablica odsłoniętych pól może posiadać wartość `null`. Oznaczane nią są nieodsłonięte pola.
 

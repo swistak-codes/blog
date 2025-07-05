@@ -46,8 +46,8 @@ $$
 
 Operacje wykonujemy w następującej kolejności:
 
-- Najpierw <Link href="/post/szybkie-potegowanie">potęgujemy</Link> i <Link href="/post/pierwiastkowanie">pierwiastkujemy</Link>.
-- Następnie <Link href="/post/dziel-i-zwyciezaj-a-mnozenie">mnożymy</Link> i dzielimy.
+- Najpierw [potęgujemy](/post/szybkie-potegowanie) i [pierwiastkujemy](/post/pierwiastkowanie).
+- Następnie [mnożymy](/post/dziel-i-zwyciezaj-a-mnozenie) i dzielimy.
 - Na samym końcu wykonujemy dodawanie i odejmowanie.
 
 Jeśli mamy operacje tego samego typu, wykonujemy je od lewej do prawej. Natomiast jeśli chcielibyśmy tą kolejność zaburzyć, stosujemy nawiasy, których rozwiązanie ma wyższy priorytet niż wszystkie opisane wyżej operacje.
@@ -143,9 +143,9 @@ Napisałem, że odwrotna notacja polska umożliwia proste obliczanie wyrażeń a
 
 ### Stos
 
-Zanim jednak przejdziemy do właściwego algorytmu, muszę wprowadzić prostą strukturę danych, którą wykorzystamy w nim jako pamięć do przechowywania liczb i operacji — stos. Miałem już okazję opisać, czym on jest, w artykule o <Link href="/post/derekursywacja/#kolejki">derekursywacji</Link>, ale dla formalności opiszę krótko jeszcze raz.
+Zanim jednak przejdziemy do właściwego algorytmu, muszę wprowadzić prostą strukturę danych, którą wykorzystamy w nim jako pamięć do przechowywania liczb i operacji — stos. Miałem już okazję opisać, czym on jest, w artykule o [derekursywacji](/post/derekursywacja/#kolejki), ale dla formalności opiszę krótko jeszcze raz.
 
-Stos to nic innego jak szczególny przypadek <Link href="/post/listy-najpopularniejsze-zlozone-typy-danych">listy</Link>. Charakteryzuje się tym, że elementy możemy dodawać jedynie na początek, a usuwać (i tym samym odczytywać) tylko z początku. Stąd inna, angielska nazwa *Last In, First Out* (LIFO, z ang. ostatni na wejściu, pierwszy na wyjściu). Struktura ta ma wiele zastosowań, bo bardzo często potrzebujemy przechować jakieś dane i odwołać się do ostatnio dodanych. Zresztą zastosowanie tego typu zaraz pokażę w tym artykule.
+Stos to nic innego jak szczególny przypadek [listy](/post/listy-najpopularniejsze-zlozone-typy-danych). Charakteryzuje się tym, że elementy możemy dodawać jedynie na początek, a usuwać (i tym samym odczytywać) tylko z początku. Stąd inna, angielska nazwa *Last In, First Out* (LIFO, z ang. ostatni na wejściu, pierwszy na wyjściu). Struktura ta ma wiele zastosowań, bo bardzo często potrzebujemy przechować jakieś dane i odwołać się do ostatnio dodanych. Zresztą zastosowanie tego typu zaraz pokażę w tym artykule.
 
 <Image
   image={lifo}
@@ -162,7 +162,7 @@ Klasyczne implementacje stosu oferują trzy operacje:
 - `pop` — ściągnięcie elementu ze stosu
 - sprawdzenie, czy stos jest pusty
 
-Jeśli chodzi o gotowe implementacje, niektóre języki programowania posiadają wbudowane struktury stosów (np. [Stack w C#](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.stack-1?view=net-7.0), [Deque w Javie](https://docs.oracle.com/en/java/javase/18/docs/api/java.base/java/util/Deque.html)). Jeśli nie mamy, stos można bardzo łatwo zasymulować <Link href="/post/tablice-i-listy-tablicowe">listą tablicową</Link> albo <Link href="/post/listy-z-dowiazaniami">wiązaną</Link>. Wystarczy jedynie wykonywać operację dodania elementu na koniec/początek i usuwania z niego. W kwestii tego, czy wybrać koniec, czy początek, zależy to od struktury — w przypadku list tablicowych wydajniejsze jest dodawanie na koniec, natomiast w przypadku wiązanych zwykle na początek. Zresztą w przypadku tych pierwszych czasem się nawet zdarza, że operacje dodania i usunięcia elementu z końca nazywają się właśnie `push` i `pop` (np. w [JavaScript](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array#instance_methods)).
+Jeśli chodzi o gotowe implementacje, niektóre języki programowania posiadają wbudowane struktury stosów (np. [Stack w C#](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.stack-1?view=net-7.0), [Deque w Javie](https://docs.oracle.com/en/java/javase/18/docs/api/java.base/java/util/Deque.html)). Jeśli nie mamy, stos można bardzo łatwo zasymulować [listą tablicową](/post/tablice-i-listy-tablicowe) albo [wiązaną](/post/listy-z-dowiazaniami). Wystarczy jedynie wykonywać operację dodania elementu na koniec/początek i usuwania z niego. W kwestii tego, czy wybrać koniec, czy początek, zależy to od struktury — w przypadku list tablicowych wydajniejsze jest dodawanie na koniec, natomiast w przypadku wiązanych zwykle na początek. Zresztą w przypadku tych pierwszych czasem się nawet zdarza, że operacje dodania i usunięcia elementu z końca nazywają się właśnie `push` i `pop` (np. w [JavaScript](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array#instance_methods)).
 
 ### Opis algorytmu
 

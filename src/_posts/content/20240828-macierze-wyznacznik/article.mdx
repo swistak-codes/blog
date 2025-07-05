@@ -37,7 +37,7 @@ export const meta = {
 
 ## Uwaga wstępna
 
-W artykule zakładam, że wiesz, czym są macierze i jak wykonywać na nich podstawowe operacje. Jeśli nie jesteś zaznajomiony(-a) z tematem, zapraszam do mojego artykułu *<Link href="/post/macierze-podstawy">Macierze — podstawowe operacje</Link>*.
+W artykule zakładam, że wiesz, czym są macierze i jak wykonywać na nich podstawowe operacje. Jeśli nie jesteś zaznajomiony(-a) z tematem, zapraszam do mojego artykułu *[Macierze — podstawowe operacje](/post/macierze-podstawy)*.
 
 ## Co to jest?
 
@@ -231,7 +231,7 @@ m & n & o
 \end{vmatrix}
 $$
 
-W tym momencie możemy spokojnie użyć reguły Sarrusa albo znowu wykonać rozwinięcie Laplace'a, aby otrzymać macierze 2×2. Możemy potem znowu wykonać rozwinięcie Laplace'a w celu otrzymania macierzy 1×1. Wzór ten stosujemy <Link href="/post/rekurencja-co-to-jest">rekurencyjnie</Link> tak długo, aż będziemy w stanie obliczyć wyznacznik. Patrząc już informatycznie, pod kątem złożoności obliczeniowej nie jest to najlepszy sposób, ale zdecydowanie najprostszy do zapamiętania.
+W tym momencie możemy spokojnie użyć reguły Sarrusa albo znowu wykonać rozwinięcie Laplace'a, aby otrzymać macierze 2×2. Możemy potem znowu wykonać rozwinięcie Laplace'a w celu otrzymania macierzy 1×1. Wzór ten stosujemy [rekurencyjnie](/post/rekurencja-co-to-jest) tak długo, aż będziemy w stanie obliczyć wyznacznik. Patrząc już informatycznie, pod kątem złożoności obliczeniowej nie jest to najlepszy sposób, ale zdecydowanie najprostszy do zapamiętania.
 
 Inne sposoby jak możemy obliczać wyznaczniki macierzy o dowolnych rozmiarach to np. metoda eliminacji Gaussa (znana też jako dekompozycja LU) lub wzór Leibnitza. Są to jednak sposoby trudniejsze do zapamiętania, dlatego nie poruszam ich tutaj.
 
@@ -273,7 +273,7 @@ function det(matrix) {
 
 Kod w wersji wykonywalnej znajdziesz na [Replit](https://replit.com/@tswistak/determinant-laplace#index.js).
 
-Jak już pisałem wcześniej, rozwinięcie Laplace'a jest bardzo niewydajne obliczeniowo. Jego złożoność to aż $$\Omicron(n!)$$ ($$n$$ to stopień macierzy, $$!$$ to <Link href="/post/rekurencja-co-to-jest/#silnia">silnia</Link>), czyli jedna z najgorszych złożoności, z jakimi mamy do czynienia w algorytmice. Oczywiście moglibyśmy kod nieco zoptymalizować — znamy dokładne wzory na wyznaczniki dla macierzy 2×2 i 3×3, więc moglibyśmy szybciej ucinać rekurencję. Jednak wciąż będzie to podejście o małej wydajności.
+Jak już pisałem wcześniej, rozwinięcie Laplace'a jest bardzo niewydajne obliczeniowo. Jego złożoność to aż $$\Omicron(n!)$$ ($$n$$ to stopień macierzy, $$!$$ to [silnia](/post/rekurencja-co-to-jest/#silnia)), czyli jedna z najgorszych złożoności, z jakimi mamy do czynienia w algorytmice. Oczywiście moglibyśmy kod nieco zoptymalizować — znamy dokładne wzory na wyznaczniki dla macierzy 2×2 i 3×3, więc moglibyśmy szybciej ucinać rekurencję. Jednak wciąż będzie to podejście o małej wydajności.
 
 ### Algorytm Bareissa
 
@@ -439,7 +439,7 @@ Co warto dodać, jeśli $$\det\mathbf{A}$$ byłoby zerem, to układ nie ma jedne
 
 ### Obliczanie macierzy odwrotnych
 
-Jak ostatnio pokazywałem <Link href="/post/macierze-podstawy">mnożenie macierzy</Link>, tak nie pokazywałem dzielenia ani tym bardziej wynikającego z niego faktu, że gdy dzielimy liczbę przez samą siebie, to dostajemy 1. W obrębie macierzy mamy coś podobnego — gdy pomnożymy macierz $$\mathbf{A}$$ przez jej odwrotność ($$\mathbf{A}^{-1}$$), to otrzymamy macierz jednostkową: $$\mathbf{A}\cdot\mathbf{A}^{-1}=\mathbf{I}$$.
+Jak ostatnio pokazywałem [mnożenie macierzy](/post/macierze-podstawy), tak nie pokazywałem dzielenia ani tym bardziej wynikającego z niego faktu, że gdy dzielimy liczbę przez samą siebie, to dostajemy 1. W obrębie macierzy mamy coś podobnego — gdy pomnożymy macierz $$\mathbf{A}$$ przez jej odwrotność ($$\mathbf{A}^{-1}$$), to otrzymamy macierz jednostkową: $$\mathbf{A}\cdot\mathbf{A}^{-1}=\mathbf{I}$$.
 
 Wzór na macierz odwrotną to:
 
@@ -511,7 +511,7 @@ $$
 To były dwa zastosowania wyznacznika, z którymi spotykałem się najczęściej podczas swojej przygody z matematyką akademicką. Zastosowań jest oczywiście więcej, a przykładowe, które znam, to:
 
 - Obliczanie pól i objętości figur, co pokazałem przy definicji wyznacznika.
-  - Jak obliczać pola i objętości, to możemy także w ten sposób obliczać iloczyn wektorowy zgodnie z jego geometryczną interpretacją. Jeśli czytałeś(-aś) wcześniej mojego bloga, możesz kojarzyć to zastosowanie, ponieważ wykorzystałem je do <Link href="/post/otoczka-wypukla/#wykrywanie-lewoskrętów">wykrywania lewoskrętów przy wyznaczaniu otoczki wypukłej</Link>. To, co tam tak naprawdę zrobiliśmy, to wykorzystaliśmy iloczyn wektorowy do obliczenia dwukrotności pola trójkąta.
+  - Jak obliczać pola i objętości, to możemy także w ten sposób obliczać iloczyn wektorowy zgodnie z jego geometryczną interpretacją. Jeśli czytałeś(-aś) wcześniej mojego bloga, możesz kojarzyć to zastosowanie, ponieważ wykorzystałem je do [wykrywania lewoskrętów przy wyznaczaniu otoczki wypukłej](/post/otoczka-wypukla/#wykrywanie-lewoskrętów). To, co tam tak naprawdę zrobiliśmy, to wykorzystaliśmy iloczyn wektorowy do obliczenia dwukrotności pola trójkąta.
   - Rozwijając to, możemy w bardzo analogiczny sposób sprawdzić, czy trzy punkty są współliniowe. Wówczas obliczany tam wyznacznik powinien wynosić 0 (czyli trójkąt nie istnieje).
   - Jeszcze dalej wykorzystując tę ideę — jeśli mielibyśmy tylko dwa punkty, a trzeci byłby niewiadomy, to wyznacznikiem wyprowadzilibyśmy wzór na prostą przecinającą oba znane punkty.
 - Przy bardziej zaawansowanych zagadnieniach z analizy matematycznej spotkasz się z hesjanami, jakobianami i wrońskianami. Są to wyznaczniki, kolejno: macierzy Hessego, Jacobiego i Wrońskiego. Dla zwięzłości odpuszczę sobie tłumaczenie, czym one są i do czego służą.

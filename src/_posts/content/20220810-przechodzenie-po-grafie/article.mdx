@@ -74,7 +74,7 @@ Przeszukując graf w głąb (DFS), wybieramy pierwszą z dróg, którą pójdzie
 
 ### Algorytm
 
-Tradycyjna wersja algorytmu DFS jest <Link href="/post/rekurencja-co-to-jest/">rekurencyjna</Link>. Możemy ją zapisać następującym kodem w JavaScript (oczywiście nie ma w nim struktury grafu, ale na potrzeby przykładu zakładamy, że taka istnieje), biorącym pod uwagę kolorowanie grafu. Jest on wzorowany na podejściu przedstawionym przez T. Cormena we *Wprowadzeniu do algorytmów*.
+Tradycyjna wersja algorytmu DFS jest [rekurencyjna](/post/rekurencja-co-to-jest/). Możemy ją zapisać następującym kodem w JavaScript (oczywiście nie ma w nim struktury grafu, ale na potrzeby przykładu zakładamy, że taka istnieje), biorącym pod uwagę kolorowanie grafu. Jest on wzorowany na podejściu przedstawionym przez T. Cormena we *Wprowadzeniu do algorytmów*.
 
 ```javascript
 /*
@@ -160,7 +160,7 @@ function dfs(G, v) {
 }
 ```
 
-Jeśli chcielibyśmy zapisać algorytm w sposób iteracyjny, możemy zrobić następującą <Link href="/post/derekursywacja/">derekursywację</Link> z użyciem stosu, czyli kolejki LIFO (od ang. *last in, first out* — ostatni wchodzący pierwszym wychodzącym). Kolejka tego typu polega na tym, że ostatnio dodany element jest pierwszym ściąganym z niej. Obrazowo możemy sobie to wyobrazić jako (nomen omen) stos kartek, gdzie gdy na wierzchu położymy nową, to pierwsza, którą ściągniemy, będzie tą ostatnio położoną.
+Jeśli chcielibyśmy zapisać algorytm w sposób iteracyjny, możemy zrobić następującą [derekursywację](/post/derekursywacja/) z użyciem stosu, czyli kolejki LIFO (od ang. *last in, first out* — ostatni wchodzący pierwszym wychodzącym). Kolejka tego typu polega na tym, że ostatnio dodany element jest pierwszym ściąganym z niej. Obrazowo możemy sobie to wyobrazić jako (nomen omen) stos kartek, gdzie gdy na wierzchu położymy nową, to pierwsza, którą ściągniemy, będzie tą ostatnio położoną.
 
 ```javascript
 // G - graf; v - wierzchołek, od którego zaczynamy przeszukiwanie

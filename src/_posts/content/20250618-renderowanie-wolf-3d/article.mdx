@@ -57,8 +57,8 @@ W artykule przedstawię algorytmikę, która stoi za renderowaniem grafiki w sty
 
 Natomiast w kwestii treści tego artykułu — założę, że aparat matematyczny związany z przekształceniami geometrycznymi jest Ci znany. Jeśli nie, poświęciłem temu tematowi dwa artykuły:
 
-- *<Link href="/post/przeksztalcenia-grafiki-2d">Przekształcenia grafiki 2D — matematyczny punkt widzenia</Link>*
-- *<Link href="/post/przeksztalcenia-grafiki-3d">Przekształcenia grafiki 3D</Link>*
+- *[Przekształcenia grafiki 2D — matematyczny punkt widzenia](/post/przeksztalcenia-grafiki-2d)*
+- *[Przekształcenia grafiki 3D](/post/przeksztalcenia-grafiki-3d)*
 
 O ile nie będziemy stosować macierzowych przekształceń (może z jednym wyjątkiem), to pojawią się tutaj pojęcia tam opisywane.
 
@@ -109,7 +109,7 @@ Z punktu widzenia tego artykułu najważniejszym uproszczeniem jest to, że gra 
 
 Co nam to daje? To, że renderując obraz, interesuje nas tylko informacja, gdzie daną rzecz umiejscowić na osi X, a informacje na osi Y wynikają jedynie z transformacji. Do tego sama plansza z racji bycia zbudowanej na siatce może być bardzo prosto reprezentowana w postaci zwykłej tablicy dwuwymiarowej. Tym samym nie dość, że będziemy operować na stosunkowo prostej matematyce, to także nie będziemy musieli wchodzić w szczegóły techniczne budowy modeli trójwymiarowych czy bardziej zaawansowanych struktur danych.
 
-W kwestii planszy gry jako ciekawostkę dodam, że gdy przenoszono Wolfenstein 3D z komputerów na konsolę SNES, korzystanie z tak zapisanej planszy było niewydajne (dużo słabszy procesor). Na potrzeby portu przepisano plansze, aby korzystały z <Link href="/post/wyszukiwanie-w-przestrzeni">drzew BSP</Link>. Rozwiązanie to okazało się na tyle dobre, że twórcy zastosowali je w swojej kolejnej grze, czyli [Doomie](https://pl.wikipedia.org/wiki/Doom_(gra_komputerowa_1993)), i do dziś korzysta się z tego w silnikach 3D.
+W kwestii planszy gry jako ciekawostkę dodam, że gdy przenoszono Wolfenstein 3D z komputerów na konsolę SNES, korzystanie z tak zapisanej planszy było niewydajne (dużo słabszy procesor). Na potrzeby portu przepisano plansze, aby korzystały z [drzew BSP](/post/wyszukiwanie-w-przestrzeni). Rozwiązanie to okazało się na tyle dobre, że twórcy zastosowali je w swojej kolejnej grze, czyli [Doomie](https://pl.wikipedia.org/wiki/Doom_(gra_komputerowa_1993)), i do dziś korzysta się z tego w silnikach 3D.
 
 ## Ray casting
 
@@ -185,7 +185,7 @@ Rzutnię określamy dwoma parametrami:
 
 Połączenie szerokości i ogniskowej definiuje nam kąt widzenia kamery. Jeśli obie wartości są sobie równe, dostaniemy kąt widzenia $$90\degree$$. Jeśli ogniskowa jest dłuższa, kąt się zmniejsza, a jeśli jest krótsza, to jest na odwrót. Czyli analogicznie jak w fotografii.
 
-A w jaki sposób obliczyć pole widzenia? Do tego celu możemy użyć poniższego wzoru wykorzystującego fakt, że z pozycji gracza i rzutni możemy zbudować trójkąt równoramienny (<Link href="/post/algorytmika-gier-obrot-do-punktu/#wyznaczenie-k%C4%85ta">tutaj wyjaśnienie wzoru</Link>):
+A w jaki sposób obliczyć pole widzenia? Do tego celu możemy użyć poniższego wzoru wykorzystującego fakt, że z pozycji gracza i rzutni możemy zbudować trójkąt równoramienny ([tutaj wyjaśnienie wzoru](/post/algorytmika-gier-obrot-do-punktu/#wyznaczenie-k%C4%85ta)):
 
 $$
 FOV = 2 \cdot \arctg(\text{szerokość rzutni}/\text{ogniskowa})
@@ -207,7 +207,7 @@ Dla podanych wyżej wartości, a więc kolejno 0,66 i 1, otrzymamy ok. 1,16 rad,
 
 ### Digital Differential Analyzer
 
-Podstawą działania ray castingu jest algorytm Digital Differential Analyzer (DDA). Jest to algorytm pozwalający na <Link href="/post/jak-komputer-rysuje-linie">szybkie rysowanie linii</Link> na siatce pikseli. W przypadku Wolfenstein 3D jest wykorzystywany do określenia, w który element trafia promień.
+Podstawą działania ray castingu jest algorytm Digital Differential Analyzer (DDA). Jest to algorytm pozwalający na [szybkie rysowanie linii](/post/jak-komputer-rysuje-linie) na siatce pikseli. W przypadku Wolfenstein 3D jest wykorzystywany do określenia, w który element trafia promień.
 
 W oryginalnej wersji rysowanie linii algorytmem DDA wygląda następująco:
 
@@ -215,7 +215,7 @@ W oryginalnej wersji rysowanie linii algorytmem DDA wygląda następująco:
     1. **Różnica współrzędnych** — do określenia długości linii:
         - $$\Delta x = x_1 - x_0$$
         - $$\Delta y = y_1 - y_0$$
-    2. **Liczba kroków do pokonania** — długość linii zmierzona w <Link href="/post/szybkie-wyszukiwanie-sciezek/#gry">metryce Czebyszewa</Link>:
+    2. **Liczba kroków do pokonania** — długość linii zmierzona w [metryce Czebyszewa](/post/szybkie-wyszukiwanie-sciezek/#gry):
         - $$n = \max(|\Delta x|, |\Delta y|)$$
     3. **Przyrosty** — określenie, o ile zmieniać współrzędne w każdym kroku:
         - $$x_{inc} = \frac{\Delta x}{n}$$
@@ -396,7 +396,7 @@ $$
 
 Co ciekawe, podzielenie przez wektor kierunku sprawia, że kompensujemy kąt promienia, a tym samym uzyskujemy odległość prostopadłą do rzutni. Dzieje się tak dlatego, że jest kombinacją liniową wektora kierunku gracza i długości płaszczyzny.
 
-W taki oto sposób uzyskujemy odległość bez funkcji trygonometrycznych, a także bez <Link href="/post/pierwiastkowanie">pierwiastkowania</Link> i <Link href="/post/szybkie-potegowanie">podnoszenia do kwadratu</Link> (odległość Euklidesowa). Jedyną „ciężką” operacją jest dzielenie przez wektor kierunku, ale to i tak jest znacznie prostsze niż pierwiastkowanie.
+W taki oto sposób uzyskujemy odległość bez funkcji trygonometrycznych, a także bez [pierwiastkowania](/post/pierwiastkowanie) i [podnoszenia do kwadratu](/post/szybkie-potegowanie) (odległość Euklidesowa). Jedyną „ciężką” operacją jest dzielenie przez wektor kierunku, ale to i tak jest znacznie prostsze niż pierwiastkowanie.
 
 ### Symulowanie oświetlenia
 
@@ -415,7 +415,7 @@ Teraz możesz zadać pytanie — jak to zaprogramować? Oczywiście możesz zaws
 Jak wspomniałem we wstępie, nie będę się skupiać na tym, jak dokładnie implementacja wyglądała w oryginalnej grze. Chcemy osiągnąć ten sam efekt, ale niekoniecznie tak samo. Najważniejsze różnice to:
 
 - **Język programowania** — w oryginale gra została napisana w C, a obliczenia krytyczne w asemblerze; ja pokażę implementację w JavaScript. Jeśli chcesz podążać za mną, polecam użycie [CodePen](https://codepen.io/) jako wygodnego narzędzia do szybkiego prototypowania w tymże języku.
-- **Sposób obliczeń** — z racji tego, że procesory [i386](https://en.wikipedia.org/wiki/I386), pod które była pisana gra, nie wspierały <Link href="/post/liczby-wymierne-i-rzeczywiste-w-zero-jedynkowym-swiecie">obliczeń zmiennoprzecinkowych, gra korzystała z zapisu stałoprzecinkowego</Link> lub obliczeń na liczbach całkowitych (np. kąty zostały pomnożone przez 10 dla dokładniejszych obliczeń). Dzisiaj nie jest to problem, więc korzystamy z obliczeń zmiennoprzecinkowych. Zresztą [te w JavaScript są domyślne](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number) i to z użyciem liczb całkowitych mielibyśmy problem.
+- **Sposób obliczeń** — z racji tego, że procesory [i386](https://en.wikipedia.org/wiki/I386), pod które była pisana gra, nie wspierały [obliczeń zmiennoprzecinkowych, gra korzystała z zapisu stałoprzecinkowego](/post/liczby-wymierne-i-rzeczywiste-w-zero-jedynkowym-swiecie) lub obliczeń na liczbach całkowitych (np. kąty zostały pomnożone przez 10 dla dokładniejszych obliczeń). Dzisiaj nie jest to problem, więc korzystamy z obliczeń zmiennoprzecinkowych. Zresztą [te w JavaScript są domyślne](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number) i to z użyciem liczb całkowitych mielibyśmy problem.
 - **Wykorzystanie wektorów** — z powyższego powodu w oryginale nie upraszczano obliczeń przez wykorzystanie wektorów, np. korekta rybiego oka była wykonywana na podstawie kątów, a dla przyspieszenia obliczeń [gra obliczała na starcie całe tabele wartości funkcji trygonometrycznych](https://github.com/id-Software/wolf3d/blob/05167784ef009d0d0daefe8d012b027f39dc8541/WOLFSRC/WL_MAIN.C#L571-L626). My jednak możemy uprościć sobie algorytmikę.
 - **Optymalizacja** — gra posiadała zaimplementowanych dużo sztuczek optymalizacyjnych, które miały na celu przyspieszenie renderowania. Dziś operujemy na znacznie mocniejszych komputerach, więc nie będziemy się tym przejmować. Szczególnie że ray casting jest na tyle szybki, że nie wymaga optymalizacji.
 
@@ -647,7 +647,7 @@ function rotate(dir) {
 }
 ```
 
-Jeśli nie wiesz, skąd się wzięły wzory na obrót wektora, możesz przeczytać o tym w artykule o <Link href="/post/przeksztalcenia-grafiki-2d/#obr%C3%B3t">przekształcaniu grafiki 2D</Link>. Tak, to właśnie tutaj jest ten moment, o którym wcześniej wspomniałem, że wiedza z tego artykułu się przyda.
+Jeśli nie wiesz, skąd się wzięły wzory na obrót wektora, możesz przeczytać o tym w artykule o [przekształcaniu grafiki 2D](/post/przeksztalcenia-grafiki-2d/#obr%C3%B3t). Tak, to właśnie tutaj jest ten moment, o którym wcześniej wspomniałem, że wiedza z tego artykułu się przyda.
 
 Z powodu ograniczeń ray castingu nie mamy obrotów w pionie, więc tą część możemy pominąć. Teoretycznie moglibyśmy dodać strafing (poruszanie się w lewo i w prawo bez obrotów), ale to już pozostawiam chętnym czytelnikom jako ćwiczenie.
 

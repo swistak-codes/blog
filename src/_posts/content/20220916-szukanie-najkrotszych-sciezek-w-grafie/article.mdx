@@ -40,9 +40,9 @@ export const meta = {
 
 ### Grafy ważone
 
-Na początek, zanim przejdziemy do algorytmów, powiedzmy sobie, z czym będziemy mieć do czynienia. Jak możesz pamiętać z <Link href="/post/grafy-wprowadzenie">wprowadzenia do grafów</Link>, graf ważony zawiera „wagi”, czyli pewne wartości przypisane krawędziom lub wierzchołkom oznaczające jakieś ich właściwości. W zasadzie na tym można by skończyć definicję, ale chcę trochę dopowiedzieć do tematu.
+Na początek, zanim przejdziemy do algorytmów, powiedzmy sobie, z czym będziemy mieć do czynienia. Jak możesz pamiętać z [wprowadzenia do grafów](/post/grafy-wprowadzenie), graf ważony zawiera „wagi”, czyli pewne wartości przypisane krawędziom lub wierzchołkom oznaczające jakieś ich właściwości. W zasadzie na tym można by skończyć definicję, ale chcę trochę dopowiedzieć do tematu.
 
-Do tej pory we wszystkich artykułach grafy, które pokazywałem, były nieważone. W kontekście wyboru ścieżek oznaczało to tyle, że nieważne, którą drogą szliśmy, najważniejsze było przejść przez jak najmniej wierzchołków czy też krawędzi (zależy, jak spojrzymy). Jeśli pamiętasz mój <Link href="/post/praktyczne-zastosowania-przechodzenia-po-grafie">poprzedni artykuł o zastosowaniach przechodzenia po grafie</Link>, to nieznacznie modyfikując przechodzenie wszerz (BFS), mogliśmy wyznaczyć najkrótsze ścieżki. Jest to proste i przyjemne podejście, ale jak wspomniałem na wstępie — gdy szukamy ścieżek, rzadko mamy do czynienia z grafem nieważonym.
+Do tej pory we wszystkich artykułach grafy, które pokazywałem, były nieważone. W kontekście wyboru ścieżek oznaczało to tyle, że nieważne, którą drogą szliśmy, najważniejsze było przejść przez jak najmniej wierzchołków czy też krawędzi (zależy, jak spojrzymy). Jeśli pamiętasz mój [poprzedni artykuł o zastosowaniach przechodzenia po grafie](/post/praktyczne-zastosowania-przechodzenia-po-grafie), to nieznacznie modyfikując przechodzenie wszerz (BFS), mogliśmy wyznaczyć najkrótsze ścieżki. Jest to proste i przyjemne podejście, ale jak wspomniałem na wstępie — gdy szukamy ścieżek, rzadko mamy do czynienia z grafem nieważonym.
 
 Dlaczego tak jest? Otóż jako ścieżkę zwykle traktujemy drogę, którą należy przejść z miejsca do miejsca. Jeśli nasz graf reprezentuje miasta i połączenia drogowe między nimi, wagą krawędzi może być odległość między dwoma miastami. Szukamy najkrótszej ścieżki między komputerami w rozległej sieci (takiej jak Internet)? Ścieżkami będą oczywiście połączenia między urządzeniami (routerami), ale wagami mogą być np. średnie opóźnienia w przesyle pakietów.
 
@@ -132,7 +132,7 @@ Możemy to zapisać jako prosty algorytm. Na wejściu otrzymujemy:
 
 #### Użycie relaksacji do znalezienia najkrótszych ścieżek
 
-Pomysł stojący za algorytmem Bellmana-Forda jest bardzo prosty. Relaksację wykonujemy, co oczywiste, dla wszystkich krawędzi. Jednak nie wystarczy raz. Jeśli pamiętasz <Link href="/post/sortowanie-cz-2-sortowanie-babelkowe">sortowanie bąbelkowe</Link>, to tam w celu wykonania algorytmu musieliśmy powtórzyć operację przechodzenia po tablicy z zamianą elementów tyle razy, ile było w niej elementów. Analogicznie jest tutaj. Relaksację wszystkich krawędzi musimy powtórzyć tyle razy, do ilu wierzchołków szukamy ścieżek (czyli o 1 mniej niż liczba wszystkich wierzchołków w grafie).
+Pomysł stojący za algorytmem Bellmana-Forda jest bardzo prosty. Relaksację wykonujemy, co oczywiste, dla wszystkich krawędzi. Jednak nie wystarczy raz. Jeśli pamiętasz [sortowanie bąbelkowe](/post/sortowanie-cz-2-sortowanie-babelkowe), to tam w celu wykonania algorytmu musieliśmy powtórzyć operację przechodzenia po tablicy z zamianą elementów tyle razy, ile było w niej elementów. Analogicznie jest tutaj. Relaksację wszystkich krawędzi musimy powtórzyć tyle razy, do ilu wierzchołków szukamy ścieżek (czyli o 1 mniej niż liczba wszystkich wierzchołków w grafie).
 
 W zasadzie na tym moglibyśmy zakończyć podstawowy opis algorytmu. Ciągłe powtarzanie relaksacji to podstawowa idea algorytmu Bellmana-Forda. Jednak jest jeszcze jeden aspekt, który przytoczyłem we wprowadzeniu teoretycznym.
 
@@ -160,7 +160,7 @@ Algorytm na wejściu przyjmuje graf `G` i wierzchołek startowy `s` oraz funkcj�
     1. Dla każdej krawędzi `(u,v)`:
         1. Jeśli `d[v] > d[u] + w(u,v)`, zwróć błąd, że istnieje w grafie cykl z wagami ujemnymi.
 
-Samo wypisanie najkrótszych ścieżek wygląda analogicznie jak w przypadku szukania ich algorytmem BFS, co pokazywałem <Link href="/post/praktyczne-zastosowania-przechodzenia-po-grafie">w poprzednim artykule</Link>.
+Samo wypisanie najkrótszych ścieżek wygląda analogicznie jak w przypadku szukania ich algorytmem BFS, co pokazywałem [w poprzednim artykule](/post/praktyczne-zastosowania-przechodzenia-po-grafie).
 
 ### Złożoność
 
@@ -266,7 +266,7 @@ Tym samym zakładamy, że jeśli jesteśmy na wierzchołku, który znajduje się
 
 To, co wbrew pozorom może być podchwytliwe w algorytmie, to sposób, w jaki powinniśmy wybrać wierzchołek aktualnie najbliższy do źródłowego. O ile wydaje się to proste do zrobienia i każdy raczej umie znaleźć minimum, pytanie brzmi, jak zrobić to wydajnie?
 
-Ponownie wracając myślami do sortowania, przypomnij sobie algorytm <Link href="/post/sortowanie-cz-4-sortowanie-przez-wybieranie/">sortowania przez kopcowanie</Link>. Stosowaliśmy tam specjalną, dodatkową strukturę danych (kopiec), która umożliwiała szybkie znalezienie największego bądź najmniejszego elementu. Podobnie jest tutaj. Niekoniecznie musimy zastosować kopiec, tylko ogólnie mówiąc — kolejkę priorytetową (dokładniej — typu min).
+Ponownie wracając myślami do sortowania, przypomnij sobie algorytm [sortowania przez kopcowanie](/post/sortowanie-cz-4-sortowanie-przez-wybieranie/). Stosowaliśmy tam specjalną, dodatkową strukturę danych (kopiec), która umożliwiała szybkie znalezienie największego bądź najmniejszego elementu. Podobnie jest tutaj. Niekoniecznie musimy zastosować kopiec, tylko ogólnie mówiąc — kolejkę priorytetową (dokładniej — typu min).
 
 Kolejka priorytetowa to abstrakcyjny typ danych będący zbiorem elementów, z którego zawsze możemy się dostać do mającego najmniejszą (typ min) lub największą (typ max) wartość*. W kontekście algorytmu Dijkstry nasza kolejka musi mieć trzy operacje:
 
@@ -274,7 +274,7 @@ Kolejka priorytetowa to abstrakcyjny typ danych będący zbiorem elementów, z k
 - zwrócenie elementu najmniejszego z jednoczesnym usunięciem go z kolejki
 - zmiana wartości elementu
 
-Kolejki mogą być implementowane na różne sposoby. Mogą to być <Link href="/post/listy-z-dowiazaniami">listy</Link> lub <Link href="/post/tablice-i-listy-tablicowe">tablice</Link> sortowane podczas wstawiania, kopce albo drzewa. Zanim zaczniesz implementację algorytmu Dijkstry, zapoznaj się, która implementacja jaką wydajnością się charakteryzuje. Najczęściej przy implementacji algorytmu Dijkstry jako kolejki stosuje się kopiec binarny (czyli taki jak w sortowaniu przez kopcowanie) — jest to podejście opracowane przez D. Johnsona w 1977 r. Wszystkie z interesujących nas operacji wykonuje on w czasie $$\Omicron(\log{n})$$, co jest całkowicie akceptowalne. Natomiast jeśli chcielibyśmy optymalizować, to kopiec Fibonacciego wykonuje wstawianie oraz zmianę wartości w czasie liniowym $$\Omicron(1)$$ (usunięcie najmniejszego elementu wciąż jest w czasie logarytmicznym). Mówimy wówczas o podejściu opracowanym przez M. Fredmana i R. Tarjana w 1984 r. Oryginalny algorytm opisany przez Dijkstrę bazował na tablicach.
+Kolejki mogą być implementowane na różne sposoby. Mogą to być [listy](/post/listy-z-dowiazaniami) lub [tablice](/post/tablice-i-listy-tablicowe) sortowane podczas wstawiania, kopce albo drzewa. Zanim zaczniesz implementację algorytmu Dijkstry, zapoznaj się, która implementacja jaką wydajnością się charakteryzuje. Najczęściej przy implementacji algorytmu Dijkstry jako kolejki stosuje się kopiec binarny (czyli taki jak w sortowaniu przez kopcowanie) — jest to podejście opracowane przez D. Johnsona w 1977 r. Wszystkie z interesujących nas operacji wykonuje on w czasie $$\Omicron(\log{n})$$, co jest całkowicie akceptowalne. Natomiast jeśli chcielibyśmy optymalizować, to kopiec Fibonacciego wykonuje wstawianie oraz zmianę wartości w czasie liniowym $$\Omicron(1)$$ (usunięcie najmniejszego elementu wciąż jest w czasie logarytmicznym). Mówimy wówczas o podejściu opracowanym przez M. Fredmana i R. Tarjana w 1984 r. Oryginalny algorytm opisany przez Dijkstrę bazował na tablicach.
 
 \* W nomenklaturze kolejek poprawnie powinno się na to mówić *klucz*, jednak nazwa ta może być myląca dla osób nieobeznanych z teorią tej struktury danych. W artykule będę raczej trzymać się nazwy *wartość* lub *priorytet* zamiast *klucz*.
 
@@ -537,7 +537,7 @@ W tym miejscu warto też wspomnieć o jeszcze jednym popularnym algorytmie zwią
 W tym artykule dowiedzieliśmy się, jak działają trzy algorytmy wyszukiwania najkrótszych ścieżek w grafach. Podsumujmy krótko, w których sytuacjach który algorytm stosujemy i jaką ma wydajność:
 
 - Jeśli potrzebujemy znać wszystkie ścieżki w grafie, korzystamy z algorytmu Floyda-Warshalla. Musimy tylko pamiętać, że nie możemy mieć ujemnych cykli. Algorytm ma złożoność czasową $$\Omicron(|V|^3)$$.
-- Jeśli graf jest nieważony, to nie używamy żadnego z powyższych algorytmów, tylko korzystamy z BFS, tak jak to opisałem <Link href="/post/praktyczne-zastosowania-przechodzenia-po-grafie">w poprzednim artykule</Link>. Algorytm ma złożoność czasową $$\Omicron(|E|+|V|)$$.
+- Jeśli graf jest nieważony, to nie używamy żadnego z powyższych algorytmów, tylko korzystamy z BFS, tak jak to opisałem [w poprzednim artykule](/post/praktyczne-zastosowania-przechodzenia-po-grafie). Algorytm ma złożoność czasową $$\Omicron(|E|+|V|)$$.
 - Jeśli graf jest ważony i wagi są nieujemne, korzystamy z algorytmu Dijkstry. Algorytm ma złożoność czasową $$\Omicron(|E|+|V| \log{|V|})$$, jeśli jest oparty na kopcu Fibonacciego.
 - W innych przypadkach korzystamy z algorytmu Bellmana-Forda. Algorytm ma złożoność czasową $$\Omicron(|V| \cdot |E|)$$.
 

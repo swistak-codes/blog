@@ -66,9 +66,9 @@ Na początek definicje związane z samą kompresją:
 
 Teraz przejdźmy do kilku definicji z dziedziny grafiki, które się nam przydadzą do zrozumienia artykułu:
 
-- **Grafika rastrowa** — jest to rodzaj grafiki zapisanej w postaci siatki pikseli, każdy o konkretnej barwie. Pliki tego typu nazywamy bitmapami. Grafika ta charakteryzuje się tym, że ma ograniczoną rozdzielczość (np. Full HD, czyli 1920×1080 pikseli). Tak zapisujemy zdjęcia, obrazy cyfrowe, zrzuty ekranu. W ten sposób obraz jest <Link href="/post/jak-komputer-rysuje-linie/#sk%C4%85d-bierze-si%C4%99-obraz-na-monitorze">trzymany na karcie graficznej</Link> do dalszego wyświetlenia na ekranie. Też tym właśnie rodzajem grafiki zajmiemy się w tym artykule.
-- **Grafika wektorowa** — tą akurat nie będziemy się tutaj zajmować, ale wspomnę z kronikarskiego obowiązku. Charakteryzuje się tym, że nie jest opisana pikselami, tylko za pomocą aparatu matematycznego (np. stosując <Link href="/post/krzywe-beziera/">krzywe Béziera</Link>), więc nie jesteśmy ograniczeni rozdzielczością, a co najwyżej wydajnością obliczeniową aplikacji rysującej. W tej postaci zwykle trzymamy różne cyfrowe rysunki: ikony, wykresy, diagramy, grafiki inżynierskie (CAD) czy niektóre grafiki użytkowe (np. clip arty).
-- **Przestrzeń barw** — sposób zapisu koloru. Najczęściej spotykamy się w grafice komputerowej z reprezentacją w postaci RGB, czyli ile światła czerwonego, zielonego i niebieskiego jest potrzebne, aby odtworzyć barwę. Temat szerzej opisałem w artykule *<Link href="/post/jak-komputer-zapisuje-kolory">Jak komputer zapisuje kolory?</Link>*, który polecam przeczytać, bo opisuje też inne przestrzenie barw przydatne w kontekście tego artykułu.
+- **Grafika rastrowa** — jest to rodzaj grafiki zapisanej w postaci siatki pikseli, każdy o konkretnej barwie. Pliki tego typu nazywamy bitmapami. Grafika ta charakteryzuje się tym, że ma ograniczoną rozdzielczość (np. Full HD, czyli 1920×1080 pikseli). Tak zapisujemy zdjęcia, obrazy cyfrowe, zrzuty ekranu. W ten sposób obraz jest [trzymany na karcie graficznej](/post/jak-komputer-rysuje-linie/#sk%C4%85d-bierze-si%C4%99-obraz-na-monitorze) do dalszego wyświetlenia na ekranie. Też tym właśnie rodzajem grafiki zajmiemy się w tym artykule.
+- **Grafika wektorowa** — tą akurat nie będziemy się tutaj zajmować, ale wspomnę z kronikarskiego obowiązku. Charakteryzuje się tym, że nie jest opisana pikselami, tylko za pomocą aparatu matematycznego (np. stosując [krzywe Béziera](/post/krzywe-beziera/)), więc nie jesteśmy ograniczeni rozdzielczością, a co najwyżej wydajnością obliczeniową aplikacji rysującej. W tej postaci zwykle trzymamy różne cyfrowe rysunki: ikony, wykresy, diagramy, grafiki inżynierskie (CAD) czy niektóre grafiki użytkowe (np. clip arty).
+- **Przestrzeń barw** — sposób zapisu koloru. Najczęściej spotykamy się w grafice komputerowej z reprezentacją w postaci RGB, czyli ile światła czerwonego, zielonego i niebieskiego jest potrzebne, aby odtworzyć barwę. Temat szerzej opisałem w artykule *[Jak komputer zapisuje kolory?](/post/jak-komputer-zapisuje-kolory)*, który polecam przeczytać, bo opisuje też inne przestrzenie barw przydatne w kontekście tego artykułu.
 
 ### Przetwarzanie sygnałów
 
@@ -95,7 +95,7 @@ Jeszcze kilka innych pojęć, tym razem z dziedziny przetwarzania sygnałów, bo
       href="https://creativecommons.org/licenses/by-sa/4.0">CC BY-SA 4.0</a>, via Wikimedia Commons</>}
 />
 
-Dodam, że podstawowe zagadnienia z zakresu przetwarzania sygnałów, ale w kontekście dźwięku, opisałem w artykule *<Link href="/post/jak-komputer-zapisuje-dzwiek">Jak komputer zapisuje dźwięk?</Link>*, który również polecam przeczytać w wolnej chwili.
+Dodam, że podstawowe zagadnienia z zakresu przetwarzania sygnałów, ale w kontekście dźwięku, opisałem w artykule *[Jak komputer zapisuje dźwięk?](/post/jak-komputer-zapisuje-dzwiek)*, który również polecam przeczytać w wolnej chwili.
 
 ## Techniki kompresji bezstratnej
 
@@ -125,7 +125,7 @@ Od razu widzimy, że o ile faktycznie rozmiar zmalał, tak dość niebezpiecznie
 
 To kodowanie niestety sprawdza się tylko w obrazach, gdzie pojedyncze barwy często się powtarzają. Jest jednak na tyle proste, że często stosowano w dawnych czasach, kiedy nie było zbyt dużo mocy obliczeniowej. Wspominałem już, że kompresję tę wspiera format BMP, ale także m.in. TGA oraz PCX. Tylko czy w ostatnich latach w ogóle spotkaliście się z tymi formatami?
 
-Jeszcze żeby pokazać działanie w praktyce, poniżej możesz zobaczyć zawartość (w postaci <Link href="/post/systemy-liczbowe-uzupelnienie/#system-szesnastkowy-heksadecymalny">heksadecymalnej</Link>) dwóch plików TGA. Oba są obrazkiem o wymiarach 8×8 (64 piksele), 8-bitowym, zawierającym czarny kwadrat. U góry jest plik nieskompresowany, na dole zakodowany przez RLE. Na niebiesko zaznaczyłem fragment zawierający dane o obrazie.
+Jeszcze żeby pokazać działanie w praktyce, poniżej możesz zobaczyć zawartość (w postaci [heksadecymalnej](/post/systemy-liczbowe-uzupelnienie/#system-szesnastkowy-heksadecymalny)) dwóch plików TGA. Oba są obrazkiem o wymiarach 8×8 (64 piksele), 8-bitowym, zawierającym czarny kwadrat. U góry jest plik nieskompresowany, na dole zakodowany przez RLE. Na niebiesko zaznaczyłem fragment zawierający dane o obrazie.
 
 <Image
   image={tgaNoComp}
@@ -156,7 +156,7 @@ Teraz omówmy sobie krótko jeden z najbardziej podstawowych algorytmów kompres
 
 Kodowanie Huffmana to technika, w której każdemu znakowi ustalamy unikalny kod (zapisany binarnie) na podstawie częstotliwości występowania. Im częściej znak występuje, tym krótszy kod ma przypisany. Możesz to skojarzyć z kodem Morse'a, gdzie długość sygnału jest zależna od tego, jak często dany znak występuje w języku angielskim. Jednak tutaj, w przeciwieństwie do kodu Morse'a, nie mamy sygnalizacji stopu, więc kody są układane tak, aby jeden kod nie był początkiem innego.
 
-Ułożoną listę kodów nazywamy drzewem Huffmana i poniżej możesz zobaczyć przykładowe <Link href="/post/sortowanie-cz-4-sortowanie-przez-wybieranie/#drzewa--podstawy">drzewo</Link> dla rozpatrywanego wcześniej ciągu `ssssswwwiiiiistakkkkkkkk`:
+Ułożoną listę kodów nazywamy drzewem Huffmana i poniżej możesz zobaczyć przykładowe [drzewo](/post/sortowanie-cz-4-sortowanie-przez-wybieranie/#drzewa--podstawy) dla rozpatrywanego wcześniej ciągu `ssssswwwiiiiistakkkkkkkk`:
 
 <Image
   image={huffmanSwistak}
@@ -171,7 +171,7 @@ Ułożoną listę kodów nazywamy drzewem Huffmana i poniżej możesz zobaczyć 
 
 Budowanie takiego drzewa odbywa się następująco:
 - Najpierw zliczamy, ile razy dany znak wystąpił, aby znać prawdopodobieństwo jego wystąpienia.
-- Wszystkie znaki umieszczamy na <Link href="/post/szukanie-najkrotszych-sciezek-w-grafie/#wybór-najbliższego-wierzchołka">kolejce priorytetowej</Link>.
+- Wszystkie znaki umieszczamy na [kolejce priorytetowej](/post/szukanie-najkrotszych-sciezek-w-grafie/#wybór-najbliższego-wierzchołka).
 - Następnie ściągamy dwa znaki z najmniejszymi prawdopodobieństwami i *złączamy* je w drzewo (korzeń niereprezentujący żadnego znaku i dwoje dzieci, które są znakami), sumując ich prawdopodobieństwa, a następnie dodajemy do kolejki.
 - Ściąganie z kolejki i złączanie powtarzamy tak długo, aż w kolejce zostanie tylko jedno drzewo, które jest rezultatem wyszukania kodowania.
 
@@ -336,13 +336,13 @@ Teraz pozwól, że wyjaśnię, co miałem na myśli na początku. W wyniku kwant
 
 Pamiętaj też, że kwantyzacja zachodzi zawsze — rozdzielczość tonalna 24-bitowa daje szerokie spektrum barw, jednak jest to tylko wycinek wszystkich barw, które możemy postrzegać. Nawet w niej, przypatrując się bardziej, możemy zauważyć zjawisko pasmowania. Stąd coraz popularniejsze są jeszcze szerze rozdzielczości tonalne, np. HDR10+, gdzie pojedyncza składowa tonalna jest zapisana na 10 lub 16 bitach, co oznacza, że cały piksel (przy braku podpróbkowania) zajmuje od 30 do 48 bitów.
 
-Bardziej szczegółowe omówienie tematu rozdzielczości tonalnych i sposobu zapisu barw w plikach znajdziesz w artykule *<Link href="/post/jak-komputer-zapisuje-kolory">Jak komputer zapisuje kolory?</Link>*.
+Bardziej szczegółowe omówienie tematu rozdzielczości tonalnych i sposobu zapisu barw w plikach znajdziesz w artykule *[Jak komputer zapisuje kolory?](/post/jak-komputer-zapisuje-kolory)*.
 
 ### Podpróbkowanie chrominancji
 
 Pisałem wyżej o tym, że możemy ograniczać rozdzielczość tonalną, aby zapisywać kolor na mniejszej liczbie bitów. Jest jeszcze jedna technika, gdzie też możemy ograniczyć rozmiar piksela, ale w nieco inny sposób, nie zmieniając rozdzielczości tonalnej. Omówmy podpróbkowanie chrominancji, które możesz lepiej kojarzyć z angielskiej nazwy *chroma subsampling*.
 
-Jak opisywałem w artykule *<Link href="/post/jak-komputer-zapisuje-kolory">Jak komputer zapisuje kolory?</Link>*, na potrzeby kolorowej telewizji powstał zapis barw w przestrzeni YCbCr (i innych podobnych). Y to kanał chrominancji, czyli jasności (obraz w skali szarości), a Cb i Cr to kanały różnicy barw. Po złączeniu tych kanałów w całość otrzymujemy pełen kolorowy obraz. Tylko co to ma do kompresji?
+Jak opisywałem w artykule *[Jak komputer zapisuje kolory?](/post/jak-komputer-zapisuje-kolory)*, na potrzeby kolorowej telewizji powstał zapis barw w przestrzeni YCbCr (i innych podobnych). Y to kanał chrominancji, czyli jasności (obraz w skali szarości), a Cb i Cr to kanały różnicy barw. Po złączeniu tych kanałów w całość otrzymujemy pełen kolorowy obraz. Tylko co to ma do kompresji?
 
 Otóż ludzki mózg przetwarza w wyższej rozdzielczości jasność niż odcień i nasycenie. Postanowiono to wykorzystać i kompresować obraz w ten sposób, że o ile każdy piksel otrzymuje pełną informację na temat swojej jasności (kanał Y), to kanały Cb i Cr są uśrednione dla kilku sąsiadujących pikseli. Zapisuje się to zwykle jako trzyczęściową proporcję, oznaczaną jako J:a:b (np. 4:2:0). W zapisie tym:
 

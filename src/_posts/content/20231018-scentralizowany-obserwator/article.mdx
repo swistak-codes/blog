@@ -32,7 +32,7 @@ export const meta = {
 
 ## Uwaga wstępna
 
-Tekst jest bezpośrednią kontynuacją artykułu *<Link href="/post/obserwator">Podstawy działania UI — wzorzec obserwator</Link>*. Jeśli go nie przeczytałeś(-aś), polecam to nadrobić, ponieważ będę zakładać, że tematy tam poruszone są Ci znane.
+Tekst jest bezpośrednią kontynuacją artykułu *[Podstawy działania UI — wzorzec obserwator](/post/obserwator)*. Jeśli go nie przeczytałeś(-aś), polecam to nadrobić, ponieważ będę zakładać, że tematy tam poruszone są Ci znane.
 
 ## Publish-Subscribe
 
@@ -82,7 +82,7 @@ Jeszcze inną implementacją wzorca Pub-Sub są serwisy społecznościowe. Broke
 
 #### Pomysł
 
-Zaimplementujmy w takim razie programową wersję Pub-Suba, korzystając z uproszczonej implementacji wzorca obserwator, którą pokazałem <Link href="/post/obserwator/#implementacja-1">w poprzednim artykule</Link> ([link do oryginalnego Replit](https://replit.com/@tswistak/simplified-observer-ts#index.ts)). Zmienimy ją w taki sposób, że `Subject` przerobimy na brokera wiadomości rozsyłającego komunikaty do subskrybentów tematu. Tym samym w funkcji subskrybującej trzeba będzie zdefiniować, jaki temat interesuje subskrybenta. W tej implementacji zrezygnujemy z przechowywania wiadomości, więc nie będzie funkcji `getState()`, natomiast zamiast `setState(newValue)` zrobimy `sendMessage(channel, message)`, która roześle komunikat do subskrybentów. Dla uproszczenia kodu kanały będą zwykłymi ciągami znaków i nie będziemy walidować przy subskrypcji ani wysyłaniu wiadomości, czy wskazany kanał istnieje.
+Zaimplementujmy w takim razie programową wersję Pub-Suba, korzystając z uproszczonej implementacji wzorca obserwator, którą pokazałem [w poprzednim artykule](/post/obserwator/#implementacja-1) ([link do oryginalnego Replit](https://replit.com/@tswistak/simplified-observer-ts#index.ts)). Zmienimy ją w taki sposób, że `Subject` przerobimy na brokera wiadomości rozsyłającego komunikaty do subskrybentów tematu. Tym samym w funkcji subskrybującej trzeba będzie zdefiniować, jaki temat interesuje subskrybenta. W tej implementacji zrezygnujemy z przechowywania wiadomości, więc nie będzie funkcji `getState()`, natomiast zamiast `setState(newValue)` zrobimy `sendMessage(channel, message)`, która roześle komunikat do subskrybentów. Dla uproszczenia kodu kanały będą zwykłymi ciągami znaków i nie będziemy walidować przy subskrypcji ani wysyłaniu wiadomości, czy wskazany kanał istnieje.
 
 #### Implementacja w TypeScript
 

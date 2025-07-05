@@ -61,7 +61,7 @@ Tylko teraz możesz powiedzieć, że coś tu nie gra. W końcu mieliśmy dostać
 
 ### Układ współrzędnych biegunowych
 
-Otóż są to współrzędne, tylko w układzie współrzędnych biegunowych. Jeśli jesteś zaznajomiony(-a) z moim blogiem, mogłeś(-aś) już czytać o <Link href="/post/szybkie-wyszukiwanie-sciezek/">układzie współrzędnych Manhattan czy Czebyszewa</Link>, więc niekartezjańskie układy nie powinny być Ci obce. Różnica jest jednak taka, że tamte układy dalej operowały na współrzędnych $$x$$ i $$y$$, a różniły się jedynie sposobem określania odległości między punktami.
+Otóż są to współrzędne, tylko w układzie współrzędnych biegunowych. Jeśli jesteś zaznajomiony(-a) z moim blogiem, mogłeś(-aś) już czytać o [układzie współrzędnych Manhattan czy Czebyszewa](/post/szybkie-wyszukiwanie-sciezek/), więc niekartezjańskie układy nie powinny być Ci obce. Różnica jest jednak taka, że tamte układy dalej operowały na współrzędnych $$x$$ i $$y$$, a różniły się jedynie sposobem określania odległości między punktami.
 
 W przypadku układu współrzędnych biegunowych (po ang. *polar coordinate system*) każdy punkt reprezentowany jest przez promień ($$r$$) i kąt ($$\theta$$). Bardziej fachowo mówiąc, są to promień wodzący punktu oraz jego amplituda. Sam układ moglibyśmy narysować mniej więcej w następujący sposób:
 
@@ -74,7 +74,7 @@ W przypadku układu współrzędnych biegunowych (po ang. *polar coordinate syst
   caption={<>Układ współrzędnych biegunowych z oznaczonymi kątami co 30 stopni. Zwykle jednak, rysując ten układ, pomijamy opisywanie kątów.<br />(źródło: <a href="https://commons.wikimedia.org/wiki/File:Polar_graph_paper.svg">Mets501</a>, <a href="http://creativecommons.org/licenses/by-sa/3.0/">CC BY-SA 3.0</a>, via Wikimedia Commons)</>}
 />
 
-Nie wnikajmy jakoś głęboko w matematykę stojącą za tym układem, jego historię czy zastosowania. Nas przede wszystkim będzie interesować, jak współrzędne układu biegunowego przekształcić we współrzędne kartezjańskie. A to możemy zrobić wzorem, który wyprowadziłem <Link href="/post/jak-narysowac-zegar-analogowy/#zegar-analogowy-z-punktu-widzenia-matematyki">w poprzednim artykule</Link>, dla znalezienia pozycji na okręgu, gdy znamy jego promień i kąt środkowy. Nie będę ponownie pokazywać, w jaki sposób go wyprowadzić; jeśli jesteś ciekaw(a), przeczytaj poprzedni artykuł poświęcony rysowaniu zegara analogowego. Tutaj po prostu przepiszę gotowe wzory:
+Nie wnikajmy jakoś głęboko w matematykę stojącą za tym układem, jego historię czy zastosowania. Nas przede wszystkim będzie interesować, jak współrzędne układu biegunowego przekształcić we współrzędne kartezjańskie. A to możemy zrobić wzorem, który wyprowadziłem [w poprzednim artykule](/post/jak-narysowac-zegar-analogowy/#zegar-analogowy-z-punktu-widzenia-matematyki), dla znalezienia pozycji na okręgu, gdy znamy jego promień i kąt środkowy. Nie będę ponownie pokazywać, w jaki sposób go wyprowadzić; jeśli jesteś ciekaw(a), przeczytaj poprzedni artykuł poświęcony rysowaniu zegara analogowego. Tutaj po prostu przepiszę gotowe wzory:
 
 $$
 \begin{align*}
@@ -126,7 +126,7 @@ Nie będziemy implementować opisanych tu spiral, ale zachęcam do przerobienia 
 
 ## Przygotowanie środowiska programistycznego
 
-Podobnie jak w przypadku <Link href="/post/jak-narysowac-zegar-analogowy">rysowania zegara</Link>, tak i tutaj zrobimy to w przeglądarkowym JavaScripcie, wykorzystując element `<canvas>` (płótno) do rysowania. W tamtym artykule dałem bardziej szczegółowe instrukcje, w jaki sposób przygotować odpowiedniego HTML-a, więc zapraszam tam po szczegóły. Tutaj tylko w skrócie napiszę, że potrzebujemy mieć następujący tag:
+Podobnie jak w przypadku [rysowania zegara](/post/jak-narysowac-zegar-analogowy), tak i tutaj zrobimy to w przeglądarkowym JavaScripcie, wykorzystując element `<canvas>` (płótno) do rysowania. W tamtym artykule dałem bardziej szczegółowe instrukcje, w jaki sposób przygotować odpowiedniego HTML-a, więc zapraszam tam po szczegóły. Tutaj tylko w skrócie napiszę, że potrzebujemy mieć następujący tag:
 
 ```html
 <canvas id="canvas" width="500" height="500">
@@ -194,7 +194,7 @@ Parametr $$a$$ o wartości 5 da ładnie rozsunięte ramiona spirali, a $$b$$ ró
 
 ### Iteracyjne odkrywanie punktów spirali
 
-Następnie musimy <Link href="/post/iteracja-co-to-jest">iteracyjnie</Link> odkryć punkty spirali, które narysujemy. Wykorzystamy pętlę typu `while`, ponieważ nie jesteśmy w stanie z góry określić liczby iteracji. Dlaczego? Otóż wiemy, jak kąt będzie przyrastać, ale nie wiemy, jaki będzie maksymalny. Znamy natomiast maksymalny promień, ale jego przyrost zależy od przyrastania kąta. Pętla `for` w takim przypadku nie jest naturalnym wyborem.
+Następnie musimy [iteracyjnie](/post/iteracja-co-to-jest) odkryć punkty spirali, które narysujemy. Wykorzystamy pętlę typu `while`, ponieważ nie jesteśmy w stanie z góry określić liczby iteracji. Dlaczego? Otóż wiemy, jak kąt będzie przyrastać, ale nie wiemy, jaki będzie maksymalny. Znamy natomiast maksymalny promień, ale jego przyrost zależy od przyrastania kąta. Pętla `for` w takim przypadku nie jest naturalnym wyborem.
 
 Jednak aby odpowiednio wysterować taką pętlę, musimy poza pętlą zainicjować dwie zmienne: ostatnio wyliczony promień i aktualny kąt. Damy im zerowe wartości:
 

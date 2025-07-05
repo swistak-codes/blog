@@ -215,7 +215,7 @@ Jest to oczywiście mocno uproszczona definicja, a jeśli jesteś bardziej zaint
 
 Aby móc obliczyć, jaki zestaw ruchów jest dla nas najlepszy, a jednocześnie najgorszy dla przeciwnika, musimy wygenerować wszelkie możliwe stany planszy dostępne po każdym z ruchów. W zależności od tego, jaki ruch wykonamy w aktualnej turze, inne ruchy są dostępne dla przeciwnika w kolejnej. Od tego, który ruch wykona przeciwnik, zależy, jakie ruchy my możemy dalej wykonać. Tworzy to strukturę zwaną drzewem stanu gry.
 
-Czym są drzewa w informatyce, omawiałem przy okazji <Link href="/post/sortowanie-cz-4-sortowanie-przez-wybieranie">sortowania przez wybieranie</Link>, i bardzo zachęcam do przeczytania tam o teorii, jeśli spotykasz się z tym pojęciem po raz pierwszy.
+Czym są drzewa w informatyce, omawiałem przy okazji [sortowania przez wybieranie](/post/sortowanie-cz-4-sortowanie-przez-wybieranie), i bardzo zachęcam do przeczytania tam o teorii, jeśli spotykasz się z tym pojęciem po raz pierwszy.
 
 W naszym drzewie stanu gry, jak wspomniałem wcześniej, każdy węzeł będzie stanem planszy w danym momencie. Potomkami takiego węzła będą kolejne ruchy, jakie mogą zostać wykonane po tym ruchu. Innymi słowy, będziemy musieli wygenerować wszystkie możliwe stany gry, aby algorytm mógł wybrać najlepszy ruch. Jak się możesz domyślać, nie jest to idealne podejście. O ile w przypadku tak prostej gry, jak kółko i krzyżyk, uda się to zrobić w rozsądnym czasie, o tyle w bardziej zaawansowanych grach, jak np. szachy, jest to niewykonalne, stąd stosuje się powszechnie różne heurystyki upraszczające drzewo. Część z nich doczekała się opisania jako oddzielne algorytmy, o czym opowiadam później.
 

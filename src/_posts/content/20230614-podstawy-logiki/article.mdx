@@ -68,7 +68,7 @@ Operując językiem naturalnym, zdaniami byłyby stwierdzenia typu „jestem gł
 
 Rachunek zdań jest wtedy, kiedy zdania łączymy spójnikami. Otrzymujemy wówczas nowe zdania, które również mają wartość logiczną wynikającą z wartości składowych zdań (zwanych składnikami) i tego, jak działa spójnik (operator). Jeśli powiesz „jestem głodny i słucham muzyki”, słuchając muzyki (drugie zdanie prawdziwe) i będąc najedzonym (pierwsze fałszywe), to skłamiesz — czyli nowe zdanie jest fałszywe.
 
-Przejdźmy teraz na język logiki matematycznej. Tutaj zdania oznaczamy zwykle symbolami $$p,q,r,s$$, natomiast wartości: *prawda* to 1, *fałsz* to 0. Można by powiedzieć, że operujemy <Link href="/post/matematyka-zero-jedynkowa">systemem binarnym</Link>, co z punktu widzenia informatyki jest dość istotne.
+Przejdźmy teraz na język logiki matematycznej. Tutaj zdania oznaczamy zwykle symbolami $$p,q,r,s$$, natomiast wartości: *prawda* to 1, *fałsz* to 0. Można by powiedzieć, że operujemy [systemem binarnym](/post/matematyka-zero-jedynkowa), co z punktu widzenia informatyki jest dość istotne.
 
 ## Podstawowe spójniki logiczne
 
@@ -110,7 +110,7 @@ Przykłady działania w języku programowania (wyniki zapisane jako komentarze):
 ~-201 // 200
 ```
 
-Jeśli jesteś ciekaw(a), dlaczego negacja w postaci operatora bitowego zamienia liczby na ujemne mniejsze o 1, to wynika to z tego, że w pokazanym tu języku liczby są zapisane ze znakiem, a dokładniej <Link href="/post/sposoby-zapisywania-liczb-przez-komputery/#liczby-ca%C5%82kowite">kodowaniem U2</Link>. Gdybyśmy korzystali z typów całkowitoliczbowych bez znaku, wyglądałoby to następująco (typ 8-bitowy, taki jak `unsigned char` z C):
+Jeśli jesteś ciekaw(a), dlaczego negacja w postaci operatora bitowego zamienia liczby na ujemne mniejsze o 1, to wynika to z tego, że w pokazanym tu języku liczby są zapisane ze znakiem, a dokładniej [kodowaniem U2](/post/sposoby-zapisywania-liczb-przez-komputery/#liczby-ca%C5%82kowite). Gdybyśmy korzystali z typów całkowitoliczbowych bez znaku, wyglądałoby to następująco (typ 8-bitowy, taki jak `unsigned char` z C):
 
 ```javascript
 ~0 // 255
@@ -237,7 +237,7 @@ $$
 
 ### Alternatywa rozłączna (XOR)
 
-Omówiliśmy sobie podstawowe funktory, z którymi ma się do czynienia w logice matematycznej. Przejdźmy teraz do tych mniej podstawowych, ale jak wspomniałem, istotnych z punktu widzenia informatyki i elektroniki. Zacznijmy od alternatywy rozłącznej, którą już krótko omawiałem przy okazji <Link href="/post/sumy-kontrolne">sum kontrolnych</Link>.
+Omówiliśmy sobie podstawowe funktory, z którymi ma się do czynienia w logice matematycznej. Przejdźmy teraz do tych mniej podstawowych, ale jak wspomniałem, istotnych z punktu widzenia informatyki i elektroniki. Zacznijmy od alternatywy rozłącznej, którą już krótko omawiałem przy okazji [sum kontrolnych](/post/sumy-kontrolne).
 
 Alternatywę rozłączną (XOR) w polskiej literaturze zwykle oznaczamy symbolem $$\underline{\lor}$$ (spotyka się też $$\dot{\lor}$$ i $$\oplus$$; to drugie szczególnie w anglojęzycznym świecie). Zdanie $$p \underline{\lor} q$$ moglibyśmy przeczytać jako „albo $$p$$, albo $$q$$”. Jej wartość to zaprzeczenie równoważności, czyli otrzymujemy informację, czy składowe zdania są różne od siebie. Stąd skrótowa nazwa równoważności to XNOR, a więc zanegowane XOR.
 
@@ -416,11 +416,11 @@ Warto wspomnieć, że operację `[liczba] & 1` możemy wykorzystać do sprawdzen
 
 Warto jednak pamiętać, że tak drobiazgowa optymalizacja nie zawsze jest potrzebna i w zupełności może wystarczyć tradycyjne sprawdzenie podzielności przez 2 (`[liczba] % 2`).
 
-Przykład, jak takie sprawdzenie parzystości wygląda w praktyce, pokazałem w artykule <Link href="/post/szybkie-potegowanie/#kod-według-definicji-binarnej">o szybkim potęgowaniu</Link>, gdzie zapraszam.
+Przykład, jak takie sprawdzenie parzystości wygląda w praktyce, pokazałem w artykule [o szybkim potęgowaniu](/post/szybkie-potegowanie/#kod-według-definicji-binarnej), gdzie zapraszam.
 
 ### Kryptografia
 
-Przejdźmy teraz do XOR. O przykładowym jego zastosowaniu przy obliczaniu kodów CRC napisałem <Link href="/post/sumy-kontrolne">w artykule o sumach kontrolnych</Link>, ale zobaczmy jeszcze inne zastosowania. Szczególnie te związane z kryptografią, bo tutaj w niemal każdym bardziej zaawansowanym algorytmie, czy to szyfrowania, czy funkcji haszujących, znajdziemy tę operację, między innymi dlatego, że jest odwracalna, co pokazałem wcześniej na przykładzie w kodzie.
+Przejdźmy teraz do XOR. O przykładowym jego zastosowaniu przy obliczaniu kodów CRC napisałem [w artykule o sumach kontrolnych](/post/sumy-kontrolne), ale zobaczmy jeszcze inne zastosowania. Szczególnie te związane z kryptografią, bo tutaj w niemal każdym bardziej zaawansowanym algorytmie, czy to szyfrowania, czy funkcji haszujących, znajdziemy tę operację, między innymi dlatego, że jest odwracalna, co pokazałem wcześniej na przykładzie w kodzie.
 
 Nawet opierając się na samym XOR, moglibyśmy napisać bardzo prosty algorytm szyfrujący (aczkolwiek nie stosujcie go nigdzie). Zobacz poniższy kod (JavaScript):
 

@@ -189,7 +189,7 @@ Warianty te zapiszemy następująco:
 - dodanie znaku do $$a$$ lub usunięcie znaku z $$b$$: $$\operatorname{lev}(a,b) = \operatorname{lev}(a,\operatorname{tail}(b))$$
 - zmiana znaku: $$\operatorname{lev}(a,b) = \operatorname{lev}(\operatorname{tail}(a),\operatorname{tail}(b))$$
 
-Połączmy wszystko w całość, aby otrzymać <Link href="/post/rekurencja-co-to-jest">wzór rekurencyjny</Link> na odległość Levenshteina:
+Połączmy wszystko w całość, aby otrzymać [wzór rekurencyjny](/post/rekurencja-co-to-jest) na odległość Levenshteina:
 
 $$
 \operatorname{lev}(a,b)=
@@ -245,11 +245,11 @@ Jeśli ciekawi Cię, kiedy to się stanie, zobacz [ten Replit](https://replit.co
 
 ### Wersja iteracyjna
 
-Najpopularniejsza optymalizacja obliczania odległości Levenshteina to jej <Link href="/post/derekursywacja">derekursywacja</Link> wraz z zapamiętywaniem wyników poszczególnych etapów. Często porównujemy ze sobą te same części ciągów, więc warto nie powtarzać obliczeń, a jak już optymalizujemy w ten sposób, nie ma potrzeby trzymać się na siłę rekurencji.
+Najpopularniejsza optymalizacja obliczania odległości Levenshteina to jej [derekursywacja](/post/derekursywacja) wraz z zapamiętywaniem wyników poszczególnych etapów. Często porównujemy ze sobą te same części ciągów, więc warto nie powtarzać obliczeń, a jak już optymalizujemy w ten sposób, nie ma potrzeby trzymać się na siłę rekurencji.
 
 #### Algorytm Wagnera-Fischera
 
-Iteracyjny sposób obliczania był wymyślany wielokrotnie przez różnych informatyków, jednak najbardziej rozpowszechniła się wersja opublikowana przez R. Wagnera i M. Fischera w 1974 r., stąd nazwa algorytm Wagnera-Fischera. Algorytm opiera się na programowaniu dynamicznym, czyli rozbija problem na mniejsze, oblicza je i na tej podstawie dochodzimy do rozwiązania większego problemu. Tę klasę algorytmów możesz znać choćby z popularnego <Link href="/post/szukanie-najkrotszych-sciezek-w-grafie">algorytmu Floyda-Warshalla</Link>. Jednak tłumacząc ten algorytm, postaram się zrobić to bez wchodzenia w niuanse programowania dynamicznego, tylko wytłumaczę, o co w tym chodzi.
+Iteracyjny sposób obliczania był wymyślany wielokrotnie przez różnych informatyków, jednak najbardziej rozpowszechniła się wersja opublikowana przez R. Wagnera i M. Fischera w 1974 r., stąd nazwa algorytm Wagnera-Fischera. Algorytm opiera się na programowaniu dynamicznym, czyli rozbija problem na mniejsze, oblicza je i na tej podstawie dochodzimy do rozwiązania większego problemu. Tę klasę algorytmów możesz znać choćby z popularnego [algorytmu Floyda-Warshalla](/post/szukanie-najkrotszych-sciezek-w-grafie). Jednak tłumacząc ten algorytm, postaram się zrobić to bez wchodzenia w niuanse programowania dynamicznego, tylko wytłumaczę, o co w tym chodzi.
 
 Główna idea stojąca za tym algorytmem jest taka, że konstruujemy dwuwymiarową tablicę (macierz), którą uzupełnimy odległościami Levenshteina dla kombinacji różnych podciągów. Ponieważ będziemy szli od najkrótszych (w tym pustych ciągów) podciągów, zawsze powiększając je o jeden znak, możemy wykorzystać poprzednie obliczenia. Stąd ominiemy rekursję i de facto tu widać już ideę z programowania dynamicznego — rozwiązujemy mały problem, na jego bazie większe, aż rozwiążemy nasz główny problem.
 

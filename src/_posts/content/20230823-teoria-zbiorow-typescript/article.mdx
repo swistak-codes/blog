@@ -36,9 +36,9 @@ export const meta = {
 
 Artykuł zostanie poświęcony rozpatrywaniu języka TypeScript od strony logiki matematycznej, więc zakładam, że znasz jej podstawy. Jeśli nie, zapraszam do moich innych artykułów, gdzie opisuję:
 
-- <Link href="/post/podstawy-logiki">podstawowe pojęcia i rachunek zdań</Link>,
-- <Link href="/post/kwantyfikatory">kwantyfikatory</Link>,
-- <Link href="/post/algebra-zbiorow">algebrę zbiorów</Link>.
+- [podstawowe pojęcia i rachunek zdań](/post/podstawy-logiki),
+- [kwantyfikatory](/post/kwantyfikatory),
+- [algebrę zbiorów](/post/algebra-zbiorow).
 
 W kontekście tego tekstu szczególnie przydadzą Ci się pojęcia z teorii zbiorów.
 
@@ -56,7 +56,7 @@ a === true;
 
 to ten sam kod w TypeScript zostanie uznany za błędny, ponieważ pierwsza linijka będzie implikować, że zmienna jest typu liczbowego, więc nie możemy przypisać do niej ciągu znaków ani przyrównać do wartości logicznej. Możesz to zobaczyć na własną rękę w [TypeScript Playground](https://www.typescriptlang.org/play?#code/G4QwTgBCELwQTARgNwChpwEQBcwC8BPAEzwEsBTQbUABjUiAZwqPIFtM0MY5cBXc5IA), czyli w aplikacji, dzięki której możemy sprawdzać, jak działa TypeScript. Będę stosować linki do niej do zobrazowania wszystkich przykładów w artykule.
 
-TypeScript z racji tego, że musi opisać słabo typowany język, jakim jest JavaScript, daje bardzo dużą dowolność w definiowaniu typów. Dzięki temu możemy pokryć najdziwniejsze przypadki, do których zmuszają nas sytuacje w kodzie aplikacji, a których nie spotkalibyśmy w językach programowania takich jak C++, C# czy Java. Pominę opis, po co to robić, ponieważ wiele osób się już na ten temat wypowiedziało w Internecie (w tym ja, sprawdź <Link href="/publikacje">Publikacje</Link>). W kontekście artykułu interesuje nas, co system typów ma wspólnego ze zbiorami, albo nawet ogólniej — z logiką matematyczną.
+TypeScript z racji tego, że musi opisać słabo typowany język, jakim jest JavaScript, daje bardzo dużą dowolność w definiowaniu typów. Dzięki temu możemy pokryć najdziwniejsze przypadki, do których zmuszają nas sytuacje w kodzie aplikacji, a których nie spotkalibyśmy w językach programowania takich jak C++, C# czy Java. Pominę opis, po co to robić, ponieważ wiele osób się już na ten temat wypowiedziało w Internecie (w tym ja, sprawdź [Publikacje](/publikacje)). W kontekście artykułu interesuje nas, co system typów ma wspólnego ze zbiorami, albo nawet ogólniej — z logiką matematyczną.
 
 Jeszcze najkrócej mówiąc — czym jest typowanie? Jest to inaczej system typów, czyli klasyfikacja tego, co programujemy (zmiennych, funkcji itd., czyli wyrażeń) w zależności od rodzaju wartości. Typ definiuje, czym jest dana wartość i jakie operacje można na niej wykonać. W dużym uproszczeniu: o słabym typowaniu mówimy wtedy, gdy typ wyrażenia możemy w dowolnym momencie zmienić, a o silnym, gdy nie ma takiej możliwości.
 

@@ -58,7 +58,7 @@ y(t) &= r \cdot \sin(t)
 \end{align*}
 $$
 
-Dokładnie ten sposób, czyli równania parametryczne, stosowaliśmy w moich wcześniejszych artykułach do rysowania <Link href="/post/jak-narysowac-spirale">spirali</Link> (parametrem był kąt) czy też <Link href="/post/jak-narysowac-zegar-analogowy">wskazówek zegara</Link> (obliczenie punktu wskazywanego przez wskazówkę). Nieco bardziej skomplikowane równanie parametryczne, które niedługo poznasz, wykorzystamy do narysowania krzywych Béziera.
+Dokładnie ten sposób, czyli równania parametryczne, stosowaliśmy w moich wcześniejszych artykułach do rysowania [spirali](/post/jak-narysowac-spirale) (parametrem był kąt) czy też [wskazówek zegara](/post/jak-narysowac-zegar-analogowy) (obliczenie punktu wskazywanego przez wskazówkę). Nieco bardziej skomplikowane równanie parametryczne, które niedługo poznasz, wykorzystamy do narysowania krzywych Béziera.
 
 #### Dwumian Newtona
 
@@ -78,9 +78,9 @@ $$
 \binom{n}{k} = \frac{n!}{k! \cdot (n-k)!}
 $$
 
-$$n!$$ w tym wzorze to silnia. Jeśli nie znasz tego pojęcia, zapraszam do <Link href="/post/rekurencja-co-to-jest/#silnia">mojego artykułu o rekurencji</Link>.
+$$n!$$ w tym wzorze to silnia. Jeśli nie znasz tego pojęcia, zapraszam do [mojego artykułu o rekurencji](/post/rekurencja-co-to-jest/#silnia).
 
-Wracając do dwumianu Newtona, wygodniejszy dla nas będzie zapis z operatorem sumy (którą jako programiści możemy sobie wyobrazić jako zwykłą <Link href="/post/iteracja-co-to-jest/#for-jako-pętla-z-licznikiem">pętlę for</Link>):
+Wracając do dwumianu Newtona, wygodniejszy dla nas będzie zapis z operatorem sumy (którą jako programiści możemy sobie wyobrazić jako zwykłą [pętlę for](/post/iteracja-co-to-jest/#for-jako-pętla-z-licznikiem)):
 
 $$
 (x + y)^n = \sum^{n}_{k=0} \binom {n}{k} \cdot x^{n-k} \cdot y^k = \sum^{n}_{k=0} \binom {n}{k} \cdot x^{k} \cdot y^{n-k}
@@ -110,7 +110,7 @@ Zacznijmy od najbardziej podstawowego rodzaju krzywych Béziera, w zasadzie też
 
 #### Definicja
 
-Krzywą określamy za pomocą punktów kontrolnych od $$P_0$$ do $$P_n$$, gdzie $$n$$ stanowi stopień krzywej (1 — liniowa, 2 — kwadratowa, 3 — sześcienna...). Punkt $$P_0$$ będzie stanowić początek krzywej, $$P_n$$ jej koniec, natomiast pozostałe mają na celu określenie kształtu i krzywa nie musi przez nie przechodzić (ale jest taka możliwość). Tutaj należy dodać, że ze zbioru wszystkich punktów kontrolnych możemy znaleźć <Link href="/post/otoczka-wypukla">otoczkę wypukłą</Link> (czyli punkty, które utworzą wielokąt wypukły). Krzywa Béziera będzie zawsze zawarta wewnątrz tego wielokąta.
+Krzywą określamy za pomocą punktów kontrolnych od $$P_0$$ do $$P_n$$, gdzie $$n$$ stanowi stopień krzywej (1 — liniowa, 2 — kwadratowa, 3 — sześcienna...). Punkt $$P_0$$ będzie stanowić początek krzywej, $$P_n$$ jej koniec, natomiast pozostałe mają na celu określenie kształtu i krzywa nie musi przez nie przechodzić (ale jest taka możliwość). Tutaj należy dodać, że ze zbioru wszystkich punktów kontrolnych możemy znaleźć [otoczkę wypukłą](/post/otoczka-wypukla) (czyli punkty, które utworzą wielokąt wypukły). Krzywa Béziera będzie zawsze zawarta wewnątrz tego wielokąta.
 
 Możesz się teraz spytać — ale w jaki sposób punkty kontrolne wpływają na kształt? Zaraz to zaprezentuję. Na razie zobaczmy, jak definiujemy wzór na krzywą. Jest to wzór parametryczny, który definiujemy rekurencyjnie w następujący sposób:
 
@@ -121,7 +121,7 @@ B(t) = B_{P_0 P_1 ... P_n}(t) &= (1-t) \cdot B_{P_0 P_1 ... P_{n-1}}(t) + t \cdo
 \end{align*}
 $$
 
-Wygodniejszy w użyciu jest jednak wzór nierekurencyjny wykorzystujący opisane wcześniej przeze mnie wielomiany bazowe Bernsteina. Nie chcę przechodzić przez całą <Link href="/post/derekursywacja">derekursywację</Link>, dlatego od razu podaję gotowy:
+Wygodniejszy w użyciu jest jednak wzór nierekurencyjny wykorzystujący opisane wcześniej przeze mnie wielomiany bazowe Bernsteina. Nie chcę przechodzić przez całą [derekursywację](/post/derekursywacja), dlatego od razu podaję gotowy:
 
 $$
 B(t) = \sum^n_{i=0} P_i \cdot b_{n, i}(t)\text{, dla } 0 \leqslant t \leqslant 1
@@ -167,7 +167,7 @@ Proces rysowania takiej krzywej (w zasadzie odcinka) w zależności od wartości
   }
 />
 
-Oczywiście nikt nie rysuje odcinków w taki sposób, bo są na to <Link href="/post/jak-komputer-rysuje-linie">wydajniejsze sposoby</Link>. Warto jednak zapamiętać, że rysowanie krzywych Béziera sprowadza się do interpolacji liniowej, ponieważ dzięki temu zrozumiemy wpływ punktów kontrolnych na finalny kształt.
+Oczywiście nikt nie rysuje odcinków w taki sposób, bo są na to [wydajniejsze sposoby](/post/jak-komputer-rysuje-linie). Warto jednak zapamiętać, że rysowanie krzywych Béziera sprowadza się do interpolacji liniowej, ponieważ dzięki temu zrozumiemy wpływ punktów kontrolnych na finalny kształt.
 
 #### Kwadratowe krzywe Béziera
 
@@ -260,7 +260,7 @@ Oprócz nich warto też wspomnieć o innych, dość istotnych własnościach:
 - Wielomianowymi krzywymi Béziera nie jesteśmy w stanie opisać dowolnej krzywej. Przykładem może być okrąg, który możemy jedynie przybliżyć, złączając ze sobą kilka krzywych Béziera.
 - Krzywe stopnia wyższego niż 2 mogą przecinać same siebie.
 - Zmiana dowolnego punktu kontrolnego wpływa na kształt całej krzywej. Z jednej strony utrudnia to kontrolę nad kształtem i może być mało intuicyjne przy projektowaniu, a z drugiej wymaga wykonywania za każdym razem wszystkich obliczeń od nowa, nawet przy niewielkich zmianach.
-- Można aplikować <Link href="/post/przeksztalcenia-grafiki-2d">transformacje afiniczne</Link> na punkty kontrolne w celu transformowania krzywej. Zostanie zachowany jej odpowiedni kształt.
+- Można aplikować [transformacje afiniczne](/post/przeksztalcenia-grafiki-2d) na punkty kontrolne w celu transformowania krzywej. Zostanie zachowany jej odpowiedni kształt.
 
 ### Wymierne krzywe Béziera
 
@@ -391,7 +391,7 @@ function bezier(t, points) {
 
 Wersję do przetestowania znajdziesz na [Replit](https://replit.com/@tswistak/bezier-basic#index.js). Przy okazji nieco zoptymalizowałem obliczenia przez zapamiętywanie wyników wielomianu Newtona.
 
-Jak widzisz, tutaj obliczamy tylko jeden punkt. Oczywiście gdybyśmy rysowali krzywą, musielibyśmy funkcję wywołać wielokrotnie dla kolejnych wartości $$t$$. Ten kod jednak, o ile oblicza, co należy, to nie jest optymalnym podejściem. Po pierwsze, problemem jest obliczanie symbolu Newtona (ale oczywiście algorytm możemy podmienić na inny). Po drugie, wykonujemy sporo operacji mnożenia będących kosztownymi obliczeniowo. Do tego, mówiąc o mnożeniu, dochodzi jeszcze do potęgowania, które oczywiście będzie obliczone wydajnie, jeśli korzystamy z metod wbudowanych w język programowania (zwykle wykorzystują one <Link href="/post/szybkie-potegowanie">algorytm szybkiego potęgowania</Link>), ale to wciąż jest wyraźny narzut obliczeniowy. Szczególnie biorąc pod uwagę fakt, że punktów możemy musieć wyliczyć bardzo dużo, aby narysować krzywą w odpowiedniej rozdzielczości. Przy rysowaniu grafiki często zależy nam na wysokiej wydajności obliczeń, tym bardziej, aby zachować płynność rysowania obrazu.
+Jak widzisz, tutaj obliczamy tylko jeden punkt. Oczywiście gdybyśmy rysowali krzywą, musielibyśmy funkcję wywołać wielokrotnie dla kolejnych wartości $$t$$. Ten kod jednak, o ile oblicza, co należy, to nie jest optymalnym podejściem. Po pierwsze, problemem jest obliczanie symbolu Newtona (ale oczywiście algorytm możemy podmienić na inny). Po drugie, wykonujemy sporo operacji mnożenia będących kosztownymi obliczeniowo. Do tego, mówiąc o mnożeniu, dochodzi jeszcze do potęgowania, które oczywiście będzie obliczone wydajnie, jeśli korzystamy z metod wbudowanych w język programowania (zwykle wykorzystują one [algorytm szybkiego potęgowania](/post/szybkie-potegowanie)), ale to wciąż jest wyraźny narzut obliczeniowy. Szczególnie biorąc pod uwagę fakt, że punktów możemy musieć wyliczyć bardzo dużo, aby narysować krzywą w odpowiedniej rozdzielczości. Przy rysowaniu grafiki często zależy nam na wysokiej wydajności obliczeń, tym bardziej, aby zachować płynność rysowania obrazu.
 
 ### Algorytm de Casteljau
 

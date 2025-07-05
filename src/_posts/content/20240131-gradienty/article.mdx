@@ -36,9 +36,9 @@ export const meta = {
 
 ## Uwaga wstępna
 
-W artykule będę zakładać, że znasz podstawowe pojęcia z grafiki komputerowej. Przede wszystkim przydatna będzie Ci znajomość, czym są przestrzenie barw. Jeśli tematu nie znasz lub czujesz, że wymaga odświeżenia, polecam swój starszy artykuł *<Link href="/post/jak-komputer-zapisuje-kolory">Jak komputer zapisuje kolory?</Link>* Przydatna będzie też znajomość zagadnień matematycznych, które opisałem w artykule o <Link href="/post/krzywe-beziera">krzywych Béziera</Link>.
+W artykule będę zakładać, że znasz podstawowe pojęcia z grafiki komputerowej. Przede wszystkim przydatna będzie Ci znajomość, czym są przestrzenie barw. Jeśli tematu nie znasz lub czujesz, że wymaga odświeżenia, polecam swój starszy artykuł *[Jak komputer zapisuje kolory?](/post/jak-komputer-zapisuje-kolory)* Przydatna będzie też znajomość zagadnień matematycznych, które opisałem w artykule o [krzywych Béziera](/post/krzywe-beziera).
 
-Polecam też przejrzeć inne moje artykuły z zakresu grafiki komputerowej, bo znajdziesz tam wytłumaczenia też innych pojęć, jednak niekoniecznie muszą być one potrzebne do zrozumienia w pełni tego artykułu. Jeśli temat Cię ciekawi, otwórz w nowej karcie <Link href="/category/grafika-komputerowa">ten link</Link> i poczytaj więcej o matematyce i algorytmice skrywającej się za rysowaniem się rzeczy na ekranie komputera.
+Polecam też przejrzeć inne moje artykuły z zakresu grafiki komputerowej, bo znajdziesz tam wytłumaczenia też innych pojęć, jednak niekoniecznie muszą być one potrzebne do zrozumienia w pełni tego artykułu. Jeśli temat Cię ciekawi, otwórz w nowej karcie [ten link](/category/grafika-komputerowa) i poczytaj więcej o matematyce i algorytmice skrywającej się za rysowaniem się rzeczy na ekranie komputera.
 
 ## Trochę teorii
 
@@ -76,7 +76,7 @@ Stosując wzór jednowymiarowo, otrzymujemy pełen zakres liczb, które się zna
 - dla $$P_0 = 0$$ i $$P_1 = 10$$: $$L(0,2) = 0,8 \cdot 0 + 0.2 \cdot 10 = 2$$
 - dla $$P_0 = 10$$ i $$P_1 = 20$$: $$L(0,5) = 0,5 \cdot 10 + 0.5 \cdot 20 = 5 + 10 = 15$$.
 
-W przypadku większej liczby wymiarów obliczenie powtarzamy dla każdego wymiaru oddzielnie. Wówczas gdybyśmy narysowali na układzie współrzędnych punkty dla wszystkich wartości $$t$$ między 0 a 1, utworzą odcinek między punktami $$P_0$$ i $$P_1$$. Można też powiedzieć, operując terminami znanymi z grafiki komputerowej, że rysujemy w ten sposób <Link href="/post/krzywe-beziera">liniową krzywą Béziera</Link>.
+W przypadku większej liczby wymiarów obliczenie powtarzamy dla każdego wymiaru oddzielnie. Wówczas gdybyśmy narysowali na układzie współrzędnych punkty dla wszystkich wartości $$t$$ między 0 a 1, utworzą odcinek między punktami $$P_0$$ i $$P_1$$. Można też powiedzieć, operując terminami znanymi z grafiki komputerowej, że rysujemy w ten sposób [liniową krzywą Béziera](/post/krzywe-beziera).
 
 ### Inne warianty wzoru
 
@@ -100,7 +100,7 @@ $$
 L(t) = P_0 + t \cdot (P_1 - P_0)
 $$
 
-Jest bardziej oczywisty i zdecydowanie prościej go zapamiętać do obliczeń na kartce. Wersja ta jednak może prowadzić do błędnych obliczeń w <Link href="/post/liczby-wymierne-i-rzeczywiste-w-zero-jedynkowym-swiecie">systemach zmiennoprzecinkowych</Link> (czyli stosowanych na co dzień w programowaniu), przez co dla $$t=1$$ wynik może być różny od $$P_1$$.
+Jest bardziej oczywisty i zdecydowanie prościej go zapamiętać do obliczeń na kartce. Wersja ta jednak może prowadzić do błędnych obliczeń w [systemach zmiennoprzecinkowych](/post/liczby-wymierne-i-rzeczywiste-w-zero-jedynkowym-swiecie) (czyli stosowanych na co dzień w programowaniu), przez co dla $$t=1$$ wynik może być różny od $$P_1$$.
 
 Dalej w tekście będę cały czas stosować pierwszy z pokazanych przeze mnie wzorów. Natomiast Ciebie zachęcam do poszukania i poczytania na temat wad i zalet obu z nich.
 
@@ -281,7 +281,7 @@ $$
 B(t) = 3(1-t)^2t \cdot P_1 + 3(1-t)t^2 \cdot P_2 + t^3
 $$
 
-Jeśli czujesz pewien zgrzyt, że korzystamy z estymacji funkcji, a nie z konkretnego wzoru, nie martw się. W informatyce często tak robimy dla ułatwienia obliczeń, na czym zresztą bazuje cała dziedzina obliczeń numerycznych. Podobnie się robi np. przy obliczaniu <Link href="/post/obliczanie-calek-oznaczonych">całek oznaczonych</Link> — nie wyliczamy na nie wzoru (choć moglibyśmy), tylko przybliżamy ich wartość, stosując dużo prostsze narzędzia geometryczne.
+Jeśli czujesz pewien zgrzyt, że korzystamy z estymacji funkcji, a nie z konkretnego wzoru, nie martw się. W informatyce często tak robimy dla ułatwienia obliczeń, na czym zresztą bazuje cała dziedzina obliczeń numerycznych. Podobnie się robi np. przy obliczaniu [całek oznaczonych](/post/obliczanie-calek-oznaczonych) — nie wyliczamy na nie wzoru (choć moglibyśmy), tylko przybliżamy ich wartość, stosując dużo prostsze narzędzia geometryczne.
 
 #### Przykład w kodzie
 

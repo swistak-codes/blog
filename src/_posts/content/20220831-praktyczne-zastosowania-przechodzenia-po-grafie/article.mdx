@@ -38,7 +38,7 @@ export const meta = {
 
 ## Znalezienie grafów w grafowej strukturze danych
 
-W idealnym świecie grafowa struktura danych przechowuje po prostu <Link href="/post/grafy-wprowadzenie">graf</Link>, czyli zbiór wierzchołków połączonych ze sobą krawędziami. W praktyce jednak może się niejednokrotnie zdarzyć, że wewnątrz jednej struktury znajduje się kilka grafów. W zasadzie każdy <Link href="/post/sposoby-reprezentacji-grafow">sposób zapisu grafu w pamięci</Link> na to pozwala i jednocześnie nie zabrania takiej sytuacji.
+W idealnym świecie grafowa struktura danych przechowuje po prostu [graf](/post/grafy-wprowadzenie), czyli zbiór wierzchołków połączonych ze sobą krawędziami. W praktyce jednak może się niejednokrotnie zdarzyć, że wewnątrz jednej struktury znajduje się kilka grafów. W zasadzie każdy [sposób zapisu grafu w pamięci](/post/sposoby-reprezentacji-grafow) na to pozwala i jednocześnie nie zabrania takiej sytuacji.
 
 Wydaje się to niespotykane? Otóż nie. Wbrew pozorom jest to częsty przypadek, szczególnie gdy graf w naszej pamięci ma mało wspólnego z typowo matematycznym grafem, a np. jest diagramem. Zresztą przypomnij sobie interaktywne prezentacje z obu poprzednich artykułów — dopóki nie połączyłeś(-aś) wierzchołków między sobą krawędziami, to de facto struktura w pamięci przechowywała wiele grafów.
 
@@ -134,7 +134,7 @@ Zupełnie innym przykładem zastosowania znajdowania cykli, który na pierwszy r
 
 ### Idea algorytmu
 
-W tym przypadku naturalnym wyborem będzie algorytm DFS, ponieważ zwiedza on po kolei ścieżkę, a nie wykonuje się „warstwowo”. Tym samym, jeśli idąc ścieżką, trafimy ponownie na odwiedzony przez nas wierzchołek, sygnalizuje to istnienie cyklu. Przydatne tutaj będzie kolorowanie grafu, które opisałem <Link href="/post/przechodzenie-po-grafie">w poprzednim artykule</Link>, pisząc, że zwykle się go nie stosuje. W tym przypadku akurat jest przydatne. Przypomnijmy sobie na szybko te kolory:
+W tym przypadku naturalnym wyborem będzie algorytm DFS, ponieważ zwiedza on po kolei ścieżkę, a nie wykonuje się „warstwowo”. Tym samym, jeśli idąc ścieżką, trafimy ponownie na odwiedzony przez nas wierzchołek, sygnalizuje to istnienie cyklu. Przydatne tutaj będzie kolorowanie grafu, które opisałem [w poprzednim artykule](/post/przechodzenie-po-grafie), pisząc, że zwykle się go nie stosuje. W tym przypadku akurat jest przydatne. Przypomnijmy sobie na szybko te kolory:
 
 - biały — wierzchołek nieodwiedzony,
 - szary — wierzchołek znajduje się na stosie wywołań (odwiedziliśmy go i zaczęliśmy przetwarzać),
@@ -285,7 +285,7 @@ Myślę, że o zastosowaniach takiego znajdowania najkrótszych tras nie muszę 
 
 ### Idea algorytmu
 
-Kroków algorytmu przechodzenia grafu rozpisywać nie będę, ponieważ jest to zwykły BFS, który już opisałem <Link href="/post/przechodzenie-po-grafie/#przeszukiwanie-wszerz">w poprzednim artykule</Link>. Jedyna różnica jest taka, że przed rozpoczęciem algorytmu tworzymy mapę poprzedników wierzchołków. Wtedy w samym algorytmie podczas odwiedzin wierzchołka zapisujemy, z którego wierzchołka trafiliśmy do niego. Warto pamiętać, żeby zapisanie poprzednika wykonać tylko raz. Jeśli trafimy na wierzchołek ponownie z innego, to trafiliśmy tam dłuższą drogą.
+Kroków algorytmu przechodzenia grafu rozpisywać nie będę, ponieważ jest to zwykły BFS, który już opisałem [w poprzednim artykule](/post/przechodzenie-po-grafie/#przeszukiwanie-wszerz). Jedyna różnica jest taka, że przed rozpoczęciem algorytmu tworzymy mapę poprzedników wierzchołków. Wtedy w samym algorytmie podczas odwiedzin wierzchołka zapisujemy, z którego wierzchołka trafiliśmy do niego. Warto pamiętać, żeby zapisanie poprzednika wykonać tylko raz. Jeśli trafimy na wierzchołek ponownie z innego, to trafiliśmy tam dłuższą drogą.
 
 Następnie celu rekonstrukcji ścieżki wykonujemy poniższy algorytm.
 

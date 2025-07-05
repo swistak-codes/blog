@@ -139,7 +139,7 @@ Czy to oznacza, że C zna po kolei alfabet i `++` przenosi nas na kolejny znak?
 
 ### Wyjaśnienie
 
-Oczywiście nie ma tu żadnej większej magii. Wszystko w komputerze jest zapisywane w postaci liczb i znaki nie są od tego wyjątkiem. Podstawowe znaki zostały opisane 1-bajtowym kodem <Link href="/post/nie-liczby-jako-liczby-czyli-zapis-danych-cyfrowych/#cyfrowa-reprezentacja-znaków">ASCII</Link>, stąd np. `'a' == 97`. Wszystkie podstawowe litery alfabetu łacińskiego zostały zapisane w kolejności alfabetycznej, stąd zwiększanie wartości o 1 da następny znak. Co więcej, gdy potrzebujemy w C typu liczbowego zajmującego tylko 1 bajt, stosuje się do tego celu właśnie typ znakowy `char`.
+Oczywiście nie ma tu żadnej większej magii. Wszystko w komputerze jest zapisywane w postaci liczb i znaki nie są od tego wyjątkiem. Podstawowe znaki zostały opisane 1-bajtowym kodem [ASCII](/post/nie-liczby-jako-liczby-czyli-zapis-danych-cyfrowych/#cyfrowa-reprezentacja-znaków), stąd np. `'a' == 97`. Wszystkie podstawowe litery alfabetu łacińskiego zostały zapisane w kolejności alfabetycznej, stąd zwiększanie wartości o 1 da następny znak. Co więcej, gdy potrzebujemy w C typu liczbowego zajmującego tylko 1 bajt, stosuje się do tego celu właśnie typ znakowy `char`.
 
 Jeśli chcesz wiedzieć, czy na pewno C tak działa, możesz przetestować poniższy kod:
 
@@ -174,7 +174,7 @@ Czy naprawdę JS jest tak głupi i nie umie zrobić tak oczywistego dodawania?
 
 ### Wyjaśnienie
 
-Nie, JS nie jest tutaj głupszy niż inne języki. W innych jest to samo zachowanie. Wynika ono z tego, że liczby zmiennoprzecinkowe (po nieinformatycznemu możemy rozumieć to jako liczby wymierne) są zapisywane w przybliżeniu. Jest dość podobne do znanej z matematyki notacji naukowej liczby i opisałem je w artykule *<Link href="/post/liczby-wymierne-i-rzeczywiste-w-zero-jedynkowym-swiecie/#liczby-zmiennoprzecinkowe">Liczby wymierne i rzeczywiste w zero-jedynkowym świecie</Link>*.
+Nie, JS nie jest tutaj głupszy niż inne języki. W innych jest to samo zachowanie. Wynika ono z tego, że liczby zmiennoprzecinkowe (po nieinformatycznemu możemy rozumieć to jako liczby wymierne) są zapisywane w przybliżeniu. Jest dość podobne do znanej z matematyki notacji naukowej liczby i opisałem je w artykule *[Liczby wymierne i rzeczywiste w zero-jedynkowym świecie](/post/liczby-wymierne-i-rzeczywiste-w-zero-jedynkowym-swiecie/#liczby-zmiennoprzecinkowe)*.
 
 W przypadku pokazanego wyżej JavaScriptu jest to 64-bitowy typ, znany (m.in. w C) jako `double`. W formacie tym 52 bity zajmuje mantysa, wykładnik 11 i dodatkowo jest jeszcze 1 bit określający znak. O ile same liczby możemy bezpiecznie przechowywać z precyzją do ok. 15 cyfr, tak przy operacjach potrafi się to już popsuć. Tak się składa, że operacja `0.1 + 0.2` jest tego najprostszym przykładem. Zobaczmy, jaki jest wynik takiej operacji:
 
@@ -191,7 +191,7 @@ printf("%d\n", 0.1 + 0.2 == 0.3);
 
 W konsoli zostanie wypisane `0`, co w C oznacza fałsz. Jeśli chcesz, możesz to przetestować, sprawdzając też inne typy zmiennoprzecinkowe na przygotowanym przeze mnie [Replit](https://replit.com/@tswistak/floats#main.c). Użyłem tam trzech różnych typów dostępnych w C i dla tej operacji błąd pojawia się tylko przy `double`.
 
-A jak temu przeciwdziałać? W przypadku porównań warto porównywać różnice względem marginesu błędu, co pokazałem kiedyś w *<Link href="/offtopic/codzienny-wtret-programisty/#3-01--02--03">codziennym wtręcie programisty</Link>*. A w przypadku samych operacji, jeśli zależy nam na precyzji (szczególnie gdy mowa o operacjach finansowych), warto pomyśleć nad innymi typami danych. Na przykład, jeśli mamy stałą liczbę miejsc po przecinku, można zapisywać liczbę w typie całkowitoliczbowym i pamiętać w oddzielnej zmiennej pozycję przecinka.
+A jak temu przeciwdziałać? W przypadku porównań warto porównywać różnice względem marginesu błędu, co pokazałem kiedyś w *[codziennym wtręcie programisty](/offtopic/codzienny-wtret-programisty/#3-01--02--03)*. A w przypadku samych operacji, jeśli zależy nam na precyzji (szczególnie gdy mowa o operacjach finansowych), warto pomyśleć nad innymi typami danych. Na przykład, jeśli mamy stałą liczbę miejsc po przecinku, można zapisywać liczbę w typie całkowitoliczbowym i pamiętać w oddzielnej zmiennej pozycję przecinka.
 
 A wracając do JavaScriptu, jedyne, czego można się w nim przyczepić, to fakt, że główny typ liczbowy jest typem zmiennoprzecinkowym.
 
@@ -217,7 +217,7 @@ Co tu się dzieje? Dlaczego możemy indeksować liczbę i zwraca ona wartość z
 
 ### Wyjaśnienie
 
-Zacznijmy od początku. W C tablica nie jest obiektem ani żadną złożoną strukturą danych jak w wielu nowszych językach programowania. Deklarując tablicę w C, tak naprawdę rezerwujemy jedynie miejsce w pamięci (i ewentualnie dodajemy od razu wartości w te miejsca). Po typie i długości tablicy kompilator wie, ile podczas wykonania należy zarezerwować pamięci na daną tablicę. Co pokazałem już w artykule *<Link href="/post/tablice-i-listy-tablicowe">Tablice i listy tablicowe</Link>*, w C możemy odwoływać się do elementów tablicy przez dodawanie wskaźnika. Przerabiając powyższy przykład, wyglądałoby to następująco:
+Zacznijmy od początku. W C tablica nie jest obiektem ani żadną złożoną strukturą danych jak w wielu nowszych językach programowania. Deklarując tablicę w C, tak naprawdę rezerwujemy jedynie miejsce w pamięci (i ewentualnie dodajemy od razu wartości w te miejsca). Po typie i długości tablicy kompilator wie, ile podczas wykonania należy zarezerwować pamięci na daną tablicę. Co pokazałem już w artykule *[Tablice i listy tablicowe](/post/tablice-i-listy-tablicowe)*, w C możemy odwoływać się do elementów tablicy przez dodawanie wskaźnika. Przerabiając powyższy przykład, wyglądałoby to następująco:
 
 ```c
 int array[] = {21, 22, 23, 24, 25};

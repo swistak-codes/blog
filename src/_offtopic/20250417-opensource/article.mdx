@@ -68,7 +68,7 @@ W momencie pisania tego artykułu wygląda to następująco:
 - Zamiast styled-components używam [CSS Modules](https://github.com/css-modules/css-modules) z [SCSS](https://sass-lang.com/). Dzięki temu strona zajmuje mniej miejsca, szybciej się wczytuje, a tym samym osiąga lepsze wyniki w [Lighthouse](https://github.com/GoogleChrome/lighthouse).
 - Nie ma już monorepo, całość jest trzymana jako pojedynczy projekt. Nx jest świetnym narzędziem, ale praktycznie nie wykorzystywałem jego możliwości.
 
-Zmiany te miałem okazję już opisywać, <Link href="/offtopic/historie-zza-kulis-bloga-4-lecie/#szok-odkry%C5%82-jeden-prosty-trick-by-zwi%C4%99kszy%C4%87-performance-swojego-bloga-reactowcy-go-nienawidz%C4%85">ogłaszając przejście na CSS Modules</Link> i [update do Next.js 15](https://www.linkedin.com/posts/activity-7280508310695407616-CF6V).
+Zmiany te miałem okazję już opisywać, [ogłaszając przejście na CSS Modules](/offtopic/historie-zza-kulis-bloga-4-lecie/#szok-odkry%C5%82-jeden-prosty-trick-by-zwi%C4%99kszy%C4%87-performance-swojego-bloga-reactowcy-go-nienawidz%C4%85) i [update do Next.js 15](https://www.linkedin.com/posts/activity-7280508310695407616-CF6V).
 
 ### Pozostałości po oryginalnych technologiach
 
@@ -99,7 +99,7 @@ Blog został napisany w TypeScript, a w kodzie źródłowym możesz znaleźć ni
 
 ## Dlaczego użyłeś X, a nie Y?
 
-Teraz dla chętnych opiszę, dlaczego wybrałem takie, a nie inne rozwiązania. Częściowo już to opisałem w *<Link href="/offtopic/swistak-codes-powraca">świstak.codes powraca!</Link>*, ale teraz dodam też nieco kontekstu współczesnego.
+Teraz dla chętnych opiszę, dlaczego wybrałem takie, a nie inne rozwiązania. Częściowo już to opisałem w *[świstak.codes powraca!](/offtopic/swistak-codes-powraca)*, ale teraz dodam też nieco kontekstu współczesnego.
 
 ### Next.js
 
@@ -157,7 +157,7 @@ Jak możesz zauważyć, wszystkie usługi, które do tej pory wymieniłem, są o
 - Hostowanie samodzielne Giscus, analityki i wyszukiwarki nie zużywa dużo zasobów na serwerze, więc nie ma większego problemu z ich uruchomieniem obok bloga.
 - Także w ten sposób zabezpieczam się przed ewentualnym vendor lock-inem — nie jestem uzależniony od konkretnej usługi chmurowej. Nawet jeśli dana usługa przestanie być rozwijana, wciąż mogę ją samodzielnie hostować.
 
-Oczywiście wymaga to więcej pracy. Zamiast kupić usługę i ją jedynie podpiąć, muszę skonfigurować serwer i odpowiednio go zabezpieczyć. To samo zresztą tyczy się hostowania całego bloga — mógłbym skorzystać z prostej w obsłudze chmury typu [Vercel](https://vercel.com/). Jednak nie przeszkadza mi to, chociaż przyznam, że <Link href="/offtopic/historie-zza-kulis-bloga-4-lecie/#tw%C3%B3j-blog-u-mnie-nie-dzia%C5%82a">administracja serwerem potrafi być momentami frustrująca</Link>. Co więcej, polecam każdemu programiście aplikacji webowych chociaż raz zrobić coś takiego od początku do końca — podstawy obsługi Linuksa, zrozumienie narzędzi typu [Docker](https://www.docker.com/) i prostych narzędzi CI/CD (np. [Github Actions](https://github.com/features/actions)) mogą być bardzo przydatną wiedzą, nawet (albo tym bardziej) w erze [vibe-codingu](https://en.wikipedia.org/wiki/Vibe_coding).
+Oczywiście wymaga to więcej pracy. Zamiast kupić usługę i ją jedynie podpiąć, muszę skonfigurować serwer i odpowiednio go zabezpieczyć. To samo zresztą tyczy się hostowania całego bloga — mógłbym skorzystać z prostej w obsłudze chmury typu [Vercel](https://vercel.com/). Jednak nie przeszkadza mi to, chociaż przyznam, że [administracja serwerem potrafi być momentami frustrująca](/offtopic/historie-zza-kulis-bloga-4-lecie/#tw%C3%B3j-blog-u-mnie-nie-dzia%C5%82a). Co więcej, polecam każdemu programiście aplikacji webowych chociaż raz zrobić coś takiego od początku do końca — podstawy obsługi Linuksa, zrozumienie narzędzi typu [Docker](https://www.docker.com/) i prostych narzędzi CI/CD (np. [Github Actions](https://github.com/features/actions)) mogą być bardzo przydatną wiedzą, nawet (albo tym bardziej) w erze [vibe-codingu](https://en.wikipedia.org/wiki/Vibe_coding).
 
 ## Podsumowanie
 

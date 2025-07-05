@@ -152,7 +152,7 @@ Badana Younga i Helmholtza były kontynuowane jeszcze przez wiele lat, i gdy szc
 
 ## Przestrzeń barw
 
-Do tej pory widzenie barw określaliśmy jako zjawisko w dużej mierze psychiczne. Jednak <Link href="/post/nie-liczby-jako-liczby-czyli-zapis-danych-cyfrowych">jeśli chcemy coś zapisać na komputerze, trzeba to określić liczbowo</Link>. Z pomocą przychodzi nam tu idea przestrzeni barw. Są to matematyczne modele umożliwiające zapisanie barwy. Oczywiście można teraz powiedzieć — przecież to fala elektromagnetyczna, więc moglibyśmy zapisać długość fali. Niestety, nie do końca tak to działa, bo są barwy, których nie określimy długością fali (np. biała, czarna, różowa). Lukę tę łatają przestrzenie barw w taki sposób, że bardziej są związane z ludzką percepcją barwy.
+Do tej pory widzenie barw określaliśmy jako zjawisko w dużej mierze psychiczne. Jednak [jeśli chcemy coś zapisać na komputerze, trzeba to określić liczbowo](/post/nie-liczby-jako-liczby-czyli-zapis-danych-cyfrowych). Z pomocą przychodzi nam tu idea przestrzeni barw. Są to matematyczne modele umożliwiające zapisanie barwy. Oczywiście można teraz powiedzieć — przecież to fala elektromagnetyczna, więc moglibyśmy zapisać długość fali. Niestety, nie do końca tak to działa, bo są barwy, których nie określimy długością fali (np. biała, czarna, różowa). Lukę tę łatają przestrzenie barw w taki sposób, że bardziej są związane z ludzką percepcją barwy.
 
 W tej części artykułu zapoznamy się z modelami przestrzeni barw, stawiając nacisk na te, które najczęściej spotykamy w informatyce. I to takie, na które trafimy przy przeróżnych aspektach pracy z grafiką komputerową.
 
@@ -390,7 +390,7 @@ Innym dzisiejszym użyciem odgórnie ustalonej palety są kolory w CSS. Oczywiś
 
 ### Głębia koloru
 
-Mimo że, jak pisałem na końcu, palety wciąż mają swoje zastosowania, to jednak najczęściej barwy zapisuje się w postaci liczbowej, odnosząc się do konkretnego modelu przestrzeni barw; najczęściej do RGB (lub RGBA). Jednak muszą istnieć pewne ograniczenia, a dokładniej — jakim zakresem liczb możemy zapisać wielkości liczbowe w modelu. Nazywamy to głębią koloru, którą wyraża się w liczbie bitów na piksel albo bitów na pojedynczy kanał koloru. O ten temat zahaczyłem lekko przy okazji <Link href="/post/przetwarzanie-plikow-w-praktyce-obrazy-bmp">omawiania plików BMP</Link>, gdzie zachęcam zajrzeć później.
+Mimo że, jak pisałem na końcu, palety wciąż mają swoje zastosowania, to jednak najczęściej barwy zapisuje się w postaci liczbowej, odnosząc się do konkretnego modelu przestrzeni barw; najczęściej do RGB (lub RGBA). Jednak muszą istnieć pewne ograniczenia, a dokładniej — jakim zakresem liczb możemy zapisać wielkości liczbowe w modelu. Nazywamy to głębią koloru, którą wyraża się w liczbie bitów na piksel albo bitów na pojedynczy kanał koloru. O ten temat zahaczyłem lekko przy okazji [omawiania plików BMP](/post/przetwarzanie-plikow-w-praktyce-obrazy-bmp), gdzie zachęcam zajrzeć później.
 
 Najczęściej spotykamy się z następującymi głębiami kolorów:
 
@@ -517,7 +517,7 @@ Widzimy tutaj ten sam gradient co wcześniej, jednak przy zmniejszaniu głębii 
 
 Jeśli już dowiedzieliśmy się wszystkiego na temat zapisu barw, warto byłoby zobaczyć, jak faktycznie one trafiają do plików opisujących grafikę.
 
-Zacznijmy od najprostszych formatów plików, czyli takich, <Link href="/post/tekstowy-zapis-danych-cyfrowych">które są opisane tekstowo</Link>. Jako przykład możemy wyróżnić grafikę wektorową w formacie SVG, gdzie styl figur opisuje się CSS-em (czyli tym samym językiem co wygląd stron internetowych). Mamy do dyspozycji następujące sposoby opisania kolorów:
+Zacznijmy od najprostszych formatów plików, czyli takich, [które są opisane tekstowo](/post/tekstowy-zapis-danych-cyfrowych). Jako przykład możemy wyróżnić grafikę wektorową w formacie SVG, gdzie styl figur opisuje się CSS-em (czyli tym samym językiem co wygląd stron internetowych). Mamy do dyspozycji następujące sposoby opisania kolorów:
 
 - Pojedyncza liczba reprezentująca kolor w przestrzeni RGB, zapisana systemem szesnastkowym, poprzedzona #. Może być zapisana 24-bitowo w formacie #RRGGBB, 32-bitowo #RRGGBBAA albo 12-bitowo #RGB. Barwa czerwona może zostać zapisana następująco:
   - `#FF0000`
@@ -535,7 +535,7 @@ Jednak większość formatów graficznych jest binarna. Wówczas nie możemy tek
 - Jaka jest przestrzeń barw? Najczęściej mamy do czynienia z RGB, ale format może korzystać z palety (GIF) albo YCbCr (niektóre JPG). Formaty mogą też wspierać zupełnie inne modele przestrzeni barw, szczególnie te wykorzystywane w profesjonalnych zastosowaniach.
 - Jaka jest końcówkowość w formacie pliku? W przypadku plików binarnych liczby możemy czytać od lewej do prawej (big endian) lub na odwrót (little endian). Przykładowo, format BMP zapisuje barwy w postaci little endian, stąd są one de facto zapisane jako BBGGRR.
 
-Dochodzi też kwestia kompresji plików, jednak jest ona zupełnie odrębnym tematem. Jeśli chcesz zobaczyć, jak zapis wygląda w praktyce w przypadku plików BMP, to ponownie zapraszam do mojego starszego artykułu <Link href="/post/przetwarzanie-plikow-w-praktyce-obrazy-bmp">„Przetwarzanie plików w praktyce — obrazy BMP”</Link>.
+Dochodzi też kwestia kompresji plików, jednak jest ona zupełnie odrębnym tematem. Jeśli chcesz zobaczyć, jak zapis wygląda w praktyce w przypadku plików BMP, to ponownie zapraszam do mojego starszego artykułu [„Przetwarzanie plików w praktyce — obrazy BMP”](/post/przetwarzanie-plikow-w-praktyce-obrazy-bmp).
 
 ## Literatura
 

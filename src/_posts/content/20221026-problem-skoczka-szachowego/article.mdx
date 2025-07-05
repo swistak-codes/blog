@@ -80,13 +80,13 @@ Pierwszy z problemów jest najprostszy, stąd też najczęściej spotykany w zad
 
 ## Podstawowe podejście do rozwiązania
 
-Najbardziej podstawowy sposób rozwiązania problemu, który jest w pełni akceptowalny w zadaniach, to zastosowanie metody siłowej. Oczywiście losowanie rozwiązań i sprawdzanie, czy są poprawne, nie ma sensu. Zamiast tego możemy wykonywać kolejne możliwe kroki. Gdy nie mamy możliwości dalszego rozwiązywania, cofamy się i próbujemy inaczej. Jest to algorytm z nawrotami, który opisałem przy okazji artykułu <Link href="/post/sudoku">o algorytmicznym rozwiązywaniu sudoku</Link>.
+Najbardziej podstawowy sposób rozwiązania problemu, który jest w pełni akceptowalny w zadaniach, to zastosowanie metody siłowej. Oczywiście losowanie rozwiązań i sprawdzanie, czy są poprawne, nie ma sensu. Zamiast tego możemy wykonywać kolejne możliwe kroki. Gdy nie mamy możliwości dalszego rozwiązywania, cofamy się i próbujemy inaczej. Jest to algorytm z nawrotami, który opisałem przy okazji artykułu [o algorytmicznym rozwiązywaniu sudoku](/post/sudoku).
 
 Z racji tego, że algorytm już raz opisałem, nie będę pokazywać go ponownie ani też dawać kodu, jak to zrobić. Jeśli chcesz spróbować, zainspiruj się tym, w jaki sposób rozwiązujemy w tamtym artykule sudoku, i przerób na problem skoczka szachowego. Jednak nie przejmuj się — w dalszej części artykułu problem rozwiążemy, tylko w inny, ciekawszy sposób.
 
 ## Problem skoczka szachowego jako problem grafowy
 
-Kilka moich poprzednich artykułów na blogu zostało poświęconych <Link href="/category/grafy">grafom</Link>, a jak mogłeś(-aś) zauważyć, ten artykuł również jest otagowany jako powiązany z grafami. Nie bez powodu zresztą piszę go właśnie teraz. Otóż problem skoczka szachowego możemy sprowadzić do problemu grafowego. A dokładniej, jest to problem znalezienia na grafie ścieżki Hamiltona lub cyklu Hamiltona (jeśli mówimy o znalezieniu ścieżki zamkniętej).
+Kilka moich poprzednich artykułów na blogu zostało poświęconych [grafom](/category/grafy), a jak mogłeś(-aś) zauważyć, ten artykuł również jest otagowany jako powiązany z grafami. Nie bez powodu zresztą piszę go właśnie teraz. Otóż problem skoczka szachowego możemy sprowadzić do problemu grafowego. A dokładniej, jest to problem znalezienia na grafie ścieżki Hamiltona lub cyklu Hamiltona (jeśli mówimy o znalezieniu ścieżki zamkniętej).
 
 ### Ścieżka i cykl Hamiltona
 
@@ -102,7 +102,7 @@ Dodam jeszcze kilka pobocznych informacji z zakresu teorii grafów, które nieko
 
 ### Plansza jako graf
 
-Jeśli chcemy problem rozwiązać jako problem grafowy, warto byłoby pomyśleć, jak planszę szachową przedstawić jako graf. Myślę, że jeśli zapoznałeś(-aś) się z artykułem poświęconym <Link href="/post/szybkie-wyszukiwanie-sciezek">szybkiemu szukaniu ścieżek</Link>, to masz już pewnie pomysł, jak to zrobić. Przypomnijmy sobie, jak to robiliśmy:
+Jeśli chcemy problem rozwiązać jako problem grafowy, warto byłoby pomyśleć, jak planszę szachową przedstawić jako graf. Myślę, że jeśli zapoznałeś(-aś) się z artykułem poświęconym [szybkiemu szukaniu ścieżek](/post/szybkie-wyszukiwanie-sciezek), to masz już pewnie pomysł, jak to zrobić. Przypomnijmy sobie, jak to robiliśmy:
 
 - Pojedyncze pole planszy to wierzchołek grafu.
 - Krawędź między dwoma wierzchołkami to możliwość przejścia między dwoma polami.
@@ -121,7 +121,7 @@ W tym momencie warto zauważyć, że z racji tego, iż interesują nas jedynie r
   </>}
 />
 
-Z powodu natury takiego grafu warto wiedzieć, że w przypadku implementacji w dowolnym języku programowania nie ma potrzeby tworzenia tego w formie dowolnego z <Link href="/post/sposoby-reprezentacji-grafow">tradycyjnych zapisów grafu w pamięci</Link>. Tak naprawdę wystarczy, że będziemy mieć funkcję, która dla dowolnych współrzędnych zwróci współrzędne pól, na które możemy się przesunąć. Jest to o tyle wydajniejsze od normalnych sposobów zapisu grafu, że już dla typowej planszy szachowej musielibyśmy zrobić macierz sąsiedztwa o wymiarach 64×64 (4096 komórek) i wielkość ta rosłaby wraz z planszą. Przy planszy 100×100 macierz sąsiedztwa zawierałaby 100 000 000 komórek. Nie są to wielkości niemożliwe do obsłużenia dla komputera (ostatni przypadek zająłby około 100 MB pamięci), ale nie ma sensu niepotrzebnie zapychać RAM-u przy tak prostym przypadku.
+Z powodu natury takiego grafu warto wiedzieć, że w przypadku implementacji w dowolnym języku programowania nie ma potrzeby tworzenia tego w formie dowolnego z [tradycyjnych zapisów grafu w pamięci](/post/sposoby-reprezentacji-grafow). Tak naprawdę wystarczy, że będziemy mieć funkcję, która dla dowolnych współrzędnych zwróci współrzędne pól, na które możemy się przesunąć. Jest to o tyle wydajniejsze od normalnych sposobów zapisu grafu, że już dla typowej planszy szachowej musielibyśmy zrobić macierz sąsiedztwa o wymiarach 64×64 (4096 komórek) i wielkość ta rosłaby wraz z planszą. Przy planszy 100×100 macierz sąsiedztwa zawierałaby 100 000 000 komórek. Nie są to wielkości niemożliwe do obsłużenia dla komputera (ostatni przypadek zająłby około 100 MB pamięci), ale nie ma sensu niepotrzebnie zapychać RAM-u przy tak prostym przypadku.
 
 ### Reguła Warnsdorffa
 

@@ -37,7 +37,7 @@ export const meta = {
 
 ## Uwagi wstępne
 
-Pierwsza uwaga jest taka, że w tym artykule nie robię wstępu teoretyczno-historycznego. Jeżeli nie znasz takich pojęć, jak piksel, bufor ramki czy za co odpowiada karta graficzna, zapraszam do poprzedniego artykułu: „<Link href="/post/jak-komputer-rysuje-linie">Jak komputer rysuje linie?</Link>”
+Pierwsza uwaga jest taka, że w tym artykule nie robię wstępu teoretyczno-historycznego. Jeżeli nie znasz takich pojęć, jak piksel, bufor ramki czy za co odpowiada karta graficzna, zapraszam do poprzedniego artykułu: „[Jak komputer rysuje linie?](/post/jak-komputer-rysuje-linie)”
 
 Druga uwaga jest taka, że podobnie jak ostatnio, dla prostego zobrazowania dalszych przykładów, będę pokazywać wszystkie operacje na tablicy symulującej bufor ramki. Oczywiście kod wszystkich zamieszczonych niżej prezentacji znajdziesz [w repozytorium na moim GitHubie](https://github.com/swistak-codes/circle-drawing). Zostały one napisane w TypeScript z wykorzystaniem frameworka Svelte.
 
@@ -151,7 +151,7 @@ Algorytm możesz przetestować na poniższej prezentacji. Za pomocą narzędzi n
 
 ## Algorytm punktu środkowego
 
-Analogicznie jak przy <Link href="/post/jak-komputer-rysuje-linie">rysowaniu linii</Link> tak i tutaj możemy wykorzystać algorytm punktu środkowego. Z góry zaznaczę, żeby nie mylić tego z punktem znajdującym się w środku okręgu, ponieważ są to dwie różne rzeczy. Podejście to również zostało opracowane przez J. E. Bresenhama, który opisał je w 1977 r., a następnie w patencie [US4371933A](https://patents.google.com/patent/US4371933) z 1983 r. Patent wygasł w 2000 r., więc możemy spokojnie korzystać z jego osiągnięcia bez ponoszenia opłat.
+Analogicznie jak przy [rysowaniu linii](/post/jak-komputer-rysuje-linie) tak i tutaj możemy wykorzystać algorytm punktu środkowego. Z góry zaznaczę, żeby nie mylić tego z punktem znajdującym się w środku okręgu, ponieważ są to dwie różne rzeczy. Podejście to również zostało opracowane przez J. E. Bresenhama, który opisał je w 1977 r., a następnie w patencie [US4371933A](https://patents.google.com/patent/US4371933) z 1983 r. Patent wygasł w 2000 r., więc możemy spokojnie korzystać z jego osiągnięcia bez ponoszenia opłat.
 
 Dla przypomnienia: algorytm punktu środkowego polega na tym, że nie obliczamy dokładnie ze wzoru piksela, na którym rysujemy. Zamiast tego sprawdzamy punkt znajdujący się pomiędzy dwoma pikselami (stąd nazwa). Z funkcji w postaci uwikłanej jesteśmy w stanie stwierdzić, czy sprawdzany punkt należy do okręgu, czy też znajduje się nad bądź pod nim. A skoro sprawdzamy punkt pomiędzy dwoma pikselami, to wiemy wówczas, czy zamalujemy górny piksel (tutaj zwany E), czy dolny (tutaj zwany SE).
 

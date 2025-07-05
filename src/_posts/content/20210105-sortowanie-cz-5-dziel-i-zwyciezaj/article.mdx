@@ -50,13 +50,13 @@ Tak jak poprzednio, kod użyty przy tworzeniu tego artykułu znajdziesz na moim 
 
 ## Dziel i zwyciężaj a sortowanie
 
-<Link href="/post/wyszukiwanie-w-listach">W artykule o wyszukiwaniu</Link> miałem okazję poruszyć temat metody „dziel i zwyciężaj”. Jest to jedna z podstawowych technik projektowania algorytmów, która w dużym skrócie polega na rozwiązywaniu problemów po ich uprzednim podzieleniu na mniejsze.
+[W artykule o wyszukiwaniu](/post/wyszukiwanie-w-listach) miałem okazję poruszyć temat metody „dziel i zwyciężaj”. Jest to jedna z podstawowych technik projektowania algorytmów, która w dużym skrócie polega na rozwiązywaniu problemów po ich uprzednim podzieleniu na mniejsze.
 
 Dokładnie w taki sposób wykorzystujemy tę metodę w sortowaniu. Dzielimy nasze sortowane kolekcje na coraz mniejsze, wykonując podczas dzielenia bądź też podczas późniejszego złączania operacje, które doprowadzają do posortowania kolekcji. W taki właśnie sposób działają dwa najbardziej znane algorytmy sortowania tego typu, a zarazem uważane za jedne z najszybszych, jakie powstały — sortowanie szybkie (z ang. quicksort) oraz sortowanie przez scalanie (z ang. merge sort). Omówmy je.
 
 ## Sortowanie szybkie
 
-Sortowanie szybkie to prawdopodobnie najbardziej znany algorytm sortowania, który jednocześnie sprawdza się w prawdziwych zastosowaniach. Wykorzystuje on metodę „dziel i zwyciężaj” i jest zaliczany do algorytmów sortowania przez zamianę (czyli tej samej kategorii, co <Link href="/post/sortowanie-cz-2-sortowanie-babelkowe">sortowanie bąbelkowe</Link>). Warto dodać, że algorytm nie wykorzystuje dodatkowych struktur danych, czyli sortuje w miejscu. Omówmy sobie teraz, jak algorytm działa. Podzielimy to na dwa etapy — dzielenie i „zwyciężanie”.
+Sortowanie szybkie to prawdopodobnie najbardziej znany algorytm sortowania, który jednocześnie sprawdza się w prawdziwych zastosowaniach. Wykorzystuje on metodę „dziel i zwyciężaj” i jest zaliczany do algorytmów sortowania przez zamianę (czyli tej samej kategorii, co [sortowanie bąbelkowe](/post/sortowanie-cz-2-sortowanie-babelkowe)). Warto dodać, że algorytm nie wykorzystuje dodatkowych struktur danych, czyli sortuje w miejscu. Omówmy sobie teraz, jak algorytm działa. Podzielimy to na dwa etapy — dzielenie i „zwyciężanie”.
 
 ### Dziel
 

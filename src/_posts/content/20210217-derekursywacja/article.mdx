@@ -72,7 +72,7 @@ function a(x) {
 
 Czasami aby dokonać takiej transformacji trzeba na przykład odwrócić warunki. Zobacz, że tutaj wchodzimy w rekurencję gdy warunek jest spełniony, a przerywamy ją, gdy nie jest. W dotychczas rozpatrywanych przez nas przypadkach było na odwrót, jednak obrócenie warunków nie jest trudnym zadaniem.
 
-Przełóżmy w dokładnie taki sposób pokazane w poprzednim artykule, ogonowe wersje funkcji Fibonacciego i silni, tym razem tylko w C. Jeżeli nie czytałeś <Link href="/post/rekurencja-co-to-jest">poprzedniego artykułu</Link>, zachęcam zerknąć do implementacji tam zamieszczonych.
+Przełóżmy w dokładnie taki sposób pokazane w poprzednim artykule, ogonowe wersje funkcji Fibonacciego i silni, tym razem tylko w C. Jeżeli nie czytałeś [poprzedniego artykułu](/post/rekurencja-co-to-jest), zachęcam zerknąć do implementacji tam zamieszczonych.
 
 ```c
 int fibonacci(int n) {
@@ -496,7 +496,7 @@ Jednakże możesz zadać pytanie — dlaczego sposób, gdzie zapamiętujemy w pa
 
 Odpowiedź na to pytanie brzmi tradycyjnie — to zależy. Algorytmy rekurencyjne niejednokrotnie bywają czytelniejsze i prostsze w zrozumieniu niż ich iteracyjne odpowiedniki; w szczególności takie, jak algorytmy sortowania czy przechodzenia po drzewach. Z drugiej strony, jak sami się przed chwilą przekonaliśmy, nawet przy bardzo prostych algorytmach, przy odpowiedniej wielkości problemu, czasy wykonania mogą być długie z powodu liczby operacji potrzebnych do wykonania, ukrytych przed programistą.
 
-Zachęcająco brzmi rekursja ogonowa — ma wydajność zbliżoną do wersji iteracyjnej. Jednak w temacie rekurencji ogonowej, dlaczego ją stosować bądź nie, wypowiedziałem się w <Link href="/post/rekurencja-co-to-jest">poprzednim artykule o rekurencji</Link>. W skrócie — aby mieć wersję ogonową, i tak dokonujemy w pewnym stopniu derekursywacji, gdyż wersje ogonowe bardzo mocno przypominają tradycyjne iteracyjne, a kompilatory niekoniecznie muszą obsługiwać tę optymalizację.
+Zachęcająco brzmi rekursja ogonowa — ma wydajność zbliżoną do wersji iteracyjnej. Jednak w temacie rekurencji ogonowej, dlaczego ją stosować bądź nie, wypowiedziałem się w [poprzednim artykule o rekurencji](/post/rekurencja-co-to-jest). W skrócie — aby mieć wersję ogonową, i tak dokonujemy w pewnym stopniu derekursywacji, gdyż wersje ogonowe bardzo mocno przypominają tradycyjne iteracyjne, a kompilatory niekoniecznie muszą obsługiwać tę optymalizację.
 
 Wersje nierekurencyjne, w takim przypadku jak tutaj, zdecydowanie radzą sobie najlepiej, o ile były od samego początku napisane w taki sposób (bądź przepisane z rekursji ogonowej). Warto jednak wiedzieć, że algorytmy iteracyjne nie zawsze są tak proste do napisania, a także to, że nie zawsze styl/paradygmat, w jakim piszemy, może być odpowiedni do ich zapisu (patrz: programowanie funkcyjne). Uniwersalny (pod względem paradygmatów) jest sposób matematyczny, bo ostatecznie otrzymujemy pojedyncze równanie, ale jego przydatność jest ograniczona.
 

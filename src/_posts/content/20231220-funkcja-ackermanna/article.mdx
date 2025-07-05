@@ -43,7 +43,7 @@ Skoro Sudan i Ackermann odkryli funkcje nieprymitywnie rekurencyjne, to zadajmy 
 
 #### Intuicyjna definicja dla informatyków
 
-Najbardziej intuicyjną dla informatyków definicją, jaką moglibyśmy podać, jest taka, że jeśli zaprogramujemy taką funkcję, to kod będzie się składać jedynie z <Link href="/post/iteracja-co-to-jest">pętli z licznikiem</Link> (`for`), gdzie liczbę iteracji znamy jeszcze przed ich rozpoczęciem.
+Najbardziej intuicyjną dla informatyków definicją, jaką moglibyśmy podać, jest taka, że jeśli zaprogramujemy taką funkcję, to kod będzie się składać jedynie z [pętli z licznikiem](/post/iteracja-co-to-jest) (`for`), gdzie liczbę iteracji znamy jeszcze przed ich rozpoczęciem.
 
 #### Definicja matematyczna
 
@@ -112,7 +112,7 @@ Oczywiście nie muszę chyba pisać, że nie ma żadnego praktycznego zastosowan
 
 Czym w takim razie będzie funkcja nieprymitywnie rekurencyjna? Z matematycznego punktu widzenia będzie to funkcja, której nie jesteśmy w stanie zapisać za pomocą skończonej liczby przedstawionych wyżej operacji na znanych funkcjach prymitywnie rekurencyjnych.
 
-Definicja bardziej informatyczna będzie taka, że obliczania nieprymitywnej rekurencyjnie funkcji nie jesteśmy w stanie zaprogramować, używając jedynie pętli z licznikiem (z odgórnie znaną liczbą iteracji), przez co prawdopodobnie musielibyśmy uciekać się do pętli typu `while`. Ewentualnie zapisalibyśmy taką funkcję <Link href="/post/rekurencja-co-to-jest">rekurencyjnie</Link> i nie bylibyśmy jej w stanie <Link href="/post/derekursywacja">zderekursywować</Link> do wcześniej opisanej postaci.
+Definicja bardziej informatyczna będzie taka, że obliczania nieprymitywnej rekurencyjnie funkcji nie jesteśmy w stanie zaprogramować, używając jedynie pętli z licznikiem (z odgórnie znaną liczbą iteracji), przez co prawdopodobnie musielibyśmy uciekać się do pętli typu `while`. Ewentualnie zapisalibyśmy taką funkcję [rekurencyjnie](/post/rekurencja-co-to-jest) i nie bylibyśmy jej w stanie [zderekursywować](/post/derekursywacja) do wcześniej opisanej postaci.
 
 ### Oryginalna wersja
 
@@ -196,7 +196,7 @@ Kolejna strzałka w takim razie zwiększa te liczby jeszcze bardziej (trzy strza
 
 #### Wersja nierekurencyjna?
 
-Patrząc na tę tabelkę wartości, możemy zauważyć pewien schemat, w jaki sposób wartości rosną wraz z kolejnymi $$m$$ i $$n$$. Co więcej, moglibyśmy wówczas zapisać funkcję Ackermanna bez jej rekurencyjnego wywoływania. Jednak nie będziemy mogli tego nazwać wersją nierekurencyjną (z matematycznego punktu widzenia), ponieważ strzałka Knutha (czy po prostu sekwencja hiperoperacji) jest też zdefiniowana rekurencyjnie. Nie znajdziemy tutaj wzoru jawnego, jak można go wyprowadzić choćby dla <Link href="/post/derekursywacja/#derekursywacja-matematyczna">ciągu Fibonacciego</Link>.
+Patrząc na tę tabelkę wartości, możemy zauważyć pewien schemat, w jaki sposób wartości rosną wraz z kolejnymi $$m$$ i $$n$$. Co więcej, moglibyśmy wówczas zapisać funkcję Ackermanna bez jej rekurencyjnego wywoływania. Jednak nie będziemy mogli tego nazwać wersją nierekurencyjną (z matematycznego punktu widzenia), ponieważ strzałka Knutha (czy po prostu sekwencja hiperoperacji) jest też zdefiniowana rekurencyjnie. Nie znajdziemy tutaj wzoru jawnego, jak można go wyprowadzić choćby dla [ciągu Fibonacciego](/post/derekursywacja/#derekursywacja-matematyczna).
 
 Dla ciekawych, taki wzór (korzystający ze strzałki Knutha) mógłby wyglądać następująco:
 
@@ -226,7 +226,7 @@ Warto jednak pamiętać, że raczej nie znajdziemy tej funkcji w jakiś powszech
 
 We wstępie stwierdziłem, że funkcja Ackermanna znalazła specyficzne zastosowanie w informatyce. Jesteś gotowy(-a) dowiedzieć się jakie?
 
-Otóż funkcja Ackermanna w informatyce jest stosowana do sprawdzania, jak kompilatory radzą sobie z optymalizacją rekurencji. W moich artykułach sprzed ponad 2 lat o <Link href="/post/rekurencja-co-to-jest">rekurencji</Link> i <Link href="/post/derekursywacja">derekursywacji</Link> pokazałem przykład, w jaki sposób kompilator GCC radzi sobie z przełożeniem rekurencji, rekurencji ogonowej i iteracji na asemblera. Dla poziomu optymalizacji `-O3` wersja rekurencyjna zajęła 208 linii kodu, a iteracyjna i ogonowa około 20.
+Otóż funkcja Ackermanna w informatyce jest stosowana do sprawdzania, jak kompilatory radzą sobie z optymalizacją rekurencji. W moich artykułach sprzed ponad 2 lat o [rekurencji](/post/rekurencja-co-to-jest) i [derekursywacji](/post/derekursywacja) pokazałem przykład, w jaki sposób kompilator GCC radzi sobie z przełożeniem rekurencji, rekurencji ogonowej i iteracji na asemblera. Dla poziomu optymalizacji `-O3` wersja rekurencyjna zajęła 208 linii kodu, a iteracyjna i ogonowa około 20.
 
 ### Kod wersji rekurencyjnej
 

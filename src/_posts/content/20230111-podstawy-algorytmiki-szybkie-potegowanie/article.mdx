@@ -120,7 +120,7 @@ function power(a, n) {
 }
 ```
 
-Fani <Link href="/post/rekurencja-co-to-jest">rekurencji</Link> mogliby zapisać go tak (kod dostępny na [repl.it](https://replit.com/@tswistak/bad-recursive#index.js)):
+Fani [rekurencji](/post/rekurencja-co-to-jest) mogliby zapisać go tak (kod dostępny na [repl.it](https://replit.com/@tswistak/bad-recursive#index.js)):
 
 ```javascript
 function power(a, n) {
@@ -259,7 +259,7 @@ function power(a, n) {
 
 Ten kod również znajdziesz na [repl.it](https://replit.com/@tswistak/binary-recursive2#index.js).
 
-Oczywiście według definicji rekurencyjnej możemy napisać również kod korzystający ze zwykłej <Link href="/post/iteracja-co-to-jest">iteracji</Link>. Będzie to wyglądać następująco (dodałem komentarze tłumaczące, co się dzieje w odniesieniu do wersji rekurencyjnej):
+Oczywiście według definicji rekurencyjnej możemy napisać również kod korzystający ze zwykłej [iteracji](/post/iteracja-co-to-jest). Będzie to wyglądać następująco (dodałem komentarze tłumaczące, co się dzieje w odniesieniu do wersji rekurencyjnej):
 
 ```javascript
 function power(a, n) {
@@ -288,7 +288,7 @@ function power(a, n) {
 }
 ```
 
-Również kod tego rozwiązania zamieściłem na [repl.it](https://replit.com/@tswistak/binary-iterative#index.js). Tutaj oczywiście odniosłem się do pierwszej pokazanej przeze mnie definicji rekurencyjnej, ale możesz też spróbować w analogiczny sposób <Link href="/post/derekursywacja">zderekursywować</Link> drugie podejście rekurencyjne. To już jednak pozostawiam Ci do zrobienia na własną rękę w ramach ćwiczenia. Jeśli potrzebujesz podpowiedzi, opis algorytmu można znaleźć w tomie drugim *Sztuki Programowania* D. Knutha.
+Również kod tego rozwiązania zamieściłem na [repl.it](https://replit.com/@tswistak/binary-iterative#index.js). Tutaj oczywiście odniosłem się do pierwszej pokazanej przeze mnie definicji rekurencyjnej, ale możesz też spróbować w analogiczny sposób [zderekursywować](/post/derekursywacja) drugie podejście rekurencyjne. To już jednak pozostawiam Ci do zrobienia na własną rękę w ramach ćwiczenia. Jeśli potrzebujesz podpowiedzi, opis algorytmu można znaleźć w tomie drugim *Sztuki Programowania* D. Knutha.
 
 ### Kod według definicji binarnej
 
@@ -323,11 +323,11 @@ function power(a, n) {
 
 Co jednak warto zauważyć, $$n \land 1$$ to nic innego jak sprawdzenie parzystości, a $$n >> 1$$ to podzielenie przez dwa. Jeśli podmienimy operacje binarne na ich matematyczne odpowiedniki, uzyskamy dokładnie to, o co poprosiłem poprzednio — iteracyjną wersję uproszczonej definicji rekurencyjnej.
 
-Dodam też, że na bazie powyższego algorytmu powstał algorytm potęgowania modularnego, który opisałem w artykule *<Link href="/post/szybkie-szukanie-duzych-liczb-pierwszych/#potęgowanie-modularne">Szybkie szukanie dużych liczb pierwszych</Link>*. Jeśli spojrzysz na przedstawiony tam kod, robimy dokładnie to samo, tylko z tą różnicą, że przy mnożeniach wykonujemy dodatkowo operację modulo.
+Dodam też, że na bazie powyższego algorytmu powstał algorytm potęgowania modularnego, który opisałem w artykule *[Szybkie szukanie dużych liczb pierwszych](/post/szybkie-szukanie-duzych-liczb-pierwszych/#potęgowanie-modularne)*. Jeśli spojrzysz na przedstawiony tam kod, robimy dokładnie to samo, tylko z tą różnicą, że przy mnożeniach wykonujemy dodatkowo operację modulo.
 
 ## Potęgowanie liczby 2
 
-W tym momencie warto wspomnieć, że gdy chcemy podnosić do potęgi liczbę 2, istnieje do tego o wiele lepszy, jeszcze wydajniejszy sposób, mianowicie przesunięcie bitowe w lewo. Opisałem to już w artykule *<Link href="/post/matematyka-zero-jedynkowa/#przesunięcia-bitowe">1 0 0 0? 0 1 0 1! 1 0 0 1 – czyli matematyka zero-jedynkowa</Link>*, ale dla przypomnienia powtórzę tutaj w kontekście potęgowania.
+W tym momencie warto wspomnieć, że gdy chcemy podnosić do potęgi liczbę 2, istnieje do tego o wiele lepszy, jeszcze wydajniejszy sposób, mianowicie przesunięcie bitowe w lewo. Opisałem to już w artykule *[1 0 0 0? 0 1 0 1! 1 0 0 1 – czyli matematyka zero-jedynkowa](/post/matematyka-zero-jedynkowa/#przesunięcia-bitowe)*, ale dla przypomnienia powtórzę tutaj w kontekście potęgowania.
 
 Operację przesunięcia bitowego w lewo możemy sobie wyobrazić wizualnie jako dopisanie zera na końcu liczby binarnej. W praktyce jest to nic innego jak mnożenie przez potęgi liczby 2, tzn. $$<< 1$$ to pomnożenie przez 2 ($$2^1$$), $$<< 2$$ przez 4 ($$2^2$$), $$<< 3$$ przez 8 ($$2^3$$) itd.
 

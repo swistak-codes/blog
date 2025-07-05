@@ -57,7 +57,7 @@ Zanim przejdziemy do konkretnych struktur i algorytmów, powiedzmy sobie, jakie 
 - **Wykrywanie kliknięć** — skoro w ten sposób wykryjemy kolizje, to także dzięki temu możemy określić, w który obiekt aktualnie klikamy myszką.
 - **Określenie pola widzenia** — przez wyszukiwanie obiektów w danym promieniu możemy określić, co widzi nasz bohater w grze.
 
-Przykładów zastosowań jest zdecydowanie więcej. Te przedstawione powyżej są typowo ze świata gier komputerowych, ale inne dziedziny również wykorzystują te techniki. Mogą być wykorzystywane np. w przetwarzaniu obrazów, przechowywaniu <Link href="/post/macierze-rzadkie">danych rzadkich</Link> czy w bazach danych (przestrzenne bazy danych).
+Przykładów zastosowań jest zdecydowanie więcej. Te przedstawione powyżej są typowo ze świata gier komputerowych, ale inne dziedziny również wykorzystują te techniki. Mogą być wykorzystywane np. w przetwarzaniu obrazów, przechowywaniu [danych rzadkich](/post/macierze-rzadkie) czy w bazach danych (przestrzenne bazy danych).
 
 ## Rozgrzewka
 
@@ -65,7 +65,7 @@ Zanim przejdę do opisu struktur, czas na małą rozgrzewkę. Poniżej znajdzies
 
 <Presentation />
 
-Jeśli powyższa zabawa skojarzyła Ci się ze <Link href="/post/wyszukiwanie-w-listach/#wyszukiwanie-binarne">strategią „dziel i zwyciężaj” i wyszukiwaniem binarnym</Link>, to bardzo dobrze, bo robimy tutaj dokładnie to samo, tylko na dwóch wymiarach. Z tego też powodu, zamiast dzielić listę na pół, dzielimy obszar na ćwiartki (czyli dzielimy na pół w pionie i poziomie, co daje 4 oddzielne obszary). W ten sposób możemy znaleźć odpowiednie pole w maksymalnie $$log_2(n) + 1$$ ruchach, gdzie $$n$$ to długość boku planszy ($$+ 1$$ wynika z tego, że liczymy liczbę ruchów, a nie iteracji algorytmu).
+Jeśli powyższa zabawa skojarzyła Ci się ze [strategią „dziel i zwyciężaj” i wyszukiwaniem binarnym](/post/wyszukiwanie-w-listach/#wyszukiwanie-binarne), to bardzo dobrze, bo robimy tutaj dokładnie to samo, tylko na dwóch wymiarach. Z tego też powodu, zamiast dzielić listę na pół, dzielimy obszar na ćwiartki (czyli dzielimy na pół w pionie i poziomie, co daje 4 oddzielne obszary). W ten sposób możemy znaleźć odpowiednie pole w maksymalnie $$log_2(n) + 1$$ ruchach, gdzie $$n$$ to długość boku planszy ($$+ 1$$ wynika z tego, że liczymy liczbę ruchów, a nie iteracji algorytmu).
 
 Niestety, mimo że szukamy tutaj binarnie, używanie tablicy nie jest praktyczne. Dlatego skupimy się w tym artykule na wyspecjalizowanych strukturach danych, które są proste w użyciu, a jednocześnie pozwalają na szybkie przeszukiwanie przestrzeni.
 
@@ -75,7 +75,7 @@ Pierwszą strukturą, z którą się zapoznamy, jest drzewo czwórkowe (po ang. 
 
 ### Idea
 
-Na pewno kojarzysz taką strukturę jak binarne drzewo poszukiwań (w skrócie: BST; nie do końca poprawnie nazywaną też drzewem binarnym). Jeśli jej nie znasz, to opisałem ją <Link href="https://swistak.codes/post/sortowanie-cz-7-inne-podejscia/#binarne-drzewo-poszukiwa%C5%84">w artykule o sortowaniu, gdzie omówiłem wykorzystujące ją sortowanie drzewiaste</Link>.
+Na pewno kojarzysz taką strukturę jak binarne drzewo poszukiwań (w skrócie: BST; nie do końca poprawnie nazywaną też drzewem binarnym). Jeśli jej nie znasz, to opisałem ją [w artykule o sortowaniu, gdzie omówiłem wykorzystujące ją sortowanie drzewiaste](/post/sortowanie-cz-7-inne-podejscia/#binarne-drzewo-poszukiwa%C5%84).
 
 W skrócie, w BST każdy węzeł ma zawsze co najwyżej dwójkę dzieci, gdzie lewy potomek zawiera wartość mniejszą od aktualnej, a prawy większą. Oddaje to w istocie sposób, jak wykonujemy wyszukiwanie binarne.
 
@@ -138,13 +138,13 @@ Warto pamiętać, że element może być zawarty w kilku węzłach, dlatego trze
 
 ### Implementacja
 
-Zaimplementujmy teraz drzewo czwórkowe. Zrobimy to w języku <Link href="/post/teoria-zbiorow-typescript">TypeScript</Link>, a nie jak zwykle na moim blogu w JavaScript, ponieważ adnotacje typów będą tutaj przydatne.
+Zaimplementujmy teraz drzewo czwórkowe. Zrobimy to w języku [TypeScript](/post/teoria-zbiorow-typescript), a nie jak zwykle na moim blogu w JavaScript, ponieważ adnotacje typów będą tutaj przydatne.
 
 #### Przygotowanie do implementacji
 
 Zanim zaimplementujemy konkretne algorytmy, musimy najpierw stworzyć „bazę” stanowiącą nasze drzewo. Przyjęło się, że struktury drzewiaste opisuje się przy pomocy programowania obiektowego, i tak też my tutaj zrobimy.
 
-Najpopularniejszym sposobem reprezentacji drzewa jest reprezentacja <Link href="/post/rekurencja-co-to-jest">rekurencyjna</Link>. Oznacza to, że obiekt drzewa zawiera referencję na kolejne poddrzewa, które są jego dziećmi i są tego samego typu. Możemy to rozumieć w taki sposób, że pojedynczy obiekt drzewa to tak naprawdę jego pojedynczy węzeł. Jest to zapis o tyle wygodny, że operujemy cały czas na jednej klasie, a większość algorytmów możemy zapisać w prosty, rekurencyjny sposób (jakkolwiek dziwnie nie brzmią obok siebie słowa „prosty” i „rekurencja”).
+Najpopularniejszym sposobem reprezentacji drzewa jest reprezentacja [rekurencyjna](/post/rekurencja-co-to-jest). Oznacza to, że obiekt drzewa zawiera referencję na kolejne poddrzewa, które są jego dziećmi i są tego samego typu. Możemy to rozumieć w taki sposób, że pojedynczy obiekt drzewa to tak naprawdę jego pojedynczy węzeł. Jest to zapis o tyle wygodny, że operujemy cały czas na jednej klasie, a większość algorytmów możemy zapisać w prosty, rekurencyjny sposób (jakkolwiek dziwnie nie brzmią obok siebie słowa „prosty” i „rekurencja”).
 
 Co oprócz dzieci i algorytmów powinien posiadać obiekt drzewa (albo raczej definicja obiektu, czyli klasa)? Na pewno listę elementów przechowywanych przez aktualny węzeł. Potrzebujemy także znać obszar, który dany węzeł pokrywa (najlepiej przekazać go przy tworzeniu obiektu, w konstruktorze). Ponadto, do algorytmów przyda nam się także metoda (czyli funkcja zapisana w obiekcie) pomocnicza sprawdzająca, czy dwa prostokąty się przecinają (dla uproszczenia zawrzemy ją w implementacji drzewa, ale programując na porządnie, raczej powinniśmy ją wydzielić na zewnątrz).
 
@@ -419,7 +419,7 @@ $$
 
 W przypadku gdy korzystamy z gotowych tablic haszowanych, tyle wystarczy. Zwykle indeksujemy je dowolnymi typami, więc możemy użyć pary wartości $$x$$ i $$y$$ jako klucza.
 
-Jeśli natomiast chcielibyśmy wartość liczbową, możemy użyć prostego wzoru, który wykorzystuje się do jednowymiarowego indeksowania dwuwymiarowych tablic. Pokazywałem to już kiedyś w artykule o <Link href="/post/sudoku">sudoku</Link> i chętnych do niego odsyłam. Oczywiście pokazanego tam wzoru nie użyjemy wprost, ponieważ musimy obliczyć, ile komórek znajduje się w jednym wierszu, ale pozostawiam tę prostą matematykę dla zainteresowanych.
+Jeśli natomiast chcielibyśmy wartość liczbową, możemy użyć prostego wzoru, który wykorzystuje się do jednowymiarowego indeksowania dwuwymiarowych tablic. Pokazywałem to już kiedyś w artykule o [sudoku](/post/sudoku) i chętnych do niego odsyłam. Oczywiście pokazanego tam wzoru nie użyjemy wprost, ponieważ musimy obliczyć, ile komórek znajduje się w jednym wierszu, ale pozostawiam tę prostą matematykę dla zainteresowanych.
 
 ##### Znalezienie komórki dla prostokątnego obszaru
 
@@ -599,7 +599,7 @@ Jak zobaczyliśmy, haszowanie przestrzenne jest o wiele prostsze w implementacji
 
 W ramach interesujących nas dwóch operacji wygląda to następująco:
 
-- **Wstawianie** — w optymistycznym przypadku złożoność tej operacji wynosi $$\Omicron(1)$$, ponieważ dodajemy element do tablicy haszowanej. Jednak element może zawierać się w wielu komórkach, przez co złożoność operacji jest liniowa, zależna od liczby komórek, w których się znajduje: $$\Omicron(m)$$, gdzie $$m$$ to liczba komórek zajmowanych przez element ($$1 \leqslant m \leqslant n$$, gdzie $$n$$ to liczba wszystkich komórek). Dodam tylko, że nie rozpatrujemy tutaj złożoności operacji dodawania do listy tablicowej przechowującej elementy w komórce (więcej w artykule *<Link href="/post/tablice-i-listy-tablicowe">Tablice i listy tablicowe</Link>*).
+- **Wstawianie** — w optymistycznym przypadku złożoność tej operacji wynosi $$\Omicron(1)$$, ponieważ dodajemy element do tablicy haszowanej. Jednak element może zawierać się w wielu komórkach, przez co złożoność operacji jest liniowa, zależna od liczby komórek, w których się znajduje: $$\Omicron(m)$$, gdzie $$m$$ to liczba komórek zajmowanych przez element ($$1 \leqslant m \leqslant n$$, gdzie $$n$$ to liczba wszystkich komórek). Dodam tylko, że nie rozpatrujemy tutaj złożoności operacji dodawania do listy tablicowej przechowującej elementy w komórce (więcej w artykule *[Tablice i listy tablicowe](/post/tablice-i-listy-tablicowe)*).
 - **Wyszukiwanie** — wyszukiwanie niczym się tutaj nie różni od dodawania. Optymistycznie (np. rozpatrując pojedynczy punkt) złożoność wynosi $$\Omicron(1)$$, a w najgorszym przypadku $$\Omicron(m)$$.
 
 Haszowanie przestrzenne szczególnie dobrze sprawdza się w przypadku:
@@ -620,7 +620,7 @@ Tym samym możesz zauważyć, że obie struktury idealnie się uzupełniają. Dr
 Dwie pokazane przeze mnie struktury nie są oczywiście jedynymi dostępnymi. Są za to najprostszymi, a tym samym często stosowanymi. Inne struktury, które mogą się przydać w przypadku przeszukiwania przestrzennego, to:
 
 - **Drzewo R** (po ang. R-tree) — struktura, która dzieli przestrzeń na prostokątne obszary mogące mieć różne rozmiary. Warto tutaj wymienić odmianę R*-Tree — jest to struktura balansująca się, więc dobrze sprawdzi się w przypadku usuwania elementów.
-- **Drzewo BSP** (skrót od Binary Space Partitioning; binarne dzielenie przestrzeni) — struktura, która dzieli rekurencyjnie przestrzeń na <Link href="/post/otoczka-wypukla">zbiory wypukłe</Link>. Dobrze się sprawdzi w przypadku renderowania grafiki 3D, ponieważ pozwala na szybkie określenie, które obiekty są widoczne z danej perspektywy. Z tego też powodu wykorzystuje się ją szeroko w silnikach gier 3D.
+- **Drzewo BSP** (skrót od Binary Space Partitioning; binarne dzielenie przestrzeni) — struktura, która dzieli rekurencyjnie przestrzeń na [zbiory wypukłe](/post/otoczka-wypukla). Dobrze się sprawdzi w przypadku renderowania grafiki 3D, ponieważ pozwala na szybkie określenie, które obiekty są widoczne z danej perspektywy. Z tego też powodu wykorzystuje się ją szeroko w silnikach gier 3D.
 - **Drzewo kd** (drzewo k-wymiarowe, po ang. k-d tree) — struktura, która pozwala zorganizować punkty w przestrzeni k-wymiarowej. Swoją ideą przypomina w pewnym stopniu drzewo czwórkowe, jednak w swojej implementacji jest bardziej ogólna (dowolna liczba wymiarów) i w inny sposób dzieli przestrzeń.
 
 Struktury te są jednak bardziej zaawansowane i jest możliwe, że opisane tutaj drzewa czwórkowe i haszowanie przestrzenne zupełnie wystarczą Ci do większości zastosowań. Warto też pamiętać, że nie wszystko musimy implementować samodzielnie. Wiele silników gier posiada już wbudowane struktury do przeszukiwania przestrzennego. Jeśli nie interesują nas gry, to bazy danych również mogą mieć obsługę przeszukiwania przestrzennego (np. PostgreSQL przez rozszerzenie [PostGIS](https://postgis.net/)).

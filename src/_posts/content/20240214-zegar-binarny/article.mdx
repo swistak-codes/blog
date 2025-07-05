@@ -38,9 +38,9 @@ export const meta = {
 
 ## Uwaga wstępna
 
-W części programistycznej artykułu implementację pokażę w przeglądarkowym JavaScript, wykorzystując HTML-owy element `<canvas>`. W artykule <Link href="/post/jak-narysowac-zegar-analogowy">o zegarze analogowym</Link> tłumaczyłem już, jak się rysuje w ten sposób grafikę, więc możesz chcieć wrócić do tego. Najważniejsze rzeczy jednak powtórzę.
+W części programistycznej artykułu implementację pokażę w przeglądarkowym JavaScript, wykorzystując HTML-owy element `<canvas>`. W artykule [o zegarze analogowym](/post/jak-narysowac-zegar-analogowy) tłumaczyłem już, jak się rysuje w ten sposób grafikę, więc możesz chcieć wrócić do tego. Najważniejsze rzeczy jednak powtórzę.
 
-Natomiast do części teoretycznej, jeśli chcesz poszerzyć uprzednio wiedzę, może przydać Ci się wiedza na temat systemu binarnego, którą opisałem w artykule *<Link href="/post/matematyka-zero-jedynkowa">1 0 0 0? 0 1 0 1! 1 0 0 1 – czyli matematyka zero-jedynkowa</Link>*. Jednak tak jak w przypadku części programistycznej, najważniejsze rzeczy wyjaśnię ponownie.
+Natomiast do części teoretycznej, jeśli chcesz poszerzyć uprzednio wiedzę, może przydać Ci się wiedza na temat systemu binarnego, którą opisałem w artykule *[1 0 0 0? 0 1 0 1! 1 0 0 1 – czyli matematyka zero-jedynkowa](/post/matematyka-zero-jedynkowa)*. Jednak tak jak w przypadku części programistycznej, najważniejsze rzeczy wyjaśnię ponownie.
 
 ## Zegar binarny
 
@@ -75,7 +75,7 @@ Jako ciekawostkę dodam, że zegar binarny tego typu stanowi jedną z bardziej n
 
 ### Zegar binarny dziesiętny
 
-Inny typ zegara binarnego to zegar binarny dziesiętny. Różni się od sześćdziesiątkowego tym, że zamiast wyświetlać godziny, minuty i sekundy jako liczby w systemie binarnym, wykorzystuje do tego celu <Link href="/post/sposoby-zapisywania-liczb-przez-komputery">kodowanie BCD</Link>.
+Inny typ zegara binarnego to zegar binarny dziesiętny. Różni się od sześćdziesiątkowego tym, że zamiast wyświetlać godziny, minuty i sekundy jako liczby w systemie binarnym, wykorzystuje do tego celu [kodowanie BCD](/post/sposoby-zapisywania-liczb-przez-komputery).
 
 Kodowanie BCD polega na tym, że binarnie zapisujemy kolejne cyfry zapisu dziesiętnego, stąd 37 zapiszemy jako $$0011 \; 0111$$, a nie jak byśmy zrobili to zwyczajnie, czyli jako $$100101$$.
 
@@ -168,7 +168,7 @@ Warto dodać, że zegar binarny nie będzie obsługiwać milisekund, więc mogli
 
 Zanim cokolwiek narysujemy, musimy napisać konwerter liczb na system binarny. Jednak nie taki zwykły, który zwróci nam ciąg zer i jedynek. Wygodniejszym wynikiem będzie dla nas tablica wartości logicznych, gdzie liczba zostanie zapisana od końca.
 
-Jak pokazywałem w artykule o <Link href="/post/matematyka-zero-jedynkowa">systemie binarnym</Link>, najprostszym sposobem konwersji jest dzielenie liczby przez 2, spisując resztę z dzielenia dla uzyskania wyniku. Z racji tego, że i tak interesują nas wartości logiczne, to z programistycznego punktu widzenia zrobimy coś następującego: zapiszemy w wyniku, czy liczba jest nieparzysta, po czym podzielimy ją całkowitoliczbowo przez 2. Operację powtarzamy tak długo, aż dojdziemy do zera.
+Jak pokazywałem w artykule o [systemie binarnym](/post/matematyka-zero-jedynkowa), najprostszym sposobem konwersji jest dzielenie liczby przez 2, spisując resztę z dzielenia dla uzyskania wyniku. Z racji tego, że i tak interesują nas wartości logiczne, to z programistycznego punktu widzenia zrobimy coś następującego: zapiszemy w wyniku, czy liczba jest nieparzysta, po czym podzielimy ją całkowitoliczbowo przez 2. Operację powtarzamy tak długo, aż dojdziemy do zera.
 
 Po przełożeniu na kod wygląda to tak:
 
@@ -528,7 +528,7 @@ Pełen kod implementacji znajdziesz na [CodePen](https://codepen.io/tswistak/pen
 
 Tak oto niedużym nakładem pracy narysowaliśmy za pomocą JavaScriptu dwa różne rodzaje zegarów binarnych. Mam nadzieję, że zainspiruje Cię to do dalszego eksperymentowania z rysowaniem (w tym animacji) za pomocą kodu.
 
-Jeśli spodobało Ci się rysowanie rzeczy za pomocą kodu, a nie czytałeś(-aś) mojego artykułu o <Link href="/post/jak-narysowac-zegar-analogowy">rysowaniu zegara analogowego</Link>, to polecam nadrobić zaległości. Tamten przypadek jest nieco trudniejszy, bo musimy więcej rzeczy obliczać matematycznie, ale efekt pracy jest równie ciekawy.
+Jeśli spodobało Ci się rysowanie rzeczy za pomocą kodu, a nie czytałeś(-aś) mojego artykułu o [rysowaniu zegara analogowego](/post/jak-narysowac-zegar-analogowy), to polecam nadrobić zaległości. Tamten przypadek jest nieco trudniejszy, bo musimy więcej rzeczy obliczać matematycznie, ale efekt pracy jest równie ciekawy.
 
 ## Literatura
 

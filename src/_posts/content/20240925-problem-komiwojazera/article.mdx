@@ -57,7 +57,7 @@ Już w tym miejscu wspomnę, że problem komiwojażera ma dwie odmiany, aczkolwi
 
 ### Problem komiwojażera jako problem grafowy
 
-We wstępie napisałem, że problem komiwojażera to powrót do tematyki <Link href="/category/grafy">grafów</Link>, której do tej pory poświęciłem 8 artykułów. Jeśli nie wiesz, czym są grafy, albo potrzebujesz powtórki z teorii, zapraszam do artykułu *<Link href="/post/grafy-wprowadzenie">Grafy — wprowadzenie</Link>*.
+We wstępie napisałem, że problem komiwojażera to powrót do tematyki [grafów](/category/grafy), której do tej pory poświęciłem 8 artykułów. Jeśli nie wiesz, czym są grafy, albo potrzebujesz powtórki z teorii, zapraszam do artykułu *[Grafy — wprowadzenie](/post/grafy-wprowadzenie)*.
 
 Więc jak możemy zdefiniować problem komiwojażera jako problem grafowy? **Jest to problem znalezienia minimalnego cyklu Hamiltona w grafie pełnym, ważonym.**
 
@@ -67,7 +67,7 @@ W skrócie, czym jest każde z pojęć, które zawarłem w tym krótkim zdaniu:
 - Graf pełny — graf, gdzie każdy wierzchołek jest połączony ze wszystkimi innymi.
 - Cykl Hamiltona — jest to zamknięta ścieżka Hamiltona.
     - Ścieżka Hamiltona — ścieżka, która przechodzi przez wszystkie wierzchołki grafu, ale tylko raz przez każdy z nich.
-    - Temat cykli i ścieżek Hamiltona szerzej poruszyłem w artykule *<Link href="/post/problem-skoczka-szachowego">Problem skoczka szachowego</Link>*.
+    - Temat cykli i ścieżek Hamiltona szerzej poruszyłem w artykule *[Problem skoczka szachowego](/post/problem-skoczka-szachowego)*.
 - Minimalny cykl Hamiltona — najkrótszy cykl Hamiltona, który możemy znaleźć w danym grafie.
 
 ### Zastosowania
@@ -89,7 +89,7 @@ Znajdziemy też inne podobne, ale wróćmy już do meritum artykułu, czyli rozw
 
 ## Uwaga do rozwiązań programistycznych
 
-Poniżej zaprezentuję przykładowe algorytmiczne podejścia do rozwiązania problemu komiwojażera. Mimo że jest to problem grafowy, przy implementacji nie będę korzystać z żadnego ze <Link href="/post/sposoby-reprezentacji-grafow">standardowych sposobów zapisu grafu w pamięci</Link>. Po prostu pokażę sposób uniwersalny, który będzie pasować do dowolnego sposobu zapisu grafu, a co więcej, można go będzie nawet użyć, jeśli nasze wierzchołki (miasta) nie są w ogóle zapisane jako graf.
+Poniżej zaprezentuję przykładowe algorytmiczne podejścia do rozwiązania problemu komiwojażera. Mimo że jest to problem grafowy, przy implementacji nie będę korzystać z żadnego ze [standardowych sposobów zapisu grafu w pamięci](/post/sposoby-reprezentacji-grafow). Po prostu pokażę sposób uniwersalny, który będzie pasować do dowolnego sposobu zapisu grafu, a co więcej, można go będzie nawet użyć, jeśli nasze wierzchołki (miasta) nie są w ogóle zapisane jako graf.
 
 A co dokładnie zrobię? Otóż każda z poniższych implementacji będzie zakładać, że wierzchołki są identyfikowane indeksami, więc po prostu będę przyjmować listę nazw wierzchołków, które chcemy odwiedzić (one nawet nie muszą reprezentować całego grafu, który mamy!). Oprócz tego założę, że istnieje funkcja zwracająca odległość (wagę krawędzi): `distance(A: number, B: number): number`.
 
@@ -111,7 +111,7 @@ $$
 P_n = n!
 $$
 
-Jest to nic innego jak silnia z $$n$$. Silnię omawiałem m.in. przy okazji <Link href="/post/rekurencja-co-to-jest">rekurencji</Link> albo obliczania <Link href="/post/symbol-newtona">symbolu Newtona</Link>, więc jeśli nie wiesz, jak ją obliczać, zapraszam tam.
+Jest to nic innego jak silnia z $$n$$. Silnię omawiałem m.in. przy okazji [rekurencji](/post/rekurencja-co-to-jest) albo obliczania [symbolu Newtona](/post/symbol-newtona), więc jeśli nie wiesz, jak ją obliczać, zapraszam tam.
 
 W przypadku problemu komiwojażera jednak możemy zauważyć (zakładając, że mamy zbiór miast $$\{A, B, C, D\}$$), że trasy $$ABCD$$, $$BCDA$$, $$CDAB$$ i $$DABC$$ będą identyczne. Dlatego zakładamy, że ustawienia pierwszego miasta nie zmieniamy, jest stałe. Stąd możliwych tras nie będzie $$n!$$, tylko $$(n-1)!$$. Teoretycznie tras jest mniej, bo w przypadku symetrycznego TSP trasy $$ABCD$$ i $$DCBA$$ są takie same, więc moglibyśmy zapisać $$P = \frac{(n-1)!}{2}$$, ale generując algorytmicznie wszystkie permutacje, nie bierzemy tego pod uwagę.
 
@@ -121,7 +121,7 @@ Stąd mamy do sprawdzenia algorytmicznie aż $$(n-1)!$$ permutacji, więc uprasz
 
 Mimo to zaimplementujmy ten sposób. W ramach testów nie musimy wyznaczać tras dla 100 miast, ale np. tylko dla maksymalnie 20. Chwilę to zajmie, ale czas ten będziemy mierzyć w milisekundach, sekundach, a nie w latach.
 
-Tylko jak generować wszystkie permutacje? Dwa algorytmy tego typu opisałem już na blogu przy okazji <Link href="/post/kryptarytmy/#algorytmy-generowania-wszystkich-permutacji">kryptarytmów</Link> i nie będę tym razem wymyślać nic innego. Weźmiemy prostszy z opisanych tam algorytmów, czyli leksykograficzne generowanie permutacji. Następnie będziemy szukać trasy o najkrótszej długości. Nie musimy generować od razu wszystkich permutacji, możemy generować jedna po drugiej i sprawdzać, czy nowa trasa jest krótsza od poprzedniej. Takie podejście nawet będzie lepsze, wykonamy iteracji dosłownie tyle, ile jest permutacji (nie licząc liczby iteracji wykonanych przy generowaniu permutacji).
+Tylko jak generować wszystkie permutacje? Dwa algorytmy tego typu opisałem już na blogu przy okazji [kryptarytmów](/post/kryptarytmy/#algorytmy-generowania-wszystkich-permutacji) i nie będę tym razem wymyślać nic innego. Weźmiemy prostszy z opisanych tam algorytmów, czyli leksykograficzne generowanie permutacji. Następnie będziemy szukać trasy o najkrótszej długości. Nie musimy generować od razu wszystkich permutacji, możemy generować jedna po drugiej i sprawdzać, czy nowa trasa jest krótsza od poprzedniej. Takie podejście nawet będzie lepsze, wykonamy iteracji dosłownie tyle, ile jest permutacji (nie licząc liczby iteracji wykonanych przy generowaniu permutacji).
 
 Kod takiego podejścia w JavaScript znajdziesz poniżej:
 
@@ -215,7 +215,7 @@ Nieco wydajniejszym sposobem znalezienia optymalnej trasy w problemie TSP jest a
 
 #### Opis algorytmu
 
-Algorytm Helda-Karpa wykorzystuje programowanie dynamiczne, co oznacza, że będziemy najpierw rozwiązywać mały podproblem i na jego bazie budować rozwiązanie większego problemu. Co prawda nigdy nie opisywałem na blogu samego programowania dynamicznego, ale algorytmy na nim bazujące pokazywałem m.in. przy okazji <Link href="/post/podobienstwo-ciagow-znakow">mierzenia podobieństwa ciągów znaków (algorytm Wagnera-Fischera)</Link> i <Link href="/post/szukanie-najkrotszych-sciezek-w-grafie">szukania najkrótszych ścieżek w grafie (algorytm Floyda-Warshalla)</Link>.
+Algorytm Helda-Karpa wykorzystuje programowanie dynamiczne, co oznacza, że będziemy najpierw rozwiązywać mały podproblem i na jego bazie budować rozwiązanie większego problemu. Co prawda nigdy nie opisywałem na blogu samego programowania dynamicznego, ale algorytmy na nim bazujące pokazywałem m.in. przy okazji [mierzenia podobieństwa ciągów znaków (algorytm Wagnera-Fischera)](/post/podobienstwo-ciagow-znakow) i [szukania najkrótszych ścieżek w grafie (algorytm Floyda-Warshalla)](/post/szukanie-najkrotszych-sciezek-w-grafie).
 
 Idea jest taka, że mając zbiór miast $$S$$, zaczynamy od jednego miasta i potem dokładamy kolejne. Załóżmy, że zbiór $$S$$ składa się z miast $$\{0,1,2,3,...,j\}$$. Wtedy:
 
@@ -327,7 +327,7 @@ Tak jak poprzednio, teraz też możesz sprawdzić na prezentacji, jak wygląda w
 
 ## Podsumowanie
 
-W ramach artykułu poznaliśmy od strony teoretycznej problem komiwojażera, a także w jaki sposób możemy znaleźć optymalne rozwiązania. Jednak, jak sami mogliśmy zobaczyć, znajdowanie ich było dość kosztowne obliczeniowo, więc tych metod raczej nie stosujemy, tylko metody heurystyczne. Mimo wszystko warto znać też sposoby umożliwiające znalezienie dokładnego rozwiązania, a <Link href="/post/problem-komiwojazera-heurystyki">o heurystykach przeczytasz w kolejnym artykule z serii</Link>.
+W ramach artykułu poznaliśmy od strony teoretycznej problem komiwojażera, a także w jaki sposób możemy znaleźć optymalne rozwiązania. Jednak, jak sami mogliśmy zobaczyć, znajdowanie ich było dość kosztowne obliczeniowo, więc tych metod raczej nie stosujemy, tylko metody heurystyczne. Mimo wszystko warto znać też sposoby umożliwiające znalezienie dokładnego rozwiązania, a [o heurystykach przeczytasz w kolejnym artykule z serii](/post/problem-komiwojazera-heurystyki).
 
 ## Literatura
 

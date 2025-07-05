@@ -53,7 +53,7 @@ Temat losowości jest dużo szerszy zarówno z punktu widzenia matematyki, jak i
 
 ## Losowość w informatyce
 
-Jak wspomniałem we wstępie, losowość w informatyce spotykamy dość powszechnie. Pomijając tamte przykłady, istotne są też zastosowania losowości w kryptografii czy w uczeniu maszynowym. Ma także znaczenie w fizyce obliczeniowej ze względu choćby na <Link href="/post/obliczanie-calek-oznaczonych/#metoda-monte-carlo">metodę Monte Carlo</Link>.
+Jak wspomniałem we wstępie, losowość w informatyce spotykamy dość powszechnie. Pomijając tamte przykłady, istotne są też zastosowania losowości w kryptografii czy w uczeniu maszynowym. Ma także znaczenie w fizyce obliczeniowej ze względu choćby na [metodę Monte Carlo](/post/obliczanie-calek-oznaczonych/#metoda-monte-carlo).
 
 Losowość w informatyce możemy osiągać na dwa podstawowe sposoby:
 
@@ -66,7 +66,7 @@ Te drugie produkują bardziej nieprzewidywalne rezultaty, więc są lepsze. Nies
 
 W dalszej części artykułu będę pokazywać implementacje różnych podejść do generowania liczb pseudolosowych. Należy jednak pamiętać, że nie są to implementacje, które powinny być stosowane w praktyce. Warto znać je, aby zrozumieć, jak generatory liczb pseudolosowych działają, ale w praktyce zawsze powinniśmy korzystać z gotowych, sprawdzonych i przetestowanych implementacji dostępnych w językach programowania.
 
-Pokazane przeze mnie implementacje będą wykorzystywać mechanizm generatorów. Jeśli nie wiesz, co to jest, to polecam zapoznać się z moim artykułem o <Link href="/post/iteracja-co-to-jest/#generatory">iteracji</Link>.
+Pokazane przeze mnie implementacje będą wykorzystywać mechanizm generatorów. Jeśli nie wiesz, co to jest, to polecam zapoznać się z moim artykułem o [iteracji](/post/iteracja-co-to-jest/#generatory).
 
 Ostatnia rzeczą jest nazewnictwo. Inicjując algorytmy, przekazujemy im wartość zwaną *ziarnem* (ang. *seed*) lub wartością początkową. Jak nazwa wskazuje, to od niej zaczynamy generować kolejne liczby. Jest kluczowa, ponieważ determinuje cały dalszy ciąg liczb.
 
@@ -200,7 +200,7 @@ Generator ten jest znacznie lepszy od metody środka kwadratu. Ma dłuższy okre
 
 ### Xorshift
 
-Kolejny sposób to nie tyle jeden algorytm, a cała rodzina algorytmów opublikowanych przez G. Marsaglię w 2003 r. W przeciwieństwie do obu wcześniej pokazanych przeze mnie Xorshift nie bazują na typowych operacjach matematycznych. W zamian za to generowanie odbywa się całkowicie za pomocą operacji bitowych — <Link href="/post/matematyka-zero-jedynkowa/#przesuni%C4%99cia-bitowe">przesunięć</Link> i operacji <Link href="/post/podstawy-logiki/#alternatywa-roz%C5%82%C4%85czna-xor">XOR</Link>. Dzięki temu są bardzo szybkie i proste w implementacji.
+Kolejny sposób to nie tyle jeden algorytm, a cała rodzina algorytmów opublikowanych przez G. Marsaglię w 2003 r. W przeciwieństwie do obu wcześniej pokazanych przeze mnie Xorshift nie bazują na typowych operacjach matematycznych. W zamian za to generowanie odbywa się całkowicie za pomocą operacji bitowych — [przesunięć](/post/matematyka-zero-jedynkowa/#przesuni%C4%99cia-bitowe) i operacji [XOR](/post/podstawy-logiki/#alternatywa-roz%C5%82%C4%85czna-xor). Dzięki temu są bardzo szybkie i proste w implementacji.
 
 Z racji tego, że operacje bitowe są czytelniejsze w kodzie, od razu pokażę implementację. W przypadku 32-bitowej wersji algorytm wygląda następująco:
 
@@ -296,7 +296,7 @@ To równanie wygląda bardzo prosto. Jak w takim razie możemy osiągnąć tutaj
 2. Obliczamy $$M = p \cdot q$$.
 3. Wybieramy liczbę $$x_0$$, która jest względnie pierwsza z $$M$$. Jednocześnie musi być różna od 0 i 1.
 4. Generujemy kolejne liczby według powyższego równania.
-5. Z wygenerowanej liczby wybieramy $$k$$ najmłodszych bitów jako wynik (zwykle jeden) albo <Link href="/post/sumy-kontrolne/#bit-parzystości">bit parzystości</Link>. Aby ułożyć liczbę o zadanej przez użytkownika liczbie bitów, musimy wygenerować kilka liczb z równania i połączyć je w jedną.
+5. Z wygenerowanej liczby wybieramy $$k$$ najmłodszych bitów jako wynik (zwykle jeden) albo [bit parzystości](/post/sumy-kontrolne/#bit-parzystości). Aby ułożyć liczbę o zadanej przez użytkownika liczbie bitów, musimy wygenerować kilka liczb z równania i połączyć je w jedną.
 
 W JavaScript możemy zaimplementować generator Blum Blum Shub biorący ostatni bit w następujący sposób:
 
@@ -351,7 +351,7 @@ W tym przypadku pominę zamieszczanie implementacji i rozbudowanych opisów, pon
 
 Mocno generalizując, algorytmy te działają następująco:
 
-- **Hash_DRBG** — generuje liczby, wykorzystując <Link href="/post/sumy-kontrolne/#funkcje-skr%C3%B3tu">kryptograficzne funkcje skrótu</Link> (np. SHA-256). Funkcje te są stosowane wielokrotnie, zarówno w procesie inicjalizacji stanu, jak i generowania wartości. Jest to najwolniejszy z tych trzech algorytmów, stąd też obecnie rzadko używany.
+- **Hash_DRBG** — generuje liczby, wykorzystując [kryptograficzne funkcje skrótu](/post/sumy-kontrolne/#funkcje-skr%C3%B3tu) (np. SHA-256). Funkcje te są stosowane wielokrotnie, zarówno w procesie inicjalizacji stanu, jak i generowania wartości. Jest to najwolniejszy z tych trzech algorytmów, stąd też obecnie rzadko używany.
 - **HMAC_DRBG** — działa podobnie jak *Hash_DRBG*, ale zamiast funkcji skrótu używa HMAC (ang. *hash-based message authentication code*), czyli funkcji skrótu z kluczem. Należy jednak uważać przy użyciu i implementacji, ponieważ jeśli generatorowi nie poda się tzw. dodatkowych danych (ang. *additional input*), to w przypadku wycieku stanu możemy przewidzieć przyszłe wartości.
 - **CTR_DRBG** — działa analogicznie do powyższych, ale generuje liczby z wykorzystaniem szyfrów blokowych (np. AES) w trybie CTR (ang. *counter mode*). Jest to najszybsza z tych trzech metod. Należy jednak uważać, bo jeśli będziemy chcieli generować zbyt duże liczby, to jest on podatny na ataki tzw. side-channel (czyli zbieranie informacji ze źródeł niezależnych od algorytmu, np. analiza różnic czasu wykonania).
 
