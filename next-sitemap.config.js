@@ -5,5 +5,17 @@ module.exports = {
   sourceDir: './.next',
   outDir: './public',
   generateRobotsTxt: true,
-  exclude: ['/xmlrpc.php', '/wp-login.php', '/licencje', '/2137'],
+  exclude: [
+    '/xmlrpc.php',
+    '/wp-login.php',
+    '/licencje',
+    '/2137',
+    // spam tarpits
+    '/fuck-spam',
+    '/pl/contact',
+    '/pages/contact',
+    '/pages/kontakt',
+    '/t3-kontakt',
+    '/kontakt2.html',
+  ],
 };
