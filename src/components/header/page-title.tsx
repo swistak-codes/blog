@@ -1,5 +1,5 @@
 import NextImage from 'next/legacy/image';
-import logo from '../../assets/logo-bg.png';
+import logo from '../../assets/swistak_logo.png';
 import Link from 'next/link';
 import styles from './page-title.module.scss';
 import commonStyles from '../common.module.scss';
