@@ -99,7 +99,7 @@ Przy okazji warto zauważyć, jak szybko rosną wartości silni. Już dla $$10!$
 
 ### Implementacja
 
-Czas na część programistyczną, która jest absolutnie najnudniejszą częścią tego artykułu. Dlaczego tak? Bo obliczanie silni z definicji to szkolny problem i nie ma tu większej filozofii. Poniżej pokażę trzy sposoby w JavaScript wykorzystujące nieograniczony typ liczbowy BigInt, dzięki któremu obliczymy silnię dla znacznie większych liczb, jednak kosztem wolniejszych obliczeń.
+Czas na część programistyczną, która jest absolutnie najnudniejszą częścią tego artykułu. Dlaczego tak? Bo obliczanie silni z definicji to szkolny problem i nie ma tu większej filozofii. Poniżej pokażę pięć sposobów w JavaScript wykorzystujące nieograniczony typ liczbowy BigInt, dzięki któremu obliczymy silnię dla znacznie większych liczb, jednak kosztem wolniejszych obliczeń.
 
 Najpierw iteracyjnie:
 
@@ -229,7 +229,7 @@ Na jego podstawie zostały zbudowane kolejne wzory z kombinatoryki:
 
 #### Symbol Newtona poza kombinatoryką
 
-Symbol Newtona to jednak nie tylko kombinatoryka. Popularne są jeszcze jego dwa inne zastosowania:
+Symbol Newtona to jednak nie tylko kombinatoryka. Popularne są jeszcze jego trzy inne zastosowania:
 
 - **Trójkąt Pascala** — możemy za jego pomocą zbudować trójkąt Pascala. Chociaż raczej wykorzystanie jest odwrotne — na podstawie trójkąta Pascala oblicza się w prosty sposób wartości symbolu Newtona.
 - **Dwumian Newtona** — inna nazwa symbolu Newtona to współczynnik dwumianowy. Bierze się to stąd, że za jego pomocą możemy obliczyć dwumian Newtona, z którego to wylicza się popularne **wzory skróconego mnożenia**. Wzór jest następujący: $$(x+y)^n = \sum^n_{k=0} {n \choose k}x^{n-k}y^k$$.
