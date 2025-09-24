@@ -1,13 +1,14 @@
-import type { BaseReactPlayerProps } from 'react-player/base';
+import type { ReactPlayerProps } from 'react-player/types';
 import styles from './video-player.module.scss';
 import imageStyles from './image.module.scss';
 import clsx from 'clsx';
 import dynamic from 'next/dynamic';
 
-const ReactPlayer = dynamic(() => import('react-player/lazy'), { ssr: false });
+const ReactPlayer = dynamic(() => import('react-player'), { ssr: false });
 
 type AdditionalProps = {
   caption: JSX.Element;
+  url: string;
 };
 
 const CDN_ADDRESS = 'https://anesthetize.swistak.codes';
@@ -18,7 +19,7 @@ export const VideoPlayer = ({
   width,
   url,
   ...props
-}: BaseReactPlayerProps & AdditionalProps) => {
+}: ReactPlayerProps & AdditionalProps) => {
   return (
     <figure className={clsx(imageStyles.figure, imageStyles.alignCenter)}>
       <div
@@ -33,7 +34,7 @@ export const VideoPlayer = ({
       >
         <ReactPlayer
           config={{
-            file: {
+            html: {
               attributes: {
                 controlsList: 'nodownload',
               },
@@ -41,7 +42,7 @@ export const VideoPlayer = ({
           }}
           height="100%"
           width="100%"
-          url={`${CDN_ADDRESS}${url}`}
+          src={`${CDN_ADDRESS}${url}`}
           className={styles.player}
           {...props}
         />

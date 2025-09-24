@@ -1,0 +1,912 @@
+import Link from 'next/link';
+import { Image } from '@swistak-codes/components';
+import cover from './swistak_silacz.webp';
+import gamma from './Gamma_plot.svg.png';
+import { PrimorialSieve } from './primorial-sieve';
+
+export const meta = {
+  title: 'Silnia i powiązane zagadnienia',
+  abstract:
+    'Artykuł opisuje funkcję silni, jej zastosowania, obliczanie i powiązane zagadnienia matematyczne.',
+  firstParagraph: (
+    <>
+      Silnia to jedna z szerzej znanych funkcji matematycznych. Z jednej strony podczas nauki matematyki kojarzymy ją mocno z kombinatoryką, z drugiej podczas nauki programowania stanowi sztandarowy przykład <Link href="/post/rekurencja-co-to-jest/" target="_blank">rekurencji</Link> (zaraz obok ciągu Fibonacciego). Ten temat jednak warto rozszerzyć, bo wychodząc poza te dwa konteksty, trafimy na całkiem ciekawe zagadnienia matematyczne.
+    </>
+  ),
+  keyword: 'silnia',
+  categories: ['Matematyka'],
+  tags: [
+    'silnia',
+    'silnia podwójna',
+    'silnia wielokrotna',
+    'funkcja gamma',
+    'wzór Stirlinga',
+    'przybliżenie Lanczosa',
+    'wzór Taylora',
+    'potęgi kroczące',
+    'silnia dolna',
+    'silnia górna',
+    'podsilnia',
+    'pierwsznia',
+  ],
+  slug: 'silnia',
+  updateTime: '2025-09-10T07:00:00+00:00',
+  publishTime: '2025-09-10T07:00:00+00:00',
+  cover,
+};
+
+## Silnia
+
+### Definicja
+
+Zacznijmy od definicji silni, chociaż miałem już okazję [opisać ją w artykule o rekurencji](https://swistak.codes/post/rekurencja-co-to-jest/#silnia). Jednak nic nie szkodzi powtórzyć.
+
+Silnią (po ang. factorial) liczby naturalnej $$n$$ nazywamy iloczyn wszystkich liczb naturalnych dodatnich od 1 do $$n$$. Oznaczamy ją symbolem $$n!$$, a obliczamy następująco:
+
+$$
+n! = 1 \cdot 2 \cdot 3 \cdot \ldots \cdot (n-1) \cdot n
+$$
+
+Możemy to oczywiście uprościć:
+
+$$
+n! = \prod _{k=1}^{n}k \text{, dla } n \geqslant 1
+$$
+
+Warto wspomnieć, że powyższe wzory nie biorą pod uwagę specjalnego przypadku zera, które należy do dziedziny funkcji silnii (aczkolwiek nie należy do jej przeciwdziedziny, tam są tylko liczby naturalne dodatnie):
+
+$$
+0! = 1
+$$
+
+We wstępie do artykułu wspomniałem o rekurencji. Oczywiście w ten sposób również możemy definiować silnię:
+
+$$
+n! = \begin{cases}
+1 & \text{, dla } n = 0, \\
+(n - 1)! \cdot n & \text{, dla } n \geqslant 1
+\end{cases}
+$$
+
+Jest jeszcze alternatywny rekurencyjny sposób obliczania. Bardziej skomplikowany obliczeniowo, ale warto o nim wspomnieć. Wygląda następująco:
+
+$$
+n! = \begin{cases}
+1 & \text{, dla } n \in \{0;1\}, \\
+(n - 1)! \cdot \left( \left( n - 1 \right)! + \left( n - 2 \right)! \right) & \text{, dla } n \geqslant 2
+\end{cases}
+$$
+
+Czyli, szybko podsumowując, kolejne wartości silnii obliczamy następująco:
+
+$$
+\begin{align*}
+0! & = 1, \\
+1! & = 1, \\
+2! & = 1 \cdot 2 = 2, \\
+3! & = 1 \cdot 2 \cdot 3 = 6, \\
+4! & = 1 \cdot 2 \cdot 3 \cdot 4 = 24, \\
+5! & = 1 \cdot 2 \cdot 3 \cdot 4 \cdot 5 = 120, \\
+6! & = 1 \cdot 2 \cdot 3 \cdot 4 \cdot 5 \cdot 6 = 720, \\
+7! & = 1 \cdot 2 \cdot 3 \cdot 4 \cdot 5 \cdot 6 \cdot 7 = 5040, \\
+8! & = 1 \cdot 2 \cdot 3 \cdot 4 \cdot 5 \cdot 6 \cdot 7 \cdot 8 = 40320, \\
+9! & = 1 \cdot 2 \cdot 3 \cdot 4 \cdot 5 \cdot 6 \cdot 7 \cdot 8 \cdot 9 = 362880, \\
+10! & = 1 \cdot 2 \cdot 3 \cdot 4 \cdot 5 \cdot 6 \cdot 7 \cdot 8 \cdot 9 \cdot 10 = 3628800.
+\end{align*}
+$$
+
+Przy okazji warto zauważyć, jak szybko rosną wartości silni. Już dla $$10!$$ przekroczyliśmy 3 miliony. Oznacza to tyle, że jako programiści musimy brać pod uwagę, że szybko może dojść do przepełnienia typu liczbowego. W przypadku 32-bitowego typu całkowitego największą liczbą, dla której możemy obliczyć silnię, jest zaledwie $$12$$. W przypadku 64-bitowego jest nie lepiej, bo zaledwie $$20$$.
+
+### Implementacja
+
+Czas na część programistyczną, która jest absolutnie najnudniejszą częścią tego artykułu. Dlaczego tak? Bo obliczanie silni z definicji to szkolny problem i nie ma tu większej filozofii. Poniżej pokażę trzy sposoby w JavaScript wykorzystujące nieograniczony typ liczbowy BigInt, dzięki któremu obliczymy silnię dla znacznie większych liczb, jednak kosztem wolniejszych obliczeń.
+
+Najpierw iteracyjnie:
+
+```javascript
+function factorial(n) {
+  let result = 1n;
+  for (let i = 1n; i <= BigInt(n); i++) {
+    result *= i;
+  }
+  return result;
+}
+```
+
+Teraz rekurencyjnie:
+
+```javascript
+function factorial(n) {
+  n = BigInt(n);
+  if (n === 0n) {
+    return 1n;
+  }
+  return n * factorial(n - 1n);
+}
+```
+
+Drugi rekurencyjny wzór możemy zderekursywować, korzystając z programowania dynamicznego:
+
+```javascript
+function factorial(n) {
+  const dp = new Array(n + 1).fill(0);
+  dp[0] = 1n;
+  dp[1] = 1n;
+  for (let i = 2; i <= n; i++) {
+    dp[i] = (BigInt(i) - 1n) * (dp[i - 1] + dp[i - 2]);
+  }
+  return dp[n];
+}
+```
+
+Następnie możemy go zoptymalizować, aby zamiast liniowej złożoności pamięciowej, miał stałą:
+
+```javascript
+function factorial(n) {
+  let prev2 = 1n;
+  let prev1 = 1n;
+  for (let i = 2; i <= n; i++) {
+    const curr = (BigInt(i) - 1n) * (prev1 + prev2);
+    prev2 = prev1;
+    prev1 = curr;
+  }
+  return prev1;
+}
+```
+
+Zróbmy jeszcze generator, który będzie zwracać kolejne wartości silni:
+
+```javascript
+function* factorial() {
+  let result = 1n;
+  let i = 1n;
+  while (true) {
+    result *= i;
+    yield result;
+    i++;
+  }
+}
+```
+
+Ostatnia wersja jest o tyle ciekawa, że zawsze wykorzystuje poprzednią wartość silni do obliczenia kolejnej, więc jest najbardziej efektywna obliczeniowo.
+
+Wszystkie trzy implementacje zamieściłem na Replit: [iteracyjna](https://replit.com/@tswistak/silnia-iteracyjnie#index.js), [rekurencyjna](https://replit.com/@tswistak/silnia-rekurencyjnie#index.js), [programowanie dynamiczne](https://replit.com/@tswistak/silnia-dynamiczne#index.js), [programowanie dynamiczne zoptymalizowane](https://replit.com/@tswistak/silnia-dynamiczne-opt#index.js), [generator](https://replit.com/@tswistak/silnia-generator#index.js). Możesz sobie je tam przetestować.
+
+Dodatkowo przy wersji z generatorem dodałem pętlę, która wypisuje kolejne wartości silni w nieskończoność, aby zobaczyć, kiedy obliczenie będzie trwać zbyt długo. Odpalając na Replit, ostatnią wartość obliczyło mi dla $$n = 1561$$.
+
+### Zera na końcu wartości
+
+Jeśli uruchomiłeś(-aś) pokazane przeze mnie przykłady w kodzie, to mogłeś(-aś) zauważyć pewną rzecz — im większa silnia, tym więcej zer jest na końcu. Można przez to pomyśleć, że straciliśmy precyzję typu liczbowego.
+
+Otóż nic bardziej mylnego. „Zyskiwanie” zer na końcu to jedna z właściwości silni. Wynika z faktu, że wartości silni (pomijając $$0!$$ i $$1!$$) są liczbami parzystymi, więc każdorazowe przemnożenie ich przez wielokrotność piątki powoduje dorzucenie zera na koniec.
+
+Tak się składa, że liczbę zer możemy obliczyć. Dość intuicyjne wydawałoby się, że wystarczyłoby zrobić $$f(n) = \lfloor \frac{n}{5} \rfloor$$. Niestety, to obliczenie będzie prawdziwe jedynie do $$24!$$ ($$25!$$ ma 6 zer na końcu, a nie 5). Prawidłowy wzór na obliczenie wygląda następująco:
+
+$$
+\begin{align*}
+f(n) &= \sum^k_{i=1} \left\lfloor \frac{n}{5^i} \right\rfloor, \\
+\text{gdzie: } &5^k \leqslant n < 5^{k+1}
+\end{align*}
+$$
+
+Możemy stąd policzyć, że dla $$n = 25$$ będziemy mieć:
+
+$$
+\begin{align*}
+5^1 &= 5 < 25 \\
+5^2 &= 25 \leqslant 25 \\
+5^3 &= 125 > 25 \Rightarrow k = 2 \\
+f(25) &= \sum^2_{i=1} = \left\lfloor \frac{25}{5^i} \right\rfloor \\
+f(25) &= \frac{25}{5^1} + \frac{25}{5^2} = \frac{25}{5} + \frac{25}{25} \\
+f(25) &= 5 + 1 = 6
+\end{align*}
+$$
+
+$$25! = 15511210043330985984000000$$, więc jak widzimy, wszystko się zgadza.
+
+### Zastosowania
+
+Bardzo nietypowo jak na moje artykuły, gdzie zastosowania zwykle piszę na końcu, opowiedzmy sobie o nich teraz. Też z góry ostrzegam, że nie będę wchodzić w głębokie matematyczne obszary znane tylko nielicznym. Pokażę tylko te, które sam pamiętam z toku swojej edukacji.
+
+#### Kombinatoryka
+
+Przede wszystkim funkcja silni najczęściej kojarzona jest z kombinatoryką. Najbardziej oczywista jest tutaj permutacja bez powtórzeń (liczba sposobów na ułożenie wszystkich elementów zbioru), bo jest to dosłownie silnia: $$P_n = n!$$. Mamy jeszcze:
+
+- **Permutację z powtórzeniami** (liczba sposobów na ułożenie wszystkich elementów zbioru, gdy te mogą się powtarzać): $$P_n^{n_1,n_2,\ldots,n_k} = \frac{n!}{n_1! \cdot n_2! \cdot \ldots \cdot n_k!}$$.
+    - $$n$$ to liczba wszystkich elementów, a $$k$$ to liczba elementów bez powtórzeń. W mianowniku podajemy liczbę powtórzeń każdego z $$k$$ elementów.
+- **Wariację bez powtórzeń** (ile różnych k-elementowych ciągów możemy ułożyć z n elementów zbioru): $$V^k_n = \frac{n!}{(n-k)!}$$.
+
+Na tym jednak nie kończmy. Mamy jeszcze [symbol Newtona](/post/symbol-newtona/), czyli:
+
+$$
+{n \choose k} = \frac {n!}{k!(n-k)!}
+$$
+
+Na jego podstawie zostały zbudowane kolejne wzory z kombinatoryki:
+
+- **Kombinacja bez powtórzeń** (liczba k-elementowych podzbiorów zbioru n-elementowego): $$C^k_n = {n \choose k}$$.
+- **Kombinacja z powtórzeniami** (to, co wyżej, ale zakładając, że elementy w pozdbiorach mogą się powtarzać): $$\overline{C}^k_n = {{k+n-1} \choose k }$$.
+
+#### Symbol Newtona poza kombinatoryką
+
+Symbol Newtona to jednak nie tylko kombinatoryka. Popularne są jeszcze jego dwa inne zastosowania:
+
+- **Trójkąt Pascala** — możemy za jego pomocą zbudować trójkąt Pascala. Chociaż raczej wykorzystanie jest odwrotne — na podstawie trójkąta Pascala oblicza się w prosty sposób wartości symbolu Newtona.
+- **Dwumian Newtona** — inna nazwa symbolu Newtona to współczynnik dwumianowy. Bierze się to stąd, że za jego pomocą możemy obliczyć dwumian Newtona, z którego to wylicza się popularne **wzory skróconego mnożenia**. Wzór jest następujący: $$(x+y)^n = \sum^n_{k=0} {n \choose k}x^{n-k}y^k$$.
+- **Krzywe Béziera** — służy do obliczania współrzędnych punktów na szeroko stosowanych w grafice komputerowej [krzywych Béziera](/post/krzywe-beziera/).
+
+#### Wzór Taylora
+
+Ostatnie zastosowanie, które chciałem opisać, pochodzi już z uniwersyteckiej matematyki (analiza matematyczna) — **wzór Taylora**, a także bazujący na nim i wykorzystywany w informatyce **szereg Maclaurina**.
+
+Bez wchodzenia w zawiłe szczegóły — Brook Taylor udowodnił w 1715 r., że funkcje, które możemy różniczkować, możemy zapisać za pomocą wielomianu zależnego od kolejnych pochodnych tychże funkcji. Nie chcę głęboko wchodzić w meandry tego twierdzenia, jak i pokazywać samego wzoru Taylora, więc zróbmy dość duży przeskok...
+
+Uproszczeniem wzoru Taylora jest **szereg Taylora**. Wygląda następująco:
+
+$$
+f(x) = \sum^{\infty}_{n=0} \frac{1}{n!} f^{(n)}(x_0)(x-x_0)^n
+$$
+
+We wzorze tym $$f^{(n)}$$ to n-ta pochodna funkcji $$f$$, a $$x_0$$ to pierwszy wyraz dziedziny funkcji. Jeśli nie będziemy sumować nieskończenie, a jedynie do wybranej wartości $$N$$, uzyskamy przybliżoną wartość funkcji — jest to główne zastosowanie tego wzoru.
+
+Zakładając, że $$x_0=0$$, możemy wyprowadzić jeszcze prostszy wzór — **szereg Maclaurina**:
+
+$$
+f(x) = \sum^{\infty}_{n=0} \frac{1}{n!} f^{(n)}(0)x^n
+$$
+
+Dlaczego wzory te są tak istotne? Ponieważ kolejne pochodne wielu popularnych funkcji sprowadzają się do podstawowych operacji matematycznych. Dzięki temu jesteśmy w stanie dość precyzyjnie obliczyć, np. wartość funkcji sinus dla dowolnej liczby, a nie tylko dla odgórnie zdefiniowanych przez tablice matematyczne. Stąd też ich szerokie zastosowanie w informatyce — dokładnie te wzory kryją się pod wszelkimi `Math.sin()`, `Math.cos()` itd.
+
+A skoro o sinusie mowa, to tak zapisalibyśmy go w postaci szeregu Maclaurina (po uproszczeniu wzoru):
+
+$$
+\sin x = \sum^{\infty}_{n=0} \frac{(-1)^n}{(2n+1)!}x^{(2n+1)}
+$$
+
+### Przykładowe zadanie z silnią
+
+Powyższe zastosowania silni pokazują, dlaczego funkcja silni jest tak istotna. Co więcej, wyczerpują też większość możliwych zadań matematycznych z nią związanych. Aczkolwiek żeby zrozumieć lepiej, jak silnia jest obliczana, zaproponuję mniej praktyczne zadanie, jednak dość ciekawe z punktu widzenia zrozumienia definicji. Jest wzorowane na zadaniu z Kangura Matematycznego 2023 (poziom student, zad. 12), ale nie jest identyczne.
+
+> Znajdź $$n$$, dla którego prawdziwa jest równość: $$n! = 6! \cdot 7!$$.
+
+Postaraj się obliczyć to zadanie bez mnożenia tych dwóch silni (bo to byłoby zbyt proste).
+
+<details>
+  <summary>Kliknij tutaj aby zobaczyć rozwiązanie</summary>
+
+  Wynik to $$n = 10$$. Jak do tego doszliśmy?
+
+  Jak pamiętamy, silnia to iloczyn kolejnych liczb naturalnych. Stąd $$7! = 6! \cdot 7$$. W takim razie musimy znaleźć, iloczyn ilu kolejnych liczb po 7 da nam $$6!$$.
+
+  W tym miejscu musimy jednak obliczyć $$6!$$. Jest to dość proste i nie wymaga kalkulatora, więc nawet na konkursie matematycznym powinniśmy sobie z tym poradzić. Wynik to $$720$$. Teraz musimy tylko znaleźć kolejne liczby po 7:
+
+  - $$8$$ jest oczywiście mniejsze niż $$720$$,
+  - $$8 \cdot 9 = 72$$, dalej jesteśmy poniżej $$720$$,
+  - $$8 \cdot 9 \cdot 10 = 720$$.
+
+  Skoro $$6! = 8 \cdot 9 \cdot 10$$, to $$n! = 7! \cdot 8 \cdot 9 \cdot 10$$, więc $$n! = 10!$$.
+</details>
+
+Na tej zagadce matematycznej zakończmy już podstawowy opis silni i przejdźmy do bardziej zaawansowanych tematów.
+
+## Funkcja gamma
+
+Silnia charakteryzuje się tym, że jest zdefiniowana tylko dla nieujemnych liczb całkowitych. Czy jednak istnieje funkcja, która rozszerza tę definicję na liczby rzeczywiste (lub nawet zespolone)?
+
+Tak! Jest nią **funkcja gamma** (oznaczana jako $$\Gamma(z)$$). Jest zdefiniowana dla wszystkich liczb zespolonych z wyłączeniem ujemnych liczb całkowitych i zera.
+
+<Image
+  image={gamma}
+  alignCenter
+  fullSize
+  forceWhiteBackground={true}
+  alt="Rysunek przedstawia wykres funkcji gamma dla liczb rzeczywistych. Widać, że funkcja ma pionowe asymptoty w miejscach, gdzie argument jest ujemną liczbą całkowitą lub zerem. W pozostałych miejscach funkcja jest ciągła i rośnie bardzo szybko dla dużych wartości dodatnich."
+  caption={<>
+    Wykres funkcji gamma.<br/>(źródło: <a href="https://commons.wikimedia.org/wiki/File:Gamma_plot.svg" target="_blank" rel="nofollow">Alessio Damato</a>, <a href="http://creativecommons.org/licenses/by-sa/3.0/" target="_blank" rel="nofollow">CC BY-SA 3.0</a>, via Wikimedia Commons)
+  </>}
+/>
+
+### Definicja
+
+Istnieje kilka sposobów definiowania funkcji gamma. Najpopularniejsza jest definicja całkowa, która wymaga, aby część rzeczywista liczby zespolonej była dodatnia:
+
+$$
+\Gamma(z) = \int_0^{\infty} t^{z-1} e^{-t} \, dt \quad \text{, dla } \Re(z) > 0
+$$
+
+Tutaj tylko dopowiem, jeśli nie wiesz, czym są liczby zespolone: w skrócie, są to liczby składające się z dwóch części — rzeczywistej i urojonej. Zapisuje się je często w postaci algebraicznej wyglądającej następująco: $$z = a + bi$$, gdzie $$a$$ to część rzeczywista, $$b$$ to część urojona, a $$i$$ to jednostka urojona, dla której zachodzi równość $$i^2 = -1$$. Absolutnie nie musisz się tym teraz przejmować, bo nie będziemy wchodzić w szczegóły liczb zespolonych. Za to interesuje nas to, że jeśli $$b = 0$$, to liczba zespolona jest zwykłą liczbą rzeczywistą.
+
+Powyższy wzór może na to nie wskazywać, jednak za jego pomocą jesteśmy w stanie wyznaczyć wartości silni dla liczb naturalnych dodatnich, a także interpolować wartości między nimi. Dokładniej, dla każdej liczby naturalnej dodatniej $$n$$ zachodzi równość:
+
+$$
+\Gamma(n) = (n-1)!
+$$
+
+Istnieje jeszcze jedna definicja funkcji gamma, która pozwala na rozszerzenie jej dziedziny na wszystkie liczby zespolone z wyłączeniem ujemnych liczb całkowitych i zera. Jest to definicja iloczynowa:
+
+$$
+\Gamma (z)=\lim _{n\to +\infty }{\frac {n!n^{z}}{z(z+1)(z+2)\dots (z+n)}}={\frac {1}{z}}\prod _{n=1}^{\infty }{\frac {\left(1+{\frac {1}{n}}\right)^{z}}{1+{\frac {z}{n}}}}
+$$
+
+### Obliczanie wartości
+
+Wiem, że całka może wyglądać strasznie, szczególnie że pojawia się jakieś $$t$$. Więc jak obliczać wartości tej funkcji?
+
+Tutaj pojawia się duży szkopuł — nie istnieje prosty sposób na obliczenie wartości tej całki dla dowolnej liczby zespolonej. Tak samo, korzystając z definicji iloczynowej, nie damy rady mnożyć w nieskończoność. Jest jednak kilka właściwości, które możemy wykorzystać do obliczenia wartości funkcji gamma dla konkretnych liczb. Pominę ich wyprowadzenie, od razu dam końcowe wzory.
+
+Najważniejszą z nich jest rekurencyjna własność funkcji gamma:
+
+$$
+\Gamma(z+1) = z \cdot \Gamma(z)
+$$
+
+Załóżmy, że chcemy obliczyć $$\Gamma(5)$$. Wykorzystując powyższą własność, możemy to zrobić następująco:
+
+$$
+\begin{align*}
+\Gamma(5) &= 4 \cdot \Gamma(4) = 4 \cdot 3 \cdot \Gamma(3) \\
+&= 4 \cdot 3 \cdot 2 \cdot \Gamma(2) = 4 \cdot 3 \cdot 2 \cdot 1 \cdot \Gamma(1) \\
+&= 4 \cdot 3 \cdot 2 \cdot 1 \cdot 1 \\
+&= 24
+\end{align*}
+$$
+
+Jak widzimy, obliczyliśmy wartość $$\Gamma(5)$$ bez konieczności rozwiązywania całki i w zasadzie doszliśmy do definicji silni.
+
+Jednak co z liczbami rzeczywistymi, które nie są całkowite? Łatwo możemy obliczyć liczby podzielone na 2. Tutaj wykorzystujemy inne własności funkcji gamma:
+
+$$
+\begin{align*}
+\Gamma(\frac{1}{2} + n) &= \frac{(2n)!}{4^n n!} \sqrt{\pi} \quad \text{, dla } n \geq 0 \\
+\Gamma(\frac{1}{2} - n) &= \frac{(-4)^n n!}{(2n)!} \sqrt{\pi} \quad \text{, dla } n > 0
+\end{align*}
+$$
+
+Przykładowo, aby obliczyć $$\Gamma(\frac{5}{2})$$, możemy skorzystać z pierwszego wzoru, gdzie $$n = 2$$:
+
+$$
+\begin{align*}
+\Gamma(\frac{5}{2}) &= \Gamma(\frac{1}{2} + 2) = \frac{(2 \cdot 2)!}{4^2 \cdot 2!} \sqrt{\pi} \\
+&= \frac{4!}{16 \cdot 2} \sqrt{\pi} = \frac{24}{32} \sqrt{\pi} \\
+&= \frac{3}{4} \sqrt{\pi} \approx 1,329
+\end{align*}
+$$
+
+Wciąż nie jest to jednak pełny zakres liczb rzeczywistych, a tym bardziej zespolonych. Aby poradzić sobie z tym problemem, wartości funkcji gamma aproksymuje się za pomocą różnych metod numerycznych.
+
+### Zastosowania
+
+Teraz możesz się zastanawiać — po co ta funkcja istnieje? Jakie ma zastosowania?
+
+Najczęściej funkcję gamma możemy spotkać w statystyce. Jest wykorzystywana do definiowania różnych rozkładów prawdopodobieństwa, takich jak rozkład gamma, chi-kwadrat czy t Studenta. Stąd też powszechnie znajdziemy ją w bibliotekach statystycznych i narzędziach do analizy danych.
+
+Oprócz tego znajdziemy zastosowania w wielu innych dziedzinach matematyki (i nie tylko). Przykładowo, dla liczb zespolonych $$z$$, dla których $$|z| < 1$$, znajdziemy następujący wzór:
+
+$$
+(1 + z)^n = \sum_{k=0}^{\infty} \frac{\Gamma(n+1)}{k! \cdot \Gamma(n-k+1)} z^k
+$$
+
+Co ciekawe, zastosowanie funkcji gamma znajdziemy nawet w geometrii. Jeśli chcielibyśmy uogólnić wzór na objętość kuli do $$n$$ wymiarów, wzór ten wygląda następująco:
+
+$$
+V_n(r) = \frac{\pi^{\frac{n}{2}}}{\Gamma(\frac{n}{2} + 1)} r^n
+$$
+
+## Aproksymacja wartości silni
+
+Wartości silni rosną bardzo szybko, więc dla większych liczb staje się niepraktyczna do obliczeń. Stosując standardowe typy liczbowe w programowaniu, szybko napotykamy problem przepełnienia. Nawet jeśli używamy typów o dużym zakresie, takich jak BigInt w JavaScript, obliczenia stają się coraz wolniejsze i bardziej zasobożerne. Jednak mimo to serwisy takie jak Wolfram|Alpha są w stanie obliczyć silnię dla bardzo dużych liczb wręcz momentalnie. Jak to możliwe?
+
+Otóż mamy kilka sposobów na przybliżenie wartości silni bez konieczności jej dokładnego obliczania. Zobaczmy je.
+
+### Wzór Stirlinga
+
+Najbardziej znanym przybliżeniem wartości silni jest **wzór Stirlinga**, nazwany tak po Jamesie Stirlingu, aczkolwiek podwaliny pod jego powstanie opracował wcześniej Abraham de Moivre.
+
+Pomijając wyprowadzenia, mamy dwa powiązane ze sobą wzory:
+
+$$
+\begin{align*}
+n! &\approx \sqrt{2 \pi n} \left(\frac{n}{e}\right)^n \\
+\ln(n!) &\approx n \ln(n) - n
+\end{align*}
+$$
+
+Nas oczywiście interesuje pierwszy wzór, ale o wzorze na logarytm warto wspomnieć, bo też jest często spotykany.
+
+Wzór Stirlinga jest dość dokładny, a jego dokładność rośnie wraz z wartością $$n$$. Przykładowe pierwsze wartości wyglądają następująco:
+
+$$
+\begin{align*}
+1! &\approx \sqrt{2 \pi 1} \left(\frac{1}{e}\right)^1 \approx 0,922; \hspace{0.25cm} 1! = 1 \\
+2! &\approx \sqrt{2 \pi 2} \left(\frac{2}{e}\right)^2 \approx 1,919; \hspace{0.25cm} 2! = 2 \\
+3! &\approx \sqrt{2 \pi 3} \left(\frac{3}{e}\right)^3 \approx 5,836; \hspace{0.25cm} 3! = 6 \\
+4! &\approx \sqrt{2 \pi 4} \left(\frac{4}{e}\right)^4 \approx 23,506; \hspace{0.25cm} 4! = 24 \\
+5! &\approx \sqrt{2 \pi 5} \left(\frac{5}{e}\right)^5 \approx 118,019; \hspace{0.25cm} 5! = 120 \\
+6! &\approx \sqrt{2 \pi 6} \left(\frac{6}{e}\right)^6 \approx 710,937; \hspace{0.25cm} 6! = 720 \\
+7! &\approx \sqrt{2 \pi 7} \left(\frac{7}{e}\right)^7 \approx 4980,396; \hspace{0.25cm} 7! = 5040 \\
+8! &\approx \sqrt{2 \pi 8} \left(\frac{8}{e}\right)^8 \approx 39902,395; \hspace{0.25cm} 8! = 40320 \\
+9! &\approx \sqrt{2 \pi 9} \left(\frac{9}{e}\right)^9 \approx 359536,872; \hspace{0.25cm} 9! = 362880 \\
+10! &\approx \sqrt{2 \pi 10} \left(\frac{10}{e}\right)^{10} \approx 3598695,618; \hspace{0.25cm} 10! = 3628800 \\
+\end{align*}
+$$
+
+Kod obliczający te wartości znajdziesz na [Replit](https://replit.com/@tswistak/silnia-stirling#index.js).
+
+Jak widzimy, nawet dla małych liczb przybliżenie jest całkiem dobre. Dla większych liczb błąd staje się wręcz pomijalny. Możemy to udowodnić matematycznie następującą granicą:
+
+$$
+\lim_{n \to \infty} \frac{n!}{\sqrt{2 \pi n} \left(\frac{n}{e}\right)^n} = 1
+$$
+
+### Przybliżenie Stirlinga dla funkcji gamma
+
+Jak pamiętamy z poprzedniego rozdziału, funkcja gamma rozszerza definicję silni na liczby rzeczywiste i zespolone. Dla dodatnich liczb całkowitych prawdziwa jest równość $$n! = \Gamma(n + 1)$$. Czy wzór Stirlinga możemy zastosować do funkcji gamma? Okazuje się, że tak.
+
+Stosując wprost wzór Stirlinga do funkcji gamma, otrzymujemy:
+
+$$
+\begin{align*}
+\Gamma(\frac{5}{2}) &\approx 1,258; \hspace{0.25cm} \Gamma(\frac{5}{2}) = \frac{3}{4} \sqrt{\pi} \approx 1,329 \\
+\Gamma(\frac{7}{2}) &\approx 3,215; \hspace{0.25cm} \Gamma(\frac{7}{2}) = \frac{15}{8} \sqrt{\pi} \approx 3,323 \\
+\Gamma(\frac{9}{2}) &\approx 11,359; \hspace{0.25cm} \Gamma(\frac{9}{2}) = \frac{105}{16} \sqrt{\pi} \approx 11,631
+\end{align*}
+$$
+
+Jak widzimy, przybliżenie jest całkiem dobre, i tak jak w przypadku silni — dokładność rośnie wraz z wartością argumentu. Przy obliczaniu należy jednak pamiętać, że obliczając wartość funkcji gamma dla liczby $$z$$, musimy wstawić $$z - 1$$ do wzoru Stirlinga.
+
+### Przybliżenie Lanczosa
+
+Mimo że przybliżenie Stirlinga jest całkiem dobre, to dla małych liczb błąd jest zauważalny. Na szczęście istnieje inne przybliżenie, które jest znacznie dokładniejsze — **przybliżenie Lanczosa**, opracowane przez Corneliusa Lanczosa w 1964 r. Jest nieco bardziej skomplikowane obliczeniowo (wzór Stirlinga ma stałą złożoność obliczeniową, a Lanczosa już nie), ale za to bardzo dokładne nawet dla małych liczb. Z tego też powodu jest standardem obliczania funkcji gamma w wielu bibliotekach matematycznych.
+
+Wzór Lanczosa wygląda następująco dla funkcji Gamma:
+
+$$
+\Gamma(z + 1) = \sqrt{2 \pi} \cdot \left(z + g + \frac{1}{2}\right)^{z + \frac{1}{2}} \cdot e^{-(z + g + \frac{1}{2})} \cdot A_g(z),
+$$
+
+gdzie (już po uproszczeniu):
+
+$$
+A_g(z) = c_0 + \sum_{k=1}^{N} \frac{c_k}{z + k}
+$$
+
+W powyższych wzorach $$g$$ to stała (zwykle mała liczba całkowita), natomiast $$c_k$$ to współczynniki zależne od $$g$$ (stąd alternatywnie są zapisywane jako $$p_k(g)$$), które są z góry ustalone. Aby nie komplikować artykułu, nie będę pokazywać, w jaki sposób je wyliczyć, ale możemy przykładowe wartości bez problemu znaleźć w różnych źródłach (np. w kodzie, który zalinkuję kawałek niżej, będą przykładowe wartości). Zwykle wystarczy ok. 10 współczynników, aby uzyskać bardzo dobrą dokładność.
+
+To teraz zobaczmy, jak wzór Lanczosa poradzi sobie z obliczaniem wartości silni i funkcji gamma (dla $$g = 7$$ i 9 współczynników):
+
+$$
+\begin{align*}
+1! &\approx 1; \hspace{0.25cm} 1! = 1 \\
+2! &\approx 2; \hspace{0.25cm} 2! = 2 \\
+3! &\approx 6; \hspace{0.25cm} 3! = 6 \\
+4! &\approx 23,999; \hspace{0.25cm} 4! = 24 \\
+5! &\approx 120; \hspace{0.25cm} 5! = 120 \\
+6! &\approx 720; \hspace{0.25cm} 6! = 720 \\
+7! &\approx 5040; \hspace{0.25cm} 7! = 5040 \\
+8! &\approx 40320; \hspace{0.25cm} 8! = 40320 \\
+9! &\approx 362880; \hspace{0.25cm} 9! = 362880 \\
+10! &\approx 3628800; \hspace{0.25cm} 10! = 3628800 \\
+\Gamma(\frac{5}{2}) &\approx 1,329; \hspace{0.25cm} \Gamma(\frac{5}{2}) = \frac{3}{4} \sqrt{\pi} \approx 1,329 \\
+\Gamma(\frac{7}{2}) &\approx 3,323; \hspace{0.25cm} \Gamma(\frac{7}{2}) = \frac{15}{8} \sqrt{\pi} \approx 3,323 \\
+\Gamma(\frac{9}{2}) &\approx 11,631; \hspace{0.25cm} \Gamma(\frac{9}{2}) = \frac{105}{16} \sqrt{\pi} \approx 11,631
+\end{align*}
+$$
+
+Powyższe obliczenia wykonałem w kodzie udostępnionym na [Replit](https://replit.com/@tswistak/silnia-lanczos#index.js). Jak widzisz, są niemal idealne. O ile tutaj wyglądają w punkt, tak na załączonym Replit możesz sprawdzić, że błąd jest, ale na odległych miejscach po przecinku.
+
+## Silnia wielokrotna
+
+Załóżmy, że dostajesz zadanie obliczenia następującej wartość:
+
+$$
+8!!
+$$
+
+Co w tym momencie robisz? Pierwsze skojarzenie to prawdopodobnie obliczyć $$8!$$, a potem jeszcze raz silnię z wyniku. Czyli wyszłoby, że wynikiem jest $$40320!$$ (odpuśćmy dokładne obliczenie). Jednak jest to błąd. Przez zwiększanie liczby wykrzykników w zapisie (bez nawiasów) mamy do czynienia z **silnią wielokrotną**, którą obliczamy nieco inaczej.
+
+### Silnia podwójna
+
+W przypadku dwóch znaków wykrzyknika (tzw. podwójna silnia) obliczamy iloczyn liczb, które są o dwa mniejsze od poprzedniej. Formalnie definicja wygląda następująco:
+
+$$
+n!! = \begin{cases}
+1 & \text{, jeśli } n = 0 \text{ lub } n = 1 \\
+n \cdot (n-2)!! & \text{, jeśli } n \geqslant 2 \\
+\end{cases}
+$$
+
+Stąd jeśli chcemy obliczyć $$8!!$$, to:
+
+$$
+8!! = 8 \cdot 6 \cdot 4 \cdot 2 = 384
+$$
+
+### Silnie k-te
+
+Nie musimy się jednak zatrzymywać na dwóch wykrzyknikach. Możemy mieć ich dowolną liczbę, co możemy skrócić do formy zapisu $$n!^{(k)}$$ (lub $$n!_{(k)}$$ — zależy od źródła), gdzie $$k$$ to liczba wykrzykników. W takim przypadku definicja wygląda następująco:
+
+$$
+n!^{(k)} = \begin{cases}
+1 & \text{, jeśli } n = 0 \\
+n & \text{, jeśli } 0 < n \leqslant k \\
+n \cdot (n-k)!^{(k)} & \text{, jeśli } n > k \\
+\end{cases}
+$$
+
+Więc gdy chcemy obliczyć $$8!!!$$ (silnia potrójna), wygląda to następująco:
+
+$$
+8!!! = 8 \cdot 5 \cdot 2 = 80
+$$
+
+### Silnie wielokrotne dla liczb ujemnych
+
+Jak pamiętasz, silnia jest zdefiniowana tylko dla liczb całkowitych nieujemnych. Widzieliśmy to także przy okazji funkcji gamma, gdzie mimo rozszerzenia dziedziny na liczby rzeczywiste i zespolone nadal nie jest zdefiniowana dla liczb całkowitych ujemnych i zera. Jednak silnia wielokrotna może zostać obliczona dla całej dziedziny liczb całkowitych, z wyjątkiem pewnych wartości zależnych od $$k$$. Aby to umożliwić, musimy zmienić definicję silni wielokrotnej:
+
+$$
+n!^{(k)} = \begin{cases}
+n \cdot (n-k)!^{(k)} & \text{, jeśli } n > k \\
+n & \text{, jeśli } 1 \leqslant n \leqslant k \\
+\frac{(n+k)!^{(k)}}{n+k} & \text{, jeśli } n \leqslant 0 \text{ i } n \neq -mk, m \in \mathbb{N} \\
+\end{cases}
+$$
+
+Warunek w ostatniej linii mówi o tym, że nie możemy obliczyć silni wielokrotnej dla liczb całkowitych ujemnych, które są wielokrotnościami $$k$$ (czyli np. dla $$k=2$$ nie możemy obliczyć silni podwójnej dla $$-2, -4, -6$$ itd.).
+
+Przykładowo, jeśli chcemy obliczyć $$-3!!$$, to:
+
+$$
+-3!! = \frac{(-3 + 2)!!}{-3 + 2} = \frac{-1!!}{-1} = \frac{-1}{-1} = 1
+$$
+
+### Przybliżenie silni podwójnej
+
+Wracając do silni podwójnej, bo ta jest najpopularniejsza z silni wielokrotnych, istnieje wzór na jej przybliżenie (dla dodatnich $$n$$). Bazuje na wzorze Stirlinga i wygląda następująco:
+
+$$
+n!! \approx \begin{cases}
+\sqrt{\pi  n} \left(\frac{n}{e}\right)^{\frac{n}{2}} & \text{, jeśli } n \text{ jest parzyste} \\
+\sqrt{2  n} \left(\frac{n}{e}\right)^{\frac{n}{2}} & \text{, jeśli } n \text{ jest nieparzyste}
+\end{cases}
+$$
+
+Skoro obliczaliśmy wcześniej $$8!!$$, sprawdźmy na niej, jak działa to przybliżenie:
+
+$$
+8!! \approx \sqrt{\pi \cdot 8} \left(\frac{8}{e}\right)^{4} \approx 376,098; \hspace{0.25cm} 8!! = 384
+$$
+
+Podobnie jak przy oryginalnym wzorze Stirlinga, im większa liczba, tym dokładniejsze przybliżenie.
+
+### Zastosowania
+
+Pytanie brzmi, czy silnia wielokrotna ma jakieś zastosowania? Oczywiście, że tak. Nie chcę jednak wyszukiwać zbyt daleko w matematycznych zagadnieniach, z którymi nikt poza studentami matematyki nie ma do czynienia. Dlatego odwołam się do czegoś, co już wcześniej opisywałem — funkcji Gamma.
+
+Pokazałem wyżej wzory na obliczanie dokładnych wartości funkcji gamma dla liczb postaci $$\frac{1}{2} + n$$ oraz $$\frac{1}{2} - n$$. Wzory te możemy zapisać także za pomocą silni podwójnej, otrzymując nieco prostsze wyrażenia:
+
+$$
+\begin{align*}
+\Gamma(\frac{1}{2} + n) &= \frac{(2n-1)!!}{2^n} \sqrt{\pi} \quad \text{, dla } n \geq 0 \\
+\Gamma(\frac{1}{2} - n) &= \frac{(-2)^n}{(2n-1)!!} \sqrt{\pi} \quad \text{, dla } n > 0
+\end{align*}
+$$
+
+Stąd bardzo często, gdy spotykamy się z zastosowaniami silni podwójnej, tak naprawdę mamy do czynienia z funkcją gamma.
+
+## Potęgi kroczące
+
+Kolejne pojęcie, które chciałem przedstawić, na pierwszy rzut oka nie brzmi jak coś związanego z silnią. **Potęgi kroczące** to dość specyficzne symbole matematyczne oznaczające pewne wielomiany. Gdzie tu powiązanie z silnią? Otóż mamy dwa rodzaje potęg kroczących: silnię górną i silnię dolną. Obie przypominają w obliczaniu silnię i także możemy je zdefiniować za pomocą zwykłej silni.
+
+### Silnia górna
+
+Pierwszym rodzajem potęgi kroczącej jest **silnia górna** (ang. rising factorial), oznaczana jako $$x^{\overline{n}}$$ (w zagranicznych źródłach spotkamy też $$x^{(n)}$$). Czytamy to jako „x do n-tej przystającej”. Definicja wygląda następująco:
+
+$$
+\begin{align*}
+x^{\overline{n}} &= x (x+1) (x+2) \cdots (x+n-1) \\
+&= \prod^n_{k=1} x+k-1 = \frac{(x+n-1)!}{(x-1)!} \\
+&\hspace{1.5cm} \text{dla } n \in \mathbb{N} \\
+\end{align*}
+$$
+
+Dodatkowo dla $$n=0$$ przyjmujemy, że $$x^{\overline{0}} = 1$$.
+
+W intuicyjny sposób moglibyśmy powiedzieć, że jest to silnia, w której zamiast mnożyć kolejne liczby naturalne, mnożymy $$n$$ kolejnych liczb, zaczynając od $$x$$ i zwiększając o 1.
+
+Zobaczmy to na przykładzie. Jeśli chcemy obliczyć $$5^{\overline{3}}$$, wygląda to następująco (na dwa sposoby):
+
+$$
+\begin{align*}
+5^{\overline{3}} &= 5 \cdot 6 \cdot 7 = 210 \\
+5^{\overline{3}} &= \frac{(5+3-1)!}{(5-1)!} = \frac{7!}{4!} = \frac{5040}{24} = 210
+\end{align*}
+$$
+
+Wspomniałem, że są to charakterystyczne wielomiany, ale na przykładzie z konkretnym $$x$$ tego nie widać. Spójrzmy więc, jak to wygląda, jeśli nie podstawimy nic za $$x$$:
+
+$$
+\begin{align*}
+x^{\overline{1}} &= x \\
+x^{\overline{2}} &= x (x+1) = x^2 + x \\
+x^{\overline{3}} &= x (x+1) (x+2) = x^3 + 3x^2 + 2x
+\end{align*}
+$$
+
+### Silnia dolna
+
+Drugi rodzaj to **silnia dolna** (ang. falling factorial), oznaczana jako $$x^{\underline{n}}$$ (w zagranicznych źródłach spotkamy też $$(x)_{n}$$). Czytamy to jako „x do n-tej ubywającej”. Definicja wygląda następująco:
+
+$$
+\begin{align*}
+x^{\underline{n}} &= x (x-1) (x-2) \cdots (x-n+1) \\
+&= \prod^n_{k=1} x-k+1 = \frac{x!}{(x-n)!}, \\
+&\hspace{1.5cm} \text{dla } n \in \mathbb{N}
+\end{align*}
+$$
+
+Analogicznie jak wcześniej, dla $$n=0$$ przyjmujemy, że $$x^{\underline{0}} = 1$$.
+
+Tym razem moglibyśmy powiedzieć, że jest to silnia, w której zamiast mnożyć kolejne liczby naturalne, mnożymy $$n$$ kolejnych liczb, zaczynając od $$x$$ i zmniejszając je o 1.
+
+Ponownie zobaczmy przykład liczbowy. Jeśli chcemy obliczyć $$5^{\underline{3}}$$, wygląda to następująco (na dwa sposoby):
+
+$$
+\begin{align*}
+5^{\underline{3}} &= 5 \cdot 4 \cdot 3 = 60 \\
+5^{\underline{3}} &= \frac{5!}{(5-3)!} = \frac{5!}{2!} = \frac{120}{2} = 60
+\end{align*}
+$$
+
+Zobaczmy też rozwinięcia w wielomiany:
+
+$$
+\begin{align*}
+x^{\underline{1}} &= x \\
+x^{\underline{2}} &= x (x-1) = x^2 - x \\
+x^{\underline{3}} &= x (x-1) (x-2) = x^3 - 3x^2 + 2x
+\end{align*}
+$$
+
+### Rozszerzenie na liczby rzeczywiste
+
+Powyżej zdefiniowaliśmy potęgi kroczące tylko dla liczb naturalnych, analogicznie jak dla zwykłej silni. Aczkolwiek skoro silnię byliśmy w stanie rozszerzyć na liczby rzeczywiste i zespolone za pomocą funkcji gamma, to czy potęgi kroczące również możemy? Okazuje się, że tak. Wystarczy silnię zastąpić funkcją gamma:
+
+$$
+\begin{align*}
+x^{\overline{n}} &= \frac{\Gamma(x+n)}{\Gamma(x)} \\
+x^{\underline{n}} &= \frac{\Gamma(x+1)}{\Gamma(x-n+1)}
+\end{align*}
+$$
+
+Pominę tutaj konkretne obliczenia, ale możesz łatwo zauważyć, że dla liczb naturalnych dodatnich powyższe wzory dają dokładnie te same wyniki co wcześniejsze definicje. Musimy jednak pamiętać, że funkcja gamma nie jest zdefiniowana dla liczb całkowitych ujemnych i zera, więc potęgi kroczące dla konkretnych wartości $$x$$ oraz $$n$$ także nie będą zdefiniowane.
+
+### Rozszerzenie na ujemne wykładniki
+
+A może jednak moglibyśmy rozszerzyć potęgi kroczące na ujemne wykładniki całkowite? Okazuje się, że możemy rozszerzyć definicję silni dolnej w ten sposób. Wówczas definicja wygląda następująco:
+
+$$
+\begin{align*}
+x^{\underline{-n}} &= \frac{1}{(x+1)^{\overline{n}}} = \frac{1}{(x+1)(x+2) \cdots (x+n)} \\
+&= \frac{1}{\prod^n_{k=1} x+k} = \frac{x!}{(x+n)!}, \\
+&\hspace{1.5cm} \text{dla } n > 0
+\end{align*}
+$$
+
+Dzięki temu możemy obliczyć np. $$5^{\underline{-3}}$$:
+
+$$
+\begin{align*}
+5^{\underline{-3}} &= \frac{1}{(5+1)(5+2)(5+3)} = \frac{1}{6 \cdot 7 \cdot 8} = \frac{1}{336} \approx 0,00297619 \\
+5^{\underline{-3}} &= \frac{5!}{(5+3)!} = \frac{5!}{8!} = \frac{120}{40320} = \frac{1}{336} \approx 0,00297619
+\end{align*}
+$$
+
+### Zastosowania
+
+Jedno z zastosowań silni dolnej miałem okazję już wcześniej pokazać przy zastosowaniach silni. Pamiętasz wariację bez powtórzeń? Możemy ją uprościć do postaci potęgi kroczącej:
+
+$$
+V^k_n = \frac{n!}{(n-k)!} = n^{\underline{k}}
+$$
+
+Obie potęgi kroczące znajdziemy także w innym obszarze kombinatoryki — przy obliczaniu liczb Stirlinga. Te jednak pominę, aby nie komplikować jeszcze bardziej artykułu.
+
+Zastosowania znajdziemy też w innych, bardziej zaawansowanych dziedzinach matematyki. W matematyce dyskretnej z potęgami kroczącymi spotkamy się w rachunku różnic skończonych. Oprócz tego potęgi kroczące pojawiają się w teorii hipergeometrycznej, a także w teorii specjalnych funkcji matematycznych. Mimo że rachunek różnic skończonych poznaje się na studiach informatycznych, to jednak nie jest to temat do opowiedzenia przy okazji silni. Z hipergeometrią natomiast nigdy nie miałem okazji się spotkać podczas swojej edukacji, ale znajduje zastosowania w mechanice kwantowej czy statystyce.
+
+## Podsilnia
+
+Dowiedzieliśmy się nieco wcześniej, co znaczy, gdy powtórzymy wykrzyknik. Co jednak powiesz na poniższy zapis?
+
+$$
+!n
+$$
+
+Proszę nie regulować odbiorników, to nie jest pomyłka. Wykrzyknik możemy zapisać także przed liczbą — wówczas mamy do czynienia z **podsilnią** (po ang. subfactorial).
+
+### Sposób obliczania
+
+Podstawowy sposób obliczania podsilni to rekurencyjna definicja, według której obliczamy podsilnię tak samo jak silnię, tylko z tą różnicą, że $$!1 = 0$$, ale $$!0 = 1$$. Łatwo możesz zauważyć, że najpopularniejsza definicja silni dałaby wtedy za każdym razem wynik zerowy. Nie bez powodu jednak podałem drugi, bardziej skomplikowany obliczeniowo wzór, bo jego możemy wprost przenieść do definicji podsilni:
+
+$$
+!n = \begin{cases}
+1 & \text{, dla } n = 0 \\
+0 & \text{, dla } n = 1 \\
+(n-1) \cdot \left( !(n-1) + !(n-2) \right) & \text{, dla } n \geqslant 2 \\
+\end{cases}
+$$
+
+Korzystając z tego wzoru, możesz też od razu zrobić w prosty sposób implementację programistyczną — przypomnij sobie, jak zaimplementowaliśmy silnię przy użyciu programowania dynamicznego. Wystarczy tylko zmienić początkową wartość.
+
+Mamy też definicje iteracyjne. Przykładowe z nich to:
+
+$$
+\begin{align*}
+!n &= n! \sum_{k=0}^{n} \frac{(-1)^k}{k!} \\
+!n &= \sum_{k=0}^{n} k! (-1)^{n-k} \binom{n}{k}
+\end{align*}
+$$
+
+Obliczmy sobie przykładowe wartości podsilni:
+
+$$
+\begin{align*}
+!2 &= 1 \cdot (!1 + !0) = 1 \cdot (0 + 1) = 1 \\
+!3 &= 2 \cdot (!2 + !1) = 2 \cdot (1 + 0) = 2 \\
+!4 &= 3 \cdot (!3 + !2) = 3 \cdot (2 + 1) = 9 \\
+!5 &= 4 \cdot (!4 + !3) = 4 \cdot (9 + 2) = 44 \\
+!6 &= 5 \cdot (!5 + !4) = 5 \cdot (44 + 9) = 265 \\
+!7 &= 6 \cdot (!6 + !5) = 6 \cdot (265 + 44) = 1854 \\
+!8 &= 7 \cdot (!7 + !6) = 7 \cdot (1854 + 265) = 14833 \\
+!9 &= 8 \cdot (!8 + !7) = 8 \cdot (14833 + 1854) = 133496 \\
+!10 &= 9 \cdot (!9 + !8) = 9 \cdot (133496 + 14833) = 1334961
+\end{align*}
+$$
+
+Wartości te są znacznie inne niż wartości silni, ale rosną podobnie szybko. Co ciekawe, stosunek podsilni do silni zbliża się do odwrotności liczby $$e$$:
+
+$$
+\lim_{n \to \infty} \frac{!n}{n!} = \frac{1}{e} \approx 0,36787944117
+$$
+
+Oznacza to, że dla bardzo dużych $$n$$ podsilnia $$!n$$ jest w przybliżeniu równa $$\frac{n!}{e}$$. Dlatego też możemy przybliżać podsilnię, korzystając ze wzorów do aproksymacji silni, które opisałem wcześniej, dzięląc następnie wynik przez $$e$$.
+
+### Zastosowania
+
+Pewnie już nie pierwszy raz zastanawiasz się w ciągu tego artykułu: „po co jest mi to potrzebne”. Podsilnia ma jedno bardzo specyficzne zastosowanie, czym chyba nie zaskoczę — w kombinatoryce.
+
+Wykorzystujemy ją do obliczania liczby nieporządków zbioru skończonego, czyli permutacji, w których żaden element nie znajduje się na swojej pierwotnej pozycji. Przykładowo, jeśli mamy trzy elementy: A, B, C, to mamy następujące permutacje:
+
+- ABC (żaden element nie zmienił pozycji)
+- ACB (B i C zmieniły pozycje)
+- BAC (A i B zmieniły pozycje)
+- BCA (wszystkie elementy zmieniły pozycje)
+- CAB (wszystkie elementy zmieniły pozycje)
+- CBA (A i C zmieniły pozycje)
+
+W powyższym przykładzie mamy 6 permutacji, z czego tylko 2 spełniają warunek nieporządku (BCA i CAB). I właśnie liczba takich permutacji to podsilnia $$!n$$, gdzie $$n$$ to liczba elementów w zbiorze. W naszym przypadku $$n=3$$, więc $$!3 = 2$$.
+
+## Pierwsznia
+
+Gładko przeszliśmy do ostatniego, związanego z silnią pojęcia, które chciałem opisać. Jest nim **pierwsznia** (po ang. primorial), oznaczana jako $$n\#$$.
+
+### Definicja
+
+Podstawowa definicja pierwszni to definicja dla liczb pierwszych. Mówi o tym, że dla n-tej liczby pierwszej $$p_n$$ pierwsznia $$p_n\#$$ to iloczyn początkowych $$n$$ liczb pierwszych:
+
+$$
+p_n\# = \prod_{i=1}^{n} p_i = p_1 \cdot p_2 \cdot p_3 \cdots p_n
+$$
+
+Stąd jeśli chcemy obliczyć $$p_5\#$$, wygląda to następująco:
+
+$$
+p_5\# = 2 \cdot 3 \cdot 5 \cdot 7 \cdot 11 = 2310
+$$
+
+Prawda jest jednak taka, że rzadko operujemy na indeksach liczb pierwszych. Dlatego też pierwsznia ma też drugą definicję dla liczb naturalnych, która wygląda następująco:
+
+$$
+n\# = \prod_{i=1}^{\pi(n)} p_i = p_{\pi(n)} \#
+$$
+
+W powyższym wzorze $$\pi(n)$$ to [funkcja zliczająca liczby pierwsze](/post/duze-liczby-pierwsze/#funkcja-zliczaj%C4%85ca-liczby-pierwsze).
+
+Możemy też prościej zdefiniować rekurencyjnie pierwsznię:
+
+$$
+n\# = \begin{cases}
+1 & \text{, jeśli } n < 2 \\
+(n-1)\# & \text{, jeśli } n \text{ nie jest liczbą pierwszą} \\
+(n-1)\# \cdot n & \text{, jeśli } n \text{ jest liczbą pierwszą}
+\end{cases}
+$$
+
+W skrócie — mnożymy wszystkie liczby pierwsze mniejsze lub równe $$n$$. Jeśli $$n$$ jest mniejsze niż 2, to przyjmujemy wartość 1 (bo nie ma liczb pierwszych mniejszych niż 2).
+
+Stąd jeśli chcemy obliczyć $$12\#$$, mnożymy wszystkie liczby pierwsze mniejsze lub równe 12:
+
+$$
+12\# = 2 \cdot 3 \cdot 5 \cdot 7 \cdot 11 = 2310
+$$
+
+### Zastosowania
+
+Pierwsznia, mimo że wydaje się ciekawostką w porównaniu do wszystkich wcześniejszych pojęć, znalazła dość ciekawe zastosowania w informatyce, szczególnie w kryptografii. Nie dziwi to, bo liczby pierwsze są fundamentem wielu algorytmów kryptograficznych. Zobaczmy przykładowe zastosowania algorytmiczne.
+
+#### Szukanie liczb pierwszych
+
+Szukając największych liczb pierwszych, naukowcy nie skupiają się na sprawdzaniu każdej liczby z osobna. Zamiast tego szuka się liczb według specyficznych wzorów, które są znane z tego, że często dają liczby pierwsze. Najbardziej znany jest tutaj wzór Mersenne'a, czyli $$M_n = 2^n - 1$$. Więcej takich wzorów opisałem w artykule *[Duże liczby pierwsze](/post/duze-liczby-pierwsze/)*. Nas zainteresuje jednak inny wzór, czyli liczby pierwsze bazujące na pierwszni (po ang. **primorial prime**).
+
+Mamy dwa wzory:
+
+$$
+\begin{align*}
+p_n\# - 1 \\
+p_n\# + 1
+\end{align*}
+$$
+
+Szukaniem liczb pierwszych spełniających te wzory zajmuje się przede wszystkim projekt [PrimeGrid](https://www.primegrid.com/). W momencie pisania artykułu (wrzesień 2025 r.) największymi znanymi liczbami pierwszymi bazującymi na pierwszni są:
+
+- $$6533299\# - 1$$ ($$n = 446895$$)
+- $$9562633\# + 1$$ ($$n = 637491$$)
+
+#### Sprawdzanie gładkości liczb
+
+W matematyce mówimy, że liczba jest **B-gładka** (po ang. B-smooth), jeśli jej wszystkie czynniki pierwsze są mniejsze lub równe pewnej liczbie $$B$$. Na przykład, liczba 60 jest 5-gładka, ponieważ $$60 = 2^2 \cdot 3 \cdot 5$$. Natomiast 62 już nie jest 5-gładka, bo faktoryzujemy ją następująco: $$62 = 2 \cdot 31$$. Zastosowania liczb gładkich znajdziemy przy obliczaniu szybkiej transformacji Fouriera (FFT), w kryptoanalizie, a nawet w teorii muzyki.
+
+Tylko jak się do tego mają pierwsznie? Aby sprawdzić, czy liczba jest B-gładka, możemy skorzystać z pierwszni $$B\#$$. Jeśli dana liczba dzieli się przez $$B\#$$, to jest B-gładka. W przeciwnym razie nie jest. Przykładowy algorytm sprawdzający, czy $$n$$ jest B-gładkie, wygląda następująco:
+
+1. Oblicz `k = B#`.
+2. Oblicz [największy wspólny dzielnik](/post/najwiekszy-wspolny-dzielnik) `n` i `k`: `g = NWD(n, k)`.
+3. Jeśli `g == 1`, to `n` nie jest B-gładkie.
+4. Podziel `n` przez `g`: `n = n / g`.
+5. Powtarzaj kroki 2-4, aż `g == 1` lub `n == 1`.
+6. Jeśli `n == 1`, to `n` jest B-gładkie, w przeciwnym razie nie jest.
+
+Idea tego algorytmu polega na tym, że jeśli `n` ma jakikolwiek czynnik pierwszy większy od `B`, to ten czynnik nie będzie dzielił `B#`, więc największym wspólnym dzielnikiem w pewnym momencie stanie się 1. Do tego możemy założyć, że `B` jest stałe między kolejnymi wywołaniami, stąd `B#` możemy obliczyć raz i przechować.
+
+#### Sito pierwszniowe
+
+Innym zastosowaniem pierwszni są tzw. sita pierwszniowe do generowania liczb pierwszych. Są podobne do sita Eratostenesa, z tym że zamiast eliminować wielokrotności kolejnych liczb pierwszych, budujemy matrycę o nieskończonej wysokości, gdzie część kolumn oznaczamy jako podpory, które mają kandydatów na liczby pierwsze. Pozostałe kolumny zawierają w całości liczby złożone.
+
+Poniżej możesz zobaczyć wizualizację $$P_3\#$$-sita pierwszniowego. Nie wszystkie kolumny mieszczą się na ekranie, więc możesz przewinąć w prawo, aby zobaczyć więcej.
+
+<PrimorialSieve />
+
+Na czarno oznaczone są kolumny podpór. Komórki w kolumnach podpór, oznaczone na czerwono, to liczby pierwsze. Jak widać, mamy tutaj czasami liczby złożone (oznaczone na biało). Natomiast poza kolumnami podpór mamy same liczby złożone, stąd je całkowicie ignorujemy (oznaczone na szaro). Jedynie w pierwszym wierszu wyeliminowaliśmy kilka liczb pierwszych (2, 3 i 5), bo są mniejsze niż największa liczba pierwsza w pierwszym wierszu.
+
+Zrozummy, co to sito ma do pierwszni. Zacznijmy od tego, że powyżej widzimy $$P_3\#$$-sito, czyli mające 30 kolumn (ponieważ $$p_3\# = 30$$). Ma 8 podpór, ponieważ $$\pi(30) = 8$$ (funkcja Eulera, tocjent — przypisuje każdej liczbie naturalnej liczbę liczb względnie z nią pierwszych). A jakie liczby zostają podporami? Dokładnie te, które są względnie pierwsze z $$30$$ (uwaga, nie muszą to być liczby pierwsze). Warto też zauważyć, że nie musimy oczywiście rozpisywać całej matrycy, ponieważ kolejne liczby w kolumnie możemy obliczyć ze wzoru $$p_n\# \cdot i + k$$, gdzie $$k$$ to liczba w kolumnie, a $$i$$ to numer wiersza (liczony od zera).
+
+Sito pierwszniowe będzie tym lepsze w generowaniu liczb pierwszych, im mniejszy będzie stosunek liczby podpór do liczby kolumn. W pokazanym wyżej przykładzie jest to $$\frac{8}{30} \approx 0,27$$. Dla $$P_4\#$$ będzie to już $$\frac{48}{210} \approx 0,2296$$, a dla $$P_{9}\#$$ już tylko $$0,1636$$. Warto jednak wziąć pod uwagę, że przy $$P_{9}\#$$ będziemy mieli ponad 223 miliony kolumn, z czego około 36 milionów to podpory.
+
+## Podsumowanie
+
+Dotarliśmy do końca artykułu. Czy opisałem wszystko? Absolutnie nie. Pominąłem takie, stosunkowo proste, zagadnienia, jak factorion, superfaktorial, hiperfaktorial czy silnię wykładniczą. Oprócz tego wiele zaawansowanych, jak niepełną funkcję gamma, q-silnię czy funkcję G Barnesa. Wszystko to jednak wymagałoby znacznie więcej miejsca i czasu, a artykuł i tak jest już bardzo długi.
+
+Mam nadzieję, że udało mi się pokazać, że silnia to coś więcej niż szybko rosnące liczby i przykład funkcji rekurencyjnej, ale ma też wiele ciekawych zastosowań. A do tego, że są  też z nią powiązane równie ciekawe i przydatne pojęcia.
+
+## Literatura
+
+- Weisstein, Eric W. "Factorial." From MathWorld--A Wolfram Resource. https://mathworld.wolfram.com/Factorial.html
+- Wzór Taylora \[online\]. Wikipedia : wolna encyklopedia, 2025-09-07 15:06Z \[dostęp: 2025-09-24 05:57Z\]. Dostępny w Internecie: https://pl.wikipedia.org/w/index.php?title=Wz%C3%B3r_Taylora&oldid=77555919
+- Kangur Matematyczny - Testy konkursowe https://www.kangur-mat.pl/testy_konkursowe.php#2023
+- Weisstein, Eric W. "Gamma Function." From MathWorld--A Wolfram Resource. https://mathworld.wolfram.com/GammaFunction.html
+- Stirling's approximation, https://en.wikipedia.org/w/index.php?title=Stirling%27s_approximation&oldid=1308153547 (dostęp: 2025-09-24).
+- Lanczos approximation, https://en.wikipedia.org/w/index.php?title=Lanczos_approximation&oldid=1239419319 (dostęp: 2025-09-24).
+- Weisstein, Eric W. "Multifactorial." From MathWorld--A Wolfram Resource. https://mathworld.wolfram.com/Multifactorial.html
+- Weisstein, Eric W. "Double Factorial." From MathWorld--A Wolfram Resource. https://mathworld.wolfram.com/DoubleFactorial.html
+- Double factorial, https://en.wikipedia.org/w/index.php?title=Double_factorial&oldid=1309712607 (dostęp: 2025-09-24).
+- Weisstein, Eric W. "Rising Factorial." From MathWorld--A Wolfram Resource. https://mathworld.wolfram.com/RisingFactorial.html
+- Weisstein, Eric W. "Falling Factorial." From MathWorld--A Wolfram Resource. https://mathworld.wolfram.com/FallingFactorial.html
+- Falling and rising factorials, https://en.wikipedia.org/w/index.php?title=Falling_and_rising_factorials&oldid=1305259865 (dostęp: 2025-09-24).
+- Potęgi kroczące \[online\]. Wikipedia : wolna encyklopedia, 2020-12-18 17:49Z \[dostęp: 2025-09-24 06:06Z\]. Dostępny w Internecie: https://pl.wikipedia.org/w/index.php?title=Pot%C4%99gi_krocz%C4%85ce&oldid=61703519
+- Weisstein, Eric W. "Subfactorial." From MathWorld--A Wolfram Resource. https://mathworld.wolfram.com/Subfactorial.html
+- Podsilnie i nieporządki – ignormatyk https://xpil.eu/podsilnie-i-nieporzadki/
+- Weisstein, Eric W. "Primorial." From MathWorld--A Wolfram Resource. https://mathworld.wolfram.com/Primorial.html
+- Primorial, https://en.wikipedia.org/w/index.php?title=Primorial&oldid=1306197368 (dostęp: 2025-09-24).
+- Weisstein, Eric W. "Primorial Prime." From MathWorld--A Wolfram Resource. https://mathworld.wolfram.com/PrimorialPrime.html
+- Primorial in algorithms, Daniel Șuteu https://trizenx.blogspot.com/2020/01/primorials-in-algorithms.html
+- Prime numbers and the (double) primorial sieve, Dicker H. https://primorial-sieve.com/_Primorial_sieve%20En.pdf
+
+<small>Zdjęcie na okładce wygenerowane przez Midjourney.</small>

@@ -10,6 +10,18 @@
     },
     "items": [
         {
+            "id": "https://swistak.codes/post/silnia",
+            "content_html": "Silnia to jedna z szerzej znanych funkcji matematycznych. Z jednej strony podczas nauki matematyki kojarzymy ją mocno z kombinatoryką, z drugiej podczas nauki programowania stanowi sztandarowy przykład rekurencji (zaraz obok ciągu Fibonacciego). Ten temat jednak warto rozszerzyć, bo wychodząc poza te dwa konteksty, trafimy na całkiem ciekawe zagadnienia matematyczne.<br /><a href=\"https://swistak.codes/post/silnia\">Czytaj więcej na świstak.codes</a>",
+            "url": "https://swistak.codes/post/silnia",
+            "title": "Silnia i powiązane zagadnienia",
+            "summary": "Artykuł opisuje funkcję silni, jej zastosowania, obliczanie i powiązane zagadnienia matematyczne.",
+            "date_modified": "2025-09-10T07:00:00.000Z",
+            "author": {
+                "name": "Tomasz Świstak",
+                "url": "https://swistak.codes"
+            }
+        },
+        {
             "id": "https://swistak.codes/post/renderowanie-wolf-3d",
             "content_html": "W maju 1992 r. premierę miała jedna z najważniejszych gier komputerowych w historii — Wolfenstein 3D. Mimo że nie była pierwszą grą z trójwymiarowym światem, z pewnością była pierwszą, która wprowadziła graczy w świat 3D w sposób zarówno innowacyjny, jak i przystępny. Z technicznego punktu widzenia zdecydowanie najciekawszą rzeczą w tej grze jest sposób, w jaki uzyskano widok 3D. Zobaczmy, jak to zrobiono, i spróbujmy zaimplementować te techniki w nowoczesnym środowisku.<br /><a href=\"https://swistak.codes/post/renderowanie-wolf-3d\">Czytaj więcej na świstak.codes</a>",
             "url": "https://swistak.codes/post/renderowanie-wolf-3d",

@@ -1,4 +1,4 @@
-FROM node:22.12.0-alpine3.20 AS base
+FROM node:24.3.0-alpine3.22 AS base
 
 ARG HIDE
 ARG URL

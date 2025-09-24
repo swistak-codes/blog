@@ -44,23 +44,25 @@
     border-collapse: collapse;
     border: 1px solid var(--sc__table--border);
 
-    th,
-    td {
-      border: 1px solid var(--sc__table--border);
-      padding: 0.25rem;
-    }
+    &:not(:global(.ignore-styles)) {
+      th,
+      td {
+        border: 1px solid var(--sc__table--border);
+        padding: 0.25rem;
+      }
 
-    thead > tr {
-      background: var(--sc__table--stripeBackground);
-    }
-
-    tr {
-      &:nth-child(even) {
+      thead > tr {
         background: var(--sc__table--stripeBackground);
       }
 
-      &:hover {
-        background: var(--sc__table--stripeBackground);
+      tr {
+        &:nth-child(even) {
+          background: var(--sc__table--stripeBackground);
+        }
+
+        &:hover {
+          background: var(--sc__table--stripeBackground);
+        }
       }
     }
   }
