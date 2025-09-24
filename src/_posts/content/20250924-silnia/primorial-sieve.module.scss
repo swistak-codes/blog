@@ -1,0 +1,50 @@
+.container {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(30, 1fr);
+  gap: 1px;
+  background: #888;
+  font-family: monospace;
+  text-align: center;
+  width: max-content;
+  padding: 1px;
+  min-width: 100%;
+}
+
+.cell {
+  aspect-ratio: 1;
+  min-width: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: black;
+}
+
+.cellStrut {
+  background: #ffffff;
+}
+
+.cellStrutPrime {
+  background: #ff4444;
+  color: white;
+}
+
+.cellNonStrut {
+  background: #d3d3d3;
+}
+
+.strutLabel {
+  background: black;
+  color: white;
+  font-weight: bold;
+  aspect-ratio: 1;
+  min-width: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

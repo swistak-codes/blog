@@ -1,6 +1,6 @@
 import { GetStaticProps } from 'next';
 import { Post } from '../../components/post/post';
-import { silnia } from '../../_posts/content/20250910-silnia';
+import { silnia } from '../../_posts/content/20250924-silnia';
 import { PostDate } from '../../components/post-list/list/post-date';
 import Link from 'next/link';
 import { getDatePathForDate } from '@swistak-codes/pagination';

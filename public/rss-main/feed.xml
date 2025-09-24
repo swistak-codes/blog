@@ -4,7 +4,7 @@
         <title>świstak.codes — Wpisy ze strony głównej</title>
         <link>https://swistak.codes</link>
         <description></description>
-        <lastBuildDate>Wed, 10 Sep 2025 07:00:00 GMT</lastBuildDate>
+        <lastBuildDate>Wed, 24 Sep 2025 07:00:00 GMT</lastBuildDate>
         <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
         <generator>https://github.com/jpmonette/feed</generator>
         <image>
@@ -17,7 +17,7 @@
             <title><![CDATA[Silnia i powiązane zagadnienia]]></title>
             <link>https://swistak.codes/post/silnia</link>
             <guid isPermaLink="false">https://swistak.codes/post/silnia</guid>
-            <pubDate>Wed, 10 Sep 2025 07:00:00 GMT</pubDate>
+            <pubDate>Wed, 24 Sep 2025 07:00:00 GMT</pubDate>
             <description><![CDATA[Artykuł opisuje funkcję silni, jej zastosowania, obliczanie i powiązane zagadnienia matematyczne.]]></description>
             <content:encoded><![CDATA[Silnia to jedna z szerzej znanych funkcji matematycznych. Z jednej strony podczas nauki matematyki kojarzymy ją mocno z kombinatoryką, z drugiej podczas nauki programowania stanowi sztandarowy przykład rekurencji (zaraz obok ciągu Fibonacciego). Ten temat jednak warto rozszerzyć, bo wychodząc poza te dwa konteksty, trafimy na całkiem ciekawe zagadnienia matematyczne.<br /><a href="https://swistak.codes/post/silnia">Czytaj więcej na świstak.codes</a>]]></content:encoded>
             <author>tomasz@swistak.codes (Tomasz Świstak)</author>

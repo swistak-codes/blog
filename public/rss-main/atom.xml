@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://swistak.codes</id>
     <title>świstak.codes — Wpisy ze strony głównej</title>
-    <updated>2025-09-10T07:00:00.000Z</updated>
+    <updated>2025-09-24T07:00:00+00:00</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <author>
         <name>Tomasz Świstak</name>
@@ -18,7 +18,7 @@
         <title type="html"><![CDATA[Silnia i powiązane zagadnienia]]></title>
         <id>https://swistak.codes/post/silnia</id>
         <link href="https://swistak.codes/post/silnia"/>
-        <updated>2025-09-10T07:00:00.000Z</updated>
+        <updated>2025-09-24T07:00:00+00:00</updated>
         <summary type="html"><![CDATA[Artykuł opisuje funkcję silni, jej zastosowania, obliczanie i powiązane zagadnienia matematyczne.]]></summary>
         <content type="html"><![CDATA[Silnia to jedna z szerzej znanych funkcji matematycznych. Z jednej strony podczas nauki matematyki kojarzymy ją mocno z kombinatoryką, z drugiej podczas nauki programowania stanowi sztandarowy przykład rekurencji (zaraz obok ciągu Fibonacciego). Ten temat jednak warto rozszerzyć, bo wychodząc poza te dwa konteksty, trafimy na całkiem ciekawe zagadnienia matematyczne.<br /><a href="https://swistak.codes/post/silnia">Czytaj więcej na świstak.codes</a>]]></content>
         <author>
