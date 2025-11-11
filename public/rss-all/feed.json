@@ -10,12 +10,24 @@
     },
     "items": [
         {
+            "id": "https://swistak.codes/post/trudnosc-pisania",
+            "content_html": "Pisząc na klawiaturze, pewnie nieraz zauważyłeś(-aś), że niektóre słowa pisze się prościej, inne ciężej. Szczególnie możemy tego doświadczyć, ucząc się bezwzrokowego pisania na klawiaturze, kiedy to niektóre wyrazy możemy wpisać, praktycznie nie ruszając palcami, a inne wymagają od nas większej gimnastyki. Intuicyjnie jesteśmy w stanie powiedzieć, które słowa są trudniejsze do napisania, ale czy da się to jakoś zmierzyć?<br /><a href=\"https://swistak.codes/post/trudnosc-pisania\">Czytaj więcej na świstak.codes</a>",
+            "url": "https://swistak.codes/post/trudnosc-pisania",
+            "title": "Określanie trudności pisania słowa",
+            "summary": "Artykuł opisuje, w jaki sposób możemy mierzyć, jak ciężko jest napisać słowo na klawiaturze.",
+            "date_modified": "2025-11-12T07:00:00.000Z",
+            "author": {
+                "name": "Tomasz Świstak",
+                "url": "https://swistak.codes"
+            }
+        },
+        {
             "id": "https://swistak.codes/post/silnia",
             "content_html": "Silnia to jedna z szerzej znanych funkcji matematycznych. Z jednej strony podczas nauki matematyki kojarzymy ją mocno z kombinatoryką, z drugiej podczas nauki programowania stanowi sztandarowy przykład rekurencji (zaraz obok ciągu Fibonacciego). Ten temat jednak warto rozszerzyć, bo wychodząc poza te dwa konteksty, trafimy na całkiem ciekawe zagadnienia matematyczne.<br /><a href=\"https://swistak.codes/post/silnia\">Czytaj więcej na świstak.codes</a>",
             "url": "https://swistak.codes/post/silnia",
             "title": "Silnia i powiązane zagadnienia",
             "summary": "Artykuł opisuje funkcję silni, jej zastosowania, obliczanie i powiązane zagadnienia matematyczne.",
-            "date_modified": "2025-09-24T07:00:00+00:00",
+            "date_modified": "2025-09-24T07:00:00.000Z",
             "author": {
                 "name": "Tomasz Świstak",
                 "url": "https://swistak.codes"

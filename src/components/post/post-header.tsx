@@ -12,6 +12,7 @@ type Props = {
   link?: string | null;
   aspectRatio?: string;
   moveToTop?: boolean;
+  moveToBottom?: boolean;
 };
 
 const PostHeaderComponent = ({
@@ -20,6 +21,7 @@ const PostHeaderComponent = ({
   link,
   aspectRatio = '16/9',
   moveToTop = false,
+  moveToBottom = false,
 }: Props) => {
   const shouldBeLink = link != null;
   const Wrapper = shouldBeLink
@@ -45,7 +47,9 @@ const PostHeaderComponent = ({
           alt=""
           layout="fill"
           objectFit="cover"
-          objectPosition={moveToTop ? 'top' : 'center'}
+          objectPosition={
+            moveToTop ? 'top' : moveToBottom ? 'bottom' : 'center'
+          }
         />
         <div className={styles.title}>
           {createElement(

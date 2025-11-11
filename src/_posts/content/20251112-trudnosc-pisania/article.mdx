@@ -1,0 +1,815 @@
+import { Image } from '@swistak-codes/components';
+import cover from './swistak_pisarz.webp';
+import palce from './Typing-colour_for-finger-positions.svg.png';
+
+export const meta = {
+  title: 'Określanie trudności pisania słowa',
+  abstract:
+    'Artykuł opisuje, w jaki sposób możemy mierzyć, jak ciężko jest napisać słowo na klawiaturze.',
+  firstParagraph: (
+    <>
+      Pisząc na klawiaturze, pewnie nieraz zauważyłeś(-aś), że niektóre słowa pisze się prościej, inne ciężej. Szczególnie możemy tego doświadczyć, ucząc się bezwzrokowego pisania na klawiaturze, kiedy to niektóre wyrazy możemy wpisać, praktycznie nie ruszając palcami, a inne wymagają od nas większej gimnastyki. Intuicyjnie jesteśmy w stanie powiedzieć, które słowa są trudniejsze do napisania, ale czy da się to jakoś zmierzyć?
+    </>
+  ),
+  keyword: 'trudność pisania',
+  categories: ['Algorytmy'],
+  tags: [
+    'klawiatura',
+    'trudność pisania',
+    'metryka',
+    'carpalx',
+    'prawo Fittsa',
+  ],
+  slug: 'trudnosc-pisania',
+  updateTime: '2025-11-12T07:00:00+00:00',
+  publishTime: '2025-11-12T07:00:00+00:00',
+  moveCoverToBottom: true,
+  cover,
+};
+
+## Bezwzrokowe pisanie na klawiaturze
+
+Aby w ogóle rozmawiać o trudnościach pisania na klawiaturze, musimy najpierw przyjąć, że piszemy na niej bez żadnych usprawnień, a do tego w poprawny technicznie sposób.
+
+W kwestii usprawnień mam tutaj na myśli uproszczenia znane z urządzeń mobilnych, takie jak autokorekta czy pisanie przez przesuwanie palcem. Nas w tym artykule w ogóle nie interesuje pisanie na ekranach dotykowych, tylko na zwykłej, fizycznej klawiaturze.
+
+Jeśli chodzi o poprawny technicznie sposób pisania, mam na myśli pisanie bezwzrokowe wykonywane zgodnie ze sztuką. Czyli nie dość, że nie patrzymy na klawiaturę, to jeszcze używamy do pisania wszystkich palców, a każdy z nich ma przypisane konkretne klawisze. Zdaję sobie sprawę, że nie każdy tak potrafi (ja też tego nie robię idealnie technicznie, chociaż piszę szybko i bezwzrokowo), jednak aby móc określić jakąś metrykę, musimy założyć pewien standard.
+
+Załóżmy, że piszemy na standardowej klawiaturze QWERTY (pomijamy, który dokładnie wariant), czyli w Polsce mamy ustawiony układ klawiatury „polski programisty”. Na takiej klawiaturze zwykle mamy wyżłobienia na klawiszach `F` i `J`, które są po to, aby bezwzrokowo łatwo określić, gdzie się znajdujemy. Na samym początku palce kładziemy następująco:
+
+- Lewa ręka: mały na `A`, serdeczny na `S`, środkowy na `D`, wskazujący na `F`.
+- Prawa ręka: wskazujący na `J`, środkowy na `K`, serdeczny na `L`, mały na `;`.
+- Oba kciuki na spacji.
+
+Zasada ogólnie jest taka, że każdy palce odpowiada za klawisze w swojej kolumnie. Dodatkowo palce wskazujące i małe odpowiadają za kolumny po bokach. Można to zobaczyć na poniższej ilustracji:
+
+<Image
+  image={palce}
+  alignCenter
+  fullSize
+  forceWhiteBackground={false}
+  maxWidth="500px"
+  alt="Schemat klawiatury komputerowej z zaznaczonymi kolorami obszarami przypisanymi do poszczególnych palców obu dłoni, przedstawiający zasady poprawnego układu palców podczas pisania na klawiaturze."
+  caption={<>Układ palców na klawiaturze i przypisanie palców do klawiszy.
+    <br/>(oryginalny rysunek: <a href="https://commons.wikimedia.org/wiki/File:Typing-colour_for-finger-positions.svg">Cy21</a>, <a href="https://creativecommons.org/licenses/by-sa/3.0">CC BY-SA 3.0</a>, via Wikimedia Commons)</>}
+/>
+
+Pozostaje jeszcze kwestia pisania polskich znaków diakrytycznych, co powyższy diagram pomija. Piszemy je, przytrzymując `Alt` lub `Option` (macOS). Ze względu na położenie tego klawisza najwygodniej jest to robić kciukiem. Na klawiaturach Apple, ze względu na inne położenie, raczej powinniśmy używać małego palca. W kontekście tego artykułu przyjmijmy, że używamy kciuka.
+
+## Metody oceny trudności pisania
+
+Istnieje wiele podejść do oceny trudności pisania na klawiaturze. Opiszę poniżej trzy metryki, gdzie każda kolejna będzie coraz bardziej rozbudowana. Podejścia te absolutnie nie wyczerpują tematu, ale pozwalają zrozumieć podstawowe idee i przydadzą się do prostych zastosowań, jak np. gry wymagające sprawnego pisania na klawiaturze (coś w stylu *[The Typing of The Dead](https://store.steampowered.com/app/246580/The_Typing_of_The_Dead_Overkill/)*). Do badań naukowych i bardziej zaawansowanych zastosowań, jak np. optymalizacja układów klawiatury, warto zainteresować się bardziej złożonymi modelami.
+
+## Odległość pokonana przez palce
+
+Najprostszą metryką do określania trudności pisania jest zsumowanie odległości, jaką muszą pokonać palce, aby napisać dane słowo.
+
+### Podstawowa wersja
+
+Na początku musimy rozpisać sobie układ klawiatury na współrzędne, co w przypadku układu QWERTY może wyglądać tak:
+
+```javascript
+const layout = {
+  q: [0, 0],
+  w: [1, 0],
+  e: [2, 0],
+  // ...
+  a: [0, 1],
+  s: [1, 1],
+  d: [2, 1],
+  // ...
+  b: [4, 2],
+  n: [5, 2],
+  m: [6, 2],
+}
+```
+
+W przypadku języka polskiego musimy uwzględnić także polskie znaki diakrytyczne:
+
+```javascript
+const diacritics = {
+  ą: "a",
+  ć: "c",
+  ę: "e",
+  ł: "l",
+  ń: "n",
+  ó: "o",
+  ś: "s",
+  ź: "x", // "x", bo "ź" piszemy, używając "Alt + x"
+  ż: "z"
+};
+```
+
+Następnie iterujemy po literach w słowie i dla każdej kolejnej litery obliczamy odległość od poprzedniej. Możemy wykorzystać albo odległość Euklidesową, albo Manhattan. Ta druga z racji tego, że palce poruszają się wzdłuż linii prostych, może być bardziej odpowiednia.
+
+Algorytm wygląda następująco:
+
+```javascript
+function manhattanSimple(word) {
+  // zmienna przechowująca wynik
+  let result = 0;
+  // dla uproszczenia zamieniamy wszystkie litery na małe
+  word = word.toLowerCase();
+  // iterujemy po kolejnych słowach, po dwa naraz
+  for (let i = 0; i < word.length - 1; i++) {
+    // pobieramy dwie następujące po sobie litery
+    let char1 = word[i];
+    let char2 = word[i + 1];
+    // sprawdzamy, czy któraś z nich jest znakiem diakrytycznym
+    let char1Diacritic = false;
+    let char2Diacritic = false;
+    if (char1 in diacritics) {
+      // jeśli tak, zamieniamy ją na odpowiednik bez diakrytyki
+      char1 = diacritics[char1];
+      char1Diacritic = true;
+    }
+    if (char2 in diacritics) {
+      char2 = diacritics[char2];
+      char2Diacritic = true;
+    }
+    // dodajemy do wyniku odległość między tymi literami
+    result +=
+      Math.abs(layout[char1][0] - layout[char2][0]) +
+      Math.abs(layout[char1][1] - layout[char2][1]);
+    // jeśli jedna z liter była znakiem diakrytycznym, dodajemy 1 do wyniku
+    // jako ruch kciuka na klawisz Alt
+    if (
+      (char1Diacritic && !char2Diacritic) ||
+      (!char1Diacritic && char2Diacritic)
+    ) {
+      result += 1;
+    }
+  }
+  // zwracamy wynik
+  return result;
+}
+```
+
+Możesz go przetestować na [Replit](https://replit.com/@tswistak/manhattan-simple#index.js).
+
+Przykładowe wyniki poniżej. Zamieszczam zarówno podstawowe obliczenia, jak i znormalizowane (podzielone przez liczbę liter):
+
+```
+Asdf: 3; 0.75
+Las: 9; 3
+Piłka: 14; 2.8
+Chrząszcz: 22; 2.4444444444444446
+Odejść: 21; 3.5
+Programmer: 36; 3.6
+Javascript: 31; 3.1
+```
+
+### Uwzględnienie pisania wszystkimi palcami
+
+Używając powyższego algorytmu, możemy zauważyć, że w ogóle nie bierzemy pod uwagę położenia palców na klawiaturze (z wyjątkiem kciuka). Jak wspomniałem na początku, mieliśmy w tym artykule założenie, że piszemy technicznie poprawnie, czyli każdy palec ma przypisane konkretne klawisze. Przeróbmy więc nasz algorytm.
+
+Pierwsze co musimy dodać to mapowanie, które palce odpowiadają za które klawisze:
+
+```javascript
+const fingers = {
+  "q": 0,
+  "a": 0,
+  "z": 0,
+  "w": 1,
+  "s": 1,
+  "x": 1,
+  // ...
+  "u": 4,
+  "j": 4,
+  // ...
+  "l": 6,
+  "p": 7
+}
+```
+
+Do tego przechowajmy sobie pozycje startowe palców:
+
+```javascript
+// palce przechowujemy jako liczby od 0 do 7,
+// więc wykorzystajmy tablicę do przechowania pozycji startowych
+const startingPositions = [
+  layout["a"],
+  layout["s"],
+  layout["d"],
+  layout["f"],
+  layout["j"],
+  layout["k"],
+  layout["l"],
+  layout[";"] // należy dodać średnik do mapy klawiszy
+];
+```
+
+Następnie w naszym algorytmie musimy przechowywać, gdzie aktualnie znajdują się nasze palce. Na początku są na klawiszach startowych, a potem liczymy, jak bardzo je przesuwamy. Oczywiście musimy pamiętać, że nieużywane palce muszą wracać na swoje pozycje startowe, aczkolwiek tego ruchu nie liczymy w algorytmie.
+
+Algorytm przerobiony w taki sposób wygląda następująco:
+
+```javascript
+function manhattanFingers(word) {
+  // tablica przechowująca aktualne pozycje palców
+  const fingerPositions = [...startingPositions];
+  // zmienna przechowująca wynik
+  let result = 0;
+  // dla uproszczenia zamieniamy wszystkie litery na małe
+  word = word.toLowerCase();
+  // zmienne pomocnicze do określania ostatnich akcji
+  let lastFinger = null;
+  let lastDiacritic = false;
+  // iterujemy po każdej literze w słowie
+  for (let i = 0; i < word.length; i++) {
+    // tym razem przyda nam się tylko jedna litera
+    let letter = word[i];
+    // sprawdzamy, czy litera jest znakiem diakrytycznym
+    let isDiacritic = false;
+    if (letter in diacritics) {
+      letter = diacritics[letter];
+      isDiacritic = true;
+    }
+    // sprawdzamy, który palec powinien nacisnąć literę
+    const finger = fingers[letter];
+    // obliczamy odległość Manhattan z ostatniej pozycji palca do pozycji litery
+    const fromPosition = fingerPositions[finger];
+    const toPosition = layout[letter];
+    result +=
+      Math.abs(fromPosition[0] - toPosition[0]) +
+      Math.abs(fromPosition[1] - toPosition[1]);
+    // przenosimy palec na nową pozycję
+    fingerPositions[finger] = toPosition;
+    // jeśli litera jest znakiem diakrytycznym, a poprzedni nie był, dodajemy 1 do wyniku
+    if (isDiacritic && !lastDiacritic) {
+      result += 1;
+      lastDiacritic = true;
+    } else if (!isDiacritic) {
+      lastDiacritic = false;
+    }
+    // jeśli palec się zmienił, przenosimy go na jego początkową pozycję
+    if (lastFinger !== null && lastFinger !== finger) {
+      fingerPositions[lastFinger] = startingPositions[lastFinger];
+    }
+    // zapamiętujemy ostatni palec
+    lastFinger = finger;
+  }
+  // zwracamy wynik
+  return result;
+}
+```
+
+Możesz go przetestować na [Replit](https://replit.com/@tswistak/manhattan-fingers#index.js).
+
+Analogicznie jak wcześniej, poniżej pokazuję przykładowe wyniki:
+
+```
+Asdf: 0; 0
+Las: 0; 0
+Piłka: 3; 0.6
+Chrząszcz: 9; 1
+Odejść: 4; 0.6666666666666666
+Programmer: 9; 0.9
+Javascript: 7; 0.7
+```
+
+Zwróć uwagę przede wszystkim na słowa `Asdf` i `Las`, które w poprzednim modelu miały wysokie wartości, a tutaj są zerowe, bo nie wymagają żadnego ruchu palców.
+
+## Model wysiłku palców
+
+Odległości pokonywane przez palce dają nam pewien obraz trudności pisania słowa, jednak nie jest on zbyt kompletny. Pisząc wszystkimi palcami, łatwo jest zauważyć, że najprościej używa się palca wskazującego i środkowego. Natomiast pisanie serdecznym i małym jest mniej komfortowe, szczególnie gdy musimy nimi ruszać. Stąd wymagające ruchu słowo `fit` jest łatwiej napisać niż `las`, mimo że w drugim przypadku nie musimy w ogóle ruszać palcami. Fakt ten postanowili wykorzystać do opracowania metryki twórcy układu klawiatury Colemak Mod-DH.
+
+### Wyprowadzenie metryki
+
+Pierwszym założeniem, jakie przyjęli, jest to, że każdy palec ma przypisaną wagę, która określa łatwość pisania konkretnym palcem na startowych pozycjach. Wagi te są następujące:
+
+| Palec          | Waga |
+|----------------|------|
+| Wskazujący     | 1    |
+| Środkowy       | 1,1  |
+| Serdeczny      | 1,3  |
+| Mały           | 1,6  |
+
+Następnie wykorzystali prawo Fittsa do określenia wysiłku ruchu na klawiaturze. Nie wchodząc w to zbyt głęboko, wzór na wysiłek ruchu po osi X jest następujący (analogicznie jest dla osi Y):
+
+$$
+F_x = \log_2\left( 1 + P_d \cdot D_x \right)
+$$
+
+$$P_d$$ to stała kara oparta na odległości, a $$D_x$$ to odległość ruchu wzdłuż osi X.
+
+Ostatecznie dla każdego klawisza na klawiaturze wysiłek można obliczyć następującym wzorem:
+
+$$
+P = P_f + dist \left( P_f \cdot F_x, P_x \cdot F_y \right)
+$$
+
+P_f to waga palca, P_x to kara za ruch, a F_x i F_y obliczamy z wcześniejszego wzoru. Funkcja odległości to $$\sqrt{x^2 + y^2}$$.
+
+### Obliczanie trudności pisania
+
+Oczywiście my nie musimy sami wszystkiego obliczać, bo zrobili to już za nas twórcy Colemak Mod-DH dla różnego rodzaju klawiatur i różnego sposobu pisania. Gotowe wartości znajdziesz na ich stronie: https://colemakmods.github.io/mod-dh/model.html#results. Nas najbardziej interesuje **Standard Keyboard with traditional finger pattern**, aby mieć ten sam układ palców co do tej pory. Układy niestety nie biorą pod uwagę dolnego rzędu klawiatury, gdzie znajduje się Alt — na nasze potrzeby oszacujmy wartość wysiłku na `2`, ale nie jest to poparte żadnymi badaniami.
+
+Od razu z góry zaznaczę, że nie odwzorujemy tutaj tego, jak dokładnie trudność słów analizują twórcy Colemak Mod-DH. Po prostu zsumujemy wartości wysiłku dla kolejnych liter w słowie.
+
+Najpierw zróbmy sobie na podstawie danych z ich strony mapę klawiszy na wartości wysiłku:
+
+```javascript
+const effort = {
+  q: 3.0,
+  w: 2.5,
+  e: 2.1,
+  // ...
+  b: 3.7,
+  n: 2.2,
+  m: 1.8,
+  alt: 2.0 // szacowana wartość dla klawisza Alt
+}
+```
+
+Następnie możemy napisać prostą funkcję, która zsumuje wartości wysiłku dla kolejnych liter w słowie:
+
+```javascript
+function typingEffort(word) {
+  // zmienna przechowująca wynik
+  let result = 0;
+  // dla uproszczenia zamieniamy wszystkie litery na małe
+  word = word.toLowerCase();
+  // iterujemy po kolejnych słowach
+  for (let i = 0; i < word.length; i++) {
+    // pobieramy literę
+    let char = word[i];
+    // sprawdzamy, czy jest znakiem diakrytycznym
+    if (char in diacritics) {
+      // jeśli tak, zamieniamy ją na odpowiednik bez diakrytyki
+      // i dodajemy do wyniku trudność pisania znaku diakrytycznego
+      char = diacritics[char];
+      result += effort["alt"];
+    }
+    // dodajemy do wyniku trudność pisania znaku
+    result += effort[char];
+  }
+  // zwracamy wynik
+  return result;
+}
+```
+
+Możesz go przetestować na [Replit](https://replit.com/@tswistak/typing-effort#index.js).
+
+Poniżej pokazuję przykładowe wyniki:
+
+```
+Asdf: 5; 1.25
+Las: 4.2; 1.4000000000000001
+Piłka: 11; 2.2
+Chrząszcz: 25.999999999999996; 2.8888888888888884
+Odejść: 14.600000000000001; 2.4333333333333336
+Programmer: 22.5; 2.25
+Javascript: 20.3; 2.0300000000000002
+```
+
+## Carpalx
+
+Jako ostatnią metrykę sprawdźmy bardziej zaawansowany model mierzenia trudności pisania, czyli Carpalx. Został opracowany do optymalizacji układów klawiatury i bierze pod uwagę wiele czynników jednocześnie, a nie jedynie jeden, jak wcześniej pokazywane przeze mnie sposoby. Dzięki temu możemy lepiej zbadać (w kontekście wyboru optymalnego układy klawiatury), czy spełnione są następujące założenia wskazujące na prostotę pisania:
+
+- Ograniczone użycie palców małych i serdecznych.
+- Ograniczone użycie dolnego rzędu klawiatury.
+- Faworyzowanie użycia środkowego rzędu klawiatury (tzw. home row, gdzie trzymamy palce na samym początku).
+- Jak najmniejsza odległość ruchu palców.
+- Unikanie powtarzania pisania tym samym palcem.
+- Zbalansowane użycie obu rąk (dyskusyjne — niektórzy uważają, że lepiej faworyzować dominującą rękę).
+- Naprzemienne użycie palców obu rąk (również dyskusyjne — niektórzy uważają, że wygodniej jest wpisać dwie litery z rzędu dwoma placami jednej ręki, np. `iu` niż `it`).
+
+### Matematyczne założenia modelu
+
+W modelu Carpalx zaczynamy od podziału słowa na triady, czyli grupy trzech kolejnych liter. Przykładowy podział na triady dla słowa `piłka` wygląda następująco: `pił`, `iłk`, `łka`. Dzięki oparciu się na triadach możemy lepiej badać wpływ na siebie kolejnych liter.
+
+Następnie dla każdej triady obliczamy koszty według wskazanych kryteriów, sumujemy je i dzielimy przez liczbę triad. Możemy to zapisać następującym wzorem:
+
+$$
+E = \frac{1}{N} \sum_i n_i e_i
+$$
+
+$$N$$ to liczba wszystkich triad, $$n_i$$ to liczba wystąpień danego wzorca triady, a $$e_i$$ to koszt danej triady.
+
+#### Koszt triady
+
+Koszt (wysiłek) triady obliczamy jako sumę ważoną kosztów poszczególnych komponentów:
+
+$$
+e_i = k_b b_i + k_p p_i + k_s s_i
+$$
+
+$$k_b$$, $$k_p$$ i $$k_s$$ to wagi poszczególnych komponentów, a $$b_i$$, $$p_i$$ i $$s_i$$ to kolejno komponenty wysiłku: bazowy, kary i ścieżki. Obliczane są następująco:
+
+$$
+\begin{align*}
+b_i &= k_1 b_{i1} (1 + k_2 b_{i2} (1 + k_3 b_{i3})) \\
+p_i &= k_1 p_{i1} (1 + k_2 p_{i2} (1 + k_3 p_{i3})) \\
+\end{align*}
+$$
+
+W powyższych wzorach indeksujemy kolejne litery w triadzie, czyli np. $$b_{i1}$$ to bazowy wysiłek pierwszej litery w triadzie. W przypadku wag $$k_j$$, gdzie $$j$$ to indeks litery w triadzie, jest to waga naciśnięcia danego klawisza w sekwencji. Istotna uwaga — wagi nie mogą być ujemne.
+
+#### Komponent bazowy i kary
+
+Bazowe komponenty wysiłku zostają przypisane do każdego klawisza na klawiaturze i obliczane na podstawie fizycznej odległości między klawiszami. Znajdziesz je tutaj: https://mk.bcgsc.ca/carpalx/?typing_effort (rysunek z klawiaturą w `Base effort is finger travel distance`, wartości są na samym dole każdego klawisza).
+
+Komponenty karne są obliczane na podstawie poniższego wzoru:
+
+$$
+p_{ij} = w_0 + w_h P_{hj} + w_r P_{rj} + w_f P_{fj}
+$$
+
+Indeksy $$h$$, $$r$$ i $$f$$ oznaczają odpowiednio: home row (środkowy rząd), row change (zmiana rzędu) i finger travel (ruch palca). $$w$$ to wagi poszczególnych czynników, a $$P$$ to koszty poszczególnych czynników. $$w_0$$ to stała kara za naciśnięcie klawisza, zwykle pomijana. Wartości kosztów możemy ustalać sami na podstawie tego, co chcemy faworyzować lub karać. Przykładowo, jeśli nie chcemy faworyzować żadnej ręki, to $$P_h$$ ustawiamy na $$0$$. Głównym zastosowaniem kar jest karanie za użycie słabszych palców i innych rzędów niż środkowego.
+
+#### Komponent ścieżki
+
+Komponent ścieżki jest obliczany w nieco inny sposób:
+
+$$
+s_i = f_h p_h + f_r p_r + f_f p_f
+$$
+
+Indeksy mają takie samo znaczenie jak wcześniej. $$f_j$$ to wagi poszczególnych czynników, a $$p_j$$ to koszty poszczególnych czynników. Koszty te przyjmują wartości całkowite od 0 do 7 (włącznie) i są obliczane na podstawie tabeli (w drugiej linii przykład triady):
+
+|     = | $$p_h$$ (ręka)                                   | $$p_r$$ (rząd)                                                                          | $$p_f$$ (palce)                                                                |
+|------:|--------------------------------------------------|-----------------------------------------------------------------------------------------|--------------------------------------------------------------------------------|
+| $$0$$ | Obie używane, ale nie na przemian<br/><br/>`eem` | Ten sam<br/><br/>`ert`                                                                  | Wszystkie różne, monotoniczny ruch<br/><br/>`asd`                              |
+| $$1$$ | Obie używane, na przemian<br/><br/>`aja`         | Przechodzenie w dół, z powtórzeniem<br/><br/>`ern`                                      | Niektóre różne, powtórzony klawisz, monotoniczny ruch<br/><br/>`app`           |
+| $$2$$ | Ta sama ręka<br/><br/>`ase`                      | Przechodzenie w górę, z powtórzeniem<br/><br/>`ade`                                     | Zawracanie<br/><br/>`bih`                                                      |
+| $$3$$ | -                                                | Różne, bez monotonicznego ruchu, zmiana rzędu co najwyżej o 1 w górę/dół<br/><br/>`jab` | Wszystkie różne, niemonotoniczny ruch<br/><br/>`nep`                           |
+| $$4$$ | -                                                | Przechodzenie w dół<br/><br/>`eln`                                                      | Niektóre różne, niemonotoniczny ruch<br/><br/>`maj`                            |
+| $$5$$ | -                                                | Różne, bez monotonicznego ruchu, zmiana rzędu w dół o więcej niż 1<br/><br/>`hen`       | Ten sam, powtórzony klawisz<br/><br/>`cee`                                     |
+| $$6$$ | -                                                | Przechodzenie w górę<br/><br/>`zaw`                                                     | Niektóre różne, bez powtórzonego klawisza, niemonotoniczny ruch<br/><br/>`abr` |
+| $$7$$ | -                                                | Różne, bez monotonicznego ruchu, zmiana rzędu w górę o więcej niż 1<br/><br/>`abe`      | Ten sam, bez powtórzeń klawisza<br/><br/>`dec`                                 |
+
+Patrząc na tabelkę powyżej, możemy zauważyć, że ręcznie obliczając trudność pisania, możemy całkiem prosto podstawić wartości do wzoru. Niestety, sprawa się komplikuje, gdy chcemy to zrobić algorytmicznie, aczkolwiek nie jest to niemożliwe.
+
+Tak jak wcześniej, wartości wag możemy ustalać sami, aby zdecydować, co chcemy faworyzować lub karać. Natomiast w kwestii wartości warto zauważyć, że po raz pierwszy bierzemy pod uwagę nie tylko pokonaną odległość czy używane palce, ale także kolejność ich użycia.
+
+#### Wartości parametrów
+
+Powyżej wiele razy mieliśmy do czynienia z różnymi wagami i parametrami, które możemy ustalać sami. Jednak jeśli nie chcemy wymyślać koła na nowo, na pewno chcielibyśmy skorzystać z gotowego zestawu wartości.
+
+Twórcy Carpalx proponują następujący zestaw:
+
+- Wagi kryteriów wysiłku: $$k_b = 0,3555$$, $$k_p = 0,6423$$, $$k_s = 0,4268$$
+- Wagi klawiszy w triadzie: $$k_1 = 1$$, $$k_2 = 0,367$$, $$k_3 = 0,235$$
+- Wagi kar: $$w_0 = 0$$, $$w_h = 1$$, $$w_r = 1,3088$$, $$w_f = 2,5948$$
+- Kary:
+    - $$P_h = 0$$ (nie faworyzujemy żadnej ręki)
+    - $$P_r$$:
+        - Środkowy rząd (home row): $$0$$
+        - Górny rząd: $$0,5$$
+        - Dolny rząd: $$1$$
+    - $$P_f$$ (taki sam dla obu rąk):
+        - Wskazujący: $$0$$
+        - Środkowy: $$0$$
+        - Serdeczny: $$0,5$$
+        - Mały: $$1$$
+- Wagi ścieżki: $$f_h = 1$$, $$f_r = 0,3$$, $$f_f = 0,3$$
+
+Możemy oczywiście dostosować wartości do własnych potrzeb, ale powyższy zestaw jest dobrym punktem wyjścia.
+
+### Implementacja
+
+Carpalx, jak widać wyżej, jest najbardziej rozbudowany ze wszystkich dotychczas opisywanych przeze mnie modeli. Stąd też implementacja to nie jest kilka linijek kodu. Całość znajdziesz na moim [Replit](https://replit.com/@tswistak/carpalx#index.js), natomiast poniżej zamieszczam kilka fragmentów kodu. Od razu dodam, że dla uproszczenia pominąłem obsługę znaków diakrytycznych, dlatego wyniki mogą wydawać się nieco dziwne (np. trudność napisania angielskiego `programmer` jest niemal taka sama jak polskiego `chrząszcz`).
+
+#### Stałe i mapowania
+
+Na początek warto zdefiniować wszystkie stałe wartości modelu, aby potem je łatwo wykorzystywać w kodzie.
+
+```javascript
+const kb = 0.3555;
+const kp = 0.6423;
+const ks = 0.4258;
+const k1 = 1;
+const k2 = 0.367;
+const k3 = 0.235;
+const w0 = 0;
+const wh = 1;
+const wr = 1.3088;
+const wf = 2.5948;
+const Ph = [0, 0];
+const Prh = 0;
+const Pru = 0.5;
+const Prb = 1;
+const Pf = [0, 0, 0.5, 1, 0, 0, 0, 0, 0.5, 1];
+const fh = 1;
+const fr = 0.3;
+const ff = 0.3;
+```
+
+Zwróć uwagę przy Ph i Pf, że są to tablice, gdzie indeksy odpowiadają poszczególnym palcom i rękom. Numeracja jest zgodna z tym, jak gdybyśmy wyciągnęli ręce przed siebie i policzyli palce po kolei od lewej do prawej, zaczynając od 0. Analogicznie liczymy ręce — 0 to lewa, 1 to prawa.
+
+Oprócz tego musimy mieć mapowania klawiszy na ich pozycje na klawiaturze, a także na palce i ręce, które je obsługują. Poniżej zamieszczam tylko fragmenty tych mapowań, pełne wersje znajdziesz w kodzie na Replit.
+
+```javascript
+const letterMap = {
+  q: { effort: 2.0, finger: 0, hand: 0, row: 0 },
+  w: { effort: 2.0, finger: 1, hand: 0, row: 0 },
+  e: { effort: 2.0, finger: 2, hand: 0, row: 0 },
+  r: { effort: 2.0, finger: 3, hand: 0, row: 0 },
+  t: { effort: 2.5, finger: 3, hand: 0, row: 0 },
+  y: { effort: 3.0, finger: 6, hand: 1, row: 0 },
+  // ...
+  c: { effort: 2.0, finger: 2, hand: 0, row: 2 },
+  v: { effort: 2.0, finger: 3, hand: 0, row: 2 },
+  b: { effort: 3.5, finger: 3, hand: 0, row: 2 },
+  n: { effort: 2.0, finger: 6, hand: 1, row: 2 },
+  m: { effort: 2.0, finger: 7, hand: 1, row: 2 },
+};
+```
+
+Zwróć uwagę na przeskok z 3 do 6 — bierze się to z faktu, że kciuki mają indeksy 4 i 5, ale nie obsługują żadnych liter.
+
+#### Komponent bazowy i kary
+
+Zacznijmy od najprostszych obliczeń, czyli komponentów bazowego i karnego. Jest to wykorzystanie wprost wartości z mapowań i stałych, które właśnie zdefiniowaliśmy. Zakładamy, że obie funkcje (jak i wszystkie kolejne do rozpatrywania) dostają jako argument tablicę trzech liter (triadę).
+
+```javascript
+// funkcja obliczająca komponent bazowy wysiłku
+function baseComponent(triad) {
+  const bi1 = letterMap[triad[0]].effort;
+  const bi2 = letterMap[triad[1]].effort;
+  const bi3 = letterMap[triad[2]].effort;
+  return k1 * bi1 * (1 + k2 * bi2 * (1 + k3 * bi3));
+}
+
+// funkcja obliczająca komponent kary wysiłku
+function penaltyComponent(triad) {
+  const pi1 =
+    w0 + wh * Ph[letterMap[triad[0]].hand] + Pf[letterMap[triad[0]].finger];
+  const pi2 =
+    w0 + wh * Ph[letterMap[triad[1]].hand] + Pf[letterMap[triad[1]].finger];
+  const pi3 =
+    w0 + wh * Ph[letterMap[triad[2]].hand] + Pf[letterMap[triad[2]].finger];
+  return k1 * pi1 * (1 + k2 * pi2 * (1 + k3 * pi3));
+}
+```
+
+#### Komponent ścieżki — ręce
+
+Najbardziej skomplikowaną częścią jest komponent ścieżki, ponieważ musimy tutaj zaimplementować logikę z tabeli powyżej. Zacznijmy od najprostszej części, czyli kosztu ręki $$p_h$$.
+
+```javascript
+// funkcja obliczająca koszt czynnika ręki dla komponentu ścieżki
+function handPath(triad) {
+  // pobieramy, które ręce używamy do wpisywania kolejnych liter
+  const hands = triad.map((letter) => letterMap[letter].hand);
+  // jeśli używamy tej samej ręki do wszystkich liter, zwracamy 2
+  if (hands[0] === hands[1] && hands[1] === hands[2]) {
+    return 2;
+  }
+  // jeśli używamy rąk na przemian, zwracamy 1
+  if (hands[0] !== hands[1] && hands[1] !== hands[2]) {
+    return 1;
+  }
+  // w pozostałych przypadkach zwracamy 0
+  return 0;
+}
+```
+
+#### Komponent ścieżki — rzędy
+
+W przypadku rzędów mamy nieco więcej warunków do sprawdzenia. Poniżej zamieszczam kod wraz z komentarzami. Od razu zaznaczę, że warunki nie są sprawdzane po kolei, tylko w innej kolejności, aby zgrupować ze sobą podobne przypadki.
+
+```javascript
+// funkcja obliczająca koszt czynnika rzędu dla komponentu ścieżki
+function rowPath(triad) {
+  // pobieramy, które rzędy używamy do wpisywania kolejnych liter
+  const rows = triad.map((letter) => letterMap[letter].row);
+  // usuwamy duplikaty z listy rzędów dla uproszczenia następnych obliczeń
+  const uniqueRows = [...new Set(rows)];
+  // jeśli używamy tylko jednego rzędu, zwracamy 0
+  if (uniqueRows.length === 1) {
+    return 0;
+  }
+  // zróbmy posortowane kopie tablicy rzędów, również dla uproszczenia obliczeń
+  // będziemy je trzymać jako stringi, bo łatwiej porównywać
+  const ascSortedRows = [...rows].sort((a, b) => a - b).join("");
+  const descSortedRows = [...rows].sort((a, b) => b - a).join("");
+  const rowsString = rows.join("");
+  // jeśli schodzimy w dół z powtórzeniami, zwracamy 1
+  if (ascSortedRows === rowsString && uniqueRows.length !== rows.length) {
+    return 1;
+  }
+  // jeśli przechodzimy w górę z powtórzeniami, zwracamy 2
+  if (descSortedRows === rowsString && uniqueRows.length !== rows.length) {
+    return 2;
+  }
+  // jeśli schodzimy w dół bez powtórzeń, zwracamy 4
+  if (ascSortedRows === rowsString && uniqueRows.length === rows.length) {
+    return 4;
+  }
+  // jeśli przechodzimy w górę bez powtórzeń, zwracamy 6
+  if (descSortedRows === rowsString && uniqueRows.length === rows.length) {
+    return 6;
+  }
+  // obliczmy różnice między kolejnymi rzędami
+  const diffs = rows.map((row, i) => row - rows[i + 1]).slice(0, -1);
+  // jeśli maksymalna różnica między rzędami jest równa 1, zwracamy 3
+  // uwaga! interesuje nas wartość bezwzględna, bo różnica może być ujemna
+  if (Math.max(...diffs.map((diff) => Math.abs(diff))) === 1) {
+    return 3;
+  }
+  // jeśli największa różnica, idąc w dół, jest większa od 1 zwracamy 5, a jeśli idąc w górę, zwracamy 7
+  if (Math.min(...diffs) < -1 && Math.max(...diffs) < 2) {
+    return 5;
+  }
+  return 7;
+}
+```
+
+#### Komponent ścieżki — palce
+
+Przejdźmy do moim zdaniem najtrudniejszego z czynników, czyli palców. Oto moja implementacje:
+
+```javascript
+// funkcja obliczająca koszt czynnika palców dla komponentu ścieżki
+function fingerPath(triad) {
+  // pobieramy, które palce używamy do wpisywania kolejnych liter
+  // dla uproszczenia obliczeń zmieńmy indeksowanie i pomińmy palce 4 i 5 (kciuki)
+  const fingers = triad.map((letter) => {
+    const finger = letterMap[letter].finger;
+    return finger < 4 ? finger : finger - 2;
+  });
+  // usuwamy duplikaty z listy palców dla uproszczenia następnych obliczeń
+  const uniqueFingers = [...new Set(fingers)];
+  // dodatkowo usuńmy też duplikaty liter z triady
+  const uniqueLetters = [...new Set(triad)];
+  // jeśli używamy tego samego palca i powtarzamy literę, zwracamy 5
+  if (uniqueFingers.length === 1 && uniqueLetters.length !== triad.length) {
+    return 5;
+  }
+  // jeśli używamy tego samego palca i nie powtarzamy litery, zwracamy 7
+  if (uniqueFingers.length === 1 && uniqueLetters.length === triad.length) {
+    return 7;
+  }
+  // zróbmy posortowane kopię tablicy palców, również dla upraszczenia obliczeń
+  const ascSortedFingers = [...fingers].sort((a, b) => a - b).join("");
+  const descSortedFingers = [...fingers].sort((a, b) => b - a).join("");
+  const fingersString = fingers.join("");
+  // jeśli wszystkie palce są różne, ale ruch jest monotoniczny, zwracamy 0
+  if (
+    uniqueFingers.length === triad.length &&
+    (ascSortedFingers === fingersString || descSortedFingers === fingersString)
+  ) {
+    return 0;
+  }
+  // jeśli powtarzamy literę, ale ruch jest monotoniczny, zwracamy 1
+  if (
+    uniqueLetters.length !== triad.length &&
+    (ascSortedFingers === fingersString || descSortedFingers === fingersString)
+  ) {
+    return 1;
+  }
+  // sprawdzamy, czy wszystkie litery są pisane przez tą samą rękę
+  const hands = triad.map((letter) => letterMap[letter].hand);
+  const uniqueHands = [...new Set(hands)];
+  const isSameHand = uniqueHands.length === 1;
+  // jeśli używamy różnych palców tej samej ręki, ale ruch nie jest monotoniczny
+  if (isSameHand && uniqueFingers.length === triad.length) {
+    return 6;
+  }
+  // jeśli używamy różnych palców tej samej ręki z powtórzeniem litery
+  if (isSameHand && uniqueLetters.length !== triad.length) {
+    return 3;
+  }
+  // jeśli używamy różnych rąk (alternating hands)
+  if (!isSameHand && uniqueLetters.length === triad.length) {
+    return 2;
+  }
+  // jeśli używamy różnych rąk z powtórzeniem litery
+  return 4;
+}
+```
+
+#### Obliczenie kosztu triady
+
+Mając już wszystkie komponenty, możemy obliczyć koszt danej triady. Oto implementacja, gdzie dodatkowo wydzieliłem funkcję obliczania całości komponentu ścieżki:
+
+```javascript
+// funkcja obliczająca komponent ścieżki
+function pathComponent(triad) {
+  const ph = handPath(triad);
+  const pr = rowPath(triad);
+  const pf = fingerPath(triad);
+  return fh * ph + fr * pr + ff * pf;
+}
+
+// obliczamy koszt triady
+function triadCost(triad) {
+  const bi = baseComponent(triad);
+  const pi = penaltyComponent(triad);
+  const si = pathComponent(triad);
+  return kb * bi + kp * pi + ks * si;
+}
+```
+
+#### Obliczenie trudności pisania słowa
+
+To jednak wciąż nie wszystko. Musimy jeszcze podzielić słowo na triady i zliczyć ich koszty, aby otrzymać ostateczną wartość. Oto implementacja:
+
+```javascript
+// funkcja dzieląca słowo na triady
+function triadSplit(word) {
+  // tablica, w której przechowamy wynik
+  const triads = [];
+  // dla uproszczenia usuwamy znaki diakrytyczne za pomocą wyrażenia regularnego
+  word = word.replace(
+    new RegExp(`[${Object.keys(diacritics).join("")}]`, "g"),
+    (match) => diacritics[match],
+  );
+  // iterujemy po kolejnych literach słowa, pomijając dwie ostatnie
+  for (let i = 0; i < word.length - 2; i++) {
+    // dodajemy do tablicy triadę od aktualnego znaku do znaku + 3
+    triads.push([...word.substring(i, i + 3)]);
+  }
+  // zwracamy tablicę z triadami
+  return triads;
+}
+
+// funkcja obliczająca trudność wpisania słowa za pomocą modelu Carpalx
+function carpalX(word) {
+  // dzielimy słowo na triady
+  const rawTriads = triadSplit(word);
+  // jeśli słowo ma mniej niż 3 znaki, nie ma triad do obliczenia
+  if (rawTriads.length === 0) {
+    return 0;
+  }
+  // zliczamy wystąpienia każdej unikalnej triady
+  const triads = {};
+  for (const triad of rawTriads) {
+    if (!triads[triad]) {
+      triads[triad] = {
+        count: 0,
+        letters: triad,
+      };
+    }
+    triads[triad].count++;
+  }
+  // obliczamy sumę ni * ei dla wszystkich unikalnych triad
+  let totalCost = 0;
+  for (const triad of Object.values(triads)) {
+    const ni = triad.count; // liczba wystąpień triady
+    const ei = triadCost(triad.letters); // koszt triady
+    totalCost += ni * ei;
+  }
+  // normalizujemy przez całkowitą liczbę triad N
+  const N = rawTriads.length;
+  return totalCost / N;
+}
+```
+
+#### Przykładowe wyniki
+
+Jak wspomniałem wcześniej, całość implementacji możesz przetestować na [Replit](https://replit.com/@tswistak/carpalx#index.js). Poniżej pokazuję przykładowe wyniki:
+
+```
+Asdf: 0.8516
+Las: 0.57663
+Piłka: 2.047801333333333
+Chrząszcz: 2.502629762857143
+Odejść: 1.2449691113593748
+Programmer: 2.3507678681562503
+Javascript: 1.755157073125
+```
+
+W przypadku Carpalx nie podaję znormalizowanych wyników, ponieważ sam model już zwraca wartości znormalizowane przez liczbę triad.
+
+## Podsumowanie
+
+Opisane powyżej metody mierzenia trudności pisania słów na klawiaturze dają różne spojrzenia na ten problem. Prosta metryka oparta na odległościach pokonywanych przez palce jest łatwa do zrozumienia i implementacji, ale nie uwzględnia wszystkich aspektów pisania. Model wysiłku palców wprowadza dodatkową warstwę zrozumienia, biorąc pod uwagę komfort użycia poszczególnych palców. Natomiast Carpalx oferuje najbardziej kompleksowe podejście, analizując wiele czynników jednocześnie i pozwalając na dostosowanie wag do indywidualnych preferencji. Są także inne sposoby, jednak zależało mi na pokazaniu dwóch prostych i jednego zaawansowanego.
+
+Jeśli chciałbyś/chciałabyś bardziej zgłębić temat, warto byłoby pójść krok dalej i sprawdzić, jak różne układy klawiatury (np. Dvorak, Colemak) wpływają na trudność pisania tych samych słów. Dla języka polskiego warto wówczas też sprawdzić, jaki wpływ ma umieszczenie znaków diakrytycznych na klawiaturze bez konieczności użycia klawisza Alt, tak jak to jest np. w układzie QWERTZ z polskich maszyn do pisania i wczesnych komputerów.
+
+Poniżej dla chętnych zamieszczam tabelkę podsumowującą wcześniej opisane wyniki. Słowa są posortowane według rosnącej trudności pisania. Poniżej wyniki nieznormalizowane oraz Carpalx:
+
+| Odległość       | Odległość (wszystkie palce) | Wysiłek palców    | Carpalx           |
+|-----------------|-----------------------------|-------------------|-------------------|
+| Asdf (3)        | Asdf (0)                    | Las (4,2)         | Las (0,58)        |
+| Las (9)         | Las (0)                     | Asdf (5)          | Asdf (0,85)       |
+| Piłka (14)      | Piłka (3)                   | Piłka (11)        | Odejść (1,24)     |
+| Odejść (21)     | Odejść (4)                  | Odejść (14,6)     | Javascript (1,76) |
+| Chrząszcz (22)  | Javascript (7)              | Javascript (20,3) | Piłka (2,05)      |
+| Javascript (31) | Programmer (9)              | Programmer (22,5) | Programmer (2,35) |
+| Programmer (36) | Chrząszcz (9)               | Chrząszcz (26)    | Chrząszcz (2,5)   |
+
+A poniżej wyniki znormalizowane oraz Carpalx:
+
+| Odległość        | Odległość (wszystkie palce) | Wysiłek palców    | Carpalx           |
+|------------------|-----------------------------|-------------------|-------------------|
+| Asdf (0,75)      | Asdf (0)                    | Asdf (1,25)       | Las (0,58)        |
+| Chrząszcz (2,44) | Las (0)                     | Las (1,4)         | Asdf (0,85)       |
+| Piłka (2,8)      | Piłka (0,6)                 | Javascript (2,03) | Odejść (1,24)     |
+| Las (3)          | Odejść (0,67)               | Piłka (2,2)       | Javascript (1,76) |
+| Javascript (3,1) | Javascript (0,7)            | Programmer (2,25) | Piłka (2,05)      |
+| Odejść (3,5)     | Programmer (0,9)            | Odejść (2,43)     | Programmer (2,35) |
+| Programmer (3,6) | Chrząszcz (1)               | Chrząszcz (2,89)  | Chrząszcz (2,5)   |
+
+Oceń samodzielnie, które podejście najbardziej odpowiada Twoim subiektywnym odczuciom.
+
+## Literatura
+
+- python - Determining how difficult a word is to type on a QWERTY keyboard - Stack Overflow, Stack Overflow, https://stackoverflow.com/questions/4459352/determining-how-difficult-a-word-is-to-type-on-a-qwerty-keyboard (ostatnie odwiedziny 02.11.2025).
+- Aryaman Sharda, How Far Do Your Fingers Travel When Typing?, Digital Bunker, https://digitalbunker.dev/how-far-do-your-fingers-travel-when-typing/ (ostatnie odwiedziny 02.11.2025).
+- Colemak Mod-DH - Keyboard effort grid, Colemak Mods, https://colemakmods.github.io/mod-dh/model.html (ostatnie odwiedziny 02.11.2025).
+- Carpalx - keyboard layout optimizer, BC Genome Sciences Centre, https://mk.bcgsc.ca/carpalx/?typing_effort (ostatnie odwiedziny 02.11.2025).
+
+<small>Zdjęcie na okładce wygenerowane przez Midjourney.</small>

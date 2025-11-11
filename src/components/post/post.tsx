@@ -102,6 +102,7 @@ export const Post = ({
           }
           aspectRatio={isOnList ? '16/6' : undefined}
           moveToTop={isOnList ? !!metadata.moveCoverToTop : false}
+          moveToBottom={isOnList ? !!metadata.moveCoverToBottom : false}
         />
       )}
       {metadata.categories && metadata.categories.length > 0 ? (

@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://swistak.codes</id>
     <title>świstak.codes — Wpisy ze strony głównej</title>
-    <updated>2025-09-24T07:00:00+00:00</updated>
+    <updated>2025-11-12T07:00:00.000Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <author>
         <name>Tomasz Świstak</name>
@@ -15,10 +15,28 @@
     <icon>https://swistak.codes/fav32.png</icon>
     <rights>Wszystkie prawa zastrzeżone 2020-2025, Tomasz Świstak</rights>
     <entry>
+        <title type="html"><![CDATA[Określanie trudności pisania słowa]]></title>
+        <id>https://swistak.codes/post/trudnosc-pisania</id>
+        <link href="https://swistak.codes/post/trudnosc-pisania"/>
+        <updated>2025-11-12T07:00:00.000Z</updated>
+        <summary type="html"><![CDATA[Artykuł opisuje, w jaki sposób możemy mierzyć, jak ciężko jest napisać słowo na klawiaturze.]]></summary>
+        <content type="html"><![CDATA[Pisząc na klawiaturze, pewnie nieraz zauważyłeś(-aś), że niektóre słowa pisze się prościej, inne ciężej. Szczególnie możemy tego doświadczyć, ucząc się bezwzrokowego pisania na klawiaturze, kiedy to niektóre wyrazy możemy wpisać, praktycznie nie ruszając palcami, a inne wymagają od nas większej gimnastyki. Intuicyjnie jesteśmy w stanie powiedzieć, które słowa są trudniejsze do napisania, ale czy da się to jakoś zmierzyć?<br /><a href="https://swistak.codes/post/trudnosc-pisania">Czytaj więcej na świstak.codes</a>]]></content>
+        <author>
+            <name>Tomasz Świstak</name>
+            <email>tomasz@swistak.codes</email>
+            <uri>https://swistak.codes</uri>
+        </author>
+        <contributor>
+            <name>Tomasz Świstak</name>
+            <email>tomasz@swistak.codes</email>
+            <uri>https://swistak.codes</uri>
+        </contributor>
+    </entry>
+    <entry>
         <title type="html"><![CDATA[Silnia i powiązane zagadnienia]]></title>
         <id>https://swistak.codes/post/silnia</id>
         <link href="https://swistak.codes/post/silnia"/>
-        <updated>2025-09-24T07:00:00+00:00</updated>
+        <updated>2025-09-24T07:00:00.000Z</updated>
         <summary type="html"><![CDATA[Artykuł opisuje funkcję silni, jej zastosowania, obliczanie i powiązane zagadnienia matematyczne.]]></summary>
         <content type="html"><![CDATA[Silnia to jedna z szerzej znanych funkcji matematycznych. Z jednej strony podczas nauki matematyki kojarzymy ją mocno z kombinatoryką, z drugiej podczas nauki programowania stanowi sztandarowy przykład rekurencji (zaraz obok ciągu Fibonacciego). Ten temat jednak warto rozszerzyć, bo wychodząc poza te dwa konteksty, trafimy na całkiem ciekawe zagadnienia matematyczne.<br /><a href="https://swistak.codes/post/silnia">Czytaj więcej na świstak.codes</a>]]></content>
         <author>

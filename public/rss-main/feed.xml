@@ -4,7 +4,7 @@
         <title>świstak.codes — Wpisy ze strony głównej</title>
         <link>https://swistak.codes</link>
         <description></description>
-        <lastBuildDate>Wed, 24 Sep 2025 07:00:00 GMT</lastBuildDate>
+        <lastBuildDate>Wed, 12 Nov 2025 07:00:00 GMT</lastBuildDate>
         <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
         <generator>https://github.com/jpmonette/feed</generator>
         <image>
@@ -13,6 +13,15 @@
             <link>https://swistak.codes</link>
         </image>
         <copyright>Wszystkie prawa zastrzeżone 2020-2025, Tomasz Świstak</copyright>
+        <item>
+            <title><![CDATA[Określanie trudności pisania słowa]]></title>
+            <link>https://swistak.codes/post/trudnosc-pisania</link>
+            <guid isPermaLink="false">https://swistak.codes/post/trudnosc-pisania</guid>
+            <pubDate>Wed, 12 Nov 2025 07:00:00 GMT</pubDate>
+            <description><![CDATA[Artykuł opisuje, w jaki sposób możemy mierzyć, jak ciężko jest napisać słowo na klawiaturze.]]></description>
+            <content:encoded><![CDATA[Pisząc na klawiaturze, pewnie nieraz zauważyłeś(-aś), że niektóre słowa pisze się prościej, inne ciężej. Szczególnie możemy tego doświadczyć, ucząc się bezwzrokowego pisania na klawiaturze, kiedy to niektóre wyrazy możemy wpisać, praktycznie nie ruszając palcami, a inne wymagają od nas większej gimnastyki. Intuicyjnie jesteśmy w stanie powiedzieć, które słowa są trudniejsze do napisania, ale czy da się to jakoś zmierzyć?<br /><a href="https://swistak.codes/post/trudnosc-pisania">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
         <item>
             <title><![CDATA[Silnia i powiązane zagadnienia]]></title>
             <link>https://swistak.codes/post/silnia</link>

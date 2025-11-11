@@ -17,6 +17,7 @@ export type BaseMetadata = {
   updateTime?: string;
   cover?: ImageData;
   moveCoverToTop?: boolean;
+  moveCoverToBottom?: boolean;
   ignore?: boolean;
 };
 
