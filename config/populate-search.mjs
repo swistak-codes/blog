@@ -77,9 +77,9 @@ const postsSchema = {
       name: 'embedding',
       type: 'float[]',
       embed: {
-        from: ['title', 'tags', 'categories', 'abstract', 'contentEmbedding'],
+        from: ['title', 'tags', 'contentEmbedding'],
         model_config: {
-          model_name: 'openai/text-embedding-3-small',
+          model_name: 'openai/text-embedding-3-large',
           api_key: gptApiKey,
         },
       },

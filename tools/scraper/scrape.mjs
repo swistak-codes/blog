@@ -4,6 +4,30 @@ import { parse } from 'date-fns';
 import { pl } from 'date-fns/locale';
 
 const baseUrl = 'http://localhost:4200';
+let gptApiKey = '';
+
+if (process.env.GPT_API_KEY) {
+  console.log('Using GPT_API_KEY from environment variables');
+  gptApiKey = process.env.GPT_API_KEY;
+} else {
+  const envFile = './.env.local';
+  if (fs.existsSync(envFile)) {
+    try {
+      const raw = fs.readFileSync(envFile, 'utf8');
+      const match = raw.match(/^\s*GPT_API_KEY\s*=\s*(.*)\s*$/m);
+      if (match && match[1]) {
+        gptApiKey = match[1].trim().replace(/^['\"]|['\"]$/g, '');
+        console.log('Loaded GPT_API_KEY from env.local');
+      } else {
+        console.warn('GPT_API_KEY not found in env.local');
+      }
+    } catch (err) {
+      console.error('Failed to read env.local:', err.message);
+    }
+  } else {
+    console.log('No env.local file found; proceeding without GPT_API_KEY');
+  }
+}
 
 // Parse the articles argument if present
 let specificArticles = [];
@@ -16,16 +40,88 @@ if (articlesArg) {
   console.log('Selective scrape mode - articles:', specificArticles);
 }
 
-function truncateStringToWords(str, limit) {
-  if (str.length <= limit) {
-    return str;
+async function createTldr(str, limit = 20000) {
+  if (!gptApiKey) {
+    if (str.length <= limit) {
+      return str;
+    }
+    let truncatedString = str.slice(0, limit);
+    let lastSpaceIndex = truncatedString.lastIndexOf(' ');
+    if (lastSpaceIndex === -1) {
+      return truncatedString;
+    }
+    return truncatedString.slice(0, lastSpaceIndex);
   }
-  let truncatedString = str.slice(0, limit);
-  let lastSpaceIndex = truncatedString.lastIndexOf(' ');
-  if (lastSpaceIndex === -1) {
-    return truncatedString;
+
+  const endpoint = 'https://api.openai.com/v1/responses';
+  const prompt = `Summarize the following text into a concise summary suitable for full-text-search embedding. Produce only the summary text and nothing else. The summary must be short and must not exceed 8000 tokens.`;
+
+  try {
+    const safeMaxOutput = 8000;
+
+    const res = await fetch(endpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${gptApiKey}`,
+      },
+      body: JSON.stringify({
+        model: 'gpt-5-mini',
+        instructions: prompt,
+        input: str,
+        max_output_tokens: safeMaxOutput,
+      }),
+    });
+
+    const json = await res.json();
+
+    if (!res.ok) {
+      // OpenAI provides helpful messages under `error` in the JSON body
+      const errMsg = json?.error?.message || JSON.stringify(json);
+      console.error('OpenAI API error (status ' + res.status + '):', errMsg);
+      // Throw a clear error to stop execution (as requested)
+      throw new Error(`OpenAI API returned status ${res.status}: ${errMsg}`);
+    }
+
+    // Try a few plausible response shapes and collect the summary text
+    let text = '';
+
+    if (typeof json.output_text === 'string' && json.output_text.trim()) {
+      text = json.output_text.trim();
+    } else if (typeof json.output === 'string' && json.output.trim()) {
+      text = json.output.trim();
+    } else if (Array.isArray(json.output)) {
+      // The output array may contain objects with content items
+      for (const piece of json.output) {
+        if (typeof piece === 'string') {
+          text += piece;
+        } else if (piece?.content && Array.isArray(piece.content)) {
+          for (const c of piece.content) {
+            if (c?.type === 'output_text' && typeof c.text === 'string') {
+              text += c.text;
+            }
+          }
+        }
+      }
+      text = text.trim();
+    } else if (json.choices && json.choices[0]) {
+      const choice = json.choices[0];
+      if (choice.message?.content) text = choice.message.content.trim();
+      else if (choice.text) text = choice.text.trim();
+    }
+
+    if (!text) {
+      console.error('OpenAI returned an unexpected response shape:', json);
+      throw new Error('Empty summary from OpenAI');
+    }
+
+    console.log('Created TLDR via OpenAI', text);
+    return text;
+  } catch (err) {
+    console.error('Failed to create TLDR via OpenAI:', err.message || err);
+    // As required: write to console and stop script execution by throwing
+    throw err;
   }
-  return truncatedString.slice(0, lastSpaceIndex);
 }
 
 async function getArticleUrls(url, specificSlugs = []) {
@@ -96,19 +192,7 @@ async function scrapePost(url, retries = 10) {
     ];
     const content = $('[data-testid=post-content]').text().trim();
     $('.math').remove();
-    const contentEmbedding = truncateStringToWords(
-      $('[data-testid=post-content]')
-        .text()
-        .trim()
-        .replace(
-          /(http|ftp|https):\/\/([\w+?\.\w+])+([a-zA-Z0-9\~\!\@\#\$\%\^\&\*\(\)_\-\=\+\\\/\?\.\:\;\'\,]*)?/g,
-          '',
-        )
-        .replace(/[^A-Za-z0-9\sĄąĘęÓóŚśŻżŹźĆćŁł]/g, '')
-        .toLowerCase()
-        .replace(/\s+/gm, ' '),
-      20000,
-    );
+    const contentEmbedding = await createTldr(abstract + '\n\n' + content);
     console.log('Scraped', title);
     return {
       title,

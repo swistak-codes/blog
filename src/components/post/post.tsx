@@ -86,7 +86,7 @@ export const Post = ({
   }, [isOnList, isOfftop, metadata]);
 
   return (
-    <article className={commonStyles.contentContainer}>
+    <article className={commonStyles.article}>
       {!isOnList && (
         <Metadata {...metadata} isOfftopic={isOfftop} isPage={isPage} />
       )}
@@ -105,65 +105,67 @@ export const Post = ({
           moveToBottom={isOnList ? !!metadata.moveCoverToBottom : false}
         />
       )}
-      {metadata.categories && metadata.categories.length > 0 ? (
-        <div className={commonStyles.unitMargin}>
-          <Categories
-            categories={metadata.categories}
-            nameToPathsMap={categoryMap}
-          />
-        </div>
-      ) : null}
-      <div className={commonStyles.contentWrapper}>
-        <div
-          className={clsx({ [styles.wrapper]: !isOnList })}
-          {...(isOnList
-            ? { id: 'post-content' }
-            : { 'data-testid': 'post-content' })}
-        >
-          {children}
-        </div>
-      </div>
-      {!isOnList && !isPage && similar.length > 0 ? (
-        <SimilarPosts
-          similar={similar}
-          hidden={similarHidden}
-          setHidden={setSimilarHidden}
-        />
-      ) : null}
-      {!isOnList && showFooter && (
-        <PostFooter
-          metadata={metadata}
-          tagsMap={tagsMap}
-          categoryMap={categoryMap}
-          toShow={isPage ? 'all' : 'top'}
-        />
-      )}
-      {!isPage && !isOnList ? (
-        <>
-          <div className={styles.comments}>
-            <Giscus
-              repo="swistak-codes/.github"
-              repoId="R_kgDOK_E_OQ"
-              mapping="og:title"
-              category="Komentarze"
-              categoryId="DIC_kwDOK_E_Oc4CcHcs"
-              strict="1"
-              reactionsEnabled="0"
-              emitMetadata="0"
-              inputPosition="top"
-              theme={isDark ? 'dark_dimmed' : 'light'}
-              lang="pl"
-              host="https://synesthesia.swistak.codes"
+      <div className={commonStyles.contentContainer}>
+        {metadata.categories && metadata.categories.length > 0 ? (
+          <div className={commonStyles.unitMargin}>
+            <Categories
+              categories={metadata.categories}
+              nameToPathsMap={categoryMap}
             />
           </div>
+        ) : null}
+        <div className={commonStyles.contentWrapper}>
+          <div
+            className={clsx({ [styles.wrapper]: !isOnList })}
+            {...(isOnList
+              ? { id: 'post-content' }
+              : { 'data-testid': 'post-content' })}
+          >
+            {children}
+          </div>
+        </div>
+        {!isOnList && !isPage && similar.length > 0 ? (
+          <SimilarPosts
+            similar={similar}
+            hidden={similarHidden}
+            setHidden={setSimilarHidden}
+          />
+        ) : null}
+        {!isOnList && showFooter && (
           <PostFooter
             metadata={metadata}
             tagsMap={tagsMap}
             categoryMap={categoryMap}
-            toShow="bottom"
+            toShow={isPage ? 'all' : 'top'}
           />
-        </>
-      ) : null}
+        )}
+        {!isPage && !isOnList ? (
+          <>
+            <div className={styles.comments}>
+              <Giscus
+                repo="swistak-codes/.github"
+                repoId="R_kgDOK_E_OQ"
+                mapping="og:title"
+                category="Komentarze"
+                categoryId="DIC_kwDOK_E_Oc4CcHcs"
+                strict="1"
+                reactionsEnabled="0"
+                emitMetadata="0"
+                inputPosition="top"
+                theme={isDark ? 'dark_dimmed' : 'light'}
+                lang="pl"
+                host="https://synesthesia.swistak.codes"
+              />
+            </div>
+            <PostFooter
+              metadata={metadata}
+              tagsMap={tagsMap}
+              categoryMap={categoryMap}
+              toShow="bottom"
+            />
+          </>
+        ) : null}
+      </div>
     </article>
   );
 };

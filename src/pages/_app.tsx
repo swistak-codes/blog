@@ -6,7 +6,7 @@ import { Header } from '../components/header/header';
 import { MoveToTop } from '../components/move-to-top/move-to-top';
 import { Footer } from '../components/footer/footer';
 import { init } from '@socialgouv/matomo-next';
-import { useEffect } from 'react';
+import { PropsWithChildren, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import '../variables.scss';
 import '../global.scss';
@@ -34,17 +34,31 @@ function CustomApp({ Component, pageProps }: AppProps) {
     };
   }, [router]);
 
+  const Wrapper = ({ children }: PropsWithChildren) =>
+    pageProps['coverColor'] != null ? (
+      <div
+        style={{ '--sc--cover': pageProps.coverColor }}
+        className={styles.pageWrapper}
+      >
+        {children}
+      </div>
+    ) : (
+      <>{children}</>
+    );
+
   return (
     <>
       <DefaultSeo {...seoConfig} />
       <div>
         <Header handleToggleTheme={toggleTheme} isDark={isDark} />
         <div className={styles.fakeBody}>
-          <main className={styles.pageContainer}>
-            <ThemeContext.Provider value={isDark}>
-              <Component {...pageProps} />
-            </ThemeContext.Provider>
-          </main>
+          <Wrapper>
+            <main className={styles.pageContainer}>
+              <ThemeContext.Provider value={isDark}>
+                <Component {...pageProps} />
+              </ThemeContext.Provider>
+            </main>
+          </Wrapper>
         </div>
         <Footer />
         <MoveToTop />

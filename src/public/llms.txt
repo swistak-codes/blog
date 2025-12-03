@@ -1,0 +1,751 @@
+# świstak.codes
+
+świstak.codes to blog o programowaniu, informatyce i matematyce, który w przystępny sposób łączy solidne podstawy teoretyczne z praktycznymi przykładami kodu i realnymi zastosowaniami w pracy programisty. Autor skupia się na ponadczasowych zagadnieniach, takich jak algorytmy, struktury danych, matematyka w IT czy grafika komputerowa, unikając krótkotrwałych technologicznych mód.
+
+## Listy — najpopularniejsze złożone typy danych
+
+https://swistak.codes/post/listy-najpopularniejsze-zlozone-typy-danych
+
+Artykuł definiuje listę jako abstrakcyjny typ danych — uporządkowany, policzalny zbiór elementów dopuszczający duplikaty — oraz opisuje główne implementacje: tablice (statyczne), tablice dynamiczne/wektory (ArrayList, std::vector) i listy wiązane (LinkedList). Wyjaśnia różnice: tablice — ciągły przydział pamięci i szybki dostęp losowy, wektory — automatyczne rozszerzanie przez alokację nowej tablicy, listy wiązane — wskaźniki między elementami, łatwe wstawianie/usuwanie, powolny dostęp losowy. Podaje kryteria wyboru: używać tablic gdy liczba elementów przewidywalna, operacje odczytu są częste i losowe; używać list wiązanych gdy liczba elementów nieznana, często dodajemy/usuwamy i odczytujemy sekwencyjnie. Wspomina odmiany list (jednokierunkowe, dwukierunkowe, cykliczne, z wartownikiem, skip listy) oraz tablice bitowe. Wniosek: listy są powszechne i proste, ale nie zawsze optymalne — warto dobrać odpowiedni rodzaj struktury danych do potrzeb.
+
+## Tablice i listy tablicowe
+
+https://swistak.codes/post/tablice-i-listy-tablicowe
+
+Artykuł wyjaśnia tablice jako ciągły obszar pamięci, gdzie dostęp do elementu jest bezpośredni dzięki arytmetyce adresów (adres_ i = adres_0 + i). Pokazano przykład w C ilustrujący adresy kolejnych bajtów. Omówione są listy tablicowe (dynamiczne): struktury o stałym układzie pamięci, które udostępniają szybki, O(1) dostęp losowy, ale kosztowne wstawianie/usuwanie w środku lub na początku (O(n)), ponieważ wymagane jest przesunięcie elementów. Dodawanie na końcu jest amortyzowane O(1): w optymistycznym przypadku wpis odbywa się natychmiast, w pesymistycznym — trzeba utworzyć większą tablicę i przepisać dane (O(n)). Implementacje stosują strategię zwiększania pojemności (np. podwajanie w C#/C++ lub zwiększenie o 50% w Javie; Java zaczyna od 10), co zmniejsza częstotliwość realokacji kosztem niewykorzystanej pamięci. Wspomniano też inne operacje (wstawianie zakresu, odwrócenie, konwersja na tablicę, kontrola pojemności). Podsumowanie: listy tablicowe są uniwersalne i często najlepsze, gdy potrzebny jest szybki dostęp losowy, ale mają kompromisy dotyczące kosztów modyfikacji i wykorzystania pamięci.
+
+## Listy z dowiązaniami
+
+https://swistak.codes/post/listy-z-dowiazaniami
+
+Artykuł opisuje listy wiązane: struktury, w których każdy element zawiera wskaźnik (na następny, a w liście dwukierunkowej też na poprzedni), co pozwala przechowywać elementy nieciągłe w pamięci. Omówiono typy: jednokierunkowe, dwukierunkowe, cykliczne oraz z wartownikiem (według Cormena — jedna cykliczna lista z jednym wartownikiem). Zwrócono uwagę na koszt pamięciowy wskaźników (np. 64‑bitowe → 8 B każdy) i konsekwencje dla małych danych. Analiza operacji: dostęp do pierwszego elementu O(1), dostęp do dowolnego lub ostatniego (gdy nie znamy ogona) O(n); wstawianie/usuwanie to O(1) przy znanym miejscu, z dodatkowym kosztem znalezienia pozycji. Wskazówki praktyczne: listy wiązane są przydatne przy częstych wstawieniach/usunięciach przy rzadkich przeszukiwaniach, ale ze względu na narzut pamięci i dobre zachowanie tablic dynamicznych warto zwykle zaczynać od tablicy dynamicznej i przejść do listy wiązanej tylko przy realnych problemach wydajnościowych.
+
+## Sztuczna inteligencja — a co to? a komu to potrzebne?
+
+https://swistak.codes/post/sztuczna-inteligencja-a-co-to-a-komu-to-potrzebne
+
+Artykuł wyjaśnia popularne nieporozumienia wokół „sztucznej inteligencji” (SI), której nazwa stała się marketingowym buzzwordem, i porządkuje pojęcia: SI to zdolność maszyn do wykonywania zadań kojarzonych z inteligencją ludzką, takich jak uczenie, wnioskowanie, rozwiązywanie problemów, percepcja i przetwarzanie języka. Omówione są główne aspekty: uczenie (generalizacja na podstawie danych), wnioskowanie (systemy ekspertowe), rozwiązywanie złożonych problemów (np. problem komiwojażera), percepcja (rozpoznawanie obrazów/twarz, związane z ryzykiem inwigilacji) oraz NLP i test Turinga. Przedstawiono dwa podejścia tworzenia SI: symboliczne (top-down) i redukcjonistyczne/sieci neuronowe (bottom-up), oraz rozróżnienie na słabą SI (wyspecjalizowane systemy) i silną SI/AGI (uniwersalna, myśląca maszyna, wciąż nieosiągnięta). Omawiane są też obawy społeczne — utrata prywatności, zastępowanie pracy, ryzyko nadużyć — oraz wpływ science‑fiction na postrzeganie SI (HAL, Terminator). Na koniec przypomniano paradoks Moraveca: łatwiej zaprogramować komputery do zadań abstrakcyjnych niż do percepcji i mobilności na poziomie małego dziecka.
+
+## Testowanie i wykrywanie sztucznej inteligencji
+
+https://swistak.codes/post/testowanie-i-wykrywanie-sztucznej-inteligencji
+
+Artykuł przegląda klasyczne i współczesne metody rozpoznawania sztucznej inteligencji. Omawia test Turinga (ocena umiejętności językowych przez udawanie człowieka), jego zalety (prostota, badanie kontekstu) i ograniczenia (testuje imitację, nie zrozumienie). Przedstawia eksperyment myślowy chińskiego pokoju Searle’a, kwestionujący, czy przejście testu oznacza „rozumienie”. Opisane są odmiany Turinga: test Feigenbauma (ekspert domenowy), totalny test Turinga (percepcja i manipulacja), Minimum Intelligent Signal (pytania binarne) oraz test Eberta (jakość syntezy mowy). Wspomniany jest odwrotny test Turinga (CAPTCHA) i jego ograniczenia. Jako alternatywę przedstawiono Winograd Schema Challenge do sprawdzania rzeczywistego rozumienia zdań. Artykuł podkreśla rosnące zagrożenia generowanych treści (deepfake, fałszywe wiadomości), omawia wykrywanie przy użyciu sieci neuronowych i zbiorów danych (np. FaceForensics) oraz konkurs Deepfake Detection Challenge. Zwraca uwagę, że testy służą też do ulepszania modeli i mogą być „oszukiwane” (np. Eugene Goostman), co prowadzi do ciągłego wyścigu między generowaniem a wykrywaniem.
+
+## 1 0 0 0? 0 1 0 1! 1 0 0 1 – czyli matematyka zero-jedynkowa
+
+https://swistak.codes/post/matematyka-zero-jedynkowa
+
+Komputery przechowują wszystkie dane w systemie binarnym, czyli za pomocą tylko dwóch cyfr: 0 i 1. Systemy liczbowe pozycyjne zapisują wartość liczby jako sumę cyfr pomnożonych przez kolejne potęgi podstawy; w zapisie ogólnym: liczba = suma ai * b^(i-1). W systemie dziesiętnym baza b=10, w binarnym b=2, więc np. 101101₂ = 1·2^5+0·2^4+1·2^3+1·2^2+0·2^1+1·2^0 = 45₁₀. Konwersja dziesiętne→binarny odbywa przez dzielenie przez 2 i zapisywanie reszt od końca lub przez odejmowanie kolejnych potęg dwójki. Arytmetyka binarna (dodawanie, odejmowanie) działa analogicznie do dziesiętnej, a przesunięcia bitowe są szybkim mnożeniem/dzieleniem przez 2^k (<< to mnożenie, >> to dzielenie z odcięciem reszty). Znajomość binarnego zapisu to podstawa działania komputerów — nawet jeśli na co dzień nie jest używana bezpośrednio, wyjaśnia, jak na najniższym poziomie reprezentowane i przetwarzane są dane.
+
+## Sposoby zapisywania liczb przez komputery
+
+https://swistak.codes/post/sposoby-zapisywania-liczb-przez-komputery
+
+Artykuł wyjaśnia, że zapis liczb w komputerze rozpatrujemy fizycznie (jak nośnik reprezentuje dwie przeciwności) i logicznie (jak te stany interpretuje się jako liczby). Fizyczne nośniki to np. mechaniczne dziurki/pola (karty perforowane, płyty CD/DVD), ładunek lub napięcie elektryczne (flash, SSD, przesył danych), oraz magnetyzacja (dyski HDD). Podstawową jednostką informacji jest bit (0/1), a w pamięci najmniejszą adresowalną jednostką jest bajt (1 bajt = 8 bitów); stosuje się też słowa procesorowe (np. 16/32/64 bity). Autor omawia nieporozumienia z przedrostkami (SI vs binarne: kilo=1000 vs kibi=1024 itd.). Liczby mają stały rozmiar bitowy; dla liczb całkowitych najczęściej stosowanym kodowaniem jest uzupełnień do dwóch (two's complement), gdzie najstarszy bit ma wagę ujemną, zakres dla n bitów to −2^{n−1}..2^{n−1}−1, negacja uzyskiwana przez zanegowanie bitów i dodanie 1 (co powoduje asymetrię, np. brak odwrotności −2^{n−1}). Wspomniane są też inne kody: jedynkowy (ones' complement), znak-moduł (sign-magnitude), kod z przesunięciem (biased/excess), BCD dla zapisu dziesiętnego oraz kod Graya dla minimalizacji błędów przy konwersji analog-cyfrowej. Na końcu omówiona jest końcówkowość (endianness): big-endian vs little-endian — praktycznie popularne jest little-endian (x86), a ARM obsługuje oba tryby.
+
+## Liczby wymierne i rzeczywiste w zero-jedynkowym świecie
+
+https://swistak.codes/post/liczby-wymierne-i-rzeczywiste-w-zero-jedynkowym-swiecie
+
+Artykuł wyjaśnia, jak komputery reprezentują liczby wymierne i rzeczywiste dwiema metodami: stałoprzecinkową (fixed-point) i zmiennoprzecinkową (floating-point). W zapisie stałoprzecinkowym (kod Qm.n) część bitów traktuje się jako część całkowitą (m) a część jako ułamkową (n); wartość i zakres zależą od m i n, precyzja wynosi 2^(-n). Ten format jest prosty, nie jest jednak sprzętowo wspierany przez większość procesorów (stosowany w systemach bez FPU lub tam, gdzie FP jest wolne; przykład: Doom używał Q16.16), oraz w zastosowaniach finansowych częściej używa się wariantów BCD. Liczby zmiennoprzecinkowe opisane są analogią do notacji naukowej jako znak, mantysa i wykładnik, wymagają normalizacji mantysy i ograniczeń długości mantysy/wykładnika. Standard IEEE‑754 definiuje binarne formaty pojedynczy (32 bity: 1 bit znak, 8 bitów wykładnik, 23 bity mantysa) i podwójny (64 bity: 1, 11, 52), z przesunięciem wykładnika (bias 127/1023), reprezentacją mantysy i specjalnymi wartościami: NaN, zero (ze znakiem) i nieskończoność. Wzór do obliczenia wartości to x = (-1)^S * M * 2^(E - bias). IEEE‑754 jest powszechnie stosowany i sprzętowo wspierany, co pozwala na szybkie obliczenia zmiennoprzecinkowe, m.in. na GPU.
+
+## Nie-liczby jako liczby, czyli zapis danych cyfrowych
+
+https://swistak.codes/post/nie-liczby-jako-liczby-czyli-zapis-danych-cyfrowych
+
+Artykuł wyjaśnia, jak wszystko w komputerze można zapisać jako liczby przez odpowiednie kodowania. Dla znaków podstawowym standardem był ASCII (7 bitów, 128 znaków, z kontrolnymi kodami 0–31; spacja 32, cyfry 48–57, wielkie litery 65–90, małe 97–122; LF=10, CR=13 — różne systemy używają LF, CR+LF lub CR). Ograniczenia ASCII i wiele lokalnych standardów (ISO‑8859 itp.) doprowadziły do powstania Unicodu (1988) i kodowań UTF‑8/UTF‑16, które rozszerzają ASCII, pozwalając na znaki z całego świata przy zachowaniu kompatybilności. Obrazy najprościej zapisuje się jako bitmapy: piksel po pikselu, kolor przez paletę lub kanały RGB (zwykle 3×8 bitów = 24 bity); Full HD 24‑bitowy bez kompresji ≈6 MB. Dźwięk w PCM to próbkowanie fali: częstotliwość próbkowania i rozdzielczość bitowa (CD: 44 kHz, 16 bitów → ~86 kB/s mono, stereo ×2). Kompresja (JPEG, MP3) zmniejsza rozmiary kosztem jakości. Klucz: każdy format to umowa mapująca liczby na znaczenie — definiując ją, można zapisać dowolne dane.
+
+## Systemy liczbowe — uzupełnienie
+
+https://swistak.codes/post/systemy-liczbowe-uzupelnienie
+
+Artykuł omawia różne systemy liczbowe poza binarnym i dziesiętnym: definicję systemów (addytywne vs. pozycyjne) i wzór pozycyjny. Opisane systemy to: rzymski (addytywny, historyczne i ceremonialne zastosowania, symbole I V X L C D M), szesnastkowy/hex (base16, łatwe przejście do/z binarnego, używany w informatyce i edytorach heksadecymalnych), negabinarne (base −2, cyfry 0/1, umożliwia zapis liczb ujemnych bez znaku; zastosowania historyczne w komputerach GEO-1 i UMC, autor Pawlak), czwórkowy (base4, 2 bity na cyfrę, analogia do kodu DNA i zastosowania w transmisji 2B1Q), ósemkowy (base8, historycznie używany w mainframe’ach, 3 bity na cyfrę), Base64 (kodowanie 6 bitów na znak do przesyłania danych binarnych jako ASCII, padding '='), dwunastkowy (base12, historyczne i praktyczne zalety w ułamkach i jednostkach), oraz sześćdziesiątkowy (base60, mezopotamskie pochodzenie i trwały wpływ na podział czasu i kątów).
+
+## Przetwarzanie plików w praktyce — obrazy BMP
+
+https://swistak.codes/post/przetwarzanie-plikow-w-praktyce-obrazy-bmp
+
+Artykuł opisuje jak odczytać i sparsować najprostszy format obrazu BMP jako ćwiczenie programistyczne: cele (nauka czytania dokumentacji, rozwijanie algorytmiki i umiejętności programistycznych) oraz podstawowe pojęcia (piksel, przestrzeń barw RGB, paleta, płótno, parser). Autor ogranicza zakres: tylko pliki z sygnaturą "BM", nagłówek BITMAPINFOHEADER, bez kompresji i tylko 24-bitowe obrazy. Kluczowe metadane do odczytu (offsety i rozmiary): sygnatura 0x00 (2B), pozycja danych 0x0A (4B), szerokość 0x12 (4B), wysokość 0x16 (4B), bity na piksel 0x1C (2B), kompresja 0x1E (4B). Dane są little-endian; piksele zapisane B,G,R; obraz jest bottom-up (pierwsza linia to dolna); każdy wiersz ma długość wyrównaną do wielokrotności 4 bajtów (padding). Implementacja: wczytać plik do tablicy bajtów, przygotować płótno i funkcję putPixel, odczytać nagłówek (sprawdzić BM, dataOffset, width, height, 24 bpp, compression==0), składać liczby z bajtów przy pomocy przesunięć bitowych i OR, a następnie iterować po wierszach od dołu do góry i po pikselach (krok 3 bajty), czytać B,G,R i rysować. Przykładowy kod JavaScript pokazuje konstrukcję dataOffset i pętle rysujące z uwzględnieniem paddingu. Proponowane rozszerzenia: refaktoryzacja kodu, obsługa 32-bit, palet (≤8-bit), 16-bitowych formatów, optymalizacja rysowania (ImageBuffer) oraz obsługa kompresji RLE. Autor zachęca do samodzielnego rozwiązywania podobnych zadań jako sposobu nauki.
+
+## Tekstowy zapis danych cyfrowych
+
+https://swistak.codes/post/tekstowy-zapis-danych-cyfrowych
+
+Artykuł omawia sposoby przechowywania danych w formie tekstowej i porównuje je z formatami binarnymi. Format tekstowy używa czytelnych znaków (ASCII/Unicode), jest łatwy do odczytu i edycji, natomiast format binarny przechowuje surowe bajty i zwykle zajmuje mniej miejsca (przykład BMP vs równoważny zapis tekstowy). Opisuje uniwersalne standardy tekstowe: XML (znaczniki, atrybuty, struktura drzewiasta, nawigacja przez XPath; zastosowania: SVG, Office Open XML, OpenDocument, RSS, EPUB, XHTML) oraz JSON (typy danych: number, string, boolean, array, object, null; powszechne w API webowych i plikach konfiguracyjnych). Wspomniane są też alternatywy: YAML, TOML, Protocol Buffers i SGML oraz specyficzne formaty tekstowe jak RTF, TeX, OBJ i tekstowe/binarne STL. Podsumowanie: formaty tekstowe oferują czytelność i łatwość przetwarzania kosztem większego rozmiaru; wybór formatu zależy od priorytetów (czytelność vs oszczędność miejsca, standard vs rozwiązanie własne).
+
+## Wyszukiwanie w listach
+
+https://swistak.codes/post/wyszukiwanie-w-listach
+
+Artykuł omawia podstawowe algorytmy wyszukiwania w listach: wyszukiwanie liniowe, binarne i interpolacyjne, wraz z praktycznymi uwagami i eksperymentami (kod w JS dostępny w repozytorium autora). Wyszukiwanie liniowe: proste przeglądanie elementów, złożoność O(n), szeroko stosowane w bibliotekach (find/indexOf itp.). Wyszukiwanie binarne: podejście "dziel i zwyciężaj", wymaga listy posortowanej i dostępu losowego (nie nadaje się do list wiązanych), złożoność O(log n), dostępne w wielu językach (np. C#, Java, C++), praktyczne pułapki implementacyjne (przekroczenie zakresu przy obliczaniu środka; bezpieczny wzór L + (R−L)/2). Wyszukiwanie interpolacyjne: szacowanie pozycji przez interpolację liniową (wzór na indeks), może osiągać średnio O(log log n) dla rozkładu jednostajnego, lecz w najgorszym przypadku O(n); eksperymenty pokazują świetne wyniki dla ciągów arytmetycznych i rozkładu jednostajnego, gorsze dla ciągów geometrycznych i niektórych rozkładów (np. Gauss). Dodatkowo: omówiono przykłady zastosowań (BST, skip listy, git-bisect jako przykład binarnego poszukiwania wersji) oraz literaturę źródłową.
+
+## Sortowanie, cz. 1 — wprowadzenie teoretyczne
+
+https://swistak.codes/post/sortowanie-cz-1-wprowadzenie-teoretyczne
+
+Tekst wprowadza podstawy sortowania: jego praktyczny sens (łatwiejsze wyszukiwanie i praca na uporządkowanych danych) oraz formalną definicję jako permutację elementów tak, by dla funkcji porządkującej f zachodził porządek f(a1) ≤ f(a2) ≤ …. Opisuje rolę funkcji porządkującej/komparatora (lub klucza obiektu) oraz pojęcie stabilności algorytmu (czy równe elementy zachowują pierwotną kolejność). Wymienia najpopularniejsze algorytmy: bubble sort, insertion sort, quicksort i merge sort, zwracając uwagę, że bibliotekę standardową wielu języków udostępnia gotowe funkcje sortujące. Zaznacza praktyczne ograniczenia wynikające ze struktury danych: tablice dają szybki dostęp losowy i łatwe zamiany, listy wiązane mają tanie operacje na końcach, ale kosztowny dostęp losowy i zamiany. Zachęca do myślenia o strategiach sortowania pod kątem tych ograniczeń i odsyła do dalszych artykułów oraz literatury.
+
+## Sortowanie, cz. 2 — sortowanie bąbelkowe
+
+https://swistak.codes/post/sortowanie-cz-2-sortowanie-babelkowe
+
+Artykuł opisuje sortowanie bąbelkowe (bubble sort) — prosty algorytm oparty na porównywaniu i zamianie sąsiednich elementów — oraz praktyczne optymalizacje: skracanie zakresu porównań (ostatnie elementy po iteracji są na miejscu), wczesne przerwanie, sortowanie koktajlowe/shaker (przechodzenie naprzemiennie od przodu i tyłu) jako sposób na problem „żółwi i zajęcy” oraz sortowanie grzebieniowe (comb sort, Dobosiewicz) zmniejszające odstęp porównań. Mimo usprawnień wszystkie warianty mają złożoność O(n^2) i są głównie wartościowe edukacyjnie; bubble i cocktail są stabilne, natomiast comb sort jest niestabilny.
+
+## Sortowanie, cz. 3 — sortowanie przez wstawianie
+
+https://swistak.codes/post/sortowanie-cz-3-sortowanie-przez-wstawianie
+
+Artykuł opisuje sortowania oparte na wstawianiu. Wyjaśnia koszt operacji wstawiania w tablicach (przesunięcia elementów, brak „darmowego” wstawiania) oraz różnicę między podejściem tworzącym dodatkową strukturę (auxiliary O(n) pamięci) a działaniem in-place, gdzie rozszerzamy część już posortowaną (O(1) pamięci). Przedstawione jest klasyczne sortowanie przez wstawianie (insertion sort): iteracyjnie wstawianie kolejnych elementów w odpowiednie miejsce; algorytm jest stabilny, online i w praktyce szybszy niż bąbelkowe, ale ma złożoność czasu O(n^2) w ogólnym przypadku. Omówione jest także sortowanie Shella (Shell sort) — usprawnienie przez wprowadzenie odstępów (gapów), które pozwala porównywać i wstawiać elementy co gap zamiast co 1, z iteracyjnym zmniejszaniem gapów aż do 1 (kończy jako insertion sort). Wydajność Shella zależy od sekwencji gapów: propozycje Shella, Knutha, Sedgewicka i eksperymentalna sekwencja Ciury (najlepsza w praktyce) wpływają na liczbę porównań; złożoność teoretyczna nie jest jednoznacznie ustalona (od O(n log^2 n) do O(n^2)). Sortowanie Shella jest niestabilne.
+
+## Sortowanie, cz. 4 — sortowanie przez wybieranie
+
+https://swistak.codes/post/sortowanie-cz-4-sortowanie-przez-wybieranie
+
+Artykuł omawia dwa proste podejścia do sortowania: sortowanie przez wybieranie oraz sortowanie przez kopcowanie (heapsort). Najpierw przypomnienie prostego liniowego wyszukiwania minimum/maksimum — kluczowego kroku w sortowaniu przez wybieranie: kolejno wybieramy najmniejszy element z części nieposortowanej i zamieniamy go z pierwszym nieposortowanym elementem, powiększając część posortowaną. To podejście ma dużo porównań (O(n^2)) lecz minimalną liczbę zamian. Aby przyspieszyć wyszukiwanie ekstremów wykorzystuje się kopiec binarny — drzewo reprezentowane w tablicy, gdzie rodzic jest większy/mniejszy od potomków (dla max/min-heap), z relacjami indeksów: dzieci 2i i 2i+1, rodzic ⌊i/2⌋. Kopiec buduje się procedurą „naprawy”/sift-down, a heapsort działa przez zbudowanie kopca, zamianę korzenia z ostatnim elementem i ponowne naprawianie na skurczonej części. Heapsort redukuje liczbę porównań do O(n log n) kosztem większej liczby zamian. Oba algorytmy są niestabilne (selection można uczynić stabilnym przez wstawianie zamiast swap). Kod i wizualizacje są dostępne na GitHub: https://github.com/swistak-codes/sorting-algorithms.
+
+## Sortowanie, cz. 5 — „dziel i zwyciężaj”
+
+https://swistak.codes/post/sortowanie-cz-5-dziel-i-zwyciezaj
+
+Artykuł opisuje sortowania oparte na metodzie „dziel i zwyciężaj”, koncentrując się na quicksort i merge sort. Quicksort: dzieli tablicę przez partycjonowanie względem piwota (zwykle pierwszego elementu), działa in-place i rekurencyjnie; średnia złożoność O(n log n), najgorsza O(n^2) zależna od wyboru piwota; jest szyki i pamięciooszczędny, ale niestabilny i obciąża stos wywołań. Merge sort: dzieli aż do jednoelementowych podtablic, a następnie scala je, zawsze osiągając O(n log n); jest zwykle stabilny, ale wymaga dodatkowej pamięci na tablice pomocnicze; dostępne warianty top-down, bottom-up i optymalizacje (natural merge, użycie list wiązanych, hybrydyzacja z insertion sort, tiled merge). Omówione są także techniki poprawy quicksort (wielo-piwotowe partycjonowanie) oraz praktyczne implementacje (dwupiwotowy quicksort i TimSort w Javie), zalety równoległego wykonywania oraz link do kodu i wizualizacji na GitHubie.
+
+## Sortowanie, cz. 6 — teraz bez porównywania!
+
+https://swistak.codes/post/sortowanie-cz-6-teraz-bez-porownywania
+
+Artykuł omawia sortowanie bez porównań, koncentrując się na counting sort i radix sort. Counting sort zlicza wystąpienia liczb naturalnych z zakresu 0..k, przekształca zliczenia na indeksy i tworzy posortowaną tablicę; jest szybki, ale wymaga pamięci O(n + k) i nadaje się tylko dla ograniczonego zakresu wartości. Radix sort to modyfikacja wykorzystująca counting sort na kolejnych pozycjach cyfr/bitów: przy słowie o długości w bitów i grupowaniu po d bitów potrzeba p = w/d przebiegów, tablica pomocnicza ma rozmiar 2^d, a koszt pamięciowo-czasowy wynosi rzędu O(p*(n + 2^d)) (często podawane jako O(n + 2^d) na przebieg). Oba algorytmy są stabilne i eliminują porównania, ale nie eliminują kosztów odczytu/zapisu pamięci — często wykonują więcej zapisów niż algorytmy porównawcze (np. mergesort) i mają gorsze wymagania pamięciowe w najgorszym przypadku. Dodatkowo autor przypomina, że optymalne sortowanie porównawcze dla bardzo małych tablic może minimalizować liczbę porównań (np. 1 porównanie dla 2 elementów, 3 dla 3 elementów), a rozpisywanie drzew decyzyjnych dla większych n jest niepraktyczne ze względu na wzrost silniowy. Wspomniane są też praktyczne wskazówki implementacyjne (wydobywanie fragmentu bitów: (k_i >> (d*p)) & ((1<<d)-1)) oraz historyczna nota: pomysł radix sięga Holleritha (1887), wersja z counting sort — Sewarda (1954).
+
+## Sortowanie, cz. 7 — inne podejścia
+
+https://swistak.codes/post/sortowanie-cz-7-inne-podejscia
+
+Artykuł omawia trzy mniej popularne podejścia do sortowania: odd-even (odd–even transposition), gnome sort i sortowanie drzewiaste. Odd-even to wariant sortowania przez zamiany bazujący na bubble sort — naprzemiennie porównuje sąsiednie pary na nieparzystych i parzystych indeksach; ma złożoność O(n^2) i niewielkie zastosowania (wspomniany jest jednak bardziej wydajny, równoległy Batcher's odd–even mergesort). Gnome sort (pierwotnie „stupid sort”, opisany w 2000 r.) łączy idee bubble i insertion sort: przechodzi tablicę, przy złym miejscu zamienia element i cofa się, aż znajdzie właściwe miejsce; także O(n^2) i raczej ciekawostka. Sortowanie drzewiaste wykorzystuje binarne drzewo poszukiwań (BST): wstawia elementy do drzewa, a następnie odczytuje je in-order, co daje średnio O(n log n) przy koszcie dodatkowej pamięci i ryzyku degeneracji do O(n^2) dla niezbalansowanego drzewa; stosowanie drzew zrównoważonych (AVL, red–black) lub splay (splaysort) poprawia wydajność kosztem złożoności pamięciowej. Podsumowując, opisane algorytmy stanowią głównie ciekawostki edukacyjne — warto je znać dla różnorodności podejść, choć praktyczne rozwiązania zwykle wybierają algorytmy szybsze lub pamięciowo tańsze.
+
+## Rekurencja — co to jest?
+
+https://swistak.codes/post/rekurencja-co-to-jest
+
+Rekurencja to odwołanie funkcji (lub definicji typu) do samej siebie z warunkiem bazowym, by uniknąć nieskończoności. Przykłady matematyczne: ciąg Fibonacciego (fib(n)=fib(n‑1)+fib(n‑2), z fib(0)=0,fib(1)=1) oraz silnia (n!=(n‑1)!·n, z 0!=1). W programowaniu rekurencja przenosi się niemal bez zmian do kodu (pokazane implementacje w C i F#); jednak wywołania rekurencyjne zajmują pamięć na stosie, powodując złożoność pamięciową O(n) i ryzyko stack overflow. Rekursję można przekształcić w rekurencję ogonową (tail recursion) używając akumulatorów, co pozwala osiągnąć O(1) pamięci przy wsparciu optymalizacji tail-call; nie wszystkie kompilatory/interpretery to obsługują (np. Haskell/F#/Erlang wspierają, Python—nie; Kotlin wymaga annotacji tailrec). Zastosowania: algorytmy dziel i zwyciężaj (quicksort, mergesort), funkcja Ackermanna (test optymalizacji), rysowanie fraktali (trójkąt/dywan Sierpińskiego, krzywe Hilberta), oraz rekurencyjne struktury danych (drzewa, listy wiązane). Dalsze kroki: teoria rekursji w logice i teorii obliczeń, związki z maszyną Turinga, oraz techniki zamiany rekurencji na iterację (np. wzór Bineta dla Fibonacciego). Literatura wskazana w artykule.
+
+## Derekursywacja
+
+https://swistak.codes/post/derekursywacja
+
+Artykuł opisuje derekursywację — metody usuwania rekurencji — oraz ich zalety i wady. Wyjaśnia, dlaczego warto eliminować rekurencję: iteracje generują prostszy kod maszynowy i unikają kosztów stosu wywołań. Pokazuje prostą derekursywację rekurencji ogonowej na przykładzie pętli while (Fibonacci, silnia). Omawia symulowanie rekurencji przy pomocy własnych kolejek/stosów (LIFO/FIFO) i podaje szczegółowy przykład implementacji zderekursywowanej silni w C. Przedstawia też derekursywację matematyczną przez funkcje tworzące, prowadząc do wzoru jawnego (wzór Bineta) dla ciągu Fibonacciego. Przeprowadza porównanie wydajności: wersje z ręcznie zarządzanym stosem wykazują najgorsze czasy (wykładniczy wzrost), zwykła rekurencja też rośnie wykładniczo, natomiast rekurencja ogonowa i iteracyjne implementacje mają zbliżoną, dobrą wydajność; wzór Bineta jest nieco wolniejszy z powodu operacji zmiennoprzecinkowych, a memoizacja zależy od kosztów pamięci i cache. Wnioski: wybór zależy od przypadku — rekurencja często bywa czytelniejsza (np. drzewa, sortowania), rekursja ogonowa i iteracje są wydajniejsze, a implementacja ze stosu może być użyteczna jako baza do optymalizacji. Literatura i źródła zawierają prace dotyczące eliminacji rekurencji, optymalizacji i rozwiązywania rekurencji liniowych.
+
+## Jak komputer rysuje linie?
+
+https://swistak.codes/post/jak-komputer-rysuje-linie
+
+Artykuł opisuje, jak komputer rysuje linie na ekranie, zaczynając od podstaw: piksel jako najmniejszy element obrazu, bufor ramki (framebuffer) przechowujący siatkę kolorów oraz rola karty graficznej w konwersji bufora na sygnał wyjściowy. Problem rysowania odcinka na bitmapie sprowadza się do określenia, które piksele wypełnić przy zachowaniu wrażenia prostej linii — trudność powodują zaokrąglenia, wydajność obliczeń (preferowane operacje całkowite) i opcjonalne wygładzanie krawędzi (antialiasing). Przedstawiono kolejne podejścia: proste wykorzystanie funkcji y = ax + b (iteracja po x lub po y), ulepszenie przez aktualizację przyrostową (zamiast mnożenia), akumulator błędu eliminujący bezpośrednie zaokrąglanie, aż po klasyczny algorytm Bresenhama (midpoint/incremental error) z 1965 r. — całkowicie pozbawiony obliczeń zmiennoprzecinkowych, oparty na funkcji uwikłanej F(x,y) i zmiennej decyzyjnej D oraz stałych przyrostach (2·dy i 2·(dy−dx)). Omówiono też praktyczne ograniczenia (różne oktanty, układ współrzędnych z lewym górnym narożnikiem) oraz alternatywy jak DDA i algorytmy wygładzające (Xiaolin Wu, Gupta–Sproull). Wzmianka historyczna: brak bufora w Atari 2600/tryb Mode 13h jako kontekst rozwoju technik rasteryzacji.
+
+## Jak komputer rysuje okręgi?
+
+https://swistak.codes/post/jak-komputer-rysuje-okregi
+
+Artykuł opisuje algorytmikę rysowania okręgów: od prostego podejścia opartego na równaniu x^2+y^2=R^2 i funkcjach trygonometrycznych (kosztowne obliczeniowo), przez wykorzystanie symetrii okręgu (rysowanie ośmiu symetrycznych punktów naraz), aż po efektywny algorytm punktu środkowego/Bresenhama. Pokazane są trzy warianty algorytmu punktu środkowego: wersja zmiennoprzecinkowa (z początkowym d = 5/4 − R), wersja całkowitoliczbowa (d = 1 − R eliminująca ułamek) oraz wersja całkowitoliczbowa przyrostowa, unikająca mnożeń i pierwiastkowania przez utrzymywanie i aktualizowanie przyrostów deltaE i deltaSE. Omówiono też praktyczne uwagi (optymalizacja rysowania mniejszej liczby symetrycznych punktów, implementacja w TypeScript/Svelte dostępna na GitHubie) oraz historyczne odniesienie do pracy/Bresenhama i patentu. Wnioskiem jest, że metody matematyczne używane do rysowania linii można skutecznie zaadaptować do rysowania okręgów, uzyskując wydajne, całkowitoliczbowe algorytmy.
+
+## Algorytmy-żarty, czyli o sortowaniu cz. 9
+
+https://swistak.codes/post/algorytmy-zarty-czyli-o-sortowaniu-cz-9
+
+Artykuł opisuje humorystyczne, niepraktyczne algorytmy sortowania stworzane jako żart: bozosort (losowe zamiany dwóch elementów), bogosort (losowe tasowanie całej tablicy; wymagane Fisher–Yates do efektywnego mieszania; złożoność O(n·n!)), bogobogosort (rekurencyjne, jeszcze bardziej absurdalne tasowania z ekstremalnie dużą i dyskusyjną złożonością oraz twierdzeniem, że może działać aż do "śmierci cieplnej Wszechświata"), sortowanie głupie / stooge sort (rekurencyjne wywołania na pierwszych i ostatnich dwóch trzecich; działa skończenie, ale wolniej niż O(n^2): O(n^{log3/log1.5})), oraz sleep sort (tworzenie wątków usypianych na czas równy wartości elementu; zależny od planowania wątków i zawodny dla zbliżonych wartości; powstał na 4chanie w 2011). Autor przypomina, że algorytmy te nie nadają się do zastosowań produkcyjnych, zamieszcza kod w repozytorium na GitHubie i porównuje je do innych żartobliwych zjawisk w informatyce, np. ezoterycznych języków programowania (Brainfuck, Piet, Malbolge).
+
+## Algorytmika gier — saper
+
+https://swistak.codes/post/algorytmika-gier-saper
+
+Artykuł opisuje jak zaimplementować prosty klon gry Saper, wyjaśniając zasady (odsłanianie pól, liczby sąsiadujących min, automatyczne odsłanianie pól o wartości 0) oraz najważniejsze algorytmy i architekturę. Kluczowa struktura to dwie tablice 2D: jedna z zawartością pól (mina "X" lub liczba 0..8), druga z widocznym stanem gry (null = nieodsłonięte). Generowanie planszy: losowe rozmieszczenie min (unikatowe pozycje) i obliczenie liczby sąsiadujących min dla każdego pola. Odsłanianie pól: proste skopiowanie wartości lub rekurencyjne rozszerzenie (flood fill) dla zer, z warunkami brzegowymi i unikaniem ponownego odsłaniania. Sprawdzanie stanu gry: przegrana przy odsłonięciu miny; wygrana przez iterację pól i weryfikację, że wszystkie bezminowe są odsłonięte (lub wszystkie miny oznaczone). Omówiono też szczególne przypadki generowania (klastry nieodgadnionych min) i propozycje ulepszeń: generowanie planszy po pierwszym kliknięciu, oznaczanie min (flagowanie), różne rozmiary planszy i system punktacji. Autor udostępnia szablon React z oddzieloną logiką (CodeSandbox / GitHub) i przykładowe fragmenty kodu pokazujące podstawowe implementacje.
+
+## Komputer w komputerze, czyli emulacja, wirtualizacja i konteneryzacja
+
+https://swistak.codes/post/komputer-w-komputerze-czyli-emulacja-wirtualizacja-i-konteneryzacja
+
+Artykuł wyjaśnia różnice między emulacją, wirtualizacją i konteneryzacją — trzema technikami uruchamiania „komputera w komputerze”. Emulacja programowo odwzorowuje sprzęt i API (moduły CPU, pamięci, I/O), pozwalając uruchamiać oprogramowanie dla innych architektur lub starych systemów (np. DOSBox), lecz kosztem wydajności i niepełnej zgodności. Wirtualizacja tworzy maszyny wirtualne za pomocą hipernadzorcy (VMM), który separuje systemy operacyjne od fizycznego sprzętu; teoria oparta jest na kryteriach Popeka–Goldberga. Hipernadzorcy występują jako typ 1 (bare metal) i typ 2 (działający w host OS); pełna wirtualizacja realizowana jest przez translację binarną lub wsparcie sprzętowe (Intel VT-x/AMD‑V). Konteneryzacja (OS‑level virtualization) współdzieli jądro hosta i odseparowuje procesy w lekkich kontenerach (Docker, LXC, OpenVZ, Singularity), oferując najlepszą wydajność i prostotę wdrożeń, ale ograniczona jest do tej samej architektury i jądra. Podsumowując: emulacja daje największą kompatybilność sprzętową kosztem szybkości, wirtualizacja umożliwia uruchamianie różnych systemów z dobrą wydajnością przy wsparciu sprzętowym, a konteneryzacja daje najszybsze i najbardziej ekonomiczne uruchamianie aplikacji przy ograniczeniach architektury i jądra.
+
+## Jak komputer zapisuje dźwięk?
+
+https://swistak.codes/post/jak-komputer-zapisuje-dzwiek
+
+Artykuł wyjaśnia, jak dźwięk jest zapisywany cyfrowo. Rozróżnia zapis falowy (wierny zapis z mikrofonu) i zapis notacji muzycznej (np. MIDI). W świecie fizycznym dźwięk to fale akustyczne (drgania o częstotliwościach ~16 Hz–20 kHz dla ludzkiego ucha); mikrofony przetwarzają je na sygnał elektryczny. Komputery operują na sygnałach cyfrowych: konwersja zachodzi w ADC i zwykle stosuje się PCM/LPCM, które opierają się na próbkowaniu (częstotliwość próbkowania) i kwantyzacji (rozdzielczość w bitach). Przykładem standardu jest CD: 44,1 kHz i 16 bitów; częstotliwość Nyquista = połowa częstotliwości próbkowania. Rozmiar surowego zapisu: próbki_na_s × czas × bity × liczba_kanałów (w bitach). Kwantyzacja wprowadza szum kwantyzacji; SQNR ≈ 6,02·Q dB opisuje zależność od liczby bitów. PCM to zapis bezstratny (formaty .wav, .aiff, .au); istnieją też bezstratne skompresowane formaty (FLAC, ALAC). Formatów stratnych (MP3, OGG, AAC) używa się by zmniejszyć rozmiar kosztem jakości, stosując modele psychoakustyczne i transformacje (np. MDCT); jakość kontroluje bitrate. Omówiono też alternatywy PCM: DPCM/ADPCM/PCMU/PCMA oraz PDM/DSD (1-bitowa modulacja przy bardzo wysokim próbkowaniu, używana w SACD).
+
+## Przekształcenia grafiki 2D — matematyczny punkt widzenia
+
+https://swistak.codes/post/przeksztalcenia-grafiki-2d
+
+Artykuł opisuje matematykę stojącą za przekształceniami grafiki 2D (wektorowej i rastrowej). Przedstawia podstawowe transformacje elementarne: translację (przesunięcie), skalowanie (względem początku układu, z zachowaniem proporcji gdy sx=sy) oraz obrót (o kąt θ) i ich zapisy macierzowe. Pokazuje, że dowolne przekształcenie afiniczne można zapisać jako P' = A·P + t, co wprowadzając współrzędne jednorodne upraszcza się do jednej macierzy 3x3 (homogenicznej). Współrzędne jednorodne (x,y,w) umożliwiają łączenie translacji, skalowania, obrotu w jedną macierz oraz rozszerzenie do przekształceń perspektywicznych (gdy używamy trzeciego wiersza). Omawia składanie transformacji przez mnożenie macierzy (nieprzemienność mnożenia; kolejność ważna; przy wektorach kolumnowych składamy od prawej do lewej). Jako przykład podano obrót względem punktu wewnętrznego: T(p)·R(θ)·T(−p) i wynikową macierz z przesunieniem kompensującym środek obrotu.  
+
+Dla grafiki rastrowej artykuł zwraca uwagę na konieczność odwrotnego mapowania: dla każdego piksela wynikowego trzeba znaleźć pozycję w obrazie źródłowym za pomocą macierzy odwrotnej, a gdy współrzędne są niecałkowite — zastosować interpolację. Opisano metody interpolacji: nearest-neighbor, bilinear (opis algorytmu z użyciem czterech sąsiednich pikseli i wag α,β), bicubic i Lanczos, ze wskazaniem wpływu na jakość obrazu. Na końcu podano przykłady implementacji i narzędzi: CSS matrix(a,b,c,d,tx,ty), CanvasRenderingContext2D.transform, klasy AffineTransform (.NET, Java), funkcje w bibliotekach (Cairo, XNA, Allegro), narzędzia GIMP i ImageMagick. Literatura: Foley i inni; Klawonn.
+
+## Przekształcenia grafiki 3D
+
+https://swistak.codes/post/przeksztalcenia-grafiki-3d
+
+Artykuł opisuje przekształcenia grafiki 3D za pomocą współrzędnych jednorodnych (punkt 3D jako wektor 4D) i macierzy 4×4: translacje T(dx,dy,dz), skalowania S(sx,sy,sz) oraz obroty Rx(θ), Ry(θ), Rz(θ). Omawia problem skrętności układu współrzędnych (lewoskrętny vs. prawoskrętny) i macierz zamiany, znaczenie kolejności składania transformacji oraz koszt mnożenia macierzy 4×4. Wyjaśniono kąty RPY (roll, pitch, yaw) i problem gimbal locka (utrata stopnia swobody przy pewnych złożeniach obrotów) na przykładzie numerycznym. Przybliżono rzutowania: ortograficzne (M_ort) i perspektywiczne (M_per z parametrem d). Jako alternatywę dla macierzy przedstawiono kwaterniony (q = a + b i + c j + d k), zapis komponentowy (a = cos(θ/2), wektorowa część = sin(θ/2)·osiowe składowe), konwersję kwaternion→macierz obrotu oraz zaletę kwaternionów — odporność na gimbal lock i wygodne składanie obrotów. Na koniec wymieniono praktyczne implementacje (CSS matrix3d, GLM/OpenGL/WebGL, Unity, Three.js, Blender) i literaturę źródłową.
+
+## Jak komputer mierzy czas?
+
+https://swistak.codes/post/jak-komputer-mierzy-czas
+
+Artykuł wyjaśnia, skąd komputer bierze i jak odmierzany jest czas od strony sprzętowej. Główne źródła to: RTC (Real‑Time Clock) na płycie głównej, zwykle z rezonatorem kwarcowym 32,768 kHz zasilanym baterią — służy do kalendarzowego odmierzania czasu i przechowuje datę; PIT (Programmable Interval Timer, historycznie Intel 8253/8254) z rezonatorem ~1,19 MHz i trzema licznikami do generowania przerwań; TSC (Time Stamp Counter) — 64‑bitowy licznik w procesorze dostępny przez instrukcję RDTSC, dawniej inkrementowany co cykl CPU; oraz HPET (High Precision Event Timer) — niezależny licznik o wysokiej rozdzielczości (>=10 MHz) używany do precyzyjnego odmierzania zdarzeń. Data kalendarzowa jest przechowywana w nieulotnej pamięci BIOS/CMOS (ok. 256 B), gdzie określone rejestry trzymają sekundy, minuty, godziny, dzień tygodnia, dzień miesiąca, miesiąc, rok i wiek (stulecie). Autor zaleca korzystanie z funkcji systemowych do pomiarów wysokiej rozdzielczości (np. clock_gettime()) zamiast bezpośredniego używania sprzętowych liczników, przypomina o wymianie baterii RTC gdy zegar się rozjeżdża i zapowiada omówienie części programowej w kolejnym artykule.
+
+## Jak komputer przechowuje datę i skąd zna aktualną?
+
+https://swistak.codes/post/jak-komputer-przechowuje-date-i-skad-zna-aktualna
+
+Artykuł wyjaśnia, jak oprogramowanie przechowuje i uzyskuje datę: koncepcja epoki (różne starty czasu, np. Windows 1601, Excel/Lotus 1900, Unix 1.01.1970, GPS 6.01.1980), najważniejsze formaty zapisu (Unix Time — zwykle 32‑bitowe sekundy od 1970, warianty z ms/ns; ISO 8601 / RFC 3339 jako standard tekstowy) oraz mechanizmy pozyskiwania czasu (NTP/SNTP — serwery Stratum 0–15 z 64‑bitowym zapisem czasu, PTP/IEEE 1588 dla precyzyjnej synchronizacji, zegary atomowe, systemy GNSS jak GPS z liczbą tygodni i rolloverami, nadajniki naziemne, BTS i RDS). Omówione są też problemy wynikające z ograniczeń reprezentacji czasu: błąd roku 2000, przepełnienie 32‑bitowego Unix Time 19.01.2038, rollovery GPS (1999, 2019, 2038, 2137), limity NTP (2036) oraz limity systemów plików i formatów (HFS+, FAT, ZIP) i innych implementacji (Java, Windows) sięgających od kilkuset do miliardów lat. Wnioski: obsługa czasu jest złożona — najlepiej korzystać z systemowych/językowych bibliotek daty/czasu i unikać własnych implementacji, by nie powielać ani nie tworzyć nowych ograniczeń.
+
+## Dlaczego mierzenie i przetwarzanie czasu jest trudne? — część 1 z 2
+
+https://swistak.codes/post/dlaczego-mierzenie-i-przetwarzanie-czasu-jest-trudne-czesc-1
+
+Artykuł omawia, dlaczego daty i czas są bardziej złożone niż się wydaje, przedstawiając problemy związane z latami przestępnymi, różnymi kalendarzami i sekundami przestępnymi. Lata przestępne korygują rok słoneczny (~365,24219 dni); od 1582 r. reguła: rok podzielny przez 4, nie przez 100, chyba że przez 400. Dzięki temu średni rok = 365,2425 dni; pozostały błąd ~26 s/rok. Historia kalendarzy: juliański (wprowadzony 45 p.n.e.) zastąpiony gregoriańskim w 1582 r., lecz adopcja była stopniowa (np. Rosja 1918, Grecja 1923), stąd różnice dat i potrzeba pominięcia dni przy zmianie. W nauce używa się daty juliańskiej (JD/JDN) i zmodyfikowanej MJD; artykuł podaje też formuły konwersji. W praktyce często stosuje się proleptyczny kalendarz gregoriański (bazy danych). Omówione są też inne kalendarze: rzymski, chiński (lunisolar, z przestępnym 13. miesiącem), tajwański (era Republiki od 1912), japoński (ery cesarskie), dżucze, oraz muzułmański (księżycowy, trudny do konwersji; podano przybliżone wzory przeliczeń lat). Sekundy przestępne: dodawane nieregularnie (30 VI lub 31 XII) przez IERS, gdy różnica UT1–UTC zbliża się do 0,6 s (nie przekroczyć 0,9 s); do czerwca 2021 dodano 27 sekund. Różne skale czasu: UTC, TAI (zegary atomowe; TAI–UTC = 37 s w 2021) i TT (TT = TAI + 32,184 s). Komputery radzą sobie różnie z leap seconds (NTP, Linux powtarza 59 s, Windows ignoruje i synchronizuje, cloud używa „leap smear”); czas uniksowy nie uwzględnia sekund przestępnych. Rada: korzystać z bibliotek/systemowych rozwiązań zamiast własnych implementacji.
+
+## Dlaczego mierzenie i przetwarzanie czasu jest trudne? — część 2 z 2
+
+https://swistak.codes/post/dlaczego-mierzenie-i-przetwarzanie-czasu-jest-trudne-czesc-2
+
+Artykuł omawia praktyczne i techniczne problemy związane z datami i czasem: zawiłości stref czasowych (historyczne ujednolicenie, dziś ~38 stref, nieregularne przesunięcia o 30/45 minut, wiele stref w jednym kraju, przykłady: Chiny, Rosja, USA, Australia), oraz skomplikowane reguły czasu letniego/zimowego (różne daty i godziny zmian, wyjątki regionalne, możliwość nagłych zmian prawnych). Wyjaśniono, jak systemy radzą sobie z tymi przypadkami za pomocą bazy tz (IANA tz database) i że źródła czasu nie są bezbłędne — trzeba je koregować z powodu opóźnień sieciowych. Opisano synchronizację zegarów: NTP (cztery znaczniki czasu: origin/receive/transmit/destination; obliczanie przesunięcia i RTT), PTP oraz algorytmy Cristian (prostą korektę RTT/2) i Berkeley (synchronizacja poprzez średnią sieci). Omówiono także propozycje reform kalendarza (World Calendar, International Fixed Calendar, inne) oraz wyzwania kosmiczne — czas marsjański (sol, MSD) i proponowany czas księżycowy (Lunar Standard Time). Wniosek: czas w informatyce jest złożony, źródeł czasu nie można ufać bez korekcji i ciągłego aktualizowania reguł.
+
+## Określanie dnia tygodnia dla dowolnej daty
+
+https://swistak.codes/post/okreslanie-dnia-tygodnia-dla-dowolnej-daty
+
+Artykuł opisuje kilka metod wyznaczania dnia tygodnia dla dowolnej daty: matematyczne (Rata Die — liczenie dni od ustalonej daty przez konwersję z daty juliańskiej; kongruencja Zellera z formułą używającą q, m, K, J i przesunięć miesięcznych), programistyczne (algorytm RFC 3339 oraz prosty algorytm Sakamoto z tablicą przesunięć) oraz „rekreacyjne” pamięciowe techniki (metoda Lewisa Carrolla i reguła Doomsday Johna Conwaya). Omawia też podstawowe operacje wykorzystywane we wzorach (modulo i funkcja floor) oraz różnice w zachowaniu modulo dla liczb ujemnych w implementacjach języków. Wskazuje, że wszystkie metody odnoszą się do kalendarza gregoriańskiego, że kod źródłowy przykładów jest dostępny na GitHubie, oraz zaleca używanie sprawdzonych bibliotek dat w programowaniu, choć znajomość tych algorytmów jest przydatna i interesująca jako ćwiczenie pamięciowe i matematyczne.
+
+## Dziwny przypadek reszty z dzielenia
+
+https://swistak.codes/post/dziwny-przypadek-reszty-z-dzielenia
+
+Artykuł wyjaśnia, dlaczego operacja modulo daje różne wyniki w różnych językach: matematyczna (euklidesowa) definicja wymaga 0 ≤ r < |b|, lecz implementacje komputerowe stosują różne reguły dzielenia całkowitoliczbowego. Popularne podejścia to: „obcięte” (trunc) — reszta ma znak dzielnej (np. C, C++, C#, Go, JavaScript, PHP, Swift), „z podłogą” (floor) — reszta ma znak dzielnika (np. Python, Ruby, Lua, Perl, R, arkusze kalkulacyjne), oraz zaokrąglanie do najbliższej (IEEE‑754 remainder). Dart i kilka innych języków implementują wersję euklidesową (reszta zawsze nieujemna). Podano też wzory i proste algorytmy konwersji między formami (Alg. E: z trunc → euklidesowe; Alg. F: z trunc → floor) oraz zalecenie: przy użyciu modulo z liczbami ujemnymi sprawdzić semantykę języka.
+
+## Algorytmika gier — kółko i krzyżyk
+
+https://swistak.codes/post/algorytmika-gier-kolko-i-krzyzyk
+
+Artykuł opisuje dwa podejścia do stworzenia sztucznej inteligencji dla gry w kółko i krzyżyk: regułowe (eksperckie) oraz algorytm Minimax. Wersja regułowa to ośmiopunktowa strategia (Crowley & Siegler): 1) wygraj, 2) zablokuj, 3) zrób rozgałęzienie (fork), 4) zablokuj rozgałęzienie, 5) zagraj środek, 6) zagraj przeciwny narożnik, 7) pusty narożnik, 8) pusty bok — łatwo modyfikowalna dla poziomów trudności i prosta do zaimplementowania (przykład w React/computeComputerMove.js). Przedstawiono też krótką analizę kombinatoryczną gry (około 255 168 możliwych rozgrywek). Minimax omówiono jako uniwersalny, rekurencyjny przeszukujący w głąb algorytm budujący drzewo stanów i wybierający ruchy maksymalizujące wynik przy założeniu optymalnej gry przeciwnika; dla kółka i krzyżyka można przeszukać całe drzewo i użyć ocen (+∞/−∞/0). Wspomniano ograniczenia Minimax i wydajne warianty: alfa-beta, NegaScout/Negamax/Expectiminimax, algorytmy Best-First (MCTS) oraz podejścia z uczeniem głębokim (np. AlphaZero). Kod i gotowe implementacje dostępne na GitHubie.
+
+## Wieże Hanoi
+
+https://swistak.codes/post/wieze-hanoi
+
+Artykuł opisuje zagadkę Wieże Hanoi: jej historię (Édouard Lucas, ok. 1882–1883; legenda o wieży Brahmy z 64 krążkami), zasady (3 słupki, przenoszenie jednego krążka naraz, większy nie może leżeć na mniejszym) oraz klasyczne rozwiązanie rekurencyjne i wynik liczby minimalnych ruchów 2^n−1. Pokazuje prostą implementację rekurencyjną i omawia iteracyjne metody (algorytm Olive’a i uproszczony Idle Peg), a także matematyczne własności optymalnego rozwiązania: wzory określające, który krążek rusza się w danym ruchu, w których ruchach dany krążek się pojawia oraz pozycję krążka w dowolnym momencie. Przykład legendy: dla 64 krążków potrzeba 2^64−1 ≈ 1,84·10^19 ruchów (ponad 500 mld lat przy 1 ruchu/s). Autor opisuje też warianty: więcej słupków (Reve’s), kolorowe wersje (Tower/Little Antwerpen) oraz Tower of London jako test neuropsychologiczny. Wspomniane są związki z kodem Graya i zastosowania edukacyjne w informatyce (ilustracja rekurencji, grafy Hanoi), linki do implementacji (TypeScript/Svelte) i literatura (m.in. "The Tower of Hanoi: myths and maths").
+
+## Kryptarytmy
+
+https://swistak.codes/post/kryptarytmy
+
+Artykuł opisuje kryptarytmy (alfametyki) — łamigłówki polegające na przypisaniu różnym literom różnych cyfr tak, by działanie było poprawne (maks. 10 liter w systemie dziesiętnym); podaje klasyczne SEND+MORE=MONEY jako przykład i omawia odmiany (alfametyki, podwójnie prawdziwe, alfabety literackie, algebrafy). Pokazuje ręczne rozwiązywanie przez analizę kolumn i przeniesień (przykład rozumowania prowadzący do 9567+1085=10652). Następnie proponuje podejście algorytmiczne: generowanie wszystkich przypisań cyfr do liter i sprawdzanie poprawności z uwzględnieniem warunków (unikalne cyfry, brak zera na początku wyrazu, gdy liter < 10 filtrowanie nadmiarowych permutacji); można zatrzymać się przy pierwszym rozwiązaniu lub przeszukać wszystkie (10! = 3 628 800 permutacji). Opisano dwa klasyczne algorytmy generowania permutacji: leksykograficzny (Narayaṇa Paṇḍita) oraz „proste zmiany”/algorytm P (dzwonnicy/Cambridge Forty-Eight / Steinhaus–Johnson–Trotter), z krótką charakterystyką ich zasad działania i odniesieniami do implementacji w JavaScript (repl.it, GitHub). Wnioski: brute-force przez permutacje jest praktycznym i wykonalnym podejściem; oba omawiane algorytmy mają podobną wydajność, a szerszy kontekst i inne metody opisuje Knuth (TAOCP, vol. 4A).
+
+## Sudoku
+
+https://swistak.codes/post/sudoku
+
+Artykuł opisuje sudoku: zasady (9×9, cyfry 1–9 w każdym wierszu, kolumnie i 3×3 bloku), krótka historia i statystyki — liczba możliwych wypełnień planszy ≈ 6,671×10^21, minimalna liczba wskazówek gwarantujących jedno rozwiązanie to 17. Do rozwiązywania zaproponowano podejście algorytmiczne oparte na przeszukiwaniu przestrzeni rozwiązań, w szczególności backtrackingu, oraz ujęcie problemu jako CSP ⟨X,D,C⟩ (zmienne, dziedziny, ograniczenia). Praktyczne wskazówki implementacyjne: przechowywanie planszy jako jednowymiarowej tablicy 81 elementów (i = x*9 + y, x = floor(i/9), y = i mod 9), dziedzina 1–9, sprawdzanie ograniczeń w wierszach, kolumnach i blokach za pomocą struktur zbiorów (hash set). Omówiono zalety backtrackingu (prostota, gwarancja znalezienia rozwiązania) i wady (potencjalnie duża i nieprzewidywalna liczba iteracji), oraz ulepszenia i alternatywy: forward checking, metody stochastyczne (np. symulowane wyżarzanie, algorytmy ewolucyjne) oraz przekształcenie do problemu dokładnego pokrycia zbioru rozwiązywanego algorytmem X (Knuth/DLX). Kod i wizualizacja (TypeScript/Svelte) są dostępne na GitHubie; przydatne źródła i literatura zostały wymienione.
+
+## Obliczanie całek oznaczonych
+
+https://swistak.codes/post/obliczanie-calek-oznaczonych
+
+Artykuł wyjaśnia, czym są całki oznaczone (Riemanna) jako pole pod wykresem funkcji na przedziale [a,b], łączy ich definicję z ideą sumy Riemanna i pokazuje trzy proste przykłady obliczeń analitycznych (f(x)=x na [0,5], f(x)=sin x na [0,π], ćwiartka koła prowadząca do πr^2/4). Omawia też praktyczne, algorytmiczne podejścia do przybliżonego całkowania: metody prostokątów (różne wybory punktu próbkującego), trapezów oraz wspomnienie o metodzie Simpsona, wraz z przykładowymi implementacjami w JavaScripcie/TypeScript i interaktywną prezentacją. Opisuje alternatywne podejście Monte Carlo — losowanie punktów w prostokącie zawierającym wykres i estymacja pola przez udział trafień — oraz wskazuje wymagania dot. generatorów pseudolosowych. Porusza zastosowania w informatyce: narzędzia numeryczne (MATLAB/Octave), symulacje fizyczne i grafika (path tracing), algorytmy wykorzystujące Monte Carlo (np. AlphaZero), regulatory PID, przetwarzanie sygnałów i transformacje (Fouriera, falkowe). Zaznacza różnicę między obliczeniami numerycznymi a symbolicznymi (CAS jak Mathematica) i podkreśla praktyczną przydatność metod numerycznych oraz rolę matematyki w bardziej zaawansowanych zastosowaniach informatycznych.
+
+## Jak komputer zapisuje kolory?
+
+https://swistak.codes/post/jak-komputer-zapisuje-kolory
+
+Artykuł omawia naturę koloru jako zarówno psychiczne wrażenie (wynik przetwarzania światła widzialnego ~400–700 nm przez oko i mózg), jak i wielkość mierzalną zapisywaną w przestrzeniach barw. Wyjaśnia teorię Younga–Helmholtza (trzy rodzaje receptorów/czopków odpowiadające za widzenie barw — współczesnie: czerwony, zielony, niebieski; pręciki odpowiadają za widzenie monochromatyczne) oraz podstawowe pojęcia: jasność, odcień, nasycenie, syntezę addytywną (mieszanie światła) i subtraktywną (mieszanie farb) oraz kanał alfa (przezroczystość).
+
+Przedstawia najważniejsze modele przestrzeni barw używane w informatyce i grafice:
+- RGB/RGBA i standard sRGB (addytywny, powszechny w ekranach; 24 bity = 8 bitów na kanał),
+- CMYK (subtraktywny, używany w druku; C,M,Y,K),
+- YUV/YCbCr i pokrewne (Y jako luminancja + chrominancja U/V lub Cb/Cr; stosowane w telewizji, HDMI i kompresji stratnej obrazów, umożliwiają chroma subsampling),
+- HSL/HSV (intuicyjne modele oparte na odcieniu, nasyceniu i jasności/wartości),
+- modele CIE (CIEXYZ, CIELAB, CIELUV) obejmujące całe spektrum widzialne i służące do precyzyjnej konwersji i standaryzacji kolorów (przykład: specyfikacja barw flagi w CIELUV).
+
+Opisuje sposoby zapisu kolorów: palety (indeksowany kolor, CLUT) używane historycznie i w formatach typu GIF oraz w CSS (140 nazwanych kolorów), oraz bezpośredni zapis numeryczny kanałów w formatach binarnych. Omawia historyczne standardy paletowe (MDA, CGA, EGA, VGA) i ich ograniczenia. Wyjaśnia pojęcie głębi koloru (bpp): 16-bit (high color), 24-bit (true color), 32-bit (z alfa), 30/40-bit (deep color/HDR), oraz problem bandingu przy niskiej głębi tonalnej i technikę ditheringu (np. Floyd–Steinberg) jako remedium.
+
+W kontekście plików i formatów: w SVG/CSS kolory można zapisywać heksadecymalnie (#RRGGBB/#RRGGBBAA/#RGB), nazwami, funkcjami rgb()/rgba(), hsl()/hsla() oraz nowszymi funkcjami dla przestrzeni CIELAB/LCH; w plikach binarnych ważne są: głębia kolorów, użyta przestrzeń barw i końcówkowość (endianness) — przykład: BMP używa kolejności BGR little-endian. Zwraca uwagę, że kompresja to odrębny temat. Podsumowując, tekst łączy biologiczną podstawę widzenia kolorów z praktycznymi modelami i metodami zapisu wykorzystywanymi w grafice komputerowej, telewizji i druku.
+
+## Podstawowe operacje na barwach
+
+https://swistak.codes/post/podstawowe-operacje-na-barwach
+
+Artykuł omawia podstawowe operacje na kolorach: konwersję do skali szarości (prosta średnia RGB oraz średnia ważona z wagami Kr=0,299, Kg=0,587, Kb=0,114 stosowaną w YUV/YCbCr), progowanie do trybu dwukolorowego, oraz interaktywne sterowanie wagami i progiem. Opisane są także zmiany jasności (dodanie stałej I z ograniczeniem do 0–255), zmiana kontrastu z użyciem współczynnika F = 259*(C+255)/(255*(259−C)) i przekształcenie R' = trunc(F*(R−128)+128), oraz korekcja gamma R' = 255*(R/255)^(1/γ). Na końcu przedstawiono całkowite przekształcenia: negatyw (R' = 255−R) oraz solaryzację — częściowe odwrócenie kolorów względem progu T (odwrócenie tylko gdy składowa ≤ T lub odwrotnie). Wskazano, że przykłady są dostępne jako interaktywne prezentacje w TypeScript/Preact wykonywane po stronie klienta, oraz podano źródła literaturowe.
+
+## Algorytmiczne rysowanie roślin
+
+https://swistak.codes/post/algorytmiczne-rysowanie-roslin
+
+Artykuł wyjaśnia, jak za pomocą L‑systemów (systemów Lindenmayera) i grafiki żółwiowej rysować iteracyjne, dwuwymiarowe rośliny i fraktale. L‑systemy opisują generowanie ciągów symboli za pomocą alfabetu, aksjomatu i reguł produkcji; symbole interpretuje się jako polecenia żółwia (F, f, +, -) oraz instrukcje rozgałęzień ([, ]) zapamiętujące stan na stosie. Pokazane są przykłady klasycznych fraktali (krzywe Kocha, śnieżynka, smok Heighwaya) oraz proste modele roślin z książki The Algorithmic Beauty of Plants, wraz z wariantami używającymi dodatkowych symboli pomocniczych (X, Y). Omówiono też stochastyczne L‑systemy, czyli reguły z prawdopodobieństwami, które wprowadzają losowość i naturalną różnorodność. Implementacje demonstracji powstały w JavaScripcie z biblioteką Lindenmayer; polecane źródła to prace Prusinkiewicza i Lindenmayera.
+
+## Algorytmiczne rysowanie roślin w 3D
+
+https://swistak.codes/post/algorytmiczne-rysowanie-roslin-w-3d
+
+Artykuł pokazuje, jak rozszerzyć L-systemy i grafikę „żółwiową” do 3D, opisując polecenia rotacji wokół trzech osi (+, −, &, ∧, \, / oraz | dla obrotu 180°), dodatkowe polecenia zmiany średnicy i koloru oraz użycie macierzy transformacji lub kwaternionów do obliczeń. Omawia dwie metody rysowania: stawianie wokseli versus generowanie brył/siatek (np. cienkie walce na gałązki, modele liści), oraz tworzenie wielokątów żółwiem zapisanych w klamrach {}. Jako przykłady zaprezentowano 3D wersje fraktali (wyspa Kocha, przestrzenna krzywa Hilberta) oraz trójwymiarowe rośliny (krzew, roślina z kwiatami z The Algorithmic Beauty of Plants), łącznie z fragmentami reguł L-systemów i parametrami kąta. Pokazano też zastosowanie stochastycznych L-systemów poprzez reguły z prawdopodobieństwami dla uzyskania naturalnej zmienności. Implementacje demonstracji wykonano w JavaScripcie z Three.js i biblioteką Lindenmayer; kod dostępny na GitHubie. Literatura: Prusinkiewicz & Lindenmayer oraz źródła online (Algorithmic Botany, Wikipedia).
+
+## Liczby pierwsze i proste sposoby na ich sprawdzanie
+
+https://swistak.codes/post/liczby-pierwsze-i-proste-sposoby-na-ich-sprawdzanie
+
+Artykuł opisuje liczby pierwsze: definicję (naturalne >1 dzielone tylko przez 1 i siebie), podstawowe własności (wszystkie poza 2 są nieparzyste; poza 2,3,5 kończą się na 1,3,7,9; zbiór nieskończony, dowód Euklidesa) oraz przykłady największych znanych pierwszych. Omawia zastosowania w informatyce: kryptografia klucza publicznego (RSA), sumy kontrolne (Adler-32, ISBN), funkcje haszujące (Wegman–Carter) oraz generatory pseudolosowe (Mersenne Twister, Blum Blum Shub). Wyjaśnia testy pierwszości na przykładzie trial division i jego optymalizacji: sprawdzanie dzielników do n (naiwne), do n/2 oraz do sqrt(n) (redukcja z O(n) do O(√n)), z praktycznym porównaniem wydajności (przykładowo ~45 ms → ~22 ms → ~0.11 ms dla testowanej liczby). Końcowy wniosek: liczby pierwsze mają kluczowe znaczenie teoretyczne i praktyczne, a zadania związane z ich rozpoznawaniem są dobrym polem do nauki optymalizacji algorytmów.
+
+## Proste sposoby na znajdowanie liczb pierwszych
+
+https://swistak.codes/post/proste-sposoby-na-znajdowanie-liczb-pierwszych
+
+Artykuł omawia proste metody znajdowania liczb pierwszych: metodę naiwną (sprawdzanie kolejnych liczb dzieleniem do sqrt(n)), klasyczne sito Eratostenesa (oznaczanie wielokrotności jako złożone) oraz sito Sundarama (1934, metoda oparta na konstrukcji liczb i+j+2ij i generowaniu nieparzystych liczb pierwszych przez 2i+1). Dla każdej metody pokazano proste implementacje w JavaScripcie oraz opis działania krok po kroku. Przeprowadzono porównanie wydajności (n od 100 do 100 000, 50 powtórzeń, średnie czasy, testy na MacBooku Pro 2018 i7) — metoda naiwna jest znacząco wolniejsza, oba sita są dużo szybsze, a sito Sundarama nieco wolniejsze niż Eratostenes; zaznaczono możliwość dalszej optymalizacji Sundarama. Autor podkreśla edukacyjny charakter metod (sito Eratostenesa jako klasyka) i zauważa, że nie są to rozwiązania do generowania bardzo dużych (np. 2048-bitowych) liczb pierwszych w kryptografii; sugeruje też zainteresowanie sitem Atkina. Literatura i linki źródłowe do dodatkowych informacji zamieszczono na końcu.
+
+## Duże liczby pierwsze
+
+https://swistak.codes/post/duze-liczby-pierwsze
+
+Artykuł opisuje, jak matematycy znajdują bardzo duże liczby pierwsze, potrzebne m.in. w kryptografii (np. 2048-bitowe). Omawia historyczne i współczesne podejścia: specjalne wzory generujące wiele pierwszych (wielomian Eulera n^2+n+41 i „szczęśliwe” p), geometryczną wizualizację (spirala Ulama) oraz funkcję zliczającą π(x) i twierdzenie o liczbach pierwszych, które daje przybliżenie π(x) ~ x / ln x (oraz Li(x)). Z twierdzenia wynika gęstość i prawdopodobieństwo znalezienia pierwszej (~1/ln n), co przekłada się np. na oczekiwaną liczbę prób do znalezienia 1024-bitowej pierwszej ≈ 710 losowań.
+
+Omówione są klasy specjalnych pierwszych: Mersenne’a M_n = 2^n−1 (największe znane pierwsze; od 1996 GIMPS poszukuje kolejnych), Fermata, Protha, factorial primes i primorial primes — wiele z nich to liczby ±1 względem prostych wyrażeń, co ułatwia testowanie. Przedstawiono też fundamenty testów pierwszości: małe twierdzenie Fermata i zjawisko pseudopierwszych (np. 341 jako 2-pseudopierwsza). Wyróżniono trzy grupy testów: szybkie probabilistyczne (test Fermata, silny Miller–Rabin, Baillie–PSW), klasyczne deterministyczne stosowane w specyficznych formach (testy typu n−1 i n+1; Lucas, Pepin, Protha; dla Mersenne’a Lucas–Lehmer) oraz testy ogólnego przeznaczenia (APR(-CL), ECPP, AKS). Artykuł podkreśla, że choć nie znamy prostego wzoru na wszystkie liczby pierwsze, odkrycia i algorytmy czynią wyszukiwanie i weryfikację bardzo dużych pierwszych praktycznie wykonalnymi; projekty rozproszone (GIMPS, PrimeGrid) angażują społeczność w poszukiwania rekordów.
+
+## Szybkie szukanie dużych liczb pierwszych
+
+https://swistak.codes/post/szybkie-szukanie-duzych-liczb-pierwszych
+
+Artykuł opisuje praktyczną implementację testu Millera–Rabina do szybkiego znajdowania dużych liczb pierwszych (kod w JavaScript, ale język nie jest najszybszy; do kryptografii lepiej używać sprawdzonych bibliotek). Wyjaśniono istotę testu: jest probabilistyczny i sprawdza silne prawdopodobieństwo pierwszości poprzez zapis n−1 = 2^s·d (d nieparzyste) i badanie kongruencji a^d ≡ 1 (mod n) lub a^{2^r·d} ≡ −1 (mod n) dla 0≤r<s; gdy warunki nie zachodzą dla danej podstawy a, a jest świadkiem złożoności. Omówiono arytmetykę modularną i przykłady działania testu na liczbach 13 i 15. Przedstawiono pomocnicze algorytmy: szybkie potęgowanie modularne (metoda binarna z redukcją modulo) oraz faktoryzację n−1 na postać 2^s·d (dzielenie przez 2 do uzyskania nieparzystego d). Zawarto kompletną procedurę Millera–Rabina z optymalizacją polegającą na wielokrotnym podnoszeniu do kwadratu (użycie poprzedniego x) i wcześniejszym wykrywaniu kompozytu, oraz przykładowy kod JS. Opisano też deterministyczne zestawy podstaw a, które wystarczą do pewnych zakresów n, by uczynić test deterministycznym. Do generowania dużych liczb pierwszych rekomenduje się losowanie b-bitowej liczby (ustawiając skrajne bity, by zapewnić długość i nieparzystość) i powtarzanie testu aż do pozytywnego wyniku. Omówiono prawdopodobieństwo błędu: dla pojedynczego powtórzenia test myli się co najwyżej z prawdopodobieństwem 1/2, po k powtórzeniach błąd ≤ 2^{−k}; prawdopodobieństwo wygenerowania rzeczywistej liczby pierwszej P(A) ≈ 1/ln n ≈ 1,443/b, prowadząc do wzoru na prawdopodobieństwo P(A|B) ≈ 1/(1+2^{−k}(ln n −1)). Dla praktyki podano przybliżenie minimalnej liczby powtórzeń k ≈ log2(ln n −1) ≈ log2(b/1.443) (np. dla 1024 bitów ≈9), a uwzględniono rekomendację z literatury, że ~50 powtórzeń jest całkowicie wystarczające. Podsumowanie: Millera–Rabin to szybka, praktyczna metoda generowania i testowania dużych liczb pierwszych; ma probabilistyczny charakter, ale przy odpowiedniej liczbie powtórzeń daje bardzo niskie ryzyko błędu.
+
+## Porównanie szybkich testów pierwszości
+
+https://swistak.codes/post/porownanie-szybkich-testow-pierwszosci
+
+Porównanie szybkich probabilistycznych testów pierwszości (Fermata, Miller–Rabin, Miller–Rabin deterministyczny, Solovay–Strassen) z metodą naiwną. Implementacja w JavaScripcie (kod na GitHubie), testy uruchamiane 100 razy na MacBooku Pro 2018. Szybkość: testy probabilistyczne mają czas wykonania w praktyce prawie stały w miarę rosnących liczb (testowany zestaw: 10k rosnących liczb pierwszych), podczas gdy metoda naiwna rośnie znacząco; Fermat i (losowy) Miller–Rabin są najszybsze, Solovay–Strassen wolniejszy, deterministyczny MR wykazuje niewielkie skoki przy większej liczbie baz. Powtarzanie testów zwiększa czas prawie liniowo (testy uruchamiano z 1, 5, 10, 100 powtórzeniami). Dokładność (liczby złożone uznane za pierwsze) sprawdzono dla nieparzystych liczb 3..999999: przy jednym powtórzeniu błąd Fermata ~0,083%, Miller–Rabin ~0,018%, Solovay–Strassen ~0,032%, deterministyczny MR 0%; przy wielokrotnych powtórzeniach błędy szybko spadają do praktycznie 0 (np. przy 100 powtórzeń niemal brak fałszywych wyników). Wniosek: szybkie testy są znacznie szybsze od naiwnej metody i przy odpowiedniej liczbie powtórzeń bardzo wiarygodne; deterministyczny MR daje bezbłędne wyniki w testowanym zakresie.
+
+## świstak.codes powraca!
+
+https://swistak.codes/offtopic/swistak-codes-powraca
+
+Świstak.codes został odświeżony: autor porzucił WordPressa na rzecz autorskiego silnika zbudowanego w TypeScript/Next.js (statyczne strony, brak bazy danych), zmieniając layout, wprowadzając lepszą optymalizację zasobów, ciemny motyw, spisy treści, indeks zagadnień, kategorię „offtopic” oraz szybkie udostępnianie. Zrezygnowano z Google Analytics i banneru cookies na rzecz prywatnej, zanonimizowanej analityki (logi serwera + testowane Matomo), a w planach są newsletter, bezpieczny system komentarzy i dalsze poprawki accessibility i wydajności. Decyzja wynikała z chęci większej kontroli technicznej, troski o prywatność użytkowników i lepszego dopasowania narzędzi do rzeczywistego ruchu.
+
+## Grafy — wprowadzenie
+
+https://swistak.codes/post/grafy-wprowadzenie
+
+Graf to matematyczna struktura G=(V,E) składająca się z wierzchołków (V) i krawędzi (E), gdzie wierzchołki reprezentują obiekty, a krawędzie relacje między nimi; krawędzie mogą być nieskierowane, skierowane (łuki) lub pętlami i mogą mieć wagi. Wierzchołki mogą mieć etykiety/wagi, a grafy występują w typach: skierowane, mieszane, ważone; do ważnych klas należą grafy pełne, spójne, acykliczne oraz drzewa (nieskierowane, spójne, acykliczne). Historia sięga Eulera (problem mostów królewieckich, cykle eulerowskie), terminologia rozwinął m.in. J. J. Sylvester. Grafy mają szerokie zastosowania w informatyce: znajdowanie tras i trasowanie (wyszukiwanie najkrótszych ścieżek, problem komiwojażera, routing w sieciach), reprezentacja wiedzy i bazy grafowe (ontologie, WordNet), modelowanie hierarchii i struktur drzewiastych, zapisywanie diagramów (BPMN, UML, ERD) oraz w grach (drzewa stanów, pathfinding jak A*, plansze jako grafy). Grafy można efektywnie przechowywać i przetwarzać w programowaniu za pomocą specjalnych struktur i algorytmów.
+
+## Sposoby reprezentacji grafów
+
+https://swistak.codes/post/sposoby-reprezentacji-grafow
+
+Artykuł opisuje reprezentacje grafów jako abstrakcyjnego typu danych: zbiór wierzchołków i rodzina krawędzi (skierowane/ nieskierowane), możliwość przechowywania wag i dodatkowych danych oraz podstawowe operacje (dodanie/usunięcie wierzchołka/krawędzi, sprawdzenie sąsiedztwa). Zakłada się numerację wierzchołków od 0 do n−1. Omówione sposoby zapisu w pamięci: lista krawędzi (edge list) — prosta i elastyczna, dobra do wizualizacji, pozwala na wielokrotne krawędzie; pamięć O(|E|), dodawanie O(1) amortyz., usuwanie i sprawdzenie O(|E|). Lista sąsiedztwa (adjacency list) — lista list, najlepsza dla algorytmiki i grafów rzadkich; pamięć O(|V|+|E|), dodawanie krawędzi O(1), sprawdzenie sąsiedztwa O(d), usuwanie często O(|V|). Macierz sąsiedztwa (adjacency matrix) — tablica |V|×|V|, dobra dla grafów gęstych i szybkiego sprawdzania krawędzi; pamięć O(|V|^2), dod./usuw. krawędzi O(1), sprawdzenie O(1), modyfikacja rozmiaru O(|V|^2). Macierz incydencji — tablica |V|×|E|, rzadko używana praktycznie, pozwala na wielokrotne krawędzie i łatwy odczyt, ale kosztowna: pamięć i większość operacji O(|V|·|E|), sprawdzenie sąsiedztwa O(|E|). Autor rekomenduje: do algorytmiki używać listy sąsiedztwa dla grafów rzadkich i macierzy dla gęstych; do wizualizacji — listy krawędzi w połączeniu z listą wierzchołków. Przytoczone przykłady implementacji: GoJS (GraphLinksModel), Boost Graph Library; demonstracja interaktywna napisana w TypeScript/React z Cytoscape.js (kod na GitHub). Literatura i odniesienia do podręczników i bibliotek.
+
+## Przechodzenie po grafie
+
+https://swistak.codes/post/przechodzenie-po-grafie
+
+Omówienie podstaw przechodzenia (graph traversal) po grafach: dwa podstawowe algorytmy to przeszukiwanie w głąb (DFS) i wszerz (BFS); oba mają złożoność O(|V|+|E|). W praktyce stosuje się oznaczanie odwiedzonych wierzchołków (kolorowanie white/gray/black lub zbiór visited) by unikać zapętleń; dla grafów nieskończonych ogranicza się głębokość. DFS eksploruje jedną ścieżkę do końca (rekurencyjnie lub iteracyjnie ze stosem LIFO), BFS odwiedza warstwami (iteracyjnie z kolejką FIFO). Implementacje różnią się też kolejnością odwiedzin (np. odwrócenie iteracji sąsiadów w wersji iteracyjnej DFS). Przechodzenie po drzewach to szczególny przypadek: pre-order (DFS), post-order, level-order (BFS) i in-order (dla drzew binarnych — daje posortowaną kolejność w BST). Praktyczne zastosowania: wykrywanie cykli, eksploracja grafu (crawlery), odnajdywanie ścieżek/data lineage; DFS bywa używany w sortowaniu topologicznym, rozwiązywaniu labiryntów (Trémaux) i znajdowaniu mostów (algorytm Tarjana); BFS znajduje najkrótsze ścieżki w grafie nieważonym, jest używany w Edmonds–Karp (maksymalny przepływ) i w Aho–Corasick (budowa ścieżek fail). Artykuł zawiera przykładowe implementacje w JavaScript oraz interaktywną prezentację napisaną w TypeScript z React i Cytoscape.js. Literatura: Cormen et al., Wikipedia i prace dotyczące Cytoscape.js.
+
+## Praktyczne zastosowania przechodzenia po grafie
+
+https://swistak.codes/post/praktyczne-zastosowania-przechodzenia-po-grafie
+
+Artykuł obala mit o bezużyteczności DFS/BFS, pokazując trzy praktyczne zastosowania (rekurencyjny i iteracyjny DFS oraz BFS) wraz z przykładowymi implementacjami w JavaScript. 1) Wykrywanie spójnych składowych (podgrafów) w strukturze zawierającej wiele grafów: iteracyjny DFS/BFS od nieodwiedzonych wierzchołków zwraca listę zbiorów węzłów każdej składowej (przykład użycia: rozmieszczanie oddzielnych grafów przy wizualizacji). 2) Wykrywanie i wypisywanie cykli w grafach skierowanych: DFS ze „kolorowaniem” wierzchołków (WHITE/GRAY/BLACK) i stosem ścieżki pozwala wykryć cykle (np. zależności cykliczne w kodzie źródłowym); procedura odtwarza cykl bez zaburzania stosu. 3) Znajdowanie najkrótszych ścieżek w grafie nieważonym bez pętli: BFS z zapisaniem poprzedników wierzchołków umożliwia rekonstruowanie najkrótszych tras (liczonych jako najmniejsza liczba węzłów). Implementacje zakładają funkcje pomocnicze (getAllNodes, getNeighbors/getConnectedNodes); autor udostępnia przykłady opierające się na macierzy sąsiedztwa. Literatura: rozdziały o BFS i DFS z Cormen et al.
+
+## Szukanie najkrótszych ścieżek w grafie
+
+https://swistak.codes/post/szukanie-najkrotszych-sciezek-w-grafie
+
+Artykuł omawia metody wyznaczania najkrótszych ścieżek w grafach ważonych, wyjaśniając znaczenie wag (dodatnich, ujemnych, zerowych) i problemy związane z ujemnymi cyklami oraz cyklami sumującymi się do zera. Rozróżnia dwa podstawowe zadania: najkrótsze ścieżki z pojedynczego źródła oraz wszystkie pary wierzchołków. Opisuje trzy klasyczne algorytmy: Bellmana‑Forda (relaksacja wszystkich krawędzi powtarzana |V|−1 razy, obsługa ujemnych wag i wykrywanie ujemnych cykli, złożoność O(|V|·|E|)), Dijkstrę (dla wag nieujemnych, relaksacja sąsiadów z użyciem kolejki priorytetowej/min‑kopca — warianty z kopcem binarnym i kopcem Fibonacciego; złożoność typowo O((|E|+|V|) log |V|) lub O(|E|+|V| log |V|)), oraz Floyda‑Warshalla (programowanie dynamiczne do wszystkich par, macierz odległości i macierz następników do rekonstrukcji ścieżek, złożoność O(|V|^3), dopuszcza ujemne wagi ale nie ujemne cykle). Wyjaśnione są też podstawowe techniki: relaksacja, użycie kolejki priorytetowej, rekonstrukcja ścieżek z macierzy następników. Na koniec wymieniono alternatywy i rozszerzenia: Thorup, Dial, Johnson (łączący Bellman‑Ford i Dijkstrę), Seidel, oraz heurystyczny A* stosowany przy przybliżeniach i szybkim wyszukiwaniu konkretnych tras. Dołączone są przykładowe implementacje w JavaScript i porównanie zastosowań algorytmów w zależności od typu grafu i własności wag.
+
+## Szybkie wyszukiwanie ścieżek
+
+https://swistak.codes/post/szybkie-wyszukiwanie-sciezek
+
+Artykuł opisuje algorytm A* jako efektywną metodę wyszukiwania najkrótszych ścieżek w grafach, zwłaszcza gdy znamy cel i możemy użyć heurystyki przybliżającej odległość. W przeciwieństwie do Dijkstry A* kieruje przeszukiwanie na najbardziej obiecujące ścieżki, minimalizując liczbę iteracji; wymaga wag nieujemnych i stosuje funkcję kosztu f = g + h (g — rzeczywisty koszt z początku, h — heurystyczna odległość do celu). Przedstawiono praktyczne heurystyki: euklidesową, Manhattan, Czebyszewa (gry/labirynty) oraz haversine i przybliżenie walcowe (mapy/geodezja). Opisano krok po kroku algorytm (zbiór wierzchołków do sprawdzenia — open set/prioritetowa kolejka, tablice poprzedników, znanych odległości g oraz przewidywanych f) i rekonstrukcję ścieżki. Dołączono przykładową implementację w JavaScript (kopiec/Fibonacci heap, update priorytetów). Omówiono wady (duże zużycie pamięci) i warianty optymalizujące pamięć lub działające w innych warunkach: IDA*, SMA*, D*, ALT, Theta*, ANYA. Wskazano zastosowania: wyszukiwarki tras i systemy map (Organic Maps, GraphHopper, OpenTripPlanner) oraz silniki gier (Godot, CryEngine, Unreal). Podsumowanie: A* łączy idee Dijkstry i heurystyk, oferując praktyczne, często najlepsze rozwiązanie do planowania tras.
+
+## Rysowanie grafów — algorytmy
+
+https://swistak.codes/post/rysowanie-grafow-algorytmy
+
+Artykuł omawia algorytmiczne aspekty rysowania grafów ze szczególnym uwzględnieniem rozmieszczania wierzchołków. Wyjaśnia, dlaczego wizualizacja grafów (UML, schematy BD, diagramy organizacyjne, BPMN, grafy wiedzy, sieci społeczne, analizy naukowe) wymaga automatycznego ustalania pozycji wierzchołków. Przegląd metod: proste układy (losowe, siatka/grid, układy okrągłe i koncentryczne z algorytmami redukcji przecięć — Mäkinena, CIRCULAR, Baur-Brandes, AVSDF), klasyczne force-directed (symulacja fizyczna: przyciąganie/odpychanie; przykłady: Tutte, Kamada–Kawai, CoSE, CoLa; dobre odwzorowanie klastrów, ale kosztowne obliczeniowo, praktyczne do ~100 węzłów), warstwowe grafy skierowane (layered digraph, metoda Sugiyamy — budowa hierarchii, redukcja przecięć, ustalanie pozycji, usuwanie węzłów sztucznych) oraz mniej typowe/hybrydowe podejścia (CiSE, Spread + tessellacja Voronoja, drzewo hiperboliczne, fishbone, spirala, Cactus Group Layout). Zwrócono uwagę na przypadki użycia, kompromisy między czytelnością a wydajnością i dostępne implementacje w bibliotekach (Cytoscape, GoJS, yFiles). Polecana literatura: Handbook of Graph Drawing and Visualization.
+
+## Problem skoczka szachowego
+
+https://swistak.codes/post/problem-skoczka-szachowego
+
+Artykuł opisuje problem skoczka szachowego (knight's tour): znalezienie sekwencji ruchów skoczka odwiedzającej każde pole planszy dokładnie raz (warianty: ścieżka otwarta/zamknięta). Pokazuje redukcję zadania do grafu — pola jako wierzchołki, krawędzie odpowiadają ruchom skoczka — co sprowadza problem do znalezienia ścieżki lub cyklu Hamiltona. Omówione podejścia to brutalne przeszukiwanie z nawrotami oraz heurystyka Warnsdorffa (zawsze przejść do nieodwiedzonego sąsiada o najmniejszym stopniu). Przedstawiono ulepszenia Warnsdorffa, ze szczególnym uwzględnieniem metody Pohla: przy remisie wybiera się wierzchołek, dla którego suma stopni jego sąsiadów jest najmniejsza (parametr k określa głębokość rozstrzygania; k=0 = oryginalny Warnsdorff, k=1 = Pohl). Opisano prostą implementację w JavaScript (funkcje getNodeWithMinDegree i findKnightsTour, wykorzystanie funkcji getUnvisitedNeighbours), wskazując zalety generowania sąsiadów zamiast pełnej macierzy sąsiedztwa. Metoda działa szybko (liniowo względem rozmiaru i k), nie daje jednak gwarancji sukcesu dla wszystkich plansz. Bibliografia zawiera prace Pohla, Squirrela, Rotha i inne.
+
+## Liczby rzymskie
+
+https://swistak.codes/post/liczby-rzymskie
+
+Artykuł opisuje rzymski system zapisu liczb i praktyczne podejście algorytmiczne do konwersji i walidacji. System jest addytywny z regułą odejmowania (np. IV=4, IX=9, XL=40, XC=90, CD=400, CM=900); podstawowe symbole: I=1, V=5, X=10, L=50, C=100, D=500, M=1000, każdy symbol powtarzany maksymalnie 3 razy, co daje standardowy zakres 1–3999 (największa standardowa liczba MMMCMXCIX=3999). Artykuł wspomina historyczne odstępstwa (brak zera, oznaczenie N, ułamki, różne zapisy liczb większych niż 3999, lokalne warianty jak IIII na zegarach) oraz fakt, że implementacje mogą się różnić (np. Excel). Konwersja Rzymski→Dziesiętny: przejść od lewej do prawej, sumować wartości, jeśli następny symbol ma większą wartość — odjąć aktualny (algorytm z przykładową implementacją JS). Konwersja Dziesiętny→Rzymski: zachłannie przechodzić po symbolach od największego do najmniejszego (wraz z kombinacjami odejmującymi) i dopisywać symbol odpowiednią liczbę razy (algorytm i implementacja JS). Walidacja zapisu rzymskiego: reguły grupowe (M{0,3}, potem (CM|CD|D?C{0,3}), itd.) można sprawdzić wyrażeniem regularnym: ^M{0,3}(C[MD]|D?C{0,3})(X[CL]|L?X{0,3})(I[XV]|V?I{0,3})$ oraz przykładową funkcją JS testującą ten regex. Artykuł upraszcza i ignoruje historyczne odstępstwa, prezentując praktyczne i czytelne algorytmy oraz przykładowe implementacje.
+
+## Podstawy algorytmiki: największy wspólny dzielnik
+
+https://swistak.codes/post/najwiekszy-wspolny-dzielnik
+
+Artykuł opisuje pojęcie największego wspólnego dzielnika (NWD/GCD), jego podstawowe własności i związek z najmniejszą wspólną wielokrotnością (NWW), a następnie przedstawia trzy metody jego obliczania: przez rozkład na czynniki pierwsze (ilustrowane przykładem NWD(80,180)=20) — metoda poprawna lecz niepraktyczna; klasyczny algorytm Euklidesa w wersji z odejmowaniem, zoptymalizowanej wersji z operacją modulo (iteracyjnej i rekurencyjnej) oraz binarny algorytm Steina (binary GCD) wykorzystujący dzielenia/mnożenia przez 2 i przesunięcia bitowe. Zawiera krótkie implementacje w JavaScript, uwagi o obsłudze liczb ujemnych oraz wzmiankę, że na bazie algorytmu Euklidesa działa rozszerzony algorytm używany w kryptografii. Literatura: Cormen et al., Knuth, NIST (binary GCD).
+
+## Iteracja — co to jest?
+
+https://swistak.codes/post/iteracja-co-to-jest
+
+Artykuł omawia iterację jako powtarzanie procedury w programowaniu: typy pętli (while, do/while, for), ich semantykę i reprezentacje w pseudokodzie, schematach blokowych oraz kompilację do prostych skoków/rozgałęzień w asemblerze. Wyjaśnia rolę instrukcji skoku/goto, ich historyczną krytykę (Dijkstra) oraz instrukcji sterujących pętlą: continue, break i wielopoziomowego przerywania (goto/etykiety/return). Opisuje relację iteracji z rekurencją, iteratory i generatory jako mechanizmy przechodzenia po kolekcjach oraz popularne konstrukcje for-each. Zawiera przegląd funkcyjnych operacji iterujących (map/filter/reduce/any/all/forEach), przykładów kompilacji (x86, gcc) i porównań (for vs while), oraz omówienie zapytań jako formy iteracji (LINQ, SQL, EXPLAIN). Wzmianki o optymalizacji, niezmiennikach pętli i teoriach (rachunek lambda, logika Hoare’a) pozostawiono jako tematy do dalszego zgłębienia.
+
+## Podstawy algorytmiki: szybkie potęgowanie
+
+https://swistak.codes/post/szybkie-potegowanie
+
+Artykuł omawia szybkie potęgowanie (exponentiation by squaring) — algorytm zmniejszający liczbę mnożeń z O(n) do O(log n) przy obliczaniu a^n. Przypomina definicje i własności potęgowania (w tym przypadki n=0, ujemne, wymierne) oraz szczególne uwagi dotyczące 0^0 i potęgowania zera. Pokazuje nieefektywne podejście iteracyjne i rekurencyjne (mnożenie n razy) oraz wyprowadza ideę podnoszenia do kwadratu: dla parzystego n używamy (a^2)^(n/2), dla nieparzystego a*(a^2)^((n-1)/2). Przedstawione są implementacje rekurencyjne, ogonowe i iteracyjne oraz wersja binarna operująca na bitach wykładnika (n & 1, n >> 1), co prowadzi też do prostego algorytmu potęgowania modularnego. Omówiono specjalny przypadek potęgowania 2 za pomocą przesunięcia bitowego (1 << n). Autor porównał wydajność implementacji w JavaScript (w tym BigInt): na typie natywnym różnice są niewielkie, operacje bitowe są bardzo szybkie sprzętowo, dla BigInt wbudowane potęgowanie często wypada najlepiej, a algorytmy oparte na bitach mogą być wolniejsze z powodu obliczeń programowych. Wnioski: szybkie potęgowanie jest prostym, efektywnym algorytmem o logarytmicznej złożoności, warto znać jego wersje rekurencyjne i iteracyjne, ale w praktyce zazwyczaj korzystaj z wbudowanych funkcji/operacji języka (lub z modularnego wariantu, gdy potrzeba).
+
+## Pierwiastkowanie
+
+https://swistak.codes/post/pierwiastkowanie
+
+Artykuł opisuje algorytmiczne podejście do pierwiastkowania z użyciem metody Newtona–Raphsona: sprowadza się ono do znalezienia dodatniego miejsca zerowego funkcji f(x)=x^k − a (dla pierwiastka k-tego stopnia liczby a). Dla k=2 otrzymujemy znany wzór iteracyjny dla pierwiastka kwadratowego x_{n+1} = 1/2 (x_n + a/x_n), a ogólnie x_{n+1} = (1/k) ((k−1)x_n + a / x_n^{k−1}). Omawiane są praktyczne kwestie: wybór ziarna startowego (np. x0∈[1,a] dla a≥1, heurystyka oparta na liczbie cyfr lub po prostu x0=1), kryteria stopu oparte na tolerancji ε (np. |x_n−x_{n−1}|≤ε lub |f(x_n)|≤ε) oraz szybka zbieżność w praktyce. Podano intuicyjną geometrię (prostokąt → kwadrat) i przykładową implementację w JavaScript. Wspomniano też alternatywne metody (Bakhshali, metoda cyfra-po-cyfrze, Goldschmidt, szeregi Taylora, metoda Halleya oraz triki bitowe dla IEEE‑754) oraz literaturę/źródła.
+
+## Jak narysować zegar analogowy?
+
+https://swistak.codes/post/jak-narysowac-zegar-analogowy
+
+Artykuł pokazuje, jak za pomocą podstawowej trygonometrii (x = r·cosα, y = r·sinα) zbudować i animować zegar analogowy w JavaScript (HTML5 canvas) oraz przenieść rozwiązanie do Pythona (pygame). Opisuje przygotowanie płótna i kontekstu, pętlę animacji z window.requestAnimationFrame, definicję getPosition(angle, radius) z przesunięciem kąta o −π/2, uniwersalną funkcję drawHand oraz funkcje drawHoursHand/drawMinutesHand/drawSecondsHand (z możliwością płynnego sekundnika używającego milisekund). Wyjaśniono dobór stałych (promienie wskazówek), rysowanie obramowania tarczy oraz oznaczeń minut i godzin (krótkie i dłuższe markery oraz tekst), a także pobieranie aktualnego czasu. Gotowe przykłady są dostępne na CodePen/repl.it; autor podkreśla podejście: uogólnij problem, znajdź rozwiązanie ogólne (trygonometria), zastosuj do konkretnego zadania.
+
+## Jak narysować spiralę?
+
+https://swistak.codes/post/jak-narysowac-spirale
+
+Artykuł wyjaśnia matematykę spirali Archimedesa i pokazuje jej praktyczne narysowanie w JavaScripcie na elemencie <canvas>. Definicja w układzie biegunowym: r = a·θ + b, gdzie r to promień dla kąta θ, a parametr a kontroluje odstęp między zwojami, a b — odsunięcie od środka. Konwersja do współrzędnych kartezjańskich: x = r·cosθ, y = r·sinθ. Implementacja JS: funkcje getRadius(parameterA, parameterB, angle) i polarToCartesian(radius, angle) (z przesunięciem środka płótna), stałe MAX_RADIUS, A, B, ANGLE_INCREMENT, oraz pętla while iterująca aż do osiągnięcia maksymalnego promienia; rysowanie segmentów przy użyciu context.moveTo() i context.lineTo(), zakończone context.stroke(). Omawia też uogólnienie r = a·θ^{1/n}+b (n=1 Archimedes, n=2 Fermat, n=-1 hiperboliczna, n=-2 lituus) oraz spirale logarytmiczną r = a·e^{bθ} i złotą spirale r = φ^{2θ/π}. Zachęta do modyfikacji getRadius, eksperymentów z parametrami i eksploracji układu biegunowego. Literatura i przykładowe implementacje dostępne na CodePen/repl.it.
+
+## Sumy kontrolne
+
+https://swistak.codes/post/sumy-kontrolne
+
+Artykuł wyjaśnia pojęcie sumy kontrolnej (checksum) jako krótkiego bloku danych dodawanego do innych danych w celu wykrycia błędów (spójności/integralności, nie autentyczności). Opisuje koncepcję kolizji oraz różne klasy algorytmów: proste cyfry kontrolne używane w identyfikatorach (PESEL, NIP, ISBN-13) z przykładami wag i zasad obliczania (np. PESEL: wagi 1,3,7,9…, NIP: modulo 11, ISBN-13: wagi 1/3) oraz uniwersalne metody typu Luhn (karty kredytowe) i ich rozszerzenia (mod N, Verhoeff, Damm). Dla danych binarnych omawia najprostszy bit parzystości (różne implementacje XOR/shift), bardziej rozbudowane sumy jak Adler-32 i Fletcher (dwusumy z modulo) oraz powszechny CRC (cyclic redundancy check) używany w sieciach — CRC daje silne wykrywanie błędów i może umożliwiać korekcję prostych błędów. Wspomina o specyficznych checksumach protokołów (np. IPv4 header checksum) i o tym, że wszystkie te algorytmy są funkcjami skrótu; przechodzi do kryptograficznych funkcji skrótu (MD5, SHA-1, SHA-256) używanych do weryfikacji plików, zwracając uwagę na podatność MD5/SHA-1 na celowe kolizje i rekomendację SHA-256. Podsumowanie: sumy kontrolne są efektywnym narzędziem do wykrywania przypadkowych błędów; wybór algorytmu zależy od wymaganego poziomu odporności na kolizje i ewentualnej korekcji błędów.
+
+## Algorytmika gier — obrót do punktu
+
+https://swistak.codes/post/algorytmika-gier-obrot-do-punktu
+
+Artykuł opisuje prosty sposób obracania obiektu w 2D w stronę wskazanego punktu: obliczyć kąt rotacji jako Math.atan2(y2 - y1, x2 - x1) (w JavaScript najpierw y, potem x) i ewentualnie dopasować przesunięcie kąta (np. +π/2) jeśli domyślne ustawienie grafiki różni się. Jeśli potrzebujesz stopni, pomnóż wynik przez 180/π. Wyjaśniono też, dlaczego używamy atan2 zamiast atan(y/x): atan zwraca tylko kąty w (−π/2, π/2), natomiast atan2 obsługuje wszystkie ćwiartki przez odpowiednie dodanie/odjęcie π i ma wyspecyfikowane przypadki graniczne (x=0 → ±π/2, x=0,y=0 niezdefiniowane). Pokazano związek z współrzędnymi biegunowymi: r = sqrt(x^2+y^2), θ = atan2(y,x). Na koniec krótka wzmianka historyczna — atan2 powstało w kontekście obliczeń naukowych (Fortran).
+
+## Codzienny wtręt programisty (1-30)
+
+https://swistak.codes/offtopic/codzienny-wtret-programisty
+
+Zbiór 30 krótkich porad dla programistów: praktyczne wskazówki techniczne (używaj map zamiast tablic, poznaj problem liczb zmiennoprzecinkowych, korzystaj z biblioteki standardowej, poznaj Dockera, generuj bezpieczne UUID), dobre praktyki front-endowe i dostępności (używaj semantycznych tagów, nie klikalnych divów, uwzględniaj liczby mnogie w i18n, zestaw umiejętności frontend/React), podejście do nauki i kariery (ucz się myślenia algorytmicznego, nie tylko implementacji; ucz się programowania, nie jedynie technologii; język to narzędzie; studia wartość teoretyczna), narzędzia i techniki (wyrażenia regularne, biblioteki do rysowania grafów, ważone konwersje na szarość, Sonic Pi do eksperymentów muzycznych), tematy koncepcyjne (grafy w praktyce, rola matematyki, AI jako narzędzie), postawy w pracy (nie musisz wiedzieć wszystkiego, podejmuj decyzje, nie chwytaj za wiele zadań naraz, rób przerwy, nie pracuj za dużo) oraz krytyczne myślenie wobec porad w sieci — porównuj źródła i dostosowuj rozwiązania do własnego projektu.
+
+## Dziel i zwyciężaj a mnożenie
+
+https://swistak.codes/post/dziel-i-zwyciezaj-a-mnozenie
+
+Artykuł opisuje algorytm Karacuby (Anatolij Karacuba, 1960) — metoda mnożenia wykorzystująca strategię „dziel i zwyciężaj”, która redukuje złożoność z O(n^2) (mnożenie pisemne) do O(n^{log2 3}) ≈ O(n^1.58). Kluczowa idea: podzielić liczby na części a1,a0 i b1,b0, obliczyć z0=a0b0, z2=a1b1 oraz z1=(a0+a1)(b0+b1)−z2−z0, co pozwala wykonać tylko trzy mnożenia zamiast czterech i zastosować rekurencję aż do prostej podstawy. Artykuł zawiera przykład „na kartce” i prostą implementację w JavaScript (ze wskazówkami dotyczącymi obcinania zer, wyboru m jako połowy długości i użycia BigInt). Wspomniane są też szybsze algorytmy: Toom–Cook, Schönhage–Strassen oraz wynik Harveya i van der Hoevena (2021) osiągający O(n log n). Podsumowanie podkreśla praktyczne zastosowanie podejścia „dziel i zwyciężaj” w mnożeniu dużych liczb.
+
+## Rozwiązujemy maturę próbną 2022 z informatyki
+
+https://swistak.codes/post/matura-probna-2022
+
+Artykuł prezentuje przykładowe rozwiązania wybranych zadań z próbnej matury z informatyki (grudzień 2022). Autor (pracujący w IT, nie egzaminator) rozwiązuje zadania w Javie (OpenJDK 17), pomijając zadania z Excela i baz danych, i udostępnia kod na Replit. Zadanie 1 („Kosmiczny mecz”) obejmuje: 1.1 liczenie par sąsiednich różnych znaków, 1.2 symulację punktacji z przerwaniem po osiągnięciu 1000 punktów i przewagi ≥3, 1.3 zliczanie fragmentów powtórzeń (dobra passa ≥10) oraz najdłuższego runu — wszystkie rozwiązane prostą iteracją znak po znaku (uwaga na ograniczenia wyrażeń regularnych). Zadanie 2 („Strzałki”) omawia drzewo binarne i kopiec (wzory dzieci 2x, 2x+1), liczbę połączeń N−1, wysokość zbalansowanego drzewa ⌊log2 N⌋, oraz rekurencyjną funkcję check(x,y,N) sprawdzającą osiągalność węzła. Zadanie 3 dotyczy liczb pierwszych: omówienie i implementacja sita Eratostenesa (optymalizacja do sqrt(N)), zadanie 3.2 (sprawdzanie czy n−1 jest pierwsze), 3.3 (zliczanie rozkładów par pierwszych dla parzystych — wyszukiwanie max/min rozkładów), 3.4 (zliczanie wystąpień cyfr w zapisie szesnastkowym wszystkich liczb; użycie Integer.toHexString). Na końcu krótko omówiono zadania teoretyczne: protokoły (SMTP, FTP, HTTPS, IMAP), pojęcia szyfrowania (symetryczne vs asymetryczne) oraz przykłady działań i konwersji w systemie czwórkowym i szesnastkowym. Artykuł zawiera praktyczne wskazówki egzaminacyjne (języki, edytory, unikanie niepotrzebnych zaawansowanych konstrukcji), wyjaśnienia algorytmiczne i odniesienia do dodatkowych materiałów; autor prosi o feedback na ewentualne błędy.
+
+## Odwrotna notacja polska
+
+https://swistak.codes/post/odwrotna-notacja-polska
+
+Artykuł wyjaśnia odwrotną notację polską (ONP/RPN), porównując ją z notacją infiksową (standardowy zapis z nawiasami) i notacją polską (prefiksową, zaproponowaną przez Łukasiewicza). Rozwiązanie spornych przykładów typu 6/2(2+1) ilustruje, jak ONP (6 2 / 2 1 + *) eliminuje niejednoznaczność i upraszcza obliczanie algorytmiczne. ONP działa od lewej do prawej: liczby odkładamy na stos, a przy napotkaniu operatora zdejmujemy ze stosu wymagane argumenty (dla binarnych: a = pop(), b = pop()), obliczamy b <op> a i wynik odkładamy z powrotem. Dzięki temu obliczanie jest proste i efektywne — stos (push, pop, empty) to podstawowa struktura. Artykuł podaje formalny algorytm krok po kroku, przykładowe ręczne rozwiązanie i prostą implementację w JavaScript obsługującą +, -, *, / (z parseFloat dla liczb). Wspomina historyczne i praktyczne zastosowania: wczesne użycie w komputerze Z3 (1941), popularność w kalkulatorach HP (np. HP-12C) oraz związek notacji polskiej z S-wyrażeniami w Lispzie. Zaznaczono też, że algorytm łatwo rozszerzyć o funkcje i operatory o dowolnej arności, pamiętając o kolejności argumentów.
+
+## Obliczanie wyrażeń matematycznych
+
+https://swistak.codes/post/obliczanie-wyrazen-matematycznych
+
+Artykuł opisuje konwersję wyrażeń infiksowych do odwrotnej notacji polskiej (ONP/RPN) za pomocą algorytmu stacji rozrządowej (shunting‑yard) Dijkstry, by następnie obliczyć wynik korzystając z wcześniej omówionego algorytmu dla ONP. Pokazano uproszczoną wersję obsługującą operatorów +, -, *, / i nawiasy: przetwarzamy tokeny od lewej, używamy stosu do zarządzania operatorami i priorytetami oraz przenosimy operatory na wynik zgodnie z regułami kolejności i nawiasów; na końcu opróżniamy stos. Wskazano uwagi implementacyjne (potęgowanie jako prawostronnie łączne, wykrywanie błędnych nawiasów) oraz typowe pułapki przy tworzeniu tokenizera (spacje, pomijane mnożenie, rozróżnienie minusu jako negacji/odejmowania, separator dziesiętny). Dołączono przykładową implementację w JavaScripcie i odnotowano złożoność obu kroków jako liniową O(n).
+
+## (prawie) Codzienny wtręt programisty (31-40)
+
+https://swistak.codes/offtopic/prawie-codzienny-wtret-programisty
+
+Zbiór krótkich porad z serii „(prawie) Codzienny wtręt programisty” (części 31–40) dotyczących programowania, nauki, front-endu i praktyk developerskich. #31: 4 sposoby zaokrąglania (round, floor, ceil, trunc) i różnice, szczególnie dla liczb ujemnych i przypadku .5. #32: jak się uczyć — unikać wkuwania na pamięć, kopiowania rozwiązań bez zrozumienia i biernego uczestnictwa w szkoleniach „dla papierka”. #33: reszta z dzielenia (mod) zachowuje się różnie w językach (Dart, Python, JS) dla liczb ujemnych — warto znać implementacyjne różnice. #34: zalety unit testów poza sprawdzaniem poprawności: żywa dokumentacja, wymuszanie małych funkcji (SRP) i lepszej architektury (DI, mocki). #35: przy zakładaniu projektu JS koniecznie skonfigurować ESLint, Prettier i EditorConfig; integrować w CI, pre-commit hookach i edytorach. #36: złożoność cyklomatyczna mierzy liczbę ścieżek w funkcji (returny, warunki, pętle); wpływa na liczbę testów potrzebnych do pokrycia branch coverage. #37: 3 lata bloga świstak.codes — migracja z WordPress do Next.js, statystyki (71 artykułów, ~41k unikalnych odwiedzających), rozwój obecności w social media. #38: narzędzie phind.com — wyszukiwarka dla programistów oparta na GPT-4 agregująca źródła (StackOverflow, dokumentacje) i generująca przykłady/implementacje. #39: usuwanie domyślnych stylów przeglądarki — używać resetów/normalize (Meyer, normalize.css, modern-css-reset) lub all: unset dla pojedynczych elementów. #40: powtarzanie kodu w testach bywa dopuszczalne i pożądane — osobne testy dla różnych przypadków służą dokumentacji, czytelności i łatwiejszemu wykrywaniu regresji (przykład normalizeColor).
+
+## Logika dla informatyków — podstawy
+
+https://swistak.codes/post/podstawy-logiki
+
+Artykuł przedstawia podstawy logiki matematycznej z perspektywy informatyki: znaczenie logiki dla programowania, formalnego opisu matematyki, semantyki języków i teorii typów. Wyjaśnia pojęcia pierwotne i aksjomaty oraz rachunek zdań (zdania, wartości logiczne 0/1) i główne spójniki: negację (NOT), koniunkcję (AND), alternatywę (OR), implikację, równoważność, alternatywę rozłączną (XOR), binegację (NOR) i dysjunkcję (NAND), wraz z tablicami prawdy. Pokazuje mapowanie na operatory w programowaniu (operatory logiczne &&, ||, ! i operatory bitowe &, |, ^, ~) i przykłady w JavaScript, oraz omawia prawa i tautologie (prawo wyłączonego środka, niesprzeczności, podwójnej negacji, prawa de Morgana, rozdzielności, łączności) i metody dowodzenia (tabele prawdy). Zawiera praktyczne zastosowania operacji bitowych: flagi (ustawianie |, sprawdzanie &, resetowanie & ~), sprawdzanie parzystości (n & 1) i zastosowania XOR w kryptografii oraz wyjaśnia, że NOR i NAND są funkcjami uniwersalnymi w elektronice.
+
+## Logika dla informatyków — kwantyfikatory
+
+https://swistak.codes/post/kwantyfikatory
+
+Artykuł omawia rachunek kwantyfikatorów z perspektywy zastosowań w informatyce: wyjaśnia kwantyfikator ogólny (∀, „dla każdego”) i szczegółowy (∃, „istnieje”), ich wariant jednoznacznościowy (∃! — „dokładnie jeden”) oraz odpowiadające im operacje w programowaniu na kolekcjach (np. every/All, some/Any, Single). Pokazuje praktyczne implementacje i przykłady w JavaScript i C#, oraz jak zaimplementować brakujące funkcje ręcznie. Przedstawia kluczowe tautologie: prawa de Morgana i definiowanie jednego kwantyfikatora przez drugi przez negację, prawa rozdzielności (pełne: ∀ względem ∧, ∃ względem ∨; niepełne odwrotnie) oraz prawa przestawiania i ich ograniczenia (np. ∃x∀y ⇒ ∀y∃x). Omawia konsekwencje dla czytelności i optymalizacji kodu (krótsze warunki, mniejsza liczba iteracji) i podaje literaturę źródłową.
+
+## Logika dla informatyków — algebra zbiorów
+
+https://swistak.codes/post/algebra-zbiorow
+
+Artykuł przedstawia podstawy algebry zbiorów z naciskiem na zastosowania w informatyce. Wyjaśnia pojęcie zbioru, notację przynależności (∈), sposoby definiowania zbiorów (wypisanie elementów i opis warunkowy), zbiór pusty i uniwersum. Omawia diagramy Venna oraz relacje między zbiorami: rozłączność, przecięcie, równość i inkluzję (⊆/⊂). Szczegółowo opisuje operacje na zbiorach i ich odpowiedniki w programowaniu: suma (∪, union/|), iloczyn/przecięcie (∩, intersection/&), różnica (∖, difference/-), dopełnienie (A′ = Ω∖A), różnica symetryczna (△, symmetric_difference/^/xor) oraz iloczyn kartezjański (×) z omówieniem uporządkowanych par. Definiuje relacje jako podzbiory iloczynu kartezjańskiego i pokazuje ich realizację w kodzie (np. filtrowanie par, zip). Wspomina o podstawowych prawach teorii zbiorów (łączność, rozdzielność, prawa de Morgana, własności ze zbiorem pustym) i wskazuje narzędzia praktyczne (Python set, Lodash w JS) oraz proste implementacje algorytmiczne. Podsumowuje, że znajomość tych pojęć ułatwia pracę programisty i łączy logikę matematyczną z operacjami na kolekcjach.
+
+## Teoria zbiorów a TypeScript
+
+https://swistak.codes/post/teoria-zbiorow-typescript
+
+Artykuł pokazuje, jak pojęcia algebry zbiorów przekładają się na system typów TypeScripta. Proste typy (string, number, boolean) można traktować jako zbiory wartości; any/unknown odpowiadają uniwersum (unknown wymusza zawężenie, any jest "luźniejsze"), a never to zbiór pusty. Typy literalne to jednoelementowe podzbiory, a operator | realizuje sumę zbiorów (unie), pozwalając na wartości z jednego lub drugiego typu; | undefined i | null służą do oznaczania wartości opcjonalnych/braku. Typy obiektowe definiują pary klucz‑typ; indeksowanie ([k:string]) pozwala na pola dowolne, a ? oznacza pole opcjonalne. Unia obiektów dopuszcza wartości zgodne z którymś typem lub łącznie wszystkimi ich polami, ale nie dowolne części obu. Iloczyn (&) odpowiada przecięciu zbiorów: dla typów prostych często daje never, z unknown zwraca konkretny typ, a z any daje any. Dla typów literal iloczyn zwęża do wspólnych wartości; dla obiektów & łączy wymagania obu typów (dziedziczenie/extends), a sprzeczność pól może prowadzić do never. Ujęcie typów przez teorię zbiorów pomaga zrozumieć ich zachowanie i relacje w TypeScript.
+
+## Mierzenie podobieństwa ciągów znaków
+
+https://swistak.codes/post/podobienstwo-ciagow-znakow
+
+Artykuł omawia metryki odmienności ciągów znaków (string metrics), ze szczególnym uwzględnieniem odległości edycyjnej i jej implementacji jako odległości Hamminga i Levenshteina. Metryka to funkcja mierząca „odległość” między elementami zbioru, powinna spełniać nierówność trójkąta. Hamming — najprostsza metryka — mierzy liczbę różnic na tych samych pozycjach (wymaga równej długości ciągów; tylko podstawienia). Levenshtein (1965) uwzględnia podstawienia, wstawienia i usunięcia, pozwala na różne długości; rekurencyjna wersja ma złożoność eksponencjalną O(3^n), natomiast iteracyjny algorytm Wagnera–Fischera (programowanie dynamiczne) oblicza macierz odległości w czasie i pamięci O(|a|·|b|). Typowe optymalizacje to przechowywanie tylko ostatniego wiersza (redukcja pamięci do O(2·|a|)) lub iteracja po przekątnych, gdy odległość jest mała. Wspomniane są też inne metryki: Damerau–Levenshtein (dodaje transpozycje), LCS (najdłuższy wspólny podciąg — tylko wstawienia/usunięcia) oraz Jaro–Winkler (miara znormalizowana 0–1, faworyzuje wspólny prefiks, nie spełnia nierówności trójkąta). Zastosowania obejmują fuzzy search i poprawianie literówek (wyszukiwarki), analizę sekwencji DNA (m.in. algorytmy Hirschberga i Smitha–Watermana) oraz ogólne zadania dopasowania sekwencji.
+
+## Podstawy działania UI — wzorzec obserwator
+
+https://swistak.codes/post/obserwator
+
+Artykuł wyjaśnia wzorzec obserwator (Observer) jako podstawę reaktywności UI: definiuje zależność jeden-do-wielu, gdzie zmiana stanu jednego obiektu automatycznie powiadamia i aktualizuje obserwatorów. Omówione są cele wzorca (rozwiązanie problemów architektonicznych przez decoupling, ułatwienie utrzymania, testowania i pracy zespołowej) oraz jego cztery składowe: Subject/Observable, Observer, ConcreteSubject i ConcreteObserver. Pokazano klasyczną implementację w TypeScript (i analogicznie w Kotlinie), uproszczoną wersję opartą na callbackach oraz rozróżnienie trybów pull (obserwator pobiera stan) i push (stan przesyłany w powiadomieniu). Przedstawiono gotowe biblioteki ReactiveX (RxJS/RxJava) oraz nowocześniejsze, bardziej zintegrowane podejście signals (Preact, Solid, Angular), wraz z przykładową prostą implementacją sygnału i użyciem Angular Signals. W podsumowaniu autor podkreśla, że mimo ukrycia mechanizmów przez frameworki warto rozumieć zasadę działania obserwatora, bo to uniwersalna idea stosowana w różnych implementacjach UI.
+
+## Wzorzec obserwator w UI — podejścia scentralizowane
+
+https://swistak.codes/post/scentralizowany-obserwator
+
+Artykuł omawia scentralizowane podejścia do wzorca obserwator, koncentrując się na architekturze Publish-Subscribe (Pub‑Sub) jako wzorcu architektonicznym z centralnym brokerem/kolejką wiadomości zarządzającym kanałami (tematami). Wyjaśnia różnicę między wzorcami architektonicznymi a projektowymi i porównuje Pub‑Sub z klasycznym obserwatorem (brak bezpośredniej komunikacji między wydawcami a subskrybentami, różne strategie retencji wiadomości). Pokazuje konkretne implementacje: systemowe (RabbitMQ), biznesowe (newslettery, serwisy społecznościowe) oraz programowe. Przykładowy kod TypeScript przedstawia klasę Broker z metodami subscribe/unsubscribe/sendMessage, a wariant RxJS używa Subject plus filtrowania kanałów. Omówiona jest też architektura zdarzeniowa (event‑driven), komponenty: pętla zdarzeń, handlery i dyspozytor zdarzeń (odpowiednik brokera). Dla przeglądarek opisano wbudowany EventTarget (addEventListener/removeEventListener/dispatchEvent) i użycie CustomEvent oraz postMessage do komunikacji między ramkami. W podsumowaniu autor podkreśla, że zdarzenia i Pub‑Sub są podstawą UI i integracji modułów, a wybór między scentralizowanym brokerem a wieloma tematami zależy od potrzeb projektu.
+
+## Wzorzec obserwator w UI — Flux i Redux
+
+https://swistak.codes/post/flux-redux
+
+Kontynuacja serii o wzorcu obserwator w kontekście UI, tym razem skupiona na stanie aplikacji oraz architekturach Flux i Redux. Wyjaśniono różnicę między stanem lokalnym (np. wartość pola) a globalnym (dane współdzielone przez komponenty) oraz jak centralizowane mechanizmy obserwatora wspierają reaktywność interfejsów. Opisano Flux (store, dispatcher, view, jednostronny przepływ danych, akcje z typem i payload) i pokazano prostą implementację z użyciem RxJS na przykładzie aplikacji pobierającej dane z PokeAPI. Omówiono Redux jako wariant Fluksa: pojedynczy store z czystymi reduktorami, brak rozbudowanego dispatchera, użycie combineReducers i selektorów; przykład przepisywania implementacji Flux na Redux. Wspomniano współczesne praktyki: Redux Toolkit, NgRx (Angular), oraz alternatywy upraszczające lub modyfikujące podejście reduksowe jak Zustand, Pinia, Akita, mobx-state-tree, Elf, Jotai. Autor podkreśla, że wybór wzorca zależy od kontekstu projektu, zachęca do praktycznych eksperymentów i dalszej nauki (m.in. CQRS, Event Sourcing).
+
+## Krzywe Béziera
+
+https://swistak.codes/post/krzywe-beziera
+
+Artykuł wyjaśnia matematykę i implementację krzywych Béziera: ich historię (Pierre Bézier, de Casteljau), definicję parametryczną i konstrukcję za pomocą wielomianów Bernsteina. Pokazuje związek z wzorem dwumianowym Newtona i współczynnikami binomialnymi (Pascal’s triangle), podając formułę B(t)=∑i=0^n Pi·b_{n,i}(t) z b_{n,i}(t)=C(n,i)t^i(1−t)^{n−i}. Omówione są przypadki stopni 1–3 (liniowe, kwadratowe, sześcienne), własności (punkt początkowy i końcowy, zawieranie w otoczce wypukłej, możliwość samo-przecięć, wpływ każdego punktu kontrolnego) oraz ograniczenia wielomianowych krzywych. Przedstawiono wymierne krzywe Béziera z wagami (pozwalające dokładnie opisać stożkowe jak okręgi i elipsy) i wpływ wag. Z punktu widzenia informatycznego opisano dwa główne algorytmy: „naiwne” obliczanie z formuły Bernsteina (konieczność obliczania symbolu Newtona, optymalizacje przez trójkąt Pascala) oraz algorytm de Casteljau (iteracyjna interpolacja liniowa — prosty, numerycznie stabilny). Wspomniano też o macierzowej reprezentacji i innych optymalizacjach użytecznych w grafice (GPU), przykładach implementacji w JavaScript i interaktywnej prezentacji.
+
+## Otoczka wypukła
+
+https://swistak.codes/post/otoczka-wypukla
+
+Artykuł opisuje otoczkę wypukłą (najmniejszy zbiór wypukły zawierający dane punkty) oraz algorytm Grahama do jej wyznaczania. Metoda: wybieramy punkt startowy P0 (najniższy, a przy remisie najbardziej lewy), sortujemy pozostałe punkty rosnąco wg kąta względem P0 (np. atan2), usuwamy bliższe punkty o tym samym kącie, a następnie przechodzimy po posortowanej liście utrzymując stos punktów i usuwając ze stosu punkty powodujące prawoskręty; test skrętu wykonuje się przez iloczyn wektorowy (cross product, funkcja ccw). Złożoność algorytmu to O(n log n) (dominuje sortowanie), przy implementacji trzeba uwzględnić błędy zmiennoprzecinkowe i obsługę punktów kolinearnych; autor pokazuje przykładową implementację w JavaScript (sort, pop/push jako stos). Wspomniano też alternatywy: Jarvis march (O(nh)), Quickhull, oraz łańcuch monotoniczny Andrew, oraz praktyczne zastosowania otoczek wypukłych: wizualizacja danych, mapy, uproszczenie obiektów do detekcji kolizji w grafice i rozpoznawanie obrazów.
+
+## Funkcja Ackermanna
+
+https://swistak.codes/post/funkcja-ackermanna
+
+Artykuł wyjaśnia funkcję Ackermanna: historycznie odkrytą w latach 20. (Ackermann; wcześniej podobną funkcję opisał Sudan) i stosowaną dziś głównie jako przykład funkcji całkowalnej, ale nieprymitywnie rekurencyjnej. Opisuje pojęcie funkcji prymitywnie rekurencyjnej (funkcje stałe, następnik, rzutowania oraz operatory kompozycji i prostej rekursji) i kontrastuje je z funkcją Ackermanna, której nie da się zbudować z tych operacji. Przedstawiona jest oryginalna trzyargumentowa wersja φ(m,n,p) oraz powszechnie używana wersja Ackermann–Péter A(m,n) z rekurencyjną definicją; omówiono ekstremalny wzrost jej wartości i powiązanie z hiperoperacjami/strzałkami Knutha (tetracja i wyżej). Funkcja ma przede wszystkim znaczenie teoretyczne – obaliła przekonanie, że wszystkie obliczalne funkcje są prymitywnie rekurencyjne – oraz praktyczne zastosowania w informatyce: testowaniu optymalizacji kompilatorów (Ackermann rating) i badaniu derekursywizacji. Zaprezentowano implementację rekurencyjną w C, iteracyjną symulującą stos (pamięć O(A(m,n))) oraz zoptymalizowaną metodę Grossmana i Zeitmana (czas O(m·A(m,n)), pamięć O(m)), wraz z przykładowymi czasami wykonania ilustrującymi duże różnice wydajności. Podsumowanie podkreśla teoretyczne znaczenie funkcji i jej użyteczność jako benchmarku oraz ostrzega przed ogromnymi wartościami wyników.
+
+## Mierzenie czasu wykonania
+
+https://swistak.codes/post/mierzenie-czasu-wykonania
+
+Artykuł omawia praktyczne sposoby mierzenia czasu wykonania aplikacji i fragmentów kodu. Najpierw rekomenduje użycie profilerów do lokalizowania wąskich gardeł (nagrywanie wykonywania, szczegółowe timeline’y), ale wskazuje też ich wady (nadmiar informacji, narzut, nie zawsze potrzebne). Dla prostych lub precyzyjnych pomiarów opisuje ręczne metody: systemowe narzędzia (time na Linux/macOS, Measure-Command w PowerShell/Windows) oraz funkcje/API w popularnych językach:
+- C: clock_gettime (CLOCK_PROCESS_CPUTIME_ID, CLOCK_MONOTONIC/CLOCK_MONOTONIC_RAW) — CPU vs monotonic time;
+- C#: System.Diagnostics.Stopwatch (Elapsed, ticks — 1 tick = 100 ns);
+- JavaScript: performance.now() (Web Performance API) oraz Node.js process.hrtime.bigint() / perf_hooks;
+- Python: time.process_time_ns(), time.perf_counter_ns() oraz moduł timeit (automatyczne wielokrotne pomiary i statystyka).
+Wyjaśniono, dlaczego nie używać czasu kalendarzowego (niemonotoniczny, NTP, zmiany czasu, sekundy przestępne) oraz podkreślono użycie liczników monotonicznych i wysokiej rozdzielczości. Podano dobre praktyki: powtarzać pomiary wielokrotnie (≥10), używać wykresów pudełkowych, raportować medianę/średnią i odchylenie standardowe, odrzucać skrajne wartości lub stosować IQR, utrzymywać podobne warunki testowe oraz porównywać przyrosty czasów (złożoność/asymptotyka) zamiast ślepych wartości absolutnych. Wnioski: używaj profilera do znajdowania problemów, a precyzyjnych zegarów/odpowiednich API do rzetelnych pomiarów i porównań.
+
+## Rysowanie gradientów
+
+https://swistak.codes/post/gradienty
+
+Artykuł omawia algorytmiczne podejście do rysowania gradientów: definicję gradientu jako płynnego przejścia kolorów oraz różne sposoby jego realizacji (liniowy, promieniowy, stożkowy). Wyjaśnia podstawy interpolacji liniowej (lerp) i jej zastosowanie do kolorów traktowanych jako wektory w przestrzeni RGB (kod JS: lerp, lerpColor, getGradientColors). Porusza też interpolację w przestrzeni HSL (cylindryczna reprezentacja, uwaga na obrót odcienia i wpływ nasycenia przy skali szarości). Opisuje ograniczenia liniowej interpolacji w postrzeganiu kolorów i przedstawia interpolację wielomianową realizowaną przez krzywe Béziera (easing) — użycie sześciennych krzywych do przemapowania parametru t, przybliżanie krzywej punktami, wyszukiwanie binarne i ponowna interpolacja kolorów; zawiera przykładowy kod JS (cubicBezier, getCurveApproximation, getTFromCurve, getGradientColors). Wymienia popularne presety easing (ease-in, ease-out, ease-in-out), zasoby (easings.net, cubic-bezier.com) oraz eksperyment z traktowaniem kontrolnych punktów Béziera jako punktów w przestrzeni barw (3D Bézier). W podsumowaniu autor zauważa, że w praktyce najczęściej stosuje się liniową interpolację w RGB, ale różne przestrzenie barw i funkcje remapowania dają różne, często pożądane efekty wizualne.
+
+## Zegar binarny
+
+https://swistak.codes/post/zegar-binarny
+
+Artykuł opisuje zasady działania dwóch typów zegara binarnego (sześćdziesiątkowego i dziesiętnego/BCD) oraz krok po kroku pokazuje ich implementację w przeglądarkowym JavaScripcie z użyciem elementu <canvas>. Zegar sześćdziesiątkowy wyświetla godziny, minuty i sekundy jako całe liczby w systemie binarnym (rząd diod dla każdej jednostki, bity od prawej: 1,2,4,8,16,32; zwykle 5 diod dla godzin), zaś zegar dziesiętny używa kodu BCD, kodując każdą cyfrę dziesiętną oddzielnie. W części praktycznej autor pokazuje: przygotowanie płótna i pętli rysującej (requestAnimationFrame), konwerter toBinary zwracający odwróconą tablicę wartości logicznych, funkcję toBcd rozbijającą liczbę na dwie cyfry i konwertującą je na BCD, oraz rysowanie diod poprzez drawDiode, drawRow/drawColumn i drawNumber z określeniem siatki, marginesów i promienia. Przedstawione są także konieczne modyfikacje układu (siatka 6×3 dla wersji 60‑kowej, 6×4 i odwrócona numeracja dla BCD), zmiana rozmiaru canvas oraz praktyczne uwagi o wygodzie odświeżania (można ograniczyć do 1 Hz). Całość kończy się linkiem do pełnego kodu na CodePen i odnośnikiem do źródła Wikipedii.
+
+## Symbol Newtona i trójkąt Pascala
+
+https://swistak.codes/post/symbol-newtona
+
+Artykuł omawia różne sposoby obliczania symbolu Newtona (współczynnika dwumianowego) i powiązanie z trójkątem Pascala, porównując ich złożoność i praktyczne wady/zalety. Metody opisane: bezpośrednie z definicji z użyciem silni (n!/(k!(n−k)!)) — proste, ale mnoży dużo i daje bardzo duże liczby; uproszczony iloczyn licznika (produkcja n(n−1)…(n−k+1)/k!) — zmniejsza liczbę mnożeń; wykorzystanie symetrii (k ← min(k,n−k)) — dalsze zmniejszenie zakresu; iloczyn ułamków ∏(n−i+1)/i — eliminuje silnie i operuje na mniejszych liczbach (konieczna odpowiednia kolejność działań). Pokazano też rekurencyjną definicję z trójkąta Pascala C(n,k)=C(n−1,k)+C(n−1,k−1): rekurencja prosta, ale złożoność eksponencjalna i większe zużycie pamięci. Iteracyjne budowanie trójkąta Pascala daje złożoność czasową O(n^2) i pamięciową O(n^2), którą można zoptymalizować przez ograniczenie kolumn do min(k,n−k) (czas i pamięć O(n·min(n,n−k))) oraz przez trzymanie tylko poprzedniego/wynikowego wiersza (pamięć O(min(n,n−k))). Jako ciekawostkę opisano generowanie trójkąta Sierpińskiego przez filtrowanie wartości podzielnych przez 3. Zakończenie podkreśla praktyczne zastosowania symbolu Newtona (kombinatoryka, rozkład dwumianowy, krzywe Béziera) oraz wskazuje, że różne optymalizacje dobiera się w zależności od wymagań dokładności i wydajności.
+
+## Programistyczna ezoteryka, czyli Brainfuck
+
+https://swistak.codes/post/brainfxck
+
+Artykuł omawia ezoteryczne języki programowania, ich cel (sztuka, żart, eksperyment) oraz kryterium kompletności Turinga i pojęcie „Turing tarpit” — modeli obliczeniowych kompletnych, ale niepraktycznych. Przybliża nietypowe przykłady kompletności Turinga (PowerPoint, Excel z LAMBDA, Minecraft, C++ templates, x86 MOV, system typów TypeScript). Głównym bohaterem jest Brainfuck — minimalistyczny, historyczny (1993) język ośmiu jednoznakowych instrukcji (> < + - . , [ ]) działający na tablicy bajtów (standardowo ~30000 komórek) z wskaźnikiem; pętle oznaczane nawiasami kwadratowymi. Pokazano przykłady (naiwny i skrócony Hello World), metodę generowania kodu BF z tekstu przez różnicę kodów ASCII oraz konwerter BF->JavaScript (mapowanie symboli na instrukcje JS, obsługa I/O: process.stdout.write i asynchroniczne getChar z readline w trybie raw). Opisano też interpreter BF w JS: zarządzanie pamięcią, wejściem/wyjściem i obsługę zagnieżdżonych pętli za pomocą stosu i skanowania. Na koniec wnioski, że Brainfuck to ciekawostka edukacyjna ilustrująca minimalizm i wyzwania implementacji interpreterów/konwerterów (wspomniano też JSFuck jako ciekawostkę).
+
+## Rozwiązujemy maturę próbną 2023 z informatyki
+
+https://swistak.codes/post/matura-probna-2023
+
+Artykuł przedstawia przykładowe rozwiązania z próbnej matury 2023 z informatyki (zadania 1–7) z perspektywy programisty, głównie w Pythonie. Zawiera uwagi o wyborze języka i edytora (Python/Java, PyCharm/IntelliJ), różnicach składniowych oraz funkcjach do wczytywania/zapisu plików. Zadanie 1 (Szachy) omawia parsowanie plansz 8×8, liczenie pustych kolumn, porównywanie liczby bierek i wykrywanie szachów wieżami z przykładowymi funkcjami pomocniczymi. Zadanie 2 (Gra) analizuje strategię symulacji ruchów, przyspieszenia obliczeń i przykłady (ciąg arytmetyczny, geometryczny — rozwiązanie z potęgami dwójki). Zadanie 3 dotyczy potęgowania modulo: wyjaśniono szybkie potęgowanie (pow_mod), zadania teoretyczne i praktyczne (test pierwszości, NWD przez algorytm Euklidesa, sprawdzenie istnienia x spełniającego a^x ≡ b mod M). Zadanie 5 omawia zapytania SQL (GROUP BY/COUNT, JOIN/SELECT DISTINCT). Zadanie 6 wyjaśnia licencję Wikipedii (CC BY‑SA) i zasady używania/edytowania, a zadanie 7 porusza bezpieczeństwo danych: login może być przechowywany jawnie, karty kredytowe nie powinny być przechowywane, hasła przechowywać jedynie jako skróty (hash). Artykuł odsyła do kodu na Replit oraz do bloga autora z dodatkowymi materiałami.
+
+## Historie zza kulis bloga na 4-lecie
+
+https://swistak.codes/offtopic/historie-zza-kulis-bloga-4-lecie
+
+Krótka refleksja autora po prawie 4 latach prowadzenia bloga świstak.codes: po refaktoringu stylów z styled-components na CSS Modules wskaźnik performance w Lighthouse wzrósł z 62 do 83 (dalej planowana redukcja duplikatów i ewentualny Tailwind); anegdota o problemie z dostępem dla części czytelników spowodowanym tym, że DNS zwracał rekord AAAA (IPv6), a interfejs IPv6 na serwerze OVH nie był domyślnie skonfigurowany — naprawione ręczną konfiguracją; od 2021 okładki artykułów są generowane przez AI (DALL·E, Stable Diffusion) — autor traktuje je jako narzędzie, nie zastępujące ręcznej grafiki, i uważa, że nie odbiera pracy grafikom; na koniec refleksja nad sensem blogów programistycznych w erze ChatGPT, z zamiarem kontynuacji działalności do 5-lecia.
+
+## Kompresja obrazów
+
+https://swistak.codes/post/kompresja-obrazow
+
+Artykuł przeglądowo opisuje algorytmy i podejścia stosowane w kompresji obrazów, wyjaśniając podstawowe pojęcia i różnice między kompresją bezstratną a stratną oraz przybliżając najważniejsze techniki i formaty.
+
+Podstawy: grafika rastrowa (piksele) kontra wektorowa; przestrzenie barw (np. RGB, YCbCr); pojęcia z przetwarzania sygnałów: kwantyzacja (ograniczanie rozdzielczości bitowej) i transformacje liniowe (np. Fouriera).
+
+Kompresja bezstratna: techniki uniwersalne i graficzne. RLE (Run-Length Encoding) — prosty zapis długości powtórzeń; kodowanie Huffmana — tworzenie prefiksowego drzewa kodów na podstawie częstości; metody słownikowe LZ77 (sliding window) i LZW (dynamiczny słownik, używany m.in. w GIF); palety barw — indeksowanie ograniczonej liczby kolorów (GIF, PNG). Algorytm DEFLATE łączy LZ77 i Huffmana (plus RLE) i jest używany m.in. w ZIP, gzip, PNG (implementacja: zlib/libpng).
+
+Kompresja stratna: opiera się na wykorzystaniu właściwości ludzkiego wzroku, by tracić najmniej zauważalne informacje. Kwantyzacja barw (redukcja liczby kolorów, palety, dithering), podpróbkowanie chrominancji (chroma subsampling, YCbCr, typowe 4:4:4, 4:2:2, 4:2:0 — szeroko stosowane w JPEG/WebP i wideo) oraz kodowanie transformatowe (najważniejsze: DCT w JPEG). Proces w JPEG: podział na bloki (8×8), przesunięcie zakresu, DCT → koncentracja energii (DC/AC), kwantyzacja z macierzą kwantyzacji → dużo zer, zig-zag → RLE i kodowanie Huffmana; dekompresja to odwrotność (odtworzenie G, IDCT, przesunięcie), co powoduje nieodwracalne straty i artefakty (banding, blokowanie). Inne transformaty: falkowa (JPEG 2000), Hadamarda/JPEG XR/WebP.
+
+Wnioski: wiele metod łączy się w praktycznych formatach; kompromis między jakością a rozmiarem zależy od algorytmów (i parametrów, np. siły kompresji). Artykuł zawiera też przykładowe obliczenia DCT dla bloku 8×8 oraz odnośniki do literatury i narzędzi (prezentacja, GitHub).
+
+## Kompresja wideo
+
+https://swistak.codes/post/kompresja-wideo
+
+Artykuł wyjaśnia podstawowe koncepcje kompresji wideo, zakotwiczając je w wiedzy o kompresji obrazów, i koncentruje się na kompresji stratnej. Rozróżnia kontener (AVI, MP4, MKV/WebM) od formatu kodowania (H.263/H.264/H.265 itp.) i kodeka (konkretna implementacja formatu). Omawia kodowanie wewnątrzklatkowe (intra, I-frame, np. MJPEG) oraz kluczowe techniki międzyklatkowe (inter) wykorzystujące GOP (Group of Pictures) z I-, P- i B-frame, ich wpływ na kolejność dekodowania, długość GOP i otwarte vs. zamknięte GOP. Opisuje makrobloki (standardowo 16×16) i wewnętrzne bloki transformacji/predykcji oraz rolę estymacji ruchu i kompensacji ruchu: wyszukiwanie wektorów ruchu (również z precyzją podpikselową, np. ćwierć piksela) i zapisywanie residuum, które podlega dalszej transformacji (np. DCT). Porusza też temat przeplotu (interlacing) i technik jego usuwania (weaving, line doubling, blending, deinterlacing z kompensacją ruchu). Na koniec podkreśla, że współczesne standardy H.264/H.265 dominują w praktyce (YouTube, DVB-T2), a rozwój idzie dalej — VVC (H.266) i eksperymentalne kodeki wspomagane AI obiecują dalszą poprawę efektywności.
+
+## 5 programistycznych dziwactw — wyjaśnione
+
+https://swistak.codes/post/programistyczne-dziwy
+
+Pięć subiektywnie „dziwnych” przykładów z różnych języków programowania z krótkim wyjaśnieniem ich przyczyn:  
+1) Operator "-->" w C: nie istnieje — to zbitka dwóch operatorów (-- i >). Zapisy typu while (i --> 0) działają, bo C ignoruje białe znaki i to właściwie (i--) > 0.  
+2) Iterowanie znaków (for (char i = 'a'; i <= 'z'; i++)): nie ma magicznego alfabetu — znak to liczba (ASCII/byte), więc ++ przesuwa do kolejnego kodu znakowego.  
+3) 0.1 + 0.2 != 0.3: to efekt reprezentacji zmiennoprzecinkowej (double, IEEE‑754) — liczby są przybliżone, stąd drobne błędy i potrzeba porównywania z tolerancją lub użycia typów całkowitych dla precyzyjnych obliczeń finansowych.  
+4) Indeksowanie „3[array]” w C: ponieważ a[i] jest zdefiniowane jako *(a + i) i dodawanie wskaźników jest przemienne, zapis 3[array] działa tak samo jak array[3]; to konsekwencja modelu tablicy/wskaźnika w C.  
+5) Koercja typów w JavaScript — przykłady: pustą tablicę !![] → true, ale [] == true → false; oraz '0' + 1 → '01' vs '0' - -1 → 1. Wynika to z reguł specyfikacji ECMAScript: ToBoolean dla obiektów zwraca true, natomiast luźne porównanie i operatory arytmetyczne stosują różne ścieżki konwersji (ToPrimitive/ToNumber/ToString), a operator + preferuje konkatenację jeśli jest string.  
+Wniosek: większość „dziwactw” to konsekwencje konkretnych reguł składniowych i semantycznych (tokenizacja, reprezentacja danych, konwersje typów, model pamięci), więc lepiej zrozumieć mechanizmy niż uznawać je za bugi; praktyczne zalecenia to unikanie nieczytelnych trików, używanie === w JS i porównań z epsilonem dla floatów.
+
+## Problem zliczania unikalnych elementów
+
+https://swistak.codes/post/zliczanie-unikalnych-elementow
+
+Artykuł omawia problem zliczania unikalnych elementów w strumieniach danych (count-distinct), jego zastosowania (monitoring odwiedzin, wykrywanie DDoS, zarządzanie zasobami) oraz ograniczenia związane z pamięcią i czasem. Pokazuje rozwiązanie naiwne (zbiór) i szczegółowo opisuje algorytm HyperLogLog: haszowanie elementów (32/64-bit), podział na m=2^b koszyków, przechowywanie maksymalnej liczby wiodących zer w każdym koszyku, estymację opartą na średniej harmonicznej i współczynniku korekcyjnym α_m ≈ 0.7213/(1+1.079/m), z korekcjami dla bardzo małych i bardzo dużych wartości; złożoność pamięciowa O(m), dodawanie O(1), zliczanie O(m). Podano wzór błędu σ ≈ 1.05/√m, przykładową implementację w JavaScript (DJB2, rekomendacja MurmurHash3) oraz wyniki prostych testów empirycznych. Wspomniano też alternatywy: Flajolet–Martin, LogLog, HyperLogLog++, min/max i bottom-m sketches oraz nowszy algorytm CVM (2022).
+
+## Macierze — podstawowe operacje
+
+https://swistak.codes/post/macierze-podstawy
+
+Artykuł opisuje podstawy macierzy: definicję (prostokątna tablica liczb m×n), zapis i reprezentację jako dwuwymiarowa tablica, ze szczególnym przypadkiem macierzy kwadratowej. Omawia zastosowania w informatyce (przekształcenia 2D/3D i rzutowanie w grafice, renderowanie, kompresja obrazów, mierzenie podobieństwa ciągów, reprezentacja grafów, algorytmy kryptograficzne, symulacje fizyczne, uczenie maszynowe i sieci neuronowe; powiązanie z zapotrzebowaniem na GPU i bibliotekami typu MATLAB/NumPy). Przedstawia podstawowe operacje: transpozycję (A^T, zamiana wierszy z kolumnami, macierz symetryczna), dodawanie/odejmowanie (element po elemencie), mnożenie przez skalar, oraz mnożenie macierzy (iloczyn Cauchy’ego, warunek zgodności wymiarów i wzór c_ij = sum_r a_ir b_rj). Opisuje złożoność obliczeniową: naiwny algorytm O(n^3) oraz nowsze wyniki asymptotyczne (~O(n^2.371552) w 2024), z zastrzeżeniem dążenia do O(n^2). Wzmiankuje szczególne przypadki z szybszymi algorytmami (np. macierze diagonalne O(n)). Omawia potęgowanie macierzy (wymaga macierzy kwadratowej, A^0 = I, szybkie potęgowanie) i podaje przykładowe implementacje w JavaScript (transpose, add, multiplyByScalar, multiply, power). Kończy krótkim podsumowaniem i bibliografią.
+
+## Macierze — obliczanie wyznacznika
+
+https://swistak.codes/post/macierze-wyznacznik
+
+Artykuł wyjaśnia, czym jest wyznacznik macierzy (wartość przypisana macierzy kwadratowej), jak się go zapisuje i interpretuje geometrycznie jako n-wymiarową objętość równoległościanu. Pokazuje ręczne obliczanie dla macierzy 1×1, 2×2 (ad−bc) i 3×3 (reguła Sarrusa) oraz ogólną metodę rozwinięcia Laplace’a (minory i dopełnienia algebraiczne). Omówione są też algorytmiczne podejścia: rekurencyjne rozwinięcie Laplace’a (O(n!)), efektywny algorytm Bareissa (fraction-free, O(n^3)) oraz inne metody: eliminacja Gaussa/LU (O(n^3)), wzór Leibnitza (O(n!)), Berkowitz (bez dzielenia, zrównoleglialny, O(n^4)) i Dodgson. Przedstawiono zastosowania wyznaczników: rozwiązywanie układów liniowych (wzory Cramera), obliczanie macierzy odwrotnej przez macierz dołączoną, pola/objętości, testy współliniowości, iloczyn wektorowy oraz bardziej zaawansowane użycia (hesjan, Jacobian, Wroński, twierdzenie Kirchhoffa). Artykuł łączy aspekty matematyczne i implementacyjne, porównując metody pod kątem złożoności i numerycznej stabilności.
+
+## Macierze rzadkie
+
+https://swistak.codes/post/macierze-rzadkie
+
+Artykuł definiuje macierze rzadkie jako macierze, w których przeważają zera (praktycznie: gdy opłaca się stosować specjalne struktury; np. w cuSPARSE gdy 70–99.9% elementów to zera). Opisano typowe klasy: macierze wstęgowe (band matrix, w tym diagonalne, tridiagonalne itp.), macierze trójkątne oraz macierze blokowe i blokowo‑rzadkie (np. macierz blokowo‑diagonalna). Następnie omówiono sposoby przechowywania: DIA (dla wstęgowych), LIL i DOK (wygodne do budowy/modyfikacji), COO (koordynatowy, łatwa konwersja), CSR/CSC (skompresowane; wydajne do obliczeń — CSR lepszy do wierszy, CSC do kolumn) oraz BSR (wersja CSR dla bloków). Dla każdego formatu wskazano strukturę danych, wady i zalety oraz przykłady użycia w SciPy. Pokazano też przykładowe algorytmy operujące na CSR (konwersja do gęstej, transpozycja/konwersja CSR↔CSC, dodawanie, mnożenie) z implementacjami przykładowymi. Wnioski: odpowiedni wybór formatu oszczędza pamięć i przyspiesza operacje — wybiera się DIA/BSR dla specjalnych struktur, LIL/DOK/COO do konstrukcji i CSR/CSC do efektywnych obliczeń.
+
+## Problem komiwojażera
+
+https://swistak.codes/post/problem-komiwojazera
+
+Artykuł wyjaśnia problem komiwojażera (TSP): znalezienie najkrótszego zamkniętego cyklu przechodzącego raz przez każdy punkt w pełnym, ważonym grafie (minimalny cykl Hamiltona). Omawia odmiany: symetryczny (STSP), asymetryczny (ATSP), wersję decyzyjną (NP-zupełna) i wariant Steinera, oraz praktyczne zastosowania w logistyce, robotyce, turystyce i optymalizacji produkcji. Wskazuje podobne problemy: chiński listonosz, vehicle routing problem (VRP), set TSP i travelling purchaser problem. Przedstawia dwa dokładne podejścia do rozwiązania TSP: przegląd wszystkich permutacji (metoda siłowa) o złożoności O(n!) oraz efektywniejszy algorytm Helda–Karpa oparty na programowaniu dynamicznym z złożonością O(n^2·2^n) i rekurencyjną relacją C(S,j)=min_{i∈S,i≠j}(C(S\{j},i)+d(i,j)). Zademonstrowano implementacje w JavaScript (generowanie permutacji leksykograficznie i memoizowana wersja Held-Karpa) oraz porównanie wydajności (dla 12 miast: brutal ~39M iteracji i ~14s vs Held-Karp ~56k iteracji i 91ms). Wnioskuje, że mimo istnienia metod dokładnych, w praktyce ze względu na rosnącą złożoność częściej stosuje się heurystyki.
+
+## Problem komiwojażera — podejścia heurystyczne
+
+https://swistak.codes/post/problem-komiwojazera-heurystyki
+
+Artykuł omawia heurystyczne metody rozwiązywania problemu komiwojażera (TSP), które kosztem gwarancji optymalności dają szybkie, bliskie optymalnemu rozwiązania. Autor przedstawia implementacje w JavaScript i interaktywne demonstracje.
+
+Kluczowe punkty:
+- Heurystyki są niedeterministyczne i szybkie; nie zawsze dają optymalne rozwiązanie, ale często wystarczająco dobre.
+- Algorytm najbliższego sąsiada (NN): prosty, wybiera zawsze najbliższy nieodwiedzony wierzchołek; podstawowa wersja O(n^2), wersja sprawdzająca wszystkie starty (RNN) O(n^3). Dobre jako baza dla metaheurystyk, ale daje przeciętne wyniki.
+- Algorytm Christofidesa: zapewnia trasę nie dłuższą niż 1.5 razy optymalna (maks. 50% dłużej). Kroki: znaleźć minimalne drzewo rozpinające (MST), zebrać wierzchołki o nieparzystym stopniu, znaleźć minimalne skojarzenie doskonałe dla tych wierzchołków, dodać krawędzie tworząc multigraf o wszystkich wierzchołkach parzystego stopnia, wyznaczyć cykl Eulera i skrócić go do ścieżki Hamiltona. Autor używa Kruskala do MST (złożoność O(|E| log |V|)), prostego (greedy) dopasowania doskonałego O(n^2) oraz algorytmu Fleury’ego do cyklu Eulera (w uproszczeniu O(|E|)). Cały algorytm w praktycznej implementacji ma złożoność około O(n^3).
+- Implementacje JS pokazane w artykule obejmują konstrukcję listy krawędzi, DSU dla Kruskala, konstrukcję multigrafu, znalezienie cyklu eulerowskiego i konwersję na ścieżkę Hamiltona; dostępne są Replity i kod prezentacji (ReactFlow).
+- Inne podejścia: algorytm zachłanny (sortowanie krawędzi), trasa bitoniczna (dla punktów w płaszczyźnie), Clarke–Wright, lokalne ulepszenia 2-opt/3-opt/k-opt, Lin–Kernighan (v-opt) oraz metaheurystyki (symulowane wyżarzanie, przeszukiwanie tabu, algorytmy ewolucyjne) i sieci neuronowe (np. Hopfield).  
+- Podsumowanie: autor porównuje prosty NN i bardziej zaawansowany Christofides, pokazując kompromis między jakością a czasem obliczeń i zapowiada kolejne artykuły o metaheurystykach.
+
+Bibliografia obejmuje klasyczne źródła z algorytmiki, prace Johnsona & McGeocha oraz materiały dotyczące Christofidesa, MST, skojarzeń i ścieżek eulerowskich.
+
+## Problem komiwojażera — przykładowe metaheurystyki
+
+https://swistak.codes/post/problem-komiwojazera-metaheurystyki
+
+Artykuł omawia zastosowanie metaheurystyk do problemu komiwojażera (TSP), przedstawiając najpierw heurystykę 2-opt (zamiana krawędzi poprzez odwrócenie segmentu trasy) jako podstawę generowania sąsiadów rozwiązań. Następnie opisuje dwie metaheurystyki: hill climbing (w wersjach simple i steepest-ascent) — lokalne przeszukiwanie polegające na iteracyjnym wybieraniu lepszych sąsiadów (tu: wszystkich 2-opt) i ryzyku utknięcia w lokalnym optimum — oraz symulowane wyżarzanie (simulated annealing), które akceptuje też gorsze rozwiązania z prawdopodobieństwem P = exp(−ΔE/T) zależnym od temperatury, z chłodzeniem według różnych schematów (liniowe, logarytmiczne, wykładnicze, potęgowe) i opcjonalnym limitem iteracji. Dla obu metod autor przedstawia implementacje w JavaScript (funkcje generujące sąsiadów, obliczanie długości trasy, strategie wyboru sąsiada), obserwacje praktyczne (wpływ startu: losowe starty vs RNN, liczba iteracji, jakość wyników) oraz interaktywne wizualizacje (ReactFlow, Replit, kod na GitHub). Na koniec zachęta do eksperymentów z innymi metaheurystykami (algorytmy ewolucyjne, tabu) i przenoszenia podejść na inne problemy kombinatoryczne.
+
+## Unikalne identyfikatory
+
+https://swistak.codes/post/unikalne-identyfikatory
+
+Artykuł wyjaśnia, po co używamy unikalnych identyfikatorów w informatyce (rozróżnianie encji bez centralnego rejestru) oraz omawia istotne kwestie: losowość vs. pseudolosowość, mierzenie unikalności (paradoks urodzin) i zalecenie użycia kryptograficznie bezpiecznych generatorów lub gotowych bibliotek. Przegląd głównych podejść:
+
+- UUID/GUID (128 bitów): standard RFC 4122/9562; zapis hex z 5 segmentami. Wersja 4 — losowa (122 bity losowe po ustawieniu bitów wersji/wariantu). Wersja 7 — hybryda czas+losowość (48-bitowy timestamp w ms + ~74 bity losowe) do sortowania według czasu. Wersje 1/6 — opierają się na czasie (60 bitów od 1582), 14-bitowej sekwencji zegarowej i 48-bitowym identyfikatorze urządzenia (MAC); v6 jest ułożona dla łatwej sortowalności. Inne wersje: 2,3,5,8 i warianty implementacyjne (Microsoft, Apollo).
+
+- Snowflake (Twitter): 64 bity: 1 bit zero, 41-bitowy timestamp (ms od epoch), 10-bitowy identyfikator maszyny, 12-bitowy licznik sekwencyjny — zapewnia sortowalność i rozproszone nadawanie ID; istnieją warianty (Discord, Instagram/ShardingID, Sonyflake, Mastodon).
+
+- ObjectId (MongoDB): 12 bajtów (96 bitów): 32-bitowy timestamp (s), 40-bitowy identyfikator procesu, 24-bitowy licznik; zachowuje sortowalność i wystarczającą unikalność w praktyce.
+
+- Nano ID: konfigurowalny, domyślnie alfabet 64-znakowy i długość 21 znaków ≈126 bitów entropii — bardzo niskie szanse kolizji, prosty do użycia w wielu językach.
+
+Wspomniane też inne podejścia i biblioteki: cuid2, xid, ShortUUID, PushID, KSUID, ULID i ich cechy (czas + losowość, różne rozmiary i reprezentacje). Wnioski: wybór zależy od potrzeb — prosty licznik przy centralnym serwerze, UUID/NanoID dla silnej losowości, Snowflake/UUIDv7/ULID/KSUID/ObjectId gdy potrzebna sortowalność wg czasu i rozproszone generowanie; zawsze preferować sprawdzone implementacje i bezpieczne generatory losowe.
+
+## Jak narysować gwiazdę?
+
+https://swistak.codes/post/jak-narysowac-gwiazde
+
+Artykuł opisuje algorytmiczne rysowanie wielokątów gwiaździstych foremnych (gwiazd) z wprowadzeniem matematycznym: zapis Schläfliego {n/x}, warunek gcd(n,x)=1 dla wielokąta właściwego, ograniczenie 1<x<n−1 i x<n/2 oraz różnica między wielokątem właściwym (jedna łamana) a niewłaściwym (wiele łamanych). W praktycznej części pokazano uniwersalny sposób wyznaczania pozycji wierzchołków na okręgu za pomocą x = x0 + r cos α, y = y0 + r sin α i iterację po kątach, a następnie łączenie wierzchołków z krokiem (step) z użyciem operacji modulo. Implementacja w JavaScripcie (Canvas 2D) zawiera funkcje getVertices(count), connectVertices(startIndex, vertices, step) oraz drawStar(verticesCount, step) z obsługą zbioru visited dla częściowych łamanych i context.moveTo/lineTo/context.stroke dla rysowania. Jako bonus pokazano rysowanie „zamkniętej” gwiazdy przez dwa zestawy wierzchołków (zewnętrzny i wewnętrzny radius) z przesunięciem kąta shift = π/n i łączeniem ich naprzemiennie. Kod dostępny na CodePen/repl.it; artykuł kończy się podsumowaniem i odwołaniami do literatury.
+
+## Ustawianie kolejności elementów
+
+https://swistak.codes/post/kolejnosc-elementow
+
+Artykuł opisuje problem przechowywania użytkownikowo zdefiniowanej kolejności elementów: zapisywanie pozycji tylko przez kolejność w tablicy jest niewystarczające, a przechowywanie jej w relacyjnej bazie wymaga osobnego pola rank/position i bywa kosztowne przy masowych aktualizacjach. Proponowane rozwiązania to: 1) podejście z przerwami (gapped integers) — nadawanie ranków co STEP (np. 1000) i wstawianie między sąsiadami przez średnią; ograniczenie liczby wstawek to ~log2(STEP), można użyć typów zmiennoprzecinkowych, a gdy zabraknie miejsca — rebalans (przepisanie rang). Przedstawiono proste JS-implementacje funkcji getNextRank/getRankBetween/getMinDistance/rebalance. 2) LexoRank — ranking leksykograficzny zapisywany jako string w base-36 (np. 6 znaków), start od środka, krok ≈8, możliwość wydłużania rang po dwukropku i mechanizm koszyków (3 bucketów) pozwalający na bezblokowy rebalans przez przemieszczanie elementów między bucketami w określonej kolejności. Opisano też progi rebalansu w Jirze (128/160/254 znaków). Wnioski: oba podejścia są praktyczne, wybór zależy od skali i potrzeb aplikacji.
+
+## Chińskie twierdzenie o resztach
+
+https://swistak.codes/post/chinskie-twierdzenie-o-resztach
+
+Chińskie twierdzenie o resztach (CRT): jeśli m1,...,mk są parami względnie pierwsze, to dla dowolnych a1,...,ak istnieje dokładnie jedno n spełniające n≡ai(mod mi) jednocześnie, rozstrzygane jednoznacznie modulo M = m1·...·mk. Konstruktywny algorytm: obliczyć M, Mi = M/mi, znaleźć odwrotności modularne xi = Mi^{-1} (mod mi) za pomocą rozszerzonego algorytmu Euklidesa, utworzyć ei = xi·Mi i policzyć n = Σ ai·ei (mod M). Przykład: dla (3,5,7) z resztami (2,3,2) otrzymujemy n ≡ 23 (mod 105). Implementacja w JS obejmuje extendedGCD, modularInverse i funkcję chineseRemainderTheorem; złożoność zależy głównie od liczby równań, nie od wartości M. Zastosowania: kryptografia (np. RSA, podział sekretów), Residue Number System, algorytmy FFT (Good–Thomas) oraz praktyczne zadania algorytmiczne (np. Advent of Code). Twierdzenie ma historyczne źródło w chińskim Sunzi Suanjing i jest przydatne programistom rozwiązującym problemy z arytmetyką modularną.
+
+## Korekcja perspektywy — algorytmiczne podejście
+
+https://swistak.codes/post/korekcja-perspektywy
+
+Artykuł opisuje algorytmiczne podejście do korekcji perspektywy zdjęć (transformacja perspektywiczna / homografia). Pokazuje jak z czterech punktów źródłowych i odpowiadających im punktów docelowych wyznaczyć macierz 3×3 (osiem niewiadomych a..h) tworząc układ ośmiu równań i rozwiązując go numerycznie metodą eliminacji Gaussa (implementacja w JavaScript). Wspomina o gotowych funkcjach OpenCV (getPerspectiveTransform, warpPerspective) oraz o praktycznej prezentacji w przeglądarce (CSS matrix3d). Dla transformacji rastrowej wyjaśnia konieczność mapowania odwrotnego: obliczenia macierzy odwrotnej transformacji i dla każdego piksela docelowego znalezienia współrzędnych źródłowych (w tym wzory na wyznacznik i dołączoną macierz oraz implementację obliczania A−1). Omawia problemy z niecałkowitymi współrzędnymi piksela i metody próbkowania: najbliższego sąsiada (proste, gorsze wizualnie) oraz interpolację dwuliniową (praktycznie wystarczająca), z przykładami implementacji interpolacji i końcową prezentacją aplikacji. Podsumowuje, że mimo istnienia bibliotek, warto rozumieć matematykę i implementację transformacji perspektywicznej i odwrotnego mapowania.
+
+## Losowość w informatyce
+
+https://swistak.codes/post/losowosc
+
+Artykuł opisuje rolę losowości w informatyce, wyjaśnia pojęcie losowości i procesów stochastycznych oraz rozróżnia losowość matematyczną od praktycznej pseudolosowości. Omawia dwa główne podejścia: generatory pseudolosowe (PRNG) — deterministyczne algorytmy wymagające ziarna — oraz prawdziwie losowe generatory sprzętowe (TRNG) wykorzystujące zjawiska fizyczne lub kwantowe. Dla PRNG przedstawione są przykłady historyczne i praktyczne: metoda środka kwadratu (krótki okres, wadliwa), liniowy generator kongruencyjny LCG (prosty, ulepszony przez zasady Hull–Dobell), Xorshift (szybkie operacje bitowe), PCG (permuttowany LCG, dobry kompromis) oraz klasa kryptograficznie bezpiecznych CSPRNG (np. Blum Blum Shub oparty na faktoryzacji, oraz standardy NIST SP 800-90A: Hash_DRBG, HMAC_DRBG, CTR_DRBG). Wskazane są kryteria jakości generatora: długość okresu, jednorodność i nieprzewidywalność, a także źródła ziarna — od czasu systemowego i danych użytkownika po sprzętowe źródła entropii. Omówiono też praktyczne implementacje w językach (rand/LCG w C, Mersenne Twister w Pythonie, Xorshift128+ w V8, Xoshiro/Xoshiro256** w .NET, LXM w Javie) oraz systemowe CSPRNG (/dev/urandom, getrandom, BCryptGenRandom). Konkluzja: do większości zastosowań wystarczą PRNG, ale do zastosowań kryptograficznych i krytycznych należy używać sprawdzonych CSPRNG i/lub TRNG; nie zaleca się samodzielnej implementacji algorytmów kryptograficznych.
+
+## świstak.codes staje się open‑source!
+
+https://swistak.codes/offtopic/opensource
+
+Artykuł opisuje udostępnienie kodu źródłowego bloga świstak.codes na GitHubie (https://github.com/swistak-codes/blog) na licencji MIT (treści i grafiki pozostają objęte prawami autorskimi) oraz warunki wykorzystania (brak historii commitów, brak akceptacji pull requestów; sugestie przez GitHub Discussions). Repozytorium to aplikacja Next.js (serwer testowany na Node 22.12.0), uruchamiana poleceniami npm install / npm start; dostępne są też konfiguracje VSCode i skrypty Docker do lokalnego uruchomienia Matomo i Typesense. Autor wyjaśnia motywację — zachowanie kopii treści z pełną interaktywnością — i zapewnia, że blog będzie nadal działać. Opisano ewolucję stosu: Next.js 12 → 15, migracja ze styled-components do CSS Modules + SCSS, rezygnacja z monorepo Nx, użycie Pages Routera i Webpacka, oraz pozostawione fragmenty starej konfiguracji (legacy image/link). Artykuły są w MDX z niestandardową sekcją metadanych, rozmieszczone w /src/_posts, /src/_offtopic i /src/_pages; strony są generowane skryptem generate-pages, a wyszukiwarka zasilana jest przez scraping własnej strony; RSS i sitemap generowane skryptem public-fix.sh z powodu ograniczeń Next.js. Testy jednostkowe i część TypeScript są obecnie nieaktywne z powodu wcześniejszych problemów konfiguracyjnych. Autor tłumaczy wybory technologiczne: Next.js dla SSR/SSG, CSS Modules zamiast Tailwindu czy styled-components, Matomo dla prywatności analityki, Typesense jako open-source silnik wyszukiwania z możliwością wektorową, oraz Giscus do komentarzy przez GitHub; większość usług jest self-hostowana, by unikać vendor lock-in i chronić prywatność, choć wymaga to dodatkowej administracji.
+
+## Wyszukiwanie obiektów w przestrzeni
+
+https://swistak.codes/post/wyszukiwanie-w-przestrzeni
+
+Artykuł omawia techniki wyszukiwania obiektów w przestrzeni 2D przydatne m.in. w grach: problem (lista obiektów z pozycją i rozmiarem), rodzaje zapytań (punkt, promień, prostokąt częściowo/całkowicie zawierający obiekty) oraz typowe zastosowania (rendering, kolizje, wykrywanie kliknięć, pole widzenia, GIS).
+
+Quadtree (point-region): rekurencyjna struktura dzieląca obszar na ćwiartki; węzeł przechowuje listę obiektów do pojemności, potem się dzieli na 4 dzieci i rozdziela elementy. Operacje: insert — sprawdzenie przecięcia, dodanie do liścia lub subdivide i rekurencyjne wstawianie; query — rekurencyjne przeszukiwanie węzłów przecinających zakres, filtrowanie duplikatów (Set). Złożoność: średnio O(log n), w najgorszym O(n). Zalety: dobrze dla nierównomiernych gęstości i statycznych danych; wady: słabsze przy ruchomych obiektach i równomiernie zapełnionej przestrzeni. Odpowiednik 3D: octree.
+
+Spatial hashing: stała siatka komórek o rozmiarze cellSize, komórki indeksowane kluczem (np. "x,y") w mapie. Dla prostokąta oblicza się zakres komórek (min..max) i zapisuje obiekt we wszystkich odpowiadających komórkach. Operacje: insert i query — pobranie komórek, iteracja obiektów i filtrowanie przecięć; użycie Set by uniknąć duplikatów. Złożoność: optymistycznie O(1), w praktyce O(m) gdzie m = liczba komórek zajmowanych przez obiekt. Zalety: prosta implementacja, świetna dla ruchomych obiektów, równomiernych rozkładów i zapytań punktowych; wady: problemy przy dużych/zróżnicowanych rozmiarów obiektów i nierównomiernym rozkładzie (przepełnione komórki).
+
+Porównanie i uwagi praktyczne: struktury się uzupełniają — quadtree dla nierównomiernej gęstości/statycznych obiektów, spatial hash dla ruchomych/równomiernych. Możliwe hybrydy (quadtree z haszowaniem wewnątrz węzłów) lub rozdzielenie danych (statyczne w quadtree, ruchome w spatial hash). Wzmianka o innych strukturach: R-tree (i R*-Tree), BSP, k-d tree oraz o dostępnych implementacjach w silnikach i bazach danych (np. PostGIS).
+
+## Renderowanie grafiki w stylu Wolfenstein 3D
+
+https://swistak.codes/post/renderowanie-wolf-3d
+
+Artykuł opisuje algorytmikę renderowania w stylu Wolfenstein 3D: sceny są reprezentowane jako ortogonalna dwuwymiarowa siatka, a widok 3D uzyskuje się techniką ray castingu, gdzie z kamery wypuszczany jest po jednym promieniu na każdą kolumnę ekranu. Do wykrywania kolizji używany jest algorytm DDA (Digital Differential Analyzer) z krokami po komórkach mapy, obliczaniem sideDist/deltaDist oraz stepX/stepY; odległość do ściany wyznaczana jest dzieleniem przez składową kierunku promienia, co jednocześnie koryguje efekt „rybiego oka”. Pole widzenia definiuje rzutnia (plane) i ogniskowa, a promień obliczany jest jako suma wektora kierunku i wektora rzutni pomnożonego przez położenie kamery w zakresie [-1,1]. Oświetlenie symulowano prostą techniką dwóch wariantów tekstur (jasna/podciemna) zależnie od orientacji trafienia; w oryginale stosowano liczne optymalizacje i obliczenia stałoprzecinkowe. Autor pokazuje uproszczoną implementację w JavaScript (render, castRay, move, rotate, pętla gry) bez pełnego teksturowania i sprite’ów, tłumacząc kluczowe wzory i różnice względem oryginału. Tekst podkreśla edukacyjną wartość ray castingu jako prostego, historycznego podejścia do real-time 3D.
+
+## Silnia i powiązane zagadnienia
+
+https://swistak.codes/post/silnia
+
+Artykuł omawia funkcję silnia n! — definicję (n! = ∏_{k=1}^n k, 0! = 1), własności rekurencyjne i szybki wzrost wartości (przykłady do 10!), problemy przepełnienia w programowaniu oraz pięć implementacji w JavaScript (iteracyjna, rekurencyjna, programowanie dynamiczne, zoptymalizowane DP, generator z BigInt). Opisuje liczbę zer na końcu n! i wzór f(n)=∑_{i≥1}⌊n/5^i⌋. Przedstawione zastosowania obejmują kombinatorykę: permutacje, wariacje, symbole Newtona/binominalne, kombinacje z/bez powtórzeń, trójkąt Pascala, dwumian Newtona i krzywe Béziera. Omówiono rolę silni w szeregu Taylora/Maclaurina (terminy 1/n! f^{(n)}), w tym rozwinięcie sin x.
+
+Funkcja Gamma Γ(z) jest przedstawiona jako rozszerzenie silni na liczby rzeczywiste/zespolone (Γ(n)=(n−1)!), z definicją całkową Γ(z)=∫_0^∞ t^{z−1} e^{−t} dt (Re(z)>0) i iloczynową; podano rekurencję Γ(z+1)=z Γ(z) oraz wzory dla półcałkowitych wartości (Γ(1/2+n)=(2n)!/(4^n n!) √π). Omówiono numeryczne przybliżenia: Stirlinga (n! ≈ √(2πn)(n/e)^n) i dokładniejsze przybliżenie Lanczosa dla Γ.
+
+Rozszerzenia silni: silnie wielokrotne (podwójna i k‑krotna), definicje dla n ∈ Z (z ograniczeniami), przybliżenia dla n!!; potęgi kroczące — rising x^{\overline{n}} i falling x^{\underline{n}} (powiązanie z gamma) oraz ich zastosowania w kombinatoryce i rachunku różnic skończonych. Podsilnia (!n, subfactorial) definiowana rekurencyjnie i wzorami (np. !n = n! ∑_{k=0}^n (−1)^k/k!) opisuje liczby derangements; asymptotycznie !n ≈ n!/e. Pierwsz nia (primorial n#) — iloczyn pierwszych ≤ n — i zastosowania w kryptografii, testowaniu gładkości liczb oraz w konstrukcjach typu primorial primes i sieciach primorialowych. Końcowe uwagi odsyłają do dalszych uogólnień (q‑silnia, funkcja G Barnesa itd.).
+
+## Określanie trudności pisania słowa
+
+https://swistak.codes/post/trudnosc-pisania
+
+Artykuł opisuje sposoby mierzenia trudności wpisania słowa na fizycznej klawiaturze (QWERTY, polski programisty) przy założeniu bezwzrokowego, technicznie poprawnego pisania. Omówione trzy metryki: 1) prosta suma odległości między kolejnymi klawiszami (współrzędne układu, odległość Manhattan/Euklidesowa) z uwzględnieniem ruchu kciuka dla polskich diakrytyków; 2) model z mapowaniem palców i pozycjami startowymi, który liczy ruchy konkretnych palców; 3) zaawansowany model wysiłku (Colemak Mod‑DH / Carpalx) — najpierw uproszczona metryka w oparciu o wagi palców i prawo Fittsa, a następnie szczegółowy Carpalx analizujący triady (grupy trzech liter) i sumujący koszty bazowe, kary i komponent ścieżki (ręka, rząd, palce) z gotowymi parametrami i wagami. Artykuł zawiera implementacje (JS), mapowania klawiszy/palców, przykładowe wyniki i porównanie metryk oraz rekomendacje: Carpalx jest najbardziej kompleksowy, modele prostsze są łatwiejsze do implementacji; warto badać też różne układy (Dvorak, Colemak) i wpływ diakrytyków.
+
+## Znajdowanie dominującej barwy
+
+https://swistak.codes/post/barwa-dominujaca
+
+Artykuł opisuje metody statystyczne i praktyczne techniki znajdowania "dominującego" koloru na obrazie — porównuje średnie (arytmetyczna, kwadratowa/RMS, obliczane iteracyjnie), prostą metodę skalowania obrazu do 1x1, medianę (według składowych i geometryczną z algorytmem Weiszfelda) oraz dominantę/modę kolorów z uwzględnieniem tolerancji. Pokazano, że średnie są podatne na wartości skrajne, skalowanie do 1x1 daje różne wyniki zależnie od silnika przeglądarki, a mediana bywa lepsza lecz nie zawsze idealna. Dominanta — liczona przez grupowanie podobnych kolorów w "koszyki" według odległości euklidesowej lub poprzez zaokrąglanie składowych i mapę kluczy — dała najbardziej wizualnie trafne rezultaty i zbliżone do efektu stosowanego przez serwisy typu Trello (różnice mogą wynikać z parametrów: skalowanie, tolerancja, metryka). Omówiono implementacje JS (w tym optymalizacje), problemy wydajnościowe oraz praktyczne uwagi (dobór tolerancji, progi zbieżności). Zaproponowano dodatkowe podejścia: analizę pikseli przy brzegach (tło) oraz klasteryzację (k-średnich) jako alternatywy. W artykule dostępne są interaktywne prezentacje i kod źródłowy do testów lokalnych w przeglądarce.

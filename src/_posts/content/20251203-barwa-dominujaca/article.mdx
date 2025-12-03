@@ -1,0 +1,679 @@
+import { Image, Grid } from '@swistak-codes/components';
+import cover from './swistak_kolorowy.webp';
+import Link from 'next/link';
+import { Presentation } from './presentation';
+import trello from './trello.png';
+import trello2 from './trello2.png';
+import trello1_min from './trello1_min.webp';
+import trello2_min from './trello2_min.webp';
+import mean_a1 from './mean_a1.webp';
+import mean_a2 from './mean_a2.webp';
+import mean_q1 from './mean_q1.webp';
+import mean_q2 from './mean_q2.webp';
+import scale_chrome_1 from './scale_chrome_1.webp';
+import scale_chrome_2 from './scale_chrome_2.webp';
+import scale_ff_1 from './scale_ff_1.webp';
+import scale_ff_2 from './scale_ff_2.webp';
+import scale_safari_1 from './scale_safari_1.webp';
+import scale_safari_2 from './scale_safari_2.webp';
+import median_c_1 from './median_c_1.webp';
+import median_c_2 from './median_c_2.webp';
+import median_g_1 from './median_g_1.webp';
+import median_g_2 from './median_g_2.webp';
+import mode_o_1 from './mode_o_1.webp';
+import mode_o_2 from './mode_o_2.webp';
+import mode_d_1 from './mode_d_1.webp';
+import mode_d_2 from './mode_d_2.webp';
+
+export const meta = {
+  title: 'Znajdowanie dominującej barwy',
+  abstract:
+    'Artykuł omawia operacje na barwach w grafice komputerowej, takie jak określenie koloru dominującego, chroma keying i znajdowanie barw dopełniających.',
+  firstParagraph: (
+    <>
+      Niemal 4 lata temu na blogu opublikowałem artykuł „<Link href="/post/podstawowe-operacje-na-barwach">Podstawowe operacje na barwach</Link>”, gdzie opisałem, w jaki sposób przekonwertować obraz na skalę szarości, zmienić jasność, kontrast, wykonać korekcję gamma, a także wykonać inwersję barw (czyli konwersję do negatywu). Powróćmy do tej tematyki i omówmy kolejną wartą uwagi i przydatną operację: znajdowanie dominującej barwy w obrazie.
+    </>
+  ),
+  keyword: 'barwy',
+  categories: ['Grafika komputerowa'],
+  tags: [
+    'grafika',
+    'kolory',
+    'javascript',
+    'kolor dominujący',
+    'statystyka',
+    'średnia',
+    'średnia arytmetyczna',
+    'średnia kwadratowa',
+    'mediana',
+    'mediana geometryczna',
+    'dominanta',
+    'moda'
+  ],
+  slug: 'barwa-dominujaca',
+  updateTime: '2025-12-03T07:00:00+00:00',
+  publishTime: '2025-12-03T07:00:00+00:00',
+  cover,
+};
+
+## Uwaga wstępna
+
+Do każdego opisanego algorytmu dodałem prezentację, w której możesz wrzucić własny obrazek lub zdjęcie. Nie musisz się jednak martwić — wszystko zostaje na Twoim komputerze i nie jest nigdzie przesyłane; całość obliczeń jest wykonywana w Twojej przeglądarce internetowej.
+
+Dodatkowo, jeśli nie miałeś(-aś) okazji czytać moich artykułów [na temat barw i ich reprezentacji w komputerze](/post/jak-komputer-zapisuje-kolory) oraz [wcześniejszego o operacjach na barwach](/post/podstawowe-operacje-na-barwach), nadrób tą zaległość. Poniższy tekst można traktować jako kontynuację tamtych artykułów, więc nie będę powtarzać teorii.
+
+Przyda się także nieco wiedzy o statystyce. Wszystko wyjaśnię w trakcie artykułu, ale część pojęć krótko opisałem w artykule o [mierzeniu czasu wykonania kodu](/post/mierzenie-czasu-wykonania/#wyja%C5%9Bnienie-termin%C3%B3w), więc możesz wcześniej się z nim zapoznać.
+
+## W czym rzecz?
+
+W różnych aplikacjach czy serwisach internetowych możemy spotkać się z tym, że kolor (lub wiele kolorów) interfejsu dopasowuje się do kolorystyki zdjęcia. Pierwsze przykłady, które przychodzą mi na myśl, gdzie spotkamy się z takim czymś, to Spotify i Trello. W obu tych przypadkach kolorystyka interfejsu dopasowuje się do zdjęcia na okładce (profilu, płyty, karty).
+
+<Image
+  image={trello}
+  alignCenter
+  fullSize
+  forceWhiteBackground={false}
+  alt="Zrzut ekranu karty zadania z Trello z okładką artykułu."
+  caption={<>Zrzut ekranu fragmentu interfejsu Trello, gdzie możemy zauważyć, że okładka artykułu została „rozszerzona” o kolor do niej mniej więcej pasujący.</>}
+/>
+
+<Image
+  image={trello2}
+  alignCenter
+  fullSize
+  forceWhiteBackground={false}
+  alt="Zrzut ekranu karty zadania z Trello z okładką artykułu o silni."
+  caption={<>Tutaj również zrzut ekranu z Trello, ale tym razem z karty, gdzie jest okładka artykułu o silni. W tym przypadku kolor został trafiony niemal idealnie — tło obrazka ma idealnie białą barwę (#FFFFFF), a znaleziony kolor to #FBFBFB.</>}
+/>
+
+Jest to dość ciekawy efekt, który zaciekawił mnie na tyle, że postanowiłem spróbować go odtworzyć na własną rękę. Poniższy artykuł to zbiór moich pomysłów i eksperymentów, w jaki sposób możemy wykorzystać metody statystyczne do znalezienia dominującej barwy w obrazie. Sprawdźmy razem, czy uda nam się uzyskać zadowalające rezultaty, a także tę samą metodę wykorzystywaną przez wspomniane serwisy.
+
+A dlaczego metody statystyczne? Ponieważ obraz cyfrowy to nic innego jak zbiór pikseli, a każdy piksel to punkt w trójwymiarowej przestrzeni kolorów (np. RGB). Oznacza to tyle, że zbiór takich punktów możemy traktować tak samo jak dowolne inne dane przestrzenne opisane liczbowo. Przykładowo pokazywałem w artykule o [gradientach](/post/gradienty), które wyznaczaliśmy przez rysowanie prostych lub krzywych w przestrzeni kolorów. Statystyka może niekoniecznie kojarzyć się z grafiką komputerową i przestrzeniami trójwymiarowymi, ale zobaczysz, że jest to idealne narzędzie do tego, co chcemy osiągnąć.
+
+## Średni kolor
+
+Zacznijmy od najprostszej metody statystycznej, która przychodzi na myśl: obliczania średniej. To po nią zwykle sięgamy, gdy chcemy znaleźć „typową” wartość w zbiorze danych liczbowych. Tylko czy typowa wartość będzie tą dominującą? I która średnia będzie najlepsza?
+
+Średnia oczywiście działa tylko dla pojedynczej liczby, a my mamy do czynienia z trzema składowymi koloru (R, G, B). W takim razie musimy obliczyć średnią osobno dla każdej składowej. Ostatecznie otrzymamy więc trzy wartości, które razem utworzą nowy kolor.
+
+### Średnia arytmetyczna
+
+Mówiąc średnia, zwykle mamy na myśli średnią arytmetyczną. Dla formalności przypomnę wzór:
+
+$$
+\overline{x} = \frac{1}{n} \sum_{i=1}^{n} x_i
+$$
+
+Nam ten wzór jednak się nie przyda z prostego powodu: pikseli w obrazie jest bardzo dużo, nawet miliony (stąd mowa o megapikselach w kontekście rozdzielczości). Zsumowanie ich wszystkich doprowadziłoby zapewne do przepełnienia typu liczbowego. Dlatego też musimy obliczyć średnią w inny sposób — iteracyjnie. Możemy to zrobić za pomocą wzoru:
+
+$$
+\overline{x}_k = \overline{x}_{k-1} + \frac{x_k - \overline{x}_{k-1}}{k},
+$$
+
+gdzie $$\overline{x}_k$$ to średnia z pierwszych $$k$$ elementów, a $$x_k$$ to wartość $$k$$-tego elementu. W ten sposób możemy obliczyć średnią bez konieczności przechowywania wszystkich wartości.
+
+### Średnia kwadratowa
+
+Żeby urozmaicić, obliczmy jeszcze inną średnią — kwadratową. Jest zdefiniowana następująco:
+
+$$
+\overline{x}_q = \sqrt{\frac{1}{n} \sum_{i=1}^{n} x_i^2}
+$$
+
+Średnią kwadratową wykorzystujemy do oszacowania rządu wielkości wartości w zbiorze danych. W statystyce znalazła zastosowanie przy obliczaniu odchylenia standardowego, które mierzy rozproszenie danych wokół średniej arytmetycznej. Czy przyda się tutaj? Sprawdzimy.
+
+Najpierw jednak musimy znaleźć sposób na iteracyjne obliczanie średniej kwadratowej. Zauważmy, że średnia ta to tak naprawdę [pierwiastek](/post/pierwiastkowanie) ze średniej arytmetycznej kwadratów wartości. W takim razie możemy obliczyć średnią arytmetyczną kwadratów iteracyjnie, a następnie na końcu obliczyć pierwiastek z wyniku.
+
+### Inne średnie?
+
+Mamy także inne popularne średnie: geometryczną i harmoniczną. Obie mają jednak problem z obsługą wartości zerowych, które jak najbardziej mogą wystąpić na obrazie. Średniej harmonicznej nie obliczymy, bo dzielilibyśmy przez zero. Natomiast średnia geometryczna w przypadku wystąpienia zera zwróci zero, ponieważ mnożymy wszystkie wartości przez siebie.
+
+Jest oczywiście jeszcze więcej innych średnich, ale nie ma co bardziej kombinować. I tak, gdy chcemy uśredniać wartość, to z automatu myślimy o średniej arytmetycznej, a nie np. średniej winsorowskiej.
+
+### Prezentacja
+
+Poniżej znajduje się prezentacja, gdzie możesz przetestować opisane metody na własnym obrazie lub zdjęciu. Wybierz plik z dysku, a następnie kliknij przycisk odpowiadający metodzie, którą chcesz przetestować. Wynikowy kolor zostanie wyświetlony razem z oryginalnym obrazem dla porównania.
+
+<Presentation variant="mean" />
+
+Kod źródłowy prezentacji znajdziesz [w kodzie źródłowym bloga](https://github.com/swistak-codes/blog/tree/main/libs/presentations/dominant-color). Kod obliczania średnich kolorów znajdziesz [w tym pliku](https://github.com/swistak-codes/blog/tree/main/libs/presentations/dominant-color/lib/logic/means.ts).
+
+### Porównanie z Trello
+
+Porównajmy teraz rezultaty z tym, co na początku pokazałem na zrzutach ekranu z Trello. Jako pierwszy jest wzorcowy zrzut z Trello, następnie wynik obliczony za pomocą średniej arytmetycznej, a na samym dole średnia kwadratowa.
+
+<Grid minWidth={100}>
+  <Image
+    image={trello1_min}
+    alignCenter
+    fullSize
+    forceWhiteBackground={false}
+    alt="Zrzut ekranu z Trello (aktualny artykuł)."
+    caption={<>rgb(223, 68, 150) / #DF4496</>}
+  />
+  <Image
+    image={trello2_min}
+    alignCenter
+    fullSize
+    forceWhiteBackground={false}
+    alt="Zrzut ekranu z Trello (artykuł o silni)."
+    caption={<>rgb(251, 251, 251) / #FBFBFB</>}
+  />
+</Grid>
+<Grid minWidth={100}>
+  <Image
+    image={mean_a1}
+    alignCenter
+    fullSize
+    forceWhiteBackground={false}
+    alt="Kolor znaleziony za pomocą średniej arytmetycznej (aktualny artykuł)."
+    caption={<>rgb(140, 105, 129) / #8C6981</>}
+  />
+  <Image
+    image={mean_a2}
+    alignCenter
+    fullSize
+    forceWhiteBackground={false}
+    alt="Kolor znaleziony za pomocą średniej arytmetycznej (artykuł o silni)."
+    caption={<>rgb(212, 209, 206) / #D4D1CE</>}
+  />
+</Grid>
+<Grid minWidth={100}>
+  <Image
+    image={mean_q1}
+    alignCenter
+    fullSize
+    forceWhiteBackground={false}
+    alt="Kolor znaleziony za pomocą średniej kwadratowej (aktualny artykuł)."
+    caption={<>rgb(166, 126, 141) / #A67E8D</>}
+  />
+  <Image
+    image={mean_q2}
+    alignCenter
+    fullSize
+    forceWhiteBackground={false}
+    alt="Kolor znaleziony za pomocą średniej kwadratowej (artykuł o silni)."
+    caption={<>rgb(223, 221, 218) / #DFDDDA</>}
+  />
+</Grid>
+
+Jak widzimy, kolory znacznie się różnią od tego, czego szukaliśmy. Kolor z Trello jest zbliżony do tych użytych na oryginalnych obrazkach, gdy średnie znalazły nam bardziej „brudne” odcienie. Wynika to z faktu, że średnie są podatne na wartości skrajne.
+
+Ciekawostka: kiedy szukałem w Internecie, jak faktycznie Trello oblicza kolor, znalazłem jedynie [komentarz na forum Atlassiana](https://community.atlassian.com/forums/Trello-questions/How-do-the-card-cover-background-colors-get-chosen/qaa-p/955092#M9942), który mówi, że jest to średni kolor. Najwyraźniej nie jest to prawda. A przynajmniej nie jest to średnia arytmetyczna ani kwadratowa.
+
+<small>Mała uwaga: na powyższych zrzutach ekranu w wyniku kompresji barwy się delikatnie zmieniły, przez co różnią się od tych, które uzyskałem lokalnie. Jednak różnice są na tyle małe, że nie wpływają na ogólny wniosek. Uwaga ta będzie również dotyczyć kolejnych zrzutów ekranu w artykule.</small>
+
+## Przeskalowanie obrazu w dół
+
+Pisząc poprzedni akapit, przyszła mi do głowy myśl: po co liczyć średnią? Może wystarczy po prostu przeskalować obraz w dół do rozmiaru 1x1 piksela? W końcu taki piksel będzie reprezentować „średni” kolor całego obrazu. Dokładnie do tego sprowadza się każda metoda skalowania obrazu (poza metodą najbliższego sąsiada) — wartość piksela w nowym obrazie jest obliczana na podstawie wartości pikseli z oryginalnego obrazu odpowiadających danemu punktowi. Pokazywałem to w teorii w artykule o [przekształceniach grafiki 2D](/post/przeksztalcenia-grafiki-2d/#interpolacja-dwuliniowa), a obliczałem w praktyce w artykule o [korekcji perspektywy](/post/korekcja-perspektywy) — w obu przypadkach stosowałem interpolację dwuliniową. Tutaj jednak nie będziemy obliczać tego ręcznie. Po prostu przeskalujemy obraz do rozmiaru 1x1 piksela za pomocą dostępnych funkcji i sprawdzimy wartość.
+
+### Prezentacja
+
+Poniżej znajduje się prezentacja, gdzie możesz przetestować tę metodę na własnym obrazie lub zdjęciu.
+
+<Presentation variant="scale" />
+
+Kod obliczający średni kolor przez przeskalowanie obrazu znajdziesz w kodzie prezentacji [w tym pliku](https://github.com/swistak-codes/blog/tree/main/libs/presentations/dominant-color/lib/logic/scale.ts).
+
+### Porównanie z Trello
+
+Zróbmy kolejne porównanie. Co może być ciekawe, to fakt, że tym razem wynik jest inny w różnych przeglądarkach internetowych. U góry zrzut referencyjny z Trello, poniżej wyniki z Chrome'a, Firefoksa i Safari.
+
+<Grid minWidth={100}>
+  <Image
+    image={trello1_min}
+    alignCenter
+    fullSize
+    forceWhiteBackground={false}
+    alt="Zrzut ekranu z Trello (aktualny artykuł)."
+    caption={<>rgb(223, 68, 150) / #DF4496</>}
+  />
+  <Image
+    image={trello2_min}
+    alignCenter
+    fullSize
+    forceWhiteBackground={false}
+    alt="Zrzut ekranu z Trello (artykuł o silni)."
+    caption={<>rgb(251, 251, 251) / #FBFBFB</>}
+  />
+</Grid>
+<Grid minWidth={100}>
+  <Image
+    image={scale_chrome_1}
+    alignCenter
+    fullSize
+    forceWhiteBackground={false}
+    alt="Kolor znaleziony za pomocą skalowania w dół w Chromie (aktualny artykuł)."
+    caption={<>rgb(136, 106, 124) / #886A7C</>}
+  />
+  <Image
+    image={scale_chrome_2}
+    alignCenter
+    fullSize
+    forceWhiteBackground={false}
+    alt="Kolor znaleziony za pomocą skalowania w dół w Chromie (artykuł o silni)."
+    caption={<>rgb(202, 199, 196) / #CAC7C4</>}
+  />
+</Grid>
+<Grid minWidth={100}>
+  <Image
+    image={scale_ff_1}
+    alignCenter
+    fullSize
+    forceWhiteBackground={false}
+    alt="Kolor znaleziony za pomocą skalowania w dół w Firefoksie (aktualny artykuł)."
+    caption={<>rgb(31, 119, 135) / #1F7787</>}
+  />
+  <Image
+    image={scale_ff_2}
+    alignCenter
+    fullSize
+    forceWhiteBackground={false}
+    alt="Kolor znaleziony za pomocą skalowania w dół w Firefoksie (artykuł o silni)."
+    caption={<>rgb(118, 116, 126) / #76747E</>}
+  />
+</Grid>
+<Grid minWidth={100}>
+  <Image
+    image={scale_safari_1}
+    alignCenter
+    fullSize
+    forceWhiteBackground={false}
+    alt="Kolor znaleziony za pomocą skalowania w dół w Safari (aktualny artykuł)."
+    caption={<>rgb(140, 105, 129) / #8C6981</>}
+  />
+  <Image
+    image={scale_safari_2}
+    alignCenter
+    fullSize
+    forceWhiteBackground={false}
+    alt="Kolor znaleziony za pomocą skalowania w dół w Safari (artykuł o silni)"
+    caption={<>rgb(211, 209, 206) / #D3D1CE</>}
+  />
+</Grid>
+
+Jak widać, znowu nie trafiliśmy. Do tego metoda ta jest niedeterministyczna, ponieważ różne przeglądarki dają różne wyniki. O ile wyniki z Chrome'a (więc też i z wielu innych przeglądarek na nim bazujących, jak Edge czy Brave) i Safari są dość zbliżone, to Firefox znacznie odstaje od reszty. W kwestii uśredniania też jest ciekawe, że jedynie wynik z Safari jest zbliżony do tego, który uzyskaliśmy za pomocą średniej arytmetycznej.
+
+A skąd różnice między przeglądarkami? Każdy silnik używa innego sposobu skalowania obrazów i nie da się tego sterować przez podanie nazwy konkretnego algorytmu. [Standard HTML](https://html.spec.whatwg.org/multipage/canvas.html#drawing-images) również nie narzuca żadnego sposobu, pozostawiając pole do wyboru twórcom silników. W kwestii co dokładnie jest używane, to w przypadku Firefoksa jest to interpolacja dwuliniowa ([źródło](https://searchfox.org/firefox-main/source/dom/canvas/CanvasRenderingContext2D.cpp)), natomiast w Chromie (w przypadku skalowania w dół jak tutaj) dwuliniowa z mipmapami ([źródło](https://source.chromium.org/chromium/chromium/src/+/main:cc/paint/paint_flags.cc;l=172?q=SkSamplingOptions&sq=&ss=chromium%2Fchromium%2Fsrc)). Safari wykorzystuje wbudowane skalowanie w [Core Graphics](https://developer.apple.com/documentation/coregraphics) bez informacji o dokładnym algorytmie (możliwe, że jest to interpolacja dwusześcienna).
+
+## Mediana kolorów
+
+Jak zobaczyliśmy, średnia daje całkiem zadowalające rezultaty, ale może nie być idealna w każdym przypadku. Jest podatna na wartości skrajne i, co sama nazwa mówi, uśrednia, a nie znajduje wartości dominującej. Może nasz kolor znajduje się gdzieś w środku całego zbioru użytych barw? Dlatego sprawdźmy inną metodę statystyczną: medianę, czyli wartość środkową.
+
+### Mediana według składowych
+
+Medianę bardzo łatwo wyznaczyć dla zwykłych liczb (czy bardziej profesjonalnie mówiąc: jednowymiarowego zbioru danych). Wystarczy posortować wartości i wybrać tą środkową (lub średnią z dwóch środkowych, jeśli liczba wartości jest parzysta). Jednak w przypadku kolorów problem się komplikuje, bo mamy do czynienia z trzema składowymi (R, G, B). Jak więc wyznaczyć medianę w trójwymiarowej przestrzeni?
+
+Teoretycznie moglibyśmy podejść podobnie jak w przypadku średniej: wyznaczyć medianę osobno dla każdej składowej (R, G, B). Można tak zrobić (i nawet sprawdzimy ten sposób), ale nie jest to do końca określenie środkowego punktu. Jest to tzw. mediana według składowych (z ang. component-wise median). Niestety sposób ten jest podatny na wartości skrajne i niekoniecznie możemy uzyskać dobry wynik. Jednak jest bardzo prosty do obliczenia, więc też go sprawdzimy. Wystarczy posortować wartości każdej składowej i wybrać środkową.
+
+### Mediana geometryczna
+
+Zauważ, że jeśli spojrzelibyśmy na przestrzeń, to moglibyśmy wyznaczyć punkt znajdujący się najbliżej środka zbioru punktów. Ewentualnie, zakładając, że zbiór punktów określa nam jakiś fragment przestrzeni, to wyznaczylibyśmy jej środek. Tylko jak to obliczyć?
+
+To, co nas tutaj interesuje, to tzw. mediana geometryczna (po ang. spatial median). Jest to punkt w przestrzeni, który minimalizuje sumę odległości do wszystkich innych punktów w zbiorze. Formalnie, dla zbioru punktów $$x_1, x_2, \ldots, x_n$$ w przestrzeni $$d$$-wymiarowej mediana geometryczna $$m$$ jest definiowana jako:
+
+$$
+\arg\min_{y \in \mathbb{R}^d} \sum_{i=1}^{n} \|x_i - y\|
+$$
+
+$$\arg\min$$ oznacza wartość argumentu $$y$$, dla której funkcja przyjmuje wartość minimalną. $$y$$ to $$d$$-wymiarowy punkt (w naszym przypadku $$d=3$$ dla przestrzeni RGB), dla którego suma odległości do wszystkich punktów $$x_i$$ jest najmniejsza.
+
+### Algorytm Weiszfelda
+
+Powiedzmy sobie szczerze — definicja ta nic nie mówi, w jaki sposób w praktyce wyznaczyć średnią. Co więcej, nie istnieje ogólny wzór na obliczenie mediany geometrycznej. Na szczęście istnieje iteracyjny algorytm, który pozwala przybliżyć tą wartość: algorytm Weiszfelda. Jest to metoda numeryczna, która zaczyna od początkowego przybliżenia mediany i iteracyjnie poprawia to przybliżenie.
+
+W algorytmie tym startujemy od prostego założenia, że środkowym punktem jest ten wyliczony ze średniej arytmetycznej, tak jak to robiliśmy wcześniej. Następnie co iterację poprawiamy przybliżenie — obliczamy go jako średnią ważoną wszystkich punktów, gdzie wagi są obliczane na podstawie odległości do aktualnego środka. Proces ten powtarzamy przez narzuconą odgórnie liczbę iteracji albo do momentu, gdy zmiana współrzędnych przestanie być istotnie duża.
+
+Implementacja w JavaScript wygląda następująco (zakładamy, że mamy funkcję do obliczania średniej arytmetycznej dla obrazu):
+
+```javascript
+// próg zbieżności
+export const WEISZFELD_TOLERANCE = 1e-7;
+// maksymalna liczba iteracji
+export const WEISZFELD_MAX_ITERATIONS = 1000;
+
+function geometricMedian(image) {
+  // wyznaczamy punkt startowy jako średnią arytmetyczną
+  let median = arithmeticMean(image);
+  // iterujemy wskazaną liczbę iteracji, aby zbliżyć się do mediany geometrycznej
+  for (let iter = 0; iter < WEISZFELD_MAX_ITERATIONS; iter++) {
+    // będziemy obliczać średnią ważoną, stąd potrzebne są licznik i mianownik
+    let num = new Array(3).fill(0);
+    let denom = 0;
+    // przechodzimy po wszystkich punktach, aby wyznaczyć ich wagi
+    for (let i = 0; i < image.length; i++) {
+      // obliczamy odległość euklidesową punktu od bieżącej mediany
+      let dist = Math.sqrt(
+        Math.pow(image[i][0] - median.r, 2) +
+          Math.pow(image[i][1] - median.g, 2) +
+          Math.pow(image[i][2] - median.b, 2),
+      );
+      // jeśli punkt pokrywa się z bieżącą medianą — aby uniknąć dzielenia przez zero,
+      // ustawiamy minimalną odległość na odgórnie ustaloną tolerancję
+      if (dist < WEISZFELD_TOLERANCE) dist = WEISZFELD_TOLERANCE;
+      // obliczamy wagę jako odwrotność odległości
+      const w = 1 / dist;
+      // dodajemy "punkt * waga" do licznika wszystkich współrzędnych
+      num[0] += image[i][0] * w;
+      num[1] += image[i][1] * w;
+      num[2] += image[i][2] * w;
+      // dodajemy wagę do mianownika
+      denom += w;
+    }
+    // obliczamy nowe przybliżenie mediany jako średnią ważoną
+    let newMedian = {
+      r: Math.round(num[0] / denom),
+      g: Math.round(num[1] / denom),
+      b: Math.round(num[2] / denom),
+    };
+    // sprawdzamy, jak duża była zmiana względem poprzedniego przybliżenia
+    const change = Math.sqrt(
+      Math.pow(median.r - newMedian.r, 2) +
+        Math.pow(median.g - newMedian.g, 2) +
+        Math.pow(median.b - newMedian.b, 2),
+    );
+    // jeśli odpowiednio mała, kończymy wykonanie algorytmu
+    if (change < WEISZFELD_TOLERANCE) return newMedian;
+    // w przeciwnym wypadku kontynuujemy iterowanie z nowym przybliżeniem
+    median = newMedian;
+  }
+  // zwracamy ostatnie przybliżenie
+  return median;
+}
+```
+
+### Prezentacja
+
+Poniżej znajduje się prezentacja, gdzie możesz przetestować znajdowanie mediany koloru na własnym obrazie lub zdjęciu.
+
+<Presentation variant="median" />
+
+Całość kodu obliczającego medianę geometryczną z pikseli obrazu znajdziesz w kodzie prezentacji [w tym pliku](https://github.com/swistak-codes/blog/tree/main/libs/presentations/dominant-color/lib/logic/median.ts).
+
+### Porównanie z Trello
+
+Ponownie porównajmy wyniki z Trello. Pierwszy zrzut jest wzorcowym z Trello, następnie wynik obliczony za pomocą mediany według składowych, a na samym dole mediana geometryczna.
+
+<Grid minWidth={100}>
+  <Image
+    image={trello1_min}
+    alignCenter
+    fullSize
+    forceWhiteBackground={false}
+    alt="Zrzut ekranu z Trello (aktualny artykuł)."
+    caption={<>rgb(223, 68, 150) / #DF4496</>}
+  />
+  <Image
+    image={trello2_min}
+    alignCenter
+    fullSize
+    forceWhiteBackground={false}
+    alt="Zrzut ekranu z Trello (artykuł o silni)."
+    caption={<>rgb(251, 251, 251) / #FBFBFB</>}
+  />
+</Grid>
+<Grid minWidth={100}>
+  <Image
+    image={median_c_1}
+    alignCenter
+    fullSize
+    forceWhiteBackground={false}
+    alt="Kolor znaleziony za pomocą mediany według składowych (aktualny artykuł)."
+    caption={<>rgb(172, 99, 144) / #AC6390</>}
+  />
+  <Image
+    image={median_c_2}
+    alignCenter
+    fullSize
+    forceWhiteBackground={false}
+    alt="Kolor znaleziony za pomocą mediany według składowych (artykuł o silni)."
+    caption={<>Znaleziony kolor: rgb(253, 255, 255) / #FDFFFF</>}
+  />
+</Grid>
+<Grid minWidth={100}>
+  <Image
+    image={median_g_1}
+    alignCenter
+    fullSize
+    forceWhiteBackground={false}
+    alt="Kolor znaleziony za pomocą mediany geometrycznej (aktualny artykuł)."
+    caption={<>rgb(155, 96, 129) / #9B6081</>}
+  />
+  <Image
+    image={median_g_2}
+    alignCenter
+    fullSize
+    forceWhiteBackground={false}
+    alt="Kolor znaleziony za pomocą mediany geometrycznej (artykuł o silni)."
+    caption={<>rgb(245, 244, 241) / #F5F4F1</>}
+  />
+</Grid>
+
+Wyniki znowu są inne, ale coraz lepsze. Zdziwiło mnie, że w obu przypadkach to mediana według składowych dała lepszy rezultat niż geometryczna, chociaż w teorii powinno być odwrotnie. W przypadku obrazka z artykułu o silni uzyskaliśmy niemal idealny kolor, lepszy niż obliczony przez Trello. W przypadku aktualnego artykułu wynik niestety jest daleki do ideału. Od razu dodam, że w przypadku mediany geometrycznej nie miała tutaj znaczenia liczba iteracji algorytmu — wyniki doszły do progu zbieżności w obu przypadkach po 5 iteracjach.
+
+## Dominanta kolorów
+
+Obliczaliśmy średnią barwę, szukaliśmy środkowej (medianę), ale powiedzmy sobie szczerze — żadna z tych metod nie zwraca barwy, która faktycznie występuje najczęściej na obrazie. A może właśnie tego powinniśmy szukać? W statystyce najczęściej występująca wartość w zbiorze nazywana jest dominantą (lub modą). Może tego powinniśmy szukać? W końcu interesuje nas barwa, która dominuje, a dominuje coś, czego jest najwięcej.
+
+### Znajdowanie dominanty w przestrzeni kolorów
+
+W teorii wszystko wydaje się proste. Powinniśmy zliczyć, ile razy każdy kolor występuje na obrazie, i wybrać ten, który występuje najczęściej. Brzmi to jak proste wyzwanie algorytmiczne, czyż nie?
+
+Tak też jest, ale mamy mały problem. O ile w przypadku prostych rysunków czy grafik wektorowych często mamy do czynienia z ograniczoną liczbą kolorów i tła są jednolite, to w przypadku chociażby zdjęć liczba unikalnych kolorów może być bardzo duża (w 8-bitowej przestrzeni maksymalnie $$256^3 = 16777216$$). Nawet obszar, który wygląda na wypełniony pojedynczą barwą, tak naprawdę może składać się z wielu bardzo zbliżonych do siebie barw. W efekcie, jeśli spróbujemy zliczyć wystąpienia każdego koloru, prawdopodobnie otrzymamy bardzo dużą liczbę unikalnych kolorów, z których każdy występuje tylko raz lub kilka razy. W takim przypadku dominanta może być mało reprezentatywna dla całego obrazu.
+
+Co więc powinniśmy zrobić? Zainspirujmy się programami do edycji grafiki, które przy zaznaczaniu koloru oferują tzw. „tolerancję”. Oznacza to, że zamiast szukać dokładnego koloru, szukamy kolorów w pewnym zakresie (tolerancji) wokół danego koloru. W ten sposób możemy pogrupować podobne kolory razem i znaleźć dominantę w tych grupach.
+
+Tylko jak pogrupujemy, to co dalej? W końcu nie będziemy mieć tam tej samej barwy. Możemy jednak po prostu wybrać jedną z trzech opcji: pierwszy kolor z grupy, średnia z nich lub ich mediana.
+
+### Tolerancja kolorów
+
+Przyznam wprost, że sposób, który tu opiszę, jest bardziej intuicyjny niż dokładnie taki, który znajdziemy w programach graficznych. Mój pomysł: tolerancja to dokładniej mówiąc odległość między punktami, w ramach której uznajemy, że jest to wciąż ten sam kolor. Stąd grupujemy je w „koszyki”. Bierzemy po kolei punkty z obrazu i sprawdzamy, czy odległość względem pierwszego punktu w każdym z koszyków mieści się w zakresie tolerancji. Jeśli tak, dodajemy punkt do wybranego koszyka (a nawet nie musimy dodawać samego punktu, a jedynie zliczać liczbę elementów). Jeśli nie, tworzymy nowy koszyk. Możemy to prosto zaimplementować w następujący sposób:
+
+```javascript
+function mode (image, tolerance) {
+  // koszyki kolorów definiujemy jako tablicę, gdzie przechowamy kolor i liczbę wystąpień
+  // { color: Color; count: number }[]
+  const buckets = [];
+  // iterujemy po kolejnych pikselach obrazu
+  for (const pixel of image) {
+    let wasAdded = false;
+    // sprawdzamy, czy piksel pasuje do któregoś z istniejących koszyków
+    for (const bucket of buckets) {
+      // obliczamy odległość euklidesową między kolorem piksela a kolorem koszyka
+      const distance = Math.sqrt(
+        (pixel[0] - bucket.color.r) ** 2 +
+          (pixel[1] - bucket.color.g) ** 2 +
+          (pixel[2] - bucket.color.b) ** 2,
+      );
+      // jeśli odległość jest mniejsza lub równa tolerancji, dodajemy piksel do koszyka
+      if (distance <= tolerance) {
+        bucket.count += 1;
+        wasAdded = true;
+        break;
+      }
+    }
+    // jeśli piksel nie pasował do żadnego koszyka, tworzymy nowy koszyk
+    if (!wasAdded) {
+      buckets.push({
+        color: { r: pixel[0], g: pixel[1], b: pixel[2] },
+        count: 1,
+      });
+    }
+  }
+  // szukamy koszyka z największą liczbą wystąpień
+  let modeColor = { r: 0, g: 0, b: 0 };
+  let maxCount = 0;
+  // iterujemy przez koszyki, aby znaleźć ten z największą liczbą
+  for (const bucket of buckets) {
+    if (bucket.count > maxCount) {
+      maxCount = bucket.count;
+      modeColor = bucket.color;
+    }
+  }
+  // zwracamy dominantę
+  return modeColor;
+}
+```
+
+### Tolerancja kolorów, podejście alternatywne
+
+Wcześniejszy sposób jest jednak niewydajny, ponieważ musimy sprawdzać odległość względem każdego koszyka. Nie dość, że mamy złożoność obliczeniową $$\Omicron(n^2)$$, to jeszcze obliczamy za każdym razem odległość euklidesową, co nie należy do najszybszych operacji.
+
+Jednak jeśli tolerancję określimy nieco inaczej, możemy znacznie uprościć i przyspieszyć cały proces. Zamiast sprawdzać odległość euklidesową, możemy określić tolerancję jako maksymalną różnicę w każdej ze składowych (R, G, B). Oznacza to, że dwa kolory są uznawane za podobne, jeśli różnica w każdej składowej nie przekracza określonej wartości tolerancji. Co więcej, możemy wtedy użyć prostszej metody grupowania kolorów polegającej na zaokrąglaniu wartości składowych do najbliższej wielokrotności tolerancji. Wówczas tak obliczone wartości posłużą nam jako klucze do koszyków, a same koszyki możemy trzymać w słowniku (mapie) zamiast w tablicy, aby mieć do nich dostęp w czasie liniowym.
+
+W kodzie wygląda to następująco:
+
+```javascript
+// pomocnicza funkcja do ograniczania wartości w zakresie
+function clamp(value, min, max) {
+  return Math.min(Math.max(value, min), max);
+}
+
+function optimizedMode(image, tolerance) {
+  // koszyki kolorów są zdefiniowane jako mapa
+  // klucz to string, wartość to { color: Color; count: number }
+  const buckets = new Map();
+  // iterujemy po kolejnych pikselach obrazu
+  for (const pixel of image) {
+    // określamy klucz koszyka na podstawie zaokrąglonych wartości RGB
+    // z racji tego, że wartości mogą wykroczyć poza zakres [0, 255], używamy funkcji clamp
+    const r = clamp(Math.round(pixel[0] / tolerance) * tolerance, 0, 255);
+    const g = clamp(Math.round(pixel[1] / tolerance) * tolerance, 0, 255);
+    const b = clamp(Math.round(pixel[2] / tolerance) * tolerance, 0, 255);
+    const key = `${r}-${g}-${b}`;
+    if (buckets.has(key)) {
+      // jeśli koszyk już istnieje, zwiększamy licznik
+      buckets.get(key).count += 1;
+    } else {
+      // jeśli koszyk nie istnieje, tworzymy nowy
+      buckets.set(key, { color: { r, g, b }, count: 1 });
+    }
+  }
+  // szukamy koszyka z największą liczbą wystąpień
+  let modeColor = { r: 0, g: 0, b: 0 };
+  let maxCount = 0;
+  // iterujemy przez koszyki, aby znaleźć ten z największą liczbą
+  for (const bucket of buckets.values()) {
+    if (bucket.count > maxCount) {
+      maxCount = bucket.count;
+      modeColor = bucket.color;
+    }
+  }
+  // zwracamy dominantę
+  return modeColor;
+}
+```
+
+### Czy to w ogóle jest dominanta?
+
+Jeśli uważałeś(-aś) na lekcjach matematyki czy zajęciach ze statystyki, to możesz teraz stwierdzić — co to za bzdury, przecież dominanta to najczęściej występująca wartość, a tutaj robimy jakieś grupowania w koszyki, po czym wybieramy reprezentatywną wartość z najbardziej wypełnionego. I tak, masz rację, to nie jest taka typowa, szkolna dominanta (fachowo mówiąc: dominanta w szeregu szczegółowym lub rozdzielczym punktowym).
+
+Ze statystycznego punktu widzenia, robimy tutaj zgrupowanie zbioru punktów obrazu w szereg rozdzielczy. Tym jest tak naprawdę nasza metoda — koszyki to przedziały, w których mieszczą się kolory. Tak samo gdybyśmy mieli zbiór odpowiedzi na ankietę od osób w różnym wieku i następnie pogrupowali je w przedziały wiekowe (0-9, 10-19, 20-29, itd.). Mając szereg rozdzielczy, możemy jak najbardziej obliczyć dominantę.
+
+I tutaj jest mała różnica między tym, co ja zrobiłem, a statystyką. W statystyce, aby obliczyć dominantę z szeregu rozdzielczego, stosujemy następujący wzór:
+
+$$
+D_0 = x_0 + \left( \frac{n_0 - n_{-1}}{(n_0 - n_{-1}) + (n_0 - n_{+1})} \right) \cdot h_0,
+$$
+
+gdzie:
+
+- $$D_0$$ — dominanta
+- $$x_0$$ — dolna granica przedziału dominanty
+- $$n_0$$ — liczba obserwacji w przedziale dominanty
+- $$n_{-1}$$ — liczba obserwacji w przedziale poprzedzającym
+- $$n_{+1}$$ — liczba obserwacji w przedziale następującym
+- $$h_0$$ — szerokość przedziału dominanty
+
+Ja trochę to uprościłem, wybierając po prostu reprezentatywny kolor z najbardziej wypełnionego koszyka. Czyli to tak, jakbym (wracając do przykładu ankiet) wskazał najczęściej występujący przedział wiekowy, a nie konkretny wiek. W naszym przypadku nie powinno mieć to dużego wpływu na wynik, a nieco upraszcza implementację. Jeśli chcesz, możesz spróbować samodzielnie zaimplementować wzór na dominantę z szeregu rozdzielczego i sprawdzić, czy uzyskasz lepszy rezultat.
+
+### Prezentacja
+
+Poniżej znajduje się prezentacja, gdzie możesz przetestować znajdowanie dominanty na własnym obrazie lub zdjęciu. Polecam tylko uważać na wartość tolerancji przy metodzie odległościowej — ze względu na mało wydajny kod, przeglądarka może Ci się na chwilę zaciąć.
+
+<Presentation variant="mode" />
+
+Całość kodu obliczającego medianę geometryczną z pikseli obrazu znajdziesz w kodzie prezentacji [w tym pliku](https://github.com/swistak-codes/blog/tree/main/libs/presentations/dominant-color/lib/logic/modes.ts).
+
+### Porównanie z Trello
+
+Porównajmy wyniki tej metody z Trello. Pierwszy zrzut jest wzorcowym z Trello, potem wynik obliczony pierwszym sposobem (bazującym na odległościach), a następnie dominanta liczona w zoptymalizowany sposób. Za każdym razem dałem taką samą wartość tolerancji: 20 (domyślna w prezentacji).
+
+<Grid minWidth={100}>
+  <Image
+    image={trello1_min}
+    alignCenter
+    fullSize
+    forceWhiteBackground={false}
+    alt="Zrzut ekranu z Trello (aktualny artykuł)."
+    caption={<>rgb(223, 68, 150) / #DF4496</>}
+  />
+  <Image
+    image={trello2_min}
+    alignCenter
+    fullSize
+    forceWhiteBackground={false}
+    alt="Zrzut ekranu z Trello (artykuł o silni)."
+    caption={<>rgb(251, 251, 251) / #FBFBFB</>}
+  />
+</Grid>
+<Grid minWidth={100}>
+  <Image
+    image={mode_d_1}
+    alignCenter
+    fullSize
+    forceWhiteBackground={false}
+    alt="Kolor znaleziony za pomocą metody odległościowej (aktualny artykuł)."
+    caption={<>rgb(219, 53, 143) / #DB358F</>}
+  />
+  <Image
+    image={mode_d_2}
+    alignCenter
+    fullSize
+    forceWhiteBackground={false}
+    alt="Kolor znaleziony za pomocą metody odległościowej (artykuł o silni)."
+    caption={<>Znaleziony kolor: rgb(253, 255, 255) / #FDFFFF</>}
+  />
+</Grid>
+<Grid minWidth={100}>
+  <Image
+    image={mode_o_1}
+    alignCenter
+    fullSize
+    forceWhiteBackground={false}
+    alt="Kolor znaleziony za pomocą metody zoptymalizowanej (aktualny artykuł)."
+    caption={<>rgb(220, 40, 140) / #DC288C</>}
+  />
+  <Image
+    image={mode_o_2}
+    alignCenter
+    fullSize
+    forceWhiteBackground={false}
+    alt="Kolor znaleziony za pomocą metody zoptymalizowanej (artykuł o silni)."
+    caption={<>rgb(255, 255, 255) / #FFFFFF</>}
+  />
+</Grid>
+
+Miałem co do tej metody największe nadzieje, bo w końcu szukamy barwy dominującej, a obliczamy tutaj dominantę. Nie myliłem się. Faktycznie wyniki są bardzo dobre. Nieco inne niż na Trello, ale bardzo do nich zbliżone i dające bardzo dobry efekt. Metoda odległościowa dała nieco lepszy rezultat dla aktualnego artykułu, natomiast zoptymalizowana dała idealny wynik (kolor tła) dla artykułu o silni.
+
+Dodam, że według mojego przeczucia Trello prawdopodobnie korzysta z obliczania dominanty, tylko różnice są na poziomie szczegółów. Mogą skalować obraz do innych wymiarów przed rozpoczęciem analizy, używać innej wartości tolerancji, innej metody wybierania reprezentatywnego koloru z koszyka czy nawet innego sposobu obliczania tolerancji (np. odległość Manhattan zamiast euklidesowej).
+
+## Podsumowanie
+
+Moglibyśmy sprawdzić jeszcze kilka różnych metod, ale myślę, że te cztery omówione tutaj wystarczą. Są to trzy bardzo podstawowe narzędzia statystyczne i jedna sztuczka programistyczna, które pokazują różne podejścia do pokazanego problemu. Ostatecznie, dominującą barwą okazała się dominanta, co w ogóle nie powinno dziwić — w końcu to najczęściej występująca wartość. Aczkolwiek uważam, że warto było też sprawdzić średnią i medianę, choćby dlatego, że według dostępnych informacji w Internecie Trello rzekomo wykorzystuje średni kolor. To, co uzyskaliśmy z dominanty, to nie jest dokładnie ten sam rezultat, ale bardzo zbliżony i wizualnie zadowalający. Tak jak wspomniałem wcześniej, oni prawdopodobnie też obliczają dominantę, tylko z innymi szczegółami implementacyjnymi.
+
+Czy można coś jeszcze wypróbować? Jeśli zakładamy, że owa barwa to nie tyle barwa dominująca, co po prostu kolor tła, to moglibyśmy spróbować nie rozpatrywać całego obrazu, a jedynie pewien procent pikseli od brzegów. W końcu tło zazwyczaj znajduje się na obrzeżach obrazka, a środek to często główny obiekt. Następnie to z tych pikseli moglibyśmy spróbować wyznaczyć średnią, medianę lub dominantę. Może to dać jeszcze lepsze rezultaty.
+
+Inny pomysł jest trochę zbliżony do tego, co robiliśmy w przypadku dominanty. Tam dzieliliśmy kolory na koszyki według tolerancji. A co, jeśli spróbowalibyśmy pogrupować kolory za pomocą dowolnego algorytmu klasteryzacji, np. k-średnich? Znaleźlibyśmy wówczas kilka klastrów kolorów i moglibyśmy wybrać ten największy jako dominujący, a następnie w nim szukać średniej, mediany lub dominanty. To podejście jest bardziej złożone, bardziej czasochłonne, ale może dać ciekawe rezultaty.
+
+## Literatura
+
+- Weisstein, Eric W. "Arithmetic Mean." From MathWorld--A Wolfram Resource. https://mathworld.wolfram.com/ArithmeticMean.html
+- Average of a stream of numbers, GeeksforGeeks (ostatni dostęp 27 listopada 2025 r.), https://www.geeksforgeeks.org/dsa/average-of-a-stream-of-numbers/.
+- Weisstein, Eric W. "Root-Mean-Square." From MathWorld--A Wolfram Resource. https://mathworld.wolfram.com/Root-Mean-Square.html
+- Median, https://en.wikipedia.org/w/index.php?title=Median&oldid=1322215926 (ostatni dostęp 27 listopada 2025 r.).
+- Geometric median, https://en.wikipedia.org/w/index.php?title=Geometric_median&oldid=1310462070 (ostatni dostęp 27 listopada 2025 r.).
+- Mode (statistics), https://en.wikipedia.org/w/index.php?title=Mode_(statistics)&oldid=1322433303 (ostatni dostęp 27 listopada 2025 r.).
+- Dominanta – szereg przedziałowy, Cyrkiel.info (ostatni dostęp 27 listopada 2025 r.), https://cyrkiel.info/statystyka/dominanta-szereg-przedzialowy/.
+
+<small>Zdjęcie na okładce wygenerowane przez Midjourney.</small>

@@ -1,0 +1,13 @@
+.method-configurator {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  align-items: center;
+
+  label {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    align-items: center;
+  }
+}

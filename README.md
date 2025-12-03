@@ -36,7 +36,10 @@ Unit testy aktualnie zostały wyłączone i skrypt uruchamiający je został usu
 ```
 npm run rss:fix
 npm start
-npm run scrape:all
+npm run scrape
+# alternatywnie, jeśli tylko wybrane artykuły
+npm run scrape -- --articles=[[SLUG]]
+npm run generate-tldrs
 ```
 
 ### Tworzenie nowego artykułu

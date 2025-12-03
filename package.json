@@ -11,10 +11,10 @@
     "generate-licenses": "license-checker --json > ./src/shared/licenses.json",
     "generate-pages": "node ./tools/slugs-helper/generate-post-pages.js",
     "generate-redirects": "node ./tools/slugs-helper/generate-redirects.js",
+    "generate-tldrs": "node ./tools/tldrs/tldrs.mjs",
     "lint": "next lint",
     "rss:fix": "sh ./public-fix.sh",
     "scrape": "node tools/scraper/scrape.mjs",
-    "scrape:all": "node tools/scraper/scrape.mjs",
     "start": "next dev -p 4200",
     "start:prod": "next start"
   },

@@ -11,7 +11,11 @@ type Props = {
 export const Tags = ({ tags, nameToSlugsMap }: Props) => (
   <div className={styles.tagCategoryContainer}>
     {tags
-      .sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()))
+      .sort((a, b) =>
+        a
+          .toLowerCase()
+          .localeCompare(b.toLowerCase(), 'pl', { sensitivity: 'base' }),
+      )
       .map((tag) => (
         <div className={clsx(styles.badge, styles.tagBadge)} key={tag}>
           <i className="ph ph-hash" />

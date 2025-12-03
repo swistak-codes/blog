@@ -10,6 +10,18 @@
     },
     "items": [
         {
+            "id": "https://swistak.codes/post/barwa-dominujaca",
+            "content_html": "Niemal 4 lata temu na blogu opublikowałem artykuł „Podstawowe operacje na barwach”, gdzie opisałem, w jaki sposób przekonwertować obraz na skalę szarości, zmienić jasność, kontrast, wykonać korekcję gamma, a także wykonać inwersję barw (czyli konwersję do negatywu). Powróćmy do tej tematyki i omówmy kolejną wartą uwagi i przydatną operację: znajdowanie dominującej barwy w obrazie.<br /><a href=\"https://swistak.codes/post/barwa-dominujaca\">Czytaj więcej na świstak.codes</a>",
+            "url": "https://swistak.codes/post/barwa-dominujaca",
+            "title": "Znajdowanie dominującej barwy",
+            "summary": "Artykuł omawia operacje na barwach w grafice komputerowej, takie jak określenie koloru dominującego, chroma keying i znajdowanie barw dopełniających.",
+            "date_modified": "2025-12-03T07:00:00.000Z",
+            "author": {
+                "name": "Tomasz Świstak",
+                "url": "https://swistak.codes"
+            }
+        },
+        {
             "id": "https://swistak.codes/post/trudnosc-pisania",
             "content_html": "Pisząc na klawiaturze, pewnie nieraz zauważyłeś(-aś), że niektóre słowa pisze się prościej, inne ciężej. Szczególnie możemy tego doświadczyć, ucząc się bezwzrokowego pisania na klawiaturze, kiedy to niektóre wyrazy możemy wpisać, praktycznie nie ruszając palcami, a inne wymagają od nas większej gimnastyki. Intuicyjnie jesteśmy w stanie powiedzieć, które słowa są trudniejsze do napisania, ale czy da się to jakoś zmierzyć?<br /><a href=\"https://swistak.codes/post/trudnosc-pisania\">Czytaj więcej na świstak.codes</a>",
             "url": "https://swistak.codes/post/trudnosc-pisania",
