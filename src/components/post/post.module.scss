@@ -91,6 +91,7 @@
   // latex responsiveness
   :global(.math), :global(.katex-display) {
     overflow-x: auto;
+    overflow-y: hidden;
   }
 
   // quotes

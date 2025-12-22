@@ -1,0 +1,30 @@
+.controls {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 12px;
+}
+
+.group {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.nudge-group {
+  display: inline-grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+}
+
+.value {
+  min-width: 40px;
+  text-align: right;
+  color: var(--sc--text);
+}
+
+.number {
+  width: 80px;
+  padding: 4px 6px;
+}

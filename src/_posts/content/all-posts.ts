@@ -107,3 +107,4 @@ export { wolf3d } from './20250618-renderowanie-wolf-3d';
 export { silnia } from './20250924-silnia';
 export { trudnoscPisania } from './20251112-trudnosc-pisania';
 export { kolejneOperacjeNaBarwach } from './20251203-barwa-dominujaca';
+export { liczbyZespolone } from './20251223-liczby-zespolone';

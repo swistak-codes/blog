@@ -1,0 +1,613 @@
+import { Image, VideoPlayer } from '@swistak-codes/components';
+import cover from './swistak_zespolone.webp';
+import complex from './Complex_number_illustration.svg.png';
+import complex2 from './Complex_number.svg.png';
+import bas from './basik.webp';
+import { PresentationMandelbrot } from './presentation-mandelbrot';
+
+export const meta = {
+  title: 'Liczby zespolone',
+  abstract:
+    'Artykuł omawia, czym są liczby zespolone i w jaki sposób mogą przydać się programistom.',
+  firstParagraph: (
+    <>
+      We wczesnych latach nauki uczono nas, że liczby możemy rozpisać na poziomej osi liczbowej. Zaczynaliśmy z lewej od zera i stawialiśmy kreski co kratkę w zeszycie, pisząc kolejne liczby naturalne. Tylko tak naprawdę czy coś nas powstrzymuje przed dołożeniem kolejnej, tym razem pionowej osi i wyznaczeniem liczb jako punktów na płaszczyźnie? W dużym skrócie na tym polegają liczby zespolone, z którymi zmierzył się chyba każdy student informatyki. Ale czy są w ogóle przydatne w programowaniu, albo i w ogóle w życiu, czy są tylko urojeniem matematycznym? Sprawdźmy to.
+    </>
+  ),
+  keyword: 'liczby zespolone',
+  categories: ['Matematyka'],
+  tags: [
+    'matematyka',
+    'liczby zespolone',
+    'liczby urojone',
+    'jednostka urojona',
+    'płaszczyzna zespolona',
+    'postać algebraiczna',
+    'postać wykładnicza',
+    'postać trygonometryczna',
+    'postać macierzowa',
+    'zbiór mandelbrota'
+  ],
+  slug: 'liczby-zespolone',
+  updateTime: '2025-12-23T07:00:00+00:00',
+  publishTime: '2025-12-23T07:00:00+00:00',
+  cover,
+};
+
+## Co to są liczby zespolone?
+
+Na bardzo ogólnym poziomie temat pokazałem już we wstępie. Z drugiej strony, nie chcę cytować Wikipedii, a bardzo krótką definicję encyklopedyczną dałem w [artykule o silni](post/silnia/#definicja-1). Dlatego podejdziemy do tematu trochę inaczej, rozpisując go po kolei.
+
+### Jednostka urojona
+
+Zacznijmy od tego, że w matematyce mamy coś takiego jak **jednostka urojona**. Jest to stała matematyczna oznaczana literą $$i$$ (można też spotkać $$j$$), która jest rozwiązaniem równania $$x^2 + 1 = 0$$, innymi słowy $$i^2 = -1$$. Niektórzy mówią, że jednostka urojona to po prostu $$\sqrt{-1}$$. Teraz możesz krzyknąć, że przecież nie ma takiej liczby jak $$\sqrt{-1}$$, a tamto równanie nie ma rozwiązań. I masz rację, ale częściowo, bo nie ma rozwiązań, tylko że **w zbiorze liczb rzeczywistych**.
+
+Zanim przejdziemy dalej, to ciekawostka — kolejne potęgi jednostki urojonej $$i$$ zachowują się następująco:
+
+- $$i^{-2} = -1$$
+- $$i^{-1} = -i$$
+- $$i^0 = 1$$
+- $$i^1 = i$$
+- $$i^2 = -1$$
+- $$i^3 = -i$$
+- $$i^4 = 1$$
+- $$i^5 = i$$
+
+Jak widzisz, potęgi te powtarzają się co cztery kroki. Matematycznie mówimy, że $$i$$ jest pierwiastkiem czwartego stopnia z jedynki. Co więcej, oznacza to, że są też inne pierwiastki z jedynki, ale to już zostawmy.
+
+### Liczby urojone
+
+Na bazie tej jednostki definiujemy **liczby urojone**. Są to liczby postaci $$bi$$, gdzie $$b$$ jest liczbą rzeczywistą. Podstawową ich cechą, a zarazem definicją, jest to, że ich kwadrat jest liczbą ujemną. Na przykład $$(3i)^2 = -9$$.
+
+Warto zaznaczyć, że liczby urojone same w sobie nie są zbyt użyteczne, ale stanowią podstawę do tego, czym się zajmiemy w następnym akapicie.
+
+### Liczby zespolone
+
+Teraz możemy przejść do **liczb zespolonych**. Są to liczby w postaci $$a + bi$$, gdzie $$a$$ i $$b$$ są liczbami rzeczywistymi. W tej definicji $$a$$ nazywamy częścią rzeczywistą, a $$bi$$ częścią urojoną liczby zespolonej. Sam zbiór liczb zespolonych oznaczamy symbolem $$\mathbb{C}$$ (warto zapamiętać, że symbol ten nie oznacza liczb całkowitych), a przyjęło się same liczby jako zmienne oznaczać literą $$z$$.
+
+Liczby zespolone, tak jak opisałem we wstępie, możemy przedstawić na płaszczyźnie, gdzie oś pozioma to oś liczb rzeczywistych, a oś pionowa to oś liczb urojonych. Wówczas liczba zespolona może być reprezentowana albo jako punkt, albo jako wektor (poprowadzony od punktu zerowego) w tej płaszczyźnie. Jest to reprezentacja w układzie kartezjańskim, ale możliwa jest także [w układzie biegunowym](/post/jak-narysowac-spirale/#uk%C5%82ad-wsp%C3%B3%C5%82rz%C4%99dnych-biegunowych).
+
+<Image
+  image={complex}
+  alignCenter
+  fullSize
+  forceWhiteBackground={true}
+  maxWidth="300px"
+  alt="Płaszczyzna, gdzie oś pozioma jest opisana jako Re i oś pionowa jako Im. Na płaszczyźnie zaznaczony jest punkt odpowiadający liczbie zespolonej z = a + bi oraz wektor od początku układu współrzędnych do tego punktu. Punkt a jest zaznaczony na osi Re, a punkt b na osi Im."
+  caption={<>Liczba zespolona z przedstawiona na płaszczyźnie jednocześnie jako punkt i wektor. Na marginesie dodam, że taki sposób przedstawiania liczb zespolonych nazywamy diagramem Arganda.
+    <br/>(źródło: <a href="https://commons.wikimedia.org/wiki/File:Complex_number_illustration.svg">Wolfkeeper at English Wikipedia</a>, <a href="https://creativecommons.org/licenses/by-sa/3.0">CC BY-SA 3.0</a>, via Wikimedia Commons)</>}
+/>
+
+Przy praktycznym wykorzystaniu warto zaznaczyć, że liczby te nie różnią się niczym specjalnym od znanych każdemu liczb rzeczywistych. Możemy je dodawać, odejmować, mnożyć, dzielić, podnosić do potęgi i tak dalej. Tak samo zachowują podstawowe własności tych działań, jak przemienność i łączność w przypadku dodawania i mnożenia czy rozdzielność mnożenia względem dodawania.
+
+### Płaszczyzna zespolona
+
+Możemy oczywiście wykonywać podstawowe operacje na liczbach zespolonych, ale skoro jest to dwuwymiarowa liczba, to jak? I czy jest tu też coś dodatkowego poza operacjami znanymi z liczb rzeczywistych? Przejdźmy szybko przez to, co implikuje fakt, że liczby zespolone są reprezentowane na płaszczyźnie.
+
+<Image
+  image={complex2}
+  alignCenter
+  fullSize
+  forceWhiteBackground={true}
+  maxWidth="300px"
+  alt="Płaszczyzna, gdzie oś pozioma jest opisana jako Re i oś pionowa jako Im. Na płaszczyźnie zaznaczony jest punkt odpowiadający liczbie zespolonej z. Od punktu zerowego do punktu z jest poprowadzony odcinek opisany jako |z|. Kąt między osią Re a odcinkiem jest opisany jako arg z."
+  caption={<>Nieco inne przedstawienie płaszczyzny zespolonej skupiające się na rzeczach, o których zaraz sobie opowiemy.
+    <br/>(źródło: <a href="https://commons.wikimedia.org/wiki/File:Complex_number.svg">MesserWoland</a>, <a href="http://creativecommons.org/licenses/by-sa/3.0/">CC BY-SA 3.0</a>, via Wikimedia Commons</>}
+/>
+
+#### Liczby zespolone jako wektory
+
+Zacznijmy od tego, o czym wspomniałem wcześniej, że liczba zespolona może być przedstawiona jako wektor. Wówczas liczbie $$z = a + bi$$ można przyporządkować wektor $$\vec{z} = (a, b)$$.
+
+A co nam to daje w praktyce? Dostęp do operacji na liczbach zespolonych przez operacje na wektorach. Na przykład dodawanie dwóch liczb zespolonych $$z_1 = a + bi$$ i $$z_2 = c + di$$ sprowadza się do dodania ich odpowiednich części:
+
+$$
+\begin{align*}
+(a, b) + (c, d) &= (a + b, c + d) \\
+&\Updownarrow \\
+(a + bi) + (c + di) &= (a + c) + (b + d)i
+\end{align*}
+$$
+
+Analogicznie mnożenie (na bazie iloczynu wektorowego):
+
+$$
+\begin{align*}
+(a,b)(c,d) &= (ac - bd, ad + bc) \\
+&\Updownarrow \\
+(a + bi)(c + di) &= (ac - bd) + (ad + bc)i
+\end{align*}
+$$
+
+#### Moduł liczby zespolonej
+
+Pierwszą operacją wynikającą z dwuwymiarowości liczb zespolonych, o której chcę napisać, jest obliczanie **modułu liczby zespolonej**.
+
+Oczywiście obliczanie modułu nie jest czymś wyjątkowym dla liczb zespolonych, bo znamy to z liczb rzeczywistych. W ich przypadku jest to po prostu wartość bezwzględna liczby (moduł i wartość bezwzględna to jest to samo). Liczby zespolone jednak nie mają zdefiniowanej relacji porządku (czyli nie możemy porównywać ich na zasadzie większa/mniejsza), więc nie możemy po prostu usunąć znaku minus.
+
+W przypadku liczb zespolonych moduł liczby to długość wektora od punktu zerowego do punktu reprezentującego liczbę na płaszczyźnie zespolonej. Stąd obliczamy go tak samo, jak długość dowolnego odcinka w kartezjańskim układzie współrzędnych:
+
+$$
+|z| = \sqrt{a^2 + b^2}
+$$
+
+Tylko czy ma to sens w praktyce? Spójrzmy na to tak. Jedna z definicji wartości bezwzględnej (modułu) wygląda następująco:
+
+$$
+|x| = \sqrt{x^2}
+$$
+
+Zauważ, że w przypadku liczby zespolonej $$z = x + 0i$$ (która powinna być tym samym co po prostu $$x$$) otrzymamy dokładnie to samo:
+
+$$
+|z| = \sqrt{x^2 + 0^2} = \sqrt{x^2} = |x|
+$$
+
+Wartość bezwzględną też interpretuje się geometrycznie jako odległość liczby od zera na osi liczbowej, więc pod tym kątem wszystko się zgadza.
+
+#### Argument liczby zespolonej
+
+Kolejną operacją, tym razem już unikalną dla liczb zespolonych, jest obliczanie **argumentu liczby zespolonej**. Argument liczby zespolonej to kąt, jaki tworzy wektor reprezentujący tę liczbę z osią rzeczywistą. Przede wszystkim interesuje nas tzw. **argument główny**, czyli kąt wyrażony w radianach z przedziału $$(-\pi, \pi]$$ lub $$[0, 2\pi)$$ (zależy od źródła).
+
+Dla liczb zespolonych w postaci $$z = a + bi$$ argument obliczamy za pomocą funkcji arcus tangens:
+
+$$
+\operatorname{Arg}(z) = \begin{cases}
+\arctg\left(\frac{b}{a}\right) & \text{, jeśli } a > 0 \\
+\arctg\left(\frac{b}{a}\right) + \pi & \text{, jeśli } a < 0 \\
+\frac{\pi}{2} & \text{, jeśli } a = 0 \text{ i } b > 0 \\
+-\frac{\pi}{2} & \text{, jeśli } a = 0 \\
+\text{nieokreślony} & \text{, jeśli } a = 0 \text{ i } b = 0
+\end{cases}
+$$
+
+Kojarzysz skądś ten wzór? Jest to nic innego jak definicja dwuargumentowego arcus tangensa $$\operatorname{atan2}$$, który jest dostępny w wielu językach programowania jako jedna ze standardowych funkcji matematycznych. Oznacza to, że możemy zapisać powyższy wzór prościej jako:
+
+$$
+\operatorname{Arg}(z) = \operatorname{atan2}(b, a)
+$$
+
+Jeśli interesują Cię szczegóły wyprowadzenia tego wzoru, to opisywałem to krok po kroku w [artykule o obracaniu obiektu w kierunku wybranego punktu](https://swistak.codes/post/algorytmika-gier-obrot-do-punktu/). Lektura tamtego artykułu tym bardziej utwierdzi Cię w przekonaniu, że reprezentacja liczb zespolonych na płaszczyźnie jest bardzo użyteczna, bo ich obsługę możemy sprowadzić do operacji znanych z geometrii i trygonometrii.
+
+### Postać trygonometryczna liczby zespolonej
+
+Żeby już dokończyć temat teorii stojącej za liczbami zespolonymi, opowiem jeszcze krótko o tym, na jakie inne sposoby możemy zapisywać liczby zespolone i jakie korzyści to za sobą niesie. Zacznijmy od postaci trygonometrycznej, inaczej zwanej też biegunową lub geometryczną. A zaczniemy od niej dlatego, że wykorzystuje powyższe pojęcia modułu i argumentu liczby zespolonej.
+
+#### Zapis i wyprowadzenie
+
+Liczbę zespoloną $$z = a + bi$$ możemy zapisać w postaci trygonometrycznej jako:
+
+$$
+z = |z|(\cos \varphi + i \sin \varphi),
+$$
+
+gdzie $$|z|$$ to moduł liczby zespolonej, a $$\varphi = \operatorname{Arg}(z)$$ to jej argument.
+
+Wzór ten bierze się z prostej zależności trygonometrycznej w trójkącie prostokątnym. Najpierw zauważmy, że:
+
+$$
+z = a + bi = |z| \frac{a}{|z|} + |z| \frac{b}{|z|} i
+$$
+
+Teoretycznie nadmiarowo dopisaliśmy moduły, ale dzięki temu możemy nasze ułamki rozpoznać jako funkcje trygonometryczne. $$\frac{a}{|z|}$$ to cosinus kąta $$\varphi$$, a $$\frac{b}{|z|}$$ to jego sinus. Moduł wyciągamy przed nawias i tak otrzymujemy postać trygonometryczną.
+
+Obie poznane postaci możemy rozumieć tak, że algebraiczna (czyli ta standardowa $$a + bi$$) odpowiada współrzędnym prostokątnym (jak w kartezjańskim układzie współrzędnych), a trygonometryczna odpowiada współrzędnym biegunowym (stąd alternatywna nazwa — postać biegunowa).
+
+Czasami używa się skrótowej notacji z funkcją $$\operatorname{cis}$$. Wygląda następująco, ale nie będę jej dalej używać w artykule:
+
+$$
+z = |z| \operatorname{cis} \varphi,
+$$
+
+Sama funkcja $$\operatorname{cis} \varphi$$ to nic innego jak $$\cos \varphi + i \sin \varphi$$.
+
+#### Przekształcenie do postaci algebraicznej
+
+Oczywiście gdy mamy już postać trygonometryczną, to nie marzymy o niczym innym tylko o przekształceniu jej do starej dobrej postaci algebraicznej, czyż nie? I tutaj pocieszę, robimy to dosłownie tak samo, jak przekształcamy współrzędne biegunowe na prostokątne (co opisałem w artykule o [rysowaniu spirali](/post/jak-narysowac-spirale/#uk%C5%82ad-wsp%C3%B3%C5%82rz%C4%99dnych-biegunowych)):
+
+$$
+\begin{align*}
+a &= |z| \cos \varphi \\
+b &= |z| \sin \varphi
+\end{align*}
+$$
+
+#### Mnożenie i dzielenie w postaci trygonometrycznej
+
+Jednak postać trygonometryczną stosuje się nie bez powodu. Jednym z powodów jest to, że mnożenie liczb zespolonych w tej postaci jest bardzo proste. Załóżmy, że mamy dwie liczby zespolone w postaci trygonometrycznej:
+
+$$
+\begin{align*}
+z_1 = |z_1|(\cos \varphi_1 + i \sin \varphi_1) \\
+z_2 = |z_2|(\cos \varphi_2 + i \sin \varphi_2)
+\end{align*}
+$$
+
+Wówczas moglibyśmy ich iloczyn wyprowadzić w dość długi, nieładny wzór, analogicznie jak robiliśmy to wcześniej:
+
+$$
+\begin{align*}
+z_1 \cdot z_2 &= (|z_1| \cos \varphi-1 \cdot |z_2| \cos \varphi_2 - |z_1| \sin \varphi_1 \cdot |z_2| \sin \varphi_2) \\
+&+ (i \cdot |z_1| \sin \varphi_1 \cdot |z_2| \cos \varphi_2 + i \cdot |z_1| \cos \varphi_1 \cdot |z_2| \sin \varphi_2)
+\end{align*}
+$$
+
+Nie wchodząc głęboko w szczegóły, po skorzystaniu z tożsamości trygonometrycznych możemy to uprościć do:
+
+$$
+z_1 \cdot z_2 = |z_1| |z_2| \left( \cos(\varphi_1 + \varphi_2) + i \sin(\varphi_1 + \varphi_2) \right)
+$$
+
+Analogicznie wygląda dzielenie, tylko zamiast dodawać kąty, odejmujemy:
+
+$$
+\frac{z_1}{z_2} = \frac{|z_1|}{|z_2|} \left( \cos(\varphi_1 - \varphi_2) + i \sin(\varphi_1 - \varphi_2) \right)
+$$
+
+#### Potęgowanie i pierwiastkowanie
+
+Podobnie sprawa wygląda z potęgowaniem. To w postaci trygonometrycznej jest bardzo proste dzięki tzw. wzorowi de Moivre'a:
+
+$$
+z^n = |z|^n \left( \cos\varphi + i \sin\varphi \right)^n = |z|^n \left( \cos(n\varphi) + i \sin(n\varphi) \right)
+$$
+
+Wzór de Moivre'a możemy też wykorzystać do wyciągania pierwiastków n-tego stopnia z liczby zespolonej:
+
+$$
+z^{\frac{1}{n}} = \sqrt[^n]{|z|} \left( \cos\left(\frac{\varphi + 2k\pi}{n}\right) + i \sin\left(\frac{\varphi + 2k\pi}{n}\right) \right),
+$$
+
+gdzie $$k = 0, 1, 2, \ldots, n-1$$. Oznacza to, że z jednej liczby zespolonej możemy wyciągnąć aż $$n$$ różnych pierwiastków n-tego stopnia.
+
+### Postać wykładnicza
+
+#### Zapis
+
+Kolejna postać wykorzystująca moduł i argument liczby zespolonej to postać wykładnicza. Opiera się na wzorze Eulera, który mówi, że dla dowolnej liczby rzeczywistej $$\varphi$$ zachodzi:
+
+$$
+e^{i\varphi} = \cos \varphi + i \sin \varphi
+$$
+
+Stąd liczbę zespoloną $$z = a + bi$$ możemy zapisać w postaci wykładniczej jako:
+
+$$
+z = |z| e^{i\varphi}
+$$
+
+#### Operacje w postaci wykładniczej
+
+Podobnie jak w postaci trygonometrycznej, tak i tutaj mnożenie i dzielenie liczb zespolonych jest bardzo proste. Tym razem nawet nie musimy znać wzorów na pamięć, bo wszystko sprowadza się do własności potęg.
+
+Zobaczmy po kolei. Najpierw mnożenie dwóch liczb zespolonych $$z_1$$ i $$z_2$$ w postaci wykładniczej:
+
+$$
+\begin{align*}
+z_1 \cdot z_2 &= |z_1| e^{i\varphi_1} \cdot |z_2| e^{i\varphi_2} \\
+&= |z_1| |z_2| e^{i (\varphi_1 + \varphi_2)}
+\end{align*}
+$$
+
+Dzielenie wygląda analogicznie:
+
+$$
+\begin{align*}
+\frac{z_1}{z_2} &= \frac{|z_1| e^{i\varphi_1}}{|z_2| e^{i\varphi_2}} \\
+&= \frac{|z_1|}{|z_2|} e^{i (\varphi_1 - \varphi_2)}
+\end{align*}
+$$
+
+Potęgowanie możemy wyprowadzić wprost z wcześniejszego wzoru na mnożenie:
+
+$$
+z^n = |z|^n e^{i n \varphi}
+$$
+
+Pierwiastkowanie jest już nieco inne ze względu na dodawanie wielokrotności pełnego obrotu, ale wciąż proste:
+
+$$
+z^{\frac{1}{n}} = \sqrt[^n]{|z|}e^{i \frac{\varphi + 2k\pi}{n}}, \quad k = 0, 1, 2, \ldots, n-1
+$$
+
+### Postać macierzowa
+
+Ostatnia postać, o której chciałem wspomnieć, to postać macierzowa liczby zespolonej. Liczbę zespoloną $$z = a + bi$$ możemy zapisać jako [macierz](/post/macierze-podstawy):
+
+$$
+z = \begin{pmatrix}
+a & -b \\
+b & a
+\end{pmatrix}
+$$
+
+Zapis ten ma ciekawą właściwość, że [wyznacznik](/post/macierze-wyznacznik) takiej macierzy to kwadrat modułu liczby zespolonej:
+
+$$
+|z| = \sqrt{\det(z)} = \sqrt{a^2 + b^2}
+$$
+
+W postaci macierzowej możemy też przedstawić liczbę zespoloną w postaci wykładniczej:
+
+$$
+z = \begin{pmatrix}
+|z| \cos \varphi & -|z| \sin \varphi \\
+|z| \sin \varphi & |z| \cos \varphi
+\end{pmatrix}
+$$
+
+Nie chcę już teraz wybiegać do zastosowań, ale ten wzór nieprzypadkowo może niektórym [wydawać się znajomy](/post/przeksztalcenia-grafiki-2d).
+
+## Implementacje programistyczne
+
+Zanim przejdziemy do zastosowań, przejdźmy do tego, czy programiści mogą doświadczyć liczb zespolonych.
+
+### Implementacje w językach programowania
+
+W kwestii gotowych implementacji liczb zespolonych zacznijmy od pozytywnych przykładów, czyli języków, które mają je w swojej bibliotece standardowej.
+
+Chyba najpopularniejszym językiem z wbudowaną obsługą liczb zespolonych jest Python. W jego bibliotece standardowej mamy moduł `complex`, a same liczby zespolone możemy tworzyć za pomocą literału z literą `j` na końcu:
+
+```python
+z1 = 3 + 4j
+z2 = complex(1, -2)
+z3 = z1 + z2
+print(z3)  # zostanie wypisane: (4+2j)
+```
+
+Możesz to sprawdzić na [Replit](https://replit.com/@tswistak/complex-py#main.py).
+
+Innym popularnym dziś językiem z wbudowaną obsługą liczb zespolonych jest Go. Znajdziemy w nim typy `complex64` i `complex128`, a liczby zespolone tworzymy za pomocą literału z literą `i` na końcu:
+
+```go
+package main
+import (
+    "fmt"
+)
+func main() {
+    var z1 complex128 = 3 + 4i
+    var z2 complex128 = complex(1, -2)
+    z3 := z1 + z2
+    fmt.Println(z3)  // zostanie wypisane: (4+2i)
+}
+```
+
+Ten przykład też zamieściłem na [Replit](https://replit.com/@tswistak/complex-go#main.go).
+
+W przypadku bardziej klasycznych języków wbudowaną obsługę liczb zespolonych znajdziemy w C od standardu C99 w nagłówku `complex.h`. Liczby zespolone możemy tworzyć z pomocą stałej `I`. Obsługa wygląda tak:
+
+```c
+#include <stdio.h>
+#include <complex.h>
+
+int main() {
+    double complex z1 = 3.0 + 4.0*I;
+    double complex z2 = 1.0 - 2.0*I;
+    double complex z3 = z1 + z2;
+    printf("%.1f%+.1fi\n", creal(z3), cimag(z3));  // zostanie wypisane: 4.0+2.0i
+    return 0;
+}
+```
+
+Jak wcześniej, przykład możesz sprawdzić na [Replit](https://replit.com/@tswistak/complex-c#main.c).
+
+Z innych języków z wbudowaną obsługą liczb zespolonych warto wspomnieć także o C++ (`std::complex`, [zobacz Replit](https://replit.com/@tswistak/complex-cpp#main.cpp)), C# (`System.Numerics.Complex`, [zobacz Replit](https://replit.com/@tswistak/complex-cs#main.cs)) i Ruby (`Complex`, [zobacz Replit](https://replit.com/@tswistak/complex-rb#main.rb)). Liczby zespolone obsługują też języki do zastosowań matematycznych i inżynierskich jak [Wolfram Language](https://reference.wolfram.com/language/guide/ComplexNumbers.html), [Julia](https://docs.julialang.org/en/v1/manual/complex-and-rational-numbers/), [Fortran](https://gcc.gnu.org/onlinedocs/gfortran/COMPLEX.html) czy [MATLAB](https://www.mathworks.com/help/matlab/ref/complex.html).
+
+### Własna implementacja
+
+Oczywiście istnieje też wiele języków niemających wbudowanej obsługi liczb zespolonych, np. JavaScript. Są zewnętrzne biblioteki, które to umożliwiają, ale nie chcę robić tutaj takich zestawień. Jako wyzwanie zaimplementujmy prostą klasę `Complex` w JavaScript obsługującą podstawowe operacje na liczbach zespolonych. Nie traktowałbym tej implementacji jako kompletnej, gotowej do zastosowania w prawdziwych projektach, ale jako punkt wyjścia do dalszych eksperymentów.
+
+```javascript
+class Complex {
+  // nową liczbę zespoloną tworzymy, podając część rzeczywistą i urojoną
+  constructor(real, imag) {
+    this.real = real;
+    this.imag = imag;
+  }
+
+  // dodawanie dwóch liczb zespolonych
+  add(other) {
+    return new Complex(this.real + other.real, this.imag + other.imag);
+  }
+
+  // odejmowanie dwóch liczb zespolonych
+  subtract(other) {
+    return new Complex(this.real - other.real, this.imag - other.imag);
+  }
+
+  // mnożenie dwóch liczb zespolonych
+  // wykorzystujemy wzór z iloczynu wektorowego, aby nie obliczać specjalnie modułu i argumentu
+  multiply(other) {
+    return new Complex(
+      this.real * other.real - this.imag * other.imag,
+      this.real * other.imag + this.imag * other.real
+    );
+  }
+
+  // dzielenie dwóch liczb zespolonych
+  divide(other) {
+    const denom = other.real ** 2 + other.imag ** 2;
+    return new Complex(
+      (this.real * other.real + this.imag * other.imag) / denom,
+      (this.imag * other.real - this.real * other.imag) / denom
+    );
+  }
+
+  // obliczanie modułu liczby zespolonej
+  modulus() {
+    return Math.sqrt(this.real ** 2 + this.imag ** 2);
+  }
+
+  // obliczanie argumentu liczby zespolonej
+  argument() {
+    return Math.atan2(this.imag, this.real);
+  }
+
+  // reprezentacja tekstowa liczby zespolonej
+  toString() {
+    return `${this.real} + ${this.imag}i`;
+  }
+}
+```
+
+Taką implementację możemy przetestować w następujący sposób:
+
+```javascript
+const z1 = new Complex(3, 4);  // 3 + 4i
+const z2 = new Complex(1, -2); // 1 - 2i
+const z3 = z1.add(z2);
+console.log(z3.toString()); // zostanie wypisane: 4 + 2i
+console.log(z3.modulus());   // zostanie wypisane: 4.47213595499958
+console.log(z3.argument());  // zostanie wypisane: 0.4636476090008061
+```
+
+Całość możesz przetestować na [Replit](https://replit.com/@tswistak/complex-js#index.js).
+
+## Zastosowania liczb zespolonych
+
+Poznaliśmy sposoby zapisu liczb zespolonych, operacje na nich oraz ich implementacje w różnych językach programowania. Tylko nie odpowiedzieliśmy sobie na najważniejsze pytanie — po co to wszystko? Do czego w ogóle mogą przydać się liczby znajdujące się w jakiejś przestrzeni, a do tego zawierające część urojoną? Sprawdźmy to na kilku przykładach, które mogą zainteresować programistów.
+
+### Grafika komputerowa
+
+Z racji tego, że liczby zespolone są dwuwymiarowe, to tak naprawdę nic nie stoi nam na przeszkodzie, aby stosować je tam, gdzie mamy do czynienia z przestrzenią dwuwymiarową. Wręcz naturalnie nasuwa się tutaj na myśl grafika komputerowa 2D. Wykorzystując gotowe operacje na liczbach zespolonych, możemy w prosty sposób wykonywać operacje matematyczne na punktach.
+
+Mnie w tym momencie przychodzą na myśl przekształcenia geometryczne. Opisywałem je już kiedyś [jako operacje na macierzach](https://swistak.codes/post/przeksztalcenia-grafiki-2d/), ale w wielu przypadkach liczby zespolone mogą być prostszą alternatywą. A co dokładnie mam na myśli? Przypomnijmy sobie postać macierzową liczby zespolonej w postaci wykładniczej, ale zamiast $$|z|$$ podstawmy $$s$$, a zamiast $$\varphi$$ podstawmy $$\theta$$:
+
+$$
+z = \begin{pmatrix}
+s \cos \theta & -s \sin \theta \\
+s \sin \theta & s \cos \theta
+\end{pmatrix}
+$$
+
+Jeśli nie czytałeś tamtego artykułu o przekształceniach, to zdradzę, co ta macierz reprezentuje: skalowanie punktu o współczynnik $$s$$ i obrót o kąt $$\theta$$. A jak przekształcimy postać macierzową na algebraiczną (oraz wykładniczą), to okaże się, że te dwie operacje możemy opisać za pomocą takiej oto liczby zespolonej:
+
+$$
+z = s \cos \theta + i s \sin \theta = s e^{i \theta}
+$$
+
+I co nam to daje? Jeśli nasz oryginalny punkt zapiszemy jako liczbę zespoloną $$p = x + yi$$, to przekształcony punkt $$p'$$ otrzymamy, po prostu mnożąc te dwie liczby zespolone. Poniżej przykład w kodzie wykorzystujący naszą wcześniej zaimplementowaną klasę `Complex` w JavaScript:
+
+```javascript
+function transformPoint(x, y, scale, angle) {
+  const point = new Complex(x, y);
+  const transformation = new Complex(
+    scale * Math.cos(angle),
+    scale * Math.sin(angle)
+  );
+  return point.multiply(transformation);
+}
+```
+
+Oczywiście nie mamy już tutaj możliwości ustawiania innej skali w pionie i poziomie, ale w wielu przypadkach takie jednorodne skalowanie jest wystarczające. Dodatkowo, jeśli chcemy wykonać przesunięcie, wystarczy dodać do wyniku odpowiednią liczbę zespoloną reprezentującą wektor przesunięcia.
+
+### Fraktale
+
+Z punktu widzenia informatyki będzie to temat powiązany z tym powyżej, ale jednak z matematycznego punktu widzenia nieco inny. Liczby zespolone wykorzystuje się do badania i generowania fraktali, czyli obiektów o samopodobnej strukturze na różnych skalach. Fraktalami też już zajmowałem się na blogu, jednak wykorzystywałem jedynie [L-systemy](https://swistak.codes/post/algorytmiczne-rysowanie-roslin/), potem przenosiłem je na [trzeci wymiar](https://swistak.codes/post/algorytmiczne-rysowanie-roslin-w-3d/), a także pokazałem [prostą zależność rekurencyjną](https://swistak.codes/post/rekurencja-co-to-jest/#rysowanie-fraktali). Pomijałem jednak liczby zespolone.
+
+A liczby zespolone w przypadku fraktali są bardzo przydatne, bo wiele fraktali definiuje się właśnie na płaszczyźnie zespolonej. Najbardziej znanym przykładem jest zbiór Mandelbrota, który definiuje się na podstawie iteracji funkcji zespolonej:
+
+$$
+f_c(z) = z^2 + c,
+$$
+
+gdzie $$z$$ i $$c$$ są liczbami zespolonymi. Dla każdego punktu $$c$$ na płaszczyźnie zespolonej, zaczynając od $$z = 0$$, iterujemy funkcję $$f_c(z)$$ i sprawdzamy, czy wartość $$|z|$$ pozostaje ograniczona (nie dąży do nieskończoności). Jeśli tak, to punkt $$c$$ należy do zbioru Mandelbrota.
+
+Poniżej możesz zobaczyć wizualizację zbioru Mandelbrota, gdzie kolory reprezentują liczbę iteracji potrzebnych do stwierdzenia, że punkt nie należy do zbioru (im więcej iteracji, tym jaśniejszy kolor). Możesz też kontrolować wizualizację za pomocą kontrolek na dole. Sama prezentacja może chwilę się ładować przy modyfikacji parametrów, bo obliczenia są dość kosztowne, a nie zostały użyte żadne sztuczki optymalizacyjne.
+
+<PresentationMandelbrot />
+
+Kod prezentacji znajdziesz na [GitHubie bloga](https://github.com/swistak-codes/blog/tree/main/libs/presentations/complex-mandelbrot), a samo obliczenie zbioru Mandelbrota [w tym pliku](https://github.com/swistak-codes/blog/tree/main/libs/presentations/complex-mandelbrot/hooks/use-mandelbrot.ts).
+
+### Przetwarzanie sygnałów
+
+Istotnym praktycznym zastosowaniem liczb zespolonych, zarówno w informatyce, jak i inżynierii, jest przetwarzanie sygnałów. Tutaj pierwsze co przychodzi na myśl to transformacja Fouriera.
+
+Transformacja Fouriera jest narzędziem matematycznym pozwalającym na analizę częstotliwościową sygnałów. Przekształca sygnał z domeny czasu (lub przestrzeni) do domeny częstotliwości, co umożliwia identyfikację składowych częstotliwościowych sygnału. Dzięki temu jest szeroko stosowana w różnych dziedzinach, takich jak analiza dźwięku, telekomunikacja i wielu innych. Wynik transformacji (transformata) jest właśnie zapisany w postaci liczb zespolonych.
+
+<VideoPlayer
+  url="/videos/fourier.webm"
+  muted
+  controls
+  width={640}
+  height={480}
+  caption={
+    <>Wizualizacja działania transformacji Fouriera na funkcji prostokątnej. Następnie pokazana jest transformacja odwrotna, dzięki której możemy uzyskać oryginalną funkcję prostokątną z jej transformaty Fouriera. Jest to jedna z najważniejszych cech transformacji, że funkcje te są odwracalne.
+      <br/>(źródło: <a href="https://commons.wikimedia.org/wiki/File:Continuous_Fourier_transform_of_rect_and_sinc_functions.ogv">Lucas V. Barbosa</a>, Public domain, via Wikimedia Commons)</>
+  }
+/>
+
+Z punktu widzenia programistów transformacja Fouriera (lub dokładniej algorytm szybkiej transformacji Fouriera) może mieć zastosowanie np. przy stratnej kompresji danych i przetwarzaniu dźwięku. Co prawda w pierwszym przypadku stosujemy inne transformacje (np. dyskretną cosinusową, którą opisałem w [artykule o kompresji obrazów](/post/kompresja-obrazow)), jednak reguła działania jest w dużej mierze podobna.
+
+Analiza częstotliwościowa dźwięku może mieć wiele zastosowań. Pierwsze, które przychodzą mi na myśl, to wizualizacje dźwięku (np. spektrogramy, czyli dosłownie zwizualizowanie rezultatu transformacji Fouriera), obróbka dźwięku (np. korekta częstotliwości, autotune, usuwanie szumów). Z takich zastosowań, które na pierwszy rzut oka mogą wydawać się bliższe przeciętnej osobie — skoro w ten sposób możemy wydobyć częstotliwości z dźwięku, to możemy to wykorzystać w bardziej kreatywny sposób. Z jednej strony moglibyśmy zaprogramować stroik do instrumentów muzycznych analizujący w czasie rzeczywistym częstotliwość i sprawdzający, czy dźwięk jest nastrojony poprawnie. Tak samo moglibyśmy zaprogramować gry typu karaoke — analizując dźwięk z mikrofonu, moglibyśmy ocenić, jak dobrze gracz trafia w dźwięki.
+
+<Image
+  image={bas}
+  alignCenter
+  maxWidth="500px"
+  alt="Dwa wykresy. Górny pokazuje sygnał, gdzie na osi Y jest amplituda, a na X czas. Dolny pokazuje ten sam sygnał, jednak na osi X jest częstotliwość."
+  caption={<>Na wykresie u góry widzimy zapis sygnału z gitary basowej grającej dźwięk A1 (55 Hz) w dziedzinie czasu. Poniżej
+    transformata Fouriera, gdzie ten sam sygnał mamy w dziedzinie częstotliwości (czyli spektogram). Na podstawie dominującej częstotliwości możemy określić, czy instrument jest dobrze nastrojony. Pozostałe częstotliwości to składowe harmoniczne.<br/>
+    (źródło: <a
+      href="https://commons.wikimedia.org/wiki/File:Bass_Guitar_Time_Signal_of_open_string_A_note_(55_Hz).png">Fourier1789</a>, <a
+      href="https://creativecommons.org/licenses/by-sa/4.0">CC BY-SA 4.0</a>, via Wikimedia Commons; <a
+      href="https://commons.wikimedia.org/wiki/File:Fourier_Transform_of_bass_guitar_time_signal.png">Fourier1789</a>, <a
+      href="https://creativecommons.org/licenses/by-sa/4.0">CC BY-SA 4.0</a>, via Wikimedia Commons</>}
+/>
+
+### Inne, przykładowe zastosowania
+
+Trzy zastosowania powyżej to tylko takie, które głównie nasuwają mi się na myśl wtedy, gdy się zastanawiam, po co liczby zespolone mogłyby się przydać programistom. Jednak te mają znacznie więcej zastosowań w matematyce czy fizyce. W kwestii właśnie fizyki liczby zespolone są wykorzystywane w mechanice kwantowej i elektrotechnice. Nie jestem ekspertem w tych dziedzinach, więc nie będę wchodzić w szczegóły, dlatego tylko lekko nakreślę temat.
+
+W mechanice kwantowej wystarczy tylko spojrzeć na podstawę tej dziedziny, czyli równanie Schrödingera:
+
+$$
+\hat {H}{\big |}\Psi (t){\big \rangle }={\textrm {i}}\hbar {\frac {\partial }{\partial t}}{\big |}\Psi (t){\big \rangle }
+$$
+
+Nawet nie chcę opisywać, co to wszystko oznacza. Zwróć uwagę na jedną rzecz — pojawia się tam jednostka urojona $$i$$. Natomiast o wykorzystaniu liczb zespolonych w analizie obwodów elektrycznych jest cały artykuł na Wikipedii i odsyłam zaciekawionych do niego: https://pl.wikipedia.org/wiki/Zastosowanie_liczb_zespolonych_w_analizie_obwod%C3%B3w_elektrycznych.
+
+Natomiast wiele zastosowań matematycznych, pomijając powiązane z wcześniej opisanymi (geometria, matematyka stosowana), to obszar teorii liczb, w który, prawdę mówiąc, nie czuję się na siłach wchodzić. Jeśli chodzi o praktyczne, prostsze zastosowania, z postaci wykładniczej możemy wyprowadzić następujące wzory na sinus i cosinus nazywane wzorami Eulera:
+
+$$
+\begin{align*}
+\sin x &= \frac{e^{ix} - e^{-ix}}{2i} \\
+\cos x &= \frac{e^{ix} + e^{-ix}}{2}
+\end{align*}
+$$
+
+Możemy dzięki nim wyprowadzić wiele wzorów trygonometrycznych, które na pewno znasz z lekcji matematyki. Przykładowo, tak uzyskamy z nich jedynkę trygonometryczną (bez wszystkich przekształceń krok po kroku, uprościłem nieco zapis):
+
+$$
+\begin{align*}
+\sin^2 x &= \frac{e^{2ix} - 2 + e^{-2ix}}{-4} = \frac{1 - \cos 2x}{2} \\
+\cos^2 x &= \frac{e^{2ix} + 2 + e^{-2ix}}{4} = \frac{1 + \cos 2x}{2} \\
+\sin^2 x + \cos^2 x &= \frac{1 - \cos 2x}{2} + \frac{1 + \cos 2x}{2} = 1
+\end{align*}
+$$
+
+## Więcej wymiarów!
+
+Liczby zespolone pokazały nam, że liczba może mieć więcej niż jeden wymiar i nawet potrafi mieć taki wytwór realne zastosowania. Tylko czy możemy nie ograniczać się do dwóch wymiarów? Otóż tak, matematycy nie mogli tego nie zrobić.
+
+Rozszerzenia liczb zespolonych na więcej wymiarów to tzw. liczby hiperzespolone. Jest kilka sposobów ich określania, a my się tutaj skupimy na konstrukcji Cayleya-Dicksona. Niestety liczba wymiarów nie może być dowolna — musi być potęgą dwójki. Jednak ta zależność nawet idealnie spina nam się z istnieniem liczb rzeczywistych, które to mają $$2^0 = 1$$ wymiarów. Pierwszych kilka rozszerzeń liczb zespolonych to:
+
+- **kwaterniony**, 4 wymiary, symbol $$\mathbb{H}$$
+- **oktoniony**, 8 wymiarów, symbol $$\mathbb{O}$$
+- **sedeniony**, 16 wymiarów, symbol $$\mathbb{S}$$
+- **tridekagoniony**, 32 wymiary, symbol $$\mathbb{T}$$
+
+A czy mają jakieś rzeczywiste zastosowania? Kwaterniony mogą być znane grafikom komputerowym specjalizującym się w grafice 3D, bo są wykorzystywane do reprezentacji obrotów w przestrzeni trójwymiarowej. Dzięki nim możemy uniknąć problemu gimbal lock, który występuje przy zapisie macierzowym. Więcej na ten temat napisałem [w oddzielnym artykule](/post/przeksztalcenia-grafiki-3d). Pozostałe są sprawdzane pod kątem ich zastosowań w sieciach neuronowych (np. [doi:10.1016/j.cnsns.2023.107765](https://doi.org/10.1016%2Fj.cnsns.2023.107765)). Jednak poza informatyką mają wiele zastosowań w fizyce, więc nie są tylko wymysłem matematycznym na zasadzie „bo można”.
+
+Są także inne konstrukcje liczb hiperzespolonych, np. algebry Clifforda, dzięki którym możemy uzyskać kokwaterniony i bikwaterniony. Podaję to raczej jako ciekawostkę i nie chcę wchodzić w szczegóły.
+
+## Podsumowanie
+
+Jak widzisz, liczby zespolone, mimo że są (nomen omen) nierzeczywiste i nienaturalne, to mają bardzo realne zastosowania w matematyce, fizyce, a co nas interesuje — także w informatyce i programowaniu. Pozwalają na eleganckie reprezentowanie i operowanie na obiektach dwuwymiarowych, a także mają zastosowania w analizie sygnałów, grafice komputerowej i generowaniu fraktali. Oczywiście wiele tych rzeczy możemy obsługiwać bez liczb zespolonych, ale ich użycie często upraszcza obliczenia i pozwala na bardziej zwięzły zapis.
+
+## Literatura
+
+- Complex number, https://en.wikipedia.org/w/index.php?title=Complex_number&oldid=1326948178 (ostatnie odwiedziny 13.12.2025).
+- Hypercomplex number, https://en.wikipedia.org/w/index.php?title=Hypercomplex_number&oldid=1322812871 (ostatnie odwiedziny 13.12.2025).
+
+<small>Zdjęcie na okładce wygenerowane przez Canva AI.</small>

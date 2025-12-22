@@ -4,7 +4,7 @@
         <title>świstak.codes — Wpisy ze strony głównej</title>
         <link>https://swistak.codes</link>
         <description></description>
-        <lastBuildDate>Wed, 03 Dec 2025 07:00:00 GMT</lastBuildDate>
+        <lastBuildDate>Tue, 23 Dec 2025 07:00:00 GMT</lastBuildDate>
         <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
         <generator>https://github.com/jpmonette/feed</generator>
         <image>
@@ -13,6 +13,15 @@
             <link>https://swistak.codes</link>
         </image>
         <copyright>Wszystkie prawa zastrzeżone 2020-2025, Tomasz Świstak</copyright>
+        <item>
+            <title><![CDATA[Liczby zespolone]]></title>
+            <link>https://swistak.codes/post/liczby-zespolone</link>
+            <guid isPermaLink="false">https://swistak.codes/post/liczby-zespolone</guid>
+            <pubDate>Tue, 23 Dec 2025 07:00:00 GMT</pubDate>
+            <description><![CDATA[Artykuł omawia, czym są liczby zespolone i w jaki sposób mogą przydać się programistom.]]></description>
+            <content:encoded><![CDATA[We wczesnych latach nauki uczono nas, że liczby możemy rozpisać na poziomej osi liczbowej. Zaczynaliśmy z lewej od zera i stawialiśmy kreski co kratkę w zeszycie, pisząc kolejne liczby naturalne. Tylko tak naprawdę czy coś nas powstrzymuje przed dołożeniem kolejnej, tym razem pionowej osi i wyznaczeniem liczb jako punktów na płaszczyźnie? W dużym skrócie na tym polegają liczby zespolone, z którymi zmierzył się chyba każdy student informatyki. Ale czy są w ogóle przydatne w programowaniu, albo i w ogóle w życiu, czy są tylko urojeniem matematycznym? Sprawdźmy to.<br /><a href="https://swistak.codes/post/liczby-zespolone">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
         <item>
             <title><![CDATA[Znajdowanie dominującej barwy]]></title>
             <link>https://swistak.codes/post/barwa-dominujaca</link>

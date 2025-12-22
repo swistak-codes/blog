@@ -10,6 +10,18 @@
     },
     "items": [
         {
+            "id": "https://swistak.codes/post/liczby-zespolone",
+            "content_html": "We wczesnych latach nauki uczono nas, że liczby możemy rozpisać na poziomej osi liczbowej. Zaczynaliśmy z lewej od zera i stawialiśmy kreski co kratkę w zeszycie, pisząc kolejne liczby naturalne. Tylko tak naprawdę czy coś nas powstrzymuje przed dołożeniem kolejnej, tym razem pionowej osi i wyznaczeniem liczb jako punktów na płaszczyźnie? W dużym skrócie na tym polegają liczby zespolone, z którymi zmierzył się chyba każdy student informatyki. Ale czy są w ogóle przydatne w programowaniu, albo i w ogóle w życiu, czy są tylko urojeniem matematycznym? Sprawdźmy to.<br /><a href=\"https://swistak.codes/post/liczby-zespolone\">Czytaj więcej na świstak.codes</a>",
+            "url": "https://swistak.codes/post/liczby-zespolone",
+            "title": "Liczby zespolone",
+            "summary": "Artykuł omawia, czym są liczby zespolone i w jaki sposób mogą przydać się programistom.",
+            "date_modified": "2025-12-23T07:00:00.000Z",
+            "author": {
+                "name": "Tomasz Świstak",
+                "url": "https://swistak.codes"
+            }
+        },
+        {
             "id": "https://swistak.codes/post/barwa-dominujaca",
             "content_html": "Niemal 4 lata temu na blogu opublikowałem artykuł „Podstawowe operacje na barwach”, gdzie opisałem, w jaki sposób przekonwertować obraz na skalę szarości, zmienić jasność, kontrast, wykonać korekcję gamma, a także wykonać inwersję barw (czyli konwersję do negatywu). Powróćmy do tej tematyki i omówmy kolejną wartą uwagi i przydatną operację: znajdowanie dominującej barwy w obrazie.<br /><a href=\"https://swistak.codes/post/barwa-dominujaca\">Czytaj więcej na świstak.codes</a>",
             "url": "https://swistak.codes/post/barwa-dominujaca",

@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://swistak.codes</id>
     <title>świstak.codes — Wpisy ze strony głównej</title>
-    <updated>2025-12-03T07:00:00.000Z</updated>
+    <updated>2025-12-23T07:00:00.000Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <author>
         <name>Tomasz Świstak</name>
@@ -14,6 +14,24 @@
     <logo>https://swistak.codes/fav270.png</logo>
     <icon>https://swistak.codes/fav32.png</icon>
     <rights>Wszystkie prawa zastrzeżone 2020-2025, Tomasz Świstak</rights>
+    <entry>
+        <title type="html"><![CDATA[Liczby zespolone]]></title>
+        <id>https://swistak.codes/post/liczby-zespolone</id>
+        <link href="https://swistak.codes/post/liczby-zespolone"/>
+        <updated>2025-12-23T07:00:00.000Z</updated>
+        <summary type="html"><![CDATA[Artykuł omawia, czym są liczby zespolone i w jaki sposób mogą przydać się programistom.]]></summary>
+        <content type="html"><![CDATA[We wczesnych latach nauki uczono nas, że liczby możemy rozpisać na poziomej osi liczbowej. Zaczynaliśmy z lewej od zera i stawialiśmy kreski co kratkę w zeszycie, pisząc kolejne liczby naturalne. Tylko tak naprawdę czy coś nas powstrzymuje przed dołożeniem kolejnej, tym razem pionowej osi i wyznaczeniem liczb jako punktów na płaszczyźnie? W dużym skrócie na tym polegają liczby zespolone, z którymi zmierzył się chyba każdy student informatyki. Ale czy są w ogóle przydatne w programowaniu, albo i w ogóle w życiu, czy są tylko urojeniem matematycznym? Sprawdźmy to.<br /><a href="https://swistak.codes/post/liczby-zespolone">Czytaj więcej na świstak.codes</a>]]></content>
+        <author>
+            <name>Tomasz Świstak</name>
+            <email>tomasz@swistak.codes</email>
+            <uri>https://swistak.codes</uri>
+        </author>
+        <contributor>
+            <name>Tomasz Świstak</name>
+            <email>tomasz@swistak.codes</email>
+            <uri>https://swistak.codes</uri>
+        </contributor>
+    </entry>
     <entry>
         <title type="html"><![CDATA[Znajdowanie dominującej barwy]]></title>
         <id>https://swistak.codes/post/barwa-dominujaca</id>
