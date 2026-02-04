@@ -1,0 +1,404 @@
+import { Image, VideoPlayer } from '@swistak-codes/components';
+import cover from './swistak_orzechy.webp';
+
+export const meta = {
+  title: 'Problem selekcji',
+  abstract:
+    'Artykuł omawiający problem selekcji, czyli znalezienia k-tego najmniejszego elementu w zbiorze danych, wraz z różnymi algorytmami jego rozwiązania.',
+  firstParagraph: (
+    <>
+      Szukanie największego lub najmniejszego elementu w zbiorze danych to jedno z najprostszych zadań algorytmicznych, które implementował zapewne każdy, kto miał styczność z programowaniem. Jednak co zrobić, gdy chcemy znaleźć drugi z kolei największy element? A może trzeci najmniejszy? Albo może po prostu k-ty element? Czy da się to zrobić bez wcześniejszego posortowania zbioru? Nazywamy to problemem selekcji i przyjrzymy się mu w tym artykule.
+    </>
+  ),
+  keyword: 'problem selekcji',
+  categories: ['Algorytmy'],
+  tags: [
+    'problem selekcji',
+    'statystyka pozycyjna',
+    'mediana',
+    'minimum',
+    'maksimum',
+    'quickselect',
+    'algorytm Hoare\'a',
+    'algorytm magicznych piątek',
+    'mediana median',
+    'dziel i zwyciężaj',
+    'sortowanie',
+    'kopiec',
+    'javascript'
+  ],
+  slug: 'problem-selekcji',
+  updateTime: '2026-02-04T07:00:00+00:00',
+  publishTime: '2026-02-04T07:00:00+00:00',
+  cover,
+};
+
+## Opis problemu
+
+Od razu przejdźmy do definicji. **Problem selekcji** polega na znalezieniu $$k$$-tego najmniejszego elementu w $$n$$-elementowym zbiorze $$A$$, czyli dla $$k = 1$$ znajdziemy najmniejszy element, dla $$k = 2$$ drugi najmniejszy, dla $$k = n$$ największy, dla $$k = n - 1$$ drugi z kolei od największego itd. Jest to inaczej zadanie znalezienia **k-tej statystyki pozycyjnej**. Oprócz minimum i maksimum szczególnym przypadkiem statystyki pozycyjnej jest także **mediana**, czyli element środkowy (lub średnia z dwóch środkowych, jeśli $$n$$ jest parzyste).
+
+W kontekście algorytmiki moglibyśmy zauważyć, że wystarczy posortować zbiór, a następnie zwrócić element o indeksie $$k - 1$$ (jeśli indeksujemy od zera). Jednak cały sens wydzielania oddzielnego problemu od [sortowania](/category/algorytmy/sortowanie) polega na znalezieniu k-tego elementu w czasie liniowym $$\Omicron(n)$$. Dla przypomnienia — najlepsze algorytmy sortujące (np. [szybkie sortowanie](/post/sortowanie-cz-5-dziel-i-zwyciezaj)) mają złożoność $$\Omicron(n \log n)$$.
+
+Warto dodać, że problem jest często upraszczany przez założenie, że mamy do czynienia z faktycznym zbiorem, czyli wszystkie elementy są unikalne. Takie założenie przyjęte jest np. w **Introduction to algorithms** T. Cormena i ja będę się go trzymać w artykule. Innym uproszczeniem i założeniem, które skopiuję z Cormena, jest to, że gdy poniżej będę mówić o medianie, to mam na myśli **dolną medianę**, a więc $$\lfloor n / 2 \rfloor$$-ty najmniejszy element (czyli zaokrągalmy w dół). Analogicznie, górna mediana jest wtedy, gdy zaokrąglamy indeks w górę.
+
+## Minimum i maksimum
+
+### Optymalne znalezienie minimum i maksimum
+
+Szczególnymi przypadkami problemu selekcji są znalezienie minimum i maksimum. Tutaj nie trzeba żadnej skomplikowanej algorytmiki, bo zakładam, że jeśli kiedykolwiek cokolwiek programowałeś(-aś), to masz to już za sobą. Optymalny algorytm znalezienia minimum wymaga dokładnie $$n - 1$$ porównań, ponieważ każdy z $$n$$ elementów musi być porównany co najmniej raz, aby mieć pewność, że nie ma mniejszego elementu. Analogicznie dla maksimum.
+
+W razie czego przypomnę, jak taki algorytm wygląda (kod w JavaScript):
+
+```javascript
+function minimum(A) {
+  let min = A[0];
+  for (let i = 1; i < A.length; i++) {
+    if (A[i] < min) {
+      min = A[i];
+    }
+  }
+  return min;
+}
+
+function maximum(A) {
+  let max = A[0];
+  for (let i = 1; i < A.length; i++) {
+    if (A[i] > max) {
+      max = A[i];
+    }
+  }
+  return max;
+}
+```
+
+
+### Znalezienie minimum i maksimum jednocześnie
+
+Natomiast ciekawszym przypadkiem jest znalezienie minimum i maksimum jednocześnie. Moglibyśmy teoretycznie w prosty sposób przerobić powyższy algorytm, żeby wykonywać dwa porównania na każdą iterację pętli — jedno do znalezienia minimum, drugie do maksimum. Wtedy mielibyśmy $$2(n - 1) = 2n - 2$$ porównań.
+
+Jak się okazuje, nie jest to optymalne rozwiązanie. Obie te wartości możemy znaleźć, wykonując $$3\lfloor n / 2 \rfloor$$ porównań. Aby to zrobić, musimy z tablicy wyciągać nie jedną, ale dwie liczby jednocześnie. Najpierw porównujemy je ze sobą, aby określić, która jest mniejsza, a która większa. Następnie mniejszą porównujemy z aktualnym minimum, a większą z aktualnym maksimum. Dzięki temu dla każdej pary liczb wykonujemy 3 porównania (półtora na liczbę zamiast dwóch). Jest tutaj tylko jeden szczegół implementacyjny — jeśli tablica ma nieparzystą liczbę elementów, musimy najpierw zainicjalizować minimum i maksimum pierwszym elementem, a pętlę zacząć od drugiego elementu. W przeciwnym przypadku możemy zacząć od pierwszej pary.
+
+Poniżej znajduje się implementacja tego podejścia w JavaScript:
+
+```javascript
+function minimumMaximum(A) {
+  // inicjalizujemy zmienne, gdzie przechowamy minimum i maksimum
+  // tym razem ustawiamy je na wartości skrajne
+  let min = Number.MAX_SAFE_INTEGER
+  let max = Number.MIN_SAFE_INTEGER;
+  // indeks, od którego zaczniemy pętlę
+  let startIndex = 0;
+  // jeśli tablica ma nieparzystą liczbę elementów,
+  // to inicjalizujemy min i max pierwszym elementem
+  if (A.length % 2 !== 0) {
+    min = max = A[0];
+    startIndex = 1;
+  }
+  for (let i = startIndex; i < A.length; i += 2) {
+    let localMin, localMax;
+    // najpierw określamy minimum i maksimum z pary
+    if (A[i] < A[i + 1]) {
+      localMin = A[i];
+      localMax = A[i + 1];
+    } else {
+      localMin = A[i + 1];
+      localMax = A[i];
+    }
+    // następnie aktualizujemy globalne min i max
+    if (localMin < min) {
+      min = localMin;
+    }
+    if (localMax > max) {
+      max = localMax;
+    }
+  }
+  return { min, max };
+}
+```
+
+Wszystkie trzy pokazane powyżej funkcje znajdziesz na [Replit](https://replit.com/@tswistak/min-max#index.js), gdzie przy okazji dodałem też licznik porównań, abyś mógł/mogła samodzielnie zweryfikować liczbę wykonanych porównań dla różnych rozmiarów tablicy.
+
+## Quickselect
+
+Problem selekcji to jednak nie tylko znajdowanie największego czy najmniejszego elementu. Przejdźmy więc do sposobów znajdowania k-tego najmniejszego elementu. Zacznijmy od algorytmu quickselect, znanego także jako algorytm Hoare'a (od jego pomysłodawcy — Tony'ego Hoare'a). Nazwa algorytmu jest nieprzypadkowa — bazuje na tych samych ideach co szybkie sortowanie (ang. quicksort), które opisałem w artykule *[Sortowanie część 5: Dziel i zwyciężaj](/post/sortowanie-cz-5-dziel-i-zwyciezaj)*. Aby lepiej zrozumieć quickselect, warto się w tym momencie zatrzymać i przypomnieć sobie, jak działa szybkie sortowanie.
+
+A tak na marginesie, quicksort został również opracowany przez T. Hoare'a.
+
+### Idea algorytmu
+
+Jak możesz wiedzieć, szybkie sortowanie działa przez podział tablicy na dwie części względem wybranego elementu zwanego piwotem. Elementy mniejsze od piwotu trafiają do lewej części, a większe do prawej. Następnie wykonujemy to samo dla obu części tablicy, dalej znowu dla kolejnych części tak długo, aż po podziale zostaniemy tylko z jednym elementem — wtedy tablica jest posortowana.
+
+Quickselect wykorzystuje ten sam schemat, jednak zamiast rekurencyjnie sortować obie części tablicy, skupia się tylko na tej części, która zawiera k-ty najmniejszy element. Dzięki temu możemy uniknąć sortowania całej tablicy, co pozwala teoretycznie osiągnąć średnią złożoność czasową $$\Omicron(n)$$.
+
+A skąd wiemy, gdzie ten element się znajduje? Otóż w szybkim sortowaniu, po podziale tablicy względem piwotu, ten jest zawsze na swojej ostatecznej pozycji\*. Oznacza to, że jeśli piwot jest na indeksie $$m$$, to wszystkie elementy na lewo od niego są mniejsze, a na prawo większe. Jeśli więc $$k - 1 = m$$, znaleźliśmy nasz element. Jeśli $$k - 1 < m$$, to szukamy w lewej części tablicy, a jeśli $$k - 1 > m$$, to w prawej. Może Ci się to kojarzyć z [wyszukiwaniem binarnym](/post/wyszukiwanie-w-listach/) (lub [podobnymi koncepcjami](https://swistak.codes/post/wyszukiwanie-w-przestrzeni/#drzewo-czw%C3%B3rkowe)) i nic dziwnego, bo ono również polega na zawężaniu obszaru poszukiwań (metoda „dziel i zwyciężaj”).
+
+\* Zależy to jednak od implementacji — w niektórych wersjach szybkie sortowanie może nie gwarantować, że piwot po podziale jest na swojej ostatecznej pozycji (np. w pokazanej przeze mnie w artykule o quicksort).
+
+### Pierwsza implementacja
+
+Mając wiedzę, w jaki sposób działa quicksort, i wiedząc, czym quickselect się od niego różni, możemy przejść do implementacji. Poniżej znajduje się przykładowa implementacja w JavaScript:
+
+```javascript
+// funkcja dzieląca tablicę względem piwotu
+function partition(A, low, high) {
+  // wybieramy piwot jako ostatni element
+  const pivot = A[high];
+  // indeks mniejszego elementu
+  let i = low - 1;
+  // przechodzimy przez wszystkie elementy
+  for (let j = low; j < high; j++) {
+    // jeśli aktualny element jest mniejszy lub równy piwotowi
+    if (A[j] <= pivot) {
+      // zwiększamy indeks mniejszego elementu
+      i++;
+      // zamieniamy miejscami A[i] i A[j]
+      const temp = A[i];
+      A[i] = A[j];
+      A[j] = temp;
+    }
+  }
+  // zamieniamy miejscami A[i + 1] i A[high] (piwot)
+  const temp = A[i + 1];
+  A[i + 1] = A[high];
+  A[high] = temp;
+  // zwracamy indeks piwotu
+  return i + 1;
+}
+
+// właściwa funkcja implementująca quickselect
+function quickselect(A, low, high, k) {
+  // jeśli tablica ma tylko jeden element, zwracamy go
+  if (low === high) {
+    return A[low];
+  }
+  // dzielimy tablicę i otrzymujemy indeks piwotu
+  const pivotIndex = partition(A, low, high);
+  // sprawdzamy, gdzie znajduje się k-ty najmniejszy element
+  if (k - 1 === pivotIndex) {
+    // jeśli piwot jest k-tym elementem, zwracamy go
+    return A[k - 1];
+  } else if (k - 1 < pivotIndex) {
+    // jeśli k jest mniejsze niż indeks piwotu, szukamy w lewej części
+    return quickselect(A, low, pivotIndex - 1, k);
+  } else {
+    // jeśli k jest większe niż indeks piwotu, szukamy w prawej części
+    return quickselect(A, pivotIndex + 1, high, k);
+  }
+}
+```
+
+Całość kodu wraz z testami, licznikiem porównań i możliwością przetestowania na własną rękę znajdziesz na [Replit](https://replit.com/@tswistak/quickselect#index.js).
+
+Jak możesz zauważyć, implementacja jest niemalże identyczna jak w przypadku szybkiego sortowania. Różnica polega na tym, że zamiast rekurencyjnie wywoływać quicksort dla obu części tablicy, tutaj wywołujemy quickselect tylko dla jednej części w zależności od tego, gdzie znajduje się k-ty najmniejszy element.
+
+Niestety, co możemy zobaczyć eksperymentalnie, średnia złożoność czasowa tego algorytmu jest wyższa niż liniowa, a bardziej zbliżona do $$\Omicron(n \log n)$$. Dzieje się tak dlatego, że wybór piwotu jako ostatniego elementu tablicy może prowadzić do nierównomiernych podziałów, zwłaszcza w przypadku posortowanych lub prawie posortowanych danych. W najgorszym przypadku złożoność czasowa może wynieść nawet $$\Omicron(n^2)$$.
+
+### Druga implementacja
+
+Naprawmy więc to. Sięgając do literatury, np. wspomnianego wcześniej Cormena, możemy znaleźć informację, że aby osiągnąć średnią złożoność czasową $$\Omicron(n)$$, powinniśmy wybierać piwot losowo. Dzięki temu unikniemy problemu nierównomiernych podziałów, ponieważ losowy wybór piwotu sprawia, że podziały powinny być bardziej zrównoważone.
+
+Poniżej znajduje się zmodyfikowana wersja funkcji `partition`, która wybiera piwot losowo:
+
+```javascript
+function partitionRandomPivot(A, low, high) {
+  // wybieramy losowy indeks piwotu
+  const randomIndex = Math.trunc(Math.random() * (high - low + 1)) + low;
+  // zamieniamy losowy piwot z ostatnim elementem
+  const temp = A[randomIndex];
+  A[randomIndex] = A[high];
+  A[high] = temp;
+  // kontynuujemy jak wcześniej
+  const pivot = A[high];
+  let i = low - 1;
+  for (let j = low; j < high; j++) {
+    if (A[j] <= pivot) {
+      i++;
+      const temp = A[i];
+      A[i] = A[j];
+      A[j] = temp;
+    }
+  }
+  const temp2 = A[i + 1];
+  A[i + 1] = A[high];
+  A[high] = temp2;
+  return i + 1;
+}
+```
+
+Następnie wystarczy użyć tej funkcji w miejsce oryginalnego `partition` w `quickselect`. Cały kod znajdziesz na [Replit](https://replit.com/@tswistak/quickselect-random-pivot#index.js). Są tam takie same testy, jak dla poprzedniej wersji, wraz z porównaniem do niej, abyś mógł/mogła zobaczyć różnicę w wydajności.
+
+Tym razem średnia liczba porównań waha się w okolicach $$2n$$, co jest już zadowalające i zgodne z oczekiwaniami — oznacza to, że średnia złożoność czasowa jest liniowa ($$\Omicron(n)$$). Oczywiście w najgorszym przypadku nadal może być $$\Omicron(n^2)$$, ale zdarza się to bardzo rzadko dzięki losowemu wyborowi piwotu. Należy jednak pamiętać, że w praktyce, przez losowanie, znalezienie tego samego elementu za każdym razem może wymagać innej liczby porównań.
+
+## Algorytm magicznych piątek
+
+Algorytm Hoare'a ma niestety tę samą wadę co szybkie sortowanie — w najgorszym przypadku jego złożoność czasowa wynosi $$\Omicron(n^2)$$. Na szczęście nie jest to jedyne rozwiązanie problemu selekcji. Zapoznajmy się teraz z algorytmem znanym w polskiej literaturze jako **algorytm magicznych piątek**, aczkolwiek w anglojęzycznej literaturze znanym jako **median of medians** (po pol. mediana median). Algorytm opracowali w 1973 r. Manuel Blum, Robert W. Floyd, Vaughan Pratt, Ronald L. Rivest i Robert Endre Tarjan, stąd niektóre źródła nazywają go także algorytmem **BFPRT** (od pierwszych liter nazwisk). Jeśli nazwiska te wydają Ci się znajome, to słusznie, bo stoją oni także za wieloma innymi znanymi algorytmami (np. [generator Blum Blum Shuba](https://swistak.codes/post/losowosc/#blum-blum-shub), [RSA](https://pl.wikipedia.org/wiki/RSA_(kryptografia))).
+
+### Idea algorytmu
+
+Algorytm magicznych piątek, w kontekście problemu selekcji, to tak naprawdę poprawiona wersja quickselect, która gwarantuje liniową złożoność czasową w najgorszym przypadku. Podobnie jak quickselect, algorytm dzieli tablicę na dwie części względem piwotu, ale sposób wyboru piwotu jest bardziej skomplikowany.
+
+W kontekście zarówno algorytmu Hoare'a, jak i algorytmu szybkiego sortowania wybór piwotu jest kluczowy dla wydajności, co widzieliśmy wcześniej. Pierwsza implementacja nie dawała korzyści obliczeniowej względem podejścia z sortowaniem, a druga, o ile dawała średnią złożoność liniową, to w najgorszym przypadku nadal była kwadratowa. W końcu nie wybieraliśmy jakoś inteligentnie piwotu, a jedynie go losowaliśmy.
+
+Blum i reszta zaproponowali, że piwotem powinna być mediana. Zauważyli, że wybierając właśnie ją (lub zbliżoną wartość), funkcja wyboru będzie zawsze działać w czasie liniowym, ponieważ zawsze dzielimy tablicę na równe części. Jednak znalezienie mediany w czasie liniowym to znowu problem selekcji, więc jak to zrobić? Tutaj właśnie pojawia się koncepcja „magicznych piątek”. Algorytm dzieli tablicę na podtablice po 5 elementów każda (stąd nazwa). Następnie znajduje medianę każdej z tych podtablic (co można zrobić szybko za pomocą sortowania, bo mają tylko 5 elementów) i tworzy nową tablicę z tych median. Następnie rekurencyjnie znajduje medianę tej nowej tablicy median, która staje się naszym piwotem.
+
+Warto dodać, że algorytm nie zapewnia, że piwot jest dokładnie medianą całego zbioru danych. Wybrany element jest jednak wystarczająco blisko mediany, aby zagwarantować liniową złożoność czasową w najgorszym przypadku.
+
+### Selekcja w algorytmie magicznych piątek
+
+Do tej pory skupiłem się na tym, że uzyskujemy 5-elementowe podtablice i znajdujemy ich mediany. Tylko jak to wszystko spiąć w całość, aby faktycznie znaleźć k-ty najmniejszy element? Wygląda to następująco (powtarzając częściowo to, co już opisałem wcześniej, dla pełnego kontekstu):
+
+1. **Podział na podtablice:** dzielimy wejściową tablicę o rozmiarze $$n$$ na mniejsze, które mają po 5 elementów. Ostatnia grupa może mieć mniej niż 5 elementów, jeśli $$n$$ nie jest podzielne przez 5. To właśnie stąd polska nazwa algorytmu — „magiczne piątki”.
+2. **Znajdowanie median:** dla każdej z tych podtablic znajdujemy medianę. Dlatego, że mają mało elementów, możemy zastosować tu proste algorytmy, np. [sortowanie przez wstawianie](/post/sortowanie-cz-3-sortowanie-przez-wstawianie/).
+3. **Mediana median:** otrzymaliśmy nowy zbiór median podtablic. Aby znaleźć piwot, rekurencyjnie wywołujemy algorytm selekcji na tej nowej tablicy w celu znalezienia jej mediany. Stąd angielska nazwa — „median of medians”.
+4. **Partycjonowanie:** używamy znalezionej mediany median jako piwotu do podziału oryginalnej tablicy na dwie części: elementy mniejsze i większe od piwotu. W tym momencie wracamy do podejścia z quickselect.
+5. **Wybór elementu:** działamy tak samo jak w przypadku algorytmu Hoare'a. Sprawdzamy, czy piwot jest k-tym najmniejszym elementem. Jeśli tak, zwracamy go, a jeśli nie, to rekurencyjnie wywołujemy algorytm na odpowiedniej części tablicy (lewej lub prawej) w zależności od tego, gdzie znajduje się k-ty element.
+
+Możesz od razu zadać celne pytanie — dlaczego akurat 5-elementowe podtablice? Nie jest to przypadkowy wybór. Grupy 5-elementowe są w stanie zapewnić wystarczająco dobrą aproksymację mediany całego zbioru, co pozwala na efektywne dzielenie tablicy i utrzymanie liniowej złożoności czasowej. Mimo że nie będzie to prawdziwa mediana, to jednak możemy udowodnić, że co najmniej 30% elementów będzie mniejszych lub większych od wybranego piwotu, co jest kluczowe dla analizy złożoności czasowej. Gdybyśmy użyli mniejszych grup (np. 3-elementowych), nie moglibyśmy zagwarantować tak dobrego podziału, co mogłoby prowadzić do gorszej złożoności czasowej. Znowu przy większych grupach (np. 7-elementowych) zyskalibyśmy lepszą aproksymację, ale kosztem większej liczby operacji potrzebnych do znalezienia mediany każdej podtablicy, co mogłoby zniweczyć korzyści.
+
+### Implementacja
+
+Koniec teorii, przejdźmy do praktyki. Poniżej znajduje się przykładowa implementacja algorytmu magicznych piątek w JavaScript:
+
+```javascript
+// właściwa funkcja wykonująca algorytm magicznych piątek
+// istotna zmiana - zwraca indeks elementu, a nie jego wartość
+function select(A, low, high, k) {
+  // jeśli tablica ma tylko jeden element, zwracamy go
+  if (low === high) {
+    return low;
+  }
+  // najpierw znajdujemy piwot jako medianę median
+  let pivotIndex = pivot(A, low, high);
+  // następnie dzielimy tablicę na dwie części
+  // w wyniku tej operacji otrzymujemy nowy indeks piwotu
+  pivotIndex = partition(A, low, high, pivotIndex);
+  // sprawdzamy, gdzie znajduje się k-ty najmniejszy element
+  // robimy to analogicznie jak w quickselect
+  if (k === pivotIndex) {
+    return k;
+  } else if (k < pivotIndex) {
+    return select(A, low, pivotIndex - 1, k);
+  } else {
+    return select(A, pivotIndex + 1, high, k);
+  }
+}
+
+// pomocnicza funkcja zamieniająca miejscami dwa elementy
+// przyda się, bo będziemy to często robić
+function swap(list, i, j) {
+  let temp = list[i];
+  list[i] = list[j];
+  list[j] = temp;
+}
+
+// funkcja wyznaczająca piwot jako medianę median
+function pivot(A, low, high) {
+  // dla małych tablic zwracamy medianę
+  if (high - low < 5) {
+    return partition5(A, low, high);
+  }
+  // dzielimy tablicę na podtablice
+  for (let i = low; i <= high; i += 5) {
+    let subRight = i + 4;
+    // specjalny przypadek dla ostatniej podtablicy,
+    // która może mieć mniej niż 5 elementów
+    if (subRight > high) subRight = high;
+    // sortujemy podtablicę i znajdujemy jej medianę
+    let median5 = partition5(A, i, subRight);
+    // przenosimy medianę na początek tablicy
+    let nextMedianPos = low + Math.floor((i - low) / 5);
+    swap(A, median5, nextMedianPos);
+  }
+  // rekurencyjnie wywołujemy cały algorytm, aby znaleźć medianę median
+  let numMedians = Math.floor((high - low) / 5) + 1;
+  let mid = low + Math.floor(numMedians / 2);
+  return select(A, low, low + numMedians - 1, mid);
+}
+
+// funkcja dzieląca tablicę względem piwotu
+// jedyna różnica względem quickselect - mamy narzucony piwot
+function partition(A, low, high, pivotIndex) {
+  let pivot = A[pivotIndex];
+  swap(A, pivotIndex, high);
+  let i = low;
+  for (let j = low; j < high; j++) {
+    if (A[j] < pivot) {
+      swap(A, i, j);
+      i++;
+    }
+  }
+  swap(A, i, high);
+  return i;
+}
+
+// funkcja sortująca podtablicę i zwracająca indeks mediany
+function partition5(A, low, high) {
+  // implementacja sortowania przez wstawianie
+  for (let i = low + 1; i <= high; i++) {
+    let j = i;
+    while (j > low && A[j - 1] > A[j]) {
+      swap(A, j - 1, j);
+      j--;
+    }
+  }
+  // zwracamy indeks mediany
+  return Math.trunc((low + high) / 2);
+}
+
+// funkcja zwracająca k-ty najmniejszy element w tablicy A
+function medianOfMedians(A, low, high, k) {
+  const idx = select(A, low, high, k - 1);
+  return A[idx];
+}
+```
+
+Implementację, tak jak wcześniej, możesz przetestować na [Replit](https://replit.com/@tswistak/median-of-medians?replId=43c82821-195c-43d8-89fc-bd16afd3c70e&enterInExpertMode=true#index.js).
+
+Faktycznie udało nam się wyeliminować problem najgorszego przypadku związanego z quickselectem. Eksperymentalnie liczba porównań jest liniowa względem rozmiaru tablicy, co potwierdza, że złożoność czasowa w najgorszym przypadku wynosi $$\Omicron(n)$$. W przykładzie użyłem nieco małą próbkę (20 elementów), przez co wydaje się, że złożoność jest lekko nieliniowa, ale przy większych rozmiarach tablicy już widać wyraźnie liniowy wzrost liczby porównań. Przykładowo, jeśli w kodzie z Replit zmienię `baseArray` na:
+
+```javascript
+const baseArray = Array.from({ length: 10000 }, (_, i) => i);
+```
+
+czyli tablicę z 10 000 elementów, to liczba porównań wyniesie średnio około 80 000, podczas gdy $$n \log n$$ dla 10 000 to około 132 877. Oczywiście przyrównanie tych wartości samo w sobie nie udowadnia złożoności liniowej, aczkolwiek jeśli poeksperymentujemy z różnymi wartościami $$n$$, zauważymy, że liczba porównań rośnie liniowo.
+
+## Inne podejścia
+
+Algorytmy Hoare'a i magicznych piątek najczęściej spotkamy w podręcznikach do algorytmiki jako typowe sposoby rozwiązania problemu selekcji. Są na tyle popularne, a zarazem proste do wyjaśnienia i sprawnie działające, że i ja poświęciłem im czas. Warto jednak też szybko przejść przez inne podejścia.
+
+- **Sortowanie i wybranie po indeksie** — najprostsze i najbardziej oczywiste podejście, o którym na samym starcie wspomniałem, że nie będziemy się nim zajmować. Warto jednak wiedzieć, że dla małych tablic może być najszybsze, ponieważ złożoność najlepszych algorytmów sortowania ($$\Omicron(n \log n)$$) może być niższa niż złożoność np. algorytmu magicznych piątek ($$\Omicron(n)$$) ze względu na stałe pomijane w notacji dużego O. Sam zresztą pokazałem taki sposób znajdowania mediany [całkiem niedawno na blogu](/post/barwa-dominujaca/#mediana-wed%C5%82ug-sk%C5%82adowych).
+- **Częściowe sortowanie** — w przypadku niektórych algorytmów sortowania nawet nie musimy wykonać ich w całości, aby otrzymać k-ty najmniejszy element. Przykładowo, w [sortowaniu przez wybieranie](/post/sortowanie-cz-4-sortowanie-przez-wybieranie/) wystarczy wykonać tylko $$k$$ iteracji, aby mieć pewność, że pierwsze $$k$$ elementy są posortowane i zawierają k-ty najmniejszy element na pozycji $$k - 1$$. W takim przypadku złożoność czasowa wynosi $$\Omicron(k \cdot n)$$, co dla małych $$k$$ może być korzystne.
+- **Heapselect** — skoro mowa o sortowaniu przez wybieranie, warto wspomnieć o powiązanym z nim sortowaniu przez kopcowanie. A dokładniej o samej strukturze [kopca](https://swistak.codes/post/sortowanie-cz-4-sortowanie-przez-wybieranie/#kopce). Kopiec daje szybki dostęp do najmniejszego (lub największego) elementu, więc możemy zbudować kopiec z tablicy, a następnie wykonać $$k$$ operacji usunięcia minimum, aby otrzymać k-ty najmniejszy element. Złożoność czasowa tego podejścia to $$\Omicron(n \log k)$$.
+- **Introselect** — jest to hybrydowe podejście łączące quickselect z innymi algorytmami. Algorytm zaczyna od quickselect, ale jeśli wykryje, że podziały są zbyt nierównomierne (co może prowadzić do kwadratowej złożoności czasowej), przełącza się na inny algorytm, aby zapewnić lepszą złożoność w najgorszym przypadku ($$\Omicron(n \log n)$$ lub $$\Omicron(n)$$). Jako drugi algorytm często wykorzystuje się heapselect, ale też znajdziemy opisy o stosowaniu algorytmu magicznych piątek.
+
+## Podsumowanie
+
+Podsumowując artykuł, dość nie typowo powiedzmy sobie, dlaczego w praktyce tak mało programistów korzysta z algorytmów selekcji (co przekłada się też na ich znajomość), a zamiast tego wykonuje pełne sortowanie.
+
+- W wielu przypadkach operujemy na tak małych zbiorach danych, że różnica między $$\Omicron(n)$$ a $$\Omicron(n \log n)$$ jest pomijalna.
+- Nawet jeśli zbiory są duże, to wbudowane implementacje sortowania w popularnych językach programowania są na tyle zoptymalizowane, że mogą szybkością przewyższyć ręcznie zaimplementowane algorytmy selekcji. Szczególnie że w językach interpretowanych, takich jak JavaScript, algorytmy sortujące są napisane w natywnym kodzie, a nie w nich samych.
+- Łącząc oba powyższe punkty, często okazuje się, że pełne sortowanie jest wystarczająco szybkie i prostsze do zaimplementowania niż algorytmy selekcji. Nawet jeśli algorytm selekcji byłby szybszy, to przy typowych zbiorach danych różnica może być na tyle mała, że nie warto komplikować kodu.
+
+Dlatego zawsze warto rozważyć kontekst i wymagania aplikacji przed wyborem odpowiedniego podejścia. Prostota i czytelność kodu mogą być ważniejsze niż optymalizacja pod kątem złożoności czasowej.
+
+Jeśli już iść w opisane tutaj algorytmy, to kiedy? Nie mam benchmarków, jednak intuicyjnie powiedziałbym, że warto się nimi zainteresować, gdy:
+
+- Mamy do czynienia z bardzo dużymi zbiorami danych (np. miliony elementów lub więcej) — tutaj sprawdzą się zarówno algorytm Hoare'a, magicznych piątek, jak i introselect. Ten ostatni będzie prawdopodobnie najbezpieczniejszym wyborem w prawdziwych zastosowaniach.
+- Szukany k-ty element jest znacznie mniejszy niż rozmiar zbioru (np. $$k < 0,01n$$) — tutaj może się sprawdzić heapselect.
+
+Jednak lepiej zawsze przeprowadzić własne testy wydajności w kontekście konkretnej aplikacji, aby wybrać najbardziej odpowiednie rozwiązanie.
+
+## Literatura
+
+- Cormen, T. H., Leiserson, C. E., Rivest, R. L. i Stein, C. (2009). Medians and order statistics. W: *Introduction to algorithms* (wyd. 3, s. 213–227). PHI Learning.
+- C. A. R. Hoare. 1961. Algorithm 65: find. Commun. ACM 4, 7 (July 1961), 321–322. [doi:10.1145/366622.366647](https://doi.org/10.1145/366622.366647)
+- Martínez, C., & Roura, S. (2001). Optimal sampling strategies in Quicksort and Quickselect. SIAM Journal on Computing, 31(3), 683–705. [doi:10.1137/S0097539700382108](https://doi.org/10.1137/S0097539700382108)
+- Blum, M., Floyd, R. W., Pratt, V., Rivest, R. L., & Tarjan, R. E. (1973). Time bounds for selection. Journal of Computer and System Sciences, 7(4), 448–461. [doi:10.1016/S0022-0000(73)80033-9](https://doi.org/10.1016/S0022-0000(73)80033-9)
+- Musser, D.R. (1997). Introspective Sorting and Selection Algorithms. Software: Practice and Experience, 27. [doi:10.1002/(SICI)1097-024X(199708)27:8%3C983::AID-SPE117%3E3.0.CO;2-%23](https://doi.org/10.1002/%28SICI%291097-024X%28199708%2927%3A8%253C983%3A%3AAID-SPE117%253E3.0.CO%3B2-%2523)
+- Selection algorithm, https://en.wikipedia.org/w/index.php?title=Selection_algorithm&oldid=1331691857 (dostęp: 1 lutego 2026 r.).
+- Max G., Let’s Talk Selection: Selection Algorithms, MaxGCoding (6 czerwca 2021 r.), https://maxgcoding.com/lets-talk-selection (dostęp: 1 lutego 2026 r.).
+- Selection Algorithms, GeeksforGeeks (3 grudnia 2024 r.), https://www.geeksforgeeks.org/dsa/selection-algorithms/ (dostęp: 1 lutego 2026 r.).
+- Mischel J., When Theory Meets Practice, Mischel’s Meta-Blog (25 października 2011 r.), https://blog.mischel.com/2011/10/25/when-theory-meets-practice/ (dostęp: 1 lutego 2026 r.).
+- Mamano N., Selection algorithms and the Top-K problem, Nil Mamano (1 grudnia 2020 r.), https://nilmamano.com/blog/top-k-problems (dostęp: 1 lutego 2026 r.).
+
+<small>Zdjęcie na okładce wygenerowane przez Canva AI.</small>

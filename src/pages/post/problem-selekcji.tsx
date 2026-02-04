@@ -1,6 +1,6 @@
 import { GetStaticProps } from 'next';
 import { Post } from '../../components/post/post';
-import { kolejneOperacjeNaBarwach } from '../../_posts/content/20251203-barwa-dominujaca';
+import { problemSelekcji } from '../../_posts/content/20260204-problem-selekcji';
 import { PostDate } from '../../components/post-list/list/post-date';
 import Link from 'next/link';
 import { getDatePathForDate } from '@swistak-codes/pagination';
@@ -36,18 +36,16 @@ export function Article({
         </Link>
       </PostDate>
       <Versions english={modifiedMeta.english} youtube={modifiedMeta.youtube} />
-      <p>{kolejneOperacjeNaBarwach.meta.firstParagraph}</p>
-      <kolejneOperacjeNaBarwach.Component />
+      <p>{problemSelekcji.meta.firstParagraph}</p>
+      <problemSelekcji.Component />
     </Post>
   );
 }
 
 export const getStaticProps: GetStaticProps<Props> = async () => {
-  const dateLink = getDatePathForDate(
-    kolejneOperacjeNaBarwach.meta.publishTime,
-  );
+  const dateLink = getDatePathForDate(problemSelekcji.meta.publishTime);
   const modifiedMeta = convertMetadata(
-    kolejneOperacjeNaBarwach.meta,
+    problemSelekcji.meta,
     prevNextSlugs,
     similarPosts,
   );

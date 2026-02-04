@@ -10,6 +10,18 @@
     },
     "items": [
         {
+            "id": "https://swistak.codes/post/problem-selekcji",
+            "content_html": "Szukanie największego lub najmniejszego elementu w zbiorze danych to jedno z najprostszych zadań algorytmicznych, które implementował zapewne każdy, kto miał styczność z programowaniem. Jednak co zrobić, gdy chcemy znaleźć drugi z kolei największy element? A może trzeci najmniejszy? Albo może po prostu k-ty element? Czy da się to zrobić bez wcześniejszego posortowania zbioru? Nazywamy to problemem selekcji i przyjrzymy się mu w tym artykule.<br /><a href=\"https://swistak.codes/post/problem-selekcji\">Czytaj więcej na świstak.codes</a>",
+            "url": "https://swistak.codes/post/problem-selekcji",
+            "title": "Problem selekcji",
+            "summary": "Artykuł omawiający problem selekcji, czyli znalezienia k-tego najmniejszego elementu w zbiorze danych, wraz z różnymi algorytmami jego rozwiązania.",
+            "date_modified": "2026-02-04T07:00:00.000Z",
+            "author": {
+                "name": "Tomasz Świstak",
+                "url": "https://swistak.codes"
+            }
+        },
+        {
             "id": "https://swistak.codes/post/liczby-zespolone",
             "content_html": "We wczesnych latach nauki uczono nas, że liczby możemy rozpisać na poziomej osi liczbowej. Zaczynaliśmy z lewej od zera i stawialiśmy kreski co kratkę w zeszycie, pisząc kolejne liczby naturalne. Tylko tak naprawdę czy coś nas powstrzymuje przed dołożeniem kolejnej, tym razem pionowej osi i wyznaczeniem liczb jako punktów na płaszczyźnie? W dużym skrócie na tym polegają liczby zespolone, z którymi zmierzył się chyba każdy student informatyki. Ale czy są w ogóle przydatne w programowaniu, albo i w ogóle w życiu, czy są tylko urojeniem matematycznym? Sprawdźmy to.<br /><a href=\"https://swistak.codes/post/liczby-zespolone\">Czytaj więcej na świstak.codes</a>",
             "url": "https://swistak.codes/post/liczby-zespolone",

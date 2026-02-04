@@ -219,7 +219,7 @@ async function populateData(client) {
       .filter((x) => !x.success)
       .map((x) => ({
         ...x,
-        document: JSON.parse(x.document).id,
+        document: x.document ? JSON.parse(x.document).id : undefined,
       })),
   );
   console.log('Failures count:', resultObj.filter((x) => !x.success).length);

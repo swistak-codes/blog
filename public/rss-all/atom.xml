@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://swistak.codes</id>
     <title>świstak.codes — Wszystkie wpisy</title>
-    <updated>2025-12-23T07:00:00.000Z</updated>
+    <updated>2026-02-04T07:00:00.000Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <author>
         <name>Tomasz Świstak</name>
@@ -13,7 +13,25 @@
     <link rel="self" href="https://swistak.codes/rss-all/atom.xml"/>
     <logo>https://swistak.codes/fav270.png</logo>
     <icon>https://swistak.codes/fav32.png</icon>
-    <rights>Wszystkie prawa zastrzeżone 2020-2025, Tomasz Świstak</rights>
+    <rights>Wszystkie prawa zastrzeżone 2020-2026, Tomasz Świstak</rights>
+    <entry>
+        <title type="html"><![CDATA[Problem selekcji]]></title>
+        <id>https://swistak.codes/post/problem-selekcji</id>
+        <link href="https://swistak.codes/post/problem-selekcji"/>
+        <updated>2026-02-04T07:00:00.000Z</updated>
+        <summary type="html"><![CDATA[Artykuł omawiający problem selekcji, czyli znalezienia k-tego najmniejszego elementu w zbiorze danych, wraz z różnymi algorytmami jego rozwiązania.]]></summary>
+        <content type="html"><![CDATA[Szukanie największego lub najmniejszego elementu w zbiorze danych to jedno z najprostszych zadań algorytmicznych, które implementował zapewne każdy, kto miał styczność z programowaniem. Jednak co zrobić, gdy chcemy znaleźć drugi z kolei największy element? A może trzeci najmniejszy? Albo może po prostu k-ty element? Czy da się to zrobić bez wcześniejszego posortowania zbioru? Nazywamy to problemem selekcji i przyjrzymy się mu w tym artykule.<br /><a href="https://swistak.codes/post/problem-selekcji">Czytaj więcej na świstak.codes</a>]]></content>
+        <author>
+            <name>Tomasz Świstak</name>
+            <email>tomasz@swistak.codes</email>
+            <uri>https://swistak.codes</uri>
+        </author>
+        <contributor>
+            <name>Tomasz Świstak</name>
+            <email>tomasz@swistak.codes</email>
+            <uri>https://swistak.codes</uri>
+        </contributor>
+    </entry>
     <entry>
         <title type="html"><![CDATA[Liczby zespolone]]></title>
         <id>https://swistak.codes/post/liczby-zespolone</id>

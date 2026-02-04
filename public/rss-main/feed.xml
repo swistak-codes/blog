@@ -4,7 +4,7 @@
         <title>świstak.codes — Wpisy ze strony głównej</title>
         <link>https://swistak.codes</link>
         <description></description>
-        <lastBuildDate>Tue, 23 Dec 2025 07:00:00 GMT</lastBuildDate>
+        <lastBuildDate>Wed, 04 Feb 2026 07:00:00 GMT</lastBuildDate>
         <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
         <generator>https://github.com/jpmonette/feed</generator>
         <image>
@@ -12,7 +12,16 @@
             <url>https://swistak.codes/fav270.png</url>
             <link>https://swistak.codes</link>
         </image>
-        <copyright>Wszystkie prawa zastrzeżone 2020-2025, Tomasz Świstak</copyright>
+        <copyright>Wszystkie prawa zastrzeżone 2020-2026, Tomasz Świstak</copyright>
+        <item>
+            <title><![CDATA[Problem selekcji]]></title>
+            <link>https://swistak.codes/post/problem-selekcji</link>
+            <guid isPermaLink="false">https://swistak.codes/post/problem-selekcji</guid>
+            <pubDate>Wed, 04 Feb 2026 07:00:00 GMT</pubDate>
+            <description><![CDATA[Artykuł omawiający problem selekcji, czyli znalezienia k-tego najmniejszego elementu w zbiorze danych, wraz z różnymi algorytmami jego rozwiązania.]]></description>
+            <content:encoded><![CDATA[Szukanie największego lub najmniejszego elementu w zbiorze danych to jedno z najprostszych zadań algorytmicznych, które implementował zapewne każdy, kto miał styczność z programowaniem. Jednak co zrobić, gdy chcemy znaleźć drugi z kolei największy element? A może trzeci najmniejszy? Albo może po prostu k-ty element? Czy da się to zrobić bez wcześniejszego posortowania zbioru? Nazywamy to problemem selekcji i przyjrzymy się mu w tym artykule.<br /><a href="https://swistak.codes/post/problem-selekcji">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
         <item>
             <title><![CDATA[Liczby zespolone]]></title>
             <link>https://swistak.codes/post/liczby-zespolone</link>
