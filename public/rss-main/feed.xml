@@ -4,7 +4,7 @@
         <title>świstak.codes — Wpisy ze strony głównej</title>
         <link>https://swistak.codes</link>
         <description></description>
-        <lastBuildDate>Wed, 04 Feb 2026 07:00:00 GMT</lastBuildDate>
+        <lastBuildDate>Thu, 19 Feb 2026 07:00:00 GMT</lastBuildDate>
         <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
         <generator>https://github.com/jpmonette/feed</generator>
         <image>
@@ -13,6 +13,15 @@
             <link>https://swistak.codes</link>
         </image>
         <copyright>Wszystkie prawa zastrzeżone 2020-2026, Tomasz Świstak</copyright>
+        <item>
+            <title><![CDATA[Jak działają kody 2FA?]]></title>
+            <link>https://swistak.codes/post/kody-2fa</link>
+            <guid isPermaLink="false">https://swistak.codes/post/kody-2fa</guid>
+            <pubDate>Thu, 19 Feb 2026 07:00:00 GMT</pubDate>
+            <description><![CDATA[Artykuł wyjaśniający, w jaki sposób działają kody 2FA, czyli dwuetapowej weryfikacji. Dowiedz się, jak to możliwe, że aplikacje generujące kody 2FA działają całkowicie offline, wymagając jedynie jednorazowego kontaktu z serwerem.]]></description>
+            <content:encoded><![CDATA[W celu lepszego zabezpieczenia dostępu do naszych kont wiele serwisów oferuje możliwość włączenia dwuetapowej weryfikacji. Odbywa się ona zwykle przez podanie dodatkowego kodu wysyłanego przez SMS, e-mail lub generowanego przez specjalną aplikację. Ten drugi sposób jest zdecydowanie bezpieczniejszy i najciekawszy z technicznego punktu widzenia, bo wymaga tylko jednorazowego kontaktu z serwerem, a potem działa całkowicie offline. Jak to możliwe? Dowiedzmy się.<br /><a href="https://swistak.codes/post/kody-2fa">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
         <item>
             <title><![CDATA[Problem selekcji]]></title>
             <link>https://swistak.codes/post/problem-selekcji</link>

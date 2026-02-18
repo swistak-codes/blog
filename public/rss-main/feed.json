@@ -10,6 +10,18 @@
     },
     "items": [
         {
+            "id": "https://swistak.codes/post/kody-2fa",
+            "content_html": "W celu lepszego zabezpieczenia dostępu do naszych kont wiele serwisów oferuje możliwość włączenia dwuetapowej weryfikacji. Odbywa się ona zwykle przez podanie dodatkowego kodu wysyłanego przez SMS, e-mail lub generowanego przez specjalną aplikację. Ten drugi sposób jest zdecydowanie bezpieczniejszy i najciekawszy z technicznego punktu widzenia, bo wymaga tylko jednorazowego kontaktu z serwerem, a potem działa całkowicie offline. Jak to możliwe? Dowiedzmy się.<br /><a href=\"https://swistak.codes/post/kody-2fa\">Czytaj więcej na świstak.codes</a>",
+            "url": "https://swistak.codes/post/kody-2fa",
+            "title": "Jak działają kody 2FA?",
+            "summary": "Artykuł wyjaśniający, w jaki sposób działają kody 2FA, czyli dwuetapowej weryfikacji. Dowiedz się, jak to możliwe, że aplikacje generujące kody 2FA działają całkowicie offline, wymagając jedynie jednorazowego kontaktu z serwerem.",
+            "date_modified": "2026-02-19T07:00:00.000Z",
+            "author": {
+                "name": "Tomasz Świstak",
+                "url": "https://swistak.codes"
+            }
+        },
+        {
             "id": "https://swistak.codes/post/problem-selekcji",
             "content_html": "Szukanie największego lub najmniejszego elementu w zbiorze danych to jedno z najprostszych zadań algorytmicznych, które implementował zapewne każdy, kto miał styczność z programowaniem. Jednak co zrobić, gdy chcemy znaleźć drugi z kolei największy element? A może trzeci najmniejszy? Albo może po prostu k-ty element? Czy da się to zrobić bez wcześniejszego posortowania zbioru? Nazywamy to problemem selekcji i przyjrzymy się mu w tym artykule.<br /><a href=\"https://swistak.codes/post/problem-selekcji\">Czytaj więcej na świstak.codes</a>",
             "url": "https://swistak.codes/post/problem-selekcji",

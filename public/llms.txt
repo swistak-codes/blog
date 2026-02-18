@@ -761,3 +761,29 @@ Artykuł wyjaśnia liczby zespolone: jednostkę urojoną i, dla której i^2 = �
 https://swistak.codes/post/problem-selekcji
 
 Artykuł opisuje problem selekcji — znalezienia k-tego najmniejszego elementu w n-elementowym zbiorze (w tym mediana) — z celem osiągnięcia czasu O(n) zamiast pełnego sortowania O(n log n). Dla skrajnych przypadków: minimum i maksimum wymagają n−1 porównań każda, a jednoczesne znalezienie obu można zrobić optymalnie w 3⌊n/2⌋ porównań. Opisano quickselect (Hoare): partycjonowanie jak w quicksort, rekurencja tylko po odpowiedniej stronie; z losowym wyborem pivota daje średnio O(n) (około 2n porównań), ale w najgorszym przypadku O(n^2). Przedstawiono deterministyczny algorytm „magicznych piątek” (median of medians / BFPRT): dzielenie na grupy po 5, znajdowanie median każdej grupy i mediany median jako pivota — gwarantuje liniowy czas w najgorszym przypadku O(n) (grupy 5 zapewniają stały, dobry podział, ≳30% elementów odciętych). Omówiono też inne metody: pełne sortowanie i wybór indeksu, częściowe sortowanie (O(k·n)), heapselect (O(n log k)) oraz introselect (hybryda, bezpieczna praktycznie). W praktyce pełne sortowanie bywa wystarczające dla małych danych lub dzięki zoptymalizowanym bibliotekom; algorytmy selekcji warto rozważyć dla bardzo dużych zbiorów lub specyficznych wartości k.
+
+## Jak działają kody 2FA?
+
+https://swistak.codes/post/kody-2fa
+
+Artykuł objaśnia, jak działają kody 2FA (dwuetapowa weryfikacja) i dlaczego aplikacje generujące kody mogą działać całkowicie offline: obie strony (serwer i aplikacja) znają wspólny sekret i stosują deterministyczny algorytm kryptograficzny, więc po jednorazowej synchronizacji (np. przez zeskanowanie kodu QR) aplikacja sama generuje kody bez dalszej komunikacji z serwerem.
+
+Kluczowe pojęcia i mechanizmy:
+- OTP (One-Time Password), klucz (secret), HMAC (Hash-based Message Authentication Code).
+- HOTP (RFC 4226): HMAC-SHA-1(key, counter) → dynamiczne przycinanie → 31-bitowy wynik → modulo 10^d daje kod; używa licznika zwiększanego przy każdym generowaniu, co wymaga synchronizacji/liczby dopuszczalnych przeskoków (window).
+- TOTP (RFC 6238): wariant HOTP, gdzie zamiast licznika używa się wartości czasu T = floor((aktualny_czas − T0)/X) (zwykle X = 30 s), co usuwa problem desynchronizacji licznika — kod ważny przez określony okres.
+- Dynamiczne przycinanie: wybór offsetu z ostatniego bajtu HMAC, ekstrakcja 4 bajtów, wyzerowanie MSB → 31-bitowa wartość.
+- Otpauth URI w QR kodzie zawiera wszystkie parametry (typ totp/hotp, secret w Base32, issuer, algorithm, digits, period), pozwalając aplikacji od razu generować kody.
+
+Implementacja: przykład w TypeScript pokazuje konwersję Base32, obliczanie HMAC, dynamiczne przycinanie i formatowanie kodu; TOTP wylicza counter z czasu i wywołuje HOTP.
+
+Bezpieczeństwo sekretów:
+- Sekret musi być znany obu stronom i przechowywany w postaci odwracalnej (zaszyfrowanej), co wymaga dobrych praktyk.
+- Dobre praktyki programistyczne: przechowywać sekrety w oddzielnych systemach/bazach, szyfrowanie kopertowe (DEK/KEK), użycie KMS lub HSM, minimalne trzymanie odszyfrowanego sekretu w pamięci, unikanie logowania sekretów, rate-limiting przy sprawdzaniu kodów.
+- Rekomendacje dla użytkowników: używać zaufanych, aktualizowanych aplikacji (np. Google Authenticator, Aegis), nie udostępniać sekretów, szyfrować kopie zapasowe eksportów.
+
+Ryzyka i przykłady incydentów: zdarzały się wycieki sekretów 2FA (przykłady: Spoutible 2024, wyciek bazy giełdy 2025, luka Proton Authenticator 2025 zapisująca sekrety w logach). Mimo to 2FA znacząco podnosi bezpieczeństwo w porównaniu z samym hasłem; aplikacje TOTP są bezpieczniejsze niż SMS (ryzyko SIM swappingu).
+
+Alternatywy: klucze sprzętowe i FIDO2/WebAuthn (kryptografia asymetryczna) oferują wyższy poziom bezpieczeństwa i ochronę przed phishingiem, bo nie wymagają przechowywania współdzielonego sekretu.
+
+Wnioski: mechanizm 2FA (HOTP/TOTP) opiera się na prostych, deterministycznych operacjach kryptograficznych, dlatego aplikacje działają offline po jednorazowej synchronizacji. Kluczem do bezpieczeństwa jest właściwe zarządzanie i szyfrowanie sekretów oraz stosowanie najlepszych praktyk zarówno przez deweloperów, jak i użytkowników; w krytycznych zastosowaniach warto rozważyć klucze sprzętowe.

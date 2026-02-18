@@ -109,3 +109,4 @@ export { trudnoscPisania } from './20251112-trudnosc-pisania';
 export { kolejneOperacjeNaBarwach } from './20251203-barwa-dominujaca';
 export { liczbyZespolone } from './20251223-liczby-zespolone';
 export { problemSelekcji } from './20260204-problem-selekcji';
+export { kody2fa } from './20260219-kody-2fa';

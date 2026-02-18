@@ -919,7 +919,7 @@
     "path": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/next-sitemap/node_modules/@next/env",
     "licenseFile": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/next-sitemap/node_modules/@next/env/README.md"
   },
-  "@next/env@15.3.5": {
+  "@next/env@15.3.8": {
     "licenses": "MIT",
     "repository": "https://github.com/vercel/next.js",
     "publisher": "Next.js Team",
@@ -1272,6 +1272,12 @@
     "repository": "https://github.com/DefinitelyTyped/DefinitelyTyped",
     "path": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/@types/babel__traverse",
     "licenseFile": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/@types/babel__traverse/LICENSE"
+  },
+  "@types/create-hmac@1.1.3": {
+    "licenses": "MIT",
+    "repository": "https://github.com/DefinitelyTyped/DefinitelyTyped",
+    "path": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/@types/create-hmac",
+    "licenseFile": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/@types/create-hmac/LICENSE"
   },
   "@types/cytoscape-edgehandles@4.0.4": {
     "licenses": "MIT",
@@ -1652,6 +1658,12 @@
     "repository": "https://github.com/DefinitelyTyped/DefinitelyTyped",
     "path": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/@types/pushid",
     "licenseFile": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/@types/pushid/LICENSE"
+  },
+  "@types/qrcode@1.5.6": {
+    "licenses": "MIT",
+    "repository": "https://github.com/DefinitelyTyped/DefinitelyTyped",
+    "path": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/@types/qrcode",
+    "licenseFile": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/@types/qrcode/LICENSE"
   },
   "@types/qs@6.14.0": {
     "licenses": "MIT",
@@ -2698,6 +2710,14 @@
     "path": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/jest-haste-map/node_modules/ci-info",
     "licenseFile": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/jest-haste-map/node_modules/ci-info/LICENSE"
   },
+  "cipher-base@1.0.7": {
+    "licenses": "MIT",
+    "repository": "https://github.com/crypto-browserify/cipher-base",
+    "publisher": "Calvin Metcalf",
+    "email": "calvin.metcalf@gmail.com",
+    "path": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/cipher-base",
+    "licenseFile": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/cipher-base/LICENSE"
+  },
   "cjs-module-lexer@2.1.0": {
     "licenses": "MIT",
     "repository": "https://github.com/nodejs/cjs-module-lexer",
@@ -2731,6 +2751,14 @@
   "client-only@0.0.1": {
     "licenses": "MIT",
     "path": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/client-only"
+  },
+  "cliui@6.0.0": {
+    "licenses": "ISC",
+    "repository": "https://github.com/yargs/cliui",
+    "publisher": "Ben Coe",
+    "email": "ben@npmjs.com",
+    "path": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/qrcode/node_modules/cliui",
+    "licenseFile": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/qrcode/node_modules/cliui/LICENSE.txt"
   },
   "cliui@8.0.1": {
     "licenses": "ISC",
@@ -3001,6 +3029,18 @@
     "publisher": "Étienne Tétreault-Pinard",
     "path": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/country-regex",
     "licenseFile": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/country-regex/LICENSE"
+  },
+  "create-hash@1.2.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/crypto-browserify/createHash",
+    "path": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/create-hash",
+    "licenseFile": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/create-hash/LICENSE"
+  },
+  "create-hmac@1.1.7": {
+    "licenses": "MIT",
+    "repository": "https://github.com/crypto-browserify/createHmac",
+    "path": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/create-hmac",
+    "licenseFile": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/create-hmac/LICENSE"
   },
   "create-require@1.1.1": {
     "licenses": "MIT",
@@ -3742,6 +3782,15 @@
     "path": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/debuglog",
     "licenseFile": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/debuglog/LICENSE"
   },
+  "decamelize@1.2.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/sindresorhus/decamelize",
+    "publisher": "Sindre Sorhus",
+    "email": "sindresorhus@gmail.com",
+    "url": "sindresorhus.com",
+    "path": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/decamelize",
+    "licenseFile": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/decamelize/license"
+  },
   "decimal.js@10.5.0": {
     "licenses": "MIT",
     "repository": "https://github.com/MikeMcl/decimal.js",
@@ -3895,6 +3944,12 @@
     "repository": "https://github.com/kpdecker/jsdiff",
     "path": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/uvu/node_modules/diff",
     "licenseFile": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/uvu/node_modules/diff/LICENSE"
+  },
+  "dijkstrajs@1.0.3": {
+    "licenses": "MIT",
+    "repository": "https://github.com/tcort/dijkstrajs",
+    "path": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/dijkstrajs",
+    "licenseFile": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/dijkstrajs/LICENSE.md"
   },
   "dir-glob@3.0.1": {
     "licenses": "MIT",
@@ -5372,6 +5427,15 @@
     "url": "http://ljharb.codes",
     "path": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/has-tostringtag",
     "licenseFile": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/has-tostringtag/LICENSE"
+  },
+  "hash-base@3.1.2": {
+    "licenses": "MIT",
+    "repository": "https://github.com/crypto-browserify/hash-base",
+    "publisher": "Kirill Fomichev",
+    "email": "fanatid@ya.ru",
+    "url": "https://github.com/fanatid",
+    "path": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/hash-base",
+    "licenseFile": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/hash-base/LICENSE"
   },
   "hasown@2.0.2": {
     "licenses": "MIT",
@@ -7039,6 +7103,15 @@
     "path": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/math-log2",
     "licenseFile": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/math-log2/license"
   },
+  "md5.js@1.3.5": {
+    "licenses": "MIT",
+    "repository": "https://github.com/crypto-browserify/md5.js",
+    "publisher": "Kirill Fomichev",
+    "email": "fanatid@ya.ru",
+    "url": "https://github.com/fanatid",
+    "path": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/md5.js",
+    "licenseFile": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/md5.js/LICENSE"
+  },
   "mdast-util-find-and-replace@3.0.1": {
     "licenses": "MIT",
     "repository": "https://github.com/syntax-tree/mdast-util-find-and-replace",
@@ -8039,7 +8112,7 @@
     "path": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/next-tick",
     "licenseFile": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/next-tick/LICENSE"
   },
-  "next@15.3.5": {
+  "next@15.3.8": {
     "licenses": "MIT",
     "repository": "https://github.com/vercel/next.js",
     "path": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/next",
@@ -8623,6 +8696,12 @@
     "path": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/plotly.js",
     "licenseFile": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/plotly.js/LICENSE"
   },
+  "pngjs@5.0.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/lukeapage/pngjs",
+    "path": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/pngjs",
+    "licenseFile": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/pngjs/LICENSE"
+  },
   "point-in-polygon@1.1.0": {
     "licenses": "MIT",
     "repository": "https://github.com/substack/point-in-polygon",
@@ -8848,6 +8927,14 @@
     "url": "https://chilts.org/",
     "path": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/pushid",
     "licenseFile": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/pushid/ReadMe.md"
+  },
+  "qrcode@1.5.4": {
+    "licenses": "MIT",
+    "repository": "https://github.com/soldair/node-qrcode",
+    "publisher": "Ryan Day",
+    "email": "soldair@gmail.com",
+    "path": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/qrcode",
+    "licenseFile": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/qrcode/license"
   },
   "qs@6.9.7": {
     "licenses": "BSD-3-Clause",
@@ -9333,6 +9420,14 @@
     "path": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/require-directory",
     "licenseFile": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/require-directory/LICENSE"
   },
+  "require-main-filename@2.0.0": {
+    "licenses": "ISC",
+    "repository": "https://github.com/yargs/require-main-filename",
+    "publisher": "Ben Coe",
+    "email": "ben@npmjs.com",
+    "path": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/require-main-filename",
+    "licenseFile": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/require-main-filename/LICENSE.txt"
+  },
   "requires-port@1.0.0": {
     "licenses": "MIT",
     "repository": "https://github.com/unshiftio/requires-port",
@@ -9426,6 +9521,12 @@
     "url": "http://hughskennedy.com/",
     "path": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/right-now",
     "licenseFile": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/right-now/LICENSE.md"
+  },
+  "ripemd160@2.0.3": {
+    "licenses": "MIT",
+    "repository": "https://github.com/crypto-browserify/ripemd160",
+    "path": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/ripemd160",
+    "licenseFile": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/ripemd160/LICENSE"
   },
   "robust-predicates@3.0.2": {
     "licenses": "Unlicense",
@@ -9605,6 +9706,14 @@
     "path": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/semver",
     "licenseFile": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/semver/LICENSE"
   },
+  "set-blocking@2.0.0": {
+    "licenses": "ISC",
+    "repository": "https://github.com/yargs/set-blocking",
+    "publisher": "Ben Coe",
+    "email": "ben@npmjs.com",
+    "path": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/set-blocking",
+    "licenseFile": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/set-blocking/LICENSE.txt"
+  },
   "set-function-length@1.2.2": {
     "licenses": "MIT",
     "repository": "https://github.com/ljharb/set-function-length",
@@ -9620,6 +9729,15 @@
     "email": "ljharb@gmail.com",
     "path": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/set-function-name",
     "licenseFile": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/set-function-name/LICENSE"
+  },
+  "sha.js@2.4.12": {
+    "licenses": "(MIT AND BSD-3-Clause)",
+    "repository": "https://github.com/crypto-browserify/sha.js",
+    "publisher": "Dominic Tarr",
+    "email": "dominic.tarr@gmail.com",
+    "url": "dominictarr.com",
+    "path": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/sha.js",
+    "licenseFile": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/sha.js/LICENSE"
   },
   "shallow-copy@0.0.1": {
     "licenses": "MIT",
@@ -10322,6 +10440,14 @@
     "path": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/tmpl",
     "licenseFile": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/tmpl/license"
   },
+  "to-buffer@1.2.2": {
+    "licenses": "MIT",
+    "repository": "https://github.com/browserify/to-buffer",
+    "publisher": "Mathias Buus",
+    "url": "@mafintosh",
+    "path": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/to-buffer",
+    "licenseFile": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/to-buffer/LICENSE"
+  },
   "to-float32@1.1.0": {
     "licenses": "MIT",
     "repository": "https://github.com/dy/to-float32",
@@ -10903,7 +11029,7 @@
     "path": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/validate-npm-package-license",
     "licenseFile": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/validate-npm-package-license/LICENSE"
   },
-  "validator@13.15.0": {
+  "validator@13.15.22": {
     "licenses": "MIT",
     "repository": "https://github.com/validatorjs/validator.js",
     "publisher": "Chris O'Hara",
@@ -11161,6 +11287,13 @@
     "path": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/which-collection",
     "licenseFile": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/which-collection/LICENSE"
   },
+  "which-module@2.0.1": {
+    "licenses": "ISC",
+    "repository": "https://github.com/nexdrew/which-module",
+    "publisher": "nexdrew",
+    "path": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/which-module",
+    "licenseFile": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/which-module/LICENSE"
+  },
   "which-typed-array@1.1.18": {
     "licenses": "MIT",
     "repository": "https://github.com/inspect-js/which-typed-array",
@@ -11207,6 +11340,15 @@
     "publisher": "Alex Johnson",
     "path": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/world-calendars",
     "licenseFile": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/world-calendars/LICENSE"
+  },
+  "wrap-ansi@6.2.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/chalk/wrap-ansi",
+    "publisher": "Sindre Sorhus",
+    "email": "sindresorhus@gmail.com",
+    "url": "sindresorhus.com",
+    "path": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/qrcode/node_modules/wrap-ansi",
+    "licenseFile": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/qrcode/node_modules/wrap-ansi/license"
   },
   "wrap-ansi@7.0.0": {
     "licenses": "MIT",
@@ -11318,6 +11460,14 @@
     "path": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/xtend",
     "licenseFile": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/xtend/LICENSE"
   },
+  "y18n@4.0.3": {
+    "licenses": "ISC",
+    "repository": "https://github.com/yargs/y18n",
+    "publisher": "Ben Coe",
+    "email": "ben@npmjs.com",
+    "path": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/qrcode/node_modules/y18n",
+    "licenseFile": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/qrcode/node_modules/y18n/LICENSE"
+  },
   "y18n@5.0.8": {
     "licenses": "ISC",
     "repository": "https://github.com/yargs/y18n",
@@ -11343,6 +11493,14 @@
     "path": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/yaml",
     "licenseFile": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/yaml/LICENSE"
   },
+  "yargs-parser@18.1.3": {
+    "licenses": "ISC",
+    "repository": "https://github.com/yargs/yargs-parser",
+    "publisher": "Ben Coe",
+    "email": "ben@npmjs.com",
+    "path": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/qrcode/node_modules/yargs-parser",
+    "licenseFile": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/qrcode/node_modules/yargs-parser/LICENSE.txt"
+  },
   "yargs-parser@21.1.1": {
     "licenses": "ISC",
     "repository": "https://github.com/yargs/yargs-parser",
@@ -11350,6 +11508,12 @@
     "email": "ben@npmjs.com",
     "path": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/yargs-parser",
     "licenseFile": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/yargs-parser/LICENSE.txt"
+  },
+  "yargs@15.4.1": {
+    "licenses": "MIT",
+    "repository": "https://github.com/yargs/yargs",
+    "path": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/qrcode/node_modules/yargs",
+    "licenseFile": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/qrcode/node_modules/yargs/LICENSE"
   },
   "yargs@17.7.2": {
     "licenses": "MIT",
