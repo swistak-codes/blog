@@ -18,7 +18,7 @@
         <title type="html"><![CDATA[Jak działają kody 2FA?]]></title>
         <id>https://swistak.codes/post/kody-2fa</id>
         <link href="https://swistak.codes/post/kody-2fa"/>
-        <updated>2026-02-19T07:00:00.000Z</updated>
+        <updated>2026-02-18T07:00:00.000Z</updated>
         <summary type="html"><![CDATA[Artykuł wyjaśniający, w jaki sposób działają kody 2FA, czyli dwuetapowej weryfikacji. Dowiedz się, jak to możliwe, że aplikacje generujące kody 2FA działają całkowicie offline, wymagając jedynie jednorazowego kontaktu z serwerem.]]></summary>
         <content type="html"><![CDATA[W celu lepszego zabezpieczenia dostępu do naszych kont wiele serwisów oferuje możliwość włączenia dwuetapowej weryfikacji. Odbywa się ona zwykle przez podanie dodatkowego kodu wysyłanego przez SMS, e-mail lub generowanego przez specjalną aplikację. Ten drugi sposób jest zdecydowanie bezpieczniejszy i najciekawszy z technicznego punktu widzenia, bo wymaga tylko jednorazowego kontaktu z serwerem, a potem działa całkowicie offline. Jak to możliwe? Dowiedzmy się.<br /><a href="https://swistak.codes/post/kody-2fa">Czytaj więcej na świstak.codes</a>]]></content>
         <author>

@@ -1,0 +1,335 @@
+import { Image } from '@swistak-codes/components';
+import cover from './swistak_2fa.webp';
+import vibe from './qclmkid4cnuf1.png';
+import qr from './qrswistak.webp';
+import aegis_dodawanie from './aegis_dodawanie.webp';
+import { Presentation1 } from './presentation1';
+import { Presentation2 } from './presentation2';
+import { Presentation3 } from './presentation3';
+
+export const meta = {
+  title: 'Jak działają kody 2FA?',
+  abstract:
+    'Artykuł wyjaśniający, w jaki sposób działają kody 2FA, czyli dwuetapowej weryfikacji. Dowiedz się, jak to możliwe, że aplikacje generujące kody 2FA działają całkowicie offline, wymagając jedynie jednorazowego kontaktu z serwerem.',
+  firstParagraph: (
+    <>
+      W celu lepszego zabezpieczenia dostępu do naszych kont wiele serwisów oferuje możliwość włączenia dwuetapowej weryfikacji. Odbywa się ona zwykle przez podanie dodatkowego kodu wysyłanego przez SMS, e-mail lub generowanego przez specjalną aplikację. Ten drugi sposób jest zdecydowanie bezpieczniejszy i najciekawszy z technicznego punktu widzenia, bo wymaga tylko jednorazowego kontaktu z serwerem, a potem działa całkowicie offline. Jak to możliwe? Dowiedzmy się.
+    </>
+  ),
+  keyword: 'kody 2fa',
+  categories: ['Teoria informatyki'],
+  tags: [
+    'kody 2fa',
+    'totp',
+    'hotp',
+    'hmac',
+    'sha-1',
+    'base32',
+    'otpauth',
+    'kod qr',
+    'aplikacje 2fa',
+    'bezpieczeństwo',
+    'zarządzanie sekretami',
+    'klucze sprzętowe'
+  ],
+  slug: 'kody-2fa',
+  updateTime: '2026-02-18T07:00:00+00:00',
+  publishTime: '2026-02-18T07:00:00+00:00',
+  cover,
+};
+
+## Uwaga wstępna
+
+Artykuł będzie poruszać tematy związane z kryptografią i przedstawi na przykładzie kodu, jak działają kody 2FA. Pamiętaj jednak, że nie jest to implementacja wzorcowa, tylko przykładowa, która ma na celu wyjaśnienie mechanizmu działania, a nie zapewnienie bezpieczeństwa. Nie używaj tego kodu w takiej samej formie w prawdziwych zastosowaniach. Zarówno tutaj, jak i ogólnie w kryptografii warto postawić na gotowe, szeroko przetestowane i regularnie audytowane biblioteki, a nie pisać własną implementację od zera.
+
+<Image
+  image={vibe}
+  alignCenter
+  fullSize
+  alt="Karta weryfikacji konta z informacją o wysłaniu kodu 435841 na numer xxx-xxx-8247 oraz sześcioma polami do wpisania kodu."
+  caption={<>
+    Warto też nie powierzać tego zadania na ślepo sztucznej inteligencji.<br />
+    (źródło: <a href="https://www.reddit.com/r/vibecoding/comments/1o4kand/vibe_coding_is_the_future/" target="_blank">https://www.reddit.com/r/vibecoding/comments/1o4kand/vibe_coding_is_the_future/</a>)
+  </>}
+/>
+
+## Przydatne definicje
+
+Aby nieco uprościć dalszą część artykułu, warto wyjaśnić kilka pojęć, które będą się pojawiać w dalszej części tekstu:
+
+- **Uwierzytelnianie** — proces potwierdzania tożsamości użytkownika, który próbuje uzyskać dostęp do systemu.
+- **Dwuetapowa weryfikacja (2FA)** — metoda zabezpieczania konta, która wymaga podania dwóch różnych form uwierzytelnienia. Zazwyczaj jest to coś, co użytkownik zna (np. hasło) i coś, co użytkownik posiada (np. telefon z aplikacją generującą kody 2FA).
+- **OTP** (ang. One-Time Password) — hasło, które jest ważne tylko do jednorazowego użycia.
+- **Klucz** — tajny ciąg znaków, który w zależności od kontekstu może być używany do różnych celów, np. szyfrowania, deszyfrowania czy uwierzytelniania. Możemy wyróżnić różne rodzaje kluczy, takie jak klucz symetryczny (ten sam klucz jest używany do szyfrowania i deszyfrowania) i klucz asymetryczny (para kluczy: publiczny i prywatny).
+    - W przypadku kluczy asymetrycznych klucz publiczny jest używany do szyfrowania danych, a klucz prywatny do ich odszyfrowywania.
+    - W kontekście uwierzytelniania klucz prywatny jest używany do generowania podpisu cyfrowego, który może zostać zweryfikowany za pomocą klucza publicznego.
+- **HMAC** (ang. Hash-based Message Authentication Code) — jest to rodzaj kodu uwierzytelniającego, który wykorzystuje [funkcję skrótu (hash)](/post/sumy-kontrolne) i tajny klucz do generowania unikalnego kodu dla danej wiadomości. Jest szeroko stosowany w kryptografii do zapewnienia integralności danych i uwierzytelniania. Pominę w artykule szczegóły dotyczące obliczania HMAC, te łatwo jest znaleźć w Internecie, np. [na Wikipedii](https://en.wikipedia.org/wiki/HMAC#Implementation).
+
+Zagłębiając się mocniej w temat kodów 2FA, mamy następujące metody ich pozyskiwania:
+
+- **SMS/e-mail** — kod jest wysyłany przez serwer do użytkownika, który następnie musi go przepisać w formularzu do zweryfikowania przez serwer.
+- **Tokeny OTP** — są to fizyczne urządzenia, które generują kod 2FA. Użytkownik musi mieć ten token przy sobie, aby uzyskać dostęp do swojego konta. Urządzenie takie nie ma dostępu do Internetu, więc kod jest generowany lokalnie na urządzeniu i nie jest przesyłany przez sieć z serwera do użytkownika. Kod ten również należy przepisać, a serwer sprawdza, czy jest prawidłowy.
+- **Aplikacja generująca kody 2FA** — kod jest generowany lokalnie na urządzeniu użytkownika i nie jest przesyłany przez sieć z serwera do użytkownika. Kod ten również należy przepisać, a serwer sprawdza, czy jest prawidłowy. Przykładowe aplikacje tego typu to np. [Google Authenticator](https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2) lub otwartoźródłowy [Aegis](https://getaegis.app/).
+- **Klucz sprzętowy** — drugą warstwą weryfikacji jest sprzęt posiadany przez użytkownika i w tym przypadku użytkownik nie musi przepisywać kodu, a jedynie wykonać jakąś akcję, np. naciśnięcie przycisku. Przykładem takiego klucza jest [YubiKey](https://www.yubico.com/).
+
+## HOTP
+
+Generowanie kodów dla dwuwarstwowej weryfikacji zacznijmy od podejścia HOTP, czyli HMAC-Based One-Time Password zdefiniowanego w RFC 4226 z grudnia 2005 r. Jest to podstawowy sposób generowania haseł jednorazowych (w tym kodów 2FA) opierający się na dwóch czynnikach:
+
+- **Sekretny klucz** ($$K$$) — tajny ciąg znaków znany zarówno serwerowi, jak i użytkownikowi. Może być dowolnej długości, jednak sugeruje się, aby był dłuższy niż liczba bajtów używanych przez funkcję skrótu (np. 20 bajtów dla SHA-1).
+- **Licznik** ($$C$$) — liczba zwiększana za każdym razem, gdy użytkownik generuje nowy kod 2FA.
+
+### Algorytm
+
+Algorytm generowania kodów HOTP jest bardzo prosty i składa się dosłownie z trzech kroków:
+
+1. Obliczamy HMAC z klucza $$K$$ i licznika $$C$$, używając funkcji skrótu SHA-1: $$HS = \operatorname{HMAC-SHA-1}(K,C)$$.
+2. Na podstawie $$HS$$ generujemy 31-bitowy ciąg znaków, korzystając z tzw. dynamicznego przycinania (ang. dynamic truncation, opiszę je dalej): $$S = \operatorname{DT}(HS)$$.
+3. Konwertujemy $$S$$ na liczbę całkowitą i bierzemy jej resztę z dzielenia przez $$10^d$$, gdzie $$d$$ to liczba cyfr, które chcemy mieć w naszym kodzie 2FA (zazwyczaj jest to 6): $$D = S \mod 10^d$$.
+
+$$D$$ jest naszym kodem 2FA, który użytkownik musi przepisać, aby zweryfikować swoją tożsamość.
+
+Funkcja skrótu może zostać zastąpiona inną, ale standard RFC 4226 definiuje użycie SHA-1, więc dla zgodności z tym standardem użyjemy właśnie tej funkcji.
+
+### Dynamiczne przycinanie (DT)
+
+Funkcja dynamicznego przycinania (DT) jest używana do wyodrębnienia 31-bitowego ciągu znaków z 20-bajtowego wyniku HMAC. Algorytm ten wygląda następująco:
+
+1. Pobieramy ostatnie 4 bity wyniku HMAC określające indeks bajtu, od którego zaczniemy wyodrębniać 31-bitowy ciąg znaków.
+2. Następnie wyodrębniamy 4 bajty z wyniku HMAC, zaczynając od tego indeksu.
+3. Ustawiamy najbardziej znaczący bit na 0, aby uzyskać 31-bitowy ciąg znaków.
+
+Zobaczmy przykład, bo na nim będzie łatwiej zrozumieć, jak to działa. Załóżmy, że wynik HMAC ([w postaci szesnastkowej](/post/systemy-liczbowe-uzupelnienie/#system-szesnastkowy-heksadecymalny)) to:
+
+```
+c201ec4ebf6756fcd3534f020e0e4ab891319418
+```
+
+Ostatnie 4 bity tego wyniku to `8`, co oznacza, że indeks, od którego zaczniemy wyodrębniać 31-bitowy ciąg znaków, to `8`. Wyodrębniamy więc 4 bajty, zaczynając od indeksu `8`, co daje nam:
+
+```
+c201ec4ebf6756fcd3534f020e0e4ab891319418
+^^  ^^  ^^  ^^  ^^    ^^
+0   2   4   6   8     11
+```
+
+Nasz wyodrębniony ciąg znaków to `d3534f02`. `d` to binarnie `1101`, więc ustawiamy najbardziej znaczący bit na 0, co daje nam `0101`, czyli `5`. Ostatecznie nasz 31-bitowy ciąg w postaci heksadecymalnej to `5354f02`.
+
+### Problem licznika
+
+HOTP znalazło swoje zastosowania, jednak ma problemy związane z licznikiem. Licznik jest zwiększany za każdym razem, gdy użytkownik generuje nowy kod, co oznacza, że serwer musi przechowywać aktualną wartość licznika dla każdego użytkownika. Wszystko jest dobrze, jeśli użytkownik generuje kody 2FA tylko wtedy, gdy próbuje się zalogować, ale co jeśli użytkownik generuje kody 2FA bez próby logowania? W takim przypadku licznik będzie się zwiększał, a serwer nie jest tego świadomy, co może prowadzić do odrzucenia kodu przez serwer.
+
+Aby zapobiec takim sytuacjom, powinno się wprowadzić okno tolerancji dla licznika (opisane w punkcie 7.4. standardu), które pozwala na pewien zakres wartości licznika w przód, które serwer będzie akceptować. Wówczas jeśli użytkownik wygeneruje kilka kodów bez logowania, serwer może nadal zaakceptować kod i odpowiednio zaktualizować swój licznik. Jednak jeśli użytkownik wygeneruje zbyt wiele kodów bez logowania, nie będzie już możliwe zalogowanie się.
+
+## TOTP
+
+Odpowiedzią na bolączki HOTP jest TOTP, czyli Time-Based One-Time Password zdefiniowany w RFC 6238 z maja 2011 r. W standardzie tym zamiast licznika używamy aktualnego czasu, co eliminuje problem związany z desynchronizacją licznika. Każdy wygenerowany kod jest ważny przez określony czas (zazwyczaj 30 sekund), po którym zostaje odrzucony przez serwer autoryzacji. Nawet jeśli użytkownik wygeneruje kilka kodów bez wykonania jakiejkolwiek akcji, nie będzie to miało wpływu na możliwość zalogowania się.
+
+Najważniejszy w tym algorytmie jest czas $$T$$, który obliczamy w następujący sposób:
+
+$$
+T = \left\lfloor \frac{\text{aktualny\_czas} - T_0}{X} \right\rfloor,
+$$
+
+gdzie:
+
+- $$\text{aktualny\_czas}$$ to aktualny [czas uniksowy](/post/jak-komputer-przechowuje-date-i-skad-zna-aktualna/#czas-uniksowy) w sekundach
+- $$T_0$$ to czas początkowy, od którego zaczynamy liczyć (zazwyczaj jest to 0, czyli 1 stycznia 1970 r.)
+- $$X$$ to okres ważności kodu w sekundach (zwykle 30 sekund)
+- $$\lfloor \cdot \rfloor$$ to funkcja podłogi zaokrąglająca wynik w dół do najbliższej liczby całkowitej
+
+Następnie kod uzyskujemy przez podstawienie $$T$$ zamiast licznika do algorytmu HOTP:
+
+$$
+\text{TOTP} = \operatorname{HOTP}(K, T)
+$$
+
+Intuicyjnie można to rozumieć tak, że TOTP to HOTP, gdzie licznik nie jest liczbą wykonanych prób logowania, tylko ilością 30-sekundowych okresów, które upłynęły od $$T_0$$. Zakładając domyślny start, czyli 01.01.1970 r., na obecną chwilę minęło ich <Presentation1 />.
+
+## Synchronizacja z aplikacją generującą kody
+
+Przyznajmy, że nie brzmi to strasznie skomplikowanie. Mamy jakiś tajny klucz, odmierzamy czas, wykonujemy kilka *prostych* operacji i otrzymujemy 6 cyfr do przepisania. Tylko że pomijamy ważny aspekt — aplikacja do generowania kodów musi poznać ten tajny klucz, wszystkie parametry algorytmu. Jak to się dzieje?
+
+Tutaj raczej nie odkryję Ameryki, bo każdy, kto kiedykolwiek korzystał z aplikacji do 2FA, zna odpowiedź — kod QR lub ewentualnie przepisanie wyświetlającego się pod nim ciągu znaków. Skanujemy kod i aplikacja nie dość, że zaczyna od razu generować kody, to od razu zna też nazwę konta i serwisu, do którego te kody są przypisane. Co w takim razie taki kod zawiera?
+
+### Zawartość kodu QR
+
+Kod QR zawiera specjalnie sformatowany URI (Uniform Resource Identifier, po pol. jednolity identyfikator zasobów; coś w stylu adresów w przeglądarce), który zawiera wszystkie potrzebne informacje. Jego format jest następujący:
+
+```uri
+otpauth://<TYP>/<ETYKIETA>?secret=<KLUCZ>&issuer=<SERWIS>&algorithm=<ALGORYTM>&digits=<CYFRY>&period=<OKRES>
+```
+
+Poszczególne elementy to:
+
+- `<TYP>` — określa typ OTP, może być `totp` lub `hotp`. Domyślnie jest to `totp`.
+- `<ETYKIETA>` — etykieta wyświetlana w aplikacji do generowania kodów. Zazwyczaj zawiera nazwę usługi i konta w formacie `nazwa usługi:konto`. Jest opcjonalna.
+- `<KLUCZ>` — tajny klucz używany do generowania kodów 2FA. Jest to obowiązkowy parametr przekazywany w postaci Base32 (wszystkie litery alfabetu angielskiego i cyfry od 2 do 7; zdefiniowane w RFC 4648).
+- `<SERWIS>` — nazwa serwisu, który wygenerował klucz. Jest opcjonalna.
+- `<ALGORYTM>` — algorytm funkcji skrótu używany do generowania kodów, np. `SHA1`, `SHA256` lub `SHA512`. Domyślnie jest to `SHA1`.
+- `<CYFRY>` — liczba cyfr w generowanym kodzie 2FA. Domyślnie jest to `6`.
+- `<OKRES>` — okres ważności kodu w sekundach. Domyślnie jest to `30`.
+
+W przypadku HOTP zamiast `period=<OKRES>` używa się `counter=<LICZNIK>`, który określa początkową wartość licznika.
+
+Najczęściej kody stosują domyślne wartości, dlatego serwisy oferują też możliwość ręcznego przepisania klucza, jeśli nie mamy możliwości zeskanować kodu QR. Należy tylko pamiętać, że klucz jest informacją poufną i nie powinniśmy go nigdzie zapisywać na własną rękę ani tym bardziej udostępniać komukolwiek. Aplikacje generujące kody przechowują ten klucz w bezpieczny sposób (np. w Aegis jest zaszyfrowany za pomocą AES-256-GCM). W razie potrzeby aplikacje oferują możliwość eksportu kluczy, ale jest to funkcja, z której należy korzystać z dużą ostrożnością.
+
+### Przykład
+
+Zobaczmy jeszcze przykład gotowego URI. Załóżmy, że blog, którego właśnie czytasz, oferuje możliwość włączenia 2FA (pomijam, że nawet nie ma tu logowania). Wszystkie parametry są domyślne, a klucz to `WC2TJ4YPVYZNY3QMV3PV`. Wówczas URI będzie takie:
+
+```uri
+otpauth://totp/swistak.codes:twoj@mail.com?secret=WC2TJ4YPVYZNY3QMV3PV&issuer=SwistakCodes
+```
+
+Kod QR dla tego URI będzie wyglądać następująco:
+
+<Image
+  image={qr}
+  alignCenter
+  fullSize
+  maxWidth="300px"
+  alt="Kod QR zawierający wcześniej podane URI."
+  caption={<></>}
+/>
+
+Możesz ten kod śmiało zeskanować swoją aplikacją do generowania kodów 2FA, a zobaczysz, że od razu zacznie generować kody dla konta `twoj@mail.com`. W przypadku serwisu aplikacja wyświetli albo `SwistakCodes` (np. Google Authenticator), albo `swistak.codes` (np. Aegis) — obie wersje są prawidłowe, jest to szczegół implementacyjny. Jeśli to zrobiłeś(-aś), aplikacja powinna Ci właśnie pokazać kod <Presentation2 />.
+
+<Image
+  image={aegis_dodawanie}
+  alignCenter
+  fullSize
+  maxWidth="400px"
+  alt="Zrzut ekranu formularza 'Dodaj nowy wpis' w aplikacji Aegis. Widoczne pola: Nazwa (twoj@mail.com), Wydawca (swistak.codes), Grupa (Brak grupy), Typ (TOTP), Funkcja skrótu (SHA1), Okres (30s) i Cyfry (6)."
+  caption={<>Jeśli korzystasz z Aegis na Androidzie, to taki widok powinieneś/powinnaś zobaczyć po zeskanowaniu kodu QR. Jak widać, wszystkie parametry zostały odczytane prawidłowo, a pominięte otrzymały prawidłowe wartości domyślne.</>}
+/>
+
+Kod ten już się nigdzie nie przyda, więc możesz go bez obaw usunąć z aplikacji. Ale samej aplikacji do kodów 2FA nie usuwaj (jeśli wgrałeś(-aś) ją specjalnie na potrzeby eksperymentu), bo już pomijając jej przydatność w bezpieczeństwie, to jeszcze wygenerujemy trochę kodów QR.
+
+## Implementacja i prezentacja
+
+W teorii wiemy już wszystko, ale dobrze wiem, że dla programistów kod może mówić więcej niż słowa, dlatego zróbmy bardzo prostą implementację, a potem ją przetestujemy. Pamiętaj, jak wspomniałem wcześniej, że to tylko przykład dla lepszego zrozumienia, a nie wzorcowa implementacja.
+
+### Generowanie kodów
+
+Poniżej znajduje się przykładowa implementacja generowania kodów TOTP w [TypeScript](https://swistak.codes/post/teoria-zbiorow-typescript/). Nie pokazuję tutaj funkcji pomocniczych (`base32ToBuffer`, `numberToBuffer`, `hmac`), ale znajdziesz je w zalinkowanym pełnym kodzie źródłowym.
+
+```typescript
+// funkcja do generowania kodu HOTP, która przyjmuje klucz, licznik, liczbę cyfr i algorytm
+export async function hotp(
+  key: string,
+  counter: bigint,
+  digits: number,
+  algorithm: 'SHA-1' | 'SHA-256' | 'SHA-512',
+) {
+  // konwertujemy klucz na buffer
+  const keyBuffer = base32ToBuffer(key);
+  // konwertujemy licznik na 8-bajtową tablicę bajtów
+  const counterBuffer = numberToBuffer(counter);
+  // generujemy HMAC dla licznika
+  const hmacResult = await hmac(keyBuffer, counterBuffer, algorithm);
+  // dynamiczne przycinanie: pobieramy offset z ostatniego bajtu HMAC
+  const offset = hmacResult[hmacResult.length - 1] & 0xf;
+  // wyciągamy 4 bajty, zaczynając od offsetu, i tworzymy z nich liczbę
+  const code =
+    ((hmacResult[offset] & 0x7f) << 24) |
+    ((hmacResult[offset + 1] & 0xff) << 16) |
+    ((hmacResult[offset + 2] & 0xff) << 8) |
+    (hmacResult[offset + 3] & 0xff);
+  // wynikowy HOTP to kod modulo 10^digits sformatowany jako string z zerami wiodącymi
+  const hotpCode = (code % 10 ** digits).toString().padStart(digits, '0');
+  return hotpCode;
+}
+
+// funkcja do generowania kodu TOTP, która przyjmuje klucz, okres, liczbę cyfr i algorytm
+export async function totp(
+  key: string,
+  timeStep: number,
+  digits: number,
+  algorithm: 'SHA-1' | 'SHA-256' | 'SHA-512',
+) {
+  // obliczamy aktualny licznik na podstawie czasu i okresu
+  const now = Math.floor(Date.now() / 1000);
+  const counter = BigInt(Math.floor(now / timeStep));
+  // generujemy kod HOTP dla obliczonego licznika
+  const hotpResult = await hotp(key, counter, digits, algorithm);
+  return hotpResult;
+}
+```
+
+Całość kodu znajdziesz [w kodzie źródłowym bloga na GitHubie](https://github.com/swistak-codes/blog/tree/main/libs/presentations/two-factor-auth/algorithm.ts).
+
+### Prezentacja
+
+Poniżej możesz sprawdzić działanie tej implementacji. Wygeneruj losowy klucz lub podaj własny, wprowadź pozostałe parametry i zeskanuj kod QR. W aplikacji powinien zostać wygenerowany ten sam kod, co pokazany niżej. Dodam tylko, że w przypadku niedomyślnych parametrów, takich jak liczba cyfr, okres, algorytm czy (w szczególności) zmiana z TOTP na HOTP, nie zapewnię, że Twoja aplikacja obsłuży kod prawidłowo. Sam testowałem poniższą prezentację z Aegis i na nim wszystko działało.
+
+<Presentation3 />
+
+Całość kodu prezentacji również znajdziesz [w kodzie źródłowym bloga na GitHubie](https://github.com/swistak-codes/blog/tree/main/libs/presentations/two-factor-auth/)
+
+## Bezpieczeństwo sekretów 2FA
+
+Z powyższych implementacji możesz zauważyć jedną rzecz, która może budzić pewne obawy — obie strony muszą znać ten sam tajny klucz, aby móc wygenerować ten sam kod 2FA. Tym samym implikuje to, że klucz ten musi być przechowywany w formie odwracalnej. W przypadku haseł nie musimy ich trzymać (a nawet nie powinniśmy) w postaci odwracalnej, wystarczą jedynie ich skróty w celu porównania, czy np. SHA-256 wygeneruje tą samą wartość. A jednak nieraz słyszymy o wyciekach haseł i o tym, że udało się je odzyskać, mimo nieodwracalnej formy przechowywania.
+
+Jak to się więc dzieje, że zaleca się stosowanie dwuskładnikowej weryfikacji, choć w teorii dane do niej potrzebne trzyma się w mniej bezpieczny sposób? Przejdźmy na dość ogólnym poziomie przez to, co możemy zrobić, zarówno jako programiści, jak i użytkownicy, aby zminimalizować ryzyka związane z 2FA. Z góry zaznaczę, że nie jestem ekspertem od cyberbezpieczeństwa i postarałem się zebrać najlepsze praktyki, które znalazłem w Internecie i które też pokrywają się z tym, co sam miałem okazję zobaczyć w praktyce.
+
+### Punkt widzenia programisty
+
+Jeśli w aplikacji, którą tworzysz, chcesz zaoferować możliwość włączenia uwierzytelniania dwuskładnikowego, warto pamiętać o następujących kwestiach:
+
+- **Przechowywanie sekretów w oddzielnych bazach danych** — często wycieki baz z hasłami są wynikiem ataków typu SQL Injection celowanych w główne bazy danych aplikacji. Wydzielenie sekretów 2FA do oddzielnej bazy danych czy nawet do oddzielnego systemu może pomóc zminimalizować ryzyko. Dobrym pomysłem jest stosowanie zewnętrznych usług do autoryzacji, takich jak [Auth0](https://auth0.com/) czy [Keycloak](https://www.keycloak.org/).
+- **Szyfrowanie sekretów** — nawet jeśli sekrety trzymamy oddzielnie, nadal warto je zaszyfrować. Popularną praktyką jest tzw. szyfrowanie kopertowe (ang. envelope encryption), gdzie stosujemy dwa klucze — DEK (Data Encryption Key) do szyfrowania sekretów 2FA i KEK (Key Encryption Key) do szyfrowania DEK. Każdy sekret ma swój unikalny DEK zwykle trzymany w tej samej bazie danych. Natomiast KEK służący do zaszyfrowania i odszyfrowania DEK jest trzymany w bezpiecznym miejscu, np. w usłudze zarządzania kluczami (KMS, z ang. Key Management Service) takiej jak [Azure Key Vault](https://azure.microsoft.com/pl-pl/products/key-vault), [AWS KMS](https://aws.amazon.com/kms/) czy [HashiCorp Vault](https://www.hashicorp.com/en/products/vault). Dzięki temu nawet jeśli atakujący uzyska dostęp do bazy danych z sekretami, nadal nie będzie w stanie ich odszyfrować bez dostępu do KEK. A sam dostęp do KMS przechowującego KEK powinien być jak najbardziej zminimalizowany i monitorowany. Alternatywą dla KMS jest użycie HSM (Hardware Security Module), czyli fizycznego urządzenia do bezpiecznego przechowywania kluczy kryptograficznych i wykonywania operacji kryptograficznych.
+- **Sekrety trzymamy tylko przez chwilę** — gdy uzyskamy odszyfrowany sekret, powinniśmy go trzymać w pamięci tylko przez chwilę, czyli do momentu wygenerowania kodu 2FA, a potem go natychmiast z niej usunąć. Nie cache'ujmy go sobie nigdzie na potencjalne przyszłe użycie. Trzeba pamiętać, żeby nie zapisywać w logach sekretów, nawet w celach debugowania. Łatwo jest zapomnieć o nadmiarowych wpisach, a zdarzały się z tego powodu wycieki.
+- **Rate-limiting** — ograniczmy liczbę prób logowania, aby zminimalizować ryzyko ataków brute-force na kody 2FA. Możemy np. zablokować konto po kilku nieudanych próbach logowania lub wprowadzić opóźnienie między kolejnymi próbami. Zauważ, że kod 2FA jest domyślnie 6-cyfrowy (a potrafią być krótsze), więc istnieje tylko milion możliwych kombinacji. Nie ma żadnych przeciwwskazań, aby atakujący mógł próbować je wszystkie, a bez rate-limitingu jest całkiem realne, że w ciągu 30 sekund trafi na prawidłowy kod.
+
+Jeśli chcesz dowiedzieć się więcej na temat zalecanych praktyk przechowywania sekretów, polecam zapoznać się z poradnikiem na stronie [OWASP Cheat Sheet Series Project](https://cheatsheetseries.owasp.org/cheatsheets/Secrets_Management_Cheat_Sheet.html). Jest to prawdopodobnie najlepsze źródło wiedzy na ten temat, prosto od najlepszych ekspertów w dziedzinie bezpieczeństwa.
+
+### Punkt widzenia użytkownika
+
+Jako użytkownicy korzystający z 2FA możemy również podjąć pewne kroki, aby mieć pewność, że nasze sekrety 2FA są bezpieczne:
+
+- **Używaj zaufanych aplikacji do generowania kodów 2FA** — wybieraj aplikacje szeroko stosowane, mające dobre recenzje i będące regularnie aktualizowane. Unikaj podejrzanych lub mało znanych aplikacji, które mogą nie mieć odpowiednich zabezpieczeń. W artykule do tej pory polecałem Google Authenticator i Aegis, ale oczywiście istnieją alternatywy. Istotne jest, aby aplikacja, z której korzystasz, trzymała sekrety w postaci zaszyfrowanej, żeby nikt nie był w stanie ich odczytać z dysku/pamięci.
+- **Nie udostępniaj swoich sekretów 2FA** — nigdy nie udostępniaj swojego klucza 2FA nikomu, nawet jeśli ta osoba twierdzi, że jest zaufana. Sekret 2FA jest kluczem do Twojego konta i jego udostępnienie może prowadzić do przejęcia konta.
+- **Szyfruj kopie zapasowe** — jeśli robisz kopie zapasowe aplikacji do generowania kodów 2FA, upewnij się, że są one zaszyfrowane. Wiele aplikacji oferuje chmurowe kopie, przy których pozostaje nam jedynie zaufanie do dostawcy, ale jeśli robisz lokalne kopie zapasowe, to lepiej, żeby nie były zapisane w postaci czystego tekstu. Np. w Aegis przy eksporcie do pliku jest możliwość zaszyfrowania go hasłem, co jest bardzo dobrym pomysłem.
+
+Dobrym źródłem wiedzy na temat bezpieczeństwa aplikacji do generowania kodów 2FA jest raport z badania przeprowadzonego przez [USENIX Security Symposium](https://www.usenix.org/conference/usenixsecurity23/presentation/gilsenan), który analizuje różne popularne aplikacje do 2FA pod kątem bezpieczeństwa, zarządzania sekretami i sposobem przeprowadzania kopii zapasowych. Raport jest z 2023 r., jednak opisane tam aplikacje nadal są szeroko stosowane.
+
+### Czy były wycieki?
+
+Tak, zdarzały się. Przykładowe, o których warto wspomnieć:
+
+- W styczniu 2024 r. doszło do wycieku z serwisu społecznościowego Spoutible, gdzie w wyniku źle skonfigurowanego API wyciekały dane użytkowników, a pośród nich hasła, sekrety 2FA i kody odzyskiwania. Więcej informacji: https://haveibeenpwned.com/Breach/Spoutible. W tym przypadku sekrety były najprawdopodobniej przechowywane w tej samej bazie danych lub błędnie zabezpieczona aplikacja zwracała dane z wielu źródeł.
+- Analogiczny przypadek do powyższego wykryto w 2025 r., kiedy to odkryto niezabezpieczoną bazę danych pewnej giełdy kryptowalut, z której wyciekło dużo więcej wrażliwych danych niż tylko sekrety 2FA. Szczegółowe informacje wraz z informacjami co w takiej sytuacji powinno się zrobić znajdziesz tutaj: https://www.penligent.ai/hackinglabs/crypto-exchange-data-leak-deep-dive-mongodb-misconfig-2fa-seed-exposure-and-compliance-fallout-2025/. Z naszej perspektywy jest to ponownie problem z trzymaniem wszystkiego w jednej bazie danych.
+
+Aplikacje do generowania kodów 2FA również nie są wolne od błędów. Przykładowo, w 2025 r. odkryto lukę w aplikacji Proton Authenticator na iOS, która w logach zapisywała sekrety, co potencjalnie mogło doprowadzić do ich wycieku. Więcej informacji o tym znajdziesz tutaj: https://www.bleepingcomputer.com/news/security/proton-fixes-authenticator-bug-leaking-totp-secrets-in-logs/.
+
+### Czy 2FA jest bezpieczne?
+
+W takim razie możemy zadać sobie pytanie, czy uwierzytelnianie dwuskładnikowe jest bezpieczne, skoro sekrety 2FA są przechowywane w formie odwracalnej? Odpowiedź brzmi: tak. Mimo wszystko konieczność dodatkowego potwierdzenia tożsamości za pomocą drugiego czynnika znacznie zwiększa bezpieczeństwo konta. Nawet jeśli wycieknie sekret 2FA, można go użyć tylko do logowania na konkretnym serwisie, a nie do innych. Wycieki haseł są bardziej niebezpieczne, ponieważ wiele osób używa tych samych haseł do różnych serwisów, więc wyciek jednego hasła może prowadzić do przejęcia wielu kont.
+
+Warto też dodać, że użycie aplikacji do generowania kodów jest bezpieczniejsze niż otrzymywanie kodów OTP przez e-mail lub SMS, gdzie zachodzi cały proces komunikacji, przesyłania kodu jawnym tekstem i nie raz też jego przechowywania w takiej też postaci w bazach danych. Ponadto, w przypadku SMS-ów, wiele osób jest nieświadomych istnienia tzw. ataków sim swapping, gdzie atakujący wyłudzają duplikat karty SIM ofiary, co pozwala im przejąć kontrolę nad numerem telefonu. Przykład takiego ataku opisał kilka lat temu Niebezpiecznik: https://niebezpiecznik.pl/post/duplikat-karty-sim-kradziez-bank-mbank-bzwbk/.
+
+Jeśli natomiast nie jesteś przekonany(-a) do aplikacji wymagających przechowywania sekretów, możesz zastosować inną, jeszcze bezpieczniejszą metodę — klucze sprzętowe. W tym przypadku wykorzystywane jest podejście FIDO2 oparte na kryptografii asymetrycznej. Oznacza to, że nawet jeśli sekret wycieknie z serwera, to i tak nie będzie można go wykorzystać do wygenerowania kodu 2FA. Dodatkowo metoda ta zabezpiecza nas także przed phishingiem, ponieważ klucz sprzętowy będzie generował kod tylko dla autentycznego serwisu, a nie dla fałszywego, który próbuje nas oszukać.
+
+## Podsumowanie
+
+Liczę, że artykuł ten pomógł Ci zrozumieć, jak działają kody 2FA, w jaki sposób są generowane i jakie są związane z nimi kwestie bezpieczeństwa. Działanie aplikacji generujących kody nie jest żadną magią, nie ma tu żadnej komunikacji z serwerami, a cały proces opiera się na prostych operacjach kryptograficznych. Mimo że sekrety 2FA są przechowywane w formie odwracalnej, nadal jest to bardzo bezpieczna metoda uwierzytelniania, która znacznie zwiększa bezpieczeństwo naszych kont. Oczywiście nic nie jest w 100% bezpieczne, ale stosując się do najlepszych praktyk, zarówno jako programiści, jak i użytkownicy możemy skutecznie zminimalizować ryzyko.
+
+## Literatura
+
+- M'Raihi, D., Bellare, M., Hoornaert, F., Naccache, D., and O. Ranen, "HOTP: An HMAC-Based One-Time Password Algorithm", RFC 4226, DOI 10.17487/RFC4226, December 2005, https://www.rfc-editor.org/info/rfc4226.
+- M'Raihi, D., Machani, S., Pei, M., and J. Rydell, "TOTP: Time-Based One-Time Password Algorithm", RFC 6238, DOI 10.17487/RFC6238, May 2011, https://www.rfc-editor.org/info/rfc6238.
+- Josefsson, S., "The Base16, Base32, and Base64 Data Encodings", RFC 4648, DOI 10.17487/RFC4648, October 2006, https://www.rfc-editor.org/info/rfc4648.
+- HMAC, https://en.wikipedia.org/w/index.php?title=HMAC&oldid=1326192886 (ostatnio odwiedzone 13 lutego 2026).
+- Jacob Lindahl, The Guts of 2FA: RFC-4226 and RFC-6238, GEEKLAUNCH (Apr. 27, 2024), https://geeklaunch.io/blog/the-guts-of-two-factor-authentication/.
+- David Dick, URI::otpauth, UBUNTU MANPAGES (Oct. 9, 2024), https://manpages.ubuntu.com/manpages/questing/man3/URI::otpauth.3pm.html.
+- Gilsenan, C., Shakir, F., Alomar, N., & Egelman, S. (2023). Security and privacy failures in popular 2FA apps. W 32nd USENIX Security Symposium (USENIX Security 23) (ss. 2079–2096). USENIX Association. https://www.usenix.org/conference/usenixsecurity23/presentation/gilsenan.
+- Sjoerd Langkemper, Should 2FA Secrets Be Encrypted?, SJOERD LANGKEMPER (Feb. 1, 2023), https://www.sjoerdlangkemper.nl/2023/02/01/should-2fa-secrets-be-encrypted/.
+- OWASP, Secrets Management Cheat Sheet, OWASP CHEAT SHEET SERIES (ostatnio odwiedzone 13 lutego 2026), https://cheatsheetseries.owasp.org/cheatsheets/Secrets_Management_Cheat_Sheet.html.
+- Alf Løkken, Understanding FIDO2, WebAuthn, and Passkeys, ALF LØKKEN (Jan. 28, 2026), https://alflokken.github.io/posts/understanding-fido2-passkeys/.
+- Spoutible Data Breach, HAVE I BEEN PWNED (Feb. 5, 2024), https://haveibeenpwned.com/Breach/Spoutible.
+- Crypto Exchange Data Leak Deep Dive: MongoDB Misconfig, 2FA Seed Exposure, and Compliance Fallout (2025), PENLIGENT (Oct. 29, 2025), https://www.penligent.ai/hackinglabs/crypto-exchange-data-leak-deep-dive-mongodb-misconfig-2fa-seed-exposure-and-compliance-fallout-2025/.
+- Lawrence Abrams, Proton Fixes Authenticator Bug Leaking TOTP Secrets in Logs, BLEEPINGCOMPUTER (Aug. 4, 2025), https://www.bleepingcomputer.com/news/security/proton-fixes-authenticator-bug-leaking-totp-secrets-in-logs/.
+- Ukradli mu kartę SIM i „wyczyścili” konto w mBanku (a potem w BZ WBK), NIEBEZPIECZNIK (Jan. 12, 2015), https://niebezpiecznik.pl/post/duplikat-karty-sim-kradziez-bank-mbank-bzwbk/.
+
+<small>Zdjęcie na okładce wygenerowane przez Canva AI.</small>

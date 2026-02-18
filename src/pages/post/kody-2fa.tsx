@@ -1,6 +1,6 @@
 import { GetStaticProps } from 'next';
 import { Post } from '../../components/post/post';
-import { kody2fa } from '../../_posts/content/20260219-kody-2fa';
+import { kody2fa } from '../../_posts/content/20260218-kody-2fa';
 import { PostDate } from '../../components/post-list/list/post-date';
 import Link from 'next/link';
 import { getDatePathForDate } from '@swistak-codes/pagination';
