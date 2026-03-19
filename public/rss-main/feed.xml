@@ -4,7 +4,7 @@
         <title>świstak.codes — Wpisy ze strony głównej</title>
         <link>https://swistak.codes</link>
         <description></description>
-        <lastBuildDate>Thu, 19 Feb 2026 07:00:00 GMT</lastBuildDate>
+        <lastBuildDate>Wed, 18 Feb 2026 07:00:00 GMT</lastBuildDate>
         <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
         <generator>https://github.com/jpmonette/feed</generator>
         <image>
@@ -1007,7 +1007,7 @@
             <title><![CDATA[Tablice i listy tablicowe]]></title>
             <link>https://swistak.codes/post/tablice-i-listy-tablicowe</link>
             <guid isPermaLink="false">https://swistak.codes/post/tablice-i-listy-tablicowe</guid>
-            <pubDate>Fri, 08 May 2020 10:00:02 GMT</pubDate>
+            <pubDate>Fri, 08 May 2020 09:26:54 GMT</pubDate>
             <description><![CDATA[Ostatnio dość ogólnie omówiłem listy. Tym razem powiedzmy sobie nieco więcej o tablicach oraz o bazujących na nich listach tablicowych.]]></description>
             <content:encoded><![CDATA[W poprzednim artykule przedstawiłem ogólnie pojęcie list i przedstawiłem różne ich rodzaje. Nie wchodziłem wówczas mocno w szczegóły na temat każdej z przedstawionych struktur, dlatego tym razem powiemy sobie nieco więcej o tablicach, a także o bazujących na nich listach tablicowych.<br /><a href="https://swistak.codes/post/tablice-i-listy-tablicowe">Czytaj więcej na świstak.codes</a>]]></content:encoded>
             <author>tomasz@swistak.codes (Tomasz Świstak)</author>

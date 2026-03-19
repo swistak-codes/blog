@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import {Image} from '@swistak-codes/components';
 import cover from './swistak-kalkulator.jpg';
 
 export const meta = {
@@ -23,7 +22,7 @@ export const meta = {
     'stos'
   ],
   slug: 'obliczanie-wyrazen-matematycznych',
-  updateTime: '2023-05-24T07:00:00+00:00',
+  updateTime: '2026-03-16T07:00:00+00:00',
   publishTime: '2023-05-24T07:00:00+00:00',
   cover,
 };
@@ -168,13 +167,13 @@ function infixToRpn(expression) {
 }
 ```
 
-Kod możesz przetestować na [Replit](https://replit.com/@tswistak/infix-to-rpn#index.js).
+Kod możesz przetestować na [OnlineGDB](https://onlinegdb.com/ogAfi2gMO).
 
 ## Łączymy algorytmy w jeden
 
 Napisany przed chwilą kod pozwoli nam przekonwertować notację infiksową do postfiksowej (ONP). Natomiast w poprzednim artykule pokazałem [kod umożliwiający obliczenie wartości wyrażeń](/post/odwrotna-notacja-polska/#implementacja-onp-w-kodzie) zapisanych w ten sposób.
 
-Całości kodu po połączeniu obu algorytmów nie będę tutaj wklejać, ale możesz go znaleźć [na Replit](https://replit.com/@tswistak/infix-solver#index.js).
+Całości kodu po połączeniu obu algorytmów nie będę tutaj wklejać, ale możesz go znaleźć [na OnlineGDB](https://onlinegdb.com/l45ukFFI2w).
 
 Warto się zastanowić, jak przerobić kod tak, aby przyjmował dowolne wyrażenie wpisane przez użytkownika i je obliczał (czyli na wejściu typ `string` zamiast tablicy ze stringiem podzielonym na poszczególne symbole). Napisanie czegoś takiego ma pewne pułapki, na przykład:
 

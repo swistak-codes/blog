@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import {Image} from '@swistak-codes/components';
 import {Presentation} from './presentation';
 import cover from './swistak_pod_prad.webp';
 
@@ -35,7 +34,7 @@ export const meta = {
     'skojarzenie doskonałe'
   ],
   slug: 'problem-komiwojazera-heurystyki',
-  updateTime: '2024-10-09T07:00:00+00:00',
+  updateTime: '2026-03-18T07:00:00+00:00',
   publishTime: '2024-10-09T07:00:00+00:00',
   cover,
 };
@@ -64,7 +63,7 @@ Metoda ta daje niestety słabe rezultaty. Do tego rezultat może być inny w zal
 
 ### Implementacja
 
-Jak wspomniałem, możemy zaimplementować ten algorytm na dwa sposoby — znajdując najkrótszą trasę dla dowolnego początkowego wierzchołka i wybierając najkrótszą trasę, sprawdzając wszystkie początkowe wierzchołki. W kodzie poniżej (JavaScript) zobaczysz implementację bazowego algorytmu, któremu wskazujemy, odkąd zacząć. Natomiast w zalinkowanym niżej Replit będą obie wersje.
+Jak wspomniałem, możemy zaimplementować ten algorytm na dwa sposoby — znajdując najkrótszą trasę dla dowolnego początkowego wierzchołka i wybierając najkrótszą trasę, sprawdzając wszystkie początkowe wierzchołki. W kodzie poniżej (JavaScript) zobaczysz implementację bazowego algorytmu, któremu wskazujemy, odkąd zacząć. Natomiast w zalinkowanym niżej OnlineGDB będą obie wersje.
 
 ```javascript
 // funkcja znajdująca prawie najkrótszą ścieżkę w grafie
@@ -116,7 +115,7 @@ function tsp(nodes, startNode) {
 }
 ```
 
-Kod możesz przetestować na [Replit](https://replit.com/@tswistak/tsp-nn#index.js). Również znajdziesz tam drugą wersję algorytmu wyszukującą trasę, sprawdzając wszystkie możliwe wierzchołki startowe.
+Kod możesz przetestować na [OnlineGDB](https://onlinegdb.com/i6v8zUAfe). Również znajdziesz tam drugą wersję algorytmu wyszukującą trasę, sprawdzając wszystkie możliwe wierzchołki startowe.
 
 Uruchamiając kod, możesz zobaczyć, że iteracji jest zdecydowanie mniej i wykonanie jest o wiele szybsze, ale zarazem trasy są dłuższe. W kwestii wydajności obliczeniowej podstawowa wersja ma złożoność $$\Omicron(n^2)$$, natomiast jeśli chcemy sprawdzić wszystkie początkowe wierzchołki, to $$\Omicron(n^3)$$.
 
@@ -495,7 +494,7 @@ function tsp(nodes) {
 }
 ```
 
-Trochę pisania było, ale doszliśmy do końca. Całość możesz przetestować na [Replit](https://replit.com/@tswistak/tsp-christofides#index.js). Możesz tam zobaczyć, że liczba iteracji i czas wykonania są nieduże, natomiast wyniki podobne albo lepsze niż te znalezione algorytmem najbliższego sąsiada. Warto wrócić do Replitów z poprzedniego artykułu i porównać wyniki z optymalnymi — różnice są niewielkie, a w niektórych przypadkach dostaliśmy nawet te same trasy.
+Trochę pisania było, ale doszliśmy do końca. Całość możesz przetestować na [OnlineGDB](https://onlinegdb.com/PHZJK7xeH1). Możesz tam zobaczyć, że liczba iteracji i czas wykonania są nieduże, natomiast wyniki podobne albo lepsze niż te znalezione algorytmem najbliższego sąsiada. Warto wrócić do OnlineGDB-ów z poprzedniego artykułu i porównać wyniki z optymalnymi — różnice są niewielkie, a w niektórych przypadkach dostaliśmy nawet te same trasy.
 
 A co ze złożonością całości algorytmu? Określa się ją na $$\Omicron(n^3)$$.
 

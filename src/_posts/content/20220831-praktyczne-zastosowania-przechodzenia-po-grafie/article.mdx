@@ -31,7 +31,7 @@ export const meta = {
     'zależność cykliczna',
   ],
   slug: 'praktyczne-zastosowania-przechodzenia-po-grafie',
-  updateTime: '2022-08-31T07:00:00+00:00',
+  updateTime: '2026-03-15T07:00:00+00:00',
   publishTime: '2022-08-31T07:00:00+00:00',
   cover,
 };
@@ -114,7 +114,7 @@ function getSubgraphs(graph) {
 }
 ```
 
-Przykładową implementację bazującą na macierzy sąsiedztwa, napisaną w JavaScript znajdziesz [pod tym linkiem na serwisie repl.it](https://replit.com/@tswistak/graphs-find#index.js). W przykładzie zapisałem 5 grafów, ale możesz spróbować, jak algorytm zachowa się po zmodyfikowaniu macierzy. Weź jedynie pod uwagę fakt, że algorytm nie jest zabezpieczony na wypadek błędnie skonstruowanej struktury.
+Przykładową implementację bazującą na macierzy sąsiedztwa, napisaną w JavaScript znajdziesz [pod tym linkiem na serwisie OnlineGDB](https://onlinegdb.com/TZAhXnbGhD). W przykładzie zapisałem 5 grafów, ale możesz spróbować, jak algorytm zachowa się po zmodyfikowaniu macierzy. Weź jedynie pod uwagę fakt, że algorytm nie jest zabezpieczony na wypadek błędnie skonstruowanej struktury.
 
 ## Znajdowanie cykli
 
@@ -274,7 +274,7 @@ function findCycles(graph) {
 }
 ```
 
-Tak jak i poprzednio, przykładową implementację bazującą na macierzy sąsiedztwa, napisaną w JavaScript znajdziesz [pod tym linkiem na serwisie repl.it](https://replit.com/@tswistak/cycles-find#index.js). Graf, który tam zamieściłem, zawiera trzy cykle (w tym jeden spowodowany pętlą), ale zachęcam do kombinowania z innymi grafami.
+Tak jak i poprzednio, przykładową implementację bazującą na macierzy sąsiedztwa, napisaną w JavaScript znajdziesz [pod tym linkiem na serwisie OnlineGDB](https://onlinegdb.com/adt2qB4SY). Graf, który tam zamieściłem, zawiera trzy cykle (w tym jeden spowodowany pętlą), ale zachęcam do kombinowania z innymi grafami.
 
 ## Znajdowanie najkrótszych tras między wierzchołkami
 
@@ -355,7 +355,7 @@ function constructShortestPath(previous, startNode, endNode, result = []) {
 }
 ```
 
-Ponownie, przykładową implementację bazującą na macierzy sąsiedztwa, napisaną w JavaScript znajdziesz [pod tym linkiem na serwisie repl.it](https://replit.com/@tswistak/bfs-shortest-path#index.js). Implementacja zawiera graf, który możesz zobaczyć na poniższym rysunku, i szuka ścieżek do każdego wierzchołka od wierzchołka 0.
+Ponownie, przykładową implementację bazującą na macierzy sąsiedztwa, napisaną w JavaScript znajdziesz [pod tym linkiem na serwisie OnlineGDB](https://onlinegdb.com/U-tXsZ6vx). Implementacja zawiera graf, który możesz zobaczyć na poniższym rysunku, i szuka ścieżek do każdego wierzchołka od wierzchołka 0.
 
 <Image
   image={grafSciezki}
@@ -363,7 +363,7 @@ Ponownie, przykładową implementację bazującą na macierzy sąsiedztwa, napis
   fullSize
   alt="Graf"
   caption={<>
-    Graf użyty w implementacji algorytmu znajdującej się <a href="https://replit.com/@tswistak/bfs-shortest-path#index.js">tutaj</a>.
+    Graf użyty w implementacji algorytmu znajdującej się <a href="https://onlinegdb.com/U-tXsZ6vx">tutaj</a>.
   </>}
 />
 

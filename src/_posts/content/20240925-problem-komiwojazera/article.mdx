@@ -26,7 +26,7 @@ export const meta = {
     'algorytm Helda-Karpa'
   ],
   slug: 'problem-komiwojazera',
-  updateTime: '2024-09-25T07:00:00+00:00',
+  updateTime: '2026-03-18T07:00:00+00:00',
   publishTime: '2024-09-25T07:00:00+00:00',
   cover,
 };
@@ -199,7 +199,7 @@ function tsp(nodes) {
 }
 ```
 
-Całość kodu, wraz z odczytem przykładowych danych (att48 ze zbioru TSPLIB) w wersji do uruchomienia, znajdziesz na [Replit](https://replit.com/@tswistak/tsp-all-permutations#index.js). Możesz tam też zobaczyć, w jaki sposób rośnie liczba iteracji i czas wykonania wraz ze zwiększaniem się rozmiarów problemu.
+Całość kodu, wraz z odczytem przykładowych danych (att48 ze zbioru TSPLIB) w wersji do uruchomienia, znajdziesz na [OnlineGDB](https://onlinegdb.com/BNlHDeNXw). Możesz tam też zobaczyć, w jaki sposób rośnie liczba iteracji i czas wykonania wraz ze zwiększaniem się rozmiarów problemu.
 
 #### Prezentacja
 
@@ -315,7 +315,7 @@ function tsp(nodes) {
 }
 ```
 
-Analogicznie jak poprzednio, kod w całości z możliwością uruchomienia znajdziesz na [Replit](https://replit.com/@tswistak/tsp-held-karp#index.js). Możesz porównać wyniki z poprzednią implementacją (korzysta z tego samego zbioru danych).
+Analogicznie jak poprzednio, kod w całości z możliwością uruchomienia znajdziesz na [OnlineGDB](https://onlinegdb.com/2wKqMW92T). Możesz porównać wyniki z poprzednią implementacją (korzysta z tego samego zbioru danych).
 
 Jeśli nie chcesz uruchamiać, to powiem od razu, że iteracji jest znacznie mniej i obliczenia są o wiele szybsze. Gdy przy metodzie siłowej znalezienie rozwiązania dla 12 miast wymagało 39916800 iteracji i trwało (u mnie) ok. 14 sekund, tak teraz iteracji było zaledwie 56332 i zajęło to 91 milisekund. Jednak metoda ta, mimo że jest szybsza, wciąż nie nadaje się do praktycznych zastosowań, gdzie mamy do czynienia z o wiele większym rozmiarem problemu.
 

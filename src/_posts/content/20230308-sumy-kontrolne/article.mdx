@@ -34,7 +34,7 @@ export const meta = {
     'sha-256'
   ],
   slug: 'sumy-kontrolne',
-  updateTime: '2023-03-08T07:00:00+00:00',
+  updateTime: '2026-03-16T07:00:00+00:00',
   publishTime: '2023-03-08T07:00:00+00:00',
   cover,
 };
@@ -93,7 +93,7 @@ function isValidPESEL(pesel) {
 }
 ```
 
-Możesz go przetestować na [repl.it](https://replit.com/@tswistak/pesel#index.js).
+Możesz go przetestować na [OnlineGDB](https://onlinegdb.com/8_cgC8b-_).
 
 ### NIP
 
@@ -132,7 +132,7 @@ function isValidNIP(nip) {
 }
 ```
 
-Możesz go przetestować na [repl.it](https://replit.com/@tswistak/nip#index.js).
+Możesz go przetestować na [OnlineGDB](https://onlinegdb.com/6FH8JplMi).
 
 #### Dlaczego modulo 11?
 
@@ -140,7 +140,7 @@ Ciekawą kwestią jest użycie reszty z dzielenia przez 11 zamiast 10. Jeśli in
 
 Niestety nie znalazłem konkretnego wyjaśnienia dla NIP-u, ale podobną sytuację mamy w ISBN-10, który jako międzynarodowy standard zawiera dużo więcej opisujących go źródeł, a rzecz wygląda tu analogicznie. Mianowicie, jeśli zmienilibyśmy cyfrę z parzystą wagą o 5 (np. z 7 na 2), zmiana nie zostałaby wykryta przez modulo 10. Analogicznie zadzieje się, jeśli zmienimy którąkolwiek cyfrę z wagą 5 o 2 lub inną parzystą wartość (np. z 2 na 4 — różnica 2, z 3 na 7 — różnica 4) — wynika to z przemienności mnożenia.
 
-Dlaczego więc 11? Jest to liczba pierwsza i liczenie reszty jest odporne na takie przypadki. Możesz zobaczyć na [tym repl.it](https://replit.com/@tswistak/nip-modulo10-experiment#index.js), że dla NIP-u (bez cyfry kontrolnej) 123456321 i 123456371 (zmiana przedostatniej cyfry) dostalibyśmy taką samą cyfrę kontrolną przy modulo 10 (8), natomiast przy modulo 11 różne cyfry (8 i 5).
+Dlaczego więc 11? Jest to liczba pierwsza i liczenie reszty jest odporne na takie przypadki. Możesz zobaczyć na [tym OnlineGDB](https://onlinegdb.com/ATCM2XXoT), że dla NIP-u (bez cyfry kontrolnej) 123456321 i 123456371 (zmiana przedostatniej cyfry) dostalibyśmy taką samą cyfrę kontrolną przy modulo 10 (8), natomiast przy modulo 11 różne cyfry (8 i 5).
 
 Warto tutaj podkreślić dwie rzeczy:
 
@@ -217,7 +217,7 @@ function isValidISBN(isbn) {
 }
 ```
 
-Możesz go przetestować na [repl.it](https://replit.com/@tswistak/isbn#index.js).
+Możesz go przetestować na [OnlineGDB](https://onlinegdb.com/whcKqOw1F).
 
 ### Algorytm Luhna
 
@@ -323,7 +323,7 @@ function isValid(number) {
 }
 ```
 
-Możesz ją przetestować na [repl.it](https://replit.com/@tswistak/luhn#index.js).
+Możesz ją przetestować na [OnlineGDB](https://onlinegdb.com/1OSRDFg--c).
 
 ### Inne algorytmy
 
@@ -439,7 +439,7 @@ function calculateParityBit(number) {
 }
 ```
 
-Powyższy kod możesz przetestować na [repl.it](https://replit.com/@tswistak/parity-bit#index.js).
+Powyższy kod możesz przetestować na [OnlineGDB](https://onlinegdb.com/VxZ-7YsOO).
 
 ### Adler-32
 
@@ -479,7 +479,7 @@ function adler32(bytes) {
 }
 ```
 
-Możesz go przetestować na [repl.it](https://replit.com/@tswistak/adler32#index.js).
+Możesz go przetestować na [OnlineGDB](https://onlinegdb.com/5XHITDTwd).
 
 ### Inne algorytmy
 

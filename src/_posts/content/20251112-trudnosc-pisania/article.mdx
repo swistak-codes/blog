@@ -21,7 +21,7 @@ export const meta = {
     'prawo Fittsa',
   ],
   slug: 'trudnosc-pisania',
-  updateTime: '2025-11-12T07:00:00+00:00',
+  updateTime: '2026-03-19T07:00:00+00:00',
   publishTime: '2025-11-12T07:00:00+00:00',
   moveCoverToBottom: true,
   cover,
@@ -145,7 +145,7 @@ function manhattanSimple(word) {
 }
 ```
 
-Możesz go przetestować na [Replit](https://replit.com/@tswistak/manhattan-simple#index.js).
+Możesz go przetestować na [OnlineGDB](https://onlinegdb.com/V47M05F7g8).
 
 Przykładowe wyniki poniżej. Zamieszczam zarówno podstawowe obliczenia, jak i znormalizowane (podzielone przez liczbę liter):
 
@@ -253,7 +253,7 @@ function manhattanFingers(word) {
 }
 ```
 
-Możesz go przetestować na [Replit](https://replit.com/@tswistak/manhattan-fingers#index.js).
+Możesz go przetestować na [OnlineGDB](https://onlinegdb.com/0YN1uRr3i).
 
 Analogicznie jak wcześniej, poniżej pokazuję przykładowe wyniki:
 
@@ -348,7 +348,7 @@ function typingEffort(word) {
 }
 ```
 
-Możesz go przetestować na [Replit](https://replit.com/@tswistak/typing-effort#index.js).
+Możesz go przetestować na [OnlineGDB](https://onlinegdb.com/UuzlCMDJ9).
 
 Poniżej pokazuję przykładowe wyniki:
 
@@ -468,7 +468,7 @@ Możemy oczywiście dostosować wartości do własnych potrzeb, ale powyższy ze
 
 ### Implementacja
 
-Carpalx, jak widać wyżej, jest najbardziej rozbudowany ze wszystkich dotychczas opisywanych przeze mnie modeli. Stąd też implementacja to nie jest kilka linijek kodu. Całość znajdziesz na moim [Replit](https://replit.com/@tswistak/carpalx#index.js), natomiast poniżej zamieszczam kilka fragmentów kodu. Od razu dodam, że dla uproszczenia pominąłem obsługę znaków diakrytycznych, dlatego wyniki mogą wydawać się nieco dziwne (np. trudność napisania angielskiego `programmer` jest niemal taka sama jak polskiego `chrząszcz`).
+Carpalx, jak widać wyżej, jest najbardziej rozbudowany ze wszystkich dotychczas opisywanych przeze mnie modeli. Stąd też implementacja to nie jest kilka linijek kodu. Całość znajdziesz na moim [OnlineGDB](https://onlinegdb.com/pK0LZUqKI), natomiast poniżej zamieszczam kilka fragmentów kodu. Od razu dodam, że dla uproszczenia pominąłem obsługę znaków diakrytycznych, dlatego wyniki mogą wydawać się nieco dziwne (np. trudność napisania angielskiego `programmer` jest niemal taka sama jak polskiego `chrząszcz`).
 
 #### Stałe i mapowania
 
@@ -497,7 +497,7 @@ const ff = 0.3;
 
 Zwróć uwagę przy Ph i Pf, że są to tablice, gdzie indeksy odpowiadają poszczególnym palcom i rękom. Numeracja jest zgodna z tym, jak gdybyśmy wyciągnęli ręce przed siebie i policzyli palce po kolei od lewej do prawej, zaczynając od 0. Analogicznie liczymy ręce — 0 to lewa, 1 to prawa.
 
-Oprócz tego musimy mieć mapowania klawiszy na ich pozycje na klawiaturze, a także na palce i ręce, które je obsługują. Poniżej zamieszczam tylko fragmenty tych mapowań, pełne wersje znajdziesz w kodzie na Replit.
+Oprócz tego musimy mieć mapowania klawiszy na ich pozycje na klawiaturze, a także na palce i ręce, które je obsługują. Poniżej zamieszczam tylko fragmenty tych mapowań, pełne wersje znajdziesz w kodzie na OnlineGDB.
 
 ```javascript
 const letterMap = {
@@ -759,7 +759,7 @@ function carpalX(word) {
 
 #### Przykładowe wyniki
 
-Jak wspomniałem wcześniej, całość implementacji możesz przetestować na [Replit](https://replit.com/@tswistak/carpalx#index.js). Poniżej pokazuję przykładowe wyniki:
+Jak wspomniałem wcześniej, całość implementacji możesz przetestować na [OnlineGDB](https://onlinegdb.com/pK0LZUqKI). Poniżej pokazuję przykładowe wyniki:
 
 ```
 Asdf: 0.8516

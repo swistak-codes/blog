@@ -1,5 +1,3 @@
-import Link from 'next/link';
-import {Image} from '@swistak-codes/components';
 import cover from './swistak_niewiemcorobi.webp';
 
 export const meta = {
@@ -24,7 +22,7 @@ export const meta = {
     'tablice'
   ],
   slug: 'programistyczne-dziwy',
-  updateTime: '2024-07-03T07:00:00+00:00',
+  updateTime: '2026-03-18T07:00:00+00:00',
   publishTime: '2024-07-03T07:00:00+00:00',
   cover,
 };
@@ -115,7 +113,7 @@ while (i \
 }
 ```
 
-Ten kod wciąż działa. Możesz całość przetestować na [Replit](https://replit.com/@tswistak/goesto#main.c). Co więcej, przykłady (po lekkim przerobieniu) powinny działać też w innych językach z podobną składnią, np. w JavaScripcie. Nie muszę chyba jednak mówić, że lepiej nie pisać tak kodu.
+Ten kod wciąż działa. Możesz całość przetestować na [OnlineGDB](https://onlinegdb.com/Zn6p-Izyu). Co więcej, przykłady (po lekkim przerobieniu) powinny działać też w innych językach z podobną składnią, np. w JavaScripcie. Nie muszę chyba jednak mówić, że lepiej nie pisać tak kodu.
 
 ## Iterowanie kolejnych znaków
 
@@ -157,7 +155,7 @@ Podmieniłem tutaj wyświetlanie `i` ze znaku (`%c`) na liczbę (`%d`). W konsol
 
 Czyli kolejne liczby od 97 (`a` w ASCII) do 122 (`z` w ASCII).
 
-Jeśli mi nie wierzysz, możesz przetestować to na [Replit](https://replit.com/@tswistak/chars#main.c).
+Jeśli mi nie wierzysz, możesz przetestować to na [OnlineGDB](https://onlinegdb.com/H135n5lT2).
 
 ## 0.1 + 0.2 != 0.3
 
@@ -189,7 +187,7 @@ A jeśli nie wierzysz, że w innych językach jest tak samo, to zobacz poniższy
 printf("%d\n", 0.1 + 0.2 == 0.3);
 ```
 
-W konsoli zostanie wypisane `0`, co w C oznacza fałsz. Jeśli chcesz, możesz to przetestować, sprawdzając też inne typy zmiennoprzecinkowe na przygotowanym przeze mnie [Replit](https://replit.com/@tswistak/floats#main.c). Użyłem tam trzech różnych typów dostępnych w C i dla tej operacji błąd pojawia się tylko przy `double`.
+W konsoli zostanie wypisane `0`, co w C oznacza fałsz. Jeśli chcesz, możesz to przetestować, sprawdzając też inne typy zmiennoprzecinkowe na przygotowanym przeze mnie [OnlineGDB](https://onlinegdb.com/1wuqN1fx9). Użyłem tam trzech różnych typów dostępnych w C i dla tej operacji błąd pojawia się tylko przy `double`.
 
 A jak temu przeciwdziałać? W przypadku porównań warto porównywać różnice względem marginesu błędu, co pokazałem kiedyś w *[codziennym wtręcie programisty](/offtopic/codzienny-wtret-programisty/#3-01--02--03)*. A w przypadku samych operacji, jeśli zależy nam na precyzji (szczególnie gdy mowa o operacjach finansowych), warto pomyśleć nad innymi typami danych. Na przykład, jeśli mamy stałą liczbę miejsc po przecinku, można zapisywać liczbę w typie całkowitoliczbowym i pamiętać w oddzielnej zmiennej pozycję przecinka.
 
@@ -244,7 +242,7 @@ printf("array[indexes[1]]: %d\n", array[indexes[1]]); // 24
 
 Moim zdaniem zapis ten jest jednak nieczytelny. Ktoś czytający to pomyśli, że przypadkowo odwołujecie się do jednowymiarowej tablicy jak do dwuwymiarowej.
 
-Wszystkie powyższe przykłady możesz przetestować [na tym Replit](https://replit.com/@tswistak/array-index#main.c).
+Wszystkie powyższe przykłady możesz przetestować [na tym OnlineGDB](https://onlinegdb.com/6S-OnkY8m).
 
 ## Koercja typów w JavaScript
 

@@ -34,7 +34,7 @@ export const meta = {
     'javascript',
   ],
   slug: 'losowosc',
-  updateTime: '2025-03-12T07:00:00+00:00',
+  updateTime: '2026-03-19T07:00:00+00:00',
   publishTime: '2025-03-12T07:00:00+00:00',
   cover,
 };
@@ -126,9 +126,9 @@ function* middleSquareGenerator(seed) {
 }
 ```
 
-Kod wraz z testami pokazującymi jak działa ten generator i uwydatniającymi jego wady znajdziesz na [Replit](https://replit.com/@tswistak/middle-square#index.js).
+Kod wraz z testami pokazującymi jak działa ten generator i uwydatniającymi jego wady znajdziesz na [OnlineGDB](https://onlinegdb.com/3kEwncqQh).
 
-Metoda ta, jak widzimy, jest dość prosta. Niestety, ma znaczne wady, które możesz zauważyć na zalinkowanym wyżej Replicie:
+Metoda ta, jak widzimy, jest dość prosta. Niestety, ma znaczne wady, które możesz zauważyć na zalinkowanym wyżej OnlineGDB:
 
 - **Krótki okres** — po kilku iteracjach zaczynają powtarzać się te same liczby. Co więcej, jest to zależne od wartości ziarna — niektóre będą generować cykle szybciej, inne wolniej.
 - **Przewidywalność** — generator wpada w cykle, zaczynając powtarzać te same sekwencje liczb. Do tego jest skrajny przypadek, gdy jak generator raz wygeneruje 0, to potem będzie zawsze generować już same 0.
@@ -194,7 +194,7 @@ function* lcgGenerator(seed, a = 1664525, c = 1013904223, m = 2 ** 32) {
 }
 ```
 
-Kod wraz z testami pokazującymi działanie tego generatora znajdziesz na [Replit](https://replit.com/@tswistak/lcg#index.js).
+Kod wraz z testami pokazującymi działanie tego generatora znajdziesz na [OnlineGDB](https://onlinegdb.com/UXOnaooXWE).
 
 Generator ten jest znacznie lepszy od metody środka kwadratu. Ma dłuższy okres, jest szybszy, a także bardziej losowy. Jednak nadal nie jest tak losowy, jakbyśmy chcieli — można go łatwo złamać, jeśli znamy kilka kolejnych liczb, dlatego w praktyce nie jest stosowany wtedy, gdy losowość jest kluczowa.
 
@@ -227,7 +227,7 @@ function* xorshift32Generator(seed) {
 }
 ```
 
-Kod wraz z testami pokazującymi jak działa ten generator znajdziesz na [Replit](https://replit.com/@tswistak/xorshift#index.js).
+Kod wraz z testami pokazującymi jak działa ten generator znajdziesz na [OnlineGDB](https://onlinegdb.com/_W9bDe_Bt).
 
 W swojej podstawowej, pokazanej powyżej wersji, generator ten nie jest zbyt dobry. Ma krótki okres. Do tego niektóre wartości ziarna mogą prowadzić do generowania samych zer (skrajny przypadek — zerowe ziarno). Jednak wersje tego algorytmu z odpowiednio dobranymi parametrami mogą być bardzo dobre.
 
@@ -262,7 +262,7 @@ function* pcgXshRrGenerator(seed, a, c) {
 }
 ```
 
-W kwestii parametrów LCG zwykle spotkamy się z następującymi: $$a = 6364136223846793005$$, $$c = 1442695040888963407$$. Natomiast kod wraz z testami pokazującymi jak działa ten generator znajdziesz na [Replit](https://replit.com/@tswistak/pcg#index.js).
+W kwestii parametrów LCG zwykle spotkamy się z następującymi: $$a = 6364136223846793005$$, $$c = 1442695040888963407$$. Natomiast kod wraz z testami pokazującymi jak działa ten generator znajdziesz na [OnlineGDB](https://onlinegdb.com/7ue2B1G7E).
 
 PCG jest jednym z najlepszych generatorów, które możemy znaleźć. Jest szybki, ma długi okres, a także jest bardzo losowy — znacznie ciężej jest go złamać niż poprzednie generatory. Mimo tego nie jest uznawany za generator wystarczająco bezpieczny do zastosowań kryptograficznych.
 
@@ -337,7 +337,7 @@ function* blumBlumShubGenerator(seed, p, q, bits) {
 }
 ```
 
-Kod wraz z testami pokazującymi jak działa ten generator znajdziesz na [Replit](https://replit.com/@tswistak/blum-blum-shub#index.js). Dodatkowo na [tym Replit](https://replit.com/@tswistak/blum-blum-shub-parity#index.js) znajdziesz implementację generatora, który generuje bit parzystości zamiast ostatniego bitu.
+Kod wraz z testami pokazującymi jak działa ten generator znajdziesz na [OnlineGDB](https://onlinegdb.com/iIf1hezdus). Dodatkowo na [tym OnlineGDB](https://onlinegdb.com/33DUDfEuy) znajdziesz implementację generatora, który generuje bit parzystości zamiast ostatniego bitu.
 
 Blum Blum Shub jest bardzo bezpiecznym generatorem. Zakłada się, że dopóki nie zostanie znaleziony algorytm faktoryzujący w czasie wielomianowym, generator ten jest bezpieczny (dla odpowiednio dużych $$p$$ i $$q$$). Niestety jest bardzo wolny, dlatego nie nadaje się tam, gdzie liczby musimy generować szybko.
 

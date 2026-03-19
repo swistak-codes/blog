@@ -30,7 +30,7 @@ export const meta = {
     'pierwsznia',
   ],
   slug: 'silnia',
-  updateTime: '2025-09-24T07:00:00+00:00',
+  updateTime: '2026-03-19T07:00:00+00:00',
   publishTime: '2025-09-24T07:00:00+00:00',
   cover,
 };
@@ -170,9 +170,9 @@ function* factorial() {
 
 Ostatnia wersja jest o tyle ciekawa, że zawsze wykorzystuje poprzednią wartość silni do obliczenia kolejnej, więc jest najbardziej efektywna obliczeniowo.
 
-Wszystkie trzy implementacje zamieściłem na Replit: [iteracyjna](https://replit.com/@tswistak/silnia-iteracyjnie#index.js), [rekurencyjna](https://replit.com/@tswistak/silnia-rekurencyjnie#index.js), [programowanie dynamiczne](https://replit.com/@tswistak/silnia-dynamiczne#index.js), [programowanie dynamiczne zoptymalizowane](https://replit.com/@tswistak/silnia-dynamiczne-opt#index.js), [generator](https://replit.com/@tswistak/silnia-generator#index.js). Możesz sobie je tam przetestować.
+Wszystkie trzy implementacje zamieściłem na OnlineGDB: [iteracyjna](https://onlinegdb.com/Xoe5XOiIgO), [rekurencyjna](https://onlinegdb.com/UHg2-8uB_), [programowanie dynamiczne](https://onlinegdb.com/e1FkIPY2B), [programowanie dynamiczne zoptymalizowane](https://onlinegdb.com/NmbytDyet), [generator](https://onlinegdb.com/tzOvwfeOFZ). Możesz sobie je tam przetestować.
 
-Dodatkowo przy wersji z generatorem dodałem pętlę, która wypisuje kolejne wartości silni w nieskończoność, aby zobaczyć, kiedy obliczenie będzie trwać zbyt długo. Odpalając na Replit, ostatnią wartość obliczyło mi dla $$n = 1561$$.
+Dodatkowo przy wersji z generatorem dodałem pętlę, która wypisuje kolejne wartości silni w nieskończoność, aby zobaczyć, kiedy obliczenie będzie trwać zbyt długo.
 
 ### Zera na końcu wartości
 
@@ -430,7 +430,7 @@ $$
 \end{align*}
 $$
 
-Kod obliczający te wartości znajdziesz na [Replit](https://replit.com/@tswistak/silnia-stirling#index.js).
+Kod obliczający te wartości znajdziesz na [OnlineGDB](https://onlinegdb.com/kDktB5m7p).
 
 Jak widzimy, nawet dla małych liczb przybliżenie jest całkiem dobre. Dla większych liczb błąd staje się wręcz pomijalny. Możemy to udowodnić matematycznie następującą granicą:
 
@@ -492,7 +492,7 @@ $$
 \end{align*}
 $$
 
-Powyższe obliczenia wykonałem w kodzie udostępnionym na [Replit](https://replit.com/@tswistak/silnia-lanczos#index.js). Jak widzisz, są niemal idealne. O ile tutaj wyglądają w punkt, tak na załączonym Replit możesz sprawdzić, że błąd jest, ale na odległych miejscach po przecinku.
+Powyższe obliczenia wykonałem w kodzie udostępnionym na [OnlineGDB](https://onlinegdb.com/JKaZZeNQH). Jak widzisz, są niemal idealne. O ile tutaj wyglądają w punkt, tak na załączonym OnlineGDB możesz sprawdzić, że błąd jest, ale na odległych miejscach po przecinku.
 
 ## Silnia wielokrotna
 

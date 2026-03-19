@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import {Image} from '@swistak-codes/components';
 import cover from './swistak-szachy.jpg';
 import konikRuchy from './konik-ruchy.png';
@@ -28,7 +27,7 @@ export const meta = {
     'ścieżka Hamiltona'
   ],
   slug: 'problem-skoczka-szachowego',
-  updateTime: '2022-10-26T07:00:00+00:00',
+  updateTime: '2026-03-15T07:00:00+00:00',
   publishTime: '2022-10-26T07:00:00+00:00',
   cover,
 };
@@ -243,7 +242,7 @@ function findKnightsTour(boardSize, startCoords, recursionDepth) {
 
 Implementacja wyboru następnego kroku algorytmem Pohla-Warnsdorffa zawarta jest w funkcji `getNodeWithMinDegree`, natomiast `findKnightsTour` znajduje rozwiązanie dla problemu skoczka szachowego. Argument `recursionDepth` pozwala na ustawienie wartości `k`, czyli jak głęboko rekurencyjnie należy szukać wierzchołka, który powinien zostać wybrany jako następny. Jeśli ustawimy wartość na 0, otrzymamy oryginalną metodę Warnsdorffa; natomiast 1 jest wartością, którą Pohl rozwiązał problem skoczka w swojej pracy.
 
-Całość implementacji znajdziesz na serwisie [repl.it](https://replit.com/@tswistak/knights-tour#index.js), gdzie możesz od razu przetestować algorytm dla plansz różnych wielkości, jak i różnych startowych pozycji. Przykładowo, dla planszy 8×8 i pozycji startowej `(1,0)` (we współrzędnych szachowych B8; startowa pozycja jednego ze skoczków) jeden z wyników wygląda następująco:
+Całość implementacji znajdziesz na serwisie [OnlineGDB](https://onlinegdb.com/w73M4O46S), gdzie możesz od razu przetestować algorytm dla plansz różnych wielkości, jak i różnych startowych pozycji. Przykładowo, dla planszy 8×8 i pozycji startowej `(1,0)` (we współrzędnych szachowych B8; startowa pozycja jednego ze skoczków) jeden z wyników wygląda następująco:
 
 <Chessboard>
 | | | | | | | | |

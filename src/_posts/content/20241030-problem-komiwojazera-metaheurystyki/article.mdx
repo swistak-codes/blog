@@ -31,7 +31,7 @@ export const meta = {
     '2-opt'
   ],
   slug: 'problem-komiwojazera-metaheurystyki',
-  updateTime: '2024-10-30T07:00:00+00:00',
+  updateTime: '2026-03-18T07:00:00+00:00',
   publishTime: '2024-10-30T07:00:00+00:00',
   cover,
 };
@@ -107,7 +107,7 @@ function toSwapped2opt(nodes, v1, v2) {
 }
 ```
 
-Kod możesz przetestować na [Replit](https://replit.com/@tswistak/tsp-2opt-swap#index.js).
+Kod możesz przetestować na [OnlineGDB](https://onlinegdb.com/nE16pcjwy).
 
 ## Metaheurystyki
 
@@ -224,15 +224,15 @@ function tsp(nodes) {
 }
 ```
 
-Kod do przetestowania znajdziesz na [Replit](https://replit.com/@tswistak/tsp-hill-climbing#index.js). Użyłem tego samego zbioru danych z [TSPLIB](http://comopt.ifi.uni-heidelberg.de/software/TSPLIB95/) (`att48`, czyli 48 stolic stanów USA) co w poprzednich artykułach. Jednak żebyś nie musiał(-a) skakać po Replitach, tym razem spisałem optymalne rozwiązanie, aczkolwiek odpuściłem sprawdzanie krótkich tras — zamiast tego sprawdzam 12 pierwszych wierzchołków (najdłuższa trasa sprawdzana w poprzednich artykułach) i cały zbiór danych. Prawdę mówiąc, nie wiem, dlaczego też tak nie zrobiłem w artykule o heurystykach.
+Kod do przetestowania znajdziesz na [OnlineGDB](https://onlinegdb.com/Oy7hj07an). Użyłem tego samego zbioru danych z [TSPLIB](http://comopt.ifi.uni-heidelberg.de/software/TSPLIB95/) (`att48`, czyli 48 stolic stanów USA) co w poprzednich artykułach. Jednak żebyś nie musiał(-a) skakać po OnlineGDB-ach, tym razem spisałem optymalne rozwiązanie, aczkolwiek odpuściłem sprawdzanie krótkich tras — zamiast tego sprawdzam 12 pierwszych wierzchołków (najdłuższa trasa sprawdzana w poprzednich artykułach) i cały zbiór danych. Prawdę mówiąc, nie wiem, dlaczego też tak nie zrobiłem w artykule o heurystykach.
 
 Warto zwrócić uwagę na pętlę sprawdzającą sąsiadów aktualnego rozwiązania. Tak jak pisałem, do naszych testów zaimplementowaliśmy steepest-ascent hill-climbing, jednak w przypadku komiwojażera osiągniecie simple hill-climbing to dosłownie dodanie przerwania pętli po znalezieniu pierwszego lepszego sąsiada — interesuje nas pierwsze lepsze rozwiązanie. Zachęcam do sprawdzenia na własną rękę, jak wyniki się wtedy różnią.
 
-Jeszcze drobna uwaga co do rozwiązań na Replit. Jeśli sprawdzałeś(-aś) je w poprzednich artykułach (kiedy były one wydane, nie teraz), to możesz zauważyć, że pomiary odległości są nieco inne. Jest tak dlatego, że postanowiłem przerobić funkcję mierzącą dystans na taką, jaką rekomendują twórcy zbioru danych TSPLIB. Zmianę wprowadziłem także w poprzednich artykułach, więc możesz tam na nowo przetestować kod.
+Jeszcze drobna uwaga co do rozwiązań na OnlineGDB. Jeśli sprawdzałeś(-aś) je w poprzednich artykułach (kiedy były one wydane, nie teraz), to możesz zauważyć, że pomiary odległości są nieco inne. Jest tak dlatego, że postanowiłem przerobić funkcję mierzącą dystans na taką, jaką rekomendują twórcy zbioru danych TSPLIB. Zmianę wprowadziłem także w poprzednich artykułach, więc możesz tam na nowo przetestować kod.
 
 ### Interpretacja wyników
 
-Jeśli sprawdzisz wykonanie na zalinkowanym wyżej Replit, to możesz wyciągnąć pewne wnioski na temat działania. Ja wyciągam takie:
+Jeśli sprawdzisz wykonanie na zalinkowanym wyżej OnlineGDB, to możesz wyciągnąć pewne wnioski na temat działania. Ja wyciągam takie:
 
 - Wspominałem, że literatura wskazuje, że podejścia metaheurystyczne warto rozpoczynać od trasy znalezionej algorytmem najbliższego sąsiada niż od losowej. Z moich prób wyszło, że dla hill-climbing nie do końca jest to prawda. Na 100 powtórzeń losowych rozpoczęć znaleziona trasa zawsze była lepsza.
 - Można też zauważyć znaczną różnicę w liczbie iteracji dla przypadku, gdy zaczynaliśmy od RNN, a gdy zaczynaliśmy od losowej trasy. Przy największym rozmiarze problemu (każdorazowo sprawdzanych 1128 sąsiadów), w przypadku RNN było to 11280 iteracji, a dla losowych w okolicach 50 tysięcy. Oznacza to tyle, że RNN bardzo nas zbliża do jednego konkretnego lokalnego minimum, które niekoniecznie jest optymalne i nie jesteśmy w stanie się z niego wydostać.
@@ -369,7 +369,7 @@ function tsp(nodes, initialT, kmax) {
 }
 ```
 
-Wersję do przetestowania znajdziesz na [Replit](https://replit.com/@tswistak/tsp-sa#index.js). Wykorzystuje te same dane co zawsze, a do obliczania temperatury użyłem funkcji logarytmicznej.
+Wersję do przetestowania znajdziesz na [OnlineGDB](https://onlinegdb.com/mRv8zWurS). Wykorzystuje te same dane co zawsze, a do obliczania temperatury użyłem funkcji logarytmicznej.
 
 Warto zauważyć, że gdy w hill climbing eksplorowaliśmy wszystkie sąsiednie rozwiązania, tak tutaj bierzemy całkowicie losowego sąsiada. Jest to dość standardowe podejście przy implementacji metaheurystyk. Natomiast zachęcam do sprawdzenia na własną rękę (np. w prezentacji za chwilę), w jaki sposób algorytm zachowałby się, jeśli robilibyśmy coś na zasadzie hill-climbing, czyli ze zbioru wszystkich sąsiadów wybieramy lepszego lub tego, przy którym zostaje spełniony warunek.
 

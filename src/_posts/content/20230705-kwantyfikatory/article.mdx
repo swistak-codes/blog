@@ -1,5 +1,3 @@
-import Link from 'next/link';
-import {Image} from '@swistak-codes/components';
 import cover from './swistak_blackwhite.jpg';
 
 export const meta = {
@@ -28,7 +26,7 @@ export const meta = {
     'c#'
   ],
   slug: 'kwantyfikatory',
-  updateTime: '2023-07-05T07:00:00+00:00',
+  updateTime: '2026-03-16T07:00:00+00:00',
   publishTime: '2023-07-05T07:00:00+00:00',
   cover,
 };
@@ -78,7 +76,7 @@ const areInteger = numbers.every(Number.isInteger);
 console.log(areInteger); // true
 ```
 
-Kod możesz przetestować na własną rękę na [Replit](https://replit.com/@tswistak/js-every#index.js).
+Kod możesz przetestować na własną rękę na [OnlineGDB](https://onlinegdb.com/DcHVH9kvn).
 
 Jeśli jesteś ciekaw(a), jak mogłaby wyglądać od zera implementacja kwantyfikatora ogólnego, zamieściłem ją w artykule *[Iteracja — co to jest?](/post/iteracja-co-to-jest/#sprawdzenie-czy-elementy-spe%C5%82niaj%C4%85-warunek)*
 
@@ -114,7 +112,7 @@ const isAnyNonInteger = numbers.some(x => !Number.isInteger(x));
 console.log(isAnyNonInteger); // false
 ```
 
-Kod możesz przetestować na własną rękę na [Replit](https://replit.com/@tswistak/js-some#index.js).
+Kod możesz przetestować na własną rękę na [OnlineGDB](https://onlinegdb.com/zYb0nkaAh).
 
 W artykule *[Iteracja — co to jest?](/post/iteracja-co-to-jest/#sprawdzenie-czy-elementy-spe%C5%82niaj%C4%85-warunek)*, w tym samym miejscu co ostatnio, zamieściłem również implementację kwantyfikatora szczegółowego, jeśli jesteś ciekaw(a), jak mogłoby to wyglądać.
 
@@ -157,7 +155,7 @@ catch (Exception e)
 Console.WriteLine(numbers.Single(x => x % 9 == 0)); // 45
 ```
 
-Kod możesz przetestować na [Replit](https://replit.com/@tswistak/csharp-single#main.cs).
+Kod możesz przetestować na [OnlineGDB](https://onlinegdb.com/TTKK6xKM7m).
 
 Natomiast jak poradzić sobie w językach programowania niemających odpowiednika `Single()`? Możemy albo przeiterować ręcznie po kolekcji i sprawdzić, czy warunek jest spełniony więcej niż raz, albo zliczyć liczbę elementów, które otrzymamy po przefiltrowaniu kolekcji. Oba te sposoby zaimplementowane w JavaScript możesz zobaczyć poniżej:
 
@@ -218,7 +216,7 @@ console.log(
 );
 ```
 
-Ten kod również możesz przetestować na [Replit](https://replit.com/@tswistak/js-single#index.js).
+Ten kod również możesz przetestować na [OnlineGDB](https://onlinegdb.com/Ioszj-8Fl).
 
 ## Prawa rachunku kwantyfikatorów
 
@@ -257,7 +255,7 @@ const allLarger = numbers.every(x => x >= 0);
 console.log(anyNotSmaller, allLarger); // true, true
 ```
 
-Kod możesz przetestować na [Replit](https://replit.com/@tswistak/quantifiers-demorgan#index.js).
+Kod możesz przetestować na [OnlineGDB](https://onlinegdb.com/rHP6CkYzk).
 
 Jak widzisz, zastosowanie praw de Morgana jest bardzo praktyczne w tym przypadku. Pomijając kwestię, że dzięki nim możemy pisać czytelniejsze warunki, to możemy też w ten sposób optymalizować operacje na kolekcjach. Warto jednak wiedzieć, że optymalizacje mogą być mało intuicyjne, ponieważ w drugim przykładzie `anyNotSmaller` przyjmie prawdę już po sprawdzeniu pierwszego elementu, podczas gdy znacznie czytelniejszy `allLarger` wymaga sprawdzenia całości kolekcji. Warto jednak pamiętać, że tak drobiazgowe optymalizacje nie zawsze mają sens i warto przede wszystkim stawiać na czytelność kodu.
 
@@ -310,7 +308,7 @@ const someSmaller = numbers.some(x => x < 0);
 console.log(notAllLargerEqual, someSmaller); // false, false
 ```
 
-Kod do przetestowania znajdziesz na [Replit](https://replit.com/@tswistak/quantifiers-demorgan2#index.js).
+Kod do przetestowania znajdziesz na [OnlineGDB](https://onlinegdb.com/uCfvKhais).
 
 ### Rozdzielność
 
@@ -359,7 +357,7 @@ const anyNegativeInteger2 = numbers.some(x => x < 0 || Number.isInteger(x));
 console.log(anyDivisible1, anyDivisible2); // true, true
 ```
 
-Jak zawsze kod możesz sprawdzić na [Replit](https://replit.com/@tswistak/quantifiers-distributivity#index.js).
+Jak zawsze kod możesz sprawdzić na [OnlineGDB](https://onlinegdb.com/vrOdaupD3_).
 
 ### Niepełne prawa rozdzielności
 
@@ -412,7 +410,7 @@ const integerAndDiff2 = numbers.some(x => Number.isInteger(x)) && numbers.some(x
 console.log(integerAndDiff1, integerAndDiff2); // true, true
 ```
 
-Kod jak zawsze znajdziesz na [Replit](https://replit.com/@tswistak/quantifiers-distributivity2#index.js).
+Kod jak zawsze znajdziesz na [OnlineGDB](https://onlinegdb.com/yRKVUP2ve).
 
 Najlepiej widać tego sens na przykładach z równością i nierównością względem zera. W końcu możemy powiedzieć, że wszystkie liczby naturalne są równe zero lub od niego różne. Jednak nie możemy już powiedzieć, że wszystkie liczby naturalne są równe zero ani że wszystkie liczby naturalne są różne od zera. Analogicznie z kwantyfikatorem szczegółowym: znajdziemy wśród liczb naturalnych zarówno liczbę równą zero, jak i liczbę różną od zera. Nie znajdziemy jednak liczby, która równocześnie jest równa zero i od niego różna.
 

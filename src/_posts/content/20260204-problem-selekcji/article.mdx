@@ -1,4 +1,3 @@
-import { Image, VideoPlayer } from '@swistak-codes/components';
 import cover from './swistak_orzechy.webp';
 
 export const meta = {
@@ -28,7 +27,7 @@ export const meta = {
     'javascript'
   ],
   slug: 'problem-selekcji',
-  updateTime: '2026-02-04T07:00:00+00:00',
+  updateTime: '2026-03-19T07:00:00+00:00',
   publishTime: '2026-02-04T07:00:00+00:00',
   cover,
 };
@@ -116,7 +115,7 @@ function minimumMaximum(A) {
 }
 ```
 
-Wszystkie trzy pokazane powyżej funkcje znajdziesz na [Replit](https://replit.com/@tswistak/min-max#index.js), gdzie przy okazji dodałem też licznik porównań, abyś mógł/mogła samodzielnie zweryfikować liczbę wykonanych porównań dla różnych rozmiarów tablicy.
+Wszystkie trzy pokazane powyżej funkcje znajdziesz na [OnlineGDB](https://onlinegdb.com/G6wPDNZcx), gdzie przy okazji dodałem też licznik porównań, abyś mógł/mogła samodzielnie zweryfikować liczbę wykonanych porównań dla różnych rozmiarów tablicy.
 
 ## Quickselect
 
@@ -187,7 +186,7 @@ function quickselect(A, low, high, k) {
 }
 ```
 
-Całość kodu wraz z testami, licznikiem porównań i możliwością przetestowania na własną rękę znajdziesz na [Replit](https://replit.com/@tswistak/quickselect#index.js).
+Całość kodu wraz z testami, licznikiem porównań i możliwością przetestowania na własną rękę znajdziesz na [OnlineGDB](https://onlinegdb.com/57UytY3MN).
 
 Jak możesz zauważyć, implementacja jest niemalże identyczna jak w przypadku szybkiego sortowania. Różnica polega na tym, że zamiast rekurencyjnie wywoływać quicksort dla obu części tablicy, tutaj wywołujemy quickselect tylko dla jednej części w zależności od tego, gdzie znajduje się k-ty najmniejszy element.
 
@@ -225,7 +224,7 @@ function partitionRandomPivot(A, low, high) {
 }
 ```
 
-Następnie wystarczy użyć tej funkcji w miejsce oryginalnego `partition` w `quickselect`. Cały kod znajdziesz na [Replit](https://replit.com/@tswistak/quickselect-random-pivot#index.js). Są tam takie same testy, jak dla poprzedniej wersji, wraz z porównaniem do niej, abyś mógł/mogła zobaczyć różnicę w wydajności.
+Następnie wystarczy użyć tej funkcji w miejsce oryginalnego `partition` w `quickselect`. Cały kod znajdziesz na [OnlineGDB](https://onlinegdb.com/H5VD4Nzx4). Są tam takie same testy, jak dla poprzedniej wersji, wraz z porównaniem do niej, abyś mógł/mogła zobaczyć różnicę w wydajności.
 
 Tym razem średnia liczba porównań waha się w okolicach $$2n$$, co jest już zadowalające i zgodne z oczekiwaniami — oznacza to, że średnia złożoność czasowa jest liniowa ($$\Omicron(n)$$). Oczywiście w najgorszym przypadku nadal może być $$\Omicron(n^2)$$, ale zdarza się to bardzo rzadko dzięki losowemu wyborowi piwotu. Należy jednak pamiętać, że w praktyce, przez losowanie, znalezienie tego samego elementu za każdym razem może wymagać innej liczby porównań.
 
@@ -352,9 +351,9 @@ function medianOfMedians(A, low, high, k) {
 }
 ```
 
-Implementację, tak jak wcześniej, możesz przetestować na [Replit](https://replit.com/@tswistak/median-of-medians?replId=43c82821-195c-43d8-89fc-bd16afd3c70e&enterInExpertMode=true#index.js).
+Implementację, tak jak wcześniej, możesz przetestować na [OnlineGDB](https://onlinegdb.com/SbQoZBletE).
 
-Faktycznie udało nam się wyeliminować problem najgorszego przypadku związanego z quickselectem. Eksperymentalnie liczba porównań jest liniowa względem rozmiaru tablicy, co potwierdza, że złożoność czasowa w najgorszym przypadku wynosi $$\Omicron(n)$$. W przykładzie użyłem nieco małą próbkę (20 elementów), przez co wydaje się, że złożoność jest lekko nieliniowa, ale przy większych rozmiarach tablicy już widać wyraźnie liniowy wzrost liczby porównań. Przykładowo, jeśli w kodzie z Replit zmienię `baseArray` na:
+Faktycznie udało nam się wyeliminować problem najgorszego przypadku związanego z quickselectem. Eksperymentalnie liczba porównań jest liniowa względem rozmiaru tablicy, co potwierdza, że złożoność czasowa w najgorszym przypadku wynosi $$\Omicron(n)$$. W przykładzie użyłem nieco małą próbkę (20 elementów), przez co wydaje się, że złożoność jest lekko nieliniowa, ale przy większych rozmiarach tablicy już widać wyraźnie liniowy wzrost liczby porównań. Przykładowo, jeśli w kodzie z OnlineGDB zmienię `baseArray` na:
 
 ```javascript
 const baseArray = Array.from({ length: 10000 }, (_, i) => i);

@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import {Image} from '@swistak-codes/components';
 import cover from './swistak_matrix3.webp';
 
 export const meta = {
@@ -38,7 +37,7 @@ export const meta = {
     'scipy'
   ],
   slug: 'macierze-rzadkie',
-  updateTime: '2024-09-11T07:00:00+00:00',
+  updateTime: '2026-03-18T07:00:00+00:00',
   publishTime: '2024-09-11T07:00:00+00:00',
   cover,
 };
@@ -202,7 +201,7 @@ print(matrix_dia.todense())
 #  [ 0  6  0  4]]
 ```
 
-Przykład wraz z innymi dalej opisywanymi macierzami znajdziesz na [tym Replit](https://replit.com/@tswistak/sparse-matrices-scipy#main.py).
+Przykład wraz z innymi dalej opisywanymi macierzami znajdziesz na [GitHubie](https://github.com/swistak-codes/snippets-backup/tree/main/sparse-matrices-scipy).
 
 ### List of Lists (LIL)
 
@@ -248,7 +247,7 @@ print(matrix_lil.rows)
 # [list([1]) list([1]) list([]) list([0, 1])]
 ```
 
-Kod znajdziesz na [tym samym Replit](https://replit.com/@tswistak/sparse-matrices-scipy#main.py) co wcześniej.
+Kod znajdziesz w [tym samym repozytorium](https://github.com/swistak-codes/snippets-backup/tree/main/sparse-matrices-scipy) co wcześniej.
 
 ### Dictionary Of Keys (DOK)
 
@@ -298,7 +297,7 @@ print(matrix_dok._dict)
 # }
 ```
 
-Tak jak wcześniej, kod do uruchomienia znajdziesz na [tym samym Replit](https://replit.com/@tswistak/sparse-matrices-scipy#main.py).
+Tak jak wcześniej, kod do uruchomienia znajdziesz w [tym samym repozytorium](https://github.com/swistak-codes/snippets-backup/tree/main/sparse-matrices-scipy).
 
 ### COOrdinate format
 
@@ -334,7 +333,7 @@ print(matrix_coo.todense())
 #  [3 4 0 0]]
 ```
 
-Kod do uruchomienia znajdziesz na [wspólnym Replit](https://replit.com/@tswistak/sparse-matrices-scipy#main.py).
+Kod do uruchomienia znajdziesz na [GitHubie](https://github.com/swistak-codes/snippets-backup/tree/main/sparse-matrices-scipy).
 
 ### Compressed Sparse Row (CSR, CRS)
 
@@ -419,7 +418,7 @@ print(matrix_csr.todense())
 #  [3 4 0 0]]
 ```
 
-Tak jak wcześniej, wszystko jest dostępne na [tym samym Replit](https://replit.com/@tswistak/sparse-matrices-scipy#main.py).
+Tak jak wcześniej, wszystko jest dostępne w [tym samym repozytorium](https://github.com/swistak-codes/snippets-backup/tree/main/sparse-matrices-scipy).
 
 ### Compressed Sparse Column (CSC)
 
@@ -456,7 +455,7 @@ print(matrix_csc.todense())
 #  [3 4 0 0]]
 ```
 
-Dalej wszystko jest dostępne na [tym samym Replit](https://replit.com/@tswistak/sparse-matrices-scipy#main.py).
+Dalej wszystko jest dostępne w [tym samym repozytorium](https://github.com/swistak-codes/snippets-backup/tree/main/sparse-matrices-scipy).
 
 ### Block Sparse Row (BSR)
 
@@ -481,7 +480,7 @@ print(matrix_bsr.todense())
 #  [3 3 4 4 0 0 0 0]]
 ```
 
-Również tym razem wszystko jest dostępne na [tym samym Replit](https://replit.com/@tswistak/sparse-matrices-scipy#main.py).
+Również tym razem wszystko jest dostępne w [tym samym repozytorium](https://github.com/swistak-codes/snippets-backup/tree/main/sparse-matrices-scipy).
 
 ## Różnice między strukturami
 
@@ -546,7 +545,7 @@ function csrToDense(A) {
 }
 ```
 
-Kod do przetestowania znajdziesz na [Replit](https://replit.com/@tswistak/csr-to-dense#index.js).
+Kod do przetestowania znajdziesz na [OnlineGDB](https://onlinegdb.com/R8VgRDpbD).
 
 ### Transpozycja macierzy
 
@@ -606,7 +605,7 @@ function transposeCsrMatrix(A) {
 }
 ```
 
-Kod do przetestowania możesz znaleźć na [Replit](https://replit.com/@tswistak/csr-transpose#index.js).
+Kod do przetestowania możesz znaleźć na [OnlineGDB](https://onlinegdb.com/kDqD_hQ6_).
 
 ### Dodawanie macierzy
 
@@ -677,7 +676,7 @@ function addCsrMatrices(A, B) {
 }
 ```
 
-Kod do przetestowania znajdziesz na [Replit](https://replit.com/@tswistak/csr-addition#index.js).
+Kod do przetestowania znajdziesz na [OnlineGDB](https://onlinegdb.com/5Timrmmno).
 
 Implementację odejmowania pomijam — wystarczy tylko zmienić znak przy wykonywaniu działań we wszystkich trzech przypadkach.
 
@@ -751,7 +750,7 @@ function multiplyCsrMatrices(A, B) {
 }
 ```
 
-Kod możesz przetestować na [tym Replit](https://replit.com/@tswistak/csr-multiply#index.js).
+Kod możesz przetestować na [tym OnlineGDB](https://onlinegdb.com/QswgOdlpwA).
 
 ## Podsumowanie
 

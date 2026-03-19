@@ -1,6 +1,4 @@
-import Link from 'next/link';
 import {Image} from '@swistak-codes/components';
-import {Jupyter} from "./jupyter";
 import cover from './swistak-naukowiec.jpg';
 import ffProfiler from './firefox_profiler.png';
 import linuxTime from './linux_time.png';
@@ -31,7 +29,7 @@ export const meta = {
     'powershell'
   ],
   slug: 'mierzenie-czasu-wykonania',
-  updateTime: '2024-01-10T07:00:00+00:00',
+  updateTime: '2026-03-17T07:00:00+00:00',
   publishTime: '2024-01-10T07:00:00+00:00',
   english: 'https://4markdown.com/measuring-execution-time/',
   cover,
@@ -85,7 +83,7 @@ Rozpatrzymy dwa przypadki pokrywające trzy najpopularniejsze systemy — Window
 
 Zarówno na Linuksie, jak i macOS dysponujemy poleceniem [`time`](https://linux.die.net/man/1/time). Podajemy je przed wywoływaną przez nas komendą (skryptem, aplikacją, cokolwiek chcemy mierzyć) i po wykonaniu się w całości aplikacji na sam koniec zostaną zwrócone dane o czasie, ile zajęło wykonanie.
 
-Na potrzeby testów przepisałem algorytm na skrypt bashowy. Znajdziesz go na [Replit](https://replit.com/@tswistak/script-for-testing#main.sh). Jeśli nie masz Linuksa ani macOS, możesz na Replit sforkować ten skrypt, po czym uruchamiać go w zakładce *Shell*. Musisz tylko pamiętać o nadaniu uprawnień do wykonywania (`chmod +x ./main.sh`). Ewentualnie możesz skorzystać na Windowsie z [WSL](https://learn.microsoft.com/en-us/windows/wsl/).
+Na potrzeby testów przepisałem algorytm na skrypt bashowy. Znajdziesz go na [OnlineGDB](https://onlinegdb.com/4HSW4OmrW). Jeśli nie masz Linuksa ani macOS, to możesz go uruchomić na OnlineGDB po wcześniejszym podaniu wartości w `Command line arguments`. Ewentualnie możesz skorzystać na Windowsie z [WSL](https://learn.microsoft.com/en-us/windows/wsl/).
 
 Wynik działania polecenia na Linuksie wygląda następująco:
 
@@ -120,7 +118,7 @@ Warto zauważyć, że mimo iż wydawać by się mogło, że `user` i `sys` sumar
 
 Na Windowsie korzystając z PowerShella, możemy użyć [`Measure-Command`](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/measure-command?view=powershell-7.4), które działa na podobnej zasadzie co `time`.
 
-Tutaj na potrzeby testów przepisałem algorytm na skrypt PowerShellowy. Znajdziesz go na [Replit](https://replit.com/@tswistak/script-for-testing-ps#main.ps1). Możemy go odpalić na Linuksie (także na Replit) i macOS po zainstalowaniu na nich [PowerShella](https://github.com/PowerShell/PowerShell) w taki sam sposób, jak pokażę to niżej na Windowsie. Jedyne co musicie zrobić uprzednio, to wejść do niego za pomocą polecenia `pwsh`. Natomiast na Windowsie, jeśli nigdy nie uruchamiałeś(-aś) żadnego skryptu PowerShellowego, możliwe, że będziesz musiał(a) wywołać z poziomu administratora polecenie `Set-ExecutionPolicy unrestricted`, aby zezwolić na uruchamianie skryptów z dowolnych źródeł. Warto potem, dla bezpieczeństwa, przywrócić oryginalne ustawienie przez `Set-ExecutionPolicy default`.
+Tutaj na potrzeby testów przepisałem algorytm na skrypt PowerShellowy. Znajdziesz go na [compilebytes](https://compilebytes.com/share/iambEfDiUA). Możemy go odpalić na Linuksie i macOS po zainstalowaniu na nich [PowerShella](https://github.com/PowerShell/PowerShell) w taki sam sposób, jak pokażę to niżej na Windowsie. Jedyne co musicie zrobić uprzednio, to wejść do niego za pomocą polecenia `pwsh`. Natomiast na Windowsie, jeśli nigdy nie uruchamiałeś(-aś) żadnego skryptu PowerShellowego, możliwe, że będziesz musiał(a) wywołać z poziomu administratora polecenie `Set-ExecutionPolicy unrestricted`, aby zezwolić na uruchamianie skryptów z dowolnych źródeł. Warto potem, dla bezpieczeństwa, przywrócić oryginalne ustawienie przez `Set-ExecutionPolicy default`.
 
 Przejdźmy do rzeczy. Wywołanie polecenia i jego rezultat możesz zobaczyć poniżej:
 
@@ -178,7 +176,7 @@ void measure(int (*func)(int, int), int m, int n) {
 }
 ```
 
-Kod wraz z przykładem użycia znajdziesz na [Replit](https://replit.com/@tswistak/time-measure-c#main.c). Zaznaczę tylko, że kod ten na pewno działa na Linuksie i powinien działać też na innych systemach zgodnych z POSIX (Uniksy, BSD, macOS...). Nie testowałem tego na Windowsie, ale zakładam, że z kompilatorem MSVC to nie zadziała, natomiast powinno zadziałać pod MinGW. Jeśli przetestowałeś(-aś), możesz dać mi znać w komentarzu (pod artykułem), czy i jak działa `clock_gettime`.
+Kod wraz z przykładem użycia znajdziesz na [OnlineGDB](https://onlinegdb.com/Y_ejr6joh). Zaznaczę tylko, że kod ten na pewno działa na Linuksie i powinien działać też na innych systemach zgodnych z POSIX (Uniksy, BSD, macOS...). Nie testowałem tego na Windowsie, ale zakładam, że z kompilatorem MSVC to nie zadziała, natomiast powinno zadziałać pod MinGW. Jeśli przetestowałeś(-aś), możesz dać mi znać w komentarzu (pod artykułem), czy i jak działa `clock_gettime`.
 
 Jeszcze wspomnę, że zegarem `CLOCK_PROCESS_CPUTIME_ID`, przynajmniej na Linuksie, zarządza jądro systemu i to ono zwraca najdokładniejszy możliwy pomiar. W dawnych czasach (przed Linuksem 2.6) wykorzystywał licznik czasu TSC (czyli dokładnie ten, który pokazałem w poprzednim artykule o mierzeniu czasu), aczkolwiek bezpośredni odczyt licznika mógł zaburzać rezultaty, jeśli kod był odpalany w architekturach wielordzeniowych (czyli w zasadzie wszystkich obecnych).
 
@@ -216,7 +214,7 @@ public static void Measure(Func<int, int, int> func, int m, int n)
 }
 ```
 
-Kod znajdziesz na [Replit](https://replit.com/@tswistak/time-measure-cs#main.cs), aczkolwiek jeśli uruchamiasz tam, to weź poprawkę na to, że kompilator C# działa tam dość wolno.
+Kod znajdziesz na [OnlineGDB](https://onlinegdb.com/UL-jvYa-35), aczkolwiek jeśli uruchamiasz tam, to weź poprawkę na to, że kompilator C# działa tam dość wolno.
 
 Możesz zauważyć w powyższym kodzie, że rezultat bardzo przypomina to, co widzieliśmy w przypadku PowerShella. Jest tak dlatego, że PowerShell jest oparty na platformie .NET tak samo jak C#. Z tego powodu mamy tę samą jednostkę z najwyższą dokładnością (ticks) i obiekt zawierający `TotalMilliseconds`. Obiekt ten jest typu `TimeSpan` i to, co zwracał nam `Measure-Command`, to także była instancja klasy `TimeSpan`.
 
@@ -251,7 +249,7 @@ function measure(func, ...args) {
 }
 ```
 
-Kod znajdziesz na [Replit](https://replit.com/@tswistak/time-measure-js#index.js) w wersji uruchamianej w NodeJS, aczkolwiek w przeglądarce też zadziała. Warto dodać, że jeśli pracujesz na wielu wątkach, to aby mieć dokładne pomiary, w obliczeniach weź pod uwagę [`performance.timeOrigin`](https://developer.mozilla.org/en-US/docs/Web/API/Performance/timeOrigin), dzięki któremu zsynchronizujesz pomiary. Alternatywnie, jeśli chcesz zmierzyć czasy w wielu miejscach i różnych konfiguracjach, wygodniejsze może być użycie funkcji [`performance.mark()`](https://developer.mozilla.org/en-US/docs/Web/API/Performance/mark), a następnie zmierzenie interesujących Cię rzeczy za pomocą [`performance.measure()`](https://developer.mozilla.org/en-US/docs/Web/API/Performance/measure).
+Kod znajdziesz na [OnlineGDB](https://onlinegdb.com/XhvB7egxk) w wersji uruchamianej w NodeJS, aczkolwiek w przeglądarce też zadziała. Warto dodać, że jeśli pracujesz na wielu wątkach, to aby mieć dokładne pomiary, w obliczeniach weź pod uwagę [`performance.timeOrigin`](https://developer.mozilla.org/en-US/docs/Web/API/Performance/timeOrigin), dzięki któremu zsynchronizujesz pomiary. Alternatywnie, jeśli chcesz zmierzyć czasy w wielu miejscach i różnych konfiguracjach, wygodniejsze może być użycie funkcji [`performance.mark()`](https://developer.mozilla.org/en-US/docs/Web/API/Performance/mark), a następnie zmierzenie interesujących Cię rzeczy za pomocą [`performance.measure()`](https://developer.mozilla.org/en-US/docs/Web/API/Performance/measure).
 
 Warto dodać, że w zależności od środowiska pomiary mogą mieć różną dokładność. W przypadku uruchamiania w NodeJS pomiary odbywają się w nanosekundach, więc zmierzona wartość jest z częścią dziesiętną, natomiast w przeglądarkach wynik jest zaokrąglony do milisekund.
 
@@ -281,7 +279,7 @@ function measure(func, ...args) {
 }
 ```
 
-Kod jak zwykle znajdziesz na [Replit](https://replit.com/@tswistak/time-measure-js2#index.js). Jak widzisz, użycie jest analogiczne, różni się jedynie tym, którą funkcję wywołujemy. Warto tylko pamiętać o tym, że tutaj wynik jest typu `BigInt`.
+Kod jak zwykle znajdziesz na [OnlineGDB](https://onlinegdb.com/FR3iM-FzY). Jak widzisz, użycie jest analogiczne, różni się jedynie tym, którą funkcję wywołujemy. Warto tylko pamiętać o tym, że tutaj wynik jest typu `BigInt`.
 
 Starsza wersja, czyli [`process.hrtime()`](https://nodejs.org/api/process.html#processhrtimetime), bazująca na zwykłym typie liczbowym, jest oznaczona jako *deprecated*, więc z czasem może zostać usunięta. Można ją jednak wciąż znaleźć w projektach. Warto zwrócić uwagę, że można do niej jako argument przekazać poprzedni pomiar czasu, wówczas zwróci różnicę między nimi, co upraszcza pracę (wynik to tablica, więc nie trzeba kombinować z obliczeniami).
 
@@ -315,7 +313,7 @@ def measure(func, *args):
   print(f"Wynik: {result}; czas: {total_time} ns")
 ```
 
-Kod w całości znajdziesz na [Replit](https://replit.com/@tswistak/time-measure-python#main.py).
+Kod w całości znajdziesz na [OnlineGDB](https://onlinegdb.com/gWAqp8EVu).
 
 ##### timeit
 

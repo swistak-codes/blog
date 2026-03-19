@@ -1,5 +1,3 @@
-import Link from 'next/link';
-import {Image} from '@swistak-codes/components';
 import cover from './swistaki-kubizm.jpg';
 import { Presentation } from './presentation';
 
@@ -24,7 +22,7 @@ export const meta = {
     'javascript'
   ],
   slug: 'szybkie-potegowanie',
-  updateTime: '2023-01-11T07:00:00+00:00',
+  updateTime: '2026-03-15T07:00:00+00:00',
   publishTime: '2023-01-11T07:00:00+00:00',
   cover,
 };
@@ -108,7 +106,7 @@ Nas ten ostatni przypadek interesuje w kontekście języków programowania, a w 
 
 ### Niewydajny algorytm potęgowania
 
-Bazując na powyższej wiedzy, moglibyśmy zrobić prosty, teoretycznie prawidłowy algorytm potęgowania (kod dostępny na [repl.it](https://replit.com/@tswistak/bad-iterative#index.js)):
+Bazując na powyższej wiedzy, moglibyśmy zrobić prosty, teoretycznie prawidłowy algorytm potęgowania (kod dostępny na [OnlineGDB](https://onlinegdb.com/z_7q11D0T)):
 
 ```javascript
 function power(a, n) {
@@ -120,7 +118,7 @@ function power(a, n) {
 }
 ```
 
-Fani [rekurencji](/post/rekurencja-co-to-jest) mogliby zapisać go tak (kod dostępny na [repl.it](https://replit.com/@tswistak/bad-recursive#index.js)):
+Fani [rekurencji](/post/rekurencja-co-to-jest) mogliby zapisać go tak (kod dostępny na [OnlineGDB](https://onlinegdb.com/aMWrniruh)):
 
 ```javascript
 function power(a, n) {
@@ -132,7 +130,7 @@ function power(a, n) {
 }
 ```
 
-Skoro rekurencja, to dlaczego nie rekursja ogonowa? Co prawda w pokazywanym tutaj JavaScript nie ma sensu ten rodzaj optymalizacji ([przynajmniej na koniec 2022 roku](https://bugs.chromium.org/p/v8/issues/detail?id=4698)), ale mimo to pokażę (kod dostępny na [repl.it](https://replit.com/@tswistak/bad-recursive#index.js)):
+Skoro rekurencja, to dlaczego nie rekursja ogonowa? Co prawda w pokazywanym tutaj JavaScript nie ma sensu ten rodzaj optymalizacji ([przynajmniej na koniec 2022 roku](https://bugs.chromium.org/p/v8/issues/detail?id=4698)), ale mimo to pokażę (kod dostępny na [OnlineGDB](https://onlinegdb.com/cbkkiZIiL)):
 
 ```javascript
 function power(a, n, acc = 1) {
@@ -241,7 +239,7 @@ function power(a, n) {
 }
 ```
 
-Kod wraz z testami dostępny jest na [repl.it](https://replit.com/@tswistak/binary-recursive#index.js).
+Kod wraz z testami dostępny jest na [OnlineGDB](https://onlinegdb.com/y8iifQBW4).
 
 Możemy jednak napisać też kod zgodny z pierwszą pokazaną definicją, tym samym zmniejszając nieco liczbę wywołań rekurencyjnych:
 
@@ -257,7 +255,7 @@ function power(a, n) {
 }
 ```
 
-Ten kod również znajdziesz na [repl.it](https://replit.com/@tswistak/binary-recursive2#index.js).
+Ten kod również znajdziesz na [OnlineGDB](https://onlinegdb.com/U-HgPy6dpX).
 
 Oczywiście według definicji rekurencyjnej możemy napisać również kod korzystający ze zwykłej [iteracji](/post/iteracja-co-to-jest). Będzie to wyglądać następująco (dodałem komentarze tłumaczące, co się dzieje w odniesieniu do wersji rekurencyjnej):
 
@@ -288,7 +286,7 @@ function power(a, n) {
 }
 ```
 
-Również kod tego rozwiązania zamieściłem na [repl.it](https://replit.com/@tswistak/binary-iterative#index.js). Tutaj oczywiście odniosłem się do pierwszej pokazanej przeze mnie definicji rekurencyjnej, ale możesz też spróbować w analogiczny sposób [zderekursywować](/post/derekursywacja) drugie podejście rekurencyjne. To już jednak pozostawiam Ci do zrobienia na własną rękę w ramach ćwiczenia. Jeśli potrzebujesz podpowiedzi, opis algorytmu można znaleźć w tomie drugim *Sztuki Programowania* D. Knutha.
+Również kod tego rozwiązania zamieściłem na [OnlineGDB](https://onlinegdb.com/rbVGcXH0p). Tutaj oczywiście odniosłem się do pierwszej pokazanej przeze mnie definicji rekurencyjnej, ale możesz też spróbować w analogiczny sposób [zderekursywować](/post/derekursywacja) drugie podejście rekurencyjne. To już jednak pozostawiam Ci do zrobienia na własną rękę w ramach ćwiczenia. Jeśli potrzebujesz podpowiedzi, opis algorytmu można znaleźć w tomie drugim *Sztuki Programowania* D. Knutha.
 
 ### Kod według definicji binarnej
 
@@ -297,7 +295,7 @@ Analogicznie do wersji iteracyjnej pokazanej powyżej moglibyśmy napisać algor
 - $$n \land 1$$ (w kodzie: `n & 1`) — wykonanie operacji `AND 1` zwróci wartość ostatniego bitu.
 - $$n >> 1$$ — przesunięcie bitowe w prawo „skróci” liczbę binarną o ostatni bit.
 
-Dla wygody będziemy iterować od tyłu, co możemy zrobić, bo mnożenie jest przemienne. Kod będzie wyglądać wówczas następująco (dostępny na [repl.it](https://replit.com/@tswistak/binary-iterative2#index.js)):
+Dla wygody będziemy iterować od tyłu, co możemy zrobić, bo mnożenie jest przemienne. Kod będzie wyglądać wówczas następująco (dostępny na [OnlineGDB](https://onlinegdb.com/k-72n05vh)):
 
 ```javascript
 function power(a, n) {
@@ -333,7 +331,7 @@ Operację przesunięcia bitowego w lewo możemy sobie wyobrazić wizualnie jako 
 
 Do tego w systemie binarnym kolejne potęgi liczby 2 zapisujemy jako 1 z taką ilością zer, ile wynosi wykładnik. To znaczy $$1_2 = 1_{10}$$ ($$2^0$$), $$10_2 = 2_{10}$$ ($$2^1$$), $$100_2 = 4_{10}$$ ($$2^2$$), $$1000_2 = 8_{10}$$ ($$2^3$$) itd.
 
-Łącząc tę wiedzę w jedno, możemy napisać bardzo prostą funkcję do obliczania potęg dwójki (kod dostępny na [repl.it](https://replit.com/@tswistak/power-two#index.js)):
+Łącząc tę wiedzę w jedno, możemy napisać bardzo prostą funkcję do obliczania potęg dwójki (kod dostępny na [OnlineGDB](https://onlinegdb.com/ybS7vDyLT)):
 
 ```javascript
 function power2(n) {

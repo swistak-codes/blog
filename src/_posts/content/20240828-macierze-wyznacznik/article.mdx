@@ -30,7 +30,7 @@ export const meta = {
     'macierz odwrotna'
   ],
   slug: 'macierze-wyznacznik',
-  updateTime: '2024-08-28T07:00:00+00:00',
+  updateTime: '2026-03-18T07:00:00+00:00',
   publishTime: '2024-08-28T07:00:00+00:00',
   cover,
 };
@@ -271,7 +271,7 @@ function det(matrix) {
 }
 ```
 
-Kod w wersji wykonywalnej znajdziesz na [Replit](https://replit.com/@tswistak/determinant-laplace#index.js).
+Kod w wersji wykonywalnej znajdziesz na [OnlineGDB](https://onlinegdb.com/KceYl4lIf).
 
 Jak już pisałem wcześniej, rozwinięcie Laplace'a jest bardzo niewydajne obliczeniowo. Jego złożoność to aż $$\Omicron(n!)$$ ($$n$$ to stopień macierzy, $$!$$ to [silnia](/post/rekurencja-co-to-jest/#silnia)), czyli jedna z najgorszych złożoności, z jakimi mamy do czynienia w algorytmice. Oczywiście moglibyśmy kod nieco zoptymalizować — znamy dokładne wzory na wyznaczniki dla macierzy 2×2 i 3×3, więc moglibyśmy szybciej ucinać rekurencję. Jednak wciąż będzie to podejście o małej wydajności.
 
@@ -323,7 +323,7 @@ function det(matrix) {
 }
 ```
 
-Kod do przetestowania znajdziesz na [Replit](https://replit.com/@tswistak/determinant-bareiss#index.js).
+Kod do przetestowania znajdziesz na [OnlineGDB](https://onlinegdb.com/AZ637k9SD).
 
 Jak widać na pierwszy rzut oka, mamy trzy zagnieżdżone iteracje zawsze iterujące do `n`. Oznacza to, że złożoność obliczeniowa algorytmu wynosi $$\Omicron(n^3)$$. Może nie jest to idealna złożoność, ale zdecydowanie lepsza niż $$\Omicron(n!)$$, z którą mieliśmy do czynienia przy poprzednim algorytmie.
 

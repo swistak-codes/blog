@@ -45,7 +45,7 @@ export const meta = {
     'continue'
   ],
   slug: 'iteracja-co-to-jest',
-  updateTime: '2022-12-21T07:00:00+00:00',
+  updateTime: '2026-03-15T07:00:00+00:00',
   publishTime: '2022-12-21T07:00:00+00:00',
   cover,
   comment: 'Dzisiaj przychodzę do Was z artykułem poświęconym iteracji. Zagadnienie bardzo podstawowe, wręcz leżące u podstaw nauki każdego języka programowania, jednak jak sam się przekonałem, pisząc ten artykuł, można o nim powiedzieć bardzo wiele. Zdaję sobie sprawę, że tekst jest długi i niektórzy wydają krótsze książki, ale wielu rzeczy po prostu nie mogłem pominąć. Gorąco zachęcam do lektury zarówno początkujących, jak i bardziej zaawansowanych programistów — myślę, że każdy znajdzie tutaj coś dla siebie.'
@@ -160,7 +160,7 @@ section	.data
   len	equ	$ - msg      ; długość tekstu
 ```
 
-Kod możesz przetestować na platformie [repl.it](https://replit.com/@tswistak/goto-asm#main.s). Jeśli tam nie działa, możesz również sprawdzić działanie na [Compiler Explorer](https://godbolt.org/z/84j3T38vx).
+Kod możesz przetestować na platformie [OnlineGDB](https://onlinegdb.com/wrWnvT0XF). Jeśli tam nie działa, możesz również sprawdzić działanie na [Compiler Explorer](https://godbolt.org/z/84j3T38vx).
 
 Przeskoki wykonują tutaj dwie instrukcje:
 
@@ -199,7 +199,7 @@ loop_end:
 }
 ```
 
-Kod możesz przetestować na [repl.it](https://replit.com/@tswistak/goto-c#main.c).
+Kod możesz przetestować na [OnlineGDB](https://onlinegdb.com/ikLpuA55s).
 
 Warto jednak zauważyć, że jeśli język programowania pozwala na inne sposoby sterowania przepływem programu (w tym iteracje), instrukcji skoku **nie powinniśmy** używać. Najbardziej znanym z pierwszych przeciwników stosowania `goto` był Edsger W. Dijsktra (znany przede wszystkim z [algorytmu Dijkstry](/post/szukanie-najkrotszych-sciezek-w-grafie)). Napisał bardzo popularny w środowisku informatycznym list *Go To Statement Considered Harmful* (instrukcja goto uznawana za szkodliwą) i jego treść możecie znaleźć w [doi:10.1145/362929.362947](https://doi.org/10.1145/362929.362947). Opisując w skrócie, jego argumenty przeciwko to:
 
@@ -248,7 +248,7 @@ int main(void) {
 }
 ```
 
-Kod możesz edytować i uruchomić na [repl.it](https://replit.com/@tswistak/while-c#main.c).
+Kod możesz edytować i uruchomić na [OnlineGDB](https://onlinegdb.com/lElNKGYK2).
 
 Jak widać, nasza prosta aplikacja, dzięki zastosowaniu pętli `while`, skróciła się i jednocześnie pozbycie się etykiet sprawiło, że jest nieco czytelniejsza.
 
@@ -356,7 +356,7 @@ int main(void) {
 }
 ```
 
-Kod możesz sprawdzić na [repl.it](https://replit.com/@tswistak/do-while-c#main.c). Dodatkowo na tym [kodzie w repl.it](https://replit.com/@tswistak/while-do-while-c#main.c) pokazałem też porównanie działania pętli `do ... while` oraz `while` pod kątem kolejności wykonywania.
+Kod możesz sprawdzić na [OnlineGDB](https://onlinegdb.com/iV0_d4SqV). Dodatkowo na tym [kodzie w OnlineGDB](https://onlinegdb.com/l0i7UMiXO) pokazałem też porównanie działania pętli `do ... while` oraz `while` pod kątem kolejności wykonywania.
 
 ### Odwrócenie warunku
 
@@ -390,7 +390,7 @@ begin
 end.
 ```
 
-Ten kod również możesz przetestować na [repl.it](https://replit.com/@tswistak/do-while-pascal#main.p).
+Ten kod również możesz przetestować na [OnlineGDB](https://onlinegdb.com/l2I6RAGkz).
 
 Jak widać na tym przykładzie, jeśli zmieniamy języki programowania, warto sprawdzić, czy podstawowe konstrukcje, takie jak właśnie pętle, nie mają różnic w stosowaniu. Chociaż różnic między językami z popularną C-podobną składnią a Pascalem widać tu znacznie więcej, np. przypisanie wartości z użyciem `:=`, deklaracja zmiennych przed właściwym kodem, sprawdzenie równości pojedynczym znakiem równości itd.
 
@@ -453,7 +453,7 @@ begin
 end.
 ```
 
-Kod do samodzielnego przetestowania znajdziesz na [repl.it](https://replit.com/@tswistak/for-pascal#main.p).
+Kod do samodzielnego przetestowania znajdziesz na [OnlineGDB](https://onlinegdb.com/iivzdCfWM).
 
 Składnia pętli `for` jest bardzo prosta i składa się z trzech elementów:
 
@@ -485,7 +485,7 @@ int main(void) {
 }
 ```
 
-Ponownie, kod znajdziesz też na [repl.it](https://replit.com/@tswistak/for-c#main.c).
+Ponownie, kod znajdziesz też na [OnlineGDB](https://onlinegdb.com/XY6IE3JyH).
 
 Skąd jednak taka różnica?
 
@@ -572,7 +572,7 @@ int main(void) {
 }
 ```
 
-Kod możesz przetestować na [repl.it](https://replit.com/@tswistak/for-different-c#main.c). Chciałbym jednak dodać, że o ile pierwszy przypadek jest jeszcze w miarę *normalny*, drugi kwestionowalny, o tyle w trzeciej pętli można byłoby użyć zwykłego `while`.
+Kod możesz przetestować na [OnlineGDB](https://onlinegdb.com/06vI2yCQK). Chciałbym jednak dodać, że o ile pierwszy przypadek jest jeszcze w miarę *normalny*, drugi kwestionowalny, o tyle w trzeciej pętli można byłoby użyć zwykłego `while`.
 
 Co ciekawe, w przypadku języka Go nie ma pętli `while` i jest ona zastąpiona właśnie przez `for` z podaniem samego warunku, co można zobaczyć [np. tutaj, w oficjalnym kursie języka](https://go.dev/tour/flowcontrol/3).
 
@@ -652,7 +652,7 @@ section	.data
   len	equ	$ - msg      ; długość tekstu
 ```
 
-Oczywiście nie jest to, dokładnie rzecz ujmując, pętla `for`, ale konstrukcja jest dosyć podobna. Możesz ją przetestować na [repl.it](https://replit.com/@tswistak/for-asm#main.s). Jeśli tam nie działa, możesz również sprawdzić działanie na [Compiler Explorer](https://godbolt.org/z/zWe6qPrT6).
+Oczywiście nie jest to, dokładnie rzecz ujmując, pętla `for`, ale konstrukcja jest dosyć podobna. Możesz ją przetestować na [OnlineGDB](https://onlinegdb.com/kmMvRoJjf). Jeśli tam nie działa, możesz również sprawdzić działanie na [Compiler Explorer](https://godbolt.org/z/zWe6qPrT6).
 
 Warto dodać, że nie każdy asembler udostępnia takie rzeczy. W przypadku x86 jest to architektura typu CISC (Complex Instruction Set Computing, z ang. obliczanie rozbudowanego zestawu instrukcji), co oznacza, że procesory wspierają bardzo dużą liczbę rozkazów, w tym wykonujących wiele czynności jak opisany tutaj `loop`. Po drugiej stronie barykady mamy architektury typu RISC (Reduced Instruction Set Computing, z ang. obliczanie zredukowanego zestawu instrukcji), które charakteryzują się niedużym zestawem instrukcji wykonujących pojedyncze operacje. Są coraz popularniejsze, np. zaliczają się do nich mobilne procesory typu ARM. Przyznam, że szukałem, czy asembler ARM-a posiada odpowiednik `loop` (nie powinien, ponieważ łamie to reguły RISC), bo nigdy w nim nie pisałem kodu, ale nic nie znalazłem. W każdym przykładzie, na który trafiłem, pętle z licznikiem są robione przez porównywanie i przeskoki.
 
@@ -694,7 +694,7 @@ int main(void) {
 }
 ```
 
-Działanie możesz sprawdzić na platformie [repl.it](https://replit.com/@tswistak/continue-c#main.c).
+Działanie możesz sprawdzić na platformie [OnlineGDB](https://onlinegdb.com/lR7rP3P4V).
 
 Oczywiście pisanie kodu w taki sposób nie ma większego sensu (lepiej byłoby zrobić `if else`), ale pokazuje działanie `continue` w praktyce. Zresztą `continue` może być zwykle zastąpione właśnie przez `if else` i tak też często się robi. Jak już stosuje się `continue`, to po to, żeby zmniejszyć liczbę zagnieżdżeń lub uczynić kod czytelniejszym.
 
@@ -728,7 +728,7 @@ int main(void) {
 }
 ```
 
-Kod można przetestować na [repl.it](https://replit.com/@tswistak/continue-for-c#main.c). Pętla `while` jest tam zakomentowana, aby móc bez problemu zobaczyć działanie `for`.
+Kod można przetestować na [OnlineGDB](https://onlinegdb.com/aH210n_o6r). Pętla `while` jest tam zakomentowana, aby móc bez problemu zobaczyć działanie `for`.
 
 Teoretycznie pętla `for` u góry i `while` na dole powinny wykonywać się tak samo. Jednak pętla `while` będzie nieskończona, a `for` wykona się w całości. Dlaczego tak jest? Otóż kompilator nie zamienia bezpośrednio pętli `for` na `while` tak, jak pokazałem to wcześniej w artykule. Nawet jeśli zrobimy `continue`, „trzeci człon” pętli wykona się, aby nie zaburzyć odliczania. To jest właśnie ta drobna różnica, o której wspomniałem.
 
@@ -766,7 +766,7 @@ int main(void) {
 }
 ```
 
-Jak zawsze możesz to sprawdzić na platformie [repl.it](https://replit.com/@tswistak/break-c#main.c).
+Jak zawsze możesz to sprawdzić na platformie [OnlineGDB](https://onlinegdb.com/VExVJUYYs).
 
 Jeśli nie wykonujemy dalej po pętli żadnego kodu, np. jesteśmy w funkcji i chcemy zwrócić rezultat, zamiast `break` możemy użyć instrukcji zwrócenia wartości `return`. Pętla również zostanie przerwana jak w poniższym przykładzie.
 
@@ -793,7 +793,7 @@ int main(void) {
 }
 ```
 
-Ten kod również znajdziesz na [repl.it](https://replit.com/@tswistak/break-return-c#main.c).
+Ten kod również znajdziesz na [OnlineGDB](https://onlinegdb.com/IehJx8Nb1).
 
 #### goto jako break
 
@@ -832,7 +832,7 @@ int main(void) {
 }
 ```
 
-Możesz sprawdzić działanie na własną rękę na [repl.it](https://replit.com/@tswistak/break-goto-c#main.c).
+Możesz sprawdzić działanie na własną rękę na [OnlineGDB](https://onlinegdb.com/jpGsv39So).
 
 Dodam od razu, że przerwanie wykonania pętli z użyciem `return` zadziała dokładnie tak samo jak `goto`, czyli przerwie wszystkie poziomy zagnieżdżenia.
 
@@ -866,7 +866,7 @@ class Main {
 }
 ```
 
-Ponownie, kod można przetestować samodzielnie na [repl.it](https://replit.com/@tswistak/break-goto-java#Main.java).
+Ponownie, kod można przetestować samodzielnie na [OnlineGDB](https://onlinegdb.com/e2t-Bc4gc).
 
 ### Czy powinniśmy je używać?
 
@@ -927,7 +927,7 @@ for (let i = 0; i < array.length; i++) {
 }
 ```
 
-Kod jak zawsze możesz sprawdzić na [repl.it](https://replit.com/@tswistak/for-array-js#index.js).
+Kod jak zawsze możesz sprawdzić na [OnlineGDB](https://onlinegdb.com/NORPuIn7j).
 
 Jest to jak najbardziej poprawny sposób iteracji i całkiem prawdopodobne, że ucząc się programowania od podstaw, niezależnie od języka (może z wyjątkiem Pythona lub funkcyjnych), właśnie z nim jesteś zapoznany(-a). Tylko jak mamy iterować po innych strukturach: słownikach, grafach, listach wiązanych? Oczywiście w tym celu bylibyśmy w stanie napisać odpowiednie pętle, jednak wówczas musimy mieć wiedzę, z jakim dokładnie typem danych mamy do czynienia. Niestety, to nie zawsze jest takie oczywiste. Dlatego też powstał uniwersalny sposób iteracji po dowolnych strukturach danych, niezależny od ich implementacji — iteratory.
 
@@ -953,7 +953,7 @@ Wymieniłem te trzy przykłady, bo iteratory są zwykle implementowane analogicz
 
 W zasadzie z powyższych opisów można wywnioskować, jak iteratorów się używa. Mimo to zobaczmy w kodzie, w jaki sposób iteruje się za ich pomocą w trzech opisanych wyżej językach.
 
-JavaScript (kod na [repl.it](https://replit.com/@tswistak/iterator-js#index.js)):
+JavaScript (kod na [OnlineGDB](https://onlinegdb.com/TUKS3B4gz)):
 
 ```javascript
 // deklarujemy listę tablicową z trzema elementami
@@ -971,7 +971,7 @@ while (!current.done) {
 }
 ```
 
-C# (pełen kod na [repl.it](https://replit.com/@tswistak/iterator-csharp#main.cs)):
+C# (pełen kod na [OnlineGDB](https://onlinegdb.com/DdFV0yesW)):
 
 ```csharp
 // deklarujemy listę tablicową z trzema elementami
@@ -986,7 +986,7 @@ while (it.MoveNext())
 }
 ```
 
-Java (pełen kod na [repl.it](https://replit.com/@tswistak/iterator-java#Main.java)):
+Java (pełen kod na [OnlineGDB](https://onlinegdb.com/qePVMUE1j)):
 
 ```java
 // deklarujemy listę tablicową z trzema elementami
@@ -1000,7 +1000,7 @@ while (it.hasNext()) {
 }
 ```
 
-Dodatkowo zobacz, jak wygląda korzystanie z iteratorów, które znajdziemy w bibliotece standardowej C++. Zasada działania jest analogiczna do tego, co znajdziemy w C#, ale samo użycie jest zupełnie inne (pełen kod na [repl.it](https://replit.com/@tswistak/iterator-cpp#main.cpp)):
+Dodatkowo zobacz, jak wygląda korzystanie z iteratorów, które znajdziemy w bibliotece standardowej C++. Zasada działania jest analogiczna do tego, co znajdziemy w C#, ale samo użycie jest zupełnie inne (pełen kod na [OnlineGDB](https://onlinegdb.com/5iHkv4Z9W)):
 
 ```cpp
 // deklarujemy listę tablicową z trzema elementami
@@ -1019,7 +1019,7 @@ for (auto it = list.begin(); it < list.end(); it++) {
 
 Jeśli kiedykolwiek pisałeś(-aś) w tych językach, to możesz się zastanawiać, od kiedy w ten sposób korzysta się z iteratorów? To znaczy, tak, można w ten sposób, tylko w praktyce robi się to rzadko. Dużo popularniejsze są pętle `for each` wykorzystujące pod spodem iteratory. W zależności od języka nazwane są inaczej. Dla przykładu: `for...of` (np. JavaScript, Ada), `foreach` (np. C#, PHP), `for` z dwukropkiem (np. Java, C++), `for...in` (np. Python, Pascal). Skoro wymieniłem cztery rodzaje składni, to zobaczmy dla czterech różnych języków, jak iterowalibyśmy w każdym z nich po [liście tablicowej](/post/tablice-i-listy-tablicowe).
 
-JavaScript (kod na [repl.it](https://replit.com/@tswistak/foreach-js#index.js)):
+JavaScript (kod na [OnlineGDB](https://onlinegdb.com/4diqc-922)):
 
 ```javascript
 // deklarujemy listę tablicową z trzema elementami
@@ -1031,7 +1031,7 @@ for (const element of list) {
 }
 ```
 
-C# (pełen kod na [repl.it](https://replit.com/@tswistak/foreach-csharp#main.cs)):
+C# (pełen kod na [OnlineGDB](https://onlinegdb.com/i76xlIGF6)):
 
 ```csharp
 // deklarujemy listę tablicową z trzema elementami
@@ -1044,7 +1044,7 @@ foreach (var element in list)
 }
 ```
 
-Java (pełen kod na [repl.it](https://replit.com/@tswistak/foreach-java#Main.java)):
+Java (pełen kod na [OnlineGDB](https://onlinegdb.com/dERZdVpSa)):
 
 ```java
 // deklarujemy listę tablicową z trzema elementami
@@ -1056,7 +1056,7 @@ for (var element : list) {
 }
 ```
 
-Python (kod na [repl.it](https://replit.com/@tswistak/foreach-python#main.py)):
+Python (kod na [OnlineGDB](https://onlinegdb.com/Z1G21oWoR)):
 
 ```python
 # deklarujemy listę tablicową z trzema elementami
@@ -1104,7 +1104,7 @@ for (const element of generator()) {
 }
 ```
 
-Kod, jak zawsze, jest dostępny na [repl.it](https://replit.com/@tswistak/generator-simple-js#index.js). Dla porównania [tutaj znajdziesz ten sam generator, ale napisany w C#](https://replit.com/@tswistak/generator-simple-csharp#main.cs).
+Kod, jak zawsze, jest dostępny na [OnlineGDB](https://onlinegdb.com/MkV65dHEr). Dla porównania [tutaj znajdziesz ten sam generator, ale napisany w C#](https://onlinegdb.com/dE3g_55LA).
 
 Żeby pokazać, że za ich pomocą możemy też robić nieskończone iteracje, zamieszczam iterator zwracający kolejne elementy ciągu Fibonacciego:
 
@@ -1125,7 +1125,7 @@ function* fibonacci() {
 }
 ```
 
-Kod wraz z wyciągnięciem z generatora stu pierwszych wartości znajdziesz na [repl.it](https://replit.com/@tswistak/generator-fibo-js#index.js). Dla ciekawych wrzucam też [pod tym linkiem wersję w C#](https://replit.com/@tswistak/generator-fibo-csharp#main.cs).
+Kod wraz z wyciągnięciem z generatora stu pierwszych wartości znajdziesz na [OnlineGDB](https://onlinegdb.com/iapcdanoH). Dla ciekawych wrzucam też [pod tym linkiem wersję w C#](https://onlinegdb.com/Ob5vHqiMZ).
 
 Swoją drogą, na blogu często wykorzystywałem generatory do stworzenia wizualizacji algorytmów — dzięki ich mechanizmowi wstrzymywania egzekucji funkcji mogłem tworzyć wizualizacje, które mogliśmy wykonywać krok po kroku, animować lub od razu obejrzeć końcowy rezultat. Opisałem to kiedyś we wpisie na [OhMyDev dostępnym pod tym linkiem](https://github.com/tswistak/tech-articles-copy/blob/main/wizualizacja-algorytmow/article.md).
 
@@ -1179,7 +1179,7 @@ const all = list.forEach(value => console.log(value));
 console.log(all); // undefined
 ```
 
-Znajdziesz go także na [repl.it](https://replit.com/@tswistak/functional-js#index.js). Odpowiednik w C# również znajdziesz na [repl.it](https://replit.com/@tswistak/functional-csharp#main.cs).
+Znajdziesz go także na [OnlineGDB](https://onlinegdb.com/h7FdzGXum). Odpowiednik w C# również znajdziesz na [OnlineGDB](https://onlinegdb.com/ePU2xbTWm).
 
 Jeśli powyższy przykład nie pokazał najlepiej, jakie są definicje funkcji iterujących i co one wykonują, zobacz, jak moglibyśmy je zdefiniować, wykorzystując pętle typu `for each`. Tym razem jedynie zaprezentuję pseudokod i implementację w JavaScript.
 
@@ -1210,7 +1210,7 @@ function map(list, action) {
 }
 ```
 
-Kod wraz z porównaniem do oryginalnej funkcji znajdziesz na [repl.it](https://replit.com/@tswistak/map-js#index.js).
+Kod wraz z porównaniem do oryginalnej funkcji znajdziesz na [OnlineGDB](https://onlinegdb.com/59nqY7MB5).
 
 #### Filtrowanie
 
@@ -1243,7 +1243,7 @@ function filter(list, predicate) {
 }
 ```
 
-Kod wraz z porównaniem do oryginalnej funkcji znajdziesz na [repl.it](https://replit.com/@tswistak/filter-js#index.js).
+Kod wraz z porównaniem do oryginalnej funkcji znajdziesz na [OnlineGDB](https://onlinegdb.com/-VTtksMIF).
 
 #### Sprawdzenie, czy elementy spełniają warunek
 
@@ -1297,7 +1297,7 @@ function some(list, predicate) {
 }
 ```
 
-Kod wraz z porównaniem obu do oryginalnych wersji znajdziesz na [repl.it](https://replit.com/@tswistak/every-some-js#index.js).
+Kod wraz z porównaniem obu do oryginalnych wersji znajdziesz na [OnlineGDB](https://onlinegdb.com/Jr4Uq4fps).
 
 #### Fold
 
@@ -1326,7 +1326,7 @@ function reduce(list, initialValue, action) {
 }
 ```
 
-Kod wraz z porównaniem do oryginalnej implementacji `reduce` znajdziesz na [repl.it](https://replit.com/@tswistak/reduce-js#index.js).
+Kod wraz z porównaniem do oryginalnej implementacji `reduce` znajdziesz na [OnlineGDB](https://onlinegdb.com/i6PuLhzju).
 
 ### Języki zapytań
 
@@ -1364,7 +1364,7 @@ var evenSquared2 = list
   .Select(value => value * value);
 ```
 
-Całość kodu znajdziesz na [repl.it](https://replit.com/@tswistak/linq#main.cs).
+Całość kodu znajdziesz na [OnlineGDB](https://onlinegdb.com/h58YI4PTE).
 
 Warto nadmienić, że w przypadku przedstawionego wyżej LINQ w C# kompilator przekształca powyższą formę na funkcje (pokazane niżej). Wynika to z tego, że C# nie jest kompilowany do kodu maszynowego, tylko pośredniego języka CIL (Common Intermediate Language, z ang. wspólny język pośredni). Jest to .NET-owy odpowiednik asemblera interpretowany następnie przez CLR (Common Language Runtime) będącego częścią .NET Framework.
 
@@ -1390,7 +1390,7 @@ FROM Liczby -- pobieramy z tabeli Liczby
 WHERE (Liczba % 2) = 0; -- wybieramy jedynie parzyste
 ```
 
-Zapytanie na bazie danych możesz sprawdzić na [repl.it](https://replit.com/@tswistak/SQL#main.sql), gdzie zamieściłem też polecenia SQL tworzące potrzebną tabelę i wypełniającą ją danymi.
+Zapytanie na bazie danych możesz sprawdzić na [OnlineGDB](https://onlinegdb.com/HXp8OKuIS), gdzie zamieściłem też polecenia SQL tworzące potrzebną tabelę i wypełniającą ją danymi.
 
 Pisałem wcześniej, że LINQ bardzo przypomina SQL. Po tym przykładzie można stwierdzić, że jest to prawda — w zasadzie jedyna różnica, jaka tu jest, to zmieniona kolejność wybranych elementów składni (w SQL zaczynamy od `select`, w LINQ od `from`).
 

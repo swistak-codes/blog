@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import {Image} from '@swistak-codes/components';
 import cover from './swistak_manga.jpg';
 import zad21 from './zad21.png';
@@ -32,7 +31,7 @@ export const meta = {
     'drzewo binarne'
   ],
   slug: 'matura-probna-2022',
-  updateTime: '2023-04-19T07:00:00+00:00',
+  updateTime: '2026-03-16T07:00:00+00:00',
   publishTime: '2023-04-19T07:00:00+00:00',
   cover,
 };
@@ -138,7 +137,7 @@ class FirstTask implements Task {
 }
 ```
 
-Kod możesz sprawdzić na [Replit](https://replit.com/@tswistak/zadanie-1#FirstTask.java) wraz z resztą podzadań.
+Kod możesz sprawdzić na [OnlineGDB](https://onlinegdb.com/cwOWVt0j4l) (plik FirstTask.java) wraz z resztą podzadań.
 
 Warto zwrócić uwagę, że ktoś bardziej zaawansowany mógłby się pokusić o rozwiązanie z wykorzystaniem wyrażeń regularnych, ale one się tutaj nie sprawdzą. W ich przypadku, gdy zostanie wykryta jakaś grupa znaków spełniająca wzorzec, znaki z niej nie mogą spełniać kolejnego wzorca. Dlatego w przypadku pokazanym w zadaniu (we fragmencie `BABA`) mamy 3 razy pożądaną sytuację, a wyrażenie regularne (np. takie: `/([A-Z])(?!\1)[A-Z]/`) zwróciłoby 2 ([tutaj możesz to sprawdzić](https://regexr.com/7a78d)).
 
@@ -189,7 +188,7 @@ class SecondTask implements Task {
 }
 ```
 
-Kod możesz sprawdzić na [Replit](https://replit.com/@tswistak/zadanie-1#SecondTask.java) wraz z resztą podzadań. Zamieściłem tam też jako zakomentowaną drugą wersję z pętlą `for`, abyś zdecydował(a) na własną rękę, co jest czytelniejsze i co wolisz napisać.
+Kod możesz sprawdzić na [OnlineGDB](https://onlinegdb.com/cwOWVt0j4l) (plik SecondTask.java) wraz z resztą podzadań. Zamieściłem tam też jako zakomentowaną drugą wersję z pętlą `for`, abyś zdecydował(a) na własną rękę, co jest czytelniejsze i co wolisz napisać.
 
 ### Zadanie 1.3
 
@@ -238,11 +237,11 @@ class ThirdTask implements Task {
 
 Alternatywnie, akurat tutaj możemy wykonać to zadanie wyrażeniem regularnym. `/(\w)\1{9,}/` znajdzie wszystkie powtórzenia 10 znaków z rzędu. Wówczas odpowiednimi funkcjami musimy jedynie zliczyć liczbę tych wystąpień i sprawdzić, który znak jest w najdłuższym z dopasowań. Aczkolwiek nie podałem wyżej rozwiązania tego typu, bo na maturze raczej nie kombinowałbym z pisaniem wyrażeń regularnych w przypadkach, które można obsłużyć prostą iteracją. Tym bardziej, że w arkuszu odpowiedzi nie było ani słowa o użyciu wyrażeń regularnych.
 
-Kod możesz sprawdzić na [Replit](https://replit.com/@tswistak/zadanie-1#ThirdTask.java) wraz z resztą podzadań. W komentarzu możesz zobaczyć wersję zapisaną wyrażeniem regularnym, jeśli jesteś ciekaw(a), jak w ten sposób można rozwiązać to zadanie.
+Kod możesz sprawdzić na [OnlineGDB](https://onlinegdb.com/cwOWVt0j4l) (plik ThirdTask.java) wraz z resztą podzadań. W komentarzu możesz zobaczyć wersję zapisaną wyrażeniem regularnym, jeśli jesteś ciekaw(a), jak w ten sposób można rozwiązać to zadanie.
 
 ### Podsumowanie
 
-Całość kodu znajdziesz w wersji do uruchomienia na [Replit](https://replit.com/@tswistak/zadanie-1#Main.java). Odpowiedzi, które widzimy w konsoli, zgadzają się z odpowiedziami zarówno dla plików `mecz_przyklad.txt` (wyniki w treściach zadań), jak i `mecz.txt` (wyniki w arkuszu z odpowiedziami).
+Całość kodu znajdziesz w wersji do uruchomienia na [OnlineGDB](https://onlinegdb.com/cwOWVt0j4l). Odpowiedzi, które widzimy w konsoli, zgadzają się z odpowiedziami zarówno dla plików `mecz_przyklad.txt` (wyniki w treściach zadań), jak i `mecz.txt` (wyniki w arkuszu z odpowiedziami).
 
 Podsumowując, zadanie 1 opierało się w całości na bardzo prostych iteracjach. Nie było potrzeby wymyślania żadnych bardziej skomplikowanych rozwiązań, a nawet mogłyby się one zupełnie nie sprawdzić (jak wyrażenie regularne w 1.1).
 
@@ -356,7 +355,7 @@ Teraz po kolei, co tu się dzieje:
 - Dalej mamy powtórzony kod z treści zadania. Jedyne, co usunąłem, to rysowanie strzałek, bo nas tutaj zupełnie nie interesuje.
 - Na koniec zwracam wyniki w postaci `left || right`. Wykonuję operację `||` (`OR`, logiczne `lub`), ponieważ interesuje nas, czy którakolwiek z gałęzi zwróciła prawdę. Tak się składa, że `||` zwraca fałsz jedynie wtedy, gdy po obu stronach operatora są wartości fałszywe, a w innych przypadkach prawdę, więc idealnie pasuje do naszego zastosowania.
 
-Całość kodu znajdziesz na [Replit](https://replit.com/@tswistak/zadanie-2#Main.java).
+Całość kodu znajdziesz na [OnlineGDB](https://onlinegdb.com/hs06WPNFT).
 
 Podsumowując, to zadanie sprowadziło się w dużej mierze do przepisania kodu, który został nam dostarczony wraz z zadaniem. Musieliśmy tylko go przerobić, aby zamiast rysować, sprawdzał warunek.
 
@@ -486,7 +485,7 @@ class FirstTask implements Task {
 }
 ```
 
-Kod możesz sprawdzić na [Replit](https://replit.com/@tswistak/zadanie-3#FirstTask.java) wraz z resztą podzadań.
+Kod możesz sprawdzić na [OnlineGDB](https://onlinegdb.com/eA0XGQJnQ) (plik FirstTask.java) wraz z resztą podzadań.
 
 ### Zadanie 3.3
 
@@ -555,7 +554,7 @@ class SecondTask implements Task {
 }
 ```
 
-Kod możesz sprawdzić na [Replit](https://replit.com/@tswistak/zadanie-3#SecondTask.java) wraz z resztą podzadań.
+Kod możesz sprawdzić na [OnlineGDB](https://onlinegdb.com/eA0XGQJnQ) (plik SecondTask.java) wraz z resztą podzadań.
 
 A jeśli interesuje Cię, jak można by to zadanie rozwiązać bardziej specjalistycznym algorytmem, możesz sprawdzić np. ten artykuł naukowy: [doi:10.13140/RG.2.2.21545.01125](https://doi.org/10.13140/RG.2.2.21545.01125). Podejście tam opisane wykorzystuje chińskie twierdzenie o resztach, więc może się wydawać nieco trudniejsze niż to, co pokazałem w powyższym kodzie. Na pewno nie jest to coś, o czym by się pamiętało w trakcie egzaminu.
 
@@ -601,7 +600,7 @@ class ThirdTask implements Task {
 }
 ```
 
-Kod możesz sprawdzić na [Replit](https://replit.com/@tswistak/zadanie-3#ThirdTask.java) wraz z resztą podzadań.
+Kod możesz sprawdzić na [OnlineGDB](https://onlinegdb.com/eA0XGQJnQ) (plik ThirdTask.java) wraz z resztą podzadań.
 
 Jeśli wybrałbyś/wybrałabyś inny język, to sytuacja z gotowymi funkcjami wygląda w nich następująco:
 
@@ -623,7 +622,7 @@ int main() {
 
 ### Podsumowanie
 
-Całość kodu znajdziesz w wersji do uruchomienia na [Replit](https://replit.com/@tswistak/zadanie-3#Main.java). Odpowiedzi widoczne w konsoli zgadzają się dla plików `liczby_przyklad.txt` (wyniki w treściach zadań) i `liczby.txt` (wyniki w arkuszu z odpowiedziami).
+Całość kodu znajdziesz w wersji do uruchomienia na [OnlineGDB](https://onlinegdb.com/eA0XGQJnQ). Odpowiedzi widoczne w konsoli zgadzają się dla plików `liczby_przyklad.txt` (wyniki w treściach zadań) i `liczby.txt` (wyniki w arkuszu z odpowiedziami).
 
 Podsumowując, w tym przypadku również dostaliśmy gotowy kod, którego musieliśmy użyć w zadaniu. W zasadzie rozwiązał nam zadanie 3.2 i stanowił podstawę do 3.3. W przypadku 3.3 faktycznie trzeba było się nieco zastanowić, jak to dobrze ugryźć, ale koniec końców nie wymagało to skomplikowanej algorytmiki. Natomiast 3.4 było już zadaniem dość odrębnym od reszty.
 

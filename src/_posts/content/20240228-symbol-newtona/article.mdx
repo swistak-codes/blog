@@ -1,5 +1,3 @@
-import Link from 'next/link';
-import {Image} from '@swistak-codes/components';
 import cover from './swistak_newton.jpg';
 
 export const meta = {
@@ -24,7 +22,7 @@ export const meta = {
     'trójkąt Sierpińskiego'
   ],
   slug: 'symbol-newtona',
-  updateTime: '2024-02-28T07:00:00+00:00',
+  updateTime: '2026-03-17T07:00:00+00:00',
   publishTime: '2024-02-28T07:00:00+00:00',
   cover,
 };
@@ -67,7 +65,7 @@ function binom(n, k) {
 }
 ```
 
-Kod możesz przetestować na [Replit](https://replit.com/@tswistak/from-definition#index.js).
+Kod możesz przetestować na [OnlineGDB](https://onlinegdb.com/ENrJaYVEm).
 
 Rozwiązanie to ma dwie wady:
 
@@ -97,7 +95,7 @@ function binom(n, k) {
 }
 ```
 
-Kod znajdziesz na [Replit](https://replit.com/@tswistak/from-definition2#index.js).
+Kod znajdziesz na [OnlineGDB](https://onlinegdb.com/ZZ2undShJ).
 
 Tym razem ograniczyliśmy się do $$2k$$ mnożeń, więc jesteśmy zależni od mniejszej z liczb. Niestety wciąż operujemy na dużych liczbach, chociaż te i tak są już mniejsze niż przy poprzedniej metodzie.
 
@@ -131,7 +129,7 @@ function binom(n, k) {
 }
 ```
 
-Kod znajdziesz na [Replit](https://replit.com/@tswistak/from-definition3#index.js).
+Kod znajdziesz na [OnlineGDB](https://onlinegdb.com/eZsa9DIzy9).
 
 Ponownie ograniczyliśmy liczbę mnożeń i zmniejszyliśmy liczby, na których operujemy, aczkolwiek tylko w zależności od przypadku. O ile wcześniej zależność od $$k$$ wyglądała tak, że jeśli $$k$$ było duże, to mieliśmy dużo mnożeń i dużą liczbę w mianowniku, tak tutaj wraz ze wzrostem $$k$$ najpierw liczby rosną, a potem maleją.
 
@@ -171,7 +169,7 @@ function binom(n, k) {
 }
 ```
 
-Kod możesz sprawdzić na [Replit](https://replit.com/@tswistak/from-definition4#index.js).
+Kod możesz sprawdzić na [OnlineGDB](https://onlinegdb.com/dGSJWRMne).
 
 Mnożeń mamy już tylko $$k$$ (lub $$n-k$$), aczkolwiek dochodzi nam tyle samo dzieleń, więc pod tym kątem nie oszczędziliśmy obliczeń. Jednak liczby nie będą aż tak duże, co jest zaletą.
 
@@ -219,7 +217,7 @@ function binom(n, k) {
 }
 ```
 
-Kod do przetestowania znajdziesz na [Replit](https://replit.com/@tswistak/from-pascal#index.js).
+Kod do przetestowania znajdziesz na [OnlineGDB](https://onlinegdb.com/j5gBFDQGd).
 
 Tym samym pozbyliśmy się niemal natychmiastowo dwóch wad poprzednich podejść — dużej liczby mnożeń i operacji na dużych liczbach. Niestety kosztem wielu wywołań rekurencyjnych. Złożoność obliczeniową tego podejścia określa się jako $$\Omicron(2^k)$$, więc może i wykonujemy prostszą operację, ale o wiele więcej razy niż w poprzednich podejściach. Do tego wcześniej mieliśmy stałą złożoność pamięciową $$\Omicron(1)$$, a tutaj ze względu na wywołania rekurencyjne mamy $$\Omicron(n)$$.
 
@@ -282,13 +280,13 @@ function binom(n, k) {
 }
 ```
 
-Kod znajdziesz na [Replit](https://replit.com/@tswistak/from-pascal2#index.js).
+Kod znajdziesz na [OnlineGDB](https://onlinegdb.com/CbWqa8nCs).
 
 Podejście to jest lepsze od rekurencyjnego pod kątem złożoności obliczeniowej — z $$\Omicron(2^k)$$ zeszliśmy do $$\Omicron(n^2)$$. Dalej nie jest idealnie, ale asymptotyczne tempo wzrostu jest jednak zdecydowanie mniejsze. Niestety, jest to kosztem jeszcze wyższej złożoności pamięciowej — również $$\Omicron(n^2)$$.
 
 ### Wypisanie trójkąta Pascala
 
-Napisaną przed chwilą funkcję możemy z powodzeniem wykorzystać do wypisania trójkąta Pascala. Wystarczy jedynie przerobić kod, aby funkcja przyjmowała tylko `n`, i nie przerywać wykonania pętli, a w zamian za to po jej zakończeniu zwrócić całość trójkąta. Nie będę podawać implementacji (znajdziesz ją pod zalinkowanym niżej Replit) — założę jedynie, że funkcja ma zmienioną nazwę na `pascal()`.
+Napisaną przed chwilą funkcję możemy z powodzeniem wykorzystać do wypisania trójkąta Pascala. Wystarczy jedynie przerobić kod, aby funkcja przyjmowała tylko `n`, i nie przerywać wykonania pętli, a w zamian za to po jej zakończeniu zwrócić całość trójkąta. Nie będę podawać implementacji (znajdziesz ją pod zalinkowanym niżej OnlineGDB) — założę jedynie, że funkcja ma zmienioną nazwę na `pascal()`.
 
 Podchwytliwe jest tutaj wypisanie tego trójkąta w konsoli. W końcu chcielibyśmy, aby nie był prostokątny. Propozycję, jak ja bym to zrobił w JavaScript, zamieszczam poniżej wraz z komentarzami opisującymi, co robię:
 
@@ -331,7 +329,7 @@ function printPascal(n) {
 }
 ```
 
-Kod znajdziesz jak zwykle na [Replit](https://replit.com/@tswistak/pascal#index.js).
+Kod znajdziesz jak zwykle na [OnlineGDB](https://onlinegdb.com/z2F5s5FGDr).
 
 Jako ciekawostkę dodam, że jeśli zrezygnujemy z wypisania liczb podzielnych przez 3, uzyskamy inny znany trójkąt — trójkąt Sierpińskiego. Zobacz poniżej efekt, który uzyskałem, jednocześnie zastępując pozostałe liczby gwiazdkami:
 
@@ -356,7 +354,7 @@ Jako ciekawostkę dodam, że jeśli zrezygnujemy z wypisania liczb podzielnych p
 * * * * * * * * * * * * * * * * * *
 ```
 
-Kod, którym to uzyskałem, również znajdziesz na [Replit](https://replit.com/@tswistak/sierpniski#index.js). Tutaj mogłem zdecydowanie uprościć wypisywanie, bo i tak wypisujemy pojedyncze znaki, a nie całe liczby.
+Kod, którym to uzyskałem, również znajdziesz na [OnlineGDB](https://onlinegdb.com/3ib3GPL-r). Tutaj mogłem zdecydowanie uprościć wypisywanie, bo i tak wypisujemy pojedyncze znaki, a nie całe liczby.
 
 ### Optymalizacja podejścia
 
@@ -389,7 +387,7 @@ function binom(n, k) {
 }
 ```
 
-Kod jak zawsze znajdziesz na [Replit](https://replit.com/@tswistak/from-pascal3#index.js).
+Kod jak zawsze znajdziesz na [OnlineGDB](https://onlinegdb.com/LyDvhMTWY).
 
 Dzięki tym dwóm prostym zabiegom zmniejszyliśmy złożoność obliczeniową i pamięciową do $$\Omicron(n \cdot \min(n, n-k))$$. Dla porównania, gdy przy poprzedniej metodzie aby obliczyć $${15 \choose 11}$$, potrzebowaliśmy iterować 132 razy, teraz wystarczy jedynie 70 razy.
 

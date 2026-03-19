@@ -25,7 +25,7 @@ export const meta = {
     'javascript'
   ],
   slug: 'brainfxck',
-  updateTime: '2024-03-20T07:00:00+00:00',
+  updateTime: '2026-03-17T07:00:00+00:00',
   publishTime: '2024-03-20T07:00:00+00:00',
   cover,
 };
@@ -198,7 +198,7 @@ function generateBf(text) {
 }
 ```
 
-Kod znajdziesz w wersji interaktywnej na [Replit](https://replit.com/@tswistak/bf-generator#index.js).
+Kod znajdziesz w wersji interaktywnej na [OnlineGDB](https://onlinegdb.com/8oBWCsUkf).
 
 ## Konwerter Brainfuck -> JavaScript
 
@@ -316,8 +316,6 @@ Mamy w tym momencie wszystko, czego potrzebujemy do napisania konwertera. To, co
 Funkcja konwertująca mogłaby wyglądać następująco:
 
 ```javascript
-const prettier = require("prettier");
-
 // kod pobierania znaku
 const getChar = `
   const readline = require('readline');
@@ -372,18 +370,16 @@ async function bfToJs(bfCode) {
   }
   // dodajemy kod zakańczający aplikację
   result += end;
-  // formatujemy kod Prettierem
-  result = await prettier.format(result, { parser: "babel" });
   // zwracamy kod
   return result;
 }
 ```
 
-Pełen kod wraz z zapisem wynikowego kodu do pliku znajdziesz na [Replit](https://replit.com/@tswistak/bf-converter#index.js).
+Pełen kod wraz z zapisem wynikowego kodu do pliku znajdziesz na [OnlineGDB](https://onlinegdb.com/9Rw5GCx42).
 
 Sam kod można by poprawić. Na przykład, jeśli nie pobieramy znaku, nie musimy tworzyć [IIFE z funkcją asynchroniczną](https://developer.mozilla.org/en-US/docs/Glossary/IIFE). Teoretycznie w ogóle nie potrzeba by go robić, jeśli kod byłby pisany w formacie [ECMAScript Modules](https://nodejs.org/api/esm.html#modules-ecmascript-modules), ale że wciąż domyślnym trybem w NodeJS jest [CommonJS](https://nodejs.org/api/modules.html#modules-commonjs-modules), to nie robiłem w taki sposób.
 
-Alternatywny konwerter, generujący kod w C, znajdziesz [na tym Replit](https://replit.com/@tswistak/bf-converter-c#index.js). Kod jest napisany z myślą o Linuksach, więc może nie działać prawidłowo na innych systemach. Możesz tam też zobaczyć, jak wyłączyć w C tryb kanoniczny terminala, o którym wspominałem wcześniej.
+Alternatywny konwerter, generujący kod w C, znajdziesz [na tym OnlineGDB](https://onlinegdb.com/MJ1mEHGV0y). Kod jest napisany z myślą o Linuksach, więc może nie działać prawidłowo na innych systemach. Możesz tam też zobaczyć, jak wyłączyć w C tryb kanoniczny terminala, o którym wspominałem wcześniej.
 
 ## Interpreter kodu
 
@@ -470,7 +466,7 @@ async function bfInterpreter(bfCode) {
 }
 ```
 
-Całość w interaktywnej formie znajdziesz na [Replit](https://replit.com/@tswistak/bf-interpreter#index.js).
+Całość w interaktywnej formie znajdziesz na [OnlineGDB](https://onlinegdb.com/1RPaR1UQm).
 
 Przy okazji powyższego interpretera dodam ciekawostkę, że dowolną aplikację można w JavaScript zapisać jedynie za pomocą sześciu symboli: `[`, `]`, `(`, `)`, `!` i `+`. Nazwano to *JSFuck* (kto by się spodziewał) i na stronie [jsfuck.com](https://jsfuck.com/) znajdziesz konwerter dowolnego kodu JavaScriptowego na jego sześcioznakowy podzbiór. Oczywiście skrypty takie będą działać o wiele wolniej, ale będą działać.
 

@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import {Image} from '@swistak-codes/components';
 import cover from './mikasa.jpg';
 import zaorane from './zaorane.jpg';
@@ -22,7 +21,7 @@ export const meta = {
     'derekursywacja'
   ],
   slug: 'funkcja-ackermanna',
-  updateTime: '2023-12-20T07:00:00+00:00',
+  updateTime: '2026-03-17T21:37:00+00:00',
   publishTime: '2023-12-20T07:00:00+00:00',
   cover,
 };
@@ -244,7 +243,7 @@ int a(int m, int n) {
 }
 ```
 
-Kod zamieszczam również na [Replit](https://replit.com/@tswistak/ackerman#main.c), gdzie możesz sprawdzić też szybkość działania. U mnie obliczanie $$A(4,1)$$ zajęło ponad 18 sekund. Polecam wejść w plik `Makefile` i zedytować flagi kompilacji o zmianę poziomu optymalizacji. Dostępne są `-O0, -O1, -O2, -O3, -Ofast, -Os, -Oz, -Og, -O, -O4`, o których możesz więcej [przeczytać tutaj](https://clang.llvm.org/docs/CommandGuide/clang.html#cmdoption-O0). Sprawdź na własną rękę, jak w zależności od nich zmieniają się czasy wykonania. Przełożenie na kod asemblerowy przykładowych konfiguracji (kompilator clang 17.0.1 dla architektury x86-64) możesz znaleźć na [Compiler Explorer](https://godbolt.org/z/fcPf14aGn).
+Kod zamieszczam również na [OnlineGDB](https://onlinegdb.com/QLepHWGbQ), gdzie możesz sprawdzić też szybkość działania. U mnie obliczanie $$A(4,1)$$ zajęło ponad 18 sekund. Przełożenie na kod asemblerowy przykładowych konfiguracji poziomów optymalizacji (kompilator clang 17.0.1 dla architektury x86-64) możesz znaleźć na [Compiler Explorer](https://godbolt.org/z/fcPf14aGn).
 
 Oczywiście samo przeglądanie kodu asemblerowego nie jest wyznacznikiem szybkości działania aplikacji. Warto wykonać wiele prób uruchomienia na kompilacji z danym parametrem i porównać średnie czasy między sobą.
 
@@ -271,7 +270,7 @@ Podejście pierwsze zapisane w C wygląda następująco:
 
 ```c
 // pomijam funkcje obsługi stosu,
-// możesz je zobaczyć w całości kodu na Replit
+// możesz je zobaczyć w całości kodu na OnlineGDB
 int a(int m, int n) {
   // dodajemy na stos wartości m i n
   push(m);
@@ -302,7 +301,7 @@ int a(int m, int n) {
 }
 ```
 
-Tak samo jak poprzednio, kod wykonywalny wraz z mierzeniem czasu wykonania znajdziesz na [Replit](https://replit.com/@tswistak/ackerman-iterative1#main.c). Tym razem nie zamieszczam wersji skompilowanych do asemblera — chętnych zapraszam do samodzielnego zrobienia tego, np. na platformie [Compiler Explorer](https://godbolt.org/), tak jak ja to robiłem.
+Tak samo jak poprzednio, kod wykonywalny wraz z mierzeniem czasu wykonania znajdziesz na [OnlineGDB](https://onlinegdb.com/i9gsH9Nl5). Tym razem nie zamieszczam wersji skompilowanych do asemblera — chętnych zapraszam do samodzielnego zrobienia tego, np. na platformie [Compiler Explorer](https://godbolt.org/), tak jak ja to robiłem.
 
 W tym przypadku obliczenie $$A(4,1)$$ zajęło ok. 6 sekund. Można to uznać za sukces, ponieważ autorzy oryginalnej pracy stwierdzili, że na ich sprzęcie wykonanie zajęłoby kilka miesięcy. To tylko pokazuje, jak olbrzymi postęp poczyniono ze sprzętem i kompilatorami przez 35 lat — to, co kiedyś uznawano za na tyle niewydajne, że wykonania się nie doczeka, dziś jesteśmy w stanie wyliczyć.
 
@@ -372,7 +371,7 @@ int a(int m, int n) {
 }
 ```
 
-Ponownie, kod w wersji wykonywalnej znajdziesz na [Replit](https://replit.com/@tswistak/ackerman-iterative2#main.c).
+Ponownie, kod w wersji wykonywalnej znajdziesz na [OnlineGDB](https://onlinegdb.com/PJNOgPuJZ).
 
 Tutaj obliczanie $$A(4,1)$$ zajęło około 400 000 ns, czyli poniżej 1 milisekundy. Co ciekawe, w kontekście rozwoju przez ostatnie 35 lat autorom oryginalnej pracy obliczenie tej wartości zajęło 12 minut.
 

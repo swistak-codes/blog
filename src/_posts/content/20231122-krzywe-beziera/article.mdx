@@ -28,7 +28,7 @@ export const meta = {
     'algorytm de Casteljau'
   ],
   slug: 'krzywe-beziera',
-  updateTime: '2023-11-22T07:00:00+00:00',
+  updateTime: '2026-03-17T07:00:00+00:00',
   publishTime: '2023-11-22T07:00:00+00:00',
   cover,
 };
@@ -389,7 +389,7 @@ function bezier(t, points) {
 }
 ```
 
-Wersję do przetestowania znajdziesz na [Replit](https://replit.com/@tswistak/bezier-basic#index.js). Przy okazji nieco zoptymalizowałem obliczenia przez zapamiętywanie wyników wielomianu Newtona.
+Wersję do przetestowania znajdziesz na [OnlineGDB](https://onlinegdb.com/Xss4vIMpvO). Przy okazji nieco zoptymalizowałem obliczenia przez zapamiętywanie wyników wielomianu Newtona.
 
 Jak widzisz, tutaj obliczamy tylko jeden punkt. Oczywiście gdybyśmy rysowali krzywą, musielibyśmy funkcję wywołać wielokrotnie dla kolejnych wartości $$t$$. Ten kod jednak, o ile oblicza, co należy, to nie jest optymalnym podejściem. Po pierwsze, problemem jest obliczanie symbolu Newtona (ale oczywiście algorytm możemy podmienić na inny). Po drugie, wykonujemy sporo operacji mnożenia będących kosztownymi obliczeniowo. Do tego, mówiąc o mnożeniu, dochodzi jeszcze do potęgowania, które oczywiście będzie obliczone wydajnie, jeśli korzystamy z metod wbudowanych w język programowania (zwykle wykorzystują one [algorytm szybkiego potęgowania](/post/szybkie-potegowanie)), ale to wciąż jest wyraźny narzut obliczeniowy. Szczególnie biorąc pod uwagę fakt, że punktów możemy musieć wyliczyć bardzo dużo, aby narysować krzywą w odpowiedniej rozdzielczości. Przy rysowaniu grafiki często zależy nam na wysokiej wydajności obliczeń, tym bardziej, aby zachować płynność rysowania obrazu.
 
@@ -430,7 +430,7 @@ function deCasteljau(t, points) {
 }
 ```
 
-Kod znajdziesz w wersji do przetestowania na [Replit](https://replit.com/@tswistak/bezier-casteljau#index.js). Obliczenia są tutaj o wiele prostsze niż w poprzedniej metodzie, bo zredukowaliśmy znacznie liczbę mnożeń i przede wszystkim pozbyliśmy się obliczania symbolu Newtona. Warto jednak wiedzieć o istnieniu jeszcze innych sposobów, które są szybsze obliczeniowo, ale o tym później.
+Kod znajdziesz w wersji do przetestowania na [OnlineGDB](https://onlinegdb.com/K6IZDVHzF). Obliczenia są tutaj o wiele prostsze niż w poprzedniej metodzie, bo zredukowaliśmy znacznie liczbę mnożeń i przede wszystkim pozbyliśmy się obliczania symbolu Newtona. Warto jednak wiedzieć o istnieniu jeszcze innych sposobów, które są szybsze obliczeniowo, ale o tym później.
 
 Zwróć również uwagę, że obliczenia zwracały momentami nieco inne wartości niż poprzednia metoda i są dokładniejsze. Dzieje się tak dlatego, że w poprzednim algorytmie musieliśmy polegać na operacjach takich jak $$(1-t)^n$$, gdzie mogliśmy wchodzić w przybliżenia wartości i tym samym gromadził się błąd. Tutaj takiej sytuacji już nie ma, dlatego algorytm de Casteljau uznaje się za metodę numerycznie stabilną.
 

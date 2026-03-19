@@ -1,5 +1,3 @@
-import Link from 'next/link';
-import {Image} from '@swistak-codes/components';
 import cover from './swistak_detektyw.jpg';
 
 export const meta = {
@@ -24,7 +22,7 @@ export const meta = {
     'rekursja'
   ],
   slug: 'podobienstwo-ciagow-znakow',
-  updateTime: '2023-09-13T07:00:00+00:00',
+  updateTime: '2026-03-17T07:00:00+00:00',
   publishTime: '2023-09-13T07:00:00+00:00',
   cover,
 };
@@ -110,7 +108,7 @@ function hamming(a, b) {
 }
 ```
 
-Możesz go przetestować na [Replit](https://replit.com/@tswistak/hamming#index.js). Znajdziesz tam te same przykłady ciągów, które pokazałem dotychczas w tekście.
+Możesz go przetestować na [OnlineGDB](https://onlinegdb.com/ev3498uLa). Znajdziesz tam te same przykłady ciągów, które pokazałem dotychczas w tekście.
 
 ## Odległość Levenshteina
 
@@ -237,11 +235,11 @@ function lev(a, b) {
 }
 ```
 
-Kod znajdziesz na [Replit](https://replit.com/@tswistak/levenshteinrecursive#index.js), gdzie zamieściłem też uruchomienie go dla pokazanych wcześniej przykładów, na czym możesz zweryfikować, czy obliczenia są prawidłowe.
+Kod znajdziesz na [OnlineGDB](https://onlinegdb.com/fpDSh35l4), gdzie zamieściłem też uruchomienie go dla pokazanych wcześniej przykładów, na czym możesz zweryfikować, czy obliczenia są prawidłowe.
 
 Powiedzmy sobie szczerze, ta rekurencja wygląda strasznie. Nie trzeba być specjalistą od optymalizacji algorytmów, aby zauważyć, że wywoływanie rekurencyjnie tej samej funkcji trzykrotnie w najgorszym przypadku (który jednocześnie jest typowym przypadkiem) nie jest dobrym pomysłem. Złożoność czasowa tego algorytmu wynosi $$\Omicron(3^{n})$$, gdzie $$n$$ to długość najdłuższego z ciągów (n = $$\max(|a|,|b|)$$). W przypadku nieco dłuższych ciągów obliczenie będzie bardzo wolne, więc szybko może też dojść do przepełnienia stosu.
 
-Jeśli ciekawi Cię, kiedy to się stanie, zobacz [ten Replit](https://replit.com/@tswistak/levenshteinrecursivestresstest#index.js), gdzie zrobiłem test na losowych ciągach znaków. Oczywiście nie jest to bardzo miarodajne, ale może pomóc w zobrazowaniu problemu. Na Replit już przy długości ciągu 7 musiałem czekać półtorej minuty, potem zrezygnowałem z obserwowania. Uruchamiając lokalnie, dla ciągów o długości 8 musiałem czekać na obliczenie 4 minuty, dalej sobie odpuściłem.
+Jeśli ciekawi Cię, kiedy to się stanie, zobacz [ten OnlineGDB](https://onlinegdb.com/hbhxuNJqs), gdzie zrobiłem test na losowych ciągach znaków. Oczywiście nie jest to bardzo miarodajne, ale może pomóc w zobrazowaniu problemu. Na OnlineGDB już przy długości ciągu 7 musiałem czekać półtorej minuty, potem zrezygnowałem z obserwowania. Uruchamiając lokalnie, dla ciągów o długości 8 musiałem czekać na obliczenie 4 minuty, dalej sobie odpuściłem.
 
 ### Wersja iteracyjna
 
@@ -397,7 +395,7 @@ function lev(a, b) {
 }
 ```
 
-Kod możesz przetestować na [Replit](https://replit.com/@tswistak/levenshteiniterative#index.js).
+Kod możesz przetestować na [OnlineGDB](https://onlinegdb.com/aJg5InOTRe).
 
 #### Możliwe optymalizacje
 

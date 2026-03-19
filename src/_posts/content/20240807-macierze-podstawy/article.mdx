@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import {Image} from '@swistak-codes/components';
 import cover from './swistak_matrix.webp';
 import mem from './aYWPAL0_700bwp_v1.webp';
@@ -26,7 +25,7 @@ export const meta = {
     'szybkie potęgowanie'
   ],
   slug: 'macierze-podstawy',
-  updateTime: '2024-08-07T07:00:00+00:00',
+  updateTime: '2026-03-18T07:00:00+00:00',
   publishTime: '2024-08-07T07:00:00+00:00',
   cover,
   moveCoverToTop: true,
@@ -132,7 +131,7 @@ function transpose(matrix) {
 }
 ```
 
-Kod możesz przetestować na [Replit](https://replit.com/@tswistak/transpose#index.js).
+Kod możesz przetestować na [OnlineGDB](https://onlinegdb.com/v3-4cVpRj).
 
 ### Dodatkowe pojęcia
 
@@ -216,7 +215,7 @@ function add(A, B) {
 }
 ```
 
-Odejmowanie będzie niemal takie samo — wystarczy tylko zamienić dodawanie elementów na ich odejmowanie. Kod do przetestowania znajdziesz na [Replit](https://replit.com/@tswistak/addition#index.js).
+Odejmowanie będzie niemal takie samo — wystarczy tylko zamienić dodawanie elementów na ich odejmowanie. Kod do przetestowania znajdziesz na [OnlineGDB](https://onlinegdb.com/Y1s0bC7JI).
 
 ## Mnożenie macierzy przez skalar
 
@@ -270,7 +269,7 @@ function multiplyByScalar(matrix, scalar) {
 }
 ```
 
-Kod do przetestowania jak zawsze znajdziesz na [Replit](https://replit.com/@tswistak/scalar-multiplication#index.js).
+Kod do przetestowania jak zawsze znajdziesz na [OnlineGDB](https://onlinegdb.com/YtE0_LNsi).
 
 ### Dodatkowe pojęcia
 
@@ -359,7 +358,7 @@ function multiply(A, B) {
 
 ```
 
-Kod do przetestowania znajdziesz na [Replit](https://replit.com/@tswistak/multiplication#index.js).
+Kod do przetestowania znajdziesz na [OnlineGDB](https://onlinegdb.com/6gO00A4XQ).
 
 Niestety, takie podejście nie jest zbyt wydajne. Widząc liczbę pętli, łatwo możemy zauważyć, że mamy do czynienia ze złożonością obliczeniową $$\Omicron(n^3)$$. Są jednak algorytmy, dzięki którym możemy obliczać jeszcze wydajniej, np. w 2024 r. (doi:[10.1137/1.9781611977912.134](https://doi.org/10.1137%2F1.9781611977912.134)) opublikowano podejście osiągające złożoność (szacunkową) $$\Omicron(n^{2,371552})$$. Celem informatyków jest odnalezienie algorytmu osiągającego wydajność $$\Omicron(n^2)$$, co byłoby optymalne, ponieważ i tak musimy odczytać $$n^2$$ elementów macierzy. Niestety nie wiadomo, czy jest to możliwe.
 
@@ -475,7 +474,7 @@ function power(matrix, exponent) {
 }
 ```
 
-Kod do potestowania jak zawsze znajdziesz na [Replit](https://replit.com/@tswistak/exponentiation#index.js)
+Kod do potestowania jak zawsze znajdziesz na [OnlineGDB](https://onlinegdb.com/KEpjmPPer)
 
 ## Podsumowanie
 

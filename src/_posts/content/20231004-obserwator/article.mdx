@@ -35,7 +35,7 @@ export const meta = {
     'angular'
   ],
   slug: 'obserwator',
-  updateTime: '2023-10-04T07:00:00+00:00',
+  updateTime: '2026-03-17T07:00:00+00:00',
   publishTime: '2023-10-04T07:00:00+00:00',
   cover,
   moveCoverToTop: true,
@@ -192,7 +192,7 @@ for (let i = 0; i < 10; i++) {
 // po uruchomieniu w konsoli zostaną wypisane kolejne liczby od 0 do 9
 ```
 
-Kod możesz przetestować na [Replit](https://replit.com/@tswistak/observer-ts#index.ts). Dodatkowo na [tym Replit](https://replit.com/@tswistak/observer-kotlin#main.kt) udostępniam obiecaną wcześniej wersję w Kotlinie.
+Kod możesz przetestować na [OnlineGDB](https://onlinegdb.com/DqizAXkVaN). Dodatkowo na [tym OnlineGDB](https://onlinegdb.com/SNZ2kf2Sm) udostępniam obiecaną wcześniej wersję w Kotlinie.
 
 A żeby pokazać, że faktycznie to działa na interfejsach użytkownika, zobacz jeszcze [ten StackBlitz](https://stackblitz.com/edit/observer-basic?file=src%2Fmain.ts), gdzie zastosowałem powyższą implementację obserwatora w TypeScripcie, aby stworzyć bardzo prostą interakcję na stronie internetowej.
 
@@ -271,7 +271,7 @@ for (let i = 0; i < 10; i++) {
 // po uruchomieniu w konsoli zostaną wypisane kolejne liczby od 0 do 9
 ```
 
-Kod możesz przetestować na [Replit](https://replit.com/@tswistak/simplified-observer-ts#index.ts). Oczywiście ten także przełożyłem na Kotlina, co znajdziesz na [tym Replit](https://replit.com/@tswistak/simplified-observer-kotlin#main.kt). Również zamieszczam zmodyfikowany wcześniejszy [StackBlitz](https://stackblitz.com/edit/observer-simplified?file=src%2Fmain.ts), aby pokazać implementację w praktyce.
+Kod możesz przetestować na [OnlineGDB](https://onlinegdb.com/YMBsX43NYr). Oczywiście ten także przełożyłem na Kotlina, co znajdziesz na [tym OnlineGDB](https://onlinegdb.com/jvSYKeCIq). Również zamieszczam zmodyfikowany wcześniejszy [StackBlitz](https://stackblitz.com/edit/observer-simplified?file=src%2Fmain.ts), aby pokazać implementację w praktyce.
 
 ## ReactiveX
 
@@ -298,7 +298,7 @@ for (let i = 0; i < 10; i++) {
 // po uruchomieniu w konsoli zostaną wypisane kolejne liczby od 0 do 9
 ```
 
-Kod możesz przetestować na [Replit](https://replit.com/@tswistak/rxjs#index.ts). Tak jak poprzednio, ten także przełożyłem na Kotlina z użyciem RxJava, co znajdziesz na [tym Replit](https://replit.com/@tswistak/rxjava#src/main/kotlin/Main.kt). Również przerobiłem przykład na [StackBlitz](https://stackblitz.com/edit/observer-rxjs?file=src%2Fmain.ts), aby pokazać RxJS w swoim *naturalnym* środowisku.
+Kod do przetestowania na własnym komputerze możesz ściągnąć [z GitHuba](https://github.com/swistak-codes/snippets-backup/tree/main/rxjs). Tak jak poprzednio, ten także przełożyłem na Kotlina z użyciem RxJava, co znajdziesz na [GitHubie](https://github.com/swistak-codes/snippets-backup/tree/main/rxjava). Również przerobiłem przykład na [StackBlitz](https://stackblitz.com/edit/observer-rxjs?file=src%2Fmain.ts), aby pokazać RxJS w swoim *naturalnym* środowisku.
 
 ## Signals
 
@@ -343,7 +343,7 @@ const createSignal = <T>(initialValue: T) => {
     notify();
   }
   // zwracamy funkcję do pobierania i ustawiania stanu
-  return [getState, setState];
+  return [getState, setState] as const;
 }
 // funkcja tworząca efekt, czyli odpowiednik obserwatora
 const effect = (callback: Fn) => {
@@ -368,7 +368,7 @@ for (let i = 0; i < 10; i++) {
 // ze względu na działanie, że efekt jest wywoływany od razu, 0 zostanie powtórzone
 ```
 
-Tradycyjnie kod możesz przetestować na [Replit](https://replit.com/@tswistak/signals#index.ts), a także jego webową wersję na [StackBlitz](https://stackblitz.com/edit/observer-signal?file=src%2Fmain.ts).
+Tradycyjnie kod możesz przetestować na [OnlineGDB](https://onlinegdb.com/R6mqgCfKB), a także jego webową wersję na [StackBlitz](https://stackblitz.com/edit/observer-signal?file=src%2Fmain.ts).
 
 ### Angular Signals
 

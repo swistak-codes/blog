@@ -32,7 +32,7 @@ export const meta = {
     'czas'
   ],
   slug: 'jak-narysowac-zegar-analogowy',
-  updateTime: '2023-02-08T07:00:00+00:00',
+  updateTime: '2026-03-16T07:00:00+00:00',
   publishTime: '2023-02-08T07:00:00+00:00',
   cover,
   moveCoverToTop: true,
@@ -160,7 +160,7 @@ W tym przypadku tak naprawdę jedyne, co potrzebujemy, to stworzyć plik HTML za
 </html>
 ```
 
-Jeśli nigdy nic nie pisałeś(-aś) w postaci strony internetowej, zamiast tworzyć wszystko na swoim komputerze, prościej może być Ci skorzystać z serwisu typu [CodePen](https://codepen.io/), gdzie można szybko stworzyć środowisko przystosowane pod pisanie HTML, CSS i JavaScript. Wówczas na nasze potrzeby wystarczy, że w części HTML utworzysz jedynie element typu `<canvas>` i zaczniesz od razu pisać kod w JavaScript. Innymi alternatywami są np. [CodeSandbox](https://codesandbox.io) (z wykorzystaniem szablonu *Vanilla JavaScript*) lub [repl.it](https://replit.com/) (z szablonem *HTML, CSS, JS*). Istnieją też inne serwisy, ale te trzy mogę z całą pewnością polecić.
+Jeśli nigdy nic nie pisałeś(-aś) w postaci strony internetowej, zamiast tworzyć wszystko na swoim komputerze, prościej może być Ci skorzystać z serwisu typu [CodePen](https://codepen.io/), gdzie można szybko stworzyć środowisko przystosowane pod pisanie HTML, CSS i JavaScript. Wówczas na nasze potrzeby wystarczy, że w części HTML utworzysz jedynie element typu `<canvas>` i zaczniesz od razu pisać kod w JavaScript. Innymi alternatywami są np. [CodeSandbox](https://codesandbox.io) (z wykorzystaniem szablonu *Vanilla JavaScript*) lub [StackBlitz](https://stackblitz.com/). Istnieją też inne serwisy, ale te trzy mogę z całą pewnością polecić.
 
 ### Przygotowanie do rysowania animacji
 
@@ -507,12 +507,9 @@ Oto skończyliśmy implementację. Jeśli podążałeś(-aś) za moimi instrukcj
 
 <Presentation />
 
-Cały kod wraz z możliwością edycji znajdziesz na poniższych platformach. Wybierz, którą wolisz:
+Cały kod wraz z możliwością edycji znajdziesz na [CodePen](https://codepen.io/tswistak/pen/XWBgrbJ).
 
-- [CodePen](https://codepen.io/tswistak/pen/XWBgrbJ)
-- [repl.it](https://replit.com/@tswistak/clock-js#script.js)
-
-Daję również obiecaną przeze mnie na początku wersję napisaną w Pythonie z pygame. Znajdziesz ją także na [repl.it](https://replit.com/@tswistak/clock-py#main.py). Zegar ten w przeciwieństwie do JavaScriptowego może wydawać się miejscami krzywo narysowany, ale jest to wina zaokrągleń przy obliczaniu pozycji i równocześnie braku antyaliasingu. Na canvasie w JS antyaliasing jest domyślnie włączony, dlatego mimo niedoskonałości wynikających z zaokrągleń całość wygląda dobrze. W pygame są [funkcje umożliwiające rysowanie z antyaliasingiem](https://www.pygame.org/docs/ref/gfxdraw.html), więc jeśli jesteś chętny(-a), możesz spróbować przerobić gotowca i sprawdzić, czy będzie wyglądać wtedy lepiej.
+Daję również obiecaną przeze mnie na początku wersję napisaną w Pythonie z pygame. Znajdziesz ją na [Githubie](https://github.com/swistak-codes/snippets-backup/tree/main/clock-py) (niestety, trzeba pobrać kod na własny komputer, zainstalować zależności i dopiero uruchomić). Zegar ten w przeciwieństwie do JavaScriptowego może wydawać się miejscami krzywo narysowany, ale jest to wina zaokrągleń przy obliczaniu pozycji i równocześnie braku antyaliasingu. Na canvasie w JS antyaliasing jest domyślnie włączony, dlatego mimo niedoskonałości wynikających z zaokrągleń całość wygląda dobrze. W pygame są [funkcje umożliwiające rysowanie z antyaliasingiem](https://www.pygame.org/docs/ref/gfxdraw.html), więc jeśli jesteś chętny(-a), możesz spróbować przerobić gotowca i sprawdzić, czy będzie wyglądać wtedy lepiej.
 
 ## Podsumowanie
 

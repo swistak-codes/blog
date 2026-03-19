@@ -25,7 +25,7 @@ export const meta = {
     "event dispatcher"
   ],
   slug: 'scentralizowany-obserwator',
-  updateTime: '2023-10-18T07:00:00+00:00',
+  updateTime: '2026-03-17T07:00:00+00:00',
   publishTime: '2023-10-18T07:00:00+00:00',
   cover,
 };
@@ -82,7 +82,7 @@ Jeszcze inną implementacją wzorca Pub-Sub są serwisy społecznościowe. Broke
 
 #### Pomysł
 
-Zaimplementujmy w takim razie programową wersję Pub-Suba, korzystając z uproszczonej implementacji wzorca obserwator, którą pokazałem [w poprzednim artykule](/post/obserwator/#implementacja-1) ([link do oryginalnego Replit](https://replit.com/@tswistak/simplified-observer-ts#index.ts)). Zmienimy ją w taki sposób, że `Subject` przerobimy na brokera wiadomości rozsyłającego komunikaty do subskrybentów tematu. Tym samym w funkcji subskrybującej trzeba będzie zdefiniować, jaki temat interesuje subskrybenta. W tej implementacji zrezygnujemy z przechowywania wiadomości, więc nie będzie funkcji `getState()`, natomiast zamiast `setState(newValue)` zrobimy `sendMessage(channel, message)`, która roześle komunikat do subskrybentów. Dla uproszczenia kodu kanały będą zwykłymi ciągami znaków i nie będziemy walidować przy subskrypcji ani wysyłaniu wiadomości, czy wskazany kanał istnieje.
+Zaimplementujmy w takim razie programową wersję Pub-Suba, korzystając z uproszczonej implementacji wzorca obserwator, którą pokazałem [w poprzednim artykule](/post/obserwator/#implementacja-1) ([link do oryginalnego OnlineGDB](https://onlinegdb.com/YMBsX43NYr)). Zmienimy ją w taki sposób, że `Subject` przerobimy na brokera wiadomości rozsyłającego komunikaty do subskrybentów tematu. Tym samym w funkcji subskrybującej trzeba będzie zdefiniować, jaki temat interesuje subskrybenta. W tej implementacji zrezygnujemy z przechowywania wiadomości, więc nie będzie funkcji `getState()`, natomiast zamiast `setState(newValue)` zrobimy `sendMessage(channel, message)`, która roześle komunikat do subskrybentów. Dla uproszczenia kodu kanały będą zwykłymi ciągami znaków i nie będziemy walidować przy subskrypcji ani wysyłaniu wiadomości, czy wskazany kanał istnieje.
 
 #### Implementacja w TypeScript
 
@@ -140,7 +140,7 @@ for (let i = 0; i < 10; i++) {
 // wraz z informacją o parzystości
 ```
 
-Kod możesz przetestować na [Replit](https://replit.com/@tswistak/centralized-observer-ts#index.ts). Zachęcam do próby przerobienia kodu tak, aby broker przechowywał ostatnią wiadomość w kanale w celu możliwości niezależnego jej pobrania. W tym artykule też pominę implementacje w Kotlinie — również zachęcam do spróbowania przerobienia ich na własną rękę.
+Kod możesz przetestować na [OnlineGDB](https://onlinegdb.com/_gzpdwBuF). Zachęcam do próby przerobienia kodu tak, aby broker przechowywał ostatnią wiadomość w kanale w celu możliwości niezależnego jej pobrania. W tym artykule też pominę implementacje w Kotlinie — również zachęcam do spróbowania przerobienia ich na własną rękę.
 
 #### Przykładowa implementacja w RxJS
 
@@ -189,7 +189,7 @@ for (let i = 0; i < 10; i++) {
 // wraz z informacją o parzystości
 ```
 
-Kod możesz przetestować na [Replit](https://replit.com/@tswistak/centralized-observer-rxjs#index.ts).
+Kod możesz ściągnąć z [GitHuba](https://github.com/swistak-codes/snippets-backup/tree/main/centralized-observer-rxjs) i przetestować u siebie na komputerze.
 
 ## Zdarzenia
 

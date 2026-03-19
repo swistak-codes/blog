@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import {Image} from '@swistak-codes/components';
 import cover from './swistaki_grupa.jpg';
 import vennLitery from './Venn_diagram_gr_la_ru.svg.png';
@@ -39,7 +38,7 @@ export const meta = {
     'prawa de Morgana'
   ],
   slug: 'algebra-zbiorow',
-  updateTime: '2023-07-19T23:00:00+00:00',
+  updateTime: '2026-03-16T23:00:00+00:00',
   publishTime: '2023-07-19T07:00:00+00:00',
   cover,
 };
@@ -167,7 +166,7 @@ Przykładowo, mając zbiory $$A = \{1, 3, 5\}$$ oraz $$B = \{2, 4, 5\}$$, ich su
 
 W wielu językach programowania sumę zbiorów znajdziemy pod nazwą `union()`. W Pythonie znajdziemy również operator `|` (ten sam co dla alternatywy logicznej) robiący dokładnie to samo. Warto dodać, że jeśli operujemy na tablicach, niektóre języki programowania i biblioteki również oferują funkcję `union()` dla tablic (np. [C#](https://learn.microsoft.com/en-us/dotnet/api/system.linq.enumerable.union?view=net-7.0), [Lodash dla JavaScript](https://lodash.com/docs/4.17.15#union)), która złącza dwie tablice, pomijając duplikaty.
 
-Przykład na zbiorach w Pythonie (kod dostępny na [Replit](https://replit.com/@tswistak/python-union#main.py)):
+Przykład na zbiorach w Pythonie (kod dostępny na [OnlineGDB](https://onlinegdb.com/3ie0Huo5e)):
 
 ```python
 # deklarujemy dwa zbiory, stosując klamry
@@ -179,7 +178,7 @@ print(A.union(B))  # {1, 2, 3, 4, 5}
 print(A | B) # {1, 2, 3, 4, 5}
 ```
 
-A tutaj analogiczna operacja na tablicach w JavaScript z Lodashem (kod dostępny na [Replit](https://replit.com/@tswistak/js-union#index.js)):
+A tutaj analogiczna operacja na tablicach w JavaScript z Lodashem (kod dostępny na [OnlineGDB](https://onlinegdb.com/EMvrNt_gS)):
 
 ```javascript
 // deklarujemy dwie tablice
@@ -236,7 +235,7 @@ console.log(union1(A, B));  // [ 1, 3, 5, 2, 4 ]
 console.log(union2(A, B));  // [ 1, 3, 5, 2, 4 ]
 ```
 
-Obie funkcje możesz przetestować na [Replit](https://replit.com/@tswistak/js-union2#index.js).
+Obie funkcje możesz przetestować na [OnlineGDB](https://onlinegdb.com/tqRKyq3Le).
 
 ### Iloczyn zbiorów
 
@@ -264,7 +263,7 @@ Zobaczmy działanie w praktyce. Tym razem na potrzeby przykładu zdefiniujmy trz
 
 A jak jest w językach programowania? Tutaj ponownie warto spojrzeć na angielską nazwę działania, bo najczęściej operację tę znajdziemy pod nazwą funkcji `intersection()`. Dodatkowo w Pythonie możemy zastosować operator koniunkcji, czyli `&`. Tak samo jak wcześniej, mimo że operacje te klasycznie wykonuje się na zbiorach, znajdziemy je często również dla tablic.
 
-Przykład na zbiorach w Pythonie (kod dostępny na [Replit](https://replit.com/@tswistak/python-intersection#main.py)):
+Przykład na zbiorach w Pythonie (kod dostępny na [OnlineGDB](https://onlinegdb.com/PdRsJt_pJN)):
 
 ```python
 # deklarujemy trzy zbiory
@@ -279,7 +278,7 @@ print(A & B) # {5}
 print(A & C) # set()
 ```
 
-Analogiczna operacja na tablicach w JavaScript z Lodashem (kod dostępny na [Replit](https://replit.com/@tswistak/js-intersection#index.js)):
+Analogiczna operacja na tablicach w JavaScript z Lodashem (kod dostępny na [OnlineGDB](https://onlinegdb.com/f8olPx7Ia)):
 
 ```javascript
 // deklarujemy trzy tablice
@@ -309,7 +308,7 @@ console.log(intersection(A, B));  // [ 5 ]
 console.log(intersection(A, C));  // []
 ```
 
-Funkcję możesz przetestować na [Replit](https://replit.com/@tswistak/js-intersection2#index.js).
+Funkcję możesz przetestować na [OnlineGDB](https://onlinegdb.com/aGjvNK3io).
 
 ### Różnica zbiorów
 
@@ -346,7 +345,7 @@ $$
 A \setminus B = \{ x \in \Omega : x \in A \land x \notin B \} = \{ x \in A : x \notin B \}
 $$
 
-Jak sprawa ma się w programowaniu? Tutaj mimo angielskiej nazwy *complement* różnicę zbiorów zwykle znajdziemy jako funkcję `difference()`, czyli w dosłownym tłumaczeniu *różnica*. A skoro różnica, to np. w Pythonie możemy zastosować operator odejmowania (czyli po prostu `-`) do wykonania tej operacji. Zobacz przykład w Pythonie (dostępny na [Replit](https://replit.com/@tswistak/python-diff#main.py)):
+Jak sprawa ma się w programowaniu? Tutaj mimo angielskiej nazwy *complement* różnicę zbiorów zwykle znajdziemy jako funkcję `difference()`, czyli w dosłownym tłumaczeniu *różnica*. A skoro różnica, to np. w Pythonie możemy zastosować operator odejmowania (czyli po prostu `-`) do wykonania tej operacji. Zobacz przykład w Pythonie (dostępny na [OnlineGDB](https://onlinegdb.com/TTK17sgRK)):
 
 ```python
 # deklarujemy dwa zbiory
@@ -360,7 +359,7 @@ print(A - B) # {1, 3}
 print(B - A) # {2, 4}
 ```
 
-Poniżej jeszcze przykład na tablicach w JavaScript z Lodashem (również dostępny na [Replit](https://replit.com/@tswistak/js-diff#index.js)):
+Poniżej jeszcze przykład na tablicach w JavaScript z Lodashem (również dostępny na [OnlineGDB](https://onlinegdb.com/DfvpozZLz)):
 
 ```javascript
 // deklarujemy dwie tablice
@@ -388,7 +387,7 @@ console.log(difference(A, B));  // [ 1, 3 ]
 console.log(difference(B, A));  // [ 2, 4 ]
 ```
 
-Kod jak zawsze możesz przetestować na [Replit](https://replit.com/@tswistak/js-diff2#index.js).
+Kod jak zawsze możesz przetestować na [OnlineGDB](https://onlinegdb.com/M04UQD8fw).
 
 ### Dopełnienie zbioru
 
@@ -447,7 +446,7 @@ A \vartriangle B &= \{ x \in \Omega : (x \notin A \land x \in B) \lor (x \in A \
 \end{align*}
 $$
 
-W programowaniu znowu możemy się odwołać do angielskiej nazwy tej operacji — np. w Pythonie znajdziemy ją jako `symmetric_difference()` lub pod operatorem `^` (operator alternatywy rozłącznej). Poniżej przykład w kodzie (dostępny na [Replit](https://replit.com/@tswistak/python-xor#main.py)):
+W programowaniu znowu możemy się odwołać do angielskiej nazwy tej operacji — np. w Pythonie znajdziemy ją jako `symmetric_difference()` lub pod operatorem `^` (operator alternatywy rozłącznej). Poniżej przykład w kodzie (dostępny na [OnlineGDB](https://onlinegdb.com/Q30ecHMdz)):
 
 ```python
 # deklarujemy dwa zbiory
@@ -461,7 +460,7 @@ print(A ^ B) # {1, 2, 3, 4}
 print(B ^ A) # {1, 2, 3, 4}
 ```
 
-Natomiast w JavaScript z Lodashem znajdziemy funkcję `xor()`, wykonującą dokładnie to samo. Poniżej przykład w kodzie (dostępny na [Replit](https://replit.com/@tswistak/js-xor2#index.js)):
+Natomiast w JavaScript z Lodashem znajdziemy funkcję `xor()`, wykonującą dokładnie to samo. Poniżej przykład w kodzie (dostępny na [OnlineGDB](https://onlinegdb.com/nC7IOgF8T)):
 
 ```javascript
 // deklarujemy dwie tablice
@@ -493,7 +492,7 @@ console.log(symmetricDifference(A, B));  // [ 1, 3, 2, 4 ]
 console.log(symmetricDifference(B, A));  // [ 2, 4, 1, 3 ]
 ```
 
-Kod jak zawsze znajdziesz na [Replit](https://replit.com/@tswistak/js-xor#index.js).
+Kod jak zawsze znajdziesz na [OnlineGDB](https://onlinegdb.com/T_bFL-xAp).
 
 ### Iloczyn kartezjański
 
@@ -512,7 +511,7 @@ $$
 A \times B = \{ (a, b): a \in A \land b \in B \}
 $$
 
-W językach programowania nie kojarzę, żeby którykolwiek posiadał wbudowaną funkcję zwracającą iloczyn kartezjański. *(Późniejszy dopisek: okazuje się, że C++ posiada taką funkcję: https://en.cppreference.com/w/cpp/ranges/cartesian_product_view. Dzięki Piotr za zwrócenie uwagi!)* To znaczy jest to możliwe bez kombinowania w SQL, jednak nie chcę w tym artykule poruszać tematu baz danych. Na szczęście algorytm zwracający wszystkie uporządkowane pary, działający w czasie $$\Omicron(n^2)$$ jest bardzo prosty do napisania i często znajdziemy go jako jedno z zadań przy nauce iteracji. Poniżej przykład w JavaScript (kod dostępny na [Replit](https://replit.com/@tswistak/js-cartesian#index.js)):
+W językach programowania nie kojarzę, żeby którykolwiek posiadał wbudowaną funkcję zwracającą iloczyn kartezjański. *(Późniejszy dopisek: okazuje się, że C++ posiada taką funkcję: https://en.cppreference.com/w/cpp/ranges/cartesian_product_view. Dzięki Piotr za zwrócenie uwagi!)* To znaczy jest to możliwe bez kombinowania w SQL, jednak nie chcę w tym artykule poruszać tematu baz danych. Na szczęście algorytm zwracający wszystkie uporządkowane pary, działający w czasie $$\Omicron(n^2)$$ jest bardzo prosty do napisania i często znajdziemy go jako jedno z zadań przy nauce iteracji. Poniżej przykład w JavaScript (kod dostępny na [OnlineGDB](https://onlinegdb.com/FVg-5HbuH)):
 
 ```javascript
 function cartesian(first, second) {
@@ -556,7 +555,7 @@ console.log(cartesian(B, A));
 */
 ```
 
-Z racji tego, że zawsze pokazywałem też Pythona, to i tutaj go pokażę. W tym języku może nie ma iloczynu kartezjańskiego, ale korzystając z wbudowanej składni pisania iteracji, możemy zawrzeć tę operację w jednej linijce kodu (kod dostępny na [Replit](https://replit.com/@tswistak/python-cartesian#main.py)):
+Z racji tego, że zawsze pokazywałem też Pythona, to i tutaj go pokażę. W tym języku może nie ma iloczynu kartezjańskiego, ale korzystając z wbudowanej składni pisania iteracji, możemy zawrzeć tę operację w jednej linijce kodu (kod dostępny na [OnlineGDB](https://onlinegdb.com/hxnX0qr4c)):
 
 ```python
 def cartesian(first, second):
@@ -606,7 +605,7 @@ Matematycznym przykładem relacji są funkcje. Ze wszystkich uporządkowanych pa
 
 ### Relacje w informatyce
 
-Z punktu widzenia informatyki, nawiązując do tego, co wcześniej pokazałem, możesz od razu dostrzec, że relacja to tylko nałożenie dodatkowego warunku do pętli tworzącej pary z iloczynu kartezjańskiego. Stąd moglibyśmy zdefiniować bardzo prostą funkcję tworzącą dowolne relacje w następujący sposób (kod w JavaScript, dostępny na [Replit](https://replit.com/@tswistak/js-relation#index.js)):
+Z punktu widzenia informatyki, nawiązując do tego, co wcześniej pokazałem, możesz od razu dostrzec, że relacja to tylko nałożenie dodatkowego warunku do pętli tworzącej pary z iloczynu kartezjańskiego. Stąd moglibyśmy zdefiniować bardzo prostą funkcję tworzącą dowolne relacje w następujący sposób (kod w JavaScript, dostępny na [OnlineGDB](https://onlinegdb.com/snmOerYr7)):
 
 ```javascript
 function relation(first, second, predicate) {
@@ -649,7 +648,7 @@ R = zip(A, B)
 print(set(R)) # {(1, 2), (3, 4), (5, 5)}
 ```
 
-Jak zawsze kod jest dostępny na [Replit](https://replit.com/@tswistak/python-zip#main.py).
+Jak zawsze kod jest dostępny na [OnlineGDB](https://onlinegdb.com/YTkwRIp_U).
 
 Oczywiście w kontekście informatyki relacje najbardziej kojarzą się z relacyjnymi bazami danych. Temat ten jest jednak na tyle szeroki i powiązany ogólnie z całą algebrą zbiorów, że bardziej zasługuje na cały odrębny artykuł, a nie dopowiedzenie w tym.
 

@@ -1,5 +1,3 @@
-import Link from 'next/link';
-import {Image} from '@swistak-codes/components';
 import cover from './swistak_liczy.webp';
 
 export const meta = {
@@ -24,7 +22,7 @@ export const meta = {
     'djb2'
   ],
   slug: 'zliczanie-unikalnych-elementow',
-  updateTime: '2024-07-17T07:00:00+00:00',
+  updateTime: '2026-03-18T07:00:00+00:00',
   publishTime: '2024-07-17T07:00:00+00:00',
   cover,
 };
@@ -79,7 +77,7 @@ console.log(`Elementów: ${array.length}, unikalnych: ${set.size}`);
 // Elementów: 5, unikalnych: 3
 ```
 
-W razie czego podrzucam [Replit](https://replit.com/@tswistak/naive#index.js) z tym kodem, ale myślę, że nie ma tu zbyt wiele do testowania.
+W razie czego podrzucam [OnlineGDB](https://onlinegdb.com/OqhbAAg0J) z tym kodem, ale myślę, że nie ma tu zbyt wiele do testowania.
 
 ### Zliczanie unikalnych elementów na bieżąco
 
@@ -108,11 +106,11 @@ console.log("Unikalnych elementów: ", counter.count());
 // Unikalnych elementów: 3
 ```
 
-Ten kod również znajdziesz na [Replit](https://replit.com/@tswistak/naive-stream#index.js).
+Ten kod również znajdziesz na [OnlineGDB](https://onlinegdb.com/WM2XUlTLB).
 
 Oczywiście pamiętajmy, że nie zadowoli nas w kontekście rozwiązania problemu zliczania unikalnych elementów. W pamięci będziemy musieli trzymać wszystkie dodawane elementy, co w przypadku dużej liczby danych będzie nieopłacalne i może być kosztowne obliczeniowo mimo korzystania ze zbioru.
 
-A dla chętnych podrzucam jeszcze [Replit](https://replit.com/@tswistak/naive-rxjs), gdzie taki sam licznik został zrobiony z użyciem [RxJS](https://rxjs.dev/). Przede wszystkim dlatego, że bibliotekę tę często stosuje się do śledzenia napływających danych na front-endzie, co pokazałem w artykule *[Podstawy działania UI — wzorzec obserwator](/post/obserwator)*.
+A dla chętnych podrzucam jeszcze [OnlineGDB](https://onlinegdb.com/_11MH_vo7), gdzie taki sam licznik został zrobiony z użyciem [RxJS](https://rxjs.dev/). Przede wszystkim dlatego, że bibliotekę tę często stosuje się do śledzenia napływających danych na front-endzie, co pokazałem w artykule *[Podstawy działania UI — wzorzec obserwator](/post/obserwator)*.
 
 ## HyperLogLog
 
@@ -271,7 +269,7 @@ console.log("Unikalnych elementów: ", counter.count());
 // Unikalnych elementów: 3.000068666646041
 ```
 
-Kod możesz przetestować na [Replit](https://replit.com/@tswistak/hyperloglog#index.js). Jako funkcję haszującą użyłem tam algorytmu DJB2, który jest jednym z najprostszych do obliczenia haszy dla wartości tekstowych, aczkolwiek niekoniecznie może dobrze się sprawdzać w praktycznych zastosowaniach. Do praktycznych zastosowań poleciłbym poszukać lepszych algorytmów obliczających niekryptograficzne hasze, np. MurmurHash3.
+Kod możesz przetestować na [OnlineGDB](https://onlinegdb.com/VsH7Sn0Za). Jako funkcję haszującą użyłem tam algorytmu DJB2, który jest jednym z najprostszych do obliczenia haszy dla wartości tekstowych, aczkolwiek niekoniecznie może dobrze się sprawdzać w praktycznych zastosowaniach. Do praktycznych zastosowań poleciłbym poszukać lepszych algorytmów obliczających niekryptograficzne hasze, np. MurmurHash3.
 
 Swoją drogą dodam, że w JavaScript nie mają zbyt wiele sensu optymalizacje potęgowania czy mnożenia z zastosowaniem przesunięć bitowych, ale zostawiłem je, ponieważ są też w wielu dostępnych w Internecie implementacjach, a mogłem tutaj przy okazji wyjaśnić, co dokładnie robią. Pomoże Ci to także łatwiej przenieść kod na inne języki, gdzie takie optymalizacje mają już sens.
 
@@ -303,7 +301,7 @@ Dla jednej liczby koszyków test powtarzałem 10 razy, ponieważ mamy do czynien
 
 Na koniec, aby wyciągnąć coś z tych wyników, obliczyłem dla każdej liczby koszyków odchylenie standardowe i błąd standardowy. Odchylenie standardowe pokazuje zmienność danych wokół prawdziwego wyniku, jak blisko siebie są pomiary. Błąd standardowy natomiast mówi nam, jaka jest precyzja estymacji. Obie wartości chcemy mieć jak najbliżej zera, aby wyniki były jak najbardziej wiarygodne.
 
-Kod, którym wykonałem badanie, znajdziesz na [tym Replit](https://replit.com/@tswistak/benchmark#index.js).
+Kod, którym wykonałem badanie, znajdziesz na [GitHubie](https://github.com/swistak-codes/snippets-backup/tree/main/hyperloglog-benchmark).
 
 ### Wyniki
 
