@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://swistak.codes</id>
     <title>świstak.codes — Wszystkie wpisy</title>
-    <updated>2026-02-18T07:00:00.000Z</updated>
+    <updated>2026-03-23T07:00:00.000Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <author>
         <name>Tomasz Świstak</name>
@@ -14,6 +14,24 @@
     <logo>https://swistak.codes/fav270.png</logo>
     <icon>https://swistak.codes/fav32.png</icon>
     <rights>Wszystkie prawa zastrzeżone 2020-2026, Tomasz Świstak</rights>
+    <entry>
+        <title type="html"><![CDATA[Podobieństwo wektorów, czyli jak działają bazy wektorowe]]></title>
+        <id>https://swistak.codes/post/podobienstwo-wektorow</id>
+        <link href="https://swistak.codes/post/podobienstwo-wektorow"/>
+        <updated>2026-03-23T07:00:00.000Z</updated>
+        <summary type="html"><![CDATA[Artykuł opisuje podstawę działania baz wektorowych, czyli podobieństwo wektorów. Dowiesz się, jak określamy podobieństwo między wektorami i dlaczego jest to tak szybkie, nawet przy ogromnych zbiorach danych.]]></summary>
+        <content type="html"><![CDATA[W dobie sztucznej inteligencji i ogromnych zbiorów danych bardzo duże znaczenie zyskały bazy wektorowe. Pozwalają na indeksowanie danych za pomocą wektorów, co umożliwia szybkie wyszukiwanie podobnych elementów. Tylko jak to wygląda z technicznego punktu widzenia? W jaki sposób określamy podobieństwo wektorów? Jak to możliwe, że jesteśmy w stanie zrobić to tak szybko, nawet jeśli danych jest mnóstwo? Przyjrzyjmy się temu bliżej.<br /><a href="https://swistak.codes/post/podobienstwo-wektorow">Czytaj więcej na świstak.codes</a>]]></content>
+        <author>
+            <name>Tomasz Świstak</name>
+            <email>tomasz@swistak.codes</email>
+            <uri>https://swistak.codes</uri>
+        </author>
+        <contributor>
+            <name>Tomasz Świstak</name>
+            <email>tomasz@swistak.codes</email>
+            <uri>https://swistak.codes</uri>
+        </contributor>
+    </entry>
     <entry>
         <title type="html"><![CDATA[Jak działają kody 2FA?]]></title>
         <id>https://swistak.codes/post/kody-2fa</id>

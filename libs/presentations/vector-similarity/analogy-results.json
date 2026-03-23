@@ -1,0 +1,4742 @@
+{
+  "google/gemini-embedding-001": {
+    "categories": {
+      "capitals": {
+        "summary": {
+          "testsCount": 4,
+          "validTestsCount": 4,
+          "hitAt1": 1,
+          "hitAt5": 1,
+          "hitAt10": 1,
+          "meanReciprocalRank": 1
+        },
+        "tests": [
+          {
+            "query": "Athens:Greece::Oslo:?",
+            "expected": "Norway",
+            "rank": 1,
+            "cosineExpected": 0.7559091125128151,
+            "hitAt1": true,
+            "hitAt5": true,
+            "hitAt10": true,
+            "top10": [
+              {
+                "word": "Norway",
+                "score": 0.7559091125128151
+              },
+              {
+                "word": "Norwegian",
+                "score": 0.6831815543229196
+              },
+              {
+                "word": "Portugal",
+                "score": 0.636449344082137
+              },
+              {
+                "word": "Greek",
+                "score": 0.6148713588542812
+              },
+              {
+                "word": "Poland",
+                "score": 0.5975589750473619
+              },
+              {
+                "word": "Germany",
+                "score": 0.5958567204062805
+              },
+              {
+                "word": "Spain",
+                "score": 0.5947697690095998
+              },
+              {
+                "word": "France",
+                "score": 0.5924863699450837
+              },
+              {
+                "word": "Italy",
+                "score": 0.5863415820669546
+              },
+              {
+                "word": "Lisbon",
+                "score": 0.5700205223033308
+              }
+            ],
+            "missingEmbeddings": false
+          },
+          {
+            "query": "Warsaw:Poland::Paris:?",
+            "expected": "France",
+            "rank": 1,
+            "cosineExpected": 0.654481679349485,
+            "hitAt1": true,
+            "hitAt5": true,
+            "hitAt10": true,
+            "top10": [
+              {
+                "word": "France",
+                "score": 0.654481679349485
+              },
+              {
+                "word": "Italy",
+                "score": 0.6080009601241552
+              },
+              {
+                "word": "Norway",
+                "score": 0.5965391919939758
+              },
+              {
+                "word": "Polish",
+                "score": 0.5944557375582435
+              },
+              {
+                "word": "Spain",
+                "score": 0.5924836068364501
+              },
+              {
+                "word": "Portugal",
+                "score": 0.589761913581208
+              },
+              {
+                "word": "Greece",
+                "score": 0.588825870053226
+              },
+              {
+                "word": "Switzerland",
+                "score": 0.5886944569497041
+              },
+              {
+                "word": "French",
+                "score": 0.5796350104677944
+              },
+              {
+                "word": "Ireland",
+                "score": 0.5721370343539021
+              }
+            ],
+            "missingEmbeddings": false
+          },
+          {
+            "query": "Rome:Italy::Berlin:?",
+            "expected": "Germany",
+            "rank": 1,
+            "cosineExpected": 0.6320670953232175,
+            "hitAt1": true,
+            "hitAt5": true,
+            "hitAt10": true,
+            "top10": [
+              {
+                "word": "Germany",
+                "score": 0.6320670953232175
+              },
+              {
+                "word": "German",
+                "score": 0.5695901879023301
+              },
+              {
+                "word": "Switzerland",
+                "score": 0.5692157353169857
+              },
+              {
+                "word": "Norway",
+                "score": 0.5679914576261882
+              },
+              {
+                "word": "France",
+                "score": 0.5679633234253532
+              },
+              {
+                "word": "Italian",
+                "score": 0.5629052481295519
+              },
+              {
+                "word": "Portugal",
+                "score": 0.5568592614178677
+              },
+              {
+                "word": "Paris",
+                "score": 0.5373510399141185
+              },
+              {
+                "word": "Spain",
+                "score": 0.5370418501231957
+              },
+              {
+                "word": "Poland",
+                "score": 0.5238113162597396
+              }
+            ],
+            "missingEmbeddings": false
+          },
+          {
+            "query": "Madrid:Spain::Lisbon:?",
+            "expected": "Portugal",
+            "rank": 1,
+            "cosineExpected": 0.6800371583761472,
+            "hitAt1": true,
+            "hitAt5": true,
+            "hitAt10": true,
+            "top10": [
+              {
+                "word": "Portugal",
+                "score": 0.6800371583761472
+              },
+              {
+                "word": "Portuguese",
+                "score": 0.6189229241863146
+              },
+              {
+                "word": "Norway",
+                "score": 0.5929884928728897
+              },
+              {
+                "word": "Greece",
+                "score": 0.5853176069347107
+              },
+              {
+                "word": "Spanish",
+                "score": 0.5830454197581246
+              },
+              {
+                "word": "France",
+                "score": 0.5693643745319082
+              },
+              {
+                "word": "Italy",
+                "score": 0.5640400288919685
+              },
+              {
+                "word": "Poland",
+                "score": 0.5630036923649047
+              },
+              {
+                "word": "Oslo",
+                "score": 0.5625092492126785
+              },
+              {
+                "word": "Norwegian",
+                "score": 0.5588881306426848
+              }
+            ],
+            "missingEmbeddings": false
+          }
+        ]
+      },
+      "nationalities": {
+        "summary": {
+          "testsCount": 4,
+          "validTestsCount": 4,
+          "hitAt1": 1,
+          "hitAt5": 1,
+          "hitAt10": 1,
+          "meanReciprocalRank": 1
+        },
+        "tests": [
+          {
+            "query": "Germany:German::Spain:?",
+            "expected": "Spanish",
+            "rank": 1,
+            "cosineExpected": 0.7536355274566687,
+            "hitAt1": true,
+            "hitAt5": true,
+            "hitAt10": true,
+            "top10": [
+              {
+                "word": "Spanish",
+                "score": 0.7536355274566687
+              },
+              {
+                "word": "Italian",
+                "score": 0.6532271021948717
+              },
+              {
+                "word": "Portuguese",
+                "score": 0.6446227847780168
+              },
+              {
+                "word": "French",
+                "score": 0.6392685416034866
+              },
+              {
+                "word": "Greek",
+                "score": 0.6155523741669321
+              },
+              {
+                "word": "Madrid",
+                "score": 0.6106517598654232
+              },
+              {
+                "word": "Irish",
+                "score": 0.5844249939291006
+              },
+              {
+                "word": "Polish",
+                "score": 0.584157744815345
+              },
+              {
+                "word": "Norwegian",
+                "score": 0.5804381323528198
+              },
+              {
+                "word": "Swiss",
+                "score": 0.5586657959977966
+              }
+            ],
+            "missingEmbeddings": false
+          },
+          {
+            "query": "France:French::Italy:?",
+            "expected": "Italian",
+            "rank": 1,
+            "cosineExpected": 0.7561652609819,
+            "hitAt1": true,
+            "hitAt5": true,
+            "hitAt10": true,
+            "top10": [
+              {
+                "word": "Italian",
+                "score": 0.7561652609819
+              },
+              {
+                "word": "German",
+                "score": 0.6473862729158758
+              },
+              {
+                "word": "Spanish",
+                "score": 0.6343063825313304
+              },
+              {
+                "word": "Portuguese",
+                "score": 0.63125025421662
+              },
+              {
+                "word": "Greek",
+                "score": 0.6219079418940398
+              },
+              {
+                "word": "Irish",
+                "score": 0.6182021301167827
+              },
+              {
+                "word": "Polish",
+                "score": 0.6064536084033821
+              },
+              {
+                "word": "Norwegian",
+                "score": 0.5905349526730623
+              },
+              {
+                "word": "Swiss",
+                "score": 0.584853419799056
+              },
+              {
+                "word": "Rome",
+                "score": 0.5738567200508807
+              }
+            ],
+            "missingEmbeddings": false
+          },
+          {
+            "query": "Poland:Polish::Norway:?",
+            "expected": "Norwegian",
+            "rank": 1,
+            "cosineExpected": 0.8088467603107669,
+            "hitAt1": true,
+            "hitAt5": true,
+            "hitAt10": true,
+            "top10": [
+              {
+                "word": "Norwegian",
+                "score": 0.8088467603107669
+              },
+              {
+                "word": "Oslo",
+                "score": 0.6916114712802965
+              },
+              {
+                "word": "Portuguese",
+                "score": 0.6580199214782793
+              },
+              {
+                "word": "Italian",
+                "score": 0.6330135648248112
+              },
+              {
+                "word": "French",
+                "score": 0.6286112985391785
+              },
+              {
+                "word": "Spanish",
+                "score": 0.6250892199368147
+              },
+              {
+                "word": "German",
+                "score": 0.609326924860497
+              },
+              {
+                "word": "Irish",
+                "score": 0.6087175150200169
+              },
+              {
+                "word": "Swiss",
+                "score": 0.6019205381895739
+              },
+              {
+                "word": "Greek",
+                "score": 0.5924784293749711
+              }
+            ],
+            "missingEmbeddings": false
+          },
+          {
+            "query": "Switzerland:Swiss::Portugal:?",
+            "expected": "Portuguese",
+            "rank": 1,
+            "cosineExpected": 0.7217884119158415,
+            "hitAt1": true,
+            "hitAt5": true,
+            "hitAt10": true,
+            "top10": [
+              {
+                "word": "Portuguese",
+                "score": 0.7217884119158415
+              },
+              {
+                "word": "Lisbon",
+                "score": 0.6345697610005285
+              },
+              {
+                "word": "Norwegian",
+                "score": 0.5828447498850252
+              },
+              {
+                "word": "Italian",
+                "score": 0.5773966745985424
+              },
+              {
+                "word": "Irish",
+                "score": 0.5771849187608772
+              },
+              {
+                "word": "Polish",
+                "score": 0.5743712475067471
+              },
+              {
+                "word": "Greek",
+                "score": 0.5673468170285889
+              },
+              {
+                "word": "Spanish",
+                "score": 0.5616278175018059
+              },
+              {
+                "word": "German",
+                "score": 0.5556564758271998
+              },
+              {
+                "word": "Poland",
+                "score": 0.5541214924627937
+              }
+            ],
+            "missingEmbeddings": false
+          }
+        ]
+      },
+      "plurals": {
+        "summary": {
+          "testsCount": 3,
+          "validTestsCount": 3,
+          "hitAt1": 1,
+          "hitAt5": 1,
+          "hitAt10": 1,
+          "meanReciprocalRank": 1
+        },
+        "tests": [
+          {
+            "query": "mouse:mice::foot:?",
+            "expected": "feet",
+            "rank": 1,
+            "cosineExpected": 0.745753759941935,
+            "hitAt1": true,
+            "hitAt5": true,
+            "hitAt10": true,
+            "top10": [
+              {
+                "word": "feet",
+                "score": 0.745753759941935
+              },
+              {
+                "word": "girl",
+                "score": 0.5579440959308728
+              },
+              {
+                "word": "teeth",
+                "score": 0.5520895313398714
+              },
+              {
+                "word": "Berlin",
+                "score": 0.550033207020031
+              },
+              {
+                "word": "Madrid",
+                "score": 0.5488096569749875
+              },
+              {
+                "word": "geese",
+                "score": 0.5472580852906334
+              },
+              {
+                "word": "queen",
+                "score": 0.5434089181019134
+              },
+              {
+                "word": "French",
+                "score": 0.5421568597491001
+              },
+              {
+                "word": "Rome",
+                "score": 0.539821819634275
+              },
+              {
+                "word": "Bach",
+                "score": 0.5393040950468587
+              }
+            ],
+            "missingEmbeddings": false
+          },
+          {
+            "query": "child:children::tooth:?",
+            "expected": "teeth",
+            "rank": 1,
+            "cosineExpected": 0.7145716338253957,
+            "hitAt1": true,
+            "hitAt5": true,
+            "hitAt10": true,
+            "top10": [
+              {
+                "word": "teeth",
+                "score": 0.7145716338253957
+              },
+              {
+                "word": "mouse",
+                "score": 0.5736168171587062
+              },
+              {
+                "word": "foot",
+                "score": 0.5449918555137204
+              },
+              {
+                "word": "mice",
+                "score": 0.5444759221013168
+              },
+              {
+                "word": "feet",
+                "score": 0.53592597210413
+              },
+              {
+                "word": "man",
+                "score": 0.5215590143000548
+              },
+              {
+                "word": "goose",
+                "score": 0.5197248956039546
+              },
+              {
+                "word": "geese",
+                "score": 0.5192533860681873
+              },
+              {
+                "word": "Spain",
+                "score": 0.5097831034567694
+              },
+              {
+                "word": "painter",
+                "score": 0.509134140024316
+              }
+            ],
+            "missingEmbeddings": false
+          },
+          {
+            "query": "goose:geese::dollar:?",
+            "expected": "dollars",
+            "rank": 1,
+            "cosineExpected": 0.7508333925224258,
+            "hitAt1": true,
+            "hitAt5": true,
+            "hitAt10": true,
+            "top10": [
+              {
+                "word": "dollars",
+                "score": 0.7508333925224258
+              },
+              {
+                "word": "teeth",
+                "score": 0.5802332752595887
+              },
+              {
+                "word": "mice",
+                "score": 0.5699630724793942
+              },
+              {
+                "word": "woman",
+                "score": 0.5657208143240694
+              },
+              {
+                "word": "girl",
+                "score": 0.5490154759239727
+              },
+              {
+                "word": "Darwin",
+                "score": 0.5470814465567662
+              },
+              {
+                "word": "mouse",
+                "score": 0.5458613354538909
+              },
+              {
+                "word": "German",
+                "score": 0.5455633301122478
+              },
+              {
+                "word": "Picasso",
+                "score": 0.5437288108618121
+              },
+              {
+                "word": "man",
+                "score": 0.543268248657043
+              }
+            ],
+            "missingEmbeddings": false
+          }
+        ]
+      },
+      "occupations": {
+        "summary": {
+          "testsCount": 3,
+          "validTestsCount": 3,
+          "hitAt1": 0.3333333333333333,
+          "hitAt5": 1,
+          "hitAt10": 1,
+          "meanReciprocalRank": 0.5
+        },
+        "tests": [
+          {
+            "query": "Einstein:scientist::Picasso:?",
+            "expected": "painter",
+            "rank": 4,
+            "cosineExpected": 0.5307202093839188,
+            "hitAt1": false,
+            "hitAt5": true,
+            "hitAt10": true,
+            "top10": [
+              {
+                "word": "biologist",
+                "score": 0.6108504227942504
+              },
+              {
+                "word": "physicist",
+                "score": 0.5369754970510092
+              },
+              {
+                "word": "Portuguese",
+                "score": 0.5330759688531508
+              },
+              {
+                "word": "painter",
+                "score": 0.5307202093839188
+              },
+              {
+                "word": "Spanish",
+                "score": 0.5222012638702561
+              },
+              {
+                "word": "mouse",
+                "score": 0.5116392403367518
+              },
+              {
+                "word": "Spain",
+                "score": 0.5103779409216389
+              },
+              {
+                "word": "composer",
+                "score": 0.5082412838973845
+              },
+              {
+                "word": "musician",
+                "score": 0.5075181144462585
+              },
+              {
+                "word": "Paris",
+                "score": 0.5065104310792194
+              }
+            ],
+            "missingEmbeddings": false
+          },
+          {
+            "query": "Newton:physicist::Darwin:?",
+            "expected": "biologist",
+            "rank": 1,
+            "cosineExpected": 0.6073942428763659,
+            "hitAt1": true,
+            "hitAt5": true,
+            "hitAt10": true,
+            "top10": [
+              {
+                "word": "biologist",
+                "score": 0.6073942428763659
+              },
+              {
+                "word": "scientist",
+                "score": 0.5886712183228545
+              },
+              {
+                "word": "Einstein",
+                "score": 0.537406417188326
+              },
+              {
+                "word": "Germany",
+                "score": 0.49941254708766386
+              },
+              {
+                "word": "Mozart",
+                "score": 0.49061168250344694
+              },
+              {
+                "word": "composer",
+                "score": 0.48865529208890335
+              },
+              {
+                "word": "Picasso",
+                "score": 0.4875186356784784
+              },
+              {
+                "word": "German",
+                "score": 0.4863341962314982
+              },
+              {
+                "word": "Oslo",
+                "score": 0.4850849858701147
+              },
+              {
+                "word": "Norwegian",
+                "score": 0.4848119378252263
+              }
+            ],
+            "missingEmbeddings": false
+          },
+          {
+            "query": "Mozart:musician::Bach:?",
+            "expected": "composer",
+            "rank": 4,
+            "cosineExpected": 0.4901506531174623,
+            "hitAt1": false,
+            "hitAt5": true,
+            "hitAt10": true,
+            "top10": [
+              {
+                "word": "man",
+                "score": 0.5019894129611304
+              },
+              {
+                "word": "painter",
+                "score": 0.4991671683529865
+              },
+              {
+                "word": "scientist",
+                "score": 0.49088497293790867
+              },
+              {
+                "word": "composer",
+                "score": 0.4901506531174623
+              },
+              {
+                "word": "boy",
+                "score": 0.48889997683479375
+              },
+              {
+                "word": "girl",
+                "score": 0.48856071478020086
+              },
+              {
+                "word": "tooth",
+                "score": 0.4884906541597641
+              },
+              {
+                "word": "foot",
+                "score": 0.4870794827418526
+              },
+              {
+                "word": "king",
+                "score": 0.4859887580431182
+              },
+              {
+                "word": "woman",
+                "score": 0.4847481828650764
+              }
+            ],
+            "missingEmbeddings": false
+          }
+        ]
+      },
+      "gender": {
+        "summary": {
+          "testsCount": 3,
+          "validTestsCount": 3,
+          "hitAt1": 1,
+          "hitAt5": 1,
+          "hitAt10": 1,
+          "meanReciprocalRank": 1
+        },
+        "tests": [
+          {
+            "query": "man:woman::king:?",
+            "expected": "queen",
+            "rank": 1,
+            "cosineExpected": 0.6065361436178025,
+            "hitAt1": true,
+            "hitAt5": true,
+            "hitAt10": true,
+            "top10": [
+              {
+                "word": "queen",
+                "score": 0.6065361436178025
+              },
+              {
+                "word": "girl",
+                "score": 0.5966429927103043
+              },
+              {
+                "word": "princess",
+                "score": 0.5799380226137049
+              },
+              {
+                "word": "child",
+                "score": 0.5424628385819057
+              },
+              {
+                "word": "prince",
+                "score": 0.5374644870365604
+              },
+              {
+                "word": "aunt",
+                "score": 0.49916155235470705
+              },
+              {
+                "word": "feet",
+                "score": 0.4938428543970967
+              },
+              {
+                "word": "foot",
+                "score": 0.4915330012328162
+              },
+              {
+                "word": "geese",
+                "score": 0.49130932399009813
+              },
+              {
+                "word": "scientist",
+                "score": 0.49096889811115113
+              }
+            ],
+            "missingEmbeddings": false
+          },
+          {
+            "query": "boy:girl::prince:?",
+            "expected": "princess",
+            "rank": 1,
+            "cosineExpected": 0.6512125587893757,
+            "hitAt1": true,
+            "hitAt5": true,
+            "hitAt10": true,
+            "top10": [
+              {
+                "word": "princess",
+                "score": 0.6512125587893757
+              },
+              {
+                "word": "queen",
+                "score": 0.5741200490216614
+              },
+              {
+                "word": "king",
+                "score": 0.5642232382936466
+              },
+              {
+                "word": "woman",
+                "score": 0.5445518059687025
+              },
+              {
+                "word": "Paris",
+                "score": 0.5226315996689131
+              },
+              {
+                "word": "child",
+                "score": 0.5154099961163772
+              },
+              {
+                "word": "Bach",
+                "score": 0.5098185919056026
+              },
+              {
+                "word": "Einstein",
+                "score": 0.5004478218957058
+              },
+              {
+                "word": "Mozart",
+                "score": 0.49893012697248823
+              },
+              {
+                "word": "goose",
+                "score": 0.49344533364316495
+              }
+            ],
+            "missingEmbeddings": false
+          },
+          {
+            "query": "father:mother::uncle:?",
+            "expected": "aunt",
+            "rank": 1,
+            "cosineExpected": 0.6903354839144826,
+            "hitAt1": true,
+            "hitAt5": true,
+            "hitAt10": true,
+            "top10": [
+              {
+                "word": "aunt",
+                "score": 0.6903354839144826
+              },
+              {
+                "word": "boy",
+                "score": 0.5295740766556337
+              },
+              {
+                "word": "child",
+                "score": 0.5222879637174052
+              },
+              {
+                "word": "queen",
+                "score": 0.5208626329790823
+              },
+              {
+                "word": "mouse",
+                "score": 0.5204945466206083
+              },
+              {
+                "word": "prince",
+                "score": 0.5065233396111162
+              },
+              {
+                "word": "goose",
+                "score": 0.506447874983881
+              },
+              {
+                "word": "teeth",
+                "score": 0.5063955471515963
+              },
+              {
+                "word": "princess",
+                "score": 0.505332187437368
+              },
+              {
+                "word": "dollar",
+                "score": 0.5049746175149814
+              }
+            ],
+            "missingEmbeddings": false
+          }
+        ]
+      }
+    }
+  },
+  "openai/text-embedding-3-small": {
+    "categories": {
+      "capitals": {
+        "summary": {
+          "testsCount": 4,
+          "validTestsCount": 4,
+          "hitAt1": 1,
+          "hitAt5": 1,
+          "hitAt10": 1,
+          "meanReciprocalRank": 1
+        },
+        "tests": [
+          {
+            "query": "Athens:Greece::Oslo:?",
+            "expected": "Norway",
+            "rank": 1,
+            "cosineExpected": 0.6897133760281436,
+            "hitAt1": true,
+            "hitAt5": true,
+            "hitAt10": true,
+            "top10": [
+              {
+                "word": "Norway",
+                "score": 0.6897133760281436
+              },
+              {
+                "word": "Norwegian",
+                "score": 0.5595087477602572
+              },
+              {
+                "word": "Portugal",
+                "score": 0.43628977444982
+              },
+              {
+                "word": "Lisbon",
+                "score": 0.42739796542808284
+              },
+              {
+                "word": "Ireland",
+                "score": 0.42328647440830913
+              },
+              {
+                "word": "Switzerland",
+                "score": 0.4226759525499495
+              },
+              {
+                "word": "Poland",
+                "score": 0.4067604114694001
+              },
+              {
+                "word": "Spain",
+                "score": 0.4034434150152623
+              },
+              {
+                "word": "Italy",
+                "score": 0.3951891013250221
+              },
+              {
+                "word": "Germany",
+                "score": 0.37095835782192893
+              }
+            ],
+            "missingEmbeddings": false
+          },
+          {
+            "query": "Warsaw:Poland::Paris:?",
+            "expected": "France",
+            "rank": 1,
+            "cosineExpected": 0.6278962920773522,
+            "hitAt1": true,
+            "hitAt5": true,
+            "hitAt10": true,
+            "top10": [
+              {
+                "word": "France",
+                "score": 0.6278962920773522
+              },
+              {
+                "word": "French",
+                "score": 0.47768256428854666
+              },
+              {
+                "word": "Spain",
+                "score": 0.4541673794065618
+              },
+              {
+                "word": "Italy",
+                "score": 0.43969967714163166
+              },
+              {
+                "word": "Germany",
+                "score": 0.4295992365784235
+              },
+              {
+                "word": "Polish",
+                "score": 0.4227067756244725
+              },
+              {
+                "word": "Portugal",
+                "score": 0.40710739525720635
+              },
+              {
+                "word": "Switzerland",
+                "score": 0.3634009103190474
+              },
+              {
+                "word": "Norway",
+                "score": 0.34342068259317055
+              },
+              {
+                "word": "Bern",
+                "score": 0.34087412324031396
+              }
+            ],
+            "missingEmbeddings": false
+          },
+          {
+            "query": "Rome:Italy::Berlin:?",
+            "expected": "Germany",
+            "rank": 1,
+            "cosineExpected": 0.5696634331407247,
+            "hitAt1": true,
+            "hitAt5": true,
+            "hitAt10": true,
+            "top10": [
+              {
+                "word": "Germany",
+                "score": 0.5696634331407247
+              },
+              {
+                "word": "Bern",
+                "score": 0.5573556572845234
+              },
+              {
+                "word": "Spain",
+                "score": 0.466047415266299
+              },
+              {
+                "word": "Italian",
+                "score": 0.45711615763384755
+              },
+              {
+                "word": "German",
+                "score": 0.4458051969169551
+              },
+              {
+                "word": "France",
+                "score": 0.4332208731880336
+              },
+              {
+                "word": "Switzerland",
+                "score": 0.40927940318066525
+              },
+              {
+                "word": "Swiss",
+                "score": 0.3470461600440339
+              },
+              {
+                "word": "Paris",
+                "score": 0.3394134234988271
+              },
+              {
+                "word": "Poland",
+                "score": 0.3382501162707256
+              }
+            ],
+            "missingEmbeddings": false
+          },
+          {
+            "query": "Madrid:Spain::Lisbon:?",
+            "expected": "Portugal",
+            "rank": 1,
+            "cosineExpected": 0.5615867238395535,
+            "hitAt1": true,
+            "hitAt5": true,
+            "hitAt10": true,
+            "top10": [
+              {
+                "word": "Portugal",
+                "score": 0.5615867238395535
+              },
+              {
+                "word": "Italy",
+                "score": 0.48370324155294736
+              },
+              {
+                "word": "Portuguese",
+                "score": 0.45157432890881566
+              },
+              {
+                "word": "France",
+                "score": 0.43370490345960466
+              },
+              {
+                "word": "Norway",
+                "score": 0.40297820129659656
+              },
+              {
+                "word": "Spanish",
+                "score": 0.3959946268994307
+              },
+              {
+                "word": "Ireland",
+                "score": 0.38547332970567
+              },
+              {
+                "word": "Oslo",
+                "score": 0.3841552559436126
+              },
+              {
+                "word": "Germany",
+                "score": 0.379379970254563
+              },
+              {
+                "word": "Poland",
+                "score": 0.37335812744805014
+              }
+            ],
+            "missingEmbeddings": false
+          }
+        ]
+      },
+      "nationalities": {
+        "summary": {
+          "testsCount": 4,
+          "validTestsCount": 4,
+          "hitAt1": 1,
+          "hitAt5": 1,
+          "hitAt10": 1,
+          "meanReciprocalRank": 1
+        },
+        "tests": [
+          {
+            "query": "Germany:German::Spain:?",
+            "expected": "Spanish",
+            "rank": 1,
+            "cosineExpected": 0.8192956756990277,
+            "hitAt1": true,
+            "hitAt5": true,
+            "hitAt10": true,
+            "top10": [
+              {
+                "word": "Spanish",
+                "score": 0.8192956756990277
+              },
+              {
+                "word": "French",
+                "score": 0.6104757511732044
+              },
+              {
+                "word": "Italian",
+                "score": 0.5927343114804607
+              },
+              {
+                "word": "Greek",
+                "score": 0.4834977672153175
+              },
+              {
+                "word": "Portuguese",
+                "score": 0.4461801506990285
+              },
+              {
+                "word": "Italy",
+                "score": 0.416889119088327
+              },
+              {
+                "word": "Irish",
+                "score": 0.4128693938560613
+              },
+              {
+                "word": "Polish",
+                "score": 0.3961248210314774
+              },
+              {
+                "word": "Madrid",
+                "score": 0.3783063436476453
+              },
+              {
+                "word": "Portugal",
+                "score": 0.37196467672047584
+              }
+            ],
+            "missingEmbeddings": false
+          },
+          {
+            "query": "France:French::Italy:?",
+            "expected": "Italian",
+            "rank": 1,
+            "cosineExpected": 0.8565521156841263,
+            "hitAt1": true,
+            "hitAt5": true,
+            "hitAt10": true,
+            "top10": [
+              {
+                "word": "Italian",
+                "score": 0.8565521156841263
+              },
+              {
+                "word": "Spanish",
+                "score": 0.6325187042854491
+              },
+              {
+                "word": "German",
+                "score": 0.575441991220953
+              },
+              {
+                "word": "Greek",
+                "score": 0.5344089743321269
+              },
+              {
+                "word": "Polish",
+                "score": 0.45767395871885813
+              },
+              {
+                "word": "Irish",
+                "score": 0.44559876693050054
+              },
+              {
+                "word": "Portuguese",
+                "score": 0.3913427269224884
+              },
+              {
+                "word": "Norwegian",
+                "score": 0.38094686962419183
+              },
+              {
+                "word": "Spain",
+                "score": 0.38048304274638656
+              },
+              {
+                "word": "Rome",
+                "score": 0.3685570119441076
+              }
+            ],
+            "missingEmbeddings": false
+          },
+          {
+            "query": "Poland:Polish::Norway:?",
+            "expected": "Norwegian",
+            "rank": 1,
+            "cosineExpected": 0.8299187506760642,
+            "hitAt1": true,
+            "hitAt5": true,
+            "hitAt10": true,
+            "top10": [
+              {
+                "word": "Norwegian",
+                "score": 0.8299187506760642
+              },
+              {
+                "word": "Oslo",
+                "score": 0.5359702932701311
+              },
+              {
+                "word": "Irish",
+                "score": 0.40313919164550904
+              },
+              {
+                "word": "French",
+                "score": 0.38802603260412066
+              },
+              {
+                "word": "Swiss",
+                "score": 0.3854332471414485
+              },
+              {
+                "word": "Italian",
+                "score": 0.37461695514359716
+              },
+              {
+                "word": "Portuguese",
+                "score": 0.36520889616519125
+              },
+              {
+                "word": "Spanish",
+                "score": 0.34610586111185543
+              },
+              {
+                "word": "German",
+                "score": 0.3404389600788505
+              },
+              {
+                "word": "Greek",
+                "score": 0.3222742635595823
+              }
+            ],
+            "missingEmbeddings": false
+          },
+          {
+            "query": "Switzerland:Swiss::Portugal:?",
+            "expected": "Portuguese",
+            "rank": 1,
+            "cosineExpected": 0.7626477331307665,
+            "hitAt1": true,
+            "hitAt5": true,
+            "hitAt10": true,
+            "top10": [
+              {
+                "word": "Portuguese",
+                "score": 0.7626477331307665
+              },
+              {
+                "word": "Lisbon",
+                "score": 0.5551732173499889
+              },
+              {
+                "word": "Irish",
+                "score": 0.4129537940224623
+              },
+              {
+                "word": "Polish",
+                "score": 0.41172520918966327
+              },
+              {
+                "word": "Spain",
+                "score": 0.41103293152917697
+              },
+              {
+                "word": "French",
+                "score": 0.40121275430311687
+              },
+              {
+                "word": "Spanish",
+                "score": 0.39275842651692255
+              },
+              {
+                "word": "Norwegian",
+                "score": 0.35727203398003715
+              },
+              {
+                "word": "Poland",
+                "score": 0.33416952633312336
+              },
+              {
+                "word": "France",
+                "score": 0.3292648175140272
+              }
+            ],
+            "missingEmbeddings": false
+          }
+        ]
+      },
+      "plurals": {
+        "summary": {
+          "testsCount": 3,
+          "validTestsCount": 3,
+          "hitAt1": 1,
+          "hitAt5": 1,
+          "hitAt10": 1,
+          "meanReciprocalRank": 1
+        },
+        "tests": [
+          {
+            "query": "mouse:mice::foot:?",
+            "expected": "feet",
+            "rank": 1,
+            "cosineExpected": 0.5008722258652585,
+            "hitAt1": true,
+            "hitAt5": true,
+            "hitAt10": true,
+            "top10": [
+              {
+                "word": "feet",
+                "score": 0.5008722258652585
+              },
+              {
+                "word": "teeth",
+                "score": 0.3373977484714411
+              },
+              {
+                "word": "geese",
+                "score": 0.30409602873065833
+              },
+              {
+                "word": "tooth",
+                "score": 0.297424058933078
+              },
+              {
+                "word": "children",
+                "score": 0.2747943400791501
+              },
+              {
+                "word": "French",
+                "score": 0.2567607600964431
+              },
+              {
+                "word": "goose",
+                "score": 0.2562454290841016
+              },
+              {
+                "word": "child",
+                "score": 0.2524416689264923
+              },
+              {
+                "word": "dollar",
+                "score": 0.23414643970071425
+              },
+              {
+                "word": "uncle",
+                "score": 0.22217366913246883
+              }
+            ],
+            "missingEmbeddings": false
+          },
+          {
+            "query": "child:children::tooth:?",
+            "expected": "teeth",
+            "rank": 1,
+            "cosineExpected": 0.7730548242616169,
+            "hitAt1": true,
+            "hitAt5": true,
+            "hitAt10": true,
+            "top10": [
+              {
+                "word": "teeth",
+                "score": 0.7730548242616169
+              },
+              {
+                "word": "feet",
+                "score": 0.34002915192464556
+              },
+              {
+                "word": "foot",
+                "score": 0.314465049234232
+              },
+              {
+                "word": "king",
+                "score": 0.2721602450368542
+              },
+              {
+                "word": "dollar",
+                "score": 0.2721316640520574
+              },
+              {
+                "word": "man",
+                "score": 0.2719559432928399
+              },
+              {
+                "word": "mice",
+                "score": 0.2649017038438496
+              },
+              {
+                "word": "uncle",
+                "score": 0.2642455030561544
+              },
+              {
+                "word": "woman",
+                "score": 0.24911201428571508
+              },
+              {
+                "word": "boy",
+                "score": 0.24132329458444987
+              }
+            ],
+            "missingEmbeddings": false
+          },
+          {
+            "query": "goose:geese::dollar:?",
+            "expected": "dollars",
+            "rank": 1,
+            "cosineExpected": 0.6854000050365271,
+            "hitAt1": true,
+            "hitAt5": true,
+            "hitAt10": true,
+            "top10": [
+              {
+                "word": "dollars",
+                "score": 0.6854000050365271
+              },
+              {
+                "word": "woman",
+                "score": 0.31352065065447854
+              },
+              {
+                "word": "princess",
+                "score": 0.28218500781286787
+              },
+              {
+                "word": "boy",
+                "score": 0.28061522397744776
+              },
+              {
+                "word": "feet",
+                "score": 0.2754365242580516
+              },
+              {
+                "word": "girl",
+                "score": 0.2689998577203065
+              },
+              {
+                "word": "man",
+                "score": 0.268091467078393
+              },
+              {
+                "word": "children",
+                "score": 0.26741412266386105
+              },
+              {
+                "word": "child",
+                "score": 0.2640161331521635
+              },
+              {
+                "word": "prince",
+                "score": 0.2564628820211881
+              }
+            ],
+            "missingEmbeddings": false
+          }
+        ]
+      },
+      "occupations": {
+        "summary": {
+          "testsCount": 3,
+          "validTestsCount": 3,
+          "hitAt1": 0.3333333333333333,
+          "hitAt5": 1,
+          "hitAt10": 1,
+          "meanReciprocalRank": 0.611111111111111
+        },
+        "tests": [
+          {
+            "query": "Einstein:scientist::Picasso:?",
+            "expected": "painter",
+            "rank": 1,
+            "cosineExpected": 0.4723647876470995,
+            "hitAt1": true,
+            "hitAt5": true,
+            "hitAt10": true,
+            "top10": [
+              {
+                "word": "painter",
+                "score": 0.4723647876470995
+              },
+              {
+                "word": "biologist",
+                "score": 0.4033210912741612
+              },
+              {
+                "word": "mouse",
+                "score": 0.318743059896942
+              },
+              {
+                "word": "musician",
+                "score": 0.309657241578275
+              },
+              {
+                "word": "composer",
+                "score": 0.2969837174523756
+              },
+              {
+                "word": "child",
+                "score": 0.2734000042235379
+              },
+              {
+                "word": "physicist",
+                "score": 0.2671376387377069
+              },
+              {
+                "word": "mice",
+                "score": 0.25807803183417777
+              },
+              {
+                "word": "princess",
+                "score": 0.2561963592085461
+              },
+              {
+                "word": "girl",
+                "score": 0.24944126802366126
+              }
+            ],
+            "missingEmbeddings": false
+          },
+          {
+            "query": "Newton:physicist::Darwin:?",
+            "expected": "biologist",
+            "rank": 2,
+            "cosineExpected": 0.5089576129845651,
+            "hitAt1": false,
+            "hitAt5": true,
+            "hitAt10": true,
+            "top10": [
+              {
+                "word": "scientist",
+                "score": 0.5226621970959866
+              },
+              {
+                "word": "biologist",
+                "score": 0.5089576129845651
+              },
+              {
+                "word": "Einstein",
+                "score": 0.3007170786497092
+              },
+              {
+                "word": "musician",
+                "score": 0.26734956365129
+              },
+              {
+                "word": "painter",
+                "score": 0.18517389309846313
+              },
+              {
+                "word": "father",
+                "score": 0.16516398703470878
+              },
+              {
+                "word": "man",
+                "score": 0.1617351363156339
+              },
+              {
+                "word": "girl",
+                "score": 0.15201164648458565
+              },
+              {
+                "word": "aunt",
+                "score": 0.15137403544125233
+              },
+              {
+                "word": "Mozart",
+                "score": 0.1510666561796348
+              }
+            ],
+            "missingEmbeddings": false
+          },
+          {
+            "query": "Mozart:musician::Bach:?",
+            "expected": "composer",
+            "rank": 3,
+            "cosineExpected": 0.33561110002810257,
+            "hitAt1": false,
+            "hitAt5": true,
+            "hitAt10": true,
+            "top10": [
+              {
+                "word": "painter",
+                "score": 0.3496165195923767
+              },
+              {
+                "word": "biologist",
+                "score": 0.33891514662148153
+              },
+              {
+                "word": "composer",
+                "score": 0.33561110002810257
+              },
+              {
+                "word": "scientist",
+                "score": 0.321682159924594
+              },
+              {
+                "word": "girl",
+                "score": 0.2940421915750296
+              },
+              {
+                "word": "woman",
+                "score": 0.29110946470987586
+              },
+              {
+                "word": "father",
+                "score": 0.28191237927226087
+              },
+              {
+                "word": "physicist",
+                "score": 0.27646254227230943
+              },
+              {
+                "word": "man",
+                "score": 0.2586933887880833
+              },
+              {
+                "word": "mother",
+                "score": 0.2508663947275291
+              }
+            ],
+            "missingEmbeddings": false
+          }
+        ]
+      },
+      "gender": {
+        "summary": {
+          "testsCount": 3,
+          "validTestsCount": 3,
+          "hitAt1": 1,
+          "hitAt5": 1,
+          "hitAt10": 1,
+          "meanReciprocalRank": 1
+        },
+        "tests": [
+          {
+            "query": "man:woman::king:?",
+            "expected": "queen",
+            "rank": 1,
+            "cosineExpected": 0.6160908325613699,
+            "hitAt1": true,
+            "hitAt5": true,
+            "hitAt10": true,
+            "top10": [
+              {
+                "word": "queen",
+                "score": 0.6160908325613699
+              },
+              {
+                "word": "princess",
+                "score": 0.46466530224771335
+              },
+              {
+                "word": "mother",
+                "score": 0.4547539607459497
+              },
+              {
+                "word": "girl",
+                "score": 0.437881778845789
+              },
+              {
+                "word": "children",
+                "score": 0.3970933537657963
+              },
+              {
+                "word": "prince",
+                "score": 0.3905919471170739
+              },
+              {
+                "word": "child",
+                "score": 0.3767639873560006
+              },
+              {
+                "word": "boy",
+                "score": 0.33749559686558583
+              },
+              {
+                "word": "geese",
+                "score": 0.32762427543387657
+              },
+              {
+                "word": "father",
+                "score": 0.3115660309924234
+              }
+            ],
+            "missingEmbeddings": false
+          },
+          {
+            "query": "boy:girl::prince:?",
+            "expected": "princess",
+            "rank": 1,
+            "cosineExpected": 0.6769437646119654,
+            "hitAt1": true,
+            "hitAt5": true,
+            "hitAt10": true,
+            "top10": [
+              {
+                "word": "princess",
+                "score": 0.6769437646119654
+              },
+              {
+                "word": "queen",
+                "score": 0.45908943454245976
+              },
+              {
+                "word": "woman",
+                "score": 0.3356179100886726
+              },
+              {
+                "word": "king",
+                "score": 0.3322994047664956
+              },
+              {
+                "word": "mother",
+                "score": 0.3168827964300397
+              },
+              {
+                "word": "musician",
+                "score": 0.3101992644638611
+              },
+              {
+                "word": "aunt",
+                "score": 0.28588272989555036
+              },
+              {
+                "word": "painter",
+                "score": 0.2704271884234793
+              },
+              {
+                "word": "uncle",
+                "score": 0.26637523767178956
+              },
+              {
+                "word": "child",
+                "score": 0.2619190656073043
+              }
+            ],
+            "missingEmbeddings": false
+          },
+          {
+            "query": "father:mother::uncle:?",
+            "expected": "aunt",
+            "rank": 1,
+            "cosineExpected": 0.703654672376124,
+            "hitAt1": true,
+            "hitAt5": true,
+            "hitAt10": true,
+            "top10": [
+              {
+                "word": "aunt",
+                "score": 0.703654672376124
+              },
+              {
+                "word": "woman",
+                "score": 0.4163019786182723
+              },
+              {
+                "word": "queen",
+                "score": 0.4114755183615633
+              },
+              {
+                "word": "girl",
+                "score": 0.40215213757180335
+              },
+              {
+                "word": "child",
+                "score": 0.39622478431653574
+              },
+              {
+                "word": "princess",
+                "score": 0.3674777300930937
+              },
+              {
+                "word": "mouse",
+                "score": 0.34305975832388336
+              },
+              {
+                "word": "children",
+                "score": 0.3324523238077632
+              },
+              {
+                "word": "geese",
+                "score": 0.3173398890411485
+              },
+              {
+                "word": "goose",
+                "score": 0.31336697768340666
+              }
+            ],
+            "missingEmbeddings": false
+          }
+        ]
+      }
+    }
+  },
+  "qwen/qwen3-embedding-8b": {
+    "categories": {
+      "capitals": {
+        "summary": {
+          "testsCount": 4,
+          "validTestsCount": 4,
+          "hitAt1": 1,
+          "hitAt5": 1,
+          "hitAt10": 1,
+          "meanReciprocalRank": 1
+        },
+        "tests": [
+          {
+            "query": "Athens:Greece::Oslo:?",
+            "expected": "Norway",
+            "rank": 1,
+            "cosineExpected": 0.8471894405574059,
+            "hitAt1": true,
+            "hitAt5": true,
+            "hitAt10": true,
+            "top10": [
+              {
+                "word": "Norway",
+                "score": 0.8471894405574059
+              },
+              {
+                "word": "Germany",
+                "score": 0.7471340718228949
+              },
+              {
+                "word": "Portugal",
+                "score": 0.7400928485885031
+              },
+              {
+                "word": "Poland",
+                "score": 0.7372969782657278
+              },
+              {
+                "word": "Norwegian",
+                "score": 0.7314080021740004
+              },
+              {
+                "word": "Ireland",
+                "score": 0.725993329034335
+              },
+              {
+                "word": "Italy",
+                "score": 0.7156249240788054
+              },
+              {
+                "word": "France",
+                "score": 0.7054075740051774
+              },
+              {
+                "word": "Spain",
+                "score": 0.6984424334376541
+              },
+              {
+                "word": "Switzerland",
+                "score": 0.6918466258504266
+              }
+            ],
+            "missingEmbeddings": false
+          },
+          {
+            "query": "Warsaw:Poland::Paris:?",
+            "expected": "France",
+            "rank": 1,
+            "cosineExpected": 0.8510281156092878,
+            "hitAt1": true,
+            "hitAt5": true,
+            "hitAt10": true,
+            "top10": [
+              {
+                "word": "France",
+                "score": 0.8510281156092878
+              },
+              {
+                "word": "Portugal",
+                "score": 0.8056311934891388
+              },
+              {
+                "word": "Italy",
+                "score": 0.7780872689102685
+              },
+              {
+                "word": "Norway",
+                "score": 0.7680811122520458
+              },
+              {
+                "word": "Spain",
+                "score": 0.7647490479667206
+              },
+              {
+                "word": "Ireland",
+                "score": 0.762387182005936
+              },
+              {
+                "word": "Greece",
+                "score": 0.7620361395886079
+              },
+              {
+                "word": "Germany",
+                "score": 0.7609201477445111
+              },
+              {
+                "word": "Switzerland",
+                "score": 0.7397677791948352
+              },
+              {
+                "word": "Lisbon",
+                "score": 0.7013863293899946
+              }
+            ],
+            "missingEmbeddings": false
+          },
+          {
+            "query": "Rome:Italy::Berlin:?",
+            "expected": "Germany",
+            "rank": 1,
+            "cosineExpected": 0.8222000708021939,
+            "hitAt1": true,
+            "hitAt5": true,
+            "hitAt10": true,
+            "top10": [
+              {
+                "word": "Germany",
+                "score": 0.8222000708021939
+              },
+              {
+                "word": "Poland",
+                "score": 0.7398595289411777
+              },
+              {
+                "word": "France",
+                "score": 0.7230337496112108
+              },
+              {
+                "word": "Switzerland",
+                "score": 0.7034621716248812
+              },
+              {
+                "word": "Ireland",
+                "score": 0.6986285547791746
+              },
+              {
+                "word": "Portugal",
+                "score": 0.6923826712768301
+              },
+              {
+                "word": "Spain",
+                "score": 0.6888119659122194
+              },
+              {
+                "word": "Greece",
+                "score": 0.6729932559059718
+              },
+              {
+                "word": "Norway",
+                "score": 0.6725373791691274
+              },
+              {
+                "word": "German",
+                "score": 0.660772421985468
+              }
+            ],
+            "missingEmbeddings": false
+          },
+          {
+            "query": "Madrid:Spain::Lisbon:?",
+            "expected": "Portugal",
+            "rank": 1,
+            "cosineExpected": 0.9132032490761722,
+            "hitAt1": true,
+            "hitAt5": true,
+            "hitAt10": true,
+            "top10": [
+              {
+                "word": "Portugal",
+                "score": 0.9132032490761722
+              },
+              {
+                "word": "Italy",
+                "score": 0.7988333344708685
+              },
+              {
+                "word": "Greece",
+                "score": 0.7883370743640175
+              },
+              {
+                "word": "Poland",
+                "score": 0.7863638795608061
+              },
+              {
+                "word": "Ireland",
+                "score": 0.7808692154326571
+              },
+              {
+                "word": "France",
+                "score": 0.7699288467270111
+              },
+              {
+                "word": "Norway",
+                "score": 0.7603446073061728
+              },
+              {
+                "word": "Germany",
+                "score": 0.7309969760581245
+              },
+              {
+                "word": "Switzerland",
+                "score": 0.7240140882415165
+              },
+              {
+                "word": "Portuguese",
+                "score": 0.7144273357218001
+              }
+            ],
+            "missingEmbeddings": false
+          }
+        ]
+      },
+      "nationalities": {
+        "summary": {
+          "testsCount": 4,
+          "validTestsCount": 4,
+          "hitAt1": 1,
+          "hitAt5": 1,
+          "hitAt10": 1,
+          "meanReciprocalRank": 1
+        },
+        "tests": [
+          {
+            "query": "Germany:German::Spain:?",
+            "expected": "Spanish",
+            "rank": 1,
+            "cosineExpected": 0.8811312220300239,
+            "hitAt1": true,
+            "hitAt5": true,
+            "hitAt10": true,
+            "top10": [
+              {
+                "word": "Spanish",
+                "score": 0.8811312220300239
+              },
+              {
+                "word": "Portuguese",
+                "score": 0.6955738846235933
+              },
+              {
+                "word": "Madrid",
+                "score": 0.6808634870869251
+              },
+              {
+                "word": "Portugal",
+                "score": 0.67928905722153
+              },
+              {
+                "word": "French",
+                "score": 0.672396747587153
+              },
+              {
+                "word": "Greek",
+                "score": 0.6714634303709703
+              },
+              {
+                "word": "Norwegian",
+                "score": 0.6314096061401052
+              },
+              {
+                "word": "Irish",
+                "score": 0.6307239856737128
+              },
+              {
+                "word": "Polish",
+                "score": 0.6284272849357068
+              },
+              {
+                "word": "Italian",
+                "score": 0.6276760310860025
+              }
+            ],
+            "missingEmbeddings": false
+          },
+          {
+            "query": "France:French::Italy:?",
+            "expected": "Italian",
+            "rank": 1,
+            "cosineExpected": 0.8631719045133941,
+            "hitAt1": true,
+            "hitAt5": true,
+            "hitAt10": true,
+            "top10": [
+              {
+                "word": "Italian",
+                "score": 0.8631719045133941
+              },
+              {
+                "word": "Irish",
+                "score": 0.6871033460967351
+              },
+              {
+                "word": "Spanish",
+                "score": 0.6812584350614544
+              },
+              {
+                "word": "Greek",
+                "score": 0.6604169209638076
+              },
+              {
+                "word": "Swiss",
+                "score": 0.6561118107444207
+              },
+              {
+                "word": "Polish",
+                "score": 0.6526742035154608
+              },
+              {
+                "word": "Spain",
+                "score": 0.6417376951669223
+              },
+              {
+                "word": "Greece",
+                "score": 0.6414956004405387
+              },
+              {
+                "word": "Portuguese",
+                "score": 0.639940742632544
+              },
+              {
+                "word": "German",
+                "score": 0.639725217545012
+              }
+            ],
+            "missingEmbeddings": false
+          },
+          {
+            "query": "Poland:Polish::Norway:?",
+            "expected": "Norwegian",
+            "rank": 1,
+            "cosineExpected": 0.8711016138223965,
+            "hitAt1": true,
+            "hitAt5": true,
+            "hitAt10": true,
+            "top10": [
+              {
+                "word": "Norwegian",
+                "score": 0.8711016138223965
+              },
+              {
+                "word": "Oslo",
+                "score": 0.6834476791929058
+              },
+              {
+                "word": "Swiss",
+                "score": 0.6669727161162092
+              },
+              {
+                "word": "French",
+                "score": 0.6328319172257508
+              },
+              {
+                "word": "Portuguese",
+                "score": 0.6301195380224317
+              },
+              {
+                "word": "Irish",
+                "score": 0.6255211398516907
+              },
+              {
+                "word": "German",
+                "score": 0.6205740258905686
+              },
+              {
+                "word": "dollar",
+                "score": 0.618133457577981
+              },
+              {
+                "word": "Portugal",
+                "score": 0.6167685389894043
+              },
+              {
+                "word": "Darwin",
+                "score": 0.6090461273811567
+              }
+            ],
+            "missingEmbeddings": false
+          },
+          {
+            "query": "Switzerland:Swiss::Portugal:?",
+            "expected": "Portuguese",
+            "rank": 1,
+            "cosineExpected": 0.8567263751110549,
+            "hitAt1": true,
+            "hitAt5": true,
+            "hitAt10": true,
+            "top10": [
+              {
+                "word": "Portuguese",
+                "score": 0.8567263751110549
+              },
+              {
+                "word": "Spain",
+                "score": 0.7697627985710956
+              },
+              {
+                "word": "Lisbon",
+                "score": 0.7540658643681717
+              },
+              {
+                "word": "Poland",
+                "score": 0.7231898875283893
+              },
+              {
+                "word": "Spanish",
+                "score": 0.7110675273112727
+              },
+              {
+                "word": "Polish",
+                "score": 0.7061402921005112
+              },
+              {
+                "word": "Madrid",
+                "score": 0.6900523836559596
+              },
+              {
+                "word": "Norwegian",
+                "score": 0.6856931425841133
+              },
+              {
+                "word": "France",
+                "score": 0.6791476180667555
+              },
+              {
+                "word": "Italy",
+                "score": 0.6781263003637956
+              }
+            ],
+            "missingEmbeddings": false
+          }
+        ]
+      },
+      "plurals": {
+        "summary": {
+          "testsCount": 3,
+          "validTestsCount": 3,
+          "hitAt1": 1,
+          "hitAt5": 1,
+          "hitAt10": 1,
+          "meanReciprocalRank": 1
+        },
+        "tests": [
+          {
+            "query": "mouse:mice::foot:?",
+            "expected": "feet",
+            "rank": 1,
+            "cosineExpected": 0.7347247295872116,
+            "hitAt1": true,
+            "hitAt5": true,
+            "hitAt10": true,
+            "top10": [
+              {
+                "word": "feet",
+                "score": 0.7347247295872116
+              },
+              {
+                "word": "teeth",
+                "score": 0.6192283339616902
+              },
+              {
+                "word": "tooth",
+                "score": 0.5949752669114459
+              },
+              {
+                "word": "geese",
+                "score": 0.5649996930373957
+              },
+              {
+                "word": "children",
+                "score": 0.5493998919376742
+              },
+              {
+                "word": "France",
+                "score": 0.5165522698004338
+              },
+              {
+                "word": "child",
+                "score": 0.5159195277511718
+              },
+              {
+                "word": "father",
+                "score": 0.5148006300244776
+              },
+              {
+                "word": "goose",
+                "score": 0.5106813340495033
+              },
+              {
+                "word": "Swiss",
+                "score": 0.5079802620682037
+              }
+            ],
+            "missingEmbeddings": false
+          },
+          {
+            "query": "child:children::tooth:?",
+            "expected": "teeth",
+            "rank": 1,
+            "cosineExpected": 0.9039470889035883,
+            "hitAt1": true,
+            "hitAt5": true,
+            "hitAt10": true,
+            "top10": [
+              {
+                "word": "teeth",
+                "score": 0.9039470889035883
+              },
+              {
+                "word": "mice",
+                "score": 0.6352689837496315
+              },
+              {
+                "word": "foot",
+                "score": 0.6054664145118057
+              },
+              {
+                "word": "geese",
+                "score": 0.5709963891731301
+              },
+              {
+                "word": "feet",
+                "score": 0.5690633304819246
+              },
+              {
+                "word": "dollars",
+                "score": 0.55884341244509
+              },
+              {
+                "word": "mouse",
+                "score": 0.5540685405865616
+              },
+              {
+                "word": "Swiss",
+                "score": 0.5209505090105021
+              },
+              {
+                "word": "dollar",
+                "score": 0.5171388570860094
+              },
+              {
+                "word": "Polish",
+                "score": 0.5157637049988428
+              }
+            ],
+            "missingEmbeddings": false
+          },
+          {
+            "query": "goose:geese::dollar:?",
+            "expected": "dollars",
+            "rank": 1,
+            "cosineExpected": 0.8532346961879821,
+            "hitAt1": true,
+            "hitAt5": true,
+            "hitAt10": true,
+            "top10": [
+              {
+                "word": "dollars",
+                "score": 0.8532346961879821
+              },
+              {
+                "word": "feet",
+                "score": 0.5643200039311066
+              },
+              {
+                "word": "queen",
+                "score": 0.5580921910001915
+              },
+              {
+                "word": "king",
+                "score": 0.5525345783578871
+              },
+              {
+                "word": "Bern",
+                "score": 0.5483003948025761
+              },
+              {
+                "word": "Swiss",
+                "score": 0.5470382716402569
+              },
+              {
+                "word": "man",
+                "score": 0.5421688720384654
+              },
+              {
+                "word": "prince",
+                "score": 0.538748129406355
+              },
+              {
+                "word": "Poland",
+                "score": 0.5345699950090073
+              },
+              {
+                "word": "princess",
+                "score": 0.5330653111402658
+              }
+            ],
+            "missingEmbeddings": false
+          }
+        ]
+      },
+      "occupations": {
+        "summary": {
+          "testsCount": 3,
+          "validTestsCount": 3,
+          "hitAt1": 0.3333333333333333,
+          "hitAt5": 0.6666666666666666,
+          "hitAt10": 1,
+          "meanReciprocalRank": 0.5555555555555556
+        },
+        "tests": [
+          {
+            "query": "Einstein:scientist::Picasso:?",
+            "expected": "painter",
+            "rank": 1,
+            "cosineExpected": 0.664852913195122,
+            "hitAt1": true,
+            "hitAt5": true,
+            "hitAt10": true,
+            "top10": [
+              {
+                "word": "painter",
+                "score": 0.664852913195122
+              },
+              {
+                "word": "biologist",
+                "score": 0.6349175934695207
+              },
+              {
+                "word": "physicist",
+                "score": 0.6253526009074798
+              },
+              {
+                "word": "musician",
+                "score": 0.5944421111700341
+              },
+              {
+                "word": "woman",
+                "score": 0.5494259639713772
+              },
+              {
+                "word": "man",
+                "score": 0.5407685192094214
+              },
+              {
+                "word": "father",
+                "score": 0.5230607848924897
+              },
+              {
+                "word": "prince",
+                "score": 0.5158570516510889
+              },
+              {
+                "word": "composer",
+                "score": 0.5127028752428794
+              },
+              {
+                "word": "princess",
+                "score": 0.5112396748765399
+              }
+            ],
+            "missingEmbeddings": false
+          },
+          {
+            "query": "Newton:physicist::Darwin:?",
+            "expected": "biologist",
+            "rank": 2,
+            "cosineExpected": 0.7181450620538615,
+            "hitAt1": false,
+            "hitAt5": true,
+            "hitAt10": true,
+            "top10": [
+              {
+                "word": "scientist",
+                "score": 0.7523693722629509
+              },
+              {
+                "word": "biologist",
+                "score": 0.7181450620538615
+              },
+              {
+                "word": "musician",
+                "score": 0.5861706087385588
+              },
+              {
+                "word": "painter",
+                "score": 0.5596143287564943
+              },
+              {
+                "word": "woman",
+                "score": 0.545227756996862
+              },
+              {
+                "word": "man",
+                "score": 0.538597728320715
+              },
+              {
+                "word": "father",
+                "score": 0.525695998374452
+              },
+              {
+                "word": "Einstein",
+                "score": 0.5156840573846734
+              },
+              {
+                "word": "composer",
+                "score": 0.504101996772921
+              },
+              {
+                "word": "uncle",
+                "score": 0.5024979785099917
+              }
+            ],
+            "missingEmbeddings": false
+          },
+          {
+            "query": "Mozart:musician::Bach:?",
+            "expected": "composer",
+            "rank": 6,
+            "cosineExpected": 0.5782803745891261,
+            "hitAt1": false,
+            "hitAt5": false,
+            "hitAt10": true,
+            "top10": [
+              {
+                "word": "painter",
+                "score": 0.618756344313384
+              },
+              {
+                "word": "scientist",
+                "score": 0.6160974453432895
+              },
+              {
+                "word": "physicist",
+                "score": 0.6055668421103196
+              },
+              {
+                "word": "prince",
+                "score": 0.5937788269213469
+              },
+              {
+                "word": "man",
+                "score": 0.5851791550520479
+              },
+              {
+                "word": "composer",
+                "score": 0.5782803745891261
+              },
+              {
+                "word": "biologist",
+                "score": 0.5454982902460624
+              },
+              {
+                "word": "woman",
+                "score": 0.5404167329182772
+              },
+              {
+                "word": "father",
+                "score": 0.5351657172658861
+              },
+              {
+                "word": "king",
+                "score": 0.5244330592840679
+              }
+            ],
+            "missingEmbeddings": false
+          }
+        ]
+      },
+      "gender": {
+        "summary": {
+          "testsCount": 3,
+          "validTestsCount": 3,
+          "hitAt1": 1,
+          "hitAt5": 1,
+          "hitAt10": 1,
+          "meanReciprocalRank": 1
+        },
+        "tests": [
+          {
+            "query": "man:woman::king:?",
+            "expected": "queen",
+            "rank": 1,
+            "cosineExpected": 0.8482710051604802,
+            "hitAt1": true,
+            "hitAt5": true,
+            "hitAt10": true,
+            "top10": [
+              {
+                "word": "queen",
+                "score": 0.8482710051604802
+              },
+              {
+                "word": "princess",
+                "score": 0.7688194608471571
+              },
+              {
+                "word": "girl",
+                "score": 0.6398850582518082
+              },
+              {
+                "word": "mother",
+                "score": 0.6168591068042691
+              },
+              {
+                "word": "prince",
+                "score": 0.6098257052797251
+              },
+              {
+                "word": "child",
+                "score": 0.566316934386352
+              },
+              {
+                "word": "aunt",
+                "score": 0.5630405286369404
+              },
+              {
+                "word": "children",
+                "score": 0.5371845463065659
+              },
+              {
+                "word": "Bern",
+                "score": 0.5231159029485551
+              },
+              {
+                "word": "Poland",
+                "score": 0.5152907434860506
+              }
+            ],
+            "missingEmbeddings": false
+          },
+          {
+            "query": "boy:girl::prince:?",
+            "expected": "princess",
+            "rank": 1,
+            "cosineExpected": 0.8427062240882963,
+            "hitAt1": true,
+            "hitAt5": true,
+            "hitAt10": true,
+            "top10": [
+              {
+                "word": "princess",
+                "score": 0.8427062240882963
+              },
+              {
+                "word": "queen",
+                "score": 0.7707537430936098
+              },
+              {
+                "word": "king",
+                "score": 0.6879736514465992
+              },
+              {
+                "word": "woman",
+                "score": 0.6629121859787726
+              },
+              {
+                "word": "musician",
+                "score": 0.6123061115498155
+              },
+              {
+                "word": "painter",
+                "score": 0.6032419360663203
+              },
+              {
+                "word": "mother",
+                "score": 0.585928644180934
+              },
+              {
+                "word": "Picasso",
+                "score": 0.5843391425397128
+              },
+              {
+                "word": "Mozart",
+                "score": 0.5837641387921152
+              },
+              {
+                "word": "geese",
+                "score": 0.571309094555822
+              }
+            ],
+            "missingEmbeddings": false
+          },
+          {
+            "query": "father:mother::uncle:?",
+            "expected": "aunt",
+            "rank": 1,
+            "cosineExpected": 0.8780381726637467,
+            "hitAt1": true,
+            "hitAt5": true,
+            "hitAt10": true,
+            "top10": [
+              {
+                "word": "aunt",
+                "score": 0.8780381726637467
+              },
+              {
+                "word": "woman",
+                "score": 0.6802760964746646
+              },
+              {
+                "word": "queen",
+                "score": 0.6270707804900102
+              },
+              {
+                "word": "girl",
+                "score": 0.6248611162154979
+              },
+              {
+                "word": "child",
+                "score": 0.6111987016005428
+              },
+              {
+                "word": "princess",
+                "score": 0.5983381938208672
+              },
+              {
+                "word": "boy",
+                "score": 0.5911970640542515
+              },
+              {
+                "word": "man",
+                "score": 0.57744984322895
+              },
+              {
+                "word": "mouse",
+                "score": 0.5642573127913388
+              },
+              {
+                "word": "mice",
+                "score": 0.5590761538706803
+              }
+            ],
+            "missingEmbeddings": false
+          }
+        ]
+      }
+    }
+  },
+  "mistralai/mistral-embed-2312": {
+    "categories": {
+      "capitals": {
+        "summary": {
+          "testsCount": 4,
+          "validTestsCount": 4,
+          "hitAt1": 1,
+          "hitAt5": 1,
+          "hitAt10": 1,
+          "meanReciprocalRank": 1
+        },
+        "tests": [
+          {
+            "query": "Athens:Greece::Oslo:?",
+            "expected": "Norway",
+            "rank": 1,
+            "cosineExpected": 0.8467785514393039,
+            "hitAt1": true,
+            "hitAt5": true,
+            "hitAt10": true,
+            "top10": [
+              {
+                "word": "Norway",
+                "score": 0.8467785514393039
+              },
+              {
+                "word": "Norwegian",
+                "score": 0.7485165004655747
+              },
+              {
+                "word": "France",
+                "score": 0.7302758841987312
+              },
+              {
+                "word": "Germany",
+                "score": 0.7241281739913914
+              },
+              {
+                "word": "Portugal",
+                "score": 0.7233596931389201
+              },
+              {
+                "word": "Switzerland",
+                "score": 0.7219809310327132
+              },
+              {
+                "word": "Ireland",
+                "score": 0.7194617804644469
+              },
+              {
+                "word": "Spain",
+                "score": 0.7177481716306461
+              },
+              {
+                "word": "Italy",
+                "score": 0.7100242904865257
+              },
+              {
+                "word": "Greek",
+                "score": 0.7094341200523682
+              }
+            ],
+            "missingEmbeddings": false
+          },
+          {
+            "query": "Warsaw:Poland::Paris:?",
+            "expected": "France",
+            "rank": 1,
+            "cosineExpected": 0.8403796198591389,
+            "hitAt1": true,
+            "hitAt5": true,
+            "hitAt10": true,
+            "top10": [
+              {
+                "word": "France",
+                "score": 0.8403796198591389
+              },
+              {
+                "word": "Portugal",
+                "score": 0.7673454543980586
+              },
+              {
+                "word": "Italy",
+                "score": 0.7543905110931807
+              },
+              {
+                "word": "Germany",
+                "score": 0.7465371218480558
+              },
+              {
+                "word": "Ireland",
+                "score": 0.7430029108203589
+              },
+              {
+                "word": "Spain",
+                "score": 0.7424149284994925
+              },
+              {
+                "word": "Norway",
+                "score": 0.7363106526317732
+              },
+              {
+                "word": "Greece",
+                "score": 0.7328482306047059
+              },
+              {
+                "word": "Switzerland",
+                "score": 0.7232709419952839
+              },
+              {
+                "word": "French",
+                "score": 0.7053081039295579
+              }
+            ],
+            "missingEmbeddings": false
+          },
+          {
+            "query": "Rome:Italy::Berlin:?",
+            "expected": "Germany",
+            "rank": 1,
+            "cosineExpected": 0.8145814603244494,
+            "hitAt1": true,
+            "hitAt5": true,
+            "hitAt10": true,
+            "top10": [
+              {
+                "word": "Germany",
+                "score": 0.8145814603244494
+              },
+              {
+                "word": "Ireland",
+                "score": 0.7468004437199708
+              },
+              {
+                "word": "Poland",
+                "score": 0.7338607292304673
+              },
+              {
+                "word": "Switzerland",
+                "score": 0.7270055306498012
+              },
+              {
+                "word": "Spain",
+                "score": 0.7269891935003531
+              },
+              {
+                "word": "Portugal",
+                "score": 0.7224757365735323
+              },
+              {
+                "word": "Italian",
+                "score": 0.720288269077957
+              },
+              {
+                "word": "France",
+                "score": 0.7184465459622926
+              },
+              {
+                "word": "Greece",
+                "score": 0.7121476795158084
+              },
+              {
+                "word": "Norway",
+                "score": 0.7039884008742581
+              }
+            ],
+            "missingEmbeddings": false
+          },
+          {
+            "query": "Madrid:Spain::Lisbon:?",
+            "expected": "Portugal",
+            "rank": 1,
+            "cosineExpected": 0.8344116694787711,
+            "hitAt1": true,
+            "hitAt5": true,
+            "hitAt10": true,
+            "top10": [
+              {
+                "word": "Portugal",
+                "score": 0.8344116694787711
+              },
+              {
+                "word": "Greece",
+                "score": 0.7303998556372211
+              },
+              {
+                "word": "France",
+                "score": 0.7268937343201983
+              },
+              {
+                "word": "Ireland",
+                "score": 0.7250658776251299
+              },
+              {
+                "word": "Portuguese",
+                "score": 0.7189527124869544
+              },
+              {
+                "word": "Italy",
+                "score": 0.718365198569046
+              },
+              {
+                "word": "Switzerland",
+                "score": 0.7121419316192537
+              },
+              {
+                "word": "Norway",
+                "score": 0.7079198906871368
+              },
+              {
+                "word": "Spanish",
+                "score": 0.7050025822011663
+              },
+              {
+                "word": "Germany",
+                "score": 0.7043255141545574
+              }
+            ],
+            "missingEmbeddings": false
+          }
+        ]
+      },
+      "nationalities": {
+        "summary": {
+          "testsCount": 4,
+          "validTestsCount": 4,
+          "hitAt1": 1,
+          "hitAt5": 1,
+          "hitAt10": 1,
+          "meanReciprocalRank": 1
+        },
+        "tests": [
+          {
+            "query": "Germany:German::Spain:?",
+            "expected": "Spanish",
+            "rank": 1,
+            "cosineExpected": 0.9231266226209786,
+            "hitAt1": true,
+            "hitAt5": true,
+            "hitAt10": true,
+            "top10": [
+              {
+                "word": "Spanish",
+                "score": 0.9231266226209786
+              },
+              {
+                "word": "Italian",
+                "score": 0.7943449241375515
+              },
+              {
+                "word": "French",
+                "score": 0.7919927119048956
+              },
+              {
+                "word": "Portuguese",
+                "score": 0.777829060882806
+              },
+              {
+                "word": "Greek",
+                "score": 0.7556979811696135
+              },
+              {
+                "word": "Madrid",
+                "score": 0.7554087095448806
+              },
+              {
+                "word": "Norwegian",
+                "score": 0.7484376605738852
+              },
+              {
+                "word": "Swiss",
+                "score": 0.747815502636517
+              },
+              {
+                "word": "Irish",
+                "score": 0.7469166725955367
+              },
+              {
+                "word": "Picasso",
+                "score": 0.7125484225639109
+              }
+            ],
+            "missingEmbeddings": false
+          },
+          {
+            "query": "France:French::Italy:?",
+            "expected": "Italian",
+            "rank": 1,
+            "cosineExpected": 0.9333172468681346,
+            "hitAt1": true,
+            "hitAt5": true,
+            "hitAt10": true,
+            "top10": [
+              {
+                "word": "Italian",
+                "score": 0.9333172468681346
+              },
+              {
+                "word": "Spanish",
+                "score": 0.7992174493816673
+              },
+              {
+                "word": "German",
+                "score": 0.7857666063903072
+              },
+              {
+                "word": "Portuguese",
+                "score": 0.7771775417799922
+              },
+              {
+                "word": "Irish",
+                "score": 0.771081095134501
+              },
+              {
+                "word": "Greek",
+                "score": 0.7682153178842226
+              },
+              {
+                "word": "Swiss",
+                "score": 0.7488009978405311
+              },
+              {
+                "word": "Norwegian",
+                "score": 0.7466549864487525
+              },
+              {
+                "word": "Rome",
+                "score": 0.7291600518044926
+              },
+              {
+                "word": "Polish",
+                "score": 0.7137680427434294
+              }
+            ],
+            "missingEmbeddings": false
+          },
+          {
+            "query": "Poland:Polish::Norway:?",
+            "expected": "Norwegian",
+            "rank": 1,
+            "cosineExpected": 0.8897708119826744,
+            "hitAt1": true,
+            "hitAt5": true,
+            "hitAt10": true,
+            "top10": [
+              {
+                "word": "Norwegian",
+                "score": 0.8897708119826744
+              },
+              {
+                "word": "Oslo",
+                "score": 0.7550718268950593
+              },
+              {
+                "word": "French",
+                "score": 0.7262516877019609
+              },
+              {
+                "word": "Irish",
+                "score": 0.7240780044730188
+              },
+              {
+                "word": "Portuguese",
+                "score": 0.7191178323551908
+              },
+              {
+                "word": "German",
+                "score": 0.712836814051649
+              },
+              {
+                "word": "Swiss",
+                "score": 0.7127751082839188
+              },
+              {
+                "word": "Spanish",
+                "score": 0.7102213341512043
+              },
+              {
+                "word": "Italian",
+                "score": 0.7069627152552979
+              },
+              {
+                "word": "Greek",
+                "score": 0.7016673766216157
+              }
+            ],
+            "missingEmbeddings": false
+          },
+          {
+            "query": "Switzerland:Swiss::Portugal:?",
+            "expected": "Portuguese",
+            "rank": 1,
+            "cosineExpected": 0.8894860571252913,
+            "hitAt1": true,
+            "hitAt5": true,
+            "hitAt10": true,
+            "top10": [
+              {
+                "word": "Portuguese",
+                "score": 0.8894860571252913
+              },
+              {
+                "word": "Irish",
+                "score": 0.7837519615575351
+              },
+              {
+                "word": "Lisbon",
+                "score": 0.782934432627557
+              },
+              {
+                "word": "French",
+                "score": 0.7688315337992722
+              },
+              {
+                "word": "Spanish",
+                "score": 0.7592317589801164
+              },
+              {
+                "word": "German",
+                "score": 0.7537446632018633
+              },
+              {
+                "word": "Italian",
+                "score": 0.7518300329938356
+              },
+              {
+                "word": "Norwegian",
+                "score": 0.7500003320886194
+              },
+              {
+                "word": "Polish",
+                "score": 0.7293205454559912
+              },
+              {
+                "word": "Greek",
+                "score": 0.7195327019373303
+              }
+            ],
+            "missingEmbeddings": false
+          }
+        ]
+      },
+      "plurals": {
+        "summary": {
+          "testsCount": 3,
+          "validTestsCount": 3,
+          "hitAt1": 1,
+          "hitAt5": 1,
+          "hitAt10": 1,
+          "meanReciprocalRank": 1
+        },
+        "tests": [
+          {
+            "query": "mouse:mice::foot:?",
+            "expected": "feet",
+            "rank": 1,
+            "cosineExpected": 0.8752837917729518,
+            "hitAt1": true,
+            "hitAt5": true,
+            "hitAt10": true,
+            "top10": [
+              {
+                "word": "feet",
+                "score": 0.8752837917729518
+              },
+              {
+                "word": "children",
+                "score": 0.6721051161476101
+              },
+              {
+                "word": "father",
+                "score": 0.6673337134708539
+              },
+              {
+                "word": "French",
+                "score": 0.6638882873266303
+              },
+              {
+                "word": "teeth",
+                "score": 0.6620846979451671
+              },
+              {
+                "word": "Spanish",
+                "score": 0.657135846384786
+              },
+              {
+                "word": "woman",
+                "score": 0.6559027738171958
+              },
+              {
+                "word": "child",
+                "score": 0.6551736777400617
+              },
+              {
+                "word": "man",
+                "score": 0.6539831926080363
+              },
+              {
+                "word": "boy",
+                "score": 0.6531853610153011
+              }
+            ],
+            "missingEmbeddings": false
+          },
+          {
+            "query": "child:children::tooth:?",
+            "expected": "teeth",
+            "rank": 1,
+            "cosineExpected": 0.8974498331859151,
+            "hitAt1": true,
+            "hitAt5": true,
+            "hitAt10": true,
+            "top10": [
+              {
+                "word": "teeth",
+                "score": 0.8974498331859151
+              },
+              {
+                "word": "feet",
+                "score": 0.6949680714532376
+              },
+              {
+                "word": "foot",
+                "score": 0.6769976586644544
+              },
+              {
+                "word": "mouse",
+                "score": 0.6747730565854421
+              },
+              {
+                "word": "mice",
+                "score": 0.6657338583343266
+              },
+              {
+                "word": "mother",
+                "score": 0.6625320735921372
+              },
+              {
+                "word": "dollars",
+                "score": 0.6518337645732235
+              },
+              {
+                "word": "father",
+                "score": 0.6497493545424787
+              },
+              {
+                "word": "queen",
+                "score": 0.6440051369887143
+              },
+              {
+                "word": "king",
+                "score": 0.6432106482803546
+              }
+            ],
+            "missingEmbeddings": false
+          },
+          {
+            "query": "goose:geese::dollar:?",
+            "expected": "dollars",
+            "rank": 1,
+            "cosineExpected": 0.8888111828365858,
+            "hitAt1": true,
+            "hitAt5": true,
+            "hitAt10": true,
+            "top10": [
+              {
+                "word": "dollars",
+                "score": 0.8888111828365858
+              },
+              {
+                "word": "feet",
+                "score": 0.6659124407302336
+              },
+              {
+                "word": "teeth",
+                "score": 0.6534481062783921
+              },
+              {
+                "word": "girl",
+                "score": 0.6512804477008118
+              },
+              {
+                "word": "foot",
+                "score": 0.6437517710036025
+              },
+              {
+                "word": "king",
+                "score": 0.6425158193501246
+              },
+              {
+                "word": "woman",
+                "score": 0.6417976848105865
+              },
+              {
+                "word": "Einstein",
+                "score": 0.6416898170808175
+              },
+              {
+                "word": "tooth",
+                "score": 0.6402087469308754
+              },
+              {
+                "word": "child",
+                "score": 0.6350955778427847
+              }
+            ],
+            "missingEmbeddings": false
+          }
+        ]
+      },
+      "occupations": {
+        "summary": {
+          "testsCount": 3,
+          "validTestsCount": 3,
+          "hitAt1": 0.3333333333333333,
+          "hitAt5": 1,
+          "hitAt10": 1,
+          "meanReciprocalRank": 0.6666666666666666
+        },
+        "tests": [
+          {
+            "query": "Einstein:scientist::Picasso:?",
+            "expected": "painter",
+            "rank": 2,
+            "cosineExpected": 0.6587760471824543,
+            "hitAt1": false,
+            "hitAt5": true,
+            "hitAt10": true,
+            "top10": [
+              {
+                "word": "biologist",
+                "score": 0.6823622883540126
+              },
+              {
+                "word": "painter",
+                "score": 0.6587760471824543
+              },
+              {
+                "word": "musician",
+                "score": 0.649980969993913
+              },
+              {
+                "word": "physicist",
+                "score": 0.6474154716270382
+              },
+              {
+                "word": "woman",
+                "score": 0.6420903374816382
+              },
+              {
+                "word": "composer",
+                "score": 0.6219551130005219
+              },
+              {
+                "word": "girl",
+                "score": 0.6100596610337655
+              },
+              {
+                "word": "Spanish",
+                "score": 0.6083139188657173
+              },
+              {
+                "word": "Spain",
+                "score": 0.6057758146953701
+              },
+              {
+                "word": "man",
+                "score": 0.597363094667956
+              }
+            ],
+            "missingEmbeddings": false
+          },
+          {
+            "query": "Newton:physicist::Darwin:?",
+            "expected": "biologist",
+            "rank": 2,
+            "cosineExpected": 0.7023616895968514,
+            "hitAt1": false,
+            "hitAt5": true,
+            "hitAt10": true,
+            "top10": [
+              {
+                "word": "scientist",
+                "score": 0.7043475954450318
+              },
+              {
+                "word": "biologist",
+                "score": 0.7023616895968514
+              },
+              {
+                "word": "musician",
+                "score": 0.634693378188549
+              },
+              {
+                "word": "man",
+                "score": 0.5866727353042702
+              },
+              {
+                "word": "woman",
+                "score": 0.5851884943334545
+              },
+              {
+                "word": "Berlin",
+                "score": 0.5824262583647319
+              },
+              {
+                "word": "painter",
+                "score": 0.5799250884270641
+              },
+              {
+                "word": "composer",
+                "score": 0.5776150042517446
+              },
+              {
+                "word": "father",
+                "score": 0.577320761623103
+              },
+              {
+                "word": "girl",
+                "score": 0.5767582602524278
+              }
+            ],
+            "missingEmbeddings": false
+          },
+          {
+            "query": "Mozart:musician::Bach:?",
+            "expected": "composer",
+            "rank": 1,
+            "cosineExpected": 0.6473253007792976,
+            "hitAt1": true,
+            "hitAt5": true,
+            "hitAt10": true,
+            "top10": [
+              {
+                "word": "composer",
+                "score": 0.6473253007792976
+              },
+              {
+                "word": "scientist",
+                "score": 0.6467837331734265
+              },
+              {
+                "word": "painter",
+                "score": 0.642594752212155
+              },
+              {
+                "word": "biologist",
+                "score": 0.6375273587997642
+              },
+              {
+                "word": "man",
+                "score": 0.6108464982977431
+              },
+              {
+                "word": "physicist",
+                "score": 0.6071131823391601
+              },
+              {
+                "word": "woman",
+                "score": 0.6051915796483694
+              },
+              {
+                "word": "king",
+                "score": 0.5977843502512753
+              },
+              {
+                "word": "queen",
+                "score": 0.590813751450866
+              },
+              {
+                "word": "girl",
+                "score": 0.5905905381098122
+              }
+            ],
+            "missingEmbeddings": false
+          }
+        ]
+      },
+      "gender": {
+        "summary": {
+          "testsCount": 3,
+          "validTestsCount": 3,
+          "hitAt1": 1,
+          "hitAt5": 1,
+          "hitAt10": 1,
+          "meanReciprocalRank": 1
+        },
+        "tests": [
+          {
+            "query": "man:woman::king:?",
+            "expected": "queen",
+            "rank": 1,
+            "cosineExpected": 0.8028423097556177,
+            "hitAt1": true,
+            "hitAt5": true,
+            "hitAt10": true,
+            "top10": [
+              {
+                "word": "queen",
+                "score": 0.8028423097556177
+              },
+              {
+                "word": "princess",
+                "score": 0.7470941490033712
+              },
+              {
+                "word": "mother",
+                "score": 0.6920640742224643
+              },
+              {
+                "word": "prince",
+                "score": 0.6909993764488759
+              },
+              {
+                "word": "girl",
+                "score": 0.6885494869669209
+              },
+              {
+                "word": "aunt",
+                "score": 0.6781538555362131
+              },
+              {
+                "word": "child",
+                "score": 0.6522673189812637
+              },
+              {
+                "word": "tooth",
+                "score": 0.63809467401875
+              },
+              {
+                "word": "scientist",
+                "score": 0.6379339078335807
+              },
+              {
+                "word": "foot",
+                "score": 0.6359171509355906
+              }
+            ],
+            "missingEmbeddings": false
+          },
+          {
+            "query": "boy:girl::prince:?",
+            "expected": "princess",
+            "rank": 1,
+            "cosineExpected": 0.8272886625499599,
+            "hitAt1": true,
+            "hitAt5": true,
+            "hitAt10": true,
+            "top10": [
+              {
+                "word": "princess",
+                "score": 0.8272886625499599
+              },
+              {
+                "word": "queen",
+                "score": 0.715002198043649
+              },
+              {
+                "word": "king",
+                "score": 0.6939827486852316
+              },
+              {
+                "word": "woman",
+                "score": 0.6479066198500929
+              },
+              {
+                "word": "musician",
+                "score": 0.6199336414443346
+              },
+              {
+                "word": "uncle",
+                "score": 0.6159319948557068
+              },
+              {
+                "word": "aunt",
+                "score": 0.6088656700719721
+              },
+              {
+                "word": "father",
+                "score": 0.6046642018538816
+              },
+              {
+                "word": "dollar",
+                "score": 0.6041044309125635
+              },
+              {
+                "word": "scientist",
+                "score": 0.6039297878735245
+              }
+            ],
+            "missingEmbeddings": false
+          },
+          {
+            "query": "father:mother::uncle:?",
+            "expected": "aunt",
+            "rank": 1,
+            "cosineExpected": 0.7749666074778903,
+            "hitAt1": true,
+            "hitAt5": true,
+            "hitAt10": true,
+            "top10": [
+              {
+                "word": "aunt",
+                "score": 0.7749666074778903
+              },
+              {
+                "word": "woman",
+                "score": 0.68491101567542
+              },
+              {
+                "word": "queen",
+                "score": 0.6836322882918839
+              },
+              {
+                "word": "mouse",
+                "score": 0.6349399862225824
+              },
+              {
+                "word": "prince",
+                "score": 0.6253537050865272
+              },
+              {
+                "word": "boy",
+                "score": 0.6217331752165237
+              },
+              {
+                "word": "tooth",
+                "score": 0.6196023796632342
+              },
+              {
+                "word": "princess",
+                "score": 0.6159121547678926
+              },
+              {
+                "word": "foot",
+                "score": 0.6078269097300771
+              },
+              {
+                "word": "child",
+                "score": 0.6047595612210122
+              }
+            ],
+            "missingEmbeddings": false
+          }
+        ]
+      }
+    }
+  },
+  "glove/wink-embeddings-sg-100d": {
+    "categories": {
+      "capitals": {
+        "summary": {
+          "testsCount": 4,
+          "validTestsCount": 4,
+          "hitAt1": 1,
+          "hitAt5": 1,
+          "hitAt10": 1,
+          "meanReciprocalRank": 1
+        },
+        "tests": [
+          {
+            "query": "Athens:Greece::Oslo:?",
+            "expected": "Norway",
+            "rank": 1,
+            "cosineExpected": 0.6962045009838952,
+            "hitAt1": true,
+            "hitAt5": true,
+            "hitAt10": true,
+            "top10": [
+              {
+                "word": "Norway",
+                "score": 0.6962045009838952
+              },
+              {
+                "word": "Norwegian",
+                "score": 0.5619434024077018
+              },
+              {
+                "word": "Switzerland",
+                "score": 0.48408176482951665
+              },
+              {
+                "word": "Germany",
+                "score": 0.46570013472240823
+              },
+              {
+                "word": "Poland",
+                "score": 0.4583359052443529
+              },
+              {
+                "word": "Ireland",
+                "score": 0.43419998226179973
+              },
+              {
+                "word": "Italy",
+                "score": 0.4087209552010382
+              },
+              {
+                "word": "Portugal",
+                "score": 0.3902752510228494
+              },
+              {
+                "word": "Lisbon",
+                "score": 0.384257377642658
+              },
+              {
+                "word": "Spain",
+                "score": 0.381135703971803
+              }
+            ],
+            "missingEmbeddings": false
+          },
+          {
+            "query": "Warsaw:Poland::Paris:?",
+            "expected": "France",
+            "rank": 1,
+            "cosineExpected": 0.8691660256254369,
+            "hitAt1": true,
+            "hitAt5": true,
+            "hitAt10": true,
+            "top10": [
+              {
+                "word": "France",
+                "score": 0.8691660256254369
+              },
+              {
+                "word": "Spain",
+                "score": 0.7092205907315532
+              },
+              {
+                "word": "Italy",
+                "score": 0.7034051423786823
+              },
+              {
+                "word": "Switzerland",
+                "score": 0.6772738179376675
+              },
+              {
+                "word": "Germany",
+                "score": 0.6521331008448763
+              },
+              {
+                "word": "French",
+                "score": 0.6462220240702367
+              },
+              {
+                "word": "Greece",
+                "score": 0.6247140253226815
+              },
+              {
+                "word": "Portugal",
+                "score": 0.616201925424599
+              },
+              {
+                "word": "Norway",
+                "score": 0.5650363376144869
+              },
+              {
+                "word": "Ireland",
+                "score": 0.5384513341222141
+              }
+            ],
+            "missingEmbeddings": false
+          },
+          {
+            "query": "Rome:Italy::Berlin:?",
+            "expected": "Germany",
+            "rank": 1,
+            "cosineExpected": 0.8375500798894573,
+            "hitAt1": true,
+            "hitAt5": true,
+            "hitAt10": true,
+            "top10": [
+              {
+                "word": "Germany",
+                "score": 0.8375500798894573
+              },
+              {
+                "word": "German",
+                "score": 0.6533185965214974
+              },
+              {
+                "word": "Switzerland",
+                "score": 0.6471594809359719
+              },
+              {
+                "word": "Poland",
+                "score": 0.6317833949251276
+              },
+              {
+                "word": "Norway",
+                "score": 0.6084458595423199
+              },
+              {
+                "word": "France",
+                "score": 0.5884608129144739
+              },
+              {
+                "word": "Greece",
+                "score": 0.5600148171734353
+              },
+              {
+                "word": "Spain",
+                "score": 0.5497156650080453
+              },
+              {
+                "word": "Portugal",
+                "score": 0.5137779440815127
+              },
+              {
+                "word": "Swiss",
+                "score": 0.49815393310813166
+              }
+            ],
+            "missingEmbeddings": false
+          },
+          {
+            "query": "Madrid:Spain::Lisbon:?",
+            "expected": "Portugal",
+            "rank": 1,
+            "cosineExpected": 0.8062521252636008,
+            "hitAt1": true,
+            "hitAt5": true,
+            "hitAt10": true,
+            "top10": [
+              {
+                "word": "Portugal",
+                "score": 0.8062521252636008
+              },
+              {
+                "word": "Portuguese",
+                "score": 0.6294299912382126
+              },
+              {
+                "word": "Italy",
+                "score": 0.6172216020775767
+              },
+              {
+                "word": "Greece",
+                "score": 0.5997964616838672
+              },
+              {
+                "word": "Poland",
+                "score": 0.5692262810096987
+              },
+              {
+                "word": "France",
+                "score": 0.5594415208180581
+              },
+              {
+                "word": "Ireland",
+                "score": 0.5428196809143702
+              },
+              {
+                "word": "Norway",
+                "score": 0.511061468258564
+              },
+              {
+                "word": "Spanish",
+                "score": 0.505522560626832
+              },
+              {
+                "word": "Germany",
+                "score": 0.48023712610038455
+              }
+            ],
+            "missingEmbeddings": false
+          }
+        ]
+      },
+      "nationalities": {
+        "summary": {
+          "testsCount": 4,
+          "validTestsCount": 4,
+          "hitAt1": 1,
+          "hitAt5": 1,
+          "hitAt10": 1,
+          "meanReciprocalRank": 1
+        },
+        "tests": [
+          {
+            "query": "Germany:German::Spain:?",
+            "expected": "Spanish",
+            "rank": 1,
+            "cosineExpected": 0.9357036685442252,
+            "hitAt1": true,
+            "hitAt5": true,
+            "hitAt10": true,
+            "top10": [
+              {
+                "word": "Spanish",
+                "score": 0.9357036685442252
+              },
+              {
+                "word": "French",
+                "score": 0.7696576829409647
+              },
+              {
+                "word": "Italian",
+                "score": 0.7643605470507085
+              },
+              {
+                "word": "Portuguese",
+                "score": 0.7447589152755848
+              },
+              {
+                "word": "Madrid",
+                "score": 0.60666903702236
+              },
+              {
+                "word": "Greek",
+                "score": 0.5920216972530539
+              },
+              {
+                "word": "Polish",
+                "score": 0.5802073565349467
+              },
+              {
+                "word": "France",
+                "score": 0.5675213556995724
+              },
+              {
+                "word": "Portugal",
+                "score": 0.5592642083832664
+              },
+              {
+                "word": "Swiss",
+                "score": 0.5540276340026452
+              }
+            ],
+            "missingEmbeddings": false
+          },
+          {
+            "query": "France:French::Italy:?",
+            "expected": "Italian",
+            "rank": 1,
+            "cosineExpected": 0.9510671774073598,
+            "hitAt1": true,
+            "hitAt5": true,
+            "hitAt10": true,
+            "top10": [
+              {
+                "word": "Italian",
+                "score": 0.9510671774073598
+              },
+              {
+                "word": "Spanish",
+                "score": 0.7640806106165291
+              },
+              {
+                "word": "Portuguese",
+                "score": 0.6964843783573729
+              },
+              {
+                "word": "German",
+                "score": 0.6907280228306071
+              },
+              {
+                "word": "Greek",
+                "score": 0.6758978314783998
+              },
+              {
+                "word": "Swiss",
+                "score": 0.6336290362244612
+              },
+              {
+                "word": "Polish",
+                "score": 0.5951398403502669
+              },
+              {
+                "word": "Spain",
+                "score": 0.5882007521320542
+              },
+              {
+                "word": "Rome",
+                "score": 0.585669002180094
+              },
+              {
+                "word": "Greece",
+                "score": 0.5590598005597912
+              }
+            ],
+            "missingEmbeddings": false
+          },
+          {
+            "query": "Poland:Polish::Norway:?",
+            "expected": "Norwegian",
+            "rank": 1,
+            "cosineExpected": 0.8971045357150988,
+            "hitAt1": true,
+            "hitAt5": true,
+            "hitAt10": true,
+            "top10": [
+              {
+                "word": "Norwegian",
+                "score": 0.8971045357150988
+              },
+              {
+                "word": "German",
+                "score": 0.6215074919898849
+              },
+              {
+                "word": "French",
+                "score": 0.5649248518575233
+              },
+              {
+                "word": "Italian",
+                "score": 0.5635491580259112
+              },
+              {
+                "word": "Swiss",
+                "score": 0.559446631677235
+              },
+              {
+                "word": "Irish",
+                "score": 0.5538491002772801
+              },
+              {
+                "word": "Greek",
+                "score": 0.552538726821415
+              },
+              {
+                "word": "Oslo",
+                "score": 0.49151010238153264
+              },
+              {
+                "word": "Spanish",
+                "score": 0.486610377529586
+              },
+              {
+                "word": "Portuguese",
+                "score": 0.44312040613254583
+              }
+            ],
+            "missingEmbeddings": false
+          },
+          {
+            "query": "Switzerland:Swiss::Portugal:?",
+            "expected": "Portuguese",
+            "rank": 1,
+            "cosineExpected": 0.8395837893898097,
+            "hitAt1": true,
+            "hitAt5": true,
+            "hitAt10": true,
+            "top10": [
+              {
+                "word": "Portuguese",
+                "score": 0.8395837893898097
+              },
+              {
+                "word": "Spanish",
+                "score": 0.7378260023028645
+              },
+              {
+                "word": "Italian",
+                "score": 0.667003979355901
+              },
+              {
+                "word": "Lisbon",
+                "score": 0.6181016776818954
+              },
+              {
+                "word": "French",
+                "score": 0.6149920886009936
+              },
+              {
+                "word": "Spain",
+                "score": 0.5917605802612068
+              },
+              {
+                "word": "German",
+                "score": 0.5660731624553254
+              },
+              {
+                "word": "Greek",
+                "score": 0.5597389028703782
+              },
+              {
+                "word": "Irish",
+                "score": 0.552826617181141
+              },
+              {
+                "word": "Italy",
+                "score": 0.5386318244540895
+              }
+            ],
+            "missingEmbeddings": false
+          }
+        ]
+      },
+      "plurals": {
+        "summary": {
+          "testsCount": 3,
+          "validTestsCount": 3,
+          "hitAt1": 1,
+          "hitAt5": 1,
+          "hitAt10": 1,
+          "meanReciprocalRank": 1
+        },
+        "tests": [
+          {
+            "query": "mouse:mice::foot:?",
+            "expected": "feet",
+            "rank": 1,
+            "cosineExpected": 0.5469834881056302,
+            "hitAt1": true,
+            "hitAt5": true,
+            "hitAt10": true,
+            "top10": [
+              {
+                "word": "feet",
+                "score": 0.5469834881056302
+              },
+              {
+                "word": "children",
+                "score": 0.42887793164613275
+              },
+              {
+                "word": "teeth",
+                "score": 0.3403452403742876
+              },
+              {
+                "word": "man",
+                "score": 0.32164694493449053
+              },
+              {
+                "word": "tooth",
+                "score": 0.31888104727295896
+              },
+              {
+                "word": "child",
+                "score": 0.31157364355556216
+              },
+              {
+                "word": "woman",
+                "score": 0.29493082127978654
+              },
+              {
+                "word": "France",
+                "score": 0.2816226836262107
+              },
+              {
+                "word": "Rome",
+                "score": 0.26980366642117287
+              },
+              {
+                "word": "French",
+                "score": 0.2610466787582666
+              }
+            ],
+            "missingEmbeddings": false
+          },
+          {
+            "query": "child:children::tooth:?",
+            "expected": "teeth",
+            "rank": 1,
+            "cosineExpected": 0.678722765734246,
+            "hitAt1": true,
+            "hitAt5": true,
+            "hitAt10": true,
+            "top10": [
+              {
+                "word": "teeth",
+                "score": 0.678722765734246
+              },
+              {
+                "word": "foot",
+                "score": 0.4100702047103
+              },
+              {
+                "word": "feet",
+                "score": 0.37203671721464787
+              },
+              {
+                "word": "mice",
+                "score": 0.35687409100406975
+              },
+              {
+                "word": "goose",
+                "score": 0.31791925500154233
+              },
+              {
+                "word": "mouse",
+                "score": 0.26737874510256715
+              },
+              {
+                "word": "girl",
+                "score": 0.22398138339603235
+              },
+              {
+                "word": "boy",
+                "score": 0.2119234450617875
+              },
+              {
+                "word": "woman",
+                "score": 0.19080586677400252
+              },
+              {
+                "word": "mother",
+                "score": 0.1847334838954216
+              }
+            ],
+            "missingEmbeddings": false
+          },
+          {
+            "query": "goose:geese::dollar:?",
+            "expected": "dollars",
+            "rank": 1,
+            "cosineExpected": 0.5784321648836279,
+            "hitAt1": true,
+            "hitAt5": true,
+            "hitAt10": true,
+            "top10": [
+              {
+                "word": "dollars",
+                "score": 0.5784321648836279
+              },
+              {
+                "word": "Swiss",
+                "score": 0.3339074937706925
+              },
+              {
+                "word": "Greece",
+                "score": 0.29925745281773825
+              },
+              {
+                "word": "France",
+                "score": 0.2810549774637688
+              },
+              {
+                "word": "Germany",
+                "score": 0.2794538269364162
+              },
+              {
+                "word": "Switzerland",
+                "score": 0.27452798154516594
+              },
+              {
+                "word": "Paris",
+                "score": 0.26180456342369696
+              },
+              {
+                "word": "Athens",
+                "score": 0.2553762606701468
+              },
+              {
+                "word": "Madrid",
+                "score": 0.24952409850178706
+              },
+              {
+                "word": "Spain",
+                "score": 0.2268742003599944
+              }
+            ],
+            "missingEmbeddings": false
+          }
+        ]
+      },
+      "occupations": {
+        "summary": {
+          "testsCount": 3,
+          "validTestsCount": 3,
+          "hitAt1": 1,
+          "hitAt5": 1,
+          "hitAt10": 1,
+          "meanReciprocalRank": 1
+        },
+        "tests": [
+          {
+            "query": "Einstein:scientist::Picasso:?",
+            "expected": "painter",
+            "rank": 1,
+            "cosineExpected": 0.6287138714274615,
+            "hitAt1": true,
+            "hitAt5": true,
+            "hitAt10": true,
+            "top10": [
+              {
+                "word": "painter",
+                "score": 0.6287138714274615
+              },
+              {
+                "word": "musician",
+                "score": 0.43353283790450853
+              },
+              {
+                "word": "composer",
+                "score": 0.41141409067995616
+              },
+              {
+                "word": "man",
+                "score": 0.3918088691241807
+              },
+              {
+                "word": "biologist",
+                "score": 0.3914229113723023
+              },
+              {
+                "word": "woman",
+                "score": 0.37039909231996876
+              },
+              {
+                "word": "physicist",
+                "score": 0.35509103089051264
+              },
+              {
+                "word": "father",
+                "score": 0.3386317219487225
+              },
+              {
+                "word": "French",
+                "score": 0.33396409014937994
+              },
+              {
+                "word": "Italian",
+                "score": 0.31287140822788295
+              }
+            ],
+            "missingEmbeddings": false
+          },
+          {
+            "query": "Newton:physicist::Darwin:?",
+            "expected": "biologist",
+            "rank": 1,
+            "cosineExpected": 0.54785370010841,
+            "hitAt1": true,
+            "hitAt5": true,
+            "hitAt10": true,
+            "top10": [
+              {
+                "word": "biologist",
+                "score": 0.54785370010841
+              },
+              {
+                "word": "scientist",
+                "score": 0.543678624184182
+              },
+              {
+                "word": "Einstein",
+                "score": 0.3762224545997225
+              },
+              {
+                "word": "painter",
+                "score": 0.3130018759478734
+              },
+              {
+                "word": "composer",
+                "score": 0.30034253090100277
+              },
+              {
+                "word": "French",
+                "score": 0.22960512645397294
+              },
+              {
+                "word": "Norwegian",
+                "score": 0.2279535951682515
+              },
+              {
+                "word": "Picasso",
+                "score": 0.20190609147930108
+              },
+              {
+                "word": "prince",
+                "score": 0.20181088083543053
+              },
+              {
+                "word": "Greek",
+                "score": 0.20042757995740365
+              }
+            ],
+            "missingEmbeddings": false
+          },
+          {
+            "query": "Mozart:musician::Bach:?",
+            "expected": "composer",
+            "rank": 1,
+            "cosineExpected": 0.5989077625743763,
+            "hitAt1": true,
+            "hitAt5": true,
+            "hitAt10": true,
+            "top10": [
+              {
+                "word": "composer",
+                "score": 0.5989077625743763
+              },
+              {
+                "word": "painter",
+                "score": 0.4506736169295167
+              },
+              {
+                "word": "father",
+                "score": 0.38329039784858737
+              },
+              {
+                "word": "scientist",
+                "score": 0.3383353105460754
+              },
+              {
+                "word": "Irish",
+                "score": 0.3213532638641041
+              },
+              {
+                "word": "boy",
+                "score": 0.31448200163115597
+              },
+              {
+                "word": "uncle",
+                "score": 0.3112200910945474
+              },
+              {
+                "word": "man",
+                "score": 0.3012121787123805
+              },
+              {
+                "word": "mother",
+                "score": 0.2984375458690995
+              },
+              {
+                "word": "Newton",
+                "score": 0.2872290813957245
+              }
+            ],
+            "missingEmbeddings": false
+          }
+        ]
+      },
+      "gender": {
+        "summary": {
+          "testsCount": 3,
+          "validTestsCount": 3,
+          "hitAt1": 1,
+          "hitAt5": 1,
+          "hitAt10": 1,
+          "meanReciprocalRank": 1
+        },
+        "tests": [
+          {
+            "query": "man:woman::king:?",
+            "expected": "queen",
+            "rank": 1,
+            "cosineExpected": 0.7698541443451133,
+            "hitAt1": true,
+            "hitAt5": true,
+            "hitAt10": true,
+            "top10": [
+              {
+                "word": "queen",
+                "score": 0.7698541443451133
+              },
+              {
+                "word": "princess",
+                "score": 0.6520534073255605
+              },
+              {
+                "word": "prince",
+                "score": 0.6517034145309641
+              },
+              {
+                "word": "mother",
+                "score": 0.6311717307023674
+              },
+              {
+                "word": "father",
+                "score": 0.605250499766296
+              },
+              {
+                "word": "uncle",
+                "score": 0.5341973993530966
+              },
+              {
+                "word": "child",
+                "score": 0.5123929372607134
+              },
+              {
+                "word": "aunt",
+                "score": 0.48931861965765444
+              },
+              {
+                "word": "children",
+                "score": 0.4877588981811933
+              },
+              {
+                "word": "girl",
+                "score": 0.4704522766321532
+              }
+            ],
+            "missingEmbeddings": false
+          },
+          {
+            "query": "boy:girl::prince:?",
+            "expected": "princess",
+            "rank": 1,
+            "cosineExpected": 0.7985004629799388,
+            "hitAt1": true,
+            "hitAt5": true,
+            "hitAt10": true,
+            "top10": [
+              {
+                "word": "princess",
+                "score": 0.7985004629799388
+              },
+              {
+                "word": "queen",
+                "score": 0.6849492682490294
+              },
+              {
+                "word": "king",
+                "score": 0.6332252312621993
+              },
+              {
+                "word": "uncle",
+                "score": 0.517080843217525
+              },
+              {
+                "word": "father",
+                "score": 0.516567794870491
+              },
+              {
+                "word": "mother",
+                "score": 0.5065848430525977
+              },
+              {
+                "word": "Paris",
+                "score": 0.4527930700412209
+              },
+              {
+                "word": "woman",
+                "score": 0.4361737771284475
+              },
+              {
+                "word": "aunt",
+                "score": 0.43301029649319944
+              },
+              {
+                "word": "France",
+                "score": 0.4301668497572613
+              }
+            ],
+            "missingEmbeddings": false
+          },
+          {
+            "query": "father:mother::uncle:?",
+            "expected": "aunt",
+            "rank": 1,
+            "cosineExpected": 0.909874196080434,
+            "hitAt1": true,
+            "hitAt5": true,
+            "hitAt10": true,
+            "top10": [
+              {
+                "word": "aunt",
+                "score": 0.909874196080434
+              },
+              {
+                "word": "girl",
+                "score": 0.6814874348052902
+              },
+              {
+                "word": "boy",
+                "score": 0.6629011920460064
+              },
+              {
+                "word": "woman",
+                "score": 0.6466155757180131
+              },
+              {
+                "word": "child",
+                "score": 0.6438912893885997
+              },
+              {
+                "word": "princess",
+                "score": 0.624277172448311
+              },
+              {
+                "word": "children",
+                "score": 0.6134034457869323
+              },
+              {
+                "word": "queen",
+                "score": 0.5803125507063507
+              },
+              {
+                "word": "man",
+                "score": 0.5716138309306706
+              },
+              {
+                "word": "prince",
+                "score": 0.518174046041518
+              }
+            ],
+            "missingEmbeddings": false
+          }
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,50 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  color: var(--sc--text);
+  background: var(--sc--background);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.label {
+  font-weight: 600;
+}
+
+.select {
+  padding: 0.25rem 0.5rem;
+  background: var(--sc--background);
+  color: var(--sc--text);
+  border: 1px solid var(--sc--text);
+  border-radius: 2px;
+}
+
+.table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.rowItem {
+  border-bottom: 1px solid var(--sc--table--border);
+}
+
+.word {
+  padding: 0.15rem 0.3rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.875rem;
+}
+
+.distance {
+  padding: 0.15rem 0.3rem;
+  font-family: monospace;
+  text-align: right;
+  font-size: 0.875rem;
+}
