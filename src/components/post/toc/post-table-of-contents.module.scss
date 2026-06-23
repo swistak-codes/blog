@@ -1,0 +1,293 @@
+@use 'sass:math';
+@use '../../consts';
+
+$panel-width: 210px;
+$panel-header-height: 60px;
+$panel-toggle-width: 35px;
+$desktop-breakpoint: consts.$page-width + ($panel-width + 16px) * 2;
+
+.wrapper {
+  display: none;
+
+  @media (max-width: $desktop-breakpoint - 1px) {
+    position: fixed;
+    inset: 0;
+    z-index: 40;
+    pointer-events: none;
+  }
+
+  @media (min-width: $desktop-breakpoint) {
+    position: absolute;
+    top: var(--toc-desktop-track-top, 0px);
+    bottom: 0;
+    left: calc(#{math.div(consts.$page-width, 2)} - 50vw);
+    width: calc(
+      50vw - #{math.div(consts.$page-width, 2)} // - #{$panel-toggle-width}
+    );
+    max-width: #{math.div(consts.$page-width, 2)};
+    display: block;
+    z-index: 10;
+    pointer-events: none;
+  }
+
+  &.desktopCollapsed {
+    @media (min-width: $desktop-breakpoint) {
+      .stickyRail {
+        transform: translateX(calc(-100% + #{$panel-toggle-width}));
+      }
+    }
+  }
+
+  &.mobileOpen {
+    @media (max-width: $desktop-breakpoint - 1px) {
+      pointer-events: auto;
+      display: block;
+    }
+  }
+
+  &.hidden {
+    display: none !important;
+  }
+}
+
+.stickyRail {
+  @media (min-width: $desktop-breakpoint) {
+    position: sticky;
+    top: 0;
+    display: flex;
+    align-items: flex-start;
+    overflow: visible;
+    width: 100%;
+    max-height: 100vh;
+    pointer-events: none;
+    transition: transform 0.3s ease;
+
+    &::after {
+      content: '';
+      position: absolute;
+      top: -24px;
+      left: 0;
+      width: calc(100% - #{$panel-toggle-width});
+      height: 24px;
+      background: var(--sc__header--background);
+      pointer-events: none;
+      z-index: 1;
+    }
+  }
+}
+
+.desktopToggleButton,
+.mobileToggleButton,
+.mobileCloseButton {
+  border: 0;
+  font: inherit;
+  color: inherit;
+}
+
+.desktopToggleButton {
+  display: none;
+
+  @media (min-width: $desktop-breakpoint) {
+    display: flex;
+    width: $panel-toggle-width;
+    min-height: $panel-header-height;
+    align-items: center;
+    justify-content: center;
+    background: var(--sc__similarPosts--hideButtonBackground);
+    color: var(--sc__similarPosts--hideButtonColor);
+    cursor: pointer;
+    pointer-events: auto;
+    border-top-right-radius: 50%;
+    border-bottom-right-radius: 50%;
+
+    svg {
+      width: 1rem;
+      height: 1rem;
+      fill: var(--sc__similarPosts--hideButtonColor);
+      transform: rotate(0deg);
+      transition: transform 0.3s ease;
+    }
+  }
+
+  .desktopCollapsed & {
+    @media (min-width: $desktop-breakpoint) {
+      svg {
+        transform: rotate(180deg);
+      }
+    }
+  }
+}
+
+.panel {
+  background: var(--sc--background);
+  color: var(--sc--text);
+  box-shadow: var(--sc--siteShadow);
+  pointer-events: auto;
+
+  @media (max-width: $desktop-breakpoint - 1px) {
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: min(82vw, 320px);
+    max-width: 100%;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+  }
+
+  @media (min-width: $desktop-breakpoint) {
+    width: calc(100% - #{$panel-toggle-width});
+    max-height: 100vh;
+    overflow: hidden;
+    pointer-events: auto;
+  }
+
+  .mobileOpen & {
+    @media (max-width: $desktop-breakpoint - 1px) {
+      transform: translateX(0);
+    }
+  }
+}
+
+.panelHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 1rem;
+  min-height: $panel-header-height;
+  box-sizing: border-box;
+  background: var(--sc__header--background);
+  color: var(--sc__header--subtitle);
+
+  strong {
+    font-size: 1rem;
+  }
+}
+
+.mobileCloseButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+
+  @media (min-width: $desktop-breakpoint) {
+    display: none;
+  }
+}
+
+.panelContent {
+  height: calc(100vh - #{$panel-header-height});
+  max-height: calc(100vh - #{$panel-header-height});
+  overflow-y: auto;
+  box-sizing: border-box;
+  padding: 1rem;
+  scrollbar-gutter: stable;
+  scroll-padding-block: 1rem 1.5rem;
+
+  @media (max-width: $desktop-breakpoint - 1px) {
+    height: calc(100vh - 4.25rem);
+    max-height: none;
+  }
+
+  :global(.toc) {
+    width: 100%;
+    border: 0;
+    background: transparent;
+    padding: 0;
+
+    &:before {
+      content: none;
+    }
+  }
+
+  :global(.toc-level) {
+    list-style: none;
+    margin: 0;
+    padding-left: 0;
+  }
+
+  :global(.toc-level .toc-level) {
+    margin-top: 0.5rem;
+    margin-left: 0.5rem;
+    padding-left: 0.75rem;
+    border-left: 1px solid var(--sc__tableOfContents--guide);
+  }
+
+  :global(.toc-item) + :global(.toc-item) {
+    margin-top: 0.6rem;
+  }
+
+  :global(.toc-link) {
+    display: block;
+    color: inherit;
+    font-size: 0.95rem;
+    line-height: 1.35;
+    opacity: 0.75;
+    text-decoration: none;
+    transition:
+      opacity 0.2s ease,
+      color 0.2s ease;
+
+    &:hover {
+      opacity: 1;
+    }
+
+    &[data-active='true'] {
+      opacity: 1;
+      font-weight: 700;
+      color: var(--sc--text);
+    }
+  }
+
+  :global(.toc-link-h3) {
+    font-size: 0.9rem;
+  }
+
+  :global(.toc-link-h4),
+  :global(.toc-link-h5),
+  :global(.toc-link-h6) {
+    font-size: 0.85rem;
+  }
+}
+
+.mobileToggleButton {
+  position: fixed;
+  left: 1rem;
+  bottom: 1rem;
+  z-index: 35;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1rem;
+  background: var(--sc__header--background);
+  color: var(--sc__header--subtitle);
+  border-radius: 999px;
+  box-shadow: var(--sc--siteShadow);
+  cursor: pointer;
+
+  @media (min-width: $desktop-breakpoint) {
+    display: none;
+  }
+}
+
+.mobileBackdrop {
+  display: none;
+
+  @media (max-width: $desktop-breakpoint - 1px) {
+    position: fixed;
+    inset: 0;
+    z-index: 30;
+    background: rgb(0 0 0 / 0.45);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    cursor: pointer;
+  }
+
+  &.mobileBackdropVisible {
+    @media (max-width: $desktop-breakpoint - 1px) {
+      display: block;
+      opacity: 1;
+    }
+  }
+}

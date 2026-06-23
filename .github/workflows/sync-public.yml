@@ -12,7 +12,7 @@ jobs:
 
     steps:
       - name: Checkout private repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 1
@@ -45,4 +45,5 @@ jobs:
           PUBLIC_REPO_TOKEN: ${{ secrets.PUBLIC_REPO_TOKEN }}
         run: |
           cd public-repo
+          git remote set-url origin https://x-access-token:${PUBLIC_REPO_TOKEN}@github.com/swistak-codes/blog.git
           git push origin main

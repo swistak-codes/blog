@@ -14,6 +14,7 @@ import commonStyles from '../common.module.scss';
 import clsx from 'clsx';
 import Giscus from '@giscus/react';
 import { ThemeContext } from '../theme-context';
+import { PostTableOfContents } from './toc/post-table-of-contents';
 
 type Props = {
   metadata: RenderedPostMetadata | PostMetadata;
@@ -105,7 +106,13 @@ export const Post = ({
           moveToBottom={isOnList ? !!metadata.moveCoverToBottom : false}
         />
       )}
-      <div className={commonStyles.contentContainer}>
+      <div
+        className={clsx(commonStyles.contentContainer, styles.contentContainer)}
+        data-post-content-container
+      >
+        {!isOnList ? (
+          <PostTableOfContents contentKey={metadata.slug} />
+        ) : null}
         {metadata.categories && metadata.categories.length > 0 ? (
           <div className={commonStyles.unitMargin}>
             <Categories

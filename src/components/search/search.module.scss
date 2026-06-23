@@ -45,6 +45,7 @@
   left: 0;
   right: 0;
   bottom: 0;
+  z-index: 60;
   background-color: color-mix(in srgb, var(--sc--background) 65%, transparent);
   cursor: pointer;
   opacity: 0;

@@ -1,5 +1,9 @@
 @use '../common';
 
+.contentContainer {
+  position: relative;
+}
+
 .wrapper {
   padding-bottom: 1rem;
   word-break: break-word;
@@ -24,6 +28,10 @@
       font-size: 1.25rem;
       font-weight: bold;
     }
+  }
+
+  :global(.toc[data-enhanced-toc-source='true']) {
+    display: none;
   }
 
   // nested lists counters
