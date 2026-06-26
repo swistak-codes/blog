@@ -63,28 +63,51 @@ export const Post = ({
   children,
 }: Props) => {
   const isDark = useContext(ThemeContext);
-  const [similar, setSimilar] = useState<SimilarPost[]>(
-    metadata['similar'] || [],
-  );
+  const shouldShowToc = !isOnList && !isPage;
+  const fallbackSimilar = metadata['similar'] || [];
+  const [similar, setSimilar] = useState<SimilarPost[]>(fallbackSimilar);
   const [similarHidden, setSimilarHidden] = useState(true);
 
   useEffect(() => {
     if (!isOnList) {
+      let timeoutId: number | null = null;
+      let cancelled = false;
+
       getSimilar(metadata.slug)
         .then((x) => {
-          if (x.length > 0) {
-            setSimilar(getRandomElements(x, 3));
-          } else {
-            setSimilar(metadata['similar']);
+          if (cancelled) {
+            return;
           }
-          window.setTimeout(() => setSimilarHidden(false), 5000);
+
+          const nextSimilar =
+            x.length > 0 ? getRandomElements(x, 3) : fallbackSimilar;
+
+          setSimilar(nextSimilar);
+
+          if (nextSimilar.length > 0) {
+            timeoutId = window.setTimeout(() => setSimilarHidden(false), 5000);
+          }
         })
         .catch(() => {
-          setSimilar(metadata['similar']);
-          window.setTimeout(() => setSimilarHidden(false), 5000);
+          if (cancelled) {
+            return;
+          }
+
+          setSimilar(fallbackSimilar);
+
+          if (fallbackSimilar.length > 0) {
+            timeoutId = window.setTimeout(() => setSimilarHidden(false), 5000);
+          }
         });
+
+      return () => {
+        cancelled = true;
+        if (timeoutId !== null) {
+          window.clearTimeout(timeoutId);
+        }
+      };
     }
-  }, [isOnList, isOfftop, metadata]);
+  }, [fallbackSimilar, isOnList, isOfftop, metadata]);
 
   return (
     <article className={commonStyles.article}>
@@ -110,7 +133,7 @@ export const Post = ({
         className={clsx(commonStyles.contentContainer, styles.contentContainer)}
         data-post-content-container
       >
-        {!isOnList ? (
+        {shouldShowToc ? (
           <PostTableOfContents contentKey={metadata.slug} />
         ) : null}
         {metadata.categories && metadata.categories.length > 0 ? (
@@ -133,6 +156,7 @@ export const Post = ({
         </div>
         {!isOnList && !isPage && similar.length > 0 ? (
           <SimilarPosts
+            contentKey={metadata.slug}
             similar={similar}
             hidden={similarHidden}
             setHidden={setSimilarHidden}

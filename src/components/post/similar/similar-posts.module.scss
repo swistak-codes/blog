@@ -1,3 +1,4 @@
+@use 'sass:math';
 @use '../../consts';
 
 $width: 300px;
@@ -5,26 +6,69 @@ $hide-width: 35px;
 $header-height: 60px;
 $breakpoint: consts.$page-width + $width * 2 + 50px;
 
-.floatingIfFullScreen {
+.wrapper {
   @media (min-width: $breakpoint) {
-    position: fixed;
+    position: absolute;
+    top: var(--similar-desktop-track-top, 0px);
+    right: calc(#{math.div(consts.$page-width, 2)} - 50vw);
+    bottom: 0;
     width: $width + $hide-width;
-    box-sizing: border-box;
-    top: 0;
-    right: 0;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    z-index: 10;
     pointer-events: none;
-    margin-right: 0;
-    transition: margin-right 0.5s ease-in-out;
   }
 
   &.hiddenFloat {
     @media (min-width: $breakpoint) {
-      margin-right: calc(-#{$width} - 8px);
+      .stickyRail {
+        transform: translateX(calc(100% - #{$hide-width}));
+      }
     }
+  }
+}
+
+.stickyRail {
+  @media (min-width: $breakpoint) {
+    position: sticky;
+    top: 0;
+    display: flex;
+    align-items: flex-start;
+    width: 100%;
+    max-height: 100vh;
+    overflow: visible;
+    pointer-events: none;
+    transition: transform 0.3s ease;
+  }
+}
+
+.similarPostsContainer {
+  background: var(--sc--background);
+  color: var(--sc--text);
+  box-shadow: var(--sc--siteShadow);
+  pointer-events: initial;
+
+  @media (min-width: $breakpoint) {
+    width: $width;
+    max-height: 100vh;
+    overflow: hidden;
+    clip-path: inset(0 -16px -16px 0);
+  }
+}
+
+.panelHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  min-height: $header-height;
+  box-sizing: border-box;
+  padding: 1rem 0 1rem 1rem;
+  background: var(--sc__header--background);
+  color: var(--sc__header--subtitle);
+
+  strong {
+    display: block;
+    font-size: 1rem;
+    line-height: 1.2;
   }
 }
 
@@ -35,27 +79,26 @@ $breakpoint: consts.$page-width + $width * 2 + 50px;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-sizing: border-box;
     width: $hide-width;
     min-height: $header-height;
-    position: relative;
-    background: var(--sc__similarPosts--hideButtonBackground);
     border: 0;
+    background: var(--sc__similarPosts--hideButtonBackground);
+    color: var(--sc__similarPosts--hideButtonColor);
+    cursor: pointer;
+    pointer-events: auto;
     border-top-left-radius: 50%;
     border-bottom-left-radius: 50%;
-    cursor: pointer;
-    pointer-events: initial;
 
     svg {
-      fill: var(--sc__similarPosts--hideButtonColor);
       width: 1rem;
       height: 1rem;
+      fill: var(--sc__similarPosts--hideButtonColor);
       transform: rotate(180deg);
       transition: transform 0.3s ease;
     }
   }
 
-  &.collapsedButton {
+  .hiddenFloat & {
     @media (min-width: $breakpoint) {
       svg {
         transform: rotate(0deg);
@@ -64,40 +107,23 @@ $breakpoint: consts.$page-width + $width * 2 + 50px;
   }
 }
 
-.similarPostsContainer {
-  background: var(--sc--background);
-  color: var(--sc--text);
-  box-shadow: var(--sc--siteShadow);
-  pointer-events: initial;
-}
-
-.panelHeader {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  min-height: $header-height;
-  box-sizing: border-box;
-  padding: 1rem;
-  background: var(--sc__header--background);
-  color: var(--sc__header--subtitle);
-
-  strong {
-    display: block;
-    width: 100%;
-    font-size: 1rem;
-    line-height: 1.2;
-  }
-}
-
 .similarPostsWrapper {
   display: flex;
   flex-direction: row;
-  padding: 1rem;
   gap: 1rem;
+  padding: 1rem;
   align-items: baseline;
 
   @media (min-width: $breakpoint) {
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: 1fr;
+    height: calc(100vh - #{$header-height});
+    max-height: calc(100vh - #{$header-height});
+    overflow-y: auto;
+    box-sizing: border-box;
+    align-content: start;
+    scroll-padding-block: 1rem 1.5rem;
+    scrollbar-gutter: stable;
   }
 }
 
@@ -115,7 +141,7 @@ $breakpoint: consts.$page-width + $width * 2 + 50px;
     align-items: center;
     text-align: center;
     text-decoration: none;
-    font-weight: bold;
+    font-weight: 700;
     gap: 0.75rem;
     width: 100%;
     color: inherit;
