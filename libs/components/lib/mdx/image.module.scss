@@ -3,6 +3,7 @@ $overlay-margin: 40px;
 .modal {
   .modalOverlay {
     position: fixed;
+    z-index: 80;
     top: 0;
     left: 0;
     right: 0;
@@ -17,6 +18,7 @@ $overlay-margin: 40px;
   }
 
   .modalContent {
+    position: relative;
     outline: none;
   }
 }
