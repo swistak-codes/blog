@@ -37,7 +37,7 @@ export const meta = {
     'duże modele językowe',
   ],
   slug: 'podobienstwo-wektorow',
-  updateTime: '2026-03-23T07:00:00+00:00',
+  updateTime: '2026-06-28T07:00:00+00:00',
   publishTime: '2026-03-23T07:00:00+00:00',
   cover,
 };
@@ -320,7 +320,7 @@ Często swoje artykuły kończę zastosowaniami teorii, więc i tym razem tak zr
 
 To jest najbardziej oczywiste zastosowanie, patrząc na to, co już omówiliśmy. Mając w bazie wektorowej reprezentację różnych pojęć, możemy łatwo znaleźć te, które są do siebie podobne. Jest to też chyba najpopularniejsze zastosowanie baz wektorowych.
 
-Przykład, który widzisz teraz na własne oczy (jeśli jesteś na komputerze), to po prawej stronie możesz zobaczyć listę podobnych artykułów (na telefonach jest pod tekstem). Powstała ona w taki sposób, że dla każdego artykułu wygenerowałem streszczenie, następnie z tego streszczenia (oraz tytułu i tagów) wektor, a potem z bazy wektorowej (w tym przypadku [Typesense](https://typesense.org/)) wyciągnąłem 6 najbardziej podobnych, z czego wylosowałem 3 do pokazania obok. Jeśli interesuje Cię implementacja tego, to znajdziesz ją w kodzie źródłowym bloga w tych plikach:
+Przykład, który widzisz teraz na własne oczy (jeśli jesteś na komputerze), to po prawej stronie możesz zobaczyć listę podobnych artykułów (na telefonach jest pod tekstem). Powstała ona w taki sposób, że dla każdego artykułu wygenerowałem streszczenie, następnie z tego streszczenia (oraz tytułu i tagów) wektor, a potem z bazy wektorowej (w tym przypadku [Typesense](https://typesense.org/)) wyciągnąłem 6 najbardziej podobnych, z czego wylosowałem 3 do pokazania obok (edycja 28.06.2025 r.: aktualnie wyciągam 9 i pokazuję wszystkie). Jeśli interesuje Cię implementacja tego, to znajdziesz ją w kodzie źródłowym bloga w tych plikach:
 
 - [`scrape.mjs`](https://github.com/swistak-codes/blog/blob/main/tools/scraper/scrape.mjs) — plik generujący dane do silnika wyszukiwania, w tym streszczenia. Używam do tego celu modelu `gpt-5-mini`.
 - [`populate-search.mjs`](https://github.com/swistak-codes/blog/blob/main/config/populate-search.mjs) — wrzucenie danych do Typesense. Jest to baza służąca za silnik wyszukiwania, ale obsługuje też wektory. Tak naprawdę całe generowanie wektorów jest ukryte wewnątrz bazy, ja jedynie zdefiniowałem pole, gdzie on ma się znajdować, z czego ma zostać wygenerowany i którego modelu ma do tego użyć (używam `openai/text-embedding-3-large`, bo uzyskuję lepsze rezultaty dla języka polskiego niż z pokazywanego wcześniej modelu `small`).
