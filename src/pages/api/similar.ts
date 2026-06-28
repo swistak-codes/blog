@@ -24,7 +24,7 @@ const client = new SearchClient({
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<SimilarPost[]>
+  res: NextApiResponse<SimilarPost[]>,
 ) {
   if (req.method === 'POST') {
     try {
@@ -40,12 +40,13 @@ export default async function handler(
           {
             q: '*',
             // filter_by: 'type:=blog',
-            limit: 6,
+            limit: 9,
+            exclude_fields: 'embedding',
             vector_query: `embedding:([], id: ${slug})`,
           },
           {
             cacheSearchResultsForSeconds: Number.MAX_SAFE_INTEGER,
-          }
+          },
         );
       res.status(200).json(
         results.hits.map(
@@ -55,8 +56,8 @@ export default async function handler(
               image: (x.document as PostDocument).image,
               title: (x.document as PostDocument).title,
               type: (x.document as PostDocument).type,
-            } as SimilarPost)
-        )
+            }) as SimilarPost,
+        ),
       );
     } catch (e) {
       res.status(200).json([]);

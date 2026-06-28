@@ -40,18 +40,6 @@ const getSimilar = async (slug: string) => {
   return (await response.json()) as SimilarPost[];
 };
 
-const getRandomElements = <T,>(arr: T[], num: number) => {
-  const copy = [...arr];
-  const result: T[] = [];
-  num = Math.min(num, copy.length);
-  for (let i = 0; i < num; i++) {
-    const randomIndex = Math.trunc(Math.random() * copy.length);
-    result.push(copy[randomIndex]);
-    copy.splice(randomIndex, 1);
-  }
-  return result;
-};
-
 export const Post = ({
   metadata,
   isOnList = false,
@@ -79,8 +67,7 @@ export const Post = ({
             return;
           }
 
-          const nextSimilar =
-            x.length > 0 ? getRandomElements(x, 3) : fallbackSimilar;
+          const nextSimilar = x.length > 0 ? x : fallbackSimilar;
 
           setSimilar(nextSimilar);
 

@@ -1,16 +1,17 @@
 import { SimilarPost } from '@swistak-codes/types';
-import Link from 'next/link';
 import {
   CSSProperties,
   Dispatch,
-  SetStateAction,
+  type MouseEventHandler,
   useEffect,
   useLayoutEffect,
+  SetStateAction,
   useState,
 } from 'react';
 import styles from './similar-posts.module.scss';
 import commonStyles from '../../common.module.scss';
 import clsx from 'clsx';
+import { SimilarPostCard } from './similar-post-card';
 
 type Props = {
   contentKey: string;
@@ -22,6 +23,8 @@ type Props = {
 const useIsomorphicLayoutEffect =
   typeof window === 'undefined' ? useEffect : useLayoutEffect;
 
+const PAGE_SIZE = 3;
+
 export const SimilarPosts = ({
   contentKey,
   similar,
@@ -29,6 +32,13 @@ export const SimilarPosts = ({
   setHidden,
 }: Props) => {
   const [desktopTrackTop, setDesktopTrackTop] = useState(0);
+  const [mobilePage, setMobilePage] = useState(0);
+  const similarPages = Array.from(
+    { length: Math.ceil(similar.length / PAGE_SIZE) },
+    (_, index) => similar.slice(index * PAGE_SIZE, (index + 1) * PAGE_SIZE),
+  );
+  const canScrollPrev = mobilePage > 0;
+  const canScrollNext = mobilePage < similarPages.length - 1;
 
   useIsomorphicLayoutEffect(() => {
     const contentContainerElement = document.querySelector<HTMLElement>(
@@ -54,6 +64,24 @@ export const SimilarPosts = ({
       window.removeEventListener('resize', updateDesktopTrackTop);
     };
   }, [contentKey]);
+
+  useEffect(() => {
+    setMobilePage(0);
+  }, [similar]);
+
+  const scrollByPage = (direction: -1 | 1) => {
+    setMobilePage((currentPage) =>
+      Math.max(0, Math.min(currentPage + direction, similarPages.length - 1)),
+    );
+  };
+
+  const handlePrevClick: MouseEventHandler<HTMLButtonElement> = () => {
+    scrollByPage(-1);
+  };
+
+  const handleNextClick: MouseEventHandler<HTMLButtonElement> = () => {
+    scrollByPage(1);
+  };
 
   return (
     <div
@@ -85,32 +113,47 @@ export const SimilarPosts = ({
           <div className={styles.panelHeader}>
             <strong>Może Cię również zainteresować:</strong>
           </div>
-          <div className={styles.similarPostsWrapper}>
-            {similar.map((x) => (
-              <div className={styles.postBox} key={x.slug}>
-                <Link
-                  href={`/${x.type === 'offtopic' ? 'offtopic' : 'post'}/${
-                    x.slug
-                  }`}
-                  passHref
-                  scroll
-                  prefetch={false}
-                  legacyBehavior
+          <div className={styles.mobilePostsViewport}>
+            {similarPages.length > 1 ? (
+              <>
+                <button
+                  type="button"
+                  className={styles.mobilePagerButton}
+                  onClick={handlePrevClick}
+                  disabled={!canScrollPrev}
+                  aria-label="Pokaż poprzednie podobne wpisy"
                 >
-                  <a className={commonStyles.pureLink}>
-                    <div className={styles.postImage}>
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={`/_next/image//?url=${encodeURI(
-                          x.image,
-                        )}&w=3840&q=75`}
-                        alt=""
-                      />
-                    </div>
-                    {x.title}
-                  </a>
-                </Link>
+                  <i className="ph ph-caret-left" aria-hidden />
+                </button>
+                <button
+                  type="button"
+                  className={styles.mobilePagerButton}
+                  onClick={handleNextClick}
+                  disabled={!canScrollNext}
+                  aria-label="Pokaż kolejne podobne wpisy"
+                >
+                  <i className="ph ph-caret-right" aria-hidden />
+                </button>
+              </>
+            ) : null}
+            <div className={styles.mobilePostsWindow}>
+              <div
+                className={styles.mobilePostsTrack}
+                style={{ transform: `translateX(-${mobilePage * 100}%)` }}
+              >
+                {similarPages.map((page, index) => (
+                  <div className={styles.mobilePostsPage} key={index}>
+                    {page.map((post) => (
+                      <SimilarPostCard key={post.slug} post={post} />
+                    ))}
+                  </div>
+                ))}
               </div>
+            </div>
+          </div>
+          <div className={styles.similarPostsWrapper}>
+            {similar.map((post) => (
+              <SimilarPostCard key={post.slug} post={post} />
             ))}
           </div>
         </div>
