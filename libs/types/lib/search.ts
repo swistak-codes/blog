@@ -14,6 +14,5 @@ export type PostDocument = {
 
 export type TokenResponse = {
   searchToken: string;
-  suggestionsToken: string;
   expiresAt: number;
 };

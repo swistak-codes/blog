@@ -70,18 +70,9 @@ export default async function handler(
       cache_ttl: 3600,
       expires_at: Math.trunc(expiresAt / 1000),
     });
-    // const suggestionsToken = client.keys().generateScopedSearchKey(masterKey, {
-    //   exclude_fields:
-    //     'embedding,contentEmbedding,id,type,date,abstract,content,image',
-    //   query_by: 'title,tags,categories',
-    //   use_cache: true,
-    //   cache_ttl: 3600,
-    //   expires_at: Math.trunc(expiresAt / 1000),
-    // });
     res.status(200).json({
       expiresAt,
       searchToken,
-      suggestionsToken: 'no siema',
     } as TokenResponse);
   } else {
     res.status(403);

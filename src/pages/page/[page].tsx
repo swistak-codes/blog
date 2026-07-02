@@ -1,4 +1,4 @@
-import { PostList } from '../../components/post-list/post-list';
+import { SearchablePostList } from '../../components/searchable-post-list';
 import { GetStaticPaths, GetStaticProps } from 'next';
 import { getPagesPaths } from '@swistak-codes/pagination';
 import { Metadata } from '../../components/metadata';
@@ -30,7 +30,7 @@ export function Page({ page, allPages, posts, categoryMap }: Props) {
         }}
       />
       <h1>Strona {page}</h1>
-      <PostList
+      <SearchablePostList
         posts={posts}
         currentPage={page}
         allPages={allPages}

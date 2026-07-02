@@ -1,59 +1,4 @@
 {
-  "@algolia/autocomplete-core@1.19.2": {
-    "licenses": "MIT",
-    "repository": "https://github.com/algolia/autocomplete",
-    "publisher": "Algolia, Inc.",
-    "url": "https://www.algolia.com",
-    "path": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/@algolia/autocomplete-core",
-    "licenseFile": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/@algolia/autocomplete-core/README.md"
-  },
-  "@algolia/autocomplete-js@1.19.2": {
-    "licenses": "MIT",
-    "repository": "https://github.com/algolia/autocomplete",
-    "publisher": "Algolia, Inc.",
-    "url": "https://www.algolia.com",
-    "path": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/@algolia/autocomplete-js",
-    "licenseFile": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/@algolia/autocomplete-js/README.md"
-  },
-  "@algolia/autocomplete-plugin-algolia-insights@1.19.2": {
-    "licenses": "MIT",
-    "repository": "https://github.com/algolia/autocomplete",
-    "publisher": "Algolia, Inc.",
-    "url": "https://www.algolia.com",
-    "path": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/@algolia/autocomplete-plugin-algolia-insights",
-    "licenseFile": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/@algolia/autocomplete-plugin-algolia-insights/README.md"
-  },
-  "@algolia/autocomplete-plugin-recent-searches@1.19.2": {
-    "licenses": "MIT",
-    "repository": "https://github.com/algolia/autocomplete",
-    "publisher": "Algolia, Inc.",
-    "url": "https://www.algolia.com",
-    "path": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/@algolia/autocomplete-plugin-recent-searches",
-    "licenseFile": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/@algolia/autocomplete-plugin-recent-searches/README.md"
-  },
-  "@algolia/autocomplete-preset-algolia@1.19.2": {
-    "licenses": "MIT",
-    "repository": "https://github.com/algolia/autocomplete",
-    "publisher": "Algolia, Inc.",
-    "url": "https://www.algolia.com",
-    "path": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/@algolia/autocomplete-preset-algolia",
-    "licenseFile": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/@algolia/autocomplete-preset-algolia/README.md"
-  },
-  "@algolia/autocomplete-shared@1.19.2": {
-    "licenses": "MIT",
-    "repository": "https://github.com/algolia/autocomplete",
-    "publisher": "Algolia, Inc.",
-    "url": "https://www.algolia.com",
-    "path": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/@algolia/autocomplete-shared"
-  },
-  "@algolia/autocomplete-theme-classic@1.19.2": {
-    "licenses": "MIT",
-    "repository": "https://github.com/algolia/autocomplete",
-    "publisher": "Algolia, Inc.",
-    "url": "https://www.algolia.com",
-    "path": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/@algolia/autocomplete-theme-classic",
-    "licenseFile": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/@algolia/autocomplete-theme-classic/README.md"
-  },
   "@algolia/events@4.0.1": {
     "licenses": "MIT",
     "repository": "https://github.com/algolia/events",
@@ -4015,6 +3960,12 @@
     "email": "me@feedic.com",
     "path": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/domutils",
     "licenseFile": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/domutils/LICENSE"
+  },
+  "dotenv@17.4.2": {
+    "licenses": "BSD-2-Clause",
+    "repository": "https://github.com/motdotla/dotenv",
+    "path": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/dotenv",
+    "licenseFile": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/dotenv/LICENSE"
   },
   "draw-svg-path@1.0.0": {
     "licenses": "MIT",

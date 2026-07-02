@@ -1,11 +1,19 @@
 import { HitsProps } from 'react-instantsearch';
 import { PostDocument } from '@swistak-codes/types';
-import React, { useCallback, useContext } from 'react';
-import { SearchContext } from './search-context';
+import { useCallback } from 'react';
 import Link from 'next/link';
-import clsx from 'clsx';
-import styles from './search.module.scss';
+import { format } from 'date-fns';
+import { pl } from 'date-fns/locale';
 import commonStyles from '../common.module.scss';
+import listStyles from '../post-list/list/list.module.scss';
+import postStyles from '../post/post.module.scss';
+import { PostHeader } from '../post/post-header';
+import { Categories } from '../tags-categories/categories';
+import { PostDate } from '../post-list/list/post-date';
+
+type HitProps = Parameters<HitsProps<PostDocument>['hitComponent']>[0] & {
+  categoryMap?: Record<string, string>;
+};
 
 function truncateStringToWords(str: string, limit: number) {
   if (str.length <= limit) {
@@ -19,100 +27,69 @@ function truncateStringToWords(str: string, limit: number) {
   return truncatedString.slice(0, lastSpaceIndex);
 }
 
-export const Hit: HitsProps<PostDocument>['hitComponent'] = ({
+export const Hit = ({
   hit,
   sendEvent,
-}) => {
-  const { setIsOpen } = useContext(SearchContext);
-
+  categoryMap,
+}: HitProps) => {
   const handleLinkClick = useCallback(() => {
-    setIsOpen(false);
     sendEvent('click', hit, 'Opened search result');
-  }, [hit, sendEvent, setIsOpen]);
+  }, [hit, sendEvent]);
+
+  const resultUrl = `/${hit.type === 'offtopic' ? 'offtopic' : 'post'}/${hit.id}`;
+  const snippet =
+    hit._snippetResult['content'].matchLevel !== 'none'
+      ? `(...)&nbsp;${hit._snippetResult['content']['value']}&nbsp;(...)`
+      : hit._snippetResult['abstract'].matchLevel !== 'none'
+        ? hit._snippetResult['abstract']['value']
+        : `${truncateStringToWords(hit.content, 256)}&nbsp;(...)`;
+  const localizedDate = format(new Date(hit.date), 'PPP', {
+    locale: pl,
+  });
 
   return (
-    <Link
-      href={`/${hit.type === 'offtopic' ? 'offtopic' : 'post'}/${hit.id}`}
-      passHref
-      scroll
-      prefetch={false}
-      legacyBehavior
-    >
-      <a
-        className={clsx(styles.searchPreviewLink, commonStyles.pureLink)}
-        onClick={handleLinkClick}
-      >
-        <div className={styles.searchPreview}>
-          <div className={styles.searchPreviewImage}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={`/_next/image//?url=${encodeURI(hit.image)}&w=3840&q=75`}
-              alt=""
-            />
-          </div>
-          <div className={styles.searchPreviewText}>
-            <div
-              dangerouslySetInnerHTML={{
-                __html: hit._snippetResult['title']['value'],
-              }}
-              className={styles.searchTitle}
-            />
-            <div className={styles.searchTags}>
-              {hit._snippetResult['categories'].map((x) => (
-                <div
-                  key={x.value}
-                  className={clsx(styles.badge, styles.categoryBadge)}
-                >
-                  <i className="ph ph-tag" />
-                  <span
-                    dangerouslySetInnerHTML={{
-                      __html: x.value,
-                    }}
-                  />
-                </div>
-              ))}
-              {hit._snippetResult['tags']
-                .filter((x) => x.matchLevel !== 'none')
-                .map((x) => (
-                  <div
-                    key={x.value}
-                    className={clsx(styles.badge, styles.tagBadge)}
-                  >
-                    <i className="ph ph-hash" />
-                    <span
-                      dangerouslySetInnerHTML={{
-                        __html: x.value,
-                      }}
-                    />
-                  </div>
-                ))}
-              {hit.type === 'offtopic' && (
-                <div className={clsx(styles.badge, styles.offtopicBadge)}>
-                  <i className="ph ph-island" />
-                  Offtopic
-                </div>
-              )}
+    <section className={commonStyles.section}>
+      <article className={commonStyles.article}>
+        <PostHeader
+          image={hit.image}
+          title={hit.title}
+          link={resultUrl}
+          aspectRatio="16/6"
+          onClick={handleLinkClick}
+        />
+        <div
+          className={commonStyles.contentContainer + ' ' + postStyles.contentContainer}
+        >
+          {categoryMap && hit.categories.length > 0 ? (
+            <div className={commonStyles.unitMargin}>
+              <Categories
+                categories={hit.categories}
+                nameToPathsMap={categoryMap}
+              />
             </div>
-            <div className={styles.searchTextContent}>
-              {hit._snippetResult['content'].matchLevel !== 'none' ? (
-                <span
-                  dangerouslySetInnerHTML={{
-                    __html: `(...)&nbsp;${hit._snippetResult['content']['value']}&nbsp;(...)`,
-                  }}
-                />
-              ) : hit._snippetResult['abstract'].matchLevel !== 'none' ? (
-                <span
-                  dangerouslySetInnerHTML={{
-                    __html: hit._snippetResult['abstract']['value'],
-                  }}
-                />
-              ) : (
-                <>{truncateStringToWords(hit.content, 256)}&nbsp;(...)</>
-              )}
+          ) : null}
+          <div className={commonStyles.contentWrapper}>
+            <div id="post-content">
+              <PostDate>{localizedDate}</PostDate>
+              <p
+                className={listStyles.abstract}
+                dangerouslySetInnerHTML={{ __html: snippet }}
+              />
+              <Link
+                href={resultUrl}
+                passHref
+                scroll
+                prefetch={false}
+                legacyBehavior
+              >
+                <a className={listStyles.readMore} onClick={handleLinkClick}>
+                  Czytaj więcej
+                </a>
+              </Link>
             </div>
           </div>
         </div>
-      </a>
-    </Link>
+      </article>
+    </section>
   );
 };

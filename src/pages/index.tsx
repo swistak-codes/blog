@@ -1,4 +1,4 @@
-import { PostList } from '../components/post-list/post-list';
+import { SearchablePostList } from '../components/searchable-post-list';
 import { Metadata } from '../components/metadata';
 import { GetStaticProps } from 'next';
 import { RenderedPostMetadata } from '@swistak-codes/types';
@@ -33,7 +33,7 @@ export function Index({ posts, allPages, categoryMap, latestOfftopic }: Props) {
         }}
       />
       <LatestOfftopic {...latestOfftopic} />
-      <PostList
+      <SearchablePostList
         posts={posts}
         currentPage={1}
         allPages={allPages}
