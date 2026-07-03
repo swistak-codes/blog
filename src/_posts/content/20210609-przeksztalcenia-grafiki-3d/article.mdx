@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import {Image, Iframe} from '@swistak-codes/components';
+import { Image, Iframe } from '@swistak-codes/components';
 import cover from './malpy3d.png';
 import obrotZ from './obrot-OZ.png';
 import obrotX from './obrot-x.png';
@@ -17,7 +17,11 @@ export const meta = {
     'W artykule przedstawiam jak możemy dokonywać transformacji grafiki 3D za pomocą macierzy przekształceń oraz kwaternionów.',
   firstParagraph: (
     <>
-      <Link href="/post/przeksztalcenia-grafiki-2d">W ostatnim artykule</Link> poruszałem temat przekształceń grafiki dwuwymiarowej, gdzie zaprezentowałem zarówno przekształcenia afiniczne, jak i perspektywiczne zapisywane w postaci macierzy przekształceń. Teraz pójdźmy o krok dalej i zobaczmy, jak to wygląda w przypadku grafiki trójwymiarowej.
+      <Link href="/post/przeksztalcenia-grafiki-2d">W ostatnim artykule</Link>{' '}
+      poruszałem temat przekształceń grafiki dwuwymiarowej, gdzie
+      zaprezentowałem zarówno przekształcenia afiniczne, jak i perspektywiczne
+      zapisywane w postaci macierzy przekształceń. Teraz pójdźmy o krok dalej i
+      zobaczmy, jak to wygląda w przypadku grafiki trójwymiarowej.
     </>
   ),
   keyword: 'przekształcenia',
@@ -60,7 +64,7 @@ Tak samo w przypadku, gdy nie czytałeś [poprzedniego artykułu o przekształce
 
 ## Współrzędne jednorodne dla przestrzeni 3D
 
-Przejdźmy od razu do konkretów. W przestrzeni trójwymiarowej, jak sama nazwa wskazuje, posługujemy się trzema wymiarami, stąd punkt jest oznaczany przez trzy współrzędne: $$(x, y, z)$$. Tylko jak pamiętamy, współrzędne jednorodne dla przestrzeni 2D posiadają już trzy wartości: $$(x, y, w)$$.  Więc w jaki sposób reprezentujemy punkt 3D? Czterema współrzędnymi.
+Przejdźmy od razu do konkretów. W przestrzeni trójwymiarowej, jak sama nazwa wskazuje, posługujemy się trzema wymiarami, stąd punkt jest oznaczany przez trzy współrzędne: $$(x, y, z)$$. Tylko jak pamiętamy, współrzędne jednorodne dla przestrzeni 2D posiadają już trzy wartości: $$(x, y, w)$$. Więc w jaki sposób reprezentujemy punkt 3D? Czterema współrzędnymi.
 
 $$
 P = \begin{bmatrix}x\\y\\z\\w\end{bmatrix}
@@ -122,9 +126,12 @@ Głównym problemem jest określenie skrętności układu współrzędnych. Jak 
   alignCenter
   fullSize
   alt="Lewoskrętny układ współrzędnych z osią Z biegnącą w kierunku głębi ekranu monitora. Prawoskrętny układ współrzędnych z osią Z biegnącą w kierunku obserwatora"
-  caption={<>
-    Lewoskrętny układ współrzędnych (1) i prawoskrętny układ współrzędnych (2).
-  </>}
+  caption={
+    <>
+      Lewoskrętny układ współrzędnych (1) i prawoskrętny układ współrzędnych
+      (2).
+    </>
+  }
 />
 
 Zakładając, że osie Y i X wyznaczają ramki ekranu, możemy sobie wyobrazić, że im w lewoskrętnym układzie współrzędnych wartości rosną, tym są bardziej wewnątrz ekranu, a w przypadku prawoskrętnym znajdują się bardziej w kierunku obserwatora. Układ prawoskrętny jest częściej spotykany, dlatego też opisując obroty, będę zakładał, że operujemy na takim właśnie układzie.
@@ -145,9 +152,7 @@ Rotacja wokół osi Z jest tym samym, co obrót 2D, czyli wykonujemy obrót w ki
   fullSize
   maxWidth="216px"
   alt="Obrót wokół osi Z."
-  caption={<>
-    Obrót wokół osi Z.
-  </>}
+  caption={<>Obrót wokół osi Z.</>}
 />
 
 Jak możesz się domyśleć, macierz wygląda niemal identycznie jak w przypadku 2D, czyli:
@@ -166,9 +171,7 @@ Wokół osi X obracamy (dodatni kąt), jak pokazałem na rysunku obok, z osi Y n
   fullSize
   maxWidth="216px"
   alt="Obrót wokół osi X."
-  caption={<>
-    Obrót wokół osi X.
-  </>}
+  caption={<>Obrót wokół osi X.</>}
 />
 
 Z matematycznego punktu widzenia możemy łatwo zapamiętać macierz transformacji, ponieważ wygląda tak samo, jak dla osi Z, tylko wartości są „przesunięte” o 1 pozycję w dół i 1 w lewo.
@@ -187,9 +190,7 @@ Rotacja wokół osi Y (również dodatnia) odbywa się w kierunku z osi Z na oś
   fullSize
   maxWidth="216px"
   alt="Obrót wokół osi Y."
-  caption={<>
-    Obrót wokół osi Y.
-  </>}
+  caption={<>Obrót wokół osi Y.</>}
 />
 
 W kwestii zapisu w postaci macierzy jest już nieco mniej intuicyjnie w porównaniu do poprzednich obrotów. Warto zwrócić uwagę na to, że minus znajduje się tym razem przy drugim sinusie.
@@ -222,10 +223,21 @@ W grafice 3D często zamiast mówić o obrotach wokół danej osi posługujemy s
   fullSize
   maxWidth="216px"
   alt="Samolot z naniesionymi osiami układu współrzędnych i zaznaczonymi rotacjami w nomenklaturze RPY"
-  caption={<>
-    Rotacje RPY<br />
-    (Yaw_Axis.svg: Auawisederivative work: Jrvz, <a href="https://creativecommons.org/licenses/by-sa/3.0">CC BY-SA 3.0</a> via <a href="https://commons.wikimedia.org/wiki/File:Yaw_Axis_Corrected.svg">Wikimedia Commons</a>)
-  </>}
+  caption={
+    <>
+      Rotacje RPY
+      <br />
+      (Yaw_Axis.svg: Auawisederivative work: Jrvz,{' '}
+      <a href="https://creativecommons.org/licenses/by-sa/3.0">
+        CC BY-SA 3.0
+      </a>{' '}
+      via{' '}
+      <a href="https://commons.wikimedia.org/wiki/File:Yaw_Axis_Corrected.svg">
+        Wikimedia Commons
+      </a>
+      )
+    </>
+  }
 />
 
 RPY to system nazewnictwa oryginalnie wykorzystywany do określania kątów obrotu statków powietrznych oraz prędkości kątowych. Mówimy tutaj o kątach:
@@ -277,7 +289,10 @@ W tym przypadku zmiana wartości kąta obrotu wokół osi X i wokół osi Z da z
 
 Jeżeli chcesz sprawdzić, w jaki sposób działa macierz przekształceń, poniżej możesz przetestować, jak zmienia się sześcian w zależności od różnych wartości elementów. W polu wyboru z prawej strony możesz zmienić aktualnie wyświetlaną figurę na inną, natomiast za pomocą myszki możesz manewrować kamerą w przestrzeni (po kliknięciu obracamy kamerę poruszaniem myszy; kółkiem przybliżamy i oddalamy). Transformacja zawsze wykonywana jest na podstawie pierwotnego kształtu i ułożenia obiektu 3D.
 
-<Iframe src="/iframe-content/transform3d/index.html?mode=matrix" minHeight={400} />
+<Iframe
+  src="/iframe-content/transform3d/index.html?mode=matrix"
+  minHeight={400}
+/>
 
 Pokazana wyżej prezentacja została napisana w Svelte i Three.js. Jej kod znajdziesz na moim [GitHubie](https://github.com/swistak-codes/transformations-3d).
 
@@ -306,9 +321,13 @@ Jest najprostsze do obliczenia, ale zarazem dające najsłabszy efekt 3D. W jego
   alignCenter
   fullSize
   alt="Dwa sześciany w rzutowaniu równoległym"
-  caption={<>
-    Mimo że obiekty są odsunięte od siebie, po zastosowaniu rzutu oba są tej samej wielkości, co jest nienaturalne. Z drugiej strony, zachowaliśmy oryginalny wygląd brył.
-  </>}
+  caption={
+    <>
+      Mimo że obiekty są odsunięte od siebie, po zastosowaniu rzutu oba są tej
+      samej wielkości, co jest nienaturalne. Z drugiej strony, zachowaliśmy
+      oryginalny wygląd brył.
+    </>
+  }
 />
 
 <Image
@@ -316,9 +335,13 @@ Jest najprostsze do obliczenia, ale zarazem dające najsłabszy efekt 3D. W jego
   alignCenter
   fullSize
   alt="Scena z salą lekcyjną w rzutowaniu równoległym"
-  caption={<>
-    W przypadku bardziej zaawansowanej sceny wszystkie obiekty naszły na siebie, nawet ściany, przez co nie widzimy kompletnej sceny i wygląda ona nienaturalnie.
-  </>}
+  caption={
+    <>
+      W przypadku bardziej zaawansowanej sceny wszystkie obiekty naszły na
+      siebie, nawet ściany, przez co nie widzimy kompletnej sceny i wygląda ona
+      nienaturalnie.
+    </>
+  }
 />
 
 $$
@@ -339,9 +362,12 @@ To najbardziej naturalne rzutowanie, ponieważ oddaje głębię. Niestety w jego
   alignCenter
   fullSize
   alt="Dwa sześciany w rzutowaniu perspektywicznym"
-  caption={<>
-    Dzięki perspektywie drugi sześcian jest mniejszy, dzięki czemu wiemy, że znajduje się dalej w przestrzeni.
-  </>}
+  caption={
+    <>
+      Dzięki perspektywie drugi sześcian jest mniejszy, dzięki czemu wiemy, że
+      znajduje się dalej w przestrzeni.
+    </>
+  }
 />
 
 <Image
@@ -349,9 +375,15 @@ To najbardziej naturalne rzutowanie, ponieważ oddaje głębię. Niestety w jego
   alignCenter
   fullSize
   alt="Scena z salą lekcyjną w rzutowaniu perspektywicznym"
-  caption={<>
-    Przy zaawansowanej scenie rzut perspektywiczny umożliwia zobaczenie jej w naturalny sposób. Jesteśmy w stanie określić odległość obiektów od siebie, aczkolwiek ze względu na perspektywę nie są zachowane szczegóły geometrii (choć jesteśmy je w stanie dostrzec z powodu przyzwyczajenia mózgu do tego typu widoku).
-  </>}
+  caption={
+    <>
+      Przy zaawansowanej scenie rzut perspektywiczny umożliwia zobaczenie jej w
+      naturalny sposób. Jesteśmy w stanie określić odległość obiektów od siebie,
+      aczkolwiek ze względu na perspektywę nie są zachowane szczegóły geometrii
+      (choć jesteśmy je w stanie dostrzec z powodu przyzwyczajenia mózgu do tego
+      typu widoku).
+    </>
+  }
 />
 
 $$
@@ -478,23 +510,26 @@ Jak widzimy, w ostatecznym wzorze znajdują się wartości przy każdej ze wspó
 
 Poniżej zamieściłem taką samą interaktywną prezentację jak poprzednio, jednak tym razem ograniczamy się jedynie do obrotów i wyrażania ich za pomocą kwaternionów. Popróbuj różnych wartości i zobacz, jaki obrót jest wykonywany. Możesz wybrać, czy chcesz ustawić konkretne wartości kwaternionu, czy też wolisz, aby prezentacja sama wyliczyła kwaternion na bazie podanego kąta (w stopniach).
 
-<Iframe src="/iframe-content/transform3d/index.html?mode=quaternion" minHeight={400} />
+<Iframe
+  src="/iframe-content/transform3d/index.html?mode=quaternion"
+  minHeight={400}
+/>
 
 ## Przykłady implementacji macierzy przekształceń 3D
 
 Na koniec, podobnie jak poprzednio, podam kilka przykładów, gdzie możemy znaleźć implementacje macierzy przekształceń 3D. Nie mam tu na celu pokazać wyczerpującej listy wszelkich implementacji, ale bardziej przykłady, w jak różnych miejscach możemy je znaleźć.
 
-- Poprzednio zacząłem od CSS, tak samo i teraz. Mimo że dokumenty HTML są w pełni dwuwymiarowe, obiekty na nich możemy przekształcać za pomocą [`matrix3d()`](https://developer.mozilla.org/en-US/docs/Web/CSS/transform-function/matrix3d()). Podobnie jak w przypadku 2D, wartości podaje się kolumna po kolumnie.<br />
-Ciekawostka: interaktywna prezentacja w poprzednim artykule, choć dotyczyła przestrzeni 2D, została stworzona przy użyciu funkcji `matrix3d()`, ponieważ jego dwuwymiarowa wersja obsługuje tylko transformacje afiniczne.
+- Poprzednio zacząłem od CSS, tak samo i teraz. Mimo że dokumenty HTML są w pełni dwuwymiarowe, obiekty na nich możemy przekształcać za pomocą [`matrix3d()`](<https://developer.mozilla.org/en-US/docs/Web/CSS/transform-function/matrix3d()>). Podobnie jak w przypadku 2D, wartości podaje się kolumna po kolumnie.<br />
+  Ciekawostka: interaktywna prezentacja w poprzednim artykule, choć dotyczyła przestrzeni 2D, została stworzona przy użyciu funkcji `matrix3d()`, ponieważ jego dwuwymiarowa wersja obsługuje tylko transformacje afiniczne.
 - W niskopoziomowych bibliotekach graficznych znajdziemy wsparcie dla operacji macierzowych. OpenGL posiada bibliotekę GLM, gdzie znajdziemy plik nagłówków [`matrix_transform`](https://glm.g-truc.net/0.9.0/api/a00134.html). Transformacje macierzowe znajdziemy także chociażby w [WebGL](https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/WebGL_model_view_projection) oraz [OpenGL dla Androida](https://developer.android.com/reference/android/opengl/Matrix).
 - Silniki 3D również posiadają funkcje operujące na macierzach. Kilka popularnych to: [`Matrix4x4` w Unity](https://docs.unity3d.com/ScriptReference/Matrix4x4.html), [`Object3D.matrix` w Three.js](https://threejs.org/docs/#api/en/core/Object3D.matrix), [`matrix3x4_t` w Source](https://developer.valvesoftware.com/wiki/Matrix3x4_t).
 - W edytorze grafiki 3D Blender za pomocą skryptów pisanych w języku Python jesteśmy w stanie stosować macierze transformacji na obiektach za pomocą funkcji [`transform()`](https://docs.blender.org/api/current/bpy.types.Mesh.html?highlight=transform#bpy.types.Mesh.transform).
 
 ## Literatura
 
-- Foley J. D. i inni, „Przekształcenia geometryczne” w *Wprowadzenie do grafiki komputerowej*. Warszawa: Wydawnictwa Naukowo-Techniczne, 1995, s. 215-252
+- Foley J. D. i inni, „Przekształcenia geometryczne” w _Wprowadzenie do grafiki komputerowej_. Warszawa: Wydawnictwa Naukowo-Techniczne, 1995, s. 215-252
 - LaValle Steven M, "Yaw, pitch, and roll rotations" [http://planning.cs.uiuc.edu/node102.html](https://web.archive.org/web/20210506190434/http://planning.cs.uiuc.edu/node102.html) (ostatnie odwiedziny 27.05.2021).
 - Gimbal lock, [https://en.wikipedia.org/w/index.php?title=Gimbal_lock&oldid=1000885298](https://en.wikipedia.org/w/index.php?title=Gimbal_lock&oldid=1000885298) (ostatnie odwiedziny 27.05.2021).
-- Foley J. D. i inni, „Płaskie rzuty geometryczne” w *Wprowadzenie do grafiki komputerowej*. Warszawa: Wydawnictwa Naukowo-Techniczne, 1995, s. 274-278
-- [Weisstein, Eric W.](https://mathworld.wolfram.com/about/author.html) "Quaternion." From [*MathWorld*](https://mathworld.wolfram.com/)--A Wolfram Web Resource. [https://mathworld.wolfram.com/Quaternion.html](https://mathworld.wolfram.com/Quaternion.html)
-- Shoemake, K. (1985, July). Animating rotation with quaternion curves. In *Proceedings of the 12th annual conference on Computer graphics and interactive techniques* (pp. 245-254).
+- Foley J. D. i inni, „Płaskie rzuty geometryczne” w _Wprowadzenie do grafiki komputerowej_. Warszawa: Wydawnictwa Naukowo-Techniczne, 1995, s. 274-278
+- [Weisstein, Eric W.](https://mathworld.wolfram.com/about/author.html) "Quaternion." From [_MathWorld_](https://mathworld.wolfram.com/)--A Wolfram Web Resource. [https://mathworld.wolfram.com/Quaternion.html](https://mathworld.wolfram.com/Quaternion.html)
+- Shoemake, K. (1985, July). Animating rotation with quaternion curves. In _Proceedings of the 12th annual conference on Computer graphics and interactive techniques_ (pp. 245-254).

@@ -4,6 +4,24 @@
   position: relative;
 }
 
+.coverCaption {
+  color: var(--sc__postHeaderCaption--color);
+  font-size: 0.75rem;
+  line-height: 1.5;
+  padding-top: 0.625rem;
+  text-align: center;
+
+  a {
+    color: inherit !important;
+    text-decoration: underline;
+    text-underline-offset: 0.15em;
+  }
+}
+
+.categoriesWithCaption {
+  margin-top: 0.25rem;
+}
+
 .wrapper {
   padding-bottom: 1rem;
   word-break: break-word;

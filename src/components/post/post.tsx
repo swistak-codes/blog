@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { Metadata } from '../metadata';
 import { PostHeader } from './post-header';
 import {
+  isRenderedPostMetadata,
   PostMetadata,
   RenderedPostMetadata,
   SimilarPost,
@@ -55,6 +56,14 @@ export const Post = ({
   const fallbackSimilar = metadata['similar'] || [];
   const [similar, setSimilar] = useState<SimilarPost[]>(fallbackSimilar);
   const [similarHidden, setSimilarHidden] = useState(true);
+  const coverCaption =
+    !isOnList && metadata.coverCaption ? (
+      isRenderedPostMetadata(metadata) ? (
+        <span dangerouslySetInnerHTML={{ __html: metadata.coverCaption }} />
+      ) : (
+        metadata.coverCaption
+      )
+    ) : null;
 
   useEffect(() => {
     if (!isOnList) {
@@ -120,11 +129,21 @@ export const Post = ({
         className={clsx(commonStyles.contentContainer, styles.contentContainer)}
         data-post-content-container
       >
+        {coverCaption ? (
+          <div className={clsx(commonStyles.contentWrapper, styles.coverCaption)}>
+            {coverCaption}
+          </div>
+        ) : null}
         {shouldShowToc ? (
           <PostTableOfContents contentKey={metadata.slug} />
         ) : null}
         {metadata.categories && metadata.categories.length > 0 ? (
-          <div className={commonStyles.unitMargin}>
+          <div
+            className={clsx({
+              [commonStyles.unitMargin]: !coverCaption,
+              [styles.categoriesWithCaption]: !!coverCaption,
+            })}
+          >
             <Categories
               categories={metadata.categories}
               nameToPathsMap={categoryMap}

@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import {Image, Iframe, VideoPlayer} from '@swistak-codes/components';
+import { Image, Iframe, VideoPlayer } from '@swistak-codes/components';
 import cover from './ptaki.jpg';
 import fala from './fala.png';
 import pcmdsd from './PCM-vs-DSD.png';
@@ -10,7 +10,16 @@ export const meta = {
     'W artykule opisuję jak zapisywane jest medium, którego zapis w cyfrowej postaci nie jest zbyt intuicyjny, czyli dźwięk.',
   firstParagraph: (
     <>
-      Jakiś czas temu na blogu miałem okazję pisać o tym, że <Link href="/post/nie-liczby-jako-liczby-czyli-zapis-danych-cyfrowych">na komputerze wszystko jest przechowywane w postaci liczb</Link>. Pokazywałem to na przykładach zapisu tekstu, a także przedstawiłem, <Link href="/post/przetwarzanie-plikow-w-praktyce-obrazy-bmp">jak interpretować zapisane tak obrazy</Link>. Dlatego tym razem postanowiłem przejść do przedstawienia innego medium, którego zapis w postaci cyfrowej jest najmniej intuicyjny — dźwięk.
+      Jakiś czas temu na blogu miałem okazję pisać o tym, że{' '}
+      <Link href="/post/nie-liczby-jako-liczby-czyli-zapis-danych-cyfrowych">
+        na komputerze wszystko jest przechowywane w postaci liczb
+      </Link>
+      . Pokazywałem to na przykładach zapisu tekstu, a także przedstawiłem,{' '}
+      <Link href="/post/przetwarzanie-plikow-w-praktyce-obrazy-bmp">
+        jak interpretować zapisane tak obrazy
+      </Link>
+      . Dlatego tym razem postanowiłem przejść do przedstawienia innego medium,
+      którego zapis w postaci cyfrowej jest najmniej intuicyjny — dźwięk.
     </>
   ),
   keyword: 'dźwięk',
@@ -36,7 +45,7 @@ export const meta = {
     'efektywność kwantowania',
     'pdm',
     'dsd',
-    'wav'
+    'wav',
   ],
   slug: 'jak-komputer-zapisuje-dzwiek',
   updateTime: '2021-08-17T16:40:34+00:00',
@@ -69,7 +78,10 @@ Zanim jednak przejdziemy do świata cyfrowego, opowiedzmy sobie o tym, czym jest
   height={360}
   caption={
     <>
-      Drganie struny gitary podczas wybrzmiewania dźwięku, zarejestrowane w zwolnionym tempie (480 FPS przekonwertowane do 30 FPS, czyli 1 sekunda w rzeczywistości odpowiada 16 sekundom filmiku). Grany jest dźwięk E2, którego częstotliwość wynosi 82,41Hz.
+      Drganie struny gitary podczas wybrzmiewania dźwięku, zarejestrowane w
+      zwolnionym tempie (480 FPS przekonwertowane do 30 FPS, czyli 1 sekunda w
+      rzeczywistości odpowiada 16 sekundom filmiku). Grany jest dźwięk E2,
+      którego częstotliwość wynosi 82,41Hz.
     </>
   }
 />
@@ -94,7 +106,13 @@ Sygnał, który otrzymujemy z mikrofonu, to sygnał analogowy. Sygnały analogow
   height={105}
   caption={
     <>
-      Fala dźwiękowa „w przybliżeniu”. Widzimy, że przybliżając coraz bardziej, wciąż widzimy ciągłość fali. Animacja oczywiście jest zrobiona na komputerze, przez co sygnał został poddany obróbce, jednak ze względu na wysoką jakość (i brak odpowiednio bliskiego przybliżenia) nie jest to widoczne. W tym przypadku pokazałem to w programie do edycji dźwięku (Audacity), jednak dość zbliżony efekt moglibyśmy obserwować na oscyloskopie.
+      Fala dźwiękowa „w przybliżeniu”. Widzimy, że przybliżając coraz bardziej,
+      wciąż widzimy ciągłość fali. Animacja oczywiście jest zrobiona na
+      komputerze, przez co sygnał został poddany obróbce, jednak ze względu na
+      wysoką jakość (i brak odpowiednio bliskiego przybliżenia) nie jest to
+      widoczne. W tym przypadku pokazałem to w programie do edycji dźwięku
+      (Audacity), jednak dość zbliżony efekt moglibyśmy obserwować na
+      oscyloskopie.
     </>
   }
 />
@@ -106,9 +124,12 @@ Komputery operują na sygnałach cyfrowych. Od analogowych różnią się tym, �
   alignCenter
   fullSize
   alt="Sygnał dyskretny na osi czasu"
-  caption={<>
-    Sygnał cyfrowy. Widzimy, że fala nie jest ciągła, tylko są określone wartości w konkretnych momentach czasu.
-  </>}
+  caption={
+    <>
+      Sygnał cyfrowy. Widzimy, że fala nie jest ciągła, tylko są określone
+      wartości w konkretnych momentach czasu.
+    </>
+  }
 />
 
 Jak jednak pogodzić to, że z jednej strony mikrofon daje nam sygnał analogowy, a komputer odbiera cyfrowy? Do tego służą urządzenia zwane przetwornikami analogowo-cyfrowymi (oraz w drugą stronę — cyfrowo-analogowymi). Są wbudowane w karty dźwiękowe komputera bądź też w same mikrofony (w przypadku tych na USB lub Bluetooth). Nie będziemy zagłębiać się w techniczne detale działania tych przetworników, jednak omówimy ogólną ideę działania.
@@ -202,17 +223,34 @@ Oczywiście istnieją też inne popularne formaty bezstratne, jak FLAC lub ALAC 
 
 Jak wspomniałem wielokrotnie, LPCM to najpopularniejsza odmiana PCM, ale nie jedyna. Również PCM nie jest jedynym sposobem na zapis dźwięku cyfrowo. Z odmian PCM możemy wyróżnić jeszcze między innymi DPCM, ADPCM, PCMU czy PCMA, które stosują kompresję już na poziomie przetwarzania sygnału.
 
-Zupełnie innym podejściem niż PCM jest PDM (Pulse-Density Modulation, po polsku: Modulacja gęstości impulsów) wykorzystywany w standardzie Super Audio CD pod nazwą DSD (Direct Stream Digital).  Tutaj rozdzielczość wynosi zaledwie 1 bit, gdzie wartość 1 oznacza podnoszenie się fali, a 0 jej opadanie. Wymaga to bardzo wysokich częstotliwości próbkowania. Przykładowo, w Super Audio CD częstotliwość wynosi 2,8 MHz, czyli 64 razy więcej niż na zwykłych płytach CD Audio.
+Zupełnie innym podejściem niż PCM jest PDM (Pulse-Density Modulation, po polsku: Modulacja gęstości impulsów) wykorzystywany w standardzie Super Audio CD pod nazwą DSD (Direct Stream Digital). Tutaj rozdzielczość wynosi zaledwie 1 bit, gdzie wartość 1 oznacza podnoszenie się fali, a 0 jej opadanie. Wymaga to bardzo wysokich częstotliwości próbkowania. Przykładowo, w Super Audio CD częstotliwość wynosi 2,8 MHz, czyli 64 razy więcej niż na zwykłych płytach CD Audio.
 
 <Image
   image={pcmdsd}
   alignCenter
   fullSize
   alt="Porównanie formatów PCM i PDM (DSD)"
-  caption={<>
-    Różnica w reprezentacji sygnału dla PCM i PDM (DSD)<br />
-    (By Paweł Zdziarski, <a href="https://creativecommons.org/licenses/by/2.5/deed.en" target="_blank">CC BY 2.5</a>, <a href="https://commons.wikimedia.org/w/index.php?curid=985994" target="_blank">https://commons.wikimedia.org/w/index.php?curid=985994</a>)
-  </>}
+  caption={
+    <>
+      Różnica w reprezentacji sygnału dla PCM i PDM (DSD)
+      <br />
+      (By Paweł Zdziarski,{' '}
+      <a
+        href="https://creativecommons.org/licenses/by/2.5/deed.en"
+        target="_blank"
+      >
+        CC BY 2.5
+      </a>
+      ,{' '}
+      <a
+        href="https://commons.wikimedia.org/w/index.php?curid=985994"
+        target="_blank"
+      >
+        https://commons.wikimedia.org/w/index.php?curid=985994
+      </a>
+      )
+    </>
+  }
   forceWhiteBackground={false}
 />
 
@@ -222,5 +260,5 @@ Zupełnie innym podejściem niż PCM jest PDM (Pulse-Density Modulation, po pols
 - Analog vs. Digital, [https://learn.sparkfun.com/tutorials/analog-vs-digital/all](https://learn.sparkfun.com/tutorials/analog-vs-digital/all) (ostatnio odwiedzone 8.05.2021)
 - Linear Pulse Code Modulated Audio (LPCM): [https://www.loc.gov/preservation/digital/formats/fdd/fdd000011.shtml](https://www.loc.gov/preservation/digital/formats/fdd/fdd000011.shtml) (ostatnio odwiedzone 8.05.2021)
 - Compact Disc Digital Audio, [https://en.wikipedia.org/w/index.php?title=Compact_Disc_Digital_Audio&oldid=1019151495](https://en.wikipedia.org/w/index.php?title=Compact_Disc_Digital_Audio&oldid=1019151495) (ostatnio odwiedzone 8.05.2021)
-- C. E. Shannon, "Communication in the Presence of Noise," in *Proceedings of the IRE*, vol. 37, no. 1, pp. 10-21, Jan. 1949, doi: 10.1109/JRPROC.1949.232969.
-- Quantization (signal processing), [https://en.wikipedia.org/w/index.php?title=Quantization_(signal_processing)&oldid=1005634302](https://en.wikipedia.org/w/index.php?title=Quantization_(signal_processing)&oldid=1005634302) (ostatnio odwiedzone 8.05.2021)
+- C. E. Shannon, "Communication in the Presence of Noise," in _Proceedings of the IRE_, vol. 37, no. 1, pp. 10-21, Jan. 1949, doi: 10.1109/JRPROC.1949.232969.
+- Quantization (signal processing), [https://en.wikipedia.org/w/index.php?title=Quantization\_(signal_processing)&oldid=1005634302](<https://en.wikipedia.org/w/index.php?title=Quantization_(signal_processing)&oldid=1005634302>) (ostatnio odwiedzone 8.05.2021)

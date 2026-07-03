@@ -49,6 +49,11 @@ export const meta = {
   updateTime: '2020-10-01T18:57:10+00:00',
   publishTime: '2020-09-30T09:00:07+00:00',
   cover,
+  coverCaption: (
+    <>
+      (oryginał zdjęcia na okładce opublikowany w serwisie <a href="https://pixabay.com/photos/bison-animals-buffalo-wild-horns-4861278/" target="_blank" rel="noreferrer">Pixabay</a>)
+    </>
+  ),
 };
 
 ## Świat fizyczny
@@ -138,5 +143,3 @@ Do zapisu liczb całkowitych istnieją także inne kodowania, jednak to właśni
 ## Na koniec — końcówkowość
 
 Swoją drogą, już na sam koniec warto powiedzieć o jednym z wielu problemów informatyki związanym właśnie z zapisem. Jak już na początku wspomniałem, najmniejszy adresowalny obszar pamięci zajmuje 1 bajt, natomiast wiele formatów zapisu liczb stosuje rozmiary większe, jak 16 bitów (2 bajty), 32 bity (4 bajty) czy 64 bity (8 bajtów). Jak się okazuje, kolejność zapisu kolejnych bajtów nie jest rzeczą oczywistą, bo podobnie, jak w jednych alfabetach piszemy od lewej do prawej (np. w naszym), w innych na odwrót (jak w arabskim), to tak samo jest i tutaj. Jedne procesory zapisują od „lewej” (czyli od najmniejszego adresu) do „prawej” (największego adresu) i nazywamy to big endian (czasem stosowane jest tłumaczenie — grubokońcówkowość), natomiast inne stosują zapis odwrotny, który nazywamy little endian (cienkokońcówkowość). Co ciekawe, ten drugi (wydawać by się mogło, że mniej intuicyjny) używany jest w najpopularniejszych procesorach do użytku domowego, czyli w procesorach o architekturze x86 (do nich zaliczamy wszelkie Intel Core, Pentium, Ryzen, Celeron, Duron i wiele innych podobnych, zastrzeżonych prawnie nazw). Procesory, które znajdziemy w większości urządzeń przenośnych typu smartfony czy tablety (architektura ARM) wspierają oba sposoby zapisu, jednak zwykle jest wykorzystywany cienkokońcówkowy.
-
-<small>(oryginał zdjęcia na okładce opublikowany w serwisie [Pixabay](https://pixabay.com/photos/bison-animals-buffalo-wild-horns-4861278/))</small>

@@ -1,5 +1,5 @@
 import { ImageData } from './image-data';
-import { ReactElement } from 'react';
+import { ReactElement, ReactNode } from 'react';
 
 export type SimilarPost = {
   slug: string;
@@ -16,6 +16,7 @@ export type BaseMetadata = {
   publishTime?: string;
   updateTime?: string;
   cover?: ImageData;
+  coverCaption?: ReactNode;
   moveCoverToTop?: boolean;
   moveCoverToBottom?: boolean;
   ignore?: boolean;
@@ -31,8 +32,9 @@ export interface PostMetadata extends Required<BaseMetadata> {
 }
 
 export interface RenderedPostMetadata
-  extends Omit<PostMetadata, 'firstParagraph' | 'similar'> {
+  extends Omit<PostMetadata, 'firstParagraph' | 'coverCaption' | 'similar'> {
   firstParagraph: string;
+  coverCaption?: string;
   localizedDate: string;
   prevNext: PrevNext | null;
   similar: SimilarPost[];
