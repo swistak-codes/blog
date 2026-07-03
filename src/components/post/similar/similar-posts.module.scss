@@ -4,6 +4,7 @@
 $width: 300px;
 $hide-width: 35px;
 $header-height: 60px;
+$move-to-top-clearance: 5rem;
 $breakpoint: consts.$page-width + $width * 2 + 75px;
 
 .wrapper {
@@ -195,8 +196,9 @@ $breakpoint: consts.$page-width + $width * 2 + 75px;
     padding: 1rem;
     width: 100%;
     min-width: 0;
-    height: calc(100vh - #{$header-height});
-    max-height: calc(100vh - #{$header-height});
+    height: calc(100vh - #{$header-height} - #{$move-to-top-clearance});
+    max-height: calc(100vh - #{$header-height} - #{$move-to-top-clearance});
+    margin-bottom: $move-to-top-clearance;
     overflow-x: hidden;
     overflow-y: auto;
     box-sizing: border-box;
