@@ -31,9 +31,9 @@ export const convertMetadata = (
   return {
     ...metadata,
     firstParagraph: renderToStaticMarkup(metadata.firstParagraph),
-    coverCaption: metadata.coverCaption
-      ? renderToStaticMarkup(metadata.coverCaption)
-      : undefined,
+    ...(metadata.coverCaption
+      ? { coverCaption: renderToStaticMarkup(metadata.coverCaption) }
+      : {}),
     localizedDate: format(new Date(metadata.publishTime), 'do MMMM yyyy', {
       locale: pl,
     }),
