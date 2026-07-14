@@ -3,24 +3,33 @@ name: build stage
 on:
   push:
     branches:
-      - 'develop'
+      - develop
   workflow_dispatch:
+
+concurrency:
+  group: blog-staging-deploy
+  cancel-in-progress: true
 
 jobs:
   docker:
+    name: Build Docker image
     runs-on: ubuntu-latest
+
+    outputs:
+      image_digest: ${{ steps.build.outputs.digest }}
+
     steps:
-      -
-        name: Set up Docker Buildx
+      - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
-      -
-        name: Login to DockerHub
+
+      - name: Login to Docker Hub
         uses: docker/login-action@v4
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      -
-        name: Build and push
+
+      - name: Build and push
+        id: build
         uses: docker/build-push-action@v7
         with:
           push: true
@@ -28,7 +37,7 @@ jobs:
           cache-to: type=gha,mode=max
           tags: |
             swistakcodes/blog:latest-dev
-            swistakcodes/blog:${{ github.sha }}
+            swistakcodes/blog:stage-${{ github.sha }}
           build-args: |
             HIDE=false
             URL=https://shesmovedon.swistak.codes
@@ -37,17 +46,91 @@ jobs:
             PUBLIC_SEARCH_HOST=dont-hate-me.swistak.codes
             PUBLIC_SEARCH_PORT=443
             PUBLIC_SEARCH_PROTOCOL=https
+            NEXT_ASSET_PREFIX=https://lightbulb-sun.swistak.codes/staging
 
-  deploy:
+  assets:
+    name: Upload assets to Bunny
     runs-on: ubuntu-latest
     needs: docker
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Uploader korzysta z fetch() i strumieni dostępnych w Node.js.
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v4
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Extract Next.js static assets
+        env:
+          IMAGE: swistakcodes/blog@${{ needs.docker.outputs.image_digest }}
+        run: |
+          set -euo pipefail
+
+          docker pull "$IMAGE"
+
+          container_id="$(docker create "$IMAGE")"
+
+          cleanup() {
+            docker rm -f "$container_id" >/dev/null 2>&1 || true
+          }
+
+          trap cleanup EXIT
+
+          rm -rf .bunny-static
+          mkdir -p .bunny-static
+
+          docker cp \
+            "$container_id:/app/.next/static/." \
+            .bunny-static/
+
+          if ! find .bunny-static -type f -print -quit | grep -q .; then
+            echo "No files found in /app/.next/static"
+            exit 1
+          fi
+
+      - name: Upload staging assets to Bunny
+        env:
+          BUNNY_STORAGE_ENDPOINT: ${{ vars.BUNNY_STORAGE_ENDPOINT }}
+          BUNNY_STORAGE_ZONE: ${{ vars.BUNNY_STORAGE_ZONE }}
+          BUNNY_STORAGE_ACCESS_KEY: ${{ secrets.BUNNY_STORAGE_ACCESS_KEY }}
+          BUNNY_UPLOAD_CONCURRENCY: 8
+        run: |
+          set -euo pipefail
+
+          node tools/cdn/upload-to-bunny.mjs \
+            .bunny-static \
+            staging/_next/static
+
+  deploy:
+    name: Deploy staging
+    runs-on: ubuntu-latest
+    needs: assets
+
     steps:
       - name: Configure SSH
+        env:
+          SSH_USER: ${{ secrets.SSH_USERNAME }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+          SSH_KEY: ${{ secrets.SSH_KEY }}
         run: |
-          mkdir -p ~/.ssh/
-          echo "$SSH_KEY" > ~/.ssh/staging.key
+          set -euo pipefail
+
+          mkdir -p ~/.ssh
+
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/staging.key
           chmod 600 ~/.ssh/staging.key
-          cat >>~/.ssh/config <<END
+
+          cat >> ~/.ssh/config <<END
           Host staging
             HostName $SSH_HOST
             User $SSH_USER
@@ -55,11 +138,8 @@ jobs:
             IdentityFile ~/.ssh/staging.key
             StrictHostKeyChecking no
           END
-        env:
-          SSH_USER: ${{ secrets.SSH_USERNAME }}
-          SSH_HOST: ${{ secrets.SSH_HOST }}
-          SSH_PORT: ${{ secrets.SSH_PORT }}
-          SSH_KEY: ${{ secrets.SSH_KEY }}
+
+          chmod 600 ~/.ssh/config
 
       - name: Restart container on server
         run: ssh staging './start.sh blog-dev'
