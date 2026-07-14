@@ -5,7 +5,10 @@ export default function Custom404() {
     <div className={styles.centered}>
       <h2>404: Strony nie znaleziono!</h2>
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src="https://anesthetize.swistak.codes/gifs/404.webp" alt="" />
+      <img
+        src="https://lightbulb-sun.swistak.codes/shared/gifs/404.webp"
+        alt=""
+      />
     </div>
   );
 }

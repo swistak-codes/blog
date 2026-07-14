@@ -11,7 +11,10 @@ export function WpLoginPhp() {
         robotsProps={{ noarchive: true, nosnippet: true, noimageindex: true }}
       />
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src="https://anesthetize.swistak.codes/gifs/wplogin.webp" alt="" />
+      <img
+        src="https://lightbulb-sun.swistak.codes/shared/gifs/wplogin.webp"
+        alt=""
+      />
     </div>
   );
 }

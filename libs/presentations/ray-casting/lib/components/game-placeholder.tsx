@@ -31,7 +31,7 @@ export function GamePlaceholder({
     <div className={styles.aspectWrapper} ref={containerRef}>
       <div
         className={clsx(styles.placeholderWrapper, {
-          [styles.placeholderWrapperAnimating]: isAnimating
+          [styles.placeholderWrapperAnimating]: isAnimating,
         })}
         onClick={handlePlayClick}
         role="button"
@@ -47,7 +47,7 @@ export function GamePlaceholder({
         <div className={styles.placeholderContainer}>
           <div className={styles.placeholderImage}>
             <img
-              src="https://anesthetize.swistak.codes/other/wolf3d_canvas1.png"
+              src="https://lightbulb-sun.swistak.codes/shared/other/wolf3d_canvas1.png"
               alt="Podgląd ekranu gry"
               className={styles.placeholderImg}
             />
@@ -56,26 +56,22 @@ export function GamePlaceholder({
         <div className={styles.placeholderContainer}>
           <div className={styles.placeholderImage}>
             <img
-              src="https://anesthetize.swistak.codes/other/wolf3d_canvas2.png"
+              src="https://lightbulb-sun.swistak.codes/shared/other/wolf3d_canvas2.png"
               alt="Podgląd mapy gry"
               className={styles.placeholderImg}
             />
           </div>
         </div>
-        <div className={clsx(styles.playButton, {
-          [styles.playButtonAnimating]: isAnimating
-        })}>
+        <div
+          className={clsx(styles.playButton, {
+            [styles.playButtonAnimating]: isAnimating,
+          })}
+        >
           <div className={styles.playIcon}>▶</div>
         </div>
       </div>
-      <canvas
-        ref={gameCanvasRef}
-        style={{ display: 'none' }}
-      />
-      <canvas
-        ref={mapCanvasRef}
-        style={{ display: 'none' }}
-      />
+      <canvas ref={gameCanvasRef} style={{ display: 'none' }} />
+      <canvas ref={mapCanvasRef} style={{ display: 'none' }} />
     </div>
   );
 }

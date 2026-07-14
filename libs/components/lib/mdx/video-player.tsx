@@ -11,7 +11,7 @@ type AdditionalProps = {
   url: string;
 };
 
-const CDN_ADDRESS = 'https://anesthetize.swistak.codes';
+const CDN_ADDRESS = 'https://lightbulb-sun.swistak.codes/shared';
 
 export const VideoPlayer = ({
   caption,

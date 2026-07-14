@@ -1,6 +1,6 @@
 import styles from './iframe.module.scss';
 
-const CDN_ADDRESS = 'https://anesthetize.swistak.codes';
+const CDN_ADDRESS = 'https://lightbulb-sun.swistak.codes/shared';
 
 type Props = {
   src: string;

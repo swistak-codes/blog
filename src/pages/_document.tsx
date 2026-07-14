@@ -14,9 +14,9 @@ export default class CustomDocument extends Document<{
         <Head nonce={nonce}>
           <meta property="csp-nonce" content={nonce} />
           <meta httpEquiv="Content-Security-Policy" content={csp} />
-          <link rel="preconnect" href="https://anesthetize.swistak.codes" />
+          <link rel="preconnect" href="https://lightbulb-sun.swistak.codes" />
           <link rel="preconnect" href="https://radioactive-toy.swistak.codes" />
-          <link rel="dns-prefetch" href="https://anesthetize.swistak.codes" />
+          <link rel="dns-prefetch" href="https://lightbulb-sun.swistak.codes" />
           <link
             rel="dns-prefetch"
             href="https://radioactive-toy.swistak.codes"
@@ -24,24 +24,24 @@ export default class CustomDocument extends Document<{
           {this.props.styleTags}
           <noscript id="deferred-styles">
             <link
-              href="https://anesthetize.swistak.codes/styles/fonts/fonts2.css"
+              href="https://lightbulb-sun.swistak.codes/shared/styles/fonts/fonts2.css"
               rel="stylesheet"
             />
             <link
               rel="stylesheet"
-              href="https://anesthetize.swistak.codes/styles/phosphor2/style.css"
+              href="https://lightbulb-sun.swistak.codes/shared/styles/phosphor2/style.css"
             />
             <link
               rel="stylesheet"
-              href="https://anesthetize.swistak.codes/styles/phosphor2-fill/style.css"
+              href="https://lightbulb-sun.swistak.codes/shared/styles/phosphor2-fill/style.css"
             />
             <link
               rel="stylesheet"
-              href="https://anesthetize.swistak.codes/styles/katex/katex.min.css"
+              href="https://lightbulb-sun.swistak.codes/shared/styles/katex/katex.min.css"
             />
             <link
               rel="stylesheet"
-              href="https://anesthetize.swistak.codes/styles/prism-tomorrow.min.css"
+              href="https://lightbulb-sun.swistak.codes/shared/styles/prism-tomorrow.min.css"
             />
           </noscript>
           <link rel="icon" href="/fav32.png" sizes="32x32" />

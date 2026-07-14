@@ -6,7 +6,7 @@ export const EmptyResults = () => (
     {/* eslint-disable-next-line @next/next/no-img-element */}
     <img
       className={styles.emptyResultsImage}
-      src="https://anesthetize.swistak.codes/gifs/no-results.webp"
+      src="https://lightbulb-sun.swistak.codes/shared/gifs/no-results.webp"
       alt=""
     />
   </div>

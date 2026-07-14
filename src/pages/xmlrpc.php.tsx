@@ -11,7 +11,10 @@ export function XmlRpcPhp() {
         robotsProps={{ noarchive: true, nosnippet: true, noimageindex: true }}
       />
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src="https://anesthetize.swistak.codes/gifs/xmlrpc.webp" alt="" />
+      <img
+        src="https://lightbulb-sun.swistak.codes/shared/gifs/xmlrpc.webp"
+        alt=""
+      />
     </div>
   );
 }
