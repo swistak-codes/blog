@@ -23,7 +23,9 @@ if (!endpoint || !storageZone || !accessKey) {
 
 const allowedRemoteRoots = new Set([
   'prod/_next/static',
+  'prod/og',
   'staging/_next/static',
+  'staging/og',
 ]);
 
 const remoteRoot = remoteRootArgument.replace(/^\/+|\/+$/g, '');

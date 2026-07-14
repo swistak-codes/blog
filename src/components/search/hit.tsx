@@ -10,6 +10,7 @@ import postStyles from '../post/post.module.scss';
 import { PostHeader } from '../post/post-header';
 import { Categories } from '../tags-categories/categories';
 import { PostDate } from '../post-list/list/post-date';
+import { getCdnUrl } from '../../shared/logic/cdn-url';
 
 type HitProps = Parameters<HitsProps<PostDocument>['hitComponent']>[0] & {
   categoryMap?: Record<string, string>;
@@ -27,11 +28,7 @@ function truncateStringToWords(str: string, limit: number) {
   return truncatedString.slice(0, lastSpaceIndex);
 }
 
-export const Hit = ({
-  hit,
-  sendEvent,
-  categoryMap,
-}: HitProps) => {
+export const Hit = ({ hit, sendEvent, categoryMap }: HitProps) => {
   const handleLinkClick = useCallback(() => {
     sendEvent('click', hit, 'Opened search result');
   }, [hit, sendEvent]);
@@ -51,14 +48,16 @@ export const Hit = ({
     <section className={commonStyles.section}>
       <article className={commonStyles.article}>
         <PostHeader
-          image={hit.image}
+          image={getCdnUrl(hit.image)}
           title={hit.title}
           link={resultUrl}
           aspectRatio="16/6"
           onClick={handleLinkClick}
         />
         <div
-          className={commonStyles.contentContainer + ' ' + postStyles.contentContainer}
+          className={
+            commonStyles.contentContainer + ' ' + postStyles.contentContainer
+          }
         >
           {categoryMap && hit.categories.length > 0 ? (
             <div className={commonStyles.unitMargin}>

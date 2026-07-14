@@ -9,6 +9,27 @@ import {
 import logo from '../assets/logo-bg.png';
 
 const url = process.env['NEXT_PUBLIC_BASE_URL'];
+const assetPrefix = process.env.NEXT_PUBLIC_ASSET_PREFIX?.replace(/\/+$/, '');
+
+const getCoverUrl = (
+  cover: NonNullable<BaseMetadata['cover']>,
+  slug?: string,
+) => {
+  if (!assetPrefix || !slug) {
+    return `${url}${cover.src}`;
+  }
+
+  const extension = cover.src.match(/\.[a-z0-9]+(?=$|\?)/i)?.[0];
+  const version = cover.src.match(/\.([a-f0-9]+)\.[a-z0-9]+(?=$|\?)/i)?.[1];
+
+  if (!extension) {
+    return `${url}${cover.src}`;
+  }
+
+  const versionQuery = version ? `?v=${version}` : '';
+
+  return `${assetPrefix}/og/${encodeURIComponent(slug)}${extension}${versionQuery}`;
+};
 
 export function Metadata(
   props: (BaseMetadata | PostMetadata | RenderedPostMetadata) & AdditionalProps,
@@ -26,6 +47,7 @@ export function Metadata(
     ignore = false,
   } = props;
   const isPost = isPostMetadata(props);
+  const coverUrl = cover ? getCoverUrl(cover, slug) : undefined;
   let link = slug
     ? isPost && !isPage
       ? isOfftopic
@@ -95,10 +117,10 @@ export function Metadata(
                 modifiedTime: updateTime,
                 tags,
               },
-          images: cover
+          images: coverUrl
             ? [
                 {
-                  url: `${url}${cover.src}`,
+                  url: coverUrl,
                   height: cover.height,
                   width: cover.width,
                 },
@@ -136,7 +158,7 @@ export function Metadata(
           type="Blog"
           dateModified={updateTime}
           publisherName="Tomasz Świstak"
-          images={cover ? [`${url}${cover.src}`] : [`${url}${logo.src}`]}
+          images={coverUrl ? [coverUrl] : [`${url}${logo.src}`]}
           publisherLogo={`${url}${logo.src}`}
         />
       ) : null}

@@ -87,13 +87,23 @@ jobs:
 
           rm -rf .bunny-static
           mkdir -p .bunny-static
+          rm -rf .bunny-og
+          mkdir -p .bunny-og
 
           docker cp \
             "$container_id:/app/.next/static/." \
             .bunny-static/
+          docker cp \
+            "$container_id:/app/.next/og/." \
+            .bunny-og/
 
           if ! find .bunny-static -type f -print -quit | grep -q .; then
             echo "No files found in /app/.next/static"
+            exit 1
+          fi
+
+          if ! find .bunny-og -type f -print -quit | grep -q .; then
+            echo "No files found in /app/.next/og"
             exit 1
           fi
 
@@ -109,6 +119,17 @@ jobs:
           node tools/cdn/upload-to-bunny.mjs \
             .bunny-static \
             staging/_next/static
+
+      - name: Upload Open Graph images to Bunny
+        env:
+          BUNNY_STORAGE_ENDPOINT: ${{ vars.BUNNY_STORAGE_ENDPOINT }}
+          BUNNY_STORAGE_ZONE: ${{ vars.BUNNY_STORAGE_ZONE }}
+          BUNNY_STORAGE_ACCESS_KEY: ${{ secrets.BUNNY_STORAGE_ACCESS_KEY }}
+          BUNNY_UPLOAD_CONCURRENCY: 8
+        run: |
+          node tools/cdn/upload-to-bunny.mjs \
+            .bunny-og \
+            staging/og
 
   deploy:
     name: Deploy staging

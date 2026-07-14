@@ -2,6 +2,7 @@ import * as cheerio from 'cheerio';
 import * as fs from 'fs';
 import { parse } from 'date-fns';
 import { pl } from 'date-fns/locale';
+import { getOgImagePath } from './og-image-path.mjs';
 
 const baseUrl = 'http://localhost:4200';
 let gptApiKey = '';
@@ -173,12 +174,12 @@ async function scrapePost(url, retries = 10) {
     $('.toc').remove();
     $('div[data-testid="post-date"]').remove();
     $('article small').last().remove();
-    const abstract = $('meta[name="description"]').prop('content').trim();
-    const image = $('meta[property="og:image"]')
-      .prop('content')
-      .trim()
-      .replace(baseUrl, '');
     const slug = url.split('/').at(url.endsWith('/') ? -2 : -1);
+    const abstract = $('meta[name="description"]').prop('content').trim();
+    const image = getOgImagePath(
+      $('meta[property="og:image"]').prop('content').trim(),
+      slug,
+    );
     const title = $('article h1').text().trim();
     const tags = $('.ph.ph-hash')
       .get()

@@ -19,11 +19,40 @@ const onStartup = (phase: string) => {
 
   const assetPrefix =
     phase === PHASE_DEVELOPMENT_SERVER ? undefined : configuredAssetPrefix;
+  const assetUrl = assetPrefix ? new URL(assetPrefix) : undefined;
 
   const nextConfig: NextConfig = {
     ...(assetPrefix ? { assetPrefix } : {}),
+    env: {
+      NEXT_PUBLIC_ASSET_PREFIX: assetPrefix ?? '',
+    },
+    ...(assetUrl
+      ? {
+          images: {
+            remotePatterns: [
+              {
+                protocol: assetUrl.protocol === 'http:' ? 'http' : 'https',
+                hostname: assetUrl.hostname,
+                port: assetUrl.port,
+                pathname: `${assetUrl.pathname.replace(/\/+$/, '')}/**`,
+              },
+            ],
+          },
+        }
+      : {}),
 
-    redirects: async () => redirects,
+    redirects: async () => [
+      ...redirects,
+      ...(assetPrefix
+        ? [
+            {
+              source: '/_next/static/media/:path*',
+              destination: `${assetPrefix}/_next/static/media/:path*`,
+              permanent: true,
+            },
+          ]
+        : []),
+    ],
     headers: async () => [
       {
         source: '/(.*)',

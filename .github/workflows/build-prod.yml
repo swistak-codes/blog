@@ -84,12 +84,18 @@ jobs:
 
           rm -rf .bunny-static
           mkdir -p .bunny-static
+          rm -rf .bunny-og
+          mkdir -p .bunny-og
 
           docker cp \
             "$container_id:/app/.next/static/." \
             .bunny-static/
+          docker cp \
+            "$container_id:/app/.next/og/." \
+            .bunny-og/
 
           test -n "$(find .bunny-static -type f -print -quit)"
+          test -n "$(find .bunny-og -type f -print -quit)"
 
       - name: Upload assets to Bunny
         env:
@@ -101,6 +107,17 @@ jobs:
           node tools/cdn/upload-to-bunny.mjs \
             .bunny-static \
             prod/_next/static
+
+      - name: Upload Open Graph images to Bunny
+        env:
+          BUNNY_STORAGE_ENDPOINT: ${{ vars.BUNNY_STORAGE_ENDPOINT }}
+          BUNNY_STORAGE_ZONE: ${{ vars.BUNNY_STORAGE_ZONE }}
+          BUNNY_STORAGE_ACCESS_KEY: ${{ secrets.BUNNY_STORAGE_ACCESS_KEY }}
+          BUNNY_UPLOAD_CONCURRENCY: 8
+        run: |
+          node tools/cdn/upload-to-bunny.mjs \
+            .bunny-og \
+            prod/og
 
   deploy:
     runs-on: ubuntu-latest

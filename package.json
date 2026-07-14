@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "build": "next build",
-    "postbuild": "next-sitemap",
+    "postbuild": "node tools/cdn/prepare-og-images.mjs && next-sitemap",
     "docker": "docker-compose -f docker-compose.yml -f docker-compose-matomo.yml -f docker-compose-search.yml -f docker-compose-dev.yml",
     "docker:matomo": "docker-compose -f docker-compose-matomo.yml -f docker-compose-dev.yml",
     "docker:search": "docker compose -f docker-compose-search.yml up",
