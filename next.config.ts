@@ -4,31 +4,38 @@ import { withMDX } from './config/mdx';
 import { headers } from './config/headers';
 import { redirects } from './config/redirects';
 
-const normalizeAssetPrefix = (
-  value: string | undefined,
-): string | undefined => {
+const normalizeUrl = (value: string | undefined): string | undefined => {
   const normalized = value?.trim().replace(/\/+$/, '');
 
   return normalized || undefined;
 };
 
 const onStartup = (phase: string) => {
-  const configuredAssetPrefix = normalizeAssetPrefix(
-    process.env.NEXT_ASSET_PREFIX,
-  );
+  const isDevelopmentServer = phase === PHASE_DEVELOPMENT_SERVER;
+  const configuredAssetPrefix = normalizeUrl(process.env.NEXT_ASSET_PREFIX);
+  const configuredImagePath = normalizeUrl(process.env.NEXT_IMAGE_PATH);
+  const assetPrefix = isDevelopmentServer ? undefined : configuredAssetPrefix;
 
-  const assetPrefix =
-    phase === PHASE_DEVELOPMENT_SERVER ? undefined : configuredAssetPrefix;
+  const imagePath = isDevelopmentServer
+    ? '/_next/image'
+    : (configuredImagePath ?? '/_next/image');
+
   const assetUrl = assetPrefix ? new URL(assetPrefix) : undefined;
 
   const nextConfig: NextConfig = {
     ...(assetPrefix ? { assetPrefix } : {}),
+
     env: {
       NEXT_PUBLIC_ASSET_PREFIX: assetPrefix ?? '',
     },
-    ...(assetUrl
-      ? {
-          images: {
+
+    images: {
+      path: imagePath,
+      qualities: [75],
+      formats: ['image/webp'],
+      minimumCacheTTL: 2_678_400,
+      ...(assetUrl
+        ? {
             remotePatterns: [
               {
                 protocol: assetUrl.protocol === 'http:' ? 'http' : 'https',
@@ -37,9 +44,9 @@ const onStartup = (phase: string) => {
                 pathname: `${assetUrl.pathname.replace(/\/+$/, '')}/**`,
               },
             ],
-          },
-        }
-      : {}),
+          }
+        : {}),
+    },
 
     redirects: async () => [
       ...redirects,
@@ -53,26 +60,32 @@ const onStartup = (phase: string) => {
           ]
         : []),
     ],
+
     headers: async () => [
       {
         source: '/(.*)',
         headers,
       },
     ],
+
     pageExtensions: ['ts', 'tsx', 'js', 'jsx', 'md', 'mdx'],
     trailingSlash: true,
     poweredByHeader: false,
     compress: true,
+
     typescript: {
       ignoreBuildErrors: true, // TODO naprawić to
     },
+
     compiler: {
-      reactRemoveProperties: process.env.NODE_ENV === 'production',
-      removeConsole: process.env.NODE_ENV === 'production',
+      reactRemoveProperties: !isDevelopmentServer,
+      removeConsole: !isDevelopmentServer,
     },
+
     productionBrowserSourceMaps: false,
     cleanDistDir: true,
     excludeDefaultMomentLocales: true,
+
     modularizeImports: {
       'lodash/fp': {
         transform: 'lodash/fp/{{member}}',
@@ -84,6 +97,7 @@ const onStartup = (phase: string) => {
         transform: 'date-fns/{{member}}',
       },
     },
+
     output: 'standalone',
   };
 

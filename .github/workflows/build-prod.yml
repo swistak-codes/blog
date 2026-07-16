@@ -46,6 +46,7 @@ jobs:
             PUBLIC_SEARCH_PORT=443
             PUBLIC_SEARCH_PROTOCOL=https
             NEXT_ASSET_PREFIX=https://lightbulb-sun.swistak.codes/prod
+            NEXT_IMAGE_PATH=https://lightbulb-sun.swistak.codes/prod/_next/image
 
   assets:
     runs-on: ubuntu-latest

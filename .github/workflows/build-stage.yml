@@ -47,6 +47,7 @@ jobs:
             PUBLIC_SEARCH_PORT=443
             PUBLIC_SEARCH_PROTOCOL=https
             NEXT_ASSET_PREFIX=https://lightbulb-sun.swistak.codes/staging
+            NEXT_IMAGE_PATH=https://lightbulb-sun.swistak.codes/staging/_next/image
 
   assets:
     name: Upload assets to Bunny

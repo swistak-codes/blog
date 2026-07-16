@@ -29,7 +29,7 @@ export const generateCsp = (): [csp: string, nonce: string] => {
       production ? '' : " 'unsafe-eval'"
     }`,
     `font-src 'self' ${cdn}`,
-    `connect-src 'self' ${tracker} ${search}`,
+    `connect-src 'self' ${tracker} ${search} ${cdn}`,
     `object-src 'none'`,
   ];
 
