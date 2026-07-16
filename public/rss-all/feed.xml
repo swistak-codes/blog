@@ -4,7 +4,7 @@
         <title>świstak.codes — Wszystkie wpisy</title>
         <link>https://swistak.codes</link>
         <description></description>
-        <lastBuildDate>Mon, 23 Mar 2026 07:00:00 GMT</lastBuildDate>
+        <lastBuildDate>Thu, 16 Jul 2026 07:00:00 GMT</lastBuildDate>
         <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
         <generator>https://github.com/jpmonette/feed</generator>
         <image>
@@ -13,6 +13,15 @@
             <link>https://swistak.codes</link>
         </image>
         <copyright>Wszystkie prawa zastrzeżone 2020-2026, Tomasz Świstak</copyright>
+        <item>
+            <title><![CDATA[Sztuczna inteligencja — mity a rzeczywistość]]></title>
+            <link>https://swistak.codes/post/mity-ai</link>
+            <guid isPermaLink="false">https://swistak.codes/post/mity-ai</guid>
+            <pubDate>Thu, 16 Jul 2026 07:00:00 GMT</pubDate>
+            <description><![CDATA[Artykuł przedstawia najczęstsze mity dotyczące sztucznej inteligencji, obalając je i prezentując rzeczywiste możliwości oraz ograniczenia tej technologii.]]></description>
+            <content:encoded><![CDATA[Od czasów premiery ChatGPT pod koniec 2022 r. można śmiało powiedzieć, że świat się zmienił. Nawet nie chcę tu wchodzić w to, czy zmiany są na lepsze czy gorsze pod kątem tego, jak sztuczna inteligencja wpłynęła na ludzi, w jaki sposób pracujemy bądź korzystamy z Internetu. Jednak jest jedno zjawisko, które zdecydowanie mi się nie podoba — ogromna liczba mitów, teorii spiskowych i półprawd, które są ochoczo powielane przez technologicznych influencerów. A co gorsza, wykorzystywane są one w celach marketingowych przez największe firmy AI. W tym artykule postaram się wyjaśnić, z czym tak naprawdę mamy do czynienia jako sztuczną inteligencją w połowie roku 2026, a także przy okazji obalić kilka powszechnych mitów.<br /><a href="https://swistak.codes/post/mity-ai">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
         <item>
             <title><![CDATA[Podobieństwo wektorów, czyli jak działają bazy wektorowe]]></title>
             <link>https://swistak.codes/post/podobienstwo-wektorow</link>

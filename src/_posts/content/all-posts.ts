@@ -111,3 +111,4 @@ export { liczbyZespolone } from './20251223-liczby-zespolone';
 export { problemSelekcji } from './20260204-problem-selekcji';
 export { kody2fa } from './20260218-kody-2fa';
 export { wektory } from './20260323-wektory';
+export { mityAi } from './20260716-mity-ai';

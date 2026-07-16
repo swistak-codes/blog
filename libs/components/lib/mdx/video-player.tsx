@@ -27,9 +27,10 @@ export const VideoPlayer = ({
         style={{
           maxWidth: `${width}px`,
           maxHeight: `${height}px`,
-          paddingTop: `${
-            100 / (parseInt(width + '') / parseInt(height + ''))
-          }%`,
+          // paddingTop: `${
+          //   100 / (parseInt(width + '') / parseInt(height + ''))
+          // }%`,
+          paddingTop: `${height}px`,
         }}
       >
         <ReactPlayer

@@ -10,6 +10,18 @@
     },
     "items": [
         {
+            "id": "https://swistak.codes/post/mity-ai",
+            "content_html": "Od czasów premiery ChatGPT pod koniec 2022 r. można śmiało powiedzieć, że świat się zmienił. Nawet nie chcę tu wchodzić w to, czy zmiany są na lepsze czy gorsze pod kątem tego, jak sztuczna inteligencja wpłynęła na ludzi, w jaki sposób pracujemy bądź korzystamy z Internetu. Jednak jest jedno zjawisko, które zdecydowanie mi się nie podoba — ogromna liczba mitów, teorii spiskowych i półprawd, które są ochoczo powielane przez technologicznych influencerów. A co gorsza, wykorzystywane są one w celach marketingowych przez największe firmy AI. W tym artykule postaram się wyjaśnić, z czym tak naprawdę mamy do czynienia jako sztuczną inteligencją w połowie roku 2026, a także przy okazji obalić kilka powszechnych mitów.<br /><a href=\"https://swistak.codes/post/mity-ai\">Czytaj więcej na świstak.codes</a>",
+            "url": "https://swistak.codes/post/mity-ai",
+            "title": "Sztuczna inteligencja — mity a rzeczywistość",
+            "summary": "Artykuł przedstawia najczęstsze mity dotyczące sztucznej inteligencji, obalając je i prezentując rzeczywiste możliwości oraz ograniczenia tej technologii.",
+            "date_modified": "2026-07-16T07:00:00.000Z",
+            "author": {
+                "name": "Tomasz Świstak",
+                "url": "https://swistak.codes"
+            }
+        },
+        {
             "id": "https://swistak.codes/post/podobienstwo-wektorow",
             "content_html": "W dobie sztucznej inteligencji i ogromnych zbiorów danych bardzo duże znaczenie zyskały bazy wektorowe. Pozwalają na indeksowanie danych za pomocą wektorów, co umożliwia szybkie wyszukiwanie podobnych elementów. Tylko jak to wygląda z technicznego punktu widzenia? W jaki sposób określamy podobieństwo wektorów? Jak to możliwe, że jesteśmy w stanie zrobić to tak szybko, nawet jeśli danych jest mnóstwo? Przyjrzyjmy się temu bliżej.<br /><a href=\"https://swistak.codes/post/podobienstwo-wektorow\">Czytaj więcej na świstak.codes</a>",
             "url": "https://swistak.codes/post/podobienstwo-wektorow",
