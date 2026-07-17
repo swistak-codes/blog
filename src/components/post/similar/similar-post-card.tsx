@@ -21,7 +21,9 @@ export const SimilarPostCard = ({ post }: Props) => (
         <div className={styles.postImage}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src={`/_next/image/?url=${encodeURIComponent(getCdnUrl(post.image))}&w=3840&q=75`}
+            src={getCdnUrl(
+              `/_next/image/?url=${encodeURIComponent(getCdnUrl(post.image))}&w=3840&q=75`,
+            )}
             alt=""
           />
         </div>
