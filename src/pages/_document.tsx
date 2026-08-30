@@ -56,51 +56,15 @@ export default class CustomDocument extends Document<{
           />
           <link
             rel="alternate"
-            type="application/rss+xml"
-            title="Wpisy ze strony głównej"
-            href="https://swistak.codes/rss-main/feed.xml"
-          />
-          <link
-            rel="alternate"
-            type="application/rss+xml"
-            title="Wpisy off-topic"
-            href="https://swistak.codes/rss-offtopic/feed.xml"
-          />
-          <link
-            rel="alternate"
             type="application/atom+xml"
             title="Wszystkie wpisy"
             href="https://swistak.codes/rss-all/atom.xml"
           />
           <link
             rel="alternate"
-            type="application/atom+xml"
-            title="Wpisy ze strony głównej"
-            href="https://swistak.codes/rss-main/atom.xml"
-          />
-          <link
-            rel="alternate"
-            type="application/atom+xml"
-            title="Wpisy off-topic"
-            href="https://swistak.codes/rss-offtopic/atom.xml"
-          />
-          <link
-            rel="alternate"
             type="application/feed+json"
             title="Wszystkie wpisy"
             href="https://swistak.codes/rss-all/feed.json"
-          />
-          <link
-            rel="alternate"
-            type="application/feed+json"
-            title="Wpisy ze strony głównej"
-            href="https://swistak.codes/rss-main/feed.json"
-          />
-          <link
-            rel="alternate"
-            type="application/feed+json"
-            title="Wpisy off-topic"
-            href="https://swistak.codes/rss-offtopic/feed.json"
           />
           <script
             nonce={nonce}

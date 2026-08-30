@@ -8,7 +8,6 @@ type Props = {
   allPages: number;
   basePath: string;
   categoryMap?: Record<string, string>;
-  isOfftopic?: boolean;
 };
 
 export const PostList = ({
@@ -17,11 +16,10 @@ export const PostList = ({
   allPages,
   basePath,
   categoryMap,
-  isOfftopic,
 }: Props) => {
   return (
     <>
-      <List posts={posts} categoryMap={categoryMap} isOfftopic={isOfftopic} />
+      <List posts={posts} categoryMap={categoryMap} />
       <Pagination
         currentPage={currentPage}
         allPages={allPages}

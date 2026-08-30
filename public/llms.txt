@@ -328,7 +328,7 @@ Porównanie szybkich testów pierwszości (Fermat, Miller–Rabin, deterministyc
 
 ## świstak.codes powraca!
 
-https://swistak.codes/offtopic/swistak-codes-powraca
+https://swistak.codes/post/swistak-codes-powraca
 
 świstak.codes wróciło w nowej odsłonie: autor porzucił WordPress na rzecz autorskiego rozwiązania napisanego w TypeScript z użyciem Next.js (strony generowane statycznie podczas kompilacji), co umożliwiło lepszą kontrolę techniczną, optymalizację zasobów (mniejsze skrypty, style, obrazy) i szybsze ładowanie. Nowości UX/UI: nowy, oryginalny layout, ciemny motyw, spisy treści przy wpisach, indeks zagadnień (tagi jako indeks), kategoria offtopic, szybkie udostępnianie oraz usunięcie baneru cookies dzięki rezygnacji z Google Analytics. Zrezygnowano z Google Analytics ze względów prywatności i częstego blokowania — analitykę prowadzi się teraz na podstawie logów serwera oraz testowo Matomo w trybie anonimowym (brak śledzących ciastek, IP zamaskowane). W planach: newsletter, prywatnościowo‑świadomy system komentarzy, poprawa dostępności i dalsze usprawnienia (35 z 50 zaplanowanych zadań już wykonanych). Autor prosi o feedback (mail/LinkedIn/Facebook) i zaprasza do subskrypcji RSS oraz śledzenia mediów społecznościowych.
 
@@ -471,7 +471,7 @@ Math.atan2(y2 - y1, x2 - x1)
 
 ## Codzienny wtręt programisty (1-30)
 
-https://swistak.codes/offtopic/codzienny-wtret-programisty
+https://swistak.codes/post/codzienny-wtret-programisty
 
 Zbiór 30 krótkich porad dla początkujących i praktyków IT z serii „Codzienny wtręt programisty”: praktyczne wskazówki obejmują wybór struktur danych (używaj map/słowników gdy odwołujesz się po id), ucz się myślenia algorytmicznego, a nie tylko konkretnej technologii, i poznaj bibliotekę standardową języka; uwagi o precyzji liczb zmiennoprzecinkowych, ważeniu składowych przy konwersji na szarość, rolę matematyki w programowaniu oraz praktyczne zastosowania grafów; narzędzia i praktyki: Docker, sprawdzone gotowce, wyrażenia regularne, generowanie bezpiecznych ID (crypto.randomUUID/uuid/nanoid) i biblioteki do rysowania grafów w JS; front-endowe dobre praktyki: semantyczne tagi (button/a zamiast klikalnych div), dostępność, lista kluczowych zagadnień frontendowych i Reactowych; porady zawodowe: nie musisz znać wszystkiego, podejmuj decyzje i proaktywnie proponuj rozwiązania, nie rozpraszaj się wieloma zadaniami naraz, rób przerwy i nie pracuj nadmiarowo; dodatkowo: AI jako narzędzie, krytyczne podejście do rekomendacji w sieci, kreatywne pomysły jak programowanie muzyki (Sonic Pi) oraz drobne praktyczne tipy i linki do dalszej lektury na autorowym blogu.
 
@@ -501,7 +501,7 @@ Artykuł opisuje konwersję wyrażeń infiksowych na odwrotną notację polską 
 
 ## (prawie) Codzienny wtręt programisty (31-40)
 
-https://swistak.codes/offtopic/prawie-codzienny-wtret-programisty
+https://swistak.codes/post/prawie-codzienny-wtret-programisty
 
 Zbiór krótkich wpisów (31–40) z serii „(prawie) Codzienny wtręt programisty”: #31 – cztery sposoby zaokrąglania (round, floor, ceil, trunc) i różne zachowania dla liczb ujemnych oraz przypadków .5; #32 – trzy pułapki nauki w IT: wkuwanie zamiast zrozumienia, kopiowanie gotowych rozwiązań bez teorii, bierne szkolenia dla „papierka”; #33 – reszta z dzielenia dla liczb ujemnych działa różnie w różnych językach (Dart, Python, JavaScript), warto znać różnice i matematyczną definicję; #34 – nieoczywiste korzyści testów jednostkowych: żywa dokumentacja, wymuszanie małych funkcji i dobrych konwencji architektonicznych; #35 – przy zakładaniu projektu JS warto skonfigurować ESLint, Prettier i EditorConfig oraz integrować je w CI, pre-commit hookach i wtyczkach edytora; #36 – złożoność cyklomatyczna mierzy liczbę ścieżek w funkcji, wpływa na liczbę wymaganych testów i branch coverage; #37 – 3 lata świstak.codes: migracja z WordPress do Next.js, statystyki odwiedzin i liczba artykułów; #38 – phind.com jako wyszukiwarka dla programistów oparta na GPT‑4 łącząca odpowiedzi z linkami do źródeł (StackOverflow, dokumentacje); #39 – sposoby usuwania domyślnych stylów przeglądarki: reset/normalize/modern-css-reset oraz CSS all: unset dla pojedynczego elementu; #40 – powtarzanie kodu w testach jest akceptowalne i często pożądane, bo testy pełnią funkcję dokumentacji — lepiej opisywać i oddzielać przypadki testowe niż upakowywać je w jeden zbiorczy test.
 
@@ -609,7 +609,7 @@ Artykuł prezentuje przykładowe rozwiązania zadań z próbnej matury 2023 z in
 
 ## Historie zza kulis bloga na 4-lecie
 
-https://swistak.codes/offtopic/historie-zza-kulis-bloga-4-lecie
+https://swistak.codes/post/historie-zza-kulis-bloga-4-lecie
 
 Kilka obserwacji po prawie 4 latach prowadzania bloga świstak.codes: po refaktoryzacji stylów z styled-components na CSS Modules wydajność w Lighthouse wzrosła z 62 do 83 (styled-components pogarszały podział CSS/JS, DX jednak był przyjemny), planowane kolejne optymalizacje to eliminacja duplikacji stylów i ewentualne użycie Tailwinda. Opisuję też realny problem dostępu czytelnika spowodowany zwracaniem przez DNS rekordu AAAA (IPv6) zamiast A (IPv4) oraz brakiem prekonfigurowanego IPv6 na serwerze OVH — wymagało to ręcznej konfiguracji i testów ping6. Wyjaśniam stosowanie grafik generowanych przez AI (DALL·E, Stable Diffusion) od 2021 r.: traktuję je jako praktyczne okładki, nie zastępujące pracy grafików, i staram się unikać naśladowania konkretnych artystów. Na koniec rozważam rolę blogów programistycznych wobec narzędzi jak ChatGPT — mimo wątpliwości mam nadzieję kontynuować prowadzenie bloga do 5-lecia.
 
@@ -711,7 +711,7 @@ Artykuł opisuje znaczenie i źródła losowości w informatyce, rozróżniając
 
 ## świstak.codes staje się open‑source!
 
-https://swistak.codes/offtopic/opensource
+https://swistak.codes/post/opensource
 
 Artykuł informuje o udostępnieniu kodu źródłowego bloga świstak.codes na GitHubie (MIT; artykuły/grafiki nadal chronione) jako migawki gałęzi main bez historii commitów — PR nie będą akceptowane, sugestie przez GitHub Discussions. Repozytorium to projekt Next.js (aktualnie v15) napisany w TypeScript, pierwotnie z Next.js 12, styled-components i Nx; odświeżono do CSS Modules + SCSS, zrezygnowano z monorepo, dalej używany Pages Router i Webpack oraz niektóre legacy API Next.js. Artykuły są w MDX z niestandardowymi metadanymi i rozdzielone w /src/_posts, /src/_offtopic, /src/_pages; strony generowane są skryptem (npm run generate-pages), a RSS/sitemap i indeks wyszukiwarki powstają niestandardowymi skryptami (scraper, public-fix.sh). Instrukcje uruchomienia: Node.js (w artykule 22.12.0), npm install && npm start; Matomo i Typesense można uruchomić lokalnie przez Docker (npm run docker:matomo / npm run docker:search). TypeScript i testy jednostkowe istnieją, ale część testów i integracji z MDX obecnie nie działa z powodu problemów narzędziowych. Wyjaśniono wybory technologiczne: Next.js zamiast Gatsby/Jekyll/Nuxt/Remix (dziś rozważyłby Astro/Docusaurus), CSS Modules zamiast Tailwind/styled-components, Matomo z uwagi na prywatność, Typesense jako open-sourceowa wyszukiwarka (i wektorowa baza), Giscus do komentarzy. Autor argumentuje za self-hostingiem (kontrola danych, brak vendor lock-in), przyznaje, że wiele rozwiązań powstało w toku nauki i zaprasza do pytań i dyskusji.
 

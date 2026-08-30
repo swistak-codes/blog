@@ -20,7 +20,6 @@ type Props = {
   allPages: number;
   basePath: string;
   categoryMap?: Record<string, string>;
-  isOfftopic?: boolean;
 };
 
 type SearchContentProps = {
@@ -51,7 +50,6 @@ export const SearchablePostList = ({
   allPages,
   basePath,
   categoryMap,
-  isOfftopic,
 }: Props) => {
   const inputId = useId();
   const [query, setQuery] = useState('');
@@ -202,7 +200,6 @@ export const SearchablePostList = ({
           allPages={allPages}
           basePath={basePath}
           categoryMap={categoryMap}
-          isOfftopic={isOfftopic}
         />
       )}
     </>

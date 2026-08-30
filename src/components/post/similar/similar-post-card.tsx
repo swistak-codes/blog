@@ -11,7 +11,7 @@ type Props = {
 export const SimilarPostCard = ({ post }: Props) => (
   <div className={styles.postBox}>
     <Link
-      href={`/${post.type === 'offtopic' ? 'offtopic' : 'post'}/${post.slug}`}
+      href={`/post/${post.slug}`}
       passHref
       scroll
       prefetch={false}

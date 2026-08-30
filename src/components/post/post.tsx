@@ -22,11 +22,12 @@ type Props = {
   isOnList?: boolean;
   categoryMap?: Record<string, string>;
   tagsMap?: Record<string, string>;
-  isOfftop?: boolean;
   children: React.ReactNode;
   isPage?: boolean;
   showFooter?: boolean;
 };
+
+const captionHumanNotice = 'Tekst napisany przez człowieka.';
 
 const getSimilar = async (slug: string) => {
   const response = await fetch('/api/similar', {
@@ -44,7 +45,6 @@ const getSimilar = async (slug: string) => {
 export const Post = ({
   metadata,
   isOnList = false,
-  isOfftop = false,
   isPage = false,
   showFooter = true,
   categoryMap,
@@ -56,14 +56,17 @@ export const Post = ({
   const fallbackSimilar = metadata['similar'] || [];
   const [similar, setSimilar] = useState<SimilarPost[]>(fallbackSimilar);
   const [similarHidden, setSimilarHidden] = useState(true);
-  const coverCaption =
-    !isOnList && metadata.coverCaption ? (
-      isRenderedPostMetadata(metadata) ? (
-        <span dangerouslySetInnerHTML={{ __html: metadata.coverCaption }} />
-      ) : (
-        metadata.coverCaption
-      )
-    ) : null;
+  const coverCaption = metadata.coverCaption ? (
+    isRenderedPostMetadata(metadata) ? (
+      <span
+        dangerouslySetInnerHTML={{
+          __html: metadata.coverCaption + '<br />' + captionHumanNotice,
+        }}
+      />
+    ) : (
+      metadata.coverCaption + ' ' + captionHumanNotice
+    )
+  ) : null;
 
   useEffect(() => {
     if (!isOnList) {
@@ -103,23 +106,16 @@ export const Post = ({
         }
       };
     }
-  }, [fallbackSimilar, isOnList, isOfftop, metadata]);
+  }, [fallbackSimilar, isOnList, metadata]);
 
   return (
     <article className={commonStyles.article}>
-      {!isOnList && (
-        <Metadata {...metadata} isOfftopic={isOfftop} isPage={isPage} />
-      )}
+      {!isOnList && <Metadata {...metadata} isPage={isPage} />}
       {metadata.cover && (
         <PostHeader
           image={metadata.cover}
           title={metadata.title}
-          link={
-            isOnList
-              ? (isOfftop ? '/offtopic/' : isPage ? '' : '/post/') +
-                metadata.slug
-              : null
-          }
+          link={isOnList ? (isPage ? '' : '/post/') + metadata.slug : null}
           aspectRatio={isOnList ? '16/6' : undefined}
           moveToTop={isOnList ? !!metadata.moveCoverToTop : false}
           moveToBottom={isOnList ? !!metadata.moveCoverToBottom : false}
@@ -130,7 +126,9 @@ export const Post = ({
         data-post-content-container
       >
         {coverCaption ? (
-          <div className={clsx(commonStyles.contentWrapper, styles.coverCaption)}>
+          <div
+            className={clsx(commonStyles.contentWrapper, styles.coverCaption)}
+          >
             {coverCaption}
           </div>
         ) : null}

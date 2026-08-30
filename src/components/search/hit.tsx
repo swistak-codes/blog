@@ -33,7 +33,7 @@ export const Hit = ({ hit, sendEvent, categoryMap }: HitProps) => {
     sendEvent('click', hit, 'Opened search result');
   }, [hit, sendEvent]);
 
-  const resultUrl = `/${hit.type === 'offtopic' ? 'offtopic' : 'post'}/${hit.id}`;
+  const resultUrl = `/post/${hit.id}`;
   const snippet =
     hit._snippetResult['content'].matchLevel !== 'none'
       ? `(...)&nbsp;${hit._snippetResult['content']['value']}&nbsp;(...)`

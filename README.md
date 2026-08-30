@@ -9,7 +9,7 @@ Z racji, że jest to automatyczna kopia kodu, nie przyjmuję w tym repozytorium 
 ## Istotne linki
 
 - Blog: <https://swistak.codes/>
-- Jeśli chcesz wiedzieć więcej o kodzie i decyzji pójścia w open-source, przeczytaj ten artykuł: <https://swistak.codes/offtopic/opensource/>
+- Jeśli chcesz wiedzieć więcej o kodzie i decyzji pójścia w open-source, przeczytaj ten artykuł: <https://swistak.codes/post/opensource/>
 - Jeśli widzisz błąd lub chcesz zasugerować zmianę w kodzie, otwórz nową dyskusję na GitHubie: <https://github.com/orgs/swistak-codes/discussions/new/choose>
 
 ## Instrukcje techniczne

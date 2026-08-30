@@ -55,7 +55,6 @@ export default async function handler(
               slug: (x.document as PostDocument).id,
               image: (x.document as PostDocument).image,
               title: (x.document as PostDocument).title,
-              type: (x.document as PostDocument).type,
             }) as SimilarPost,
         ),
       );

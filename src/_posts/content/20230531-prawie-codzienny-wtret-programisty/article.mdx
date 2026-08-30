@@ -1,0 +1,563 @@
+import { Image } from '@swistak-codes/components';
+import Link from 'next/link';
+import cover from './codzienny_wtret_swistak.jpg';
+import wtret36 from './wtret_36.png';
+import wtret37_0 from './wtret_37_0.png';
+import wtret37_1 from './wtret_37_1.png';
+import wtret37_2 from './wtret_37_2.png';
+import wtret37_3 from './wtret_37_3.png';
+import wtret37_4 from './wtret_37_4.png';
+import wtret37_5 from './wtret_37_5.png';
+import wtret37_6 from './wtret_37_6.png';
+import wtret38_1 from './wtret_38_1.png';
+import wtret38_2 from './wtret_38_2.png';
+import wtret38_3 from './wtret_38_3.png';
+import wtret38_4 from './wtret_38_4.png';
+import wtret38_5 from './wtret_38_5.png';
+import wtret38_6 from './wtret_38_6.png';
+import wtret38_7 from './wtret_38_7.png';
+import wtret39 from './wtret_39.png';
+
+export const meta = {
+  title: '(prawie) Codzienny wtręt programisty (31-40)',
+  abstract:
+    'Teksty publikowane przeze mnie na social mediach w ramach serii „(prawie) Codzienny wtręt programisty”. Części 31-40.',
+  firstParagraph: (
+    <>
+      (prawie) Codzienny wtręt programistyczny to seria krótkich wpisów na moich social mediach, gdzie dzieliłem się krótkimi radami i przemyśleniami na temat programowania. W tym artykule znajdziesz spisane treści wpisów o numerach od 31 do 40.
+    </>
+  ),
+  keyword: 'prawie codzienny wtręt programisty',
+  categories: ['Offtopic'],
+  tags: [],
+  slug: 'prawie-codzienny-wtret-programisty',
+  updateTime: '2023-05-31T07:00:00+00:00',
+  publishTime: '2023-05-31T07:00:00+00:00',
+  cover,
+  coverCaption: <>Zdjęcie wygenerowane z użyciem DALL-E.</>,
+};
+
+## Wstęp
+
+Treści, które tutaj zobaczysz, oryginalnie były publikowane na moich social mediach. Są nieco inne niż tematyka tego bloga: porady dla osób zaczynających pracę w IT oraz rzeczy związane typowo z front-endem i JavaScriptem. Blog z założenia miał być zawsze bardziej ogólny, skupiający się na uniwersalnej wiedzy z zakresu informatyki niezależnie od technologii, wykształcenia i zawodu.
+
+Jeśli chciałbyś/chciałabyś być na bieżąco z podobnymi treściami, zapraszam do obserwowania moich social mediów:
+
+- [Instagram (@swistak.codes)](https://www.instagram.com/swistak.codes/)
+- [LinkedIn (Tomasz Świstak)](https://www.linkedin.com/in/tomasz-swistak/)
+- [Facebook (świstak.codes)](https://www.facebook.com/swistak.codes/)
+
+## #31 4 sposoby na zaokrąglanie liczb
+
+Wiesz, że klasycznie w językach programowania mamy 4 sposoby na zaokrąglanie liczb zmiennoprzecinkowych do całkowitych? Zobacz kolejne obrazki i dowiedz się, czym każda z tych opcji się różni.
+
+A Ty których najczęściej używasz i dlaczego?
+
+### Round — zaokrąglenie do najbliższej wartości
+
+```javascript
+Math.round(2.1); // 2
+Math.round(3.7); // 4
+Math.round(5.5); // 6
+Math.round(-2.1); // -2
+Math.round(-3.7); // -4
+Math.round(-5.5); // -5
+```
+
+Warto zwrócić uwagę, jak w Twoim języku programowania traktowany jest przypadek piątki po przecinku!
+
+### Floor — podłoga; zaokrąglenie w dół
+
+```javascript
+Math.floor(2.1); // 2
+Math.floor(3.7); // 3
+Math.floor(5.5); // 5
+Math.floor(-2.1); // -3
+Math.floor(-3.7); // -4
+Math.floor(-5.5); // -6
+```
+
+Uwaga: nie jest to obcięcie części dziesiętnej! Zobacz przykłady dla liczb ujemnych.
+
+### Ceil — sufit; zaokrąglenie w górę
+
+```javascript
+Math.ceil(2.1); // 3
+Math.ceil(3.7); // 4
+Math.ceil(5.5); // 6
+Math.ceil(-2.1); // -2
+Math.ceil(-3.7); // -3
+Math.ceil(-5.5); // -5
+```
+
+### Truncate — obcięcie części dziesiętnej
+
+```javascript
+Math.trunc(2.1); // 2
+Math.trunc(3.7); // 3
+Math.trunc(5.5); // 5
+Math.trunc(-2.1); // -2
+Math.trunc(-3.7); // -3
+Math.trunc(-5.5); // -5
+```
+
+## #32 Czy umiemy się uczyć?
+
+Mówi się, że praca w IT to ciągły rozwój, potrzeba stałej nauki. Warto jednak zadać sobie pytanie, czy umiemy się uczyć?
+
+Moim zdaniem można zauważyć trzy główne problemy, przez które czy to studiując, czy robiąc kursy, niewiele z tego wynosimy. Sam zresztą miałem okazje przez nie przejść.
+
+### Wkuwamy teorię zamiast zrozumieć
+
+- ➡️ Typowo szkolne 3Z: „zakuć, zdać, zapomnieć”.
+- ➡️ Faza „zapomnieć” zwykle zachodzi bardzo szybko.
+
+### Uczymy się gotowych rozwiązań bez teorii
+
+- ➡️ Szczególnie zauważalne przy tutorialach z Internetu.
+- ➡️ Interesuje nas tylko rozwiązanie problemu, a nie jego sedno.
+- ➡️ Zapamiętane rozwiązania rzadko można przełożyć na ogólny przypadek.
+
+### Uczęszczamy w szkoleniach dla „papierka”
+
+- ➡️ Nie uczestniczymy aktywnie w szkoleniu.
+- ➡️ Mimo że kojarzy się z uczelniami wyższymi, to często odnosi się to też do szkoleń branżowych kończących się certyfikatem.
+
+## #33 Reszta z dzielenia jest dziwna
+
+O ile dla liczb dodatnich reszta z dzielenia jest niemal zawsze taka sama, to problemy zaczynają się, gdy pojawiają się liczby ujemne. Różne języki implementują inne sposoby jej obliczania, stąd wyniki się różnią i do tego są nie do końca zgodne z matematyczną definicją tego działania.
+
+Zobacz dalej, jakie wyniki operacja ta daje w różnych językach.
+
+Jeśli chcesz wiedzieć, skąd to się bierze, a także jak uzyskać tę matematyczną wersję, zapraszam do lektury: [https://swistak.codes/post/dziwny-przypadek-reszty-z-dzielenia/](/post/dziwny-przypadek-reszty-z-dzielenia)
+
+### Dart
+
+```dart
+void main() {
+  print('8 mod 5 = ${8 % 5}');
+  print('-8 mod 5 = ${-8 % 5}');
+  print('8 mod -5 = ${8 % -5}');
+  print('-8 mod -5 = ${-8 % -5}');
+}
+
+// 8 mod 5 = 3
+// -8 mod 5 = 2
+// 8 mod -5 = 3
+// -8 mod -5 = 2
+```
+
+### Python
+
+```python
+print(f'8 mod 5 = {8 % 5}')
+print(f'-8 mod 5 = {-8 % 5}')
+print(f'8 mod -5 = {8 % -5}')
+print(f'-8 mod -5 = {-8 % -5}')
+
+# 8 mod 5 = 3
+# -8 mod 5 = 2
+# 8 mod -5 = -2
+# -8 mod -5 = -3
+```
+
+### JavaScript
+
+```javascript
+console.log(`8 mod 5 = ${8 % 5}`);
+console.log(`-8 mod 5 = ${-8 % 5}`);
+console.log(`8 mod -5 = ${8 % -5}`);
+console.log(`-8 mod -5 = ${-8 % -5}`);
+
+// 8 mod 5 = 3
+// -8 mod 5 = -3
+// 8 mod -5 = 3
+// -8 mod -5 = -3
+```
+
+## #34 Mniej oczywiste korzyści unit testów
+
+W kontekście testów jednostkowych zawsze się mówi, że możemy dzięki nim sprawdzić kod, czy poprawnie się wykonuje. To prawda, ale nie jest to jedyna korzyść, jaką one dają.
+
+### Żywa dokumentacja
+
+- ➡️ Dobrze napisane testy spełniają funkcję podobną do dokumentacji.
+- ➡️ Patrząc na test, jesteś w stanie lepiej wywnioskować, co autor miał na myśli.
+
+### Wymuszają pisanie ładnych funkcji
+
+- ➡️ Nie da się łatwo napisać testów dla funkcji wykonujących wiele rzeczy (łamanie SRP).
+- ➡️ Tak samo nie da się łatwo testować funkcji z efektami ubocznymi.
+
+### Wymuszają dobre konwencje architektoniczne
+- ➡️ Jeśli nie stosuje się odwrócenia zależności, doprowadzenie mocków do działania może zająć więcej miejsca niż testy.
+- ➡️ Zmuszają do rozdzielania kodu na mniejsze jednostki, które łatwiej się testuje (np. na front-endzie wydzielenie logiki komponentów na zewnątrz).
+
+## #35 Pamiętaj o tym, tworząc nowy projekt JS-owy
+
+Jeśli zakładasz nowy projekt JS-owy, pamiętaj o konfiguracji trzech narzędzi, które sprawią, że kod będzie spójny, czytelny, a także ułatwią Ci sprawdzanie pull requestów.
+
+### ESLint
+
+- ➡️ Statyczna analiza kodu.
+- ➡️ Umożliwia uwspólnienie stylu kodowania bez ręcznego spisywania zasad.
+
+### Prettier
+
+- ➡️ Automatyczne formatowanie kodu.
+- ➡️ Zapewnia czytelny i spójny kod pod kątem formatowania.
+
+### EditorConfig
+
+- ➡️ Narzuca edytorowi reguły formatowania.
+- ➡️ Przydatny tam, gdzie Prettier i ESLint nie potrafią działać, np. na plikach konfiguracyjnych.
+
+### Jak z nimi pracować?
+
+- ➡️ Sprawdzanie jako kroki pipeline CI.
+- ➡️ Git Hook na pre-commit (np. korzystając z Husky).
+- ➡️ Wtyczki do edytorów, aby podświetlały błędy i je automatycznie naprawiały.
+
+## #36 Złożoność cyklomatyczna a unit testy
+
+Złożoność cyklomatyczna to jedna z podstawowych metryk wskazujących poziom skomplikowania pisanego przez nas kodu. Co ciekawe, ma ona wpływ na pisanie unit testów. Czytaj dalej, aby dowiedzieć się, w czym rzecz!
+
+### Złożoność cyklomatyczna
+
+- ➡️ Liczba mówi, ile różnych ścieżek przejścia kodu jest w danej funkcji.
+- ➡️ Im wyższa, tym bardziej skomplikowany jest nasz kod.
+- ➡️ Powinniśmy pisać kod tak, aby wartość była jak najniższa
+
+### Jak liczyć?
+
+- ➡️ Każde zwrócenie wartości daje złożoność 1.
+- ➡️ Każda instrukcja przepływu sterowania (warunki, pętle) zwiększa złożoność o 1.
+- ➡️ Możesz stosować wtyczki do edytorów, np. CodeMetrics do VSCode.
+
+### Przykład
+
+<Image
+  image={wtret36}
+  alignCenter
+  fullSize
+  maxWidth="400px"
+  alt=""
+  caption={<></>}
+/>
+
+### Co to ma do unit testów?
+
+- ➡️ Zakłada się, że aby funkcję przetestować poprawnie, powinna ona mieć tyle testów, co jej złożoność cyklomatyczna.
+- ➡️ Jeśli masz tyle testów, ile wynosi złożoność cyklometryczna, to powinieneś/powinnaś mieć 100% branch coverage.
+
+## #37 3 lata świstak.codes
+
+Nietypowo dzisiejszy wtręt jest bardziej o mnie, bo właśnie wybija trzecia rocznica założenia mojego bloga świstak.codes. Na slajdach poniżej kilka faktów z 3 lat istnienia. A jeśli jeszcze nie miałeś(-aś) okazji go poczytać, to zapraszam na https://swistak.codes !
+
+### Początki
+
+Blog początkowo był oparty na Wordpressie i wyglądał tak:
+
+<Image
+  image={wtret37_0}
+  alignCenter
+  fullSize
+  alt="Zrzut ekranu ze starej wersji strony świstak.codes"
+  caption={<></>}
+/>
+
+
+### Dziś
+
+Dziś jest przeze mnie napisany od zera w Next.js. Przepisanie zajęło mi 3 miesiące i opisałem je w tym artykule:
+
+<Image
+  image={wtret37_1}
+  alignCenter
+  fullSize
+  alt="Okładka artykułu 'świstak.codes powraca'"
+  caption={<></>}
+/>
+
+[https://swistak.codes/offtopic/swistak-codes-powraca/](/offtopic/swistak-codes-powraca)
+
+### Jeszcze wcześniej...
+
+Rok przed założeniem świstak.codes publikowałem na Medium:
+
+<Image
+  image={wtret37_2}
+  forceWhiteBackground={false}
+  alignCenter
+  fullSize
+  alt="Zrzut ekranu mojego profilu na Medium"
+  caption={<></>}
+/>
+
+https://tomasz-swistak.medium.com/
+
+### Social media
+
+Początkowo wystartowałem tylko z blogiem. Dziś świstak.codes to też profil na Facebooku i Instagramie.
+
+Kto wie, może niedługo będzie coś więcej?
+
+### A teraz trochę statystyk
+
+<small>statystyki na moment oryginalnej publikacji wpisu, czyli 28.04.2023</small>
+
+- ➡️ Na blogu znajdziecie 71 artykułów, kolejny już 10 maja!
+- ➡️ Przez ostatni rok bloga odwiedziło ponad 41 tysięcy unikalnych odwiedzających (licząc tylko tych, którzy nie blokują analityki).
+- ➡️ W Google zaś linki do bloga były klikane ponad 45 tysięcy razy.
+
+### Najczęściej odwiedzany artykuł
+
+<Image
+  image={wtret37_3}
+  forceWhiteBackground={false}
+  alignCenter
+  fullSize
+  alt="Okładka artykułu 'Określanie dnia tygodnia dla dowolnej daty'"
+  caption={<></>}
+/>
+
+[https://swistak.codes/post/okreslanie-dnia-tygodnia-dla-dowolnej-daty/](/post/okreslanie-dnia-tygodnia-dla-dowolnej-daty)
+
+### Ciekawostka
+
+<Image
+  image={wtret37_4}
+  forceWhiteBackground={false}
+  alignCenter
+  fullSize
+  alt="Zrzut ekranu z Google po wpisaniu frazy 'jak określić dzień tygodnia dla daty'"
+  caption={<></>}
+/>
+
+Nie dziwię się, że jest odwiedzany, bo sam bym nic nie wyciągnął z tego fragmentu 😀
+
+### Najrzadziej odwiedzany artykuł 😢
+
+<Image
+  image={wtret37_5}
+  forceWhiteBackground={false}
+  alignCenter
+  fullSize
+  alt="Okładka artykułu 'Jak komputer rysuje okręgi'"
+  caption={<></>}
+/>
+
+https://swistak.codes/post/jak-komputer-rysuje-okregi/
+
+Dajcie mu trochę miłości i go odwiedźcie!
+
+### Jeszcze na koniec...
+
+Zapraszam do regularnych odwiedzin!
+
+<Image
+  image={wtret37_6}
+  forceWhiteBackground={false}
+  alignCenter
+  fullSize
+  alt="Zrzut ekranu strony głównej bloga"
+  caption={<></>}
+/>
+
+Nowe artykuły wrzucam co 2 tygodnie.
+
+## #38 Programowanie z AI
+
+Wielu pokazuje, jak wspomagać się w pracy programistycznej ChatGPT. Ja jednak chciałem Ci przedstawić inne narzędzie: www.phind.com.
+
+Zobacz kolejne obrazki, gdzie opisuję, co to za narzędzie, i pokazuję przykłady, jak działa.
+
+### Co to jest phind.com?
+
+<Image
+  image={wtret38_1}
+  forceWhiteBackground={false}
+  alignCenter
+  fullSize
+  alt="Zrzut ekranu z phind.com"
+  caption={<></>}
+/>
+
+- ➡️ Wyszukiwarka dla programistów operująca językiem naturalnym.
+- ➡️ Oparta na GPT-4.
+- ➡️ Pisze rozbudowane odpowiedzi z odnośnikami do źrodeł (StackOverflow, blogi programistyczne, dokumentacje).
+- ➡️ Łączy wiedzę z różnych źródeł, dając unikalne wyjaśnienia.
+
+A co możemy w nim zrobić? Zobacz dalej przykłady ⏭️
+
+### Implementacje algorytmów wraz z wyjaśnieniami
+
+<Image
+  image={wtret38_2}
+  forceWhiteBackground={false}
+  alignCenter
+  fullSize
+  alt="Zrzut ekranu z phind.com po wpisaniu frazy 'How to write quick sort in Common Lisp?'"
+  caption={<></>}
+/>
+
+### Dokumentacja funkcji
+
+<Image
+  image={wtret38_3}
+  forceWhiteBackground={false}
+  alignCenter
+  fullSize
+  alt="Zrzut ekranu z phind.com po wpisaniu frazy 'What is Math.clz32() in JavaScript?'"
+  caption={<></>}
+/>
+
+### Przykłady użycia bibliotek
+
+<Image
+  image={wtret38_4}
+  forceWhiteBackground={false}
+  alignCenter
+  fullSize
+  alt="Zrzut ekranu z phind.com po wpisaniu frazy 'How to use prettytime library in Kotlin?'"
+  caption={<></>}
+/>
+
+### Ciekawe pomysły
+
+<Image
+  image={wtret38_5}
+  forceWhiteBackground={false}
+  alignCenter
+  fullSize
+  alt="Zrzut ekranu z phind.com po wpisaniu frazy 'What is the best way to hide an easter egg in a corporate app?'"
+  caption={<></>}
+/>
+
+### Nawet potrafi pisać muzykę
+
+<Image
+  image={wtret38_6}
+  forceWhiteBackground={false}
+  alignCenter
+  fullSize
+  alt="Zrzut ekranu z phind.com po wpisaniu frazy 'How to play Darude Sandstorm in Sonic Pi?'"
+  caption={<></>}
+/>
+
+(tak naprawdę to nie umie 😀)
+
+### I nie ogranicza się tylko do tematów technicznych
+
+<Image
+  image={wtret38_7}
+  forceWhiteBackground={false}
+  alignCenter
+  fullSize
+  alt="Zrzut ekranu z phind.com po wpisaniu frazy 'What's the best place to live as an expat?'"
+  caption={<></>}
+/>
+
+## #39 Usuwanie domyślnych stylów
+
+Pracując na frontendzie, prawie zawsze trafiamy na problem, gdzie napisaliśmy bardzo ładnego CSS-a, ale nie działa on tak, jakbyśmy tego chcieli, bo przeglądarka narzuca własne style.
+
+Jeśli chcesz poznać dwa sposoby na usunięcie domyślnych stylów, czytaj dalej.
+
+### Gotowe stylesheety resetujące wszystko
+
+- ➡️ Reset CSS (https://meyerweb.com/eric/tools/css/reset/)
+- ➡️ Normalize.css (https://necolas.github.io/normalize.css/)
+- ➡️ modern-css-reset (https://www.npmjs.com/package/modern-css-reset)
+
+### Usunięcie stylów pojedynczego elementu:
+
+```css
+element {
+  all: unset;
+}
+```
+
+### Przykład
+
+<Image
+  image={wtret39}
+  forceWhiteBackground={false}
+  alignCenter
+  fullSize
+  alt="Z lewej strony element z domyślnymi stylami, z prawej z usuniętymi."
+  caption={<></>}
+/>
+
+## #40 Powtarzanie kodu w testach jest OK
+
+Często się mówi, że powinniśmy nie powtarzać kodu, unikać robienia kopiuj-wklej. Zamiast tego powinniśmy uwspólniać jak najwięcej kodu. Zgoda, ale nie zawsze powinniśmy.
+
+Przeczytaj dalej, dlaczego w przypadku testów warto czasem powielić kod.
+
+### Ta sama akcja, ale testujemy coś innego
+
+- ➡️ Testując, nieraz mamy sytuację, że wywołanie funkcji jest takie samo, tylko przyjmuje inne dane. Nawet asercja może wyglądać tak samo.
+- ➡️ Jednak inne dane mogą oznaczać zupełnie inny przypadek, który powinniśmy inaczej opisać.
+- ➡️ Pamiętaj: testy mają funkcję dokumentacji. Najpierw opisz wszystkie przypadki, a potem napisz do nich kod. Nawet duplikujący się, to nie jest nic złego!
+
+### Przykład
+
+- ➡️ Mamy funkcję konwertującą kolor do wspólnego formatu: `normalizeColor(color: string): string`.
+- ➡️ Niezależnie od tego, w którym formacie kolor zostanie podany na wejściu, wyjście powinno zawsze zwrócić ten sam format (załóżmy, że hex zapisany dużymi literami).
+- ➡️ Zakładamy, że jeśli nie potrafi przekonwertować formatu (nieobsługiwany lub błędne wejście), zwracamy to samo, co było na wejściu.
+
+### Moglibyśmy wszystko zamknąć w jednym teście
+
+```javascript
+it.each`
+  color                | expected
+  ${'#b4cd12'}         | ${'#B4CD12'}
+  ${'#b4c'}            | ${'#B4C'}
+  ${'rgb(255,0,0)'}    | ${'#F00'}
+  ${'hsl(68 73% 60%)'} | ${'#D0E34F'}
+  ${'aquamarine'}      | ${'aquamarine'}
+`('should normalize colors', ({ color, expected }) => {
+    expect(normalizeColorValue(color)).toEqual(expected);
+  });
+```
+
+### Ale lepiej będzie podać konkretne przypadki:
+
+```javascript
+it.each`
+  color                | expected
+  ${'#b4cd12'}         | ${'#B4CD12'}
+  ${'#b4c'}            | ${'#B4C'}
+`('should uppercase hex colors', ({ color, expected }) => {
+    expect(normalizeColorValue(color)).toEqual(expected);
+  });
+
+it.each`
+  color                | expected
+  ${'rgb(255,0,0)'}    | ${'#F00'}
+`('should convert rgb to uppercased hex', ({ color, expected }) => {
+    expect(normalizeColorValue(color)).toEqual(expected);
+  });
+
+it.each`
+  color                | expected
+  ${'hsl(68 73% 60%)'} | ${'#D0E34F'}
+`('should convert hsl to uppercased hex', ({ color, expected }) => {
+    expect(normalizeColorValue(color)).toEqual(expected);
+  });
+
+it.each`
+  color                | expected
+  ${'aquamarine'}      | ${'aquamarine'}
+`('should return the same if not supported', ({ color, expected }) => {
+    expect(normalizeColorValue(color)).toEqual(expected);
+  });
+```
+
+### Dlaczego tak?
+
+- ➡️ Dokumentujemy funkcję: pokazujemy wprost, co ona obsługuje.
+- ➡️ Dodatkowo wyszczególniamy konkretnie, co robi.
+- ➡️ Wyraźnie wskazujemy nieobsługiwane przypadki.
+- ➡️ W przypadku regresji łatwiej jest wskazać, który przypadek przestał działać.

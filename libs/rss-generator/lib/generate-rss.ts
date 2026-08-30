@@ -49,8 +49,7 @@ export const generateRss = async (
   });
 
   sortedPosts.forEach((post) => {
-    const typeSlug = post.meta.isOfftopic ? 'offtopic' : 'post';
-    const postUrl = `${url}/${typeSlug}/${post.meta.slug}`;
+    const postUrl = `${url}/post/${post.meta.slug}`;
 
     feed.addItem({
       title: post.meta.title,

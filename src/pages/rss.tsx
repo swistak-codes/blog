@@ -1,7 +1,6 @@
 import { GetStaticProps } from 'next';
 import { generateRss } from '@swistak-codes/rss-generator';
 import * as posts from '../_posts/content/all-posts';
-import * as offtops from '../_offtopic/all-offtopics';
 import styles from '../components/common.module.scss';
 
 type Props = {
@@ -54,28 +53,11 @@ export function Rss({ rss }: Props) {
 }
 
 export const getStaticProps: GetStaticProps<Props> = async () => {
-  const all = await generateRss('Wszystkie wpisy', 'all', [
-    ...Object.values(posts),
-    ...Object.values(offtops),
-  ]);
-  const main = await generateRss(
-    'Wpisy ze strony głównej',
-    'main',
-    Object.values(posts)
-  );
-  const offtopics = await generateRss(
-    'Wpisy offtopic',
-    'offtopic',
-    Object.values(offtops)
-  );
+  const all = await generateRss('Wszystkie wpisy', 'all', Object.values(posts));
 
   return {
     props: {
-      rss: [
-        { feedName: 'Wszystkie wpisy', paths: all },
-        { feedName: 'Wpisy ze strony głównej', paths: main },
-        { feedName: 'Wpisy offtopic', paths: offtopics },
-      ],
+      rss: [{ feedName: 'Wszystkie wpisy', paths: all }],
     },
   };
 };

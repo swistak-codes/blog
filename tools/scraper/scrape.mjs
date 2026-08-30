@@ -198,7 +198,7 @@ async function scrapePost(url, retries = 10) {
     return {
       title,
       id: slug,
-      type: url.includes('/offtopic/') ? 'offtopic' : 'blog',
+      type: 'blog',
       tags,
       categories,
       date,

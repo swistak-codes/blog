@@ -43,16 +43,13 @@ export function Metadata(
     publishTime = '',
     updateTime,
     isPage = false,
-    isOfftopic = false,
     ignore = false,
   } = props;
   const isPost = isPostMetadata(props);
   const coverUrl = cover ? getCoverUrl(cover, slug) : undefined;
   let link = slug
     ? isPost && !isPage
-      ? isOfftopic
-        ? `${url}/offtopic/${slug}`
-        : `${url}/post/${slug}/`
+      ? `${url}/post/${slug}/`
       : `${url}/${slug}/`
     : url!;
 
@@ -66,36 +63,12 @@ export function Metadata(
       ? { ...props.prevNext }
       : { ...props.customPrevNext };
 
-  if (
-    isPost &&
-    !isOfftopic &&
-    prevNext.next &&
-    !prevNext.next.startsWith('post/')
-  ) {
+  if (isPost && prevNext.next && !prevNext.next.startsWith('post/')) {
     prevNext.next = 'post/' + prevNext.next;
-  } else if (
-    isPost &&
-    isOfftopic &&
-    prevNext.next &&
-    !prevNext.next.startsWith('offtopic/')
-  ) {
-    prevNext.next = 'offtopic/' + prevNext.next;
   }
 
-  if (
-    isPost &&
-    !isOfftopic &&
-    prevNext.previous &&
-    !prevNext.previous.startsWith('post/')
-  ) {
+  if (isPost && prevNext.previous && !prevNext.previous.startsWith('post/')) {
     prevNext.previous = 'post/' + prevNext.previous;
-  } else if (
-    isPost &&
-    isOfftopic &&
-    prevNext.previous &&
-    !prevNext.previous.startsWith('offtopic/')
-  ) {
-    prevNext.previous = 'offtopic/' + prevNext.previous;
   }
 
   return (

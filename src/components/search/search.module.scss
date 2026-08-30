@@ -236,19 +236,6 @@
             color: var(--sc__tagBadge--color) !important;
           }
         }
-
-        &.offtopicBadge {
-          background: linear-gradient(
-            315deg,
-            var(--sc__tagBadge--background),
-            var(--sc__categoryBadge--background)
-          );
-          color: var(--sc__tagBadge--color);
-
-          a {
-            color: var(--sc__tagBadge--color) !important;
-          }
-        }
       }
     }
 

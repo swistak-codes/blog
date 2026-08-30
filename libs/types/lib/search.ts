@@ -1,7 +1,7 @@
 export type PostDocument = {
   title: string;
   id: string;
-  type: 'blog' | 'offtopic';
+  type: 'blog';
   tags: string[];
   categories: string[];
   date: number;

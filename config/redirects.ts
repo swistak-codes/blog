@@ -25,13 +25,28 @@ export const redirects = [
     permanent: true,
   },
   {
+    source: '/rss-main/:path*',
+    destination: '/rss-all/:path*',
+    permanent: true,
+  },
+  {
+    source: '/offtopic',
+    destination: '/category/offtopic/',
+    permanent: true,
+  },
+  {
+    source: '/offtopic/:slug',
+    destination: '/post/:slug/',
+    permanent: true,
+  },
+  {
     source: '/sitemap_index.xml',
     destination: '/sitemap.xml',
     permanent: true,
   },
   {
     source: '/ogloszenie-techniczne',
-    destination: '/offtopic/swistak-codes-powraca/',
+    destination: '/post/swistak-codes-powraca/',
     permanent: true,
   },
   {

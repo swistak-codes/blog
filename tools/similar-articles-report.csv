@@ -1,12 +1,12 @@
 slug,type,title,total_count,position_1,position_2,position_3,position_4,position_5,position_6,position_7,position_8,position_9
 kryptarytmy,blog,Kryptarytmy,33,0,7,1,5,2,6,3,4,5
 przeksztalcenia-grafiki-2d,blog,Przekształcenia grafiki 2D — matematyczny punkt widzenia,25,4,3,0,4,7,3,2,2,0
-codzienny-wtret-programisty,offtopic,Codzienny wtręt programisty (1-30),23,2,2,5,5,2,3,1,1,2
+codzienny-wtret-programisty,blog,Codzienny wtręt programisty (1-30),23,2,2,5,5,2,3,1,1,2
 jak-komputer-rysuje-okregi,blog,Jak komputer rysuje okręgi?,22,2,3,2,3,0,2,4,1,5
 programistyczne-dziwy,blog,5 programistycznych dziwactw — wyjaśnione,22,1,1,4,2,4,3,3,0,4
 obliczanie-calek-oznaczonych,blog,Obliczanie całek oznaczonych,21,1,1,0,4,3,5,0,3,4
 nie-liczby-jako-liczby-czyli-zapis-danych-cyfrowych,blog,"Nie-liczby jako liczby, czyli zapis danych cyfrowych",20,4,1,2,4,2,1,1,2,3
-prawie-codzienny-wtret-programisty,offtopic,(prawie) Codzienny wtręt programisty (31-40),20,3,2,5,5,2,0,2,1,0
+prawie-codzienny-wtret-programisty,blog,(prawie) Codzienny wtręt programisty (31-40),20,3,2,5,5,2,0,2,1,0
 systemy-liczbowe-uzupelnienie,blog,Systemy liczbowe — uzupełnienie,20,3,2,2,2,1,3,0,4,3
 szukanie-najkrotszych-sciezek-w-grafie,blog,Szukanie najkrótszych ścieżek w grafie,19,2,3,2,1,2,4,2,0,3
 korekcja-perspektywy,blog,Korekcja perspektywy — algorytmiczne podejście,17,0,2,3,2,3,2,1,1,3
@@ -70,11 +70,11 @@ problem-selekcji,blog,Problem selekcji,7,0,0,0,1,0,0,0,2,4
 proste-sposoby-na-znajdowanie-liczb-pierwszych,blog,Proste sposoby na znajdowanie liczb pierwszych,7,0,1,2,1,0,0,1,0,2
 sudoku,blog,Sudoku,7,0,0,0,1,0,2,1,0,3
 duze-liczby-pierwsze,blog,Duże liczby pierwsze,6,2,2,1,0,0,0,1,0,0
-historie-zza-kulis-bloga-4-lecie,offtopic,Historie zza kulis bloga na 4-lecie,6,0,2,1,1,0,0,2,0,0
+historie-zza-kulis-bloga-4-lecie,blog,Historie zza kulis bloga na 4-lecie,6,0,2,1,1,0,0,2,0,0
 iteracja-co-to-jest,blog,Iteracja — co to jest?,6,0,1,1,0,0,1,0,1,2
 krzywe-beziera,blog,Krzywe Béziera,6,1,0,2,0,0,0,1,1,1
 mierzenie-czasu-wykonania,blog,Mierzenie czasu wykonania,6,1,0,0,0,2,1,2,0,0
-opensource,offtopic,świstak.codes staje się open‑source!,6,1,1,1,0,2,0,1,0,0
+opensource,blog,świstak.codes staje się open‑source!,6,1,1,1,0,2,0,1,0,0
 porownanie-szybkich-testow-pierwszosci,blog,Porównanie szybkich testów pierwszości,6,0,0,1,3,0,0,2,0,0
 renderowanie-wolf-3d,blog,Renderowanie grafiki w stylu Wolfenstein 3D,6,0,0,0,0,3,1,1,0,1
 symbol-newtona,blog,Symbol Newtona i trójkąt Pascala,6,2,1,0,0,0,0,1,2,0
@@ -105,7 +105,7 @@ listy-z-dowiazaniami,blog,Listy z dowiązaniami,3,0,2,0,0,0,1,0,0,0
 otoczka-wypukla,blog,Otoczka wypukła,3,0,0,0,0,0,1,1,0,1
 podobienstwo-wektorow,blog,"Podobieństwo wektorów, czyli jak działają bazy wektorowe",3,0,0,2,0,0,1,0,0,0
 rekurencja-co-to-jest,blog,Rekurencja — co to jest?,3,2,1,0,0,0,0,0,0,0
-swistak-codes-powraca,offtopic,świstak.codes powraca!,3,1,0,1,0,1,0,0,0,0
+swistak-codes-powraca,blog,świstak.codes powraca!,3,1,0,1,0,1,0,0,0,0
 tablice-i-listy-tablicowe,blog,Tablice i listy tablicowe,3,1,2,0,0,0,0,0,0,0
 funkcja-ackermanna,blog,Funkcja Ackermanna,2,0,1,0,0,1,0,0,0,0
 kolejnosc-elementow,blog,Ustawianie kolejności elementów,2,0,0,0,0,0,1,1,0,0

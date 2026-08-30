@@ -7,14 +7,11 @@ export const Navigation = () => {
     <nav
       className={clsx(
         commonHeaderStyles.menuContainer,
-        commonHeaderStyles.menuContainerMargin
+        commonHeaderStyles.menuContainerMargin,
       )}
     >
       <HeaderLink href="/" icon="ph-house">
         Główna
-      </HeaderLink>
-      <HeaderLink href="/offtopic" icon="ph-island">
-        Offtopic
       </HeaderLink>
       <HeaderLink href="/o-mnie" icon="ph-user">
         O mnie

@@ -5,7 +5,6 @@ export type SimilarPost = {
   slug: string;
   title: string;
   image: string;
-  type?: 'blog' | 'offtopic';
 };
 
 export type BaseMetadata = {
@@ -26,7 +25,6 @@ export interface PostMetadata extends Required<BaseMetadata> {
   firstParagraph: ReactElement;
   categories: string[];
   tags: string[];
-  isOfftopic?: boolean;
   youtube?: string;
   english?: string;
 }
@@ -42,7 +40,6 @@ export interface RenderedPostMetadata
 
 export type AdditionalProps = {
   isPage?: boolean;
-  isOfftopic?: boolean;
   customPrevNext?: { previous?: string; next?: string };
 };
 

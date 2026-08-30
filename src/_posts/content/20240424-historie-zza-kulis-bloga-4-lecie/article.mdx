@@ -1,0 +1,195 @@
+import { Image } from '@swistak-codes/components';
+import Link from 'next/link';
+import cover from './swisadmin.webp';
+import scLinkedin from './sc_linkedin.png'
+import dalle2 from './dalle2groundhog.webp';
+import gits from './gits.jpg';
+import figurka from './figurka.webp';
+
+export const meta = {
+  title: 'Historie zza kulis bloga na 4-lecie',
+  abstract:
+    'Parę ciekawostek i przemyśleń związanych z prowadzeniem i utrzymaniem bloga świstak.codes.',
+  firstParagraph: (
+    <>
+      Niemal 4 lata temu opublikowałem pierwszy wpis na blogu świstak.codes. Miałem już okazję opisywać <Link href="/offtopic/swistak-codes-powraca">rewolucję po 2 latach istnienia</Link> i podzielić się <Link href="/offtopic/prawie-codzienny-wtret-programisty/#37-3-lata-%C5%9Bwistakcodes"> różnymi statystykami na 3-lecie</Link>. Tym razem jednak rewolucji nie ma, też nie chcę dzielić się jedynie prostymi statystykami. Zamiast tego opiszę kilka (moim zdaniem) ciekawych rzeczy związanych z prowadzeniem tej strony.
+    </>
+  ),
+  keyword: 'swistak.codes',
+  categories: ['Offtopic'],
+  tags: [],
+  slug: 'historie-zza-kulis-bloga-4-lecie',
+  updateTime: '2024-04-24T07:00:00+00:00',
+  publishTime: '2024-04-24T07:00:00+00:00',
+  cover,
+  coverCaption: <>Zdjęcie wygenerowane z użyciem DALL-E.</>,
+};
+
+## SZOK! ODKRYŁ JEDEN PROSTY TRICK, BY ZWIĘKSZYĆ PERFORMANCE SWOJEGO BLOGA \[REACTOWCY GO NIENAWIDZĄ\]
+
+> Poniższy tekst oryginalnie opublikowałem [na LinkedIn](https://www.linkedin.com/posts/activity-7117750689136594944-rUBO) po refaktoringu stylów na stronie w październiku zeszłego roku. Stąd ten clickbaitowy nagłówek, bo nie mogłem powstrzymać się przed zrezygnowaniem z niego, kopiując treść.
+
+To, co tu napiszę, nie jest wielką tajemnicą i jest powszechnie znane, ale że sam tego właśnie doświadczyłem w praktyce, to się podzielę.
+
+➡️ Jeśli zależy Wam na wydajności strony, NIE UŻYWAJCIE [STYLED-COMPONENTS](https://styled-components.com/). Są świetne, moim zdaniem mają rewelacyjny DX\*, stąd użyłem ich, pisząc bloga, w zasadzie nie zastanawiając się nad konsekwencjami. Rezultat? Kiepski performance w [Lighthouse](https://github.com/GoogleChrome/lighthouse), bo niestety styled-components niepotrzebnie zapychają skrypty i tracimy optymalizację wynikającą z podziału na oddzielne pliki CSS i JS.
+
+🤔 Co zrobiłem? Przepisałem wszystkie komponenty opisane jako `styled` na stare, dobre i sprawdzone [CSS Modules](https://github.com/css-modules/css-modules) — zostawiając powtórki stylów bez żadnych zewnętrznych frameworków, bez dodatkowych optymalizacji.
+
+💡 Efekt? Wzrost wskaźnika performance z 62 na 83. Wciąż nie jest idealnie i jest pole do poprawy, ale wzrost i tak robi wrażenie.
+
+💪 Kolejne kroki? Na pewno eliminacja powtórek w stylach, gdzie na pewno mógłbym skorzystać choćby z [Tailwinda](https://tailwindcss.com/). Czas na to jeszcze nadejdzie...
+
+<Image
+  image={scLinkedin}
+  alignCenter
+  fullSize
+  alt="Oryginalna grafika promocyjna z LinkedIna"
+  caption={<></>}
+/>
+
+\* DX — Developer Experience (z ang. doświadczenie programisty) — terminem tym określamy przyjazność w przyjęciu i użyciu danej technologii z punktu widzenia programisty.
+
+## „Twój blog u mnie nie działa”
+
+> Niestety nie mam już dostępu do oryginalnej rozmowy (nie zrobiłem sobie kopii 🤦‍), więc odtwarzam szczegóły całkowicie z pamięci.
+
+14 lutego, świeżo po publikacji artykułu o [zegarze binarnym](/post/zegar-binarny), dostałem wiadomość od czytelnika, że nie może wejść na bloga. Niestety nie odczytałem jej od razu i jakiś czas później otrzymałem drugą z prośbą o odbanowanie adresu IP, bo przez połączenie się z Internetem przez innego operatora jest w stanie wejść.
+
+### Próba znalezienia problemu
+
+Sprawdziłem, adresu IP nie blokowałem, więc zaczęło mnie zastanawiać, co może się dziać. Jak dobrze pamiętam, kroki dojścia do rozwiązania problemu były takie:
+
+1. Miałem akurat dostęp do urządzenia podpiętego u tego samego operatora (jeden z mobilnych). Jednak strona mi działała.
+2. Spytałem się, czy na innym urządzeniu (lub przeglądarce) strona też nie działa. Nie działała.
+3. Zainteresował mnie błąd — okazało się, że jest to po prostu przekroczenie czasu żądania.
+4. W takim przypadku przyszły mi do głowy różne możliwości, co może się dziać. Pierwszą myślą było, że odpowiedź z serwera DNS jest błędna, dlatego też poprosiłem o odpowiedź z `nslookup swistak.codes` (polecenie do wpisania w terminalu).
+
+Okazało się, że był to strzał w dziesiątkę.
+
+Tutaj drobne wyjaśnienie, w czym rzecz. Domeny typu `swistak.codes`, `google.com`, `onet.pl` to tylko proste do zapamiętania nazwy zakrywające prawdziwe adresy IP serwerów. Wchodząc na jakąkolwiek stronę, Twój komputer najpierw sprawdza rekordy DNS, które mapują nazwę do adresu IP. Wykorzystuje do tego albo dane zapisane lokalnie, albo z zewnętrznego serwera. Najczęściej informacje o takim serwerze komputer dostaje od Twojego dostawcy Internetu podczas automatycznej konfiguracji połączenia przez DHCP. `nslookup` w tym wszystkim służy do tego, żeby ręcznie sprawdzić, jakie informacje na temat domeny otrzymałeś(-aś) z serwera DNS, przede wszystkim adres IP.
+
+### Odpowiedź z nslookup
+
+U mnie odpowiedź wyglądała następująco:
+
+```
+Non-authoritative answer:
+Name:	swistak.codes
+Address: 147.135.209.185
+```
+
+Natomiast u mojego czytelnika:
+
+```
+Non-authoritative answer:
+Name:	swistak.codes
+Address: 2001:41d0:601:1100::45b1
+```
+
+Różnica jest widoczna od razu, ale pozwól, że wyjaśnię. U mnie serwer DNS dla domeny `swistak.codes` zwrócił tzw. rekord A, czyli adres IPv4 (cztery bajty wizualnie rozdzielone kropką). Natomiast mój czytelnik otrzymał rekord AAAA zawierający adres IPv6 (16-bajtowy przedstawiony jako osiem bloków zapisanych [szesnastkowo](/post/systemy-liczbowe-uzupelnienie/#system-szesnastkowy-heksadecymalny), rozdzielonych dwukropkami).
+
+### W czym tu problem?
+
+Właśnie w tym miejscu pomyślałem sobie — ale jaki tu jest problem? Dobrze pamiętałem, że do serwera mam przydzielone zarówno adresy IPv4, jak i IPv6, dlatego też oba wpisałem w DNS-ie do domeny `swistak.codes`. Z racji tego, że u mnie DNS zwracał tylko IPv4, to pomyślałem, że sprawdzę, czy mogę w ogóle połączyć się z serwerem po IPv6.
+
+Połączenie z serwerem najprościej jest sprawdzić za pomocą polecenia `ping`. Aczkolwiek w tym przypadku należy użyć `ping6`, bo to pierwsze obsługuje jedynie IPv4. Więc wpisałem `ping6 2001:41d0:601:1100::45b1` i otrzymałem:
+
+```
+ping6: UDP connect: No route to host
+```
+
+Coś ewidentnie jest nie tak. Jednak założyłem, że może u siebie mam źle skonfigurowane IPv6, więc znalazłem jakieś narzędzie do tego celu w Internecie (chyba [to udostępnione przez keycdn](https://tools.keycdn.com/ipv6-ping)) i potwierdziło się — serwer nic nie zwraca po IPv6. Dla pewności sprawdziłem, czy nie blokuję protokołu `PING`, i odpytałem zwykłym pingiem adres IPv4, ale działało to bez problemu.
+
+W tym momencie było już oczywiste — coś jest nie tak z konfiguracją IPv6.
+
+### Konfiguracja IPv6
+
+Przyznam, że zdziwiła mnie ta sytuacja, bo kupując serwer z przypisanymi adresami IPv4 i IPv6 człowiek spodziewałby się, że te są po prostu skonfigurowane. Łączę się w takim razie z serwerem i próbuję wykonać `ping6` z dowolnym adresem i... nie działa.
+
+W takim razie szukam szybko w pomocy technicznej OVH (tam mam serwer, ale to nie jest żadna tajemnica, szybko można do tej informacji się dostać po adresie IP) i okazuje się, że mimo przypisania adresu IPv6 interfejs do jego obsługi nie jest odgórnie skonfigurowany ani też wykrywany przez DHCPv6. Wszystko trzeba sobie ręcznie ustawić. Nadeszła więc moja *ulubiona* część administracji blogiem — zabawa z Linuksem.
+
+<Image
+  image={cover}
+  alignCenter
+  fullSize
+  alt="Wkurzony świstak otoczony komputerami."
+  caption={<>To ja.</>}
+/>
+
+W tym momencie nie ma już nic ciekawego. Odpaliłem [artykuł z pomocy technicznej](https://help.ovhcloud.com/csm/pl-vps-configuring-ipv6?id=kb_article_view&sysparm_article=KB0047578) i zaczęła się zabawa. Pominę opis, co dokładnie robiłem, można się tego domyśleć po powyżej zalinkowanym artykule. Co ciekawe, w momencie jak to robiłem, trafiłem na stronie pomocy OVH na trzy różne artykuły na ten temat i każdy pokazywał inną wersję pliku konfiguracyjnego z obsługą IPv6. Teraz jednak wszystkie mają już tę samą wersję, dokładnie taką jak ja napisałem.
+
+### Podsumowanie
+
+Po wszystkim zrestartowałem serwer i najpierw na nim uruchomiłem `ping6`. Zadziałało. Czyli serwer ma połączenie po IPv6, przynajmniej wykonuje ping do innych serwerów. Dla pewności wszedłem na `swistak.codes`, czy nic się nie popsuło — strona działa.
+
+W takim razie uruchamiam `ping6` u siebie i...
+
+```
+ping6: UDP connect: No route to host
+```
+
+Jednak myślę sobie, dobra, może coś u mnie jest nie tak. Użyłem znowu narzędzia online i tam widzę czasy odpowiedzi. Czyli sukces — IPv6 działa. Teraz tylko kwestia, czy serwer WWW zadziała i obsłuży ruch, ale z tym teoretycznie nie powinno być problemu. Napisałem więc do czytelnika, czy już wszystko działa. Na szczęście okazało się, że tak.
+
+Strona już powinna działać, niezależnie od tego, czy DNS zwraca adres IPv4, czy IPv6. Ciekaw jestem, ile osób w ten sposób odbiło się od bloga, ale tego się już nigdy nie dowiem. Jeszcze raz dzięki za czujność!
+
+## Grafika generowana przez AI — dlaczego tu jest?
+
+Możemy dużo przeczytać w Internecie kontrowersji na temat grafiki, też ogólnie sztuki generowanej przez *sztuczną inteligencję*. Zarzuca się z jednej strony łamanie praw autorskich, z drugiej brak czynnika ludzkiego odbierający duszę sztuce i także odbieranie pracy grafikom. Jak jednak możesz wiedzieć z informacji pod moimi artykułami, w zasadzie od września 2022 r. wszystkie okładki artykułów były generowane za pomocą [DALL-E](https://openai.com/dall-e-3) lub [Stable Diffusion](https://en.wikipedia.org/wiki/Stable_Diffusion). Co ja w takim razie uważam na temat takiej „sztuki”?
+
+<Image
+  image={dalle2}
+  alignCenter
+  fullSize
+  alt="Figa, bez maku."
+  maxWidth="300px"
+  caption={<><a href="https://labs.openai.com/s/5bh8YDAgFrDSJO4cS7AAbQ8r" target="_blank" rel="noreferrer">“a photo of a groundhog waiting at the bus stop while bus approaches, cyberpunk style”</a> (DALL-E 2)</>}
+/>
+
+### Historycznie
+
+Zacznijmy od tego, jak to wyglądało na blogu. Zanim zacząłem korzystać ze *sztucznej inteligencji*, pobierałem grafiki na wolnych licencjach (np. w domenie publicznej) z różnych stocków, przerabiałem je nieznacznie i dawałem do artykułów. Od tej reguły były może dwa wyjątki — raz zrobiłem zrzut ekranu terminala, a raz zrobiłem samodzielnie zdjęcie. Jednak nigdy nie byłem w pełni usatysfakcjonowany rezultatami. Pomijając już totalnie fakt, że Internet raczej nie jest zbyt bogaty w zdjęcia i rysunki świstaków na odpowiednich licencjach, więc motyw bloga był ogólnozwierzęcy, a nie nastawiony na świstaki.
+
+<Image
+  image={gits}
+  alignCenter
+  fullSize
+  alt="Chaotyczne wymieszane świstaków i postaci z Ghost In The Shell."
+  maxWidth="400px"
+  caption={<>“ghost in the shell with groundhogs” (Stable Diffusion 2.1)</>}
+/>
+
+Pierwsza grafika wygenerowana przez AI pojawiła się na blogu już w 2021 r., do artykułu o [kółku i krzyżyku](/post/algorytmika-gier-kolko-i-krzyzyk). Tam użyłem do wygenerowania [VQGAN+CLIP](https://github.com/nerdyrodent/VQGAN-CLIP), publicznie jeszcze nie były dostępne DALL-E, Midjourney czy Stable Diffusion. Natomiast regularnie grafiki AI są, począwszy od artykułu [o algorytmie A*](/post/szybkie-wyszukiwanie-sciezek). Używałem DALL-E 2, Stable Diffusion (1.5, 2 i XL), a obecnie DALL-E 3. Do tej zmiany zainspirował mnie wpis na blogu [Deephaven](https://deephaven.io/blog/2022/08/08/AI-generated-blog-thumbnails/), aczkolwiek w przeciwieństwie do autora nie zdecydowałem się na zastąpienie starych grafik tymi wygenerowanymi przez AI.
+
+### Co z tymi kontrowersjami?
+
+Odpowiadając na kontrowersje, widzę to tak:
+
+- Nie odbieram pracy grafikom, bo nigdy nikomu nie zlecałem robienia okładek na bloga. Co najwyżej odebrałem sobie mało przyjemną pracę polegającą na przeszukiwaniu stocków w celu znalezienia darmowych grafik o przyjaznych licencjach, które akurat pasowałyby do danego artykułu. Natomiast czy mając dziś takie narzędzia, zapłaciłbym komuś za grafikę? Nie wiem, może tak, bo mimo wszystko cenię sobie ręcznie wykonane rzeczy.
+- Brak czynnika ludzkiego, *duszy* — grafik na okładce artykułu nie traktuję jako sztuki, tylko narzędzie. Grafika ma jedynie przyciągnąć wzrok, korzystając z jakiegoś motywu z artykułu, nawet jako podtekst. Stąd w czasach przed generowaniem grafik, np. [artykuł o testowaniu AI](/post/testowanie-i-wykrywanie-sztucznej-inteligencji) miał na okładce zdjęcie papugi żako, które słyną z kopiowania ludzkiej mowy — czyli na swój sposób działają jak czatboty. Teraz mam większe pole do popisu i mogę prosić o takie szalone rzeczy jak choćby świstak przebrany za postać z anime, przed czym nie mogłem się powstrzymać przy artykule o [funkcji Ackermana](/post/funkcja-ackermanna). To nie ma mieć duszy. To nie ma być sztuka. To jest tylko dodatek do tekstu, który jest w całości efektem pracy człowieka. A jeśli wygląda fajnie, to tylko mogę się cieszyć.
+
+Też widzę to tak, że mój blog jest techniczny, nawet czasem porusza tematy sztucznej inteligencji. Myślę, że użycie technologii na blogu technologicznym raczej nie jest czymś złym, co miałoby przeszkadzać. Zresztą grafiki nie są w tym wszystkim najważniejsze.
+
+<Image
+  image={figurka}
+  alignCenter
+  fullSize
+  alt="Figurka przedstawiająca totalnie nie wiem co."
+  maxWidth="300px"
+  caption={<><a href="https://labs.openai.com/s/KVjhsXDKreOpLmPEUaHGI2pm" target="_blank" rel="noreferrer">“ancient greek groundhog”</a> (DALL-E 2)</>}
+/>
+
+Pozostaje jeszcze kwestia praw autorskich. W tym temacie ciężko jest mi się wypowiedzieć, bo prawnikiem nie jestem, ale wierzę, że w przypadku tworzonych tutaj przeze mnie grafik nie powinno dochodzić do takich naruszeń. Nie staram się imitować stylu konkretnego artysty, tylko przy generowaniu stosuję zwykle ogólniki typu `w stylu anime`, `w stylu kreskówkowym`. Poza tym ufam, że modele, z których korzystam, były trenowane z poszanowaniem praw autorskich.
+
+## Czy blogi o programowaniu są jeszcze potrzebne?
+
+> Oryginalna wersja została opublikowana na [Hejto](https://www.hejto.pl/wpis/kojarzy-mi-sie-ze-jakis-czas-temu-na-spolecznosci-byl-poruszony-temat-ze-po-co-p), poniżej jest nieco przerobiona, żeby nie wyglądała na zbyt wyjętą z kontekstu.
+
+Jakiś czas temu czytałem komentarz, że po co pisać artykuł z przykładem kodu, skoro na podstawie treści ChatGPT może nam wygenerować wszystko co trzeba. Trochę mnie ten temat, jako twórcę bloga, męczył przez jakiś czas. Dlatego ciekawi mnie, co programistów czy osoby uczące się programowania najbardziej przyciąga do czytania treści na blogach innych programistów? Bo w zasadzie możemy stwierdzić tak:
+
+- Potrzebuję informacji o jakimś zagadnieniu? ChatGPT może wytłumaczyć.
+- Potrzebuję kodu jakiegoś algorytmu albo szablonu jakiegoś wzorca projektowego? ChatGPT wygeneruje mi kod w dowolnym języku.
+- Potrzebuję jakiejkolwiek pomocy z programowaniem? Również ChatGPT może tutaj podpowiedzieć, a Plus nawet wyszukać za nas po internecie i powołać się na dokumentację.
+
+Gdzie w takim razie jest tutaj miejsce na blogi programistyczne? Bardzo mnie ten temat ciekawi, bo przez pisanie bloga od kilku lat nie czuję się odpowiednio obiektywny w temacie, a jakkolwiek na to nie spojrzeć, dotyczy mnie.
+
+... Mimo tych dylematów mam nadzieję, że dotrwam do 5-lecia świstak.codes. Czy dalej w takiej formule jak teraz, jeszcze zobaczymy.
