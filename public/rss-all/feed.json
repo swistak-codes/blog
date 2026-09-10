@@ -10,6 +10,18 @@
     },
     "items": [
         {
+            "id": "https://swistak.codes/post/undo-redo",
+            "content_html": "Podstawową funkcją w aplikacjach, gdzie pozwalamy użytkownikom na edycję czegokolwiek, jest możliwość cofania i ponawiania zmian, nieraz nazywana u nas z angielskiego „undo-redo”. Każdy kto miał okazję programować wie, że wbrew pozorom nie jest to prosty i oczywisty temat. Zobaczmy, jakie są podejścia do implementacji.<br /><a href=\"https://swistak.codes/post/undo-redo\">Czytaj więcej na świstak.codes</a>",
+            "url": "https://swistak.codes/post/undo-redo",
+            "title": "Cofnij-ponów — jak to się robi?",
+            "summary": "Artykuł opisuje architektury rozwiązań cofnij-ponów, które są spotykane w aplikacjach.",
+            "date_modified": "2026-09-10T07:00:00.000Z",
+            "author": {
+                "name": "Tomasz Świstak",
+                "url": "https://swistak.codes"
+            }
+        },
+        {
             "id": "https://swistak.codes/post/mity-ai",
             "content_html": "Od czasów premiery ChatGPT pod koniec 2022 r. można śmiało powiedzieć, że świat się zmienił. Nawet nie chcę tu wchodzić w to, czy zmiany są na lepsze czy gorsze pod kątem tego, jak sztuczna inteligencja wpłynęła na ludzi, w jaki sposób pracujemy bądź korzystamy z Internetu. Jednak jest jedno zjawisko, które zdecydowanie mi się nie podoba — ogromna liczba mitów, teorii spiskowych i półprawd, które są ochoczo powielane przez technologicznych influencerów. A co gorsza, wykorzystywane są one w celach marketingowych przez największe firmy AI. W tym artykule postaram się wyjaśnić, z czym tak naprawdę mamy do czynienia jako sztuczną inteligencją w połowie roku 2026, a także przy okazji obalić kilka powszechnych mitów.<br /><a href=\"https://swistak.codes/post/mity-ai\">Czytaj więcej na świstak.codes</a>",
             "url": "https://swistak.codes/post/mity-ai",

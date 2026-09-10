@@ -61,6 +61,7 @@
     "lexorank": "^1.0.5",
     "lodash": "^4.17.21",
     "memoize-one": "^6.0.0",
+    "microdiff": "^1.6.0",
     "nanoid": "^5.1.5",
     "next": "15.3.8",
     "next-seo": "^6.8.0",

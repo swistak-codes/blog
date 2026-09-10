@@ -794,3 +794,19 @@ Hype, marketing i polityka: krytyka przesadnych komunikatów firm (OpenAI, Anthr
 Sztuka i kreatywność: AI jako narzędzie (historia od AARON po DeepDream i generatory), ale nie jako autonomicznie kreatywna bytowość — brak „duszy”, masowa produkcja generycznych treści („AI slop”) i spory o prawa autorów. Przykłady zastosowań pozytywnych i kontrowersyjnych w muzyce i wideo.
 
 Podsumowanie i rekomendacje: traktować generatywną AI jako potężne narzędzie, nie jako świadomość; weryfikować źródła i twierdzenia; preferować otwarte, lokalne/europejskie rozwiązania; stosować AI tam, gdzie ma sens; zachować człowieka w pętli decyzyjnej i krytycznie podchodzić do marketingu.
+
+## Cofnij-ponów — jak to się robi?
+
+https://swistak.codes/post/undo-redo
+
+Artykuł omawia architektury mechanizmów cofania/ponawiania (undo‑redo) w aplikacjach przy założeniach: liniowa historia, jeden użytkownik, lokalne cofanie, cofanie do stanu w pamięci i operacje atomowe. Opisuje podstawowe sposoby przechowywania historii (jedna tablica ze wskaźnikiem lub układ past/present/future) i cztery główne podejścia:
+
+- Pamiątka (Memento): przechowywanie pełnych kopii stanu. Plusy: prostota, łatwe grupowanie i skoki w historii. Minusy: duże zużycie pamięci, problemy z referencjami, nie odnosi się do zdarzeń poza stanem. W kontekście Redux/Zustand: caretaker jako wrapping reducer; gotowe biblioteki: redux-undo, zundo, withUndoRedo.
+
+- Polecenie (Command) z odwracalnymi komendami: przechowywanie obiektów poleceń z Execute/Undo. Plusy: oszczędność pamięci, czytelna historia, grupowanie/kompresja, możliwość specjalnej logiki cofania (np. Qt Undo Framework). Minusy: kolejność ważna, implementacyjna złożoność, wymóg przechodzenia wszystkiego przez system komend.
+
+- Cofanie bazujące na łatkach (patch/delta): zapis różnic (change/create/remove) z odwróceniami dla undo. Plusy: oszczędność pamięci, czytelność zmian, dotyczy fragmentów stanu. Minusy: koszt obliczeniowy generowania diffów. Narzędzia: immer (patches), microdiff, zundo.
+
+- Powtórzenie akcji (action replay): zapisz stan początkowy i listę akcji; odtwarzaj do wybranego momentu. Plusy: prostota, time‑travel debugging. Minusy: koszt ponownego wykonywania długiej historii; wymaga rutingu wszystkich zmian. Przykład: XState Undo/Redo.
+
+Dodatkowo omawia hybrydy (snapshots + deltas), łączenie/kompresję poleceń, transakcje, grupowanie czasowe/semantyczne, kompensujące akcje dla operacji nieodwracalnych (Compensating Transaction/Saga), Event Sourcing jako historia zdarzeń oraz obsługę współpracy wielu użytkowników przez OT/CRDT (np. Yjs UndoManager) lub wersjonowanie. Wskazówka: wybór techniki zależy od charakteru aplikacji i powinien być podjęty jak najwcześniej, bo wpływa na architekturę zarządzania stanem.

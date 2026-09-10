@@ -1,0 +1,380 @@
+import { Image } from '@swistak-codes/components';
+import cover from './swistak_bttf.webp';
+import { Presentation1 } from './presentation1';
+import { Presentation2 } from './presentation2';
+import { Presentation3 } from './presentation3';
+import { Presentation4 } from './presentation4';
+import { Presentation5 } from './presentation5';
+import mementoClass from './memento_class.png';
+import mementoFlow from './memento_flow.png';
+import commandClass from './command_class.png';
+import commandFlow from './command_flow.png';
+
+export const meta = {
+  title: 'Cofnij-ponów — jak to się robi?',
+  abstract:
+    'Artykuł opisuje architektury rozwiązań cofnij-ponów, które są spotykane w aplikacjach.',
+  firstParagraph: (
+    <>
+      Podstawową funkcją w aplikacjach, gdzie pozwalamy użytkownikom na edycję czegokolwiek, jest możliwość cofania i ponawiania zmian, nieraz nazywana u nas z angielskiego „undo-redo”. Każdy kto miał okazję programować wie, że wbrew pozorom nie jest to prosty i oczywisty temat. Zobaczmy, jakie są podejścia do implementacji.
+    </>
+  ),
+  keyword: 'cofnij ponów',
+  categories: ['Programowanie'],
+  tags: [
+    'banda czterech',
+    'javascript',
+    'typescript',
+    'memento',
+    'pamiątka',
+    'polecenie',
+    'command',
+    'action replay'
+  ],
+  slug: 'undo-redo',
+  updateTime: '2026-09-10T07:00:00+00:00',
+  publishTime: '2026-09-10T07:00:00+00:00',
+  cover,
+  coverCaption: (
+    <>Grafika wygenerowana przez ChatGPT</>
+  )
+};
+
+## Uwaga wstępna
+
+W artykule będę zakładać, że znasz pojęcie zarządzania stanem aplikacji i podejścia do tego. Jeśli potrzebujesz się doszkolić, to napisałem już dwa przydatne w tych kwestiach artykuły:
+
+- *[Podstawy działania UI — wzorzec obserwator](/post/obserwator)*
+- *[Wzorzec obserwator w UI — Flux i Redux](/post/flux-redux)*
+
+Szczególnie przydatny będzie ten drugi, ponieważ opisuje mechanizmy globalnego zarządzania stanem, do których będę nawiązywać w artykule.
+
+## Zawężenie problemu
+
+Zacznijmy od tego, że każda aplikacja jest inna, więc nie ma uniwersalnych rozwiązań pasujących wszędzie. Mimo to pokażę cztery podejścia, które mają szansę zadziałać w wielu aplikacjach, jeśli weźmiemy pod uwagę następujące ograniczenia:
+
+- **Liniowa historia** — zakładam, że historia edycji jest liniowa. Oznacza to, że jeśli się cofniemy, dodamy nową zmianę, to tracimy możliwość powrotu do stanu sprzed cofnięć. Jest to raczej typowy przypadek w wielu aplikacjach. Aplikacjami, które działają inaczej, czyli rozgałęziają historie (tworząc tzw. *undo tree*), są np. edytory [Vim](https://vimhelp.org/undo.txt.html#undo-branches) i [Neovim](https://neovim.io/doc/user/undo/#_4.-undo-branches).
+- **Edytuje tylko jeden użytkownik** — wzorce, które pokażę, nie zakładają edycji przez wielu użytkowników jednocześnie (jak np. w Google Docs, Miro, Office 365 itp.). Aby zapewnić prawidłową synchronizację danych, aplikacje tego typu stosują specjalne podejścia do wymiany zmian i rozwiązywania konfliktów, które przez odpowiednie utrzymywanie historii umożliwiają również cofanie i ponawianie.
+- **Lokalne cofanie** — cofamy (i ponawiamy) jedynie operacje wykonane lokalnie w aplikacji, nie cofamy globalnego stanu systemu. Przykładowo, jeśli plik edytował jeden użytkownik, zapisał go, następnie otwiera drugi, to ten drugi nie cofnie zmian pierwszego.
+- **Cofamy do „poprzednich bajtów”** — wszystkie operacje wykonują się jedynie w obrębie naszej aplikacji, więc tylko cofamy do dawnego stanu w pamięci. Nie obsłużymy tutaj cofania takich operacji jak np. wysłanie maila, płatność.
+- **Brak transakcyjności** — dla uproszczenia opisów założę, że każda operacja, którą wykonujemy, jest atomowa, czyli inaczej niepodzielna. Nie będę pokazywać technik łączenia zmian, transakcji czy grupowania. Przykładowo, jeśli użytkownik pisałby tekst, to operacja cofania cofałaby litera po literze, a nie np. całe słowa czy grupy wyrazów.
+
+Pamiętaj, że podejścia, które pokażę, będą pasować do różnych przypadków i nie da się stopniować, które są lepsze lub gorsze.
+
+## Podstawowa budowa mechanizmu cofnij-ponów
+
+Niezależnie od tego, którego z poniższych wzorców użyjemy, one same z siebie nie dają nam implementacji mechanizmu cofnij-ponów. Jedynie opisują, jak przechowywać dane, na podstawie których wykonujemy te dwie operacje. Sam mechanizm przechowywania historii i nawigacji po niej implementuje się zwykle w jeden z następujących sposobów:
+
+- **Pojedyncza tablica lub stos** — nowe operacje dokładamy na koniec lub początek i utrzymujemy dodatkowo wskaźnik na aktualną pozycję w historii (najprościej — przechowuje indeks aktualnego elementu). W przypadku cofania i ponawiania przesuwamy go. Jeśli nie jesteśmy na początku/końcu, a dodajemy nową zmianę, to odcinamy część tablicy od strony przyszłości (ponawiania) i ustawiamy odpowiednio wskaźnik.
+- **Oddzielna tablica/stos na przeszłość i przeszłość** — w tym przypadku zamiast dodatkowego wskaźnika operujemy strukturą zawierającą trzy elementy: tablicę przeszłych stanów, aktualny stan, tablicę przyszłych stanów. Za każdym razem, gdy zachodzi nowa operacja, stary-aktualny stan dodajemy do tablicy „przeszłości”. W przypadku cofania stary-aktualny stan dodajemy do tablicy „przyszłości”, a przy ponawianiu do „przeszłości”. Gdy tworzony jest zupełnie nowy stan, czyścimy „przyszłość”.
+
+Z racji tego, że opisy te mogą być nieco nieintuicyjne, poniżej możesz zobaczyć to na prezentacji. Jest to bardzo prosta aplikacja, gdzie każde kliknięcie przycisku generuje nową [pseudolosową liczbę](/post/losowosc) i ją wyświetla. Operację możesz cofać i ponawiać i została przedstawiona historia w obu opisanych przeze mnie wariantach, które możesz przełączać odpowiednimi przyciskami.
+
+<Presentation1 />
+
+Kod prezentacji znajdziesz na [GitHubie bloga](https://github.com/swistak-codes/blog/tree/main/libs/presentations/undo-redo-mechanism). Konkretna implementacja obu podejść do cofania i ponawiania znajduje się w pliku [`store.ts`](https://github.com/swistak-codes/blog/tree/main/libs/presentations/undo-redo-mechanism/store.ts) (zrobione w bibliotece [Zustand](https://github.com/pmndrs/zustand), aczkolwiek nie jest potrzebna jej znajomość, aby zrozumieć mechanizm).
+
+Oba podejścia są jak najbardziej prawidłowe i to, którego użyjesz, zależy tylko i wyłącznie od Twoich preferencji.
+
+## Wzorzec Pamiątka
+
+Pierwszym popularnym podejściem jest wzorzec projektowy **Pamiątka**, znany też ze swojej angielskiej nazwy **Memento**. Polega na trzymaniu pełnych kopii stanu obiektu. Czyli to, co w bardzo uproszczonej wersji pokazałem powyżej.
+
+### Wersja Bandy Czterech
+
+Podstawowym źródłem informacji o wzorcach projektowych jest książka *[Design Patterns](https://en.wikipedia.org/wiki/Design_Patterns)* napisana przez tzw. Bandę Czterech, stąd też zobaczmy w skrócie, jak zdefiniowali oni Pamiątkę.
+
+<Image
+  image={mementoClass}
+  alignCenter
+  fullSize
+  alt="Schemat UML z trzema klasami: Originator, Memento i Caretaker. Originator zawiera metody SetMemento(Memento m) i CreateMemento() oraz pole state. Memento zawiera metody GetState() i SetState() oraz pole state. Od Originator do Memento prowadzi przerywana strzałka, a Memento jest połączone z Caretaker linią opisaną „memento” z pustym rombem przy Caretaker."
+  caption={<>Diagram klas wzorca Pamiątka.</>}
+/>
+
+Odpowiedzialność klas pokazanych powyżej jest następująca:
+
+- **Memento** (pamiątka) — przechowuje kopię stanu obiektu *Originator*. Nie jest powiedziane, czy ma ten stan przechowywać w całości, czy jedynie częściowo — po prostu tyle, ile jest potrzebne. Co istotne, jedynie *Originator* powinien mieć dostęp do zawartości pamiątki.
+- **Originator** (źródło) — obiekt, którego stan przechowują obiekty *Memento*. Jego odpowiedzialnością jest tworzenie pamiątek i używanie ich w celu przywrócenia stanu.
+- **Caretaker** (opiekun) — odpowiada za przechowywanie obiektów *Memento*, jednak nigdy nie wpływa na ich zawartość.
+
+Działanie jest następujące:
+
+- *Caretaker* prosi *Originator* o *Memento* reprezentujące jego aktualny stan za pomocą `CreateMemento()`.
+- Gdy *Caretaker* postanowi przywrócić wybrany stan obiektu *Originator*, to wywołuje `SetMemento(memento)` przekazując wcześniej utworzoną pamiątkę.
+- *Memento* są pasywne, nie wykonują żadnych działań. Tylko *Originator* może je tworzyć, ustawiać lub pobierać ich stan.
+
+<Image
+  image={mementoFlow}
+  alignCenter
+  fullSize
+  alt="Diagram sekwencji z trzema liniami życia: caretaker, originator i memento. Caretaker wysyła do originator komunikat CreateMemento(), po czym originator wysyła do memento przerywany komunikat „new Memento” oraz komunikat SetState(). W dalszej części caretaker wysyła do originator komunikat SetMemento(memento), a originator wysyła do memento komunikat GetState()."
+  caption={<>Diagram sekwencji wzorca Pamiątka.</>}
+/>
+
+### Prezentacja
+
+Poniżej możesz zobaczyć prostą, przykładową aplikację typu „todo list” z możliwością cofania i ponawiania. Możesz w niej dodawać nowe kartki, edytować je, usuwać, zmieniać ich kolejność i status. Pod aplikacją możesz podglądać wewnętrzny stan, aby zobaczyć, jak w praktyce wyglądają pamiątki.
+
+<Presentation2 />
+
+Kod prezentacji znajdziesz na [GitHubie bloga](https://github.com/swistak-codes/blog/tree/main/libs/presentations/undo-redo-memento). Mimo że aplikacja korzysta z zarządzania stanem przez Zustand, implementację wzorca Pamiątka wyciągnąłem poza niego, aby była jak najbliższa temu, jak został opisany przez bandę czterech. W pliku [`caretaker.ts`](https://github.com/swistak-codes/blog/tree/main/libs/presentations/undo-redo-memento/undo-redo/caretaker.ts) znajdziesz implementację caretakera, w [`originator.ts`](https://github.com/swistak-codes/blog/tree/main/libs/presentations/undo-redo-memento/undo-redo/originator.ts) originatora, a [`memento.ts`](https://github.com/swistak-codes/blog/tree/main/libs/presentations/undo-redo-memento/undo-redo/memento.ts) to memento.
+
+### Wersja reduksowa
+
+We współczesnych rozwiązaniach do zarządzania stanem, w szczególności tych bazujących na architekturze *[Reduksa](/post/flux-redux)*, podchodzi się nieco prościej do wzorca Pamiątka w kontekście cofania i ponawiania. Możemy wyróżnić następujące różnice:
+
+- **Originator** to wycinek stanu w Reduksie (np. konkretny reducer), który będzie podlegać pod cofanie i ponawianie.
+- **Caretaker** zamiast być oddzielnym obiektem będzie jedynie nadbudową nad originator. Będzie przechowywać aktualny stan (czyli *Originator*) oraz kolekcje przeszłych i przyszłych stanów *Memento*. Nie będzie wołać jawnie `CreateMemento()`, ponieważ będzie reagować na żądania zmiany stanu *Originatora* (wywołanie akcji). Zanim dowolna akcja zostanie wykonana przez reducer, najpierw stary stan zostanie skopiowany jako *Memento*.
+- **Memento** to kopia wartości wskazanego wycinka stanu.
+
+Żeby to lepiej zobrazować, załóżmy, że *Originator* to reducer z następującym początkowym stanem:
+
+```javascript
+const initialState = {
+  value: 0
+}
+```
+
+Załóżmy też, że obsługuje on akcję `SET_VALUE`, w ramach której przekazujemy nową wartość.
+
+Po nałożeniu na niego *Caretakera* (np. w formie reducera opakowującego inny reducer) dostalibyśmy coś następującego:
+
+```json5
+{
+  past: [],
+  present: {
+    value: 0
+  },
+  future: []
+}
+```
+
+Powinno to działać wówczas tak, że gdy wywołamy `SET_VALUE`, reducer pracujący jako *Caretaker* zrobi kopię stanu do tablicy z przeszłością i dopiero wtedy przekaże akcję do *Originatora* w celu jej wykonania. Dodatkowo powinien też obsługiwać akcje typu `UNDO` i `REDO`.
+
+Istnieją oczywiście gotowe rozwiązania oferujące tak działające mechanizmy cofania i ponawiania. Przykładowe, które miałem okazję używać:
+
+- *[redux-undo](https://redux-undo.js.org/)* dla Reduksa
+- *[zundo](https://github.com/charkour/zundo)* dla Zustanda
+- *[`withUndoRedo()` z NgRxToolkit](https://ngrx-toolkit.angulararchitects.io/)* dla NgRx
+
+Każda z nich działa w taki sposób, że piszemy reducer tak jak zawsze i owijamy go odpowiednią funkcją, która doda możliwości cofania i ponawiania.
+
+### Zalety i wady
+
+Skoro pokażę w artykule wiele podejść, warto rozpatrzeć zalety i wady każdego z nich. Jak to wygląda w przypadku pamiątki?
+
+- Zalety:
+    - **Prostota** — jest to zdecydowanie najprostsze z podejść, które tutaj opiszę, bo tworzymy jedynie kopie stanu obiektu. Cofnięcie czy ponowienie to jedynie podmiana stanu.
+    - **Łatwo grupować wiele zmian** — możemy wprost wybrać moment, kiedy tworzymy pamiątkę. Nie musimy jej robić przy każdej atomowej zmianie.
+    - **Łatwo zaimplementować przeskoki po historii** — czasami chcemy zaimplementować możliwość przeskoczenia do konkretnego momentu w historii. Z racji tego, że zawsze kopiujemy cały stan, wystarczy po prostu go przywrócić.
+- Wady:
+    - **Zajmuje dużo pamięci** — trzymając za każdym razem kopię całego stanu, szczególnie jeśli jest on rozbudowany, szybko zajmiemy dostępną pamięć.
+    - **Problemy z referencjami** — jeśli stan jest złożony i składa się z obiektów, możemy trafić na problem z referencjami do obiektów. Z jednej strony robienie płytkiej kopii skopiuje jedynie referencje do starych obiektów, co może powodować problemy, jeśli te zostaną zedytowane. Z drugiej strony głęboka kopia tworząca nowe zagnieżdżone obiekty również może spowodować problemy, jeśli inne elementy systemu trzymają referencje do starych obiektów.
+    - **Ogranicza się tylko do pamiątki** — korzystając z tej metody, nie cofniemy zdarzeń, które odbyły się poza stanem opisanym przez pamiątkę.
+
+## Wzorzec Polecenie z odwracalnymi komendami
+
+W słynnym *Design Patterns* znajdziemy jeszcze jeden wzorzec projektowy, który, mimo że wprost nie został zasugerowany\* tam jako implementacja cofania i ponawiania, jest do tego wykorzystywany. Jest to wzorzec Polecenie służący do opisywania w obiektowy sposób akcji, które możemy wykonywać w systemie. Możemy go w prosty sposób przerobić, dodając do niego możliwość cofania wprowadzonych zmian. Coś takiego znajdziemy np. w [Qt's Undo Framework](https://doc.qt.io/qt-6/qundo.html).
+
+<small>\* Znajdziemy jednak informację, że wspiera cofalne operacje przez łączenie go ze wzorcem Pamiątka.</small>
+
+### Idea zastosowania Polecenia w cofaniu i ponawianiu
+
+Oryginalny wzorzec Polecenie, zdefiniowany przez Bandę Czterech, wygląda następująco:
+
+<Image
+  image={commandClass}
+  alignCenter
+  fullSize
+  alt="Diagram UML z klasami Client, Invoker, Command, Receiver i ConcreteCommand. Command zawiera metodę Execute(), Receiver metodę Action(), a ConcreteCommand metodę Execute() i pole state. Invoker jest połączony z Command linią z pustym rombem przy Invoker. ConcreteCommand dziedziczy po Command i ma połączenie opisane „receiver” prowadzące do Receiver. Client jest połączony ciągłą strzałką z Receiver oraz przerywaną strzałką z ConcreteCommand."
+  caption={<>Diagram klas wzorca Polecenie.</>}
+/>
+
+Pokazane wyżej klasy mają następujące odpowiedzialności:
+
+- **Command** to interfejs do wykonania operacji.
+- **ConcreteCommand** implementuje *Command* przez wykonywanie konkretnej operacji na *Receiver*. W prawdziwej aplikacji mielibyśmy klasy takie jak *PasteCommand*, *WriteCommand*, *DrawCircleCommand* itd.
+- **Client** to aplikacja, która tworzy *ConcreteCommand* i ustawia jego *Receiver*.
+- **Invoker** wywołuje polecenie. W aplikacji może to być np. obiekt opisujący przycisk.
+- **Receiver** to dowolna klasa przyjmująca na siebie wykonanie polecenia. Może to być klasa opisująca dokument, płótno czy nawet całą aplikację (wtedy byłaby jednocześnie też *Client*).
+
+Działanie wówczas jest następujące:
+
+- *Client* tworzy obiekt *ConcreteCommand* i ustala jego *Receiver*.
+- *Invoker* przechowuje obiekt *ConcreteCommand*.
+- *Invoker* wywołuje żądanie przez uruchomienie `Execute()` w poleceniu.
+- *ConcreteCommand* wywołuje operację na *Receiver*, aby spełnić żądanie.
+
+<Image
+  image={commandFlow}
+  alignCenter
+  fullSize
+  alt="Diagram sekwencji z czterema liniami życia: receiver, client, command i invoker. Client wysyła do command przerywany komunikat „new Command(receiver)”, a następnie komunikat StoreCommand(command) do invoker. Invoker wysyła do command komunikat Execute(), po czym command wysyła do receiver komunikat Action()."
+  caption={<>Diagram sekwencji wzorca Polecenie.</>}
+/>
+
+Oczywiście nie ma tu nigdzie cofania. Więc jak to wygląda?
+
+Zacznijmy od tego, że jak wcześniej mówiliśmy o przechowywaniu Memento w historii, tak teraz będziemy przechowywać całe obiekty poleceń. Druga rzecz to dodanie operacji `Undo()` obok `Execute()` (które też będzie służyć jako operacja ponawiania). I teraz w kwestii cofania mamy trzy podejścia, w jaki sposób je zaimplementujemy:
+
+1. Tworzymy operację odwrotną. Przykładowo, jeśli `Execute()` obracał obiekt o 90 stopni w prawo, to `Undo()` może obrócić o 90 stopni w lewo.
+2. Zapamiętujemy poprzedni stan, aby móc go przywrócić. Tutaj możemy wykorzystać do tego np. wzorzec Pamiątka, co nawet jest opisane przez Bandę Czterech.
+3. Tworzymy oddzielną komendę do obsługi cofnięcia.
+
+Każde z nich jest prawidłowe i w zależności od przypadku możemy stosować różne podejścia. W przypadku skomplikowanych przekształceń warto przechować poprzedni stan (lub chociaż jego wycinek), natomiast w przypadku prostych operacji można ręcznie napisać odwrócenie. Oddzielna komenda do obsługi cofnięć ma sens wtedy, gdy np. operacja odwrotna już istnieje i moglibyśmy jej użyć ponownie, np. mając polecenia dodania obiektu i usunięcia obiektu, mogą one nawzajem być swoimi przeciwieństwami.
+
+### Prezentacja
+
+Poniżej możesz zobaczyć jeszcze raz tę samą aplikację co wcześniej, ale tym razem z cofaniem bazującym na wzorcu Polecenie. Analogicznie jak wcześniej, pod aplikacją możesz przeglądać, jak wygląda stan zbudowany z poleceń.
+
+<Presentation3 />
+
+Kod prezentacji znajdziesz na [GitHubie bloga](https://github.com/swistak-codes/blog/tree/main/libs/presentations/undo-redo-command). Tak jak wcześniej, mimo że prezentacja używa Zustand, starałem się zachować w miarę oryginalne podejście do wzorca Polecenie. W pliku [`commands.ts`](https://github.com/swistak-codes/blog/tree/main/libs/presentations/undo-redo-command/undo-redo/commands.ts) znajdziesz implementacje commanda, w [`invoker.ts`](https://github.com/swistak-codes/blog/tree/main/libs/presentations/undo-redo-command/undo-redo/invoker.ts) invokera, a [`receiver.ts`](https://github.com/swistak-codes/blog/tree/main/libs/presentations/undo-redo-command/undo-redo/receiver.ts) to receiver.
+
+### Zalety i wady
+
+Spójrzmy teraz na zestawienie zalet i wad podejścia ze wzorcem Polecenie.
+
+- Zalety:
+    - **Oszczędność pamięci** — możemy przechowywać tylko to, co potrzebne do wykonania cofnięcia.
+    - **Czytelność historii** — wprost widzimy z kształtu historii, które operacje były wykonywane. Możemy dzięki temu dodać do każdej komendy opisy wyświetlane potem użytkownikom.
+    - **Łatwe grupowanie zmian** — tutaj zarówno możemy grupować ze sobą komendy, aby cofać je jako jedną całość, jak i scalać takie same komendy w jedną. Obie te techniki zostały zaimplementowane np. [w Qt](https://doc.qt.io/qt-6/qundostack.html#command-compression-and-macros) jako *Command Macros* (grupowanie) i *Command Compression* (łączenie).
+    - **Możliwość zawarcia dodatkowej logiki cofania** — szczególnie przydatne, jeśli cofnięcie nie polega jedynie na zmianie wartości w stanie aplikacji.
+- Wady:
+    - **Kolejność cofania ma znaczenie**. Oznacza to, że musimy zawsze cofać akcje jedna po drugiej, nie możemy przeskoczyć do konkretnego miejsca w historii.
+    - **Implementacje mogą być skomplikowane**: operacje mogą być rozbudowane, więc można się łatwo pomylić w implementacji cofania.
+    - **Wszystko musi przechodzić przez system komend**. Jakakolwiek zmiana z zewnątrz, niezarejestrowana w ten sposób, zaburzy całą historię w aplikacji.
+
+## Cofanie bazujące na łatkach
+
+Możliwe, że czytając opis zastosowania wzorca Pamiątka, przyszła Ci do głowy myśl: „po co przechowywać całość, skoro można jedynie różnicę?”. Odpowiem na tę myśl, cytując słowa pewnego polityka: „Można. Gdyby to było złe, to Bóg by inaczej świat stworzył”. Podejście takie nazywa się w anglojęzycznym świecie **patch-based undo** lub **delta-based undo**, co można by najprościej przetłumaczyć jako cofanie bazujące na łatkach (lub różnicach).
+
+### Jak tworzyć łatki?
+
+Łatka powinna być obiektem, który precyzyjnie definiuje, w jaki sposób został zmieniony stan aplikacji. Możemy wyróżnić trzy rodzaje (w pewnym uproszczeniu):
+
+- **zmiana** (change) — definiuje, jak zedytować istniejącą wartość; musimy wówczas przechować starą i nową wartość
+- **utworzenie** (create)
+- **usunięcie** (remove)
+
+Łatki mogą zostać zdefiniowane przykładowo tak:
+
+```typescript
+type ChangePatch = {
+  path: string[];
+  oldValue: any;
+  value: any;
+}
+
+type CreatePatch = {
+  path: string[];
+  value: any;
+}
+
+type RemovePatch = {
+  path: string[];
+  oldValue: any;
+}
+```
+
+`path` to ścieżka, gdzie dokładnie w stanie znajduje się miejsce, na które nakładamy łatkę.
+
+Łatki tego typu opisują zmianę, która zaszła w stanie, więc przyda się do operacji ponawiania. Do cofania jednak potrzebujemy zdefiniować łatki odwrotne. Te natomiast polegają dosłownie na odwróceniu zmian — `replace` ma zamienione `oldValue` z `newValue`, `add` staje się `remove` i na odwrót.
+
+Z racji tego, że tworzenie łatek może być trudne, znajdziemy sporo gotowych implementacji. Przykładowo w JavaScripcie:
+
+- *[immer](https://immerjs.github.io/immer/)* — biblioteka do łatwej edycji stanu aplikacji; oferuje tworzenie łatek po włączeniu [`enablePatches()`](https://immerjs.github.io/immer/patches/)
+- *[deep-object-diff](https://github.com/mattphillips/deep-object-diff)*, *[microdiff](https://github.com/AsyncBanana/microdiff)* — popularne biblioteki do tworzenia list różnic między dwoma obiektami
+- *[zundo](https://github.com/charkour/zundo)* — wspomniana przeze mnie wcześniej biblioteka implementująca wzorzec Pamiątka w Zustand [może także obsługiwać łatki](https://github.com/charkour/zundo#store-state-delta-rather-than-full-object)
+
+### Prezentacja
+
+Przeżyjmy to jeszcze raz, ale tym razem z łatkową wersją Pamiątki (mocno uproszczoną, bez podążania za wytycznymi Bandy Czterech). Analogicznie jak wcześniej, pod aplikacją możesz przeglądać stan cofania.
+
+<Presentation4 />
+
+Kod prezentacji znajdziesz na [GitHubie bloga](https://github.com/swistak-codes/blog/tree/main/libs/presentations/undo-redo-delta). Tak jak poprzednio, użyłem Zustanda, ale mimo to starałem się zaprogramować prezentację w taki sposób, aby logika cofania była od niego w miarę niezależna. W pliku [`patches.ts`](https://github.com/swistak-codes/blog/tree/main/libs/presentations/undo-redo-delta/undo-redo/patches.ts) znajdziesz implementację pamiątek bazujących na łatkach, a w [`history.ts`](https://github.com/swistak-codes/blog/tree/main/libs/presentations/undo-redo-delta/undo-redo/history.ts) w jaki sposób są używane w praktyce. Skorzystałem tam z biblioteki *microdiff* do obliczania różnic między obiektami, aby uprościć implementację. Jeśli jednak ciekawi Cię, jak generować taką listę różnic, [to polecam zajrzeć do kodu microdiffa](https://github.com/AsyncBanana/microdiff/blob/master/index.ts).
+
+### Zalety i wady
+
+Aby zachować przewidywalny schemat artykułu, wymienię teraz zalety i wady tego podejścia
+
+- Zalety:
+  - **Oszczędność pamięci** — zapisujemy jedynie faktycznie zmiany.
+  - **Łatwe debugowanie** — zamiast kopii całego stanu możemy podczas debugowania zobaczyć tylko to, co zostało faktycznie zmienione.
+  - **Wpływa tylko na fragment stanu**. Oznacza to, że niezależne edycje innych fragmentów stanu mogą współistnieć z historią cofania (oczywiście o ile jest to możliwe).
+- Wady:
+  - **Złożoność obliczeniowa** — generowanie łatek jest kosztowne i może być czasochłonne w zależności od wielkości stanu.
+  - Tak samo jak w przypadku Pamiątki, **nie cofniemy zdarzeń, które odbyły się poza stanem opisanym przez nasz obiekt**.
+
+## Powtórzenie akcji
+
+Przed chwilą mówiliśmy o poprawieniu wzorca Pamiątka. Jednak wróćmy tym razem do wzorca Polecenie. Może tutaj miałeś(-aś) myśl w stylu: „Po co pisać cofanie? Nie możemy po prostu odpalić wszystkich akcji jeszcze raz?”. Oczywiście tak też możemy robić. Wówczas mówimy o tzw. **action replay**, czyli, dosłownie tłumacząc, powtarzaniu akcji.
+
+### Idea powtarzania akcji
+
+Myślę, że nie ma co tutaj wiele opowiadać. Dosłownie robimy następującą rzecz:
+
+1. Zapamiętujemy początkowy stan aplikacji.
+2. Zapisujemy po kolei wszystkie wykonane akcje (np. reprezentowane przez wzorzec Polecenie, bez akcji cofania).
+
+Gdy chcemy cofać lub ponawiać, wykonujemy następująco:
+
+1. Przywracamy stan aplikacji do stanu początkowego.
+2. Wykonujemy po kolei wszystkie akcje aż do momentu, który chcemy przywrócić.
+
+Dosłownie tylko tyle. Tym samym jest to zdecydowanie najprostszy z opowiedzianych przeze mnie sposobów. Przykładową implementację tego podejścia znajdziemy w *XState Store*, a dokładniej w rozszerzeniu *[Undo/redo](https://stately.ai/docs/xstate-store/undo-redo)*.
+
+### Prezentacja
+
+Czas na ostatnią z prezentacji. Aczkolwiek nie sądzę, że wniesie dużo, ponieważ nie mamy tutaj nic rewolucyjnego względem poprzednich sposobów.
+
+<Presentation5 />
+
+Kod prezentacji znajdziesz na [GitHubie bloga](https://github.com/swistak-codes/blog/tree/main/libs/presentations/undo-redo-delta). Tak jak cały czas, użyłem Zustanda, ale mimo to starałem się zaprogramować prezentację w taki sposób, aby logika cofania była od niego w miarę niezależna. W pliku [`invoker.ts`](https://github.com/swistak-codes/blog/tree/main/libs/presentations/undo-redo-delta/undo-redo/invoker.ts) zobaczysz, w jaki sposób przechowuję akcje i wykonuję ich powtarzanie.
+
+### Zalety i wady
+
+Przejdźmy teraz szybko do zalet i wad tego rozwiązania:
+
+- Zalety:
+  - **Prostota** — jeśli mamy zdefiniowany system akcji (czy to wzorzec Polecenie, czy akcje w stylu reduksowym), to wystarczy tylko je przechowywać. Do tego nie potrzebujemy specjalnych mechanizmów do obsługi cofania, bo wykorzystujemy jedynie to, co mielibyśmy normalnie w systemie.
+  - **Idealny do debugowania i diagnostyki** — umożliwia time-travel debugging (cofnięcie do dowolnego momentu w czasie) z zachowaniem widocznej historii tego, co się działo w systemie.
+- Wady:
+  - **Złożoność** — musimy wykonać na nowo wszystkie akcje. Przy bardzo długiej historii może to być czasochłonne.
+  - Tak samo jak w przypadku Polecenia, **wszystko musi przechodzić przez system komend**.
+
+## Podejścia w bardziej rozbudowanych przypadkach
+
+Poznaliśmy podstawowe podejścia do implementacji cofania i ponawiania w aplikacjach. Jednak tak jak wspomniałem wcześniej, nie każdy przypadek jest na tyle prosty, żeby te techniki działały prawidłowo. Przejrzyjmy, bez wchodzenia w detale, co można robić w takich przypadkach:
+
+- **Hybrydy** — jeśli problemem jest to, że powyższe techniki zaczynają być zbyt pamięciożerne lub zbyt czasochłonne, to stosuje się ich hybrydy. Przykładowo, można łączyć wzorzec Pamiątka z cofaniem bazującym na łatkach: co jakiś czas robimy zrzut całego stanu, a następnie przez kilka operacji jedynie spisujemy różnice.
+- **Łączenie operacji** — jeśli nasze pojedyncze operacje są bardzo atomowe (np. pisanie tekstu litera po literze), warto łączyć ze sobą operacje. Możemy to robić następująco:
+    - **Kompresja poleceń** — korzystając ze wzorca Polecenie, jeśli wywołaliśmy kilka razy z rzędu to samo polecenie, ale z różnymi danymi, możemy je połączyć w jedną operację w historii.
+    - **Transakcje** — możemy definiować transakcje, w ramach których wiele operacji zostanie uznanych za tak naprawdę jedną całość. W przypadku wzorca Pamiątka lub cofania bazującego na łatkach możemy po prostu zrobić zrzut zmian stanu po wykonaniu wszystkich operacji składających się na transakcję. W przypadku Polecenia lub powtarzania akcji łączymy polecenia w jedno, analogicznie jak w poprzedniej technice.
+    - **Grupowanie czasowe** — możemy także grupować zmiany wykonane w pewnym czasie. Możemy zastosować techniki typu *debounce*, aby zapisać zmiany w historii dopiero np. po 1 sekundzie braku aktywności ze strony użytkownika.
+    - **Grupowanie semantyczne** — analogicznie do pierwszej techniki, przy czym grupujemy akcje, które łączą się w logiczną całość, np. w edytorze grafiki zaznaczenie obiektu, przesunięcie go i odznaczenie możemy potraktować jako pojedynczą akcję. Różnica względem transakcji jest taka, że transakcje są odgórnie zaprogramowane w systemie jako zawsze niepodzielna sekwencja zdarzeń. W tym przypadku grupujemy operacje, które stanowią całość, ale nie zostały odgórnie zaprogramowane jako transakcja.
+- **Kompensacja akcji** — w przypadku akcji, których nie możemy po prostu cofnąć do „poprzednich bajtów” (wysyłka maila, płatność), definiuje się tzw. akcje (lub transakcje) kompensujące. Przykładowo, jeśli wykonaliśmy akcję `zapłać()`, to akcją kompensującą będzie `wykonaj_zwrot()`. Oczywiście są akcje, których nie da się cofnąć w pełni, np. wysyłka maila — wówczas możemy w ramach „cofnięcia” wysłać kolejnego maila informującego o nieważności poprzedniego. W architekturze oprogramowania nazywa się to wzorcem **Compensating Transaction** i jest wykorzystywane w innych wzorcach jak **Saga** czy **Event Sourcing**.
+- **Cały system jako historia zdarzeń** — nie jest to stricte cofanie/ponawianie, ale w kontekście architektury całych systemów możemy mówić o wzorcu **Event Sourcing**, który jest (mówiąc w uproszczeniu) powtarzaniem akcji na dużo większą skalę. Źródłem prawdy w systemie jest lista wykonywanych akcji, np. *UtworzonoKonto*, *WpłaconoPieniądze*, *WypłaconoPieniądze*, *ZmienionoAdres*. Możemy wtedy wrócić do stanu systemu z dowolnego momentu. Warto jednak zwrócić uwagę, że zwykle w takim przypadku gdybyśmy chcieli cofać, wykonalibyśmy raczej kompensację akcji.
+- **Obsługa wielu użytkowników** — a co jeśli chcemy obsłużyć cofanie i ponawianie przy wielu użytkownikach pracujących na tych samych danych? Tutaj mamy dwa podejścia w zależności od tego, jak nasz system jest zbudowany:
+    - **Multi-player** — jeden dokument jest edytowany przez wielu użytkowników jednocześnie i każdy widzi swoje zmiany w czasie rzeczywistym (jak w Google Docs czy Miro). W takich przypadkach do zapewnienia prawidłowej synchronizacji zmian z odpowiednim rozwiązaniem konfliktów stosuje się podejścia takie jak **Operational Transformation** (OT) lub **Conflict-free Replicated Data Types** (CRDT). Ich implementacje często są przystosowane do obsługi cofania, np. [Yjs](https://docs.yjs.dev/) (popularna javascriptowa implementacja CRDT) posiada wbudowany [UndoManager](https://docs.yjs.dev/api/undo-manager).
+    - **Współpraca asynchroniczna** — kiedy wielu użytkowników pracuje na tych samych danych, ale nie potrzebują widzieć swoich zmian w czasie rzeczywistym, możemy zapisywać historię globalnie i stosować wersjonowanie zmian. Naturalnie można mieć tutaj skojarzenie z systemami kontroli wersji takimi jak **Git** czy **Subversion** — w pewnym sensie są takimi dość rozbudowanymi implementacjami historii zmian z możliwością cofania.
+
+## Podsumowanie
+
+Przeszliśmy w szczegółach przez cztery podejścia do implementacji cofania i ponawiania, a także bez wchodzenia w detale przez kilka kolejnych. Nie ma uniwersalnego rozwiązania pasującego do każdej aplikacji. W jednych, gdzie operujemy głównie akcjami (poleceniami), lepiej może sprawdzić się wzorzec Polecenie. Gdy danych zmienia się dużo jednocześnie, prostsza w implementacji może być Pamiątka. Do tego czynnikiem krytycznym może być istnienie gotowych rozwiązań jak te wspomniane przeze mnie wcześniej dla Reduksa, Zustanda, Qt czy Yjs.
+
+Czegokolwiek nie wybierzesz, pamiętaj o jednym — im wcześniej zapadnie decyzja, że aplikacja ma mieć możliwość cofania, tym lepiej. Jak widać po pokazanych przeze mnie podejściach, wpływają one w znaczący sposób na architekturę aplikacji i budowę zarządzania stanem.
+
+## Literatura
+
+- Gamma, E., Helm, R., Johnson, R., & Vlissides, J. (1995). Memento. In Design patterns: Elements of reusable object-oriented software (pp. 283–292). Addison-Wesley.
+- Dominik Szczepaniak, Wzorzec projektowy Pamiątka (Memento), DEVSZCZEPANIAK.PL (Apr. 11, 2025), https://devszczepaniak.pl/wzorzec-projektowy-pamiatka/.
+- Gamma, E., Helm, R., Johnson, R., & Vlissides, J. (1995). Command. In Design patterns: Elements of reusable object-oriented software (pp. 233–242). Addison-Wesley.
+- Dominik Szczepaniak, Wzorzec projektowy Command (Polecenie), DEVSZCZEPANIAK.PL (May 3, 2020), https://devszczepaniak.pl/wzorzec-projektowy-command-polecenie/.
+- The Qt Company Ltd., Overview of Qt’s Undo Framework, QT 6.11 DOCUMENTATION (last visited Sept. 8, 2026), https://doc.qt.io/qt-6/qundo.html.
+- Stately, Undo/Redo, XSTATE DOCS (last visited Sept. 8, 2026), https://stately.ai/docs/xstate-store/undo-redo.
+- Patches, IMMER (last visited Sept. 8, 2026), https://immerjs.github.io/immer/patches/.
+- Microsoft, Compensating Transaction Pattern, MICROSOFT LEARN (Apr. 20, 2026), https://learn.microsoft.com/en-us/azure/architecture/patterns/compensating-transaction.
+- Martin Fowler, Event Sourcing, MARTINFOWLER.COM (Dec. 12, 2005), https://www.martinfowler.com/eaaDev/EventSourcing.html.

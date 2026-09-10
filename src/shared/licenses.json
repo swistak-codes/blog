@@ -371,13 +371,6 @@
     "path": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/@dnd-kit/utilities",
     "licenseFile": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/@dnd-kit/utilities/LICENSE"
   },
-  "@emnapi/runtime@1.4.3": {
-    "licenses": "MIT",
-    "repository": "https://github.com/toyobayashi/emnapi",
-    "publisher": "toyobayashi",
-    "path": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/@emnapi/runtime",
-    "licenseFile": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/@emnapi/runtime/LICENSE"
-  },
   "@eslint-community/eslint-utils@4.4.1": {
     "licenses": "MIT",
     "repository": "https://github.com/eslint-community/eslint-utils",
@@ -7296,6 +7289,13 @@
     "repository": "https://github.com/teambition/merge2",
     "path": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/merge2",
     "licenseFile": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/merge2/LICENSE"
+  },
+  "microdiff@1.6.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/AsyncBanana/microdiff",
+    "publisher": "AsyncBanana",
+    "path": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/microdiff",
+    "licenseFile": "/Users/tomaszswistak/projekty/swistak-codes/node_modules/microdiff/LICENSE"
   },
   "micromark-core-commonmark@1.1.0": {
     "licenses": "MIT",

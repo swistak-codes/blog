@@ -1,0 +1,128 @@
+.container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.workspace {
+  width: 100%;
+  max-height: 60vh;
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(14rem, 1fr);
+  gap: 0.5rem;
+  overflow: hidden;
+}
+
+.todos,
+.controls,
+.history {
+  padding: 0.5rem;
+}
+
+.todos,
+.controls {
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.list {
+  display: grid;
+  grid-auto-rows: max-content;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0.5rem;
+  list-style: none;
+}
+
+.item {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.card {
+  display: flex;
+  min-width: 0;
+  min-height: 4rem;
+  padding: 1rem;
+  box-sizing: border-box;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 0.75rem;
+  color: #333;
+  background: #fff;
+  border-radius: 4px;
+  box-shadow:
+    0 0 0 1px rgba(63, 63, 68, 0.05),
+    0 1px 3px rgba(34, 33, 81, 0.15);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.toolbar,
+.historyLine {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  align-items: center;
+}
+
+.itemActions {
+  display: flex;
+  gap: 0.25rem;
+  justify-content: flex-end;
+}
+
+.move {
+  padding: 0.5rem;
+  border: 0;
+  background: transparent;
+  font-size: 1.5rem;
+  cursor: pointer;
+
+  &:disabled {
+    cursor: default;
+  }
+}
+
+.empty {
+  min-height: 4rem;
+  display: grid;
+  place-items: center;
+  color: #333;
+  background: #fff;
+  border-radius: 4px;
+  box-shadow:
+    0 0 0 1px rgba(63, 63, 68, 0.05),
+    0 1px 3px rgba(34, 33, 81, 0.15);
+}
+
+.controls,
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form textarea {
+  width: 100%;
+  min-height: 8rem;
+  box-sizing: border-box;
+}
+
+.history {
+  border: 1px solid;
+  overflow-x: auto;
+}
+
+.historyLine + .historyLine {
+  margin-top: 0.25rem;
+}
+
+.preview {
+  max-height: 16rem;
+  margin: 0.5rem 0 0;
+  overflow: auto;
+}

@@ -4,7 +4,7 @@
         <title>świstak.codes — Wszystkie wpisy</title>
         <link>https://swistak.codes</link>
         <description></description>
-        <lastBuildDate>Thu, 16 Jul 2026 07:00:00 GMT</lastBuildDate>
+        <lastBuildDate>Thu, 10 Sep 2026 07:00:00 GMT</lastBuildDate>
         <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
         <generator>https://github.com/jpmonette/feed</generator>
         <image>
@@ -13,6 +13,15 @@
             <link>https://swistak.codes</link>
         </image>
         <copyright>Wszystkie prawa zastrzeżone 2020-2026, Tomasz Świstak</copyright>
+        <item>
+            <title><![CDATA[Cofnij-ponów — jak to się robi?]]></title>
+            <link>https://swistak.codes/post/undo-redo</link>
+            <guid isPermaLink="false">https://swistak.codes/post/undo-redo</guid>
+            <pubDate>Thu, 10 Sep 2026 07:00:00 GMT</pubDate>
+            <description><![CDATA[Artykuł opisuje architektury rozwiązań cofnij-ponów, które są spotykane w aplikacjach.]]></description>
+            <content:encoded><![CDATA[Podstawową funkcją w aplikacjach, gdzie pozwalamy użytkownikom na edycję czegokolwiek, jest możliwość cofania i ponawiania zmian, nieraz nazywana u nas z angielskiego „undo-redo”. Każdy kto miał okazję programować wie, że wbrew pozorom nie jest to prosty i oczywisty temat. Zobaczmy, jakie są podejścia do implementacji.<br /><a href="https://swistak.codes/post/undo-redo">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
         <item>
             <title><![CDATA[Sztuczna inteligencja — mity a rzeczywistość]]></title>
             <link>https://swistak.codes/post/mity-ai</link>
