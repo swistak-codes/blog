@@ -4,3 +4,4 @@ export * from './lib/mdx/video-player';
 export * from './lib/mdx/iframe';
 export * from './lib/mdx/grid';
 export * from './lib/mdx/square';
+export * from './lib/mdx/tabs';

@@ -4,7 +4,7 @@
         <title>świstak.codes — Wszystkie wpisy</title>
         <link>https://swistak.codes</link>
         <description></description>
-        <lastBuildDate>Thu, 10 Sep 2026 07:00:00 GMT</lastBuildDate>
+        <lastBuildDate>Thu, 15 Oct 2026 07:00:00 GMT</lastBuildDate>
         <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
         <generator>https://github.com/jpmonette/feed</generator>
         <image>
@@ -13,6 +13,15 @@
             <link>https://swistak.codes</link>
         </image>
         <copyright>Wszystkie prawa zastrzeżone 2020-2026, Tomasz Świstak</copyright>
+        <item>
+            <title><![CDATA[Co jest po drugiej stronie, czyli jak rozpoznawać LLM-y?]]></title>
+            <link>https://swistak.codes/post/rozpoznawanie-llm</link>
+            <guid isPermaLink="false">https://swistak.codes/post/rozpoznawanie-llm</guid>
+            <pubDate>Thu, 15 Oct 2026 07:00:00 GMT</pubDate>
+            <description><![CDATA[Artykuł opisuje znane techniki, w jaki sposób rozpoznać, z którym modelem językowym mamy do czynienia, gdy nie wiemy wprost z którego korzystamy.]]></description>
+            <content:encoded><![CDATA[W świecie modeli językowych dość często możemy spotkać tajne, testowe premiery nowych modeli. Pojawia się na różnych platformach dostępny po API model oznaczony jako „stealth” i w Internecie rusza cała lawina domysłów, kto tak naprawdę stoi za daną premierą. Dodatkowo 10 września dowiedzieliśmy się, że niektórzy chińscy dostawcy przekierowywali użytkowników ze swoich modeli do Anthropica bez wiedzy obu stron. Pytanie brzmi, czy da się rozpoznać z którym modelem rozmawiamy, gdy nie wiemy tego wprost? Okazuje się, że są na to sposoby — zapoznajmy się z nimi. Przede wszystkim z tymi testami, które możemy łatwo przeprowadzić na własną rękę.<br /><a href="https://swistak.codes/post/rozpoznawanie-llm">Czytaj więcej na świstak.codes</a>]]></content:encoded>
+            <author>tomasz@swistak.codes (Tomasz Świstak)</author>
+        </item>
         <item>
             <title><![CDATA[Cofnij-ponów — jak to się robi?]]></title>
             <link>https://swistak.codes/post/undo-redo</link>

@@ -1,0 +1,20 @@
+.container {
+  border: 1px solid black;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  align-items: center;
+  padding-bottom: 16px;
+
+  > div:first-child {
+    width: 100%;
+  }
+
+  label {
+    input {
+      margin-right: 8px;
+    }
+    color: black;
+  }
+}
